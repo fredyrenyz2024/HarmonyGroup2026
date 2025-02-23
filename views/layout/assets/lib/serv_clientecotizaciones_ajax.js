@@ -834,24 +834,73 @@ window.initScript = function (id) {
             }
           });
 
-          //Valida pesos
-          var sumpeso = 0;
-          $('.re_peso').each(function (index) {
-            var valor = $(this).val();
-            sumpeso = parseFloat(sumpeso) + parseFloat(valor); //peso total del remitente
-          });
-          if (parseFloat(sumpeso) > parseFloat(peso)) {
-            msg_error += '<p><strong>El valor total del Peso Remitente  supera el Peso Neto </strong></p>';
-          }
+          //Validar si esta en el escenario mumeor 3 donde los pesos se distribuyen en los remitentes
+          if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
+            let total = 0;
+            let errores = [];
+            // document.querySelectorAll(".re_peso").forEach(function (input) {
+            //   console.log("🚀 ~ input:", input)
+            // });
+            document.querySelectorAll(".re_peso").forEach(function (input) {
+              // Convertir valor a número
+              const valor = parseFloat(input.value) || 0;
 
-          var sumpesod = 0;
-          $('.de_peso').each(function (index) {
-            var valor_des = $(this).val();
-            sumpesod = parseFloat(sumpesod) + parseFloat(valor_des);
-          });
+              // Validaciones individuales (ejemplo)
+              if (input.value === "") {
+                errores.push(`El campo ${input.name} está vacío`);
+              }
 
-          if (parseFloat(sumpesod) > parseFloat(sumpeso)) {
-            msg_error += '<p><strong>El Peso  Total del Destinatario supera el Peso Total del Remitente </strong></p>';
+              if (valor < 0) {
+                errores.push(`El campo ${input.name} no puede ser negativo`);
+              }
+
+              // Sumar al total
+              total += valor;
+            });
+
+            // Validación del total
+            if (total <= 0) {
+              errores.push("El total debe ser mayor a cero");
+            }
+
+            // Mostrar errores o total
+            if (errores.length > 0) {
+              console.error("Errores:", errores);
+              alert(errores.join("\n"));
+              return false;
+            } else {
+              // console.log("Total calculado:", total);
+              // return total;
+              var sumpesod = 0;
+              $('.de_peso').each(function (index) {
+                var valor_des = $(this).val();
+                sumpesod = parseFloat(sumpesod) + parseFloat(valor_des);
+              });
+
+              if (parseFloat(sumpesod) > total) {
+                msg_error += '<p><strong>El Peso  Total del Destinatario supera el Peso Total del Remitente </strong></p>';
+              }
+            }
+          } else {
+            //Valida pesos
+            var sumpeso = 0;
+            $('.re_peso').each(function (index) {
+              var valor = $(this).val();
+              sumpeso = parseFloat(sumpeso) + parseFloat(valor); //peso total del remitente
+            });
+            if (parseFloat(sumpeso) > parseFloat(peso)) {
+              msg_error += '<p><strong>El valor total del Peso Remitente  supera el Peso Neto </strong></p>';
+            }
+
+            var sumpesod = 0;
+            $('.de_peso').each(function (index) {
+              var valor_des = $(this).val();
+              sumpesod = parseFloat(sumpesod) + parseFloat(valor_des);
+            });
+
+            if (parseFloat(sumpesod) > parseFloat(sumpeso)) {
+              msg_error += '<p><strong>El Peso  Total del Destinatario supera el Peso Total del Remitente </strong></p>';
+            }
           }
         }
         //FIN VALIDACIONES DE DESTINATARIOS
@@ -6717,27 +6766,45 @@ async function Inserta_Cotizacion() {
   var hocliente = $('#houremail').val();
 
   /***************************Puntos de Entrega(Remitentes)***********************************/
-  // var maximo = $('#maximo_entregab').val();
-  var maximo = 1;
+  var maximo = $('#maximo_entregab').val();
+  var datos_Remitentes={
+    idpuntrem: [],
+    mentrega: [],
+    dire: [],
+    clientea: [],
+    fentrega: [],
+    obs: [],
+    hora: [],
+    tipo: [],
+    orden: [],
+    pun: [],
+    telefono: [],
+    pesorem: [],
+    place: [],
+  };
+
   // var solicitud_servicio1 = numero_solicitud;
-  var idpuntrem = $('#id_puntorem1').val() || '';
-  var mentrega = $('#p_ciudad1').val() || '';
-  var dire = $('#dire1').val() || '';
-  var clientea = $('#clientea1').val() || '';
-  var fentrega = $('#fecha1').val() || '';
-  var obs = $('#observa1').val() || '';
-  var hora = $('#hora1').val() || '';
+
+  for (let i = 1; i <= maximo; i++) {
+
+  var idpuntrem = $('#id_puntorem' + i + '').val() || '';
+  var mentrega = $('#p_ciudad' + i + '').val() || '';
+  var dire = $('#dire' + i + '').val() || '';
+  var clientea = $('#clientea' + i + '').val() || '';
+  var fentrega = $('#fecha' + i + '').val() || '';
+  var obs = $('#observa' + i + '').val() || '';
+  var hora = $('#hora' + i + '').val() || '';
   var tipo = 'punto recogida';
-  var orden = $('#id_puntorem1').val() || '';
+  var orden = $('#id_puntorem' + i + '').val() || '';
   var pun = $('#pun').val() || '';
-  var telefono = $('#telpunto1').val() || '';
-  var pesorem = $('#peso1').val() || '';
-  var place = $('#lugar1').val() || '';
+  var telefono = $('#telpunto' + i + '').val() || '';
+  var pesorem = $('#peso' + i + '').val() || '';
+  var place = $('#lugar' + i + '').val() || '';
 
-
+  }
   /******************************Puntos Entrega (Destinatario)*************************************/
-  // var nFilas = $('.insercion_destina').length;
-  var nFilas = 1;
+  var nFilas = $('.insercion_destina').length;
+  // var nFilas = 1;
   if (nFilas > 0) {
     var dato_destinatario = {
       idrem: [],
