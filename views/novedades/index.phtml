@@ -1,0 +1,653 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content='';
+$nove='';
+
+$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Seguimiento a Documentos
+				<div class="tools">
+					
+				</div>
+				<span class="panel-subtitle">Módulo para verificar el movimiento de los documentos creados.</span>
+			</div>
+			<div class="panel-body">
+				<div class="nexos-messages"></div>
+				<div class="nexos-content">
+					%content%
+				</div>
+				<div class="row">
+				<div class="col-sm-12"></div>
+				</div>
+			</div>
+		</div>
+	';
+
+	//codigo de novedad
+	$cuente=0;
+	$nove.="
+		<input type='text' id='number' class='form-control input-sm text-center' readonly='readonly' style='font-size:14pt; font-weight:700;'    ";
+		 $array = $this->seguir_documento->num_novedad();
+		 if ( $array ) {
+			foreach ($array["rowsData"] as $key => $value) {
+				$cuente++;
+				if($value['nco']=='' || $value['nco']==(NULL)){
+					$nove.='value="'.$cuente++.'"';
+				}	
+				if($value['nco']!='' || $value['nco']!=(NULL)){
+					$nove.='value="'.$value['nco'].'"';
+				}
+			}
+		}
+	$nove .=">";	
+
+
+
+$table_content.='
+
+<div class="col-xs-12 col-sm-12 col-md-12">
+<div class="form-group col-xs-6 col-sm-6 col-md-3">
+	<label>Seleccione el Documento</label>
+	<select  class="form-control input-sm" id="tipo">
+		<option value="0" readonly="readonly">Seleccione un documento de la lista</option>
+		<option value="1">Cotizaciones</option>
+		<option value="2">Solicitudes de Vehículo</option>
+	<!--	<option value="3">Hoja de vida Conductor</option>
+		<option value="4">Hoja de vida Vehículo</option> -->
+		<option value="5">Hoja de vida Trailer</option>
+		<option value="6">Estudio de Seguridad</option>
+	</select>
+</div>
+<div class="form-group col-xs-6 col-sm-6 col-md-3">
+	<label>Fecha Inicial</label>
+	<input type="date" id="finicia" class="form-control input-sm">
+</div>
+<div class="form-group col-xs-6 col-sm-6 col-md-3">
+	<label>Fecha Final</label>   
+    <input type="date" id="ffinal" class="form-control input-sm">   
+</div>
+<div class="form-group col-xs-6 col-sm-6 col-md-3">
+	<label></label>
+	<button class="form-control input-sm btn btn-info mdi mdi-search" id="traer_tabla">
+		Consultar
+	</button>
+</div>
+</div>';
+
+$table_content.="
+<div class='row' >
+	<div class='col-sm-12'>
+		<div  class='table-responsive noSwipe'>
+			<table id='table1' class='table table-striped table-hover' data-page-length='100'>
+				<thead id='cabeza'>
+				<th></th>
+				</thead>
+				<tbody id='cuerpo'>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>"; ?>
+
+<div id="ver_novedad" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="editar_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">NOVEDAD</label>
+						</h3>
+					</div>
+					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_editar"></div><!-- id para manejar los mensajes de errordel popup -->
+						<div id="content_editar">
+							<div class="row">
+							<div class="col-md-12 col-sm-12 col-md-12 col-lg-12">
+								<label style="font-weight:800; margin-top:20px;">Código de novedad</label>
+								<?php echo $nove;  ?>
+							</div>	
+							<div class="col-md-2 col-sm-2 col-md-2 col-lg-2">
+								<label style="font-weight:800; margin-top:20px;">Valor</label>
+								<input type="text" id="valor_documento" value="" class="form-control input-sm" readonly="readonly">
+							</div>
+							<div class="col-md-4 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Tipo Novedad</label><br>
+								<select class="form-control input-sm" id="tipono">
+									<option value="">Seleccione</option>
+									<option value="1">Novedad comercial</option>
+									<option value="2">Novedad cliente</option>
+									<option value="3">Novedad Seguridad</option>
+									<option value="4">Novedad operaciones</option>
+									<option value="5">Novedad Facturaciòn</option>
+									<option value="6">Novedad Descargue</option>
+									<option value="7">Novedad cargue</option>
+									<option value="8">Novedad tránsito</option>
+								</select>
+							</div>
+							<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+								<label style="font-weight:800; margin-top:20px;">Tipo Documento</label>
+								<input type="text" id="documento" class="form-control input-sm text-center" readonly="readonly">
+							</div>
+							<div class="col-md-4 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Fecha Actual</label>
+								<input type="text" id="factual" value="<?php echo date('Y-m-d'); ?>" class="form-control input-sm" readonly="readonly">
+							</div>
+							<div class="col-md-4 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Hora Actual</label>
+								<input type="text" id="hactual" value="<?php echo date('G:i:s'); ?>" class="form-control input-sm" readonly="readonly">
+							</div>
+							<div class="col-md-4 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Usuario Responsable</label>
+								<input type="text" id="user" value="<?php echo $ssn_id_usuario;  ?>" class="form-control input-sm"  readonly="readonly">
+							</div>
+							<div class="col-md-4 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Fecha</label>
+								<input type="date" id="fecha" class="form-control input-sm">
+							</div>
+							<div class="col-md-4 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Hora</label>
+								<input type="time" id="hora" class="form-control input-sm">
+							</div>
+							<div class="col-md-4 col-sm-4 col-md-4 col-lg-4">
+								<input type="hidden" id="tipodoc" class="form-control input-sm">
+							</div>
+
+							<div class="col-md-12 col-sm-12 col-md-12 col-lg-12">
+								<label style="font-weight:800; margin-top:20px;">Novedad 1</label>
+								<textarea id="nuno" class="form-control input-sm" >
+								</textarea>
+							</div>
+							<div class="col-md-12 col-sm-12 col-md-12 col-lg-12">
+								<label style="font-weight:800; margin-top:20px;">Novedad 2</label>
+								<textarea id="ndos" class="form-control input-sm">
+								</textarea>
+							</div>
+
+						</div>
+							
+						</div><!--conten fin -->
+						<div class="row"></div><!-- separar contenido entre el body y el footer-->
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" id="agregar_novedad" class="btn btn-success">Guardar</button>
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+</div>
+
+
+<?php
+$vista.= '
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/daterangepicker/js/daterangepicker.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>';
+
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
+	echo $vista;
+
+?>
+
+<script>
+	$(document).ready(function(){
+		$("#traer_tabla").click(function(){
+			var cont=0;
+			var t=$("#tipo").val();
+			var fi=$("#finicia").val();
+			var ff=$("#ffinal").val();
+
+			if(t=='0' || fi=='' || ff==''){
+				alert('Por favor Ingrese los datos');
+			}else{
+				// alert('ver table');
+				var fecha_actual =moment().format('YYYY-MM-DD');
+		 		var hora_actual=moment().format('HH:mm:ss');
+		 		var boton_ver='';
+				//TABLA DE COTIZACION
+				if(t=='1'){
+					// alert('ver table cotizaciones');
+					var name='Cotizaciones';
+					var coti=$("#documento").val(name);
+					var t=$("#tipodoc").val('1');
+					$("#cabeza").html('<th></th>'+
+						'<th>N° Cotización</th>'+
+						'<th>Cliente</th>'+
+						'<th>Tipo Mercancia</th>'+
+						'<th>Total</th>'+
+						'<th>Acciones</th>');
+					var co={
+						fecha_inicial:fi,
+						fecha_final:ff,
+						action:'ver_cotizacion'
+					};
+					$("#cuerpo").html('');
+					$.ajax({
+						url:"http://localhost/mvcLuisMiguel/libs/novedades_ajax.php",
+			 			type:'POST',
+			 			data:co,
+			 			dataType:'json',
+			 			success: function(data){
+			 				// console.log('llego ver cotizacion');
+			 				// console.log(data);
+			 				if(data){
+			 					data.result.forEach(function(element,index){
+			 						cont++;
+			 						boton_ver='<button type="button"  class="btn btn-secondary btn btn-sm mdi mdi-plus" id="btn_ver'+cont+'" data-toggle="modal"data-target="#ver_novedad" title="Agregar Novedad"></button>';
+			 						var uno=$("#valor_documento").val(element.n_cotizacion);
+			 						// alert(element.n_cotizacion);
+
+			 						$("#cuerpo").append('<tr>'+
+								 	'<td></td>'+
+								 	'<td>'+element.n_cotizacion+'</td>'+
+								 	'<td>'+element.nombre_cliente+'</td>'+
+								 	'<td>'+element.tipo_mercancia+'</td>'+
+								 	'<td>'+element.total_cotizacion+'</td>'+
+								 	'<td>'+boton_ver+'</td>'+
+								 	'</tr>');
+			 					});
+
+			 				}else{
+			 					alert('no hay cotizaciones para estas fechas');
+			 				}
+			 				
+			 			},
+		                error: function(jqXHR, textStatus, errorThrown){
+		                     console.log('no trajo cotizacion');
+		                    console.log(jqXHR);
+		                    console.log(textStatus);
+		                    console.log(errorThrown);
+		                }
+                	});
+				}
+				//TABLA DE SOLICTUDES
+				if(t=='2'){
+					// alert('ver table solicitudes');
+					var name='Solicitudes de Vehículo';
+					var coti=$("#documento").val(name);
+					var t=$("#tipodoc").val('2');
+					$("#cabeza").html('<th></th>'+
+						'<th>N° Solicitud</th>'+
+						'<th>Cliente</th>'+
+						'<th>Tipo Vehículo</th>'+
+						'<th>Acciones</th>');
+					var so={
+						fecha_inicial:fi,
+						fecha_final:ff,
+						action:'ver_solicitudes'
+					};
+
+					$("#cuerpo").html('');
+					$.ajax({
+						url:"http://localhost/mvcLuisMiguel/libs/novedades_ajax.php",
+			 			type:'POST',
+			 			data:so,
+			 			dataType:'json',
+			 			success: function(data){
+			 				console.log('llego ver solicitud');
+			 				console.log(data);
+			 				if(data){
+			 					data.result.forEach(function(element,index){
+			 						cont++;
+			 						boton_ver='<button type="button"  class="btn btn-warning btn btn-sm mdi mdi-eye" id="btn_ver'+cont+'" data-toggle="modal"data-target="#ver_novedad">  Ver <br>Novedad</button>';
+			 						$("#valor_documento").val(element.id);
+			 						$("#cuerpo").append('<tr>'+
+								 	'<td></td>'+
+								 	'<td>'+element.id+'</td>'+
+								 	'<td>'+element.nombre_cliente+'</td>'+
+								 	'<td>'+element.tipo_vehiculo+'</td>'+
+								 	'<td>'+boton_ver+'</td>'+
+								 	'</tr>');
+			 					});
+
+			 				}else{
+			 					alert('no hay Solicitudes para estas fechas');
+			 				}
+			 				
+			 			},
+		                error: function(jqXHR, textStatus, errorThrown){
+		                     console.log('no trajo solicitud');
+		                    console.log(jqXHR);
+		                    console.log(textStatus);
+		                    console.log(errorThrown);
+		                }
+                	});
+				}
+				//TABLA DE HOJAS DE VIDA
+				// if(t=='3'){
+				// 	alert('ver table hv conductor');
+				// 	var name='Hoja de vida Conductor';
+				// 	var coti=$("#documento").val(name);
+				// 	var t=$("#tipodoc").val('3');
+				// 	$("#cabeza").html('<th></th>'+
+				// 		'<th>Nombre</th>'+
+				// 		'<th>Documento</th>'+
+				// 		'<th>Celular</th>'+
+				// 		'<th>Categoria Licencia</th>'+
+				// 		'<th>Acciones</th>');
+				// 	var hc={
+				// 		fecha_inicial:fi,
+				// 		fecha_final:ff,
+				// 		action:'ver_conductor'
+				// 	};
+				// 	$("#cuerpo").html('');
+				// 	$.ajax({
+				// 		url:"http://localhost/mvcLuisMiguel/libs/novedades_ajax.php",
+			 // 			type:'POST',
+			 // 			data:hc,
+			 // 			dataType:'json',
+			 // 			success: function(data){
+			 // 				console.log('llego ver conductor');
+			 // 				console.log(data);
+			 // 				if(data){
+			 // 					// data.result.forEach(function(element,index){
+			 // 						// cont++;
+			 // 						// boton_ver='<button type="button"  class="btn btn-warning btn btn-sm mdi mdi-eye" id="btn_ver'+cont+'" data-toggle="modal"data-target="#ver_novedad">  Ver <br>Novedad</button>';
+			 // 					// 	$("#cuerpo").append('<tr>'+
+				// 				 // 	'<td></td>'+
+				// 				 // 	'<td>'+element.numero_documento+'</td>'+
+				// 				 // 	'<td>'+element.nombre+'</td>'+
+				// 				 // 	'<td>'+element.celular+'</td>'+
+				// 				 // 	'<td>'+element.rndc_categoria_licencia+'</td>'+
+				// 				 // '<td>'+boton_ver+'</td>'+
+				// 				 // 	'</tr>');
+			 // 					// });
+
+			 // 				}else{
+			 // 					alert('no hay Hoja de vida del Conductor para estas fechas');
+			 // 				}
+			 				
+			 // 			},
+		  //               error: function(jqXHR, textStatus, errorThrown){
+		  //                    console.log('no trajo conductor');
+		  //                   console.log(jqXHR);
+		  //                   console.log(textStatus);
+		  //                   console.log(errorThrown);
+		  //               }
+    //             	});
+				// }
+				//TABLA ESTUDIOS DE SEGURIDAD
+				// if(t=='4'){
+				// 	// alert('ver hv vehiculo');
+				// 	var name='Hoja de vida vehiculo';
+				// 	var coti=$("#documento").val(name);
+				// 	var t=$("#tipodoc").val('4');
+				// 	$("#cabeza").html('<th></th>'+
+				// 		'<th>Placa</th>'+
+				// 		'<th>Propietario</th>'+
+				// 		'<th>Tipo Vehículo</th>'+
+				// 		'<th>Tipo carroceria</th>'+
+				// 		'<th>Acciones</th>');
+				// 	var hv={
+				// 		fecha_inicial:fi,
+				// 		fecha_final:ff,
+				// 		action:'ver_vehiculo'
+				// 	};
+				// 	$.ajax({
+				// 		url:"http://localhost/mvcLuisMiguel/libs/novedades_ajax.php",
+			 // 			type:'POST',
+			 // 			data:hv,
+			 // 			dataType:'json',
+			 // 			success: function(data){
+			 // 				 console.log('llego ver vehiculo');
+			 // 				 console.log(data);
+			 // 				// if(data){
+			 // 				// 	data.result.forEach(function(element,index){
+			 // 					// cont++;
+			 // 					// 	boton_ver='<button type="button"  class="btn btn-warning btn btn-sm mdi mdi-eye" id="btn_ver'+cont+'" data-toggle="modal"data-target="#ver_novedad">  Ver <br>Novedad</button>';
+			 // 				// 		$("#cuerpo").append('<tr>'+
+				// 				//  	'<td></td>'+
+				// 				//  	'<td>'+element.n_cotizacion+'</td>'+
+				// 				//  	'<td>'+element.nombre_cliente+'</td>'+
+				// 				//  	'<td>'+element.tipo_mercancia+'</td>'+
+				// 				//  	'<td>'+element.total_cotizacion+'</td>'+
+				// 						// '<td>'+boton_ver+'</td>'+
+				// 				//  	'</tr>');
+			 // 				// 	});
+
+			 // 				// }else{
+			 // 				// 	alert('no hay cotizaciones para estas fechas');
+			 // 				// }
+			 				
+			 // 			},
+		  //               error: function(jqXHR, textStatus, errorThrown){
+		  //                    console.log('no trajo vehiculo');
+		  //                   console.log(jqXHR);
+		  //                   console.log(textStatus);
+		  //                   console.log(errorThrown);
+		  //               }
+    //             	});
+				// }
+
+				if(t=='5'){
+					// alert('ver hv trailer');
+					var name='Hoja de vida trailer';
+					var coti=$("#documento").val(name);
+					var t=$("#tipodoc").val('5');
+					$("#cabeza").html('<th></th>'+
+						'<th>Placa</th>'+
+						'<th>Peso</th>'+
+						'<th>Modelo</th>'+
+						'<th>Estado</th>'+
+						'<th>Acciones</th>');
+					var ht={
+						fecha_inicial:fi,
+						fecha_final:ff,
+						action:'ver_trailer'
+					};
+					$("#cuerpo").html('');
+					$.ajax({
+						url:"http://localhost/mvcLuisMiguel/libs/novedades_ajax.php",
+			 			type:'POST',
+			 			data:ht,
+			 			dataType:'json',
+			 			success: function(data){
+			 				 console.log('llego ver trailer');
+			 				 console.log(data);
+			 				if(data){
+			 					data.result.forEach(function(element,index){
+			 						cont++;
+			 						boton_ver='<button type="button"  class="btn btn-warning btn btn-sm mdi mdi-eye" id="btn_ver'+cont+'" data-toggle="modal"data-target="#ver_novedad">  Ver <br>Novedad</button>';
+			 						$("#valor_documento").val(element.placa);
+			 						$("#cuerpo").append('<tr>'+
+								 	'<td></td>'+
+								 	'<td>'+element.placa+'</td>'+
+								 	'<td>'+element.peso_vacio+'</td>'+
+								 	'<td>'+element.modelo+'</td>'+
+								 	'<td>'+element.estado+'</td>'+
+								 	'<td>'+boton_ver+'</td>'+
+								 	'</tr>');
+			 					});
+
+			 				}else{
+			 					alert('no hay trailers para estas fechas');
+			 				}
+			 				
+			 			},
+		                error: function(jqXHR, textStatus, errorThrown){
+		                     console.log('no trajo trailer');
+		                    console.log(jqXHR);
+		                    console.log(textStatus);
+		                    console.log(errorThrown);
+		                }
+                	});
+				}
+
+				if(t=='6'){
+					// alert('ver estudio seguridad');
+					var name='Estudio seguridad';
+					var coti=$("#documento").val(name);
+					var t=$("#tipodoc").val('6');
+					$("#cabeza").html('<th></th>'+
+						'<th>Nº estudio</th>'+
+						'<th>usuario</th>'+
+						'<th>fecha</th>'+
+						'<th>hora</th>'+
+						'<th>Acciones</th>');
+					var es={
+						fecha_inicial:fi,
+						fecha_final:ff,
+						action:'ver_estudio'
+					};
+					$("#cuerpo").html('');
+					$.ajax({
+						url:"http://localhost/mvcLuisMiguel/libs/novedades_ajax.php",
+			 			type:'POST',
+			 			data:es,
+			 			dataType:'json',
+			 			success: function(data){
+			 				console.log('llego ver estudio');
+			 				console.log(data);
+			 				if(data){
+			 					data.result.forEach(function(element,index){
+			 						cont++;
+			 						boton_ver='<button type="button"  class="btn btn-warning btn btn-sm mdi mdi-eye" id="btn_ver'+cont+'" data-toggle="modal"data-target="#ver_novedad">  Ver <br>Novedad</button>';
+			 						$("#valor_documento").val(element.id_estudio);
+			 						$("#cuerpo").append('<tr>'+
+								 	'<td></td>'+
+								 	'<td>'+element.id_estudio+'</td>'+
+								 	'<td>'+element.usuario+'</td>'+
+								 	'<td>'+element.fecha+'</td>'+
+								 	'<td>'+element.hora+'</td>'+
+								 	'<td>'+boton_ver+'</td>'+
+								 	'</tr>');
+			 					});
+
+			 				}else{
+			 					alert('no hay estudios para estas fechas');
+			 				}
+			 				
+			 			},
+		                error: function(jqXHR, textStatus, errorThrown){
+		                     console.log('no trajo estudio');
+		                    console.log(jqXHR);
+		                    console.log(textStatus);
+		                    console.log(errorThrown);
+		                }
+                	});
+				}
+
+			}//cierre del if, validacion de campos
+		});
+
+
+	//guardar
+	$("#agregar_novedad").click(function(){
+			alert('guardar');
+			//codigo de la novedad
+			var codigo=$("#number").val();
+			//numero de la solicitud
+			var valor=$("#valor_documento").val();
+			var tiponoveletra=$("#tipono").val();
+			//tipo de novedad en numero
+			var tiponovenumero=$("#documento").val();
+			var factual=$("#factual").val();
+			var hactual=$("#hactual").val();
+			var user=$("#user").val();
+			var fecha=$("#fecha").val();
+			var hora=$("#hora").val();
+			var tipo_documento=$("#tipodoc").val();
+			var nove1=$("#nuno").val();
+			var nove2=$("#ndos").val();
+
+			//registrar
+
+			var guardar={
+				codigo:codigo,
+				valor:valor,
+				tiponovenumero:tiponovenumero,
+				factual:factual,
+				hactual:hactual,
+				user:user,
+				fecha:fecha,
+				hora:hora,
+				tipo_documento:tipo_documento,
+				nove1:nove1,
+				nove2:nove2,
+				action:'registrar_novedad'
+			};
+			$.ajax({
+				url:"http://localhost/mvcLuisMiguel/libs/novedades_ajax.php",
+			 	type:'POST',
+			 	data:guardar,
+			 	dataType:'json',
+			 	success: function(data){
+			 		// console.log('guardo novedad');
+			 		alert('Datos Registrados Exitosamente!!');
+			 		$("html, body").animate({ scrollTop: 0 }, 600);
+					setTimeout(function() { location.reload(false);  }, 800);
+
+			 	},
+			 	error: function(jqXHR, textStatus, errorThrown){
+		            console.log('no guardo novedad');
+		            console.log(jqXHR);
+		            console.log(textStatus);
+		            console.log(errorThrown);
+		        }
+            });	
+	});
+
+
+
+
+	});
+</script>

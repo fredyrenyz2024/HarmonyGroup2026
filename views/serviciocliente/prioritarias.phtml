@@ -1,0 +1,290 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<div class="container-fluid">
+  <!-- <div class="d-flex justify-content-center"></div> -->
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'>
+        <table class='table table-bordered table-sm' data-page-length='100' style=" font-size:12px;">
+          <thead>
+            <tr>
+              <!-- <th></th> -->
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Solicitud</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Itr</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cliente</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Mercancia</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Peso</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Servicio</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Estado</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Asignación</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Prioridades</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Empresa Respomsable</th>
+            </tr>
+          </thead>
+          <tbody id='tblSolicitudesPendientes' class='text-center'></tbody>
+        </table>
+      </div>
+      <!-- <div id="contenido_ventana"></div> -->
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="width: 1000px;">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasRightLabel">Datos solicitud se servicio</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+
+    <div class="d-flex justify-content-end">
+      <div class="form-check form-switch">
+        <input class="form-check-input" id="flexSwitchCheckChecked" type="checkbox" />
+        <label class="form-check-label" for="flexSwitchCheckChecked">Prioritaria</label>
+      </div>
+    </div>
+
+    <div id="msg_ver"></div><!-- id para manejar los mensajes de errordel popup -->
+    <div id="content_ver">
+      <div id="titlu"></div>
+      <div class="panel panel-default">
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos del Cliente
+          </h6>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Nombre Cliente</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Nit</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Dirección</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Teléfono</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Procedencia</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo_cliente" class="table-striped"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos de la Mercancía
+          </h6>
+        </div>
+        <div class="panel-body">
+          <!--nuevo diseño-->
+          <div class="row">
+            <div id="panel_principal"></div>
+            <div id="panel_secundario"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Costos Mercancía</h6>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total tarifa venta
+                </th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total costo flete
+                </th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total utilidad</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total Rentabilidad
+                </th>
+              </tr>
+            </thead>
+            <tbody id="costos" class="table-striped"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Costo Servicio
+            Especial</h6>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total costo</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total tarifa</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total Utilidad</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total rentabilidad
+                </th>
+              </tr>
+            </thead>
+            <tbody id="costos1" class="table-striped"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Total Cotización</h6>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Total</th>
+              </tr>
+            </thead>
+            <tbody id="totcotiza" class="table-striped"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos Adicionales
+          </h6>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Observaciones</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Elaborado Por</th>
+                <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Autorizado Por</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo_adicional" class="table-striped"></tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <div id="Mensaje_update"></div>
+      <div class="panel panel-default">
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Solicitud de Servicio</h6>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">N° Solicitud</th>
+                <th class="text-center" style="color: white;width: 10px; white-space: nowrap;">Punto</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Remitente</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Fecha</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Hora</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Usuario</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Agencia</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Proceso</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo_servicio"></tbody>
+          </table>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">N° Solicitud</th>
+                <th class="text-center" style="color: white;width: 10px; white-space: nowrap;">Punto</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Destinatario</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Fecha</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Hora</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Usuario</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Agencia</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Proceso</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo_servicio2"></tbody>
+          </table>
+        </div>
+        <!-- Cambio de agencias y de tupo de servicio -->
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">actualizar Agencia o Tipo de servicio</h6>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Agencias</th>
+                <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tipo Servicio</th>
+                <!-- <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Acción</th> -->
+              </tr>
+            </thead>
+            <tbody id="cuerpo_agencia_servicio">
+              <t>
+                <td>
+                  <select id="servicio_agencia" style="width: 100%;" class="ts">
+                    <option value="" selected>Seleccione</option>
+                  </select>
+                </td>
+                <td>
+                  <select id="servicio_cliente" style="width: 100%;" class="ts">
+                    <option value="" selected>Seleccione</option>
+                    <option value="Expreso">Expreso - Viaje</option>
+                    <option value="Consolidado">Consolidado - Tonelada</option>
+                  </select>
+                </td>
+                <input type="hidden" name="numero_cotizacion" id="numero_cotizacion">
+                <input type="hidden" name="numero_solicitud" id="numero_solicitud">
+                <!-- <td class="text-center">
+                      <button type="button" class="btn btn-success btn-xs" onclick="actualizar_agencia_servicio()">Actualizar</button>
+                    </td> -->
+                </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- Numero de contenedor para solicitud de servicio -->
+      <div class="panel panel-default">
+        <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+          <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Contenedor</h6>
+        </div>
+
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 10px;">
+            <thead>
+              <tr>
+                <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Numero Contenedor:</th>
+                <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                  <input type="text" id="numero_contenedor" name="numero_contenedor" style="width: 100%;height: 24px;" oninput="this.value = this.value.toUpperCase();">
+                </td>
+
+                <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Agrupable:</th>
+                <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                  <input type="checkbox" id="agrupable" name="agrupable" style="width: 100%;transform: scale(1.5);">
+                </td>
+                <td style="border: 1px solid #ddd;padding: 1px;">
+                  <button type="button" class="btn btn-success btn-sm" id="btn_save_contenedor" style="width: 100%;"><i class="fas fa-toolbox"></i> Guardar</button>
+                </td>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div class="panel-body" style=" padding: 1px 1px 1px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;">
+            <thead>
+              <tr>
+                <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Referencia:</th>
+                <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                  <input type="text" id="referencia_operacion" name="referencia_operacion" style="width: 100%;height: 24px;" oninput="this.value = this.value.toUpperCase();">
+                </td>
+                <td style="border: 1px solid #ddd;padding: 1px;">
+                  <button type="button" class="btn btn-success btn-sm" id="btn_save_referencia" style="width: 100%;"><i class="fas fa-save"></i> Guardar</button>
+                </td>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end border-top gap-2 mt-3">
+      <button id="guarda_solicitud" class="btn btn-success btn-sm mt-3">Guardar</button>
+      <button type="button" class="btn btn-secondary btn-sm mt-3" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close">Cerrar</button>
+    </div>
+  </div>

@@ -1,0 +1,802 @@
+<?php
+$Conect = new Consultas;
+$_dbTable = "ordenes_compra"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+$_jsAjax = "";
+
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+// URL envio de datos ajax 
+$url = BASE_URL . 'libs/editar.php?tabla=cmx_' . $_dbTable;
+
+
+$vista = '';
+
+/********* POPUPS *********/
+/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+// POPUP DE MUESTRA DE INFORMACION
+$info = new Popup();
+// POPUP DE ALERTA DE CONFIRMACION
+$alert = new Popup();
+// POPUP DE FORMULARIO DE EDICION 
+$form_edita = new Popup();
+// POPUP DE FORMULARIO DE CREACION 
+$form_crea = new Popup();
+
+/********* FIN POPUPS *********/
+
+
+/*** CREACION DE TABLA DE CONTENIDO ***/
+if (isset($this->orden_compra) /* && count($this->orden_compra) */) {
+
+	/*** SE CREA TABLA DE CONTENIDO ***/
+	$table_orden_compra = '
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:5%;"></th>
+									<th style="width:1%;">Cantidad Materiales</th>
+									<th style="width:12%;"># Requisicion</th>
+									<th style="width:12%;"># Orden</th>
+									<th>Usuarios</th>
+									<th>Importado / Nacional</th>
+									<th>Origen</th>
+									<th>Destino</th>
+									<th style="width:1%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+	$arrayOrden_compra = $this->orden_compra->getTabla($ssn_id_cliente);
+	// echo print_r($arrayOrden_compra);
+	if ($arrayOrden_compra) {
+		foreach ($arrayOrden_compra as $key => $value) {
+
+			$_pendientes = $value["TOTAL"] - $value["CANT_MATERIAL"];
+
+			$arrayActividades_iniciadas = $this->orden_compra->getActividadesIniciadas($value["cs_num_de_orden"]);
+
+			$arrayActividades_inactivas = $this->orden_compra->getActividadesInactivas($value["cs_num_de_orden"]);
+
+			$arrayActividades_anuladas = $this->orden_compra->getActividadesAnuladas($value["cs_num_de_orden"]);
+
+			/**** POPUP DE ACTIVACION DE PROYECTO ****/
+			// Se valida si existen actividades para agregarle las actividades correspondientes 
+			$_jsAjax_actividades = '';
+			$actividades = '';
+			if ($arrayActividades_iniciadas[0]["CANTIDAD"] == 0 and $arrayActividades_inactivas[0]["CANTIDAD"] > 0) {
+				$dbTable = "cmx_actividades_carga_oc";
+				$campo_multiple = "id_carga";
+				$url_actividades = BASE_URL . 'libs/insertar.php?tabla=' . $dbTable;
+
+				// Se busca el grupo maximo de las actividades
+				$arrayMax_grupo = $this->orden_compra->getMax_grupo($value["cs_num_de_orden"]);
+
+				// Busco informacion de las actividades
+				$arrayActividades = $this->orden_compra->getActividades($value["cs_num_de_orden"], $arrayMax_grupo[0]["MAX_GRUPO"]);
+
+				foreach ($arrayActividades['data'] as $keyActividades => $valueActividades) {
+					$POST = '';
+					$POST .= 'nombre=' . $valueActividades["nombre"] . '&';
+					$POST .= 'descripcion=' . $valueActividades["descripcion"] . '&';
+					$POST .= 'documentos=' . $valueActividades["documentos"] . '&';
+					$POST .= 'orden=' . $valueActividades["orden"] . '&';
+					$POST .= 'actividad_previa=' . $valueActividades["actividad_previa"] . '&';
+					$POST .= 'grupo=' . $valueActividades["grupo"] . '&';
+					$POST .= 'responsable=' . $valueActividades["responsable"] . '&';
+					$POST .= 'tiempo_aprobado=' . $valueActividades["tiempo_aprobado"] . '&';
+					$POST .= 'costo_aprobado=' . $valueActividades["costo_aprobado"] . '&';
+					$POST .= 'moneda=' . $valueActividades["moneda"] . '&';
+					$POST .= 'estado=' . $valueActividades["estado"] . '&';
+
+					$_jsAjax_actividades .= '
+							console.log("Entra en la funcion insertar actividades...");
+							for (var i = 0; i < arrayMateriales.length-1; i++) {
+								$.ajax({
+									type		: "POST",
+									cache		: false,
+									url			: "' . $url_actividades . '",
+									data		: "' . $POST . 'id_carga=" + arrayMateriales[i],
+									beforeSend	: function(jqXHR, settings){
+													console.log("Entra en la funcion insertar ajax...");
+													console.log("entro en funcion insertar : bd tabla - ' . $dbTable . '");
+													console.log("entro en funcion insertar : url - ' . $url . '");
+													$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+									},
+									success		: function(data) {
+												console.log(data);
+												$(".nexos-messages").hide();
+												$(".nexos-messages").html(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong>Se ha creado el registro con éxito.</div></div>\');
+												$("#table1").hide();
+												setTimeout(function() { location.reload(false);  }, 2000);
+									}
+								});
+							}
+						';
+					// echo "<p>" . $POST . "</p>";						
+				}
+			}
+
+			$_jsAjax .= '
+					$(\'#habilita_' . $value["cs_num_de_orden"] . '\').click(function () {
+						console.log("Entro en funcion habilita_' . $value["cs_num_de_orden"] . '	");
+						if($(\'#id_orden_' . $value["cs_num_de_orden"] . '\').val()){
+							console.log("Si hay elementos seleccionados en if");
+
+							var materiales = $(\'#id_orden_' . $value["cs_num_de_orden"] . '\').val();
+							console.log(materiales);
+							var arrayMateriales = materiales.split(",");
+
+							for (var i = 0; i < arrayMateriales.length-1; i++) {
+								// aca se mete el ajax de habilitacion
+								console.log("Elemento " + i + " es " + arrayMateriales[i]);
+
+								$("#formulario_' . $value["cs_num_de_orden"] . '").append("<form id=\"form_' . $value["cs_num_de_orden"] . '\"><div style=\"dispaly: none;\"><input type=\"hidden\" name=\"id\" id=\"id_' . $value["cs_num_de_orden"] . '\" class=\"tmp_field\" value=\"" + arrayMateriales[i] + "\" ><input type=\"hidden\" name=\"estado\" value=\"1\"></div></form>");
+
+								// modifico el registro en la tabla cmx_ordenes_compra
+								$.ajax({
+									type		: 	"POST",
+									cache		: 	false,
+									url			: 	"' . $url . '",
+									data		: 	$(\'#form_' . $value["cs_num_de_orden"] . '\').serialize(),
+									beforeSend	: 	function(jqXHR, settings){
+														console.log("Entra en la funcion inactivar ajax...");
+														console.log("formularo $(\'#form_' . $value["cs_num_de_orden"] . '\').serialize()");
+														console.log("Informacion de data... " + $(\'#form_' . $value["cs_num_de_orden"] . '\').serialize());
+														console.log("URL de la funcion - ' . $url . '");
+														$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+													},
+									success		: 	function(data) {
+														$(".nexos-messages").hide();
+														$("#form_' . $value["cs_num_de_orden"] . '").remove();
+														setTimeout(function() { location.reload(false);  }, 2000);
+													}
+								});
+							}
+							' . $_jsAjax_actividades . '
+						}else{
+							console.log("No hay elementos seleccionados");
+						}
+
+					});
+				';
+
+			$form_edit_table = '
+					<div id="formulario_' . $value["cs_num_de_orden"] . '"></div>
+
+					<input type="hidden" name="cs_num_de_orden" name="cs_num_de_orden_' . $value["cs_num_de_orden"] . '" value="' . $value["cs_num_de_orden"] . '" class="form-control">
+					<input type="hidden" name="id_orden_' . $value["cs_num_de_orden"] . '" id="id_orden_' . $value["cs_num_de_orden"] . '" value="" class="form-control">
+					<input type="hidden" name="actividades_' . $value["cs_num_de_orden"] . '" id="id_orden_' . $value["cs_num_de_orden"] . '" value="' . $actividades . '" class="form-control">
+					<div class="panel panel-border panel-contrast">
+						<div class="panel-heading panel-heading-contrast">
+							Orden de Compra - ' . $value["cs_num_de_orden"] . ' (' . $value["cs_tipo_de_orden"] . ')
+							<div class="tools">
+								<a href="#" class="icon hint--top" data-dismiss="modal" data-hint="Validar"><span class="icon mdi mdi-check-circle" id="habilita_' . $value["cs_num_de_orden"] . '"></span></a>
+								<a href="#" class="icon hint--top" data-dismiss="modal" data-hint="Denegar"><span class="icon mdi mdi-close-circle" id="elimina_' . $value["cs_num_de_orden"] . '"></span></a>
+							</div>
+							<span class="panel-subtitle">Fecha de orden - ' . $value["cs_fecha_generacion_oc"] . '</span>
+							<span class="panel-subtitle">Icoterm - ' . $value["cs_incoterm"] . '</span>
+						</div>
+					</div>
+
+					<table class="table">
+						<tbody>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-4">
+											<span>Requisición:</span>
+											<span class="cell-detail-description">' . $value["cs_num_requisicion"] . ' - ' . $value["cs_tipo_requisicion"] . '</span>
+											<span class="cell-detail-description">Fecha Recibido - ' . $value["fecha_recibido_en_cs"] . '</span>
+										</div>
+										<div class="col-sm-4">
+											<span>Usuario:</span>
+											<span class="cell-detail-description">' . $value["cs_usuario"] . '</span>
+										</div>
+										<div class="col-sm-4">
+											<span>Comprador:</span>
+											<span class="cell-detail-description">' . $value["cs_comprador"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-6">
+											<span>Origen:</span>
+											<span class="cell-detail-description">' . $value["cs_proveedor"] . '</span>
+										</div>
+										<div class="col-sm-6">
+											<span>Fecha envío al proveedor:</span>
+											<span class="cell-detail-description">' . $value["cs_fecha_envio_a_proveedor"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-4">
+											<span>Destino:</span>
+											<span class="cell-detail-description"></span>
+										</div>
+										<div class="col-sm-4">
+											<span>Fecha prometida a Comex:</span>
+											<span class="cell-detail-description">' . $value["cs_entrega_prometida_a_com_exterior"] . '</span>
+										</div>
+										<div class="col-sm-4">
+											<span>Fecha llegada al almacén:</span>
+											<span class="cell-detail-description">' . $value["cs_llegada_prometida_a_almacen"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									%materiales%
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="row"></div>
+				';
+
+			// Validacion JS de seleccion de materiales por el checkbox
+			$_jsAjax .= '
+					$(\'input:checkbox[class="material-check_' . $value["cs_num_de_orden"] . '"]\').change(function () {
+						console.log("Entro en funcion material-check_' . $value["cs_num_de_orden"] . '");
+						$(\'#id_orden_' . $value["cs_num_de_orden"] . '\').val(\'\');
+						selected = "";
+						$(\'input:checkbox[class="material-check_' . $value["cs_num_de_orden"] . '"]:checked\').each(function(){
+				 			selected += $(this).val() + \',\';
+						}); 
+						$(\'#id_orden_' . $value["cs_num_de_orden"] . '\').val(selected);
+					});
+				';
+
+			// Evento del boton de eliminacion de material de la orden de compra 
+			$_jsAjax .= '
+					$(\'#elimina_' . $value["cs_num_de_orden"] . '\').click(function () {
+						console.log("Entro en funcion elimina_' . $value["cs_num_de_orden"] . '	");
+
+						if($(\'#id_orden_' . $value["cs_num_de_orden"] . '\').val()){
+							console.log("Si hay elementos seleccionados");
+							var materiales = $(\'#id_orden_' . $value["cs_num_de_orden"] . '\').val();
+							var arrayMateriales = materiales.split(",");
+
+							for (var i = 0; i < arrayMateriales.length-1; i++) {
+								// aca se mete el ajax de eliminacion
+								console.log("Elemento " + i + " es " + arrayMateriales[i]);
+								$("#formulario_' . $value["cs_num_de_orden"] . '").append("<form id=\"form_' . $value["cs_num_de_orden"] . '\"><input type=\"hidden\" name=\"id\" id=\"id_' . $value["cs_num_de_orden"] . '\" class=\"tmp_field\" value=\"" + arrayMateriales[i] + "\" ><input type=\"hidden\" name=\"estado\" value=\"0\"></form>");
+
+								$.ajax({
+									type		: 	"POST",
+									cache		: 	false,
+									url			: 	"' . $url . '",
+									data		: 	$(\'#form_' . $value["cs_num_de_orden"] . '\').serialize(),
+									beforeSend	: 	function(jqXHR, settings){
+														console.log("Entra en la funcion inactivar ajax...");
+														console.log("formularo $(\'#form_' . $value["cs_num_de_orden"] . '\').serialize()");
+														console.log("Informacion de data... " + $(\'#form_' . $value["cs_num_de_orden"] . '\').serialize());
+														console.log("URL de la funcion - ' . $url . '");
+															$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+													},
+									success		: 	function(data) {
+														$(".nexos-messages").hide();
+														$("#form_' . $value["cs_num_de_orden"] . '").remove();
+														setTimeout(function() { location.reload(false);  }, 2000);
+													}
+								});
+							}
+						}else{
+							console.log("No hay elementos seleccionados");
+						}
+					});
+				';
+
+			// se crea los registro del material de la orden de compra
+			$arrayMateriales = $this->orden_compra->getMateriales($value["cs_num_de_orden"]);
+			$table_materiales = "La orden de compra no contiene materiales activos.";
+			// echo print_r($arrayMateriales);
+			if ($arrayMateriales) {
+
+				/*** SE CREA TABLA DE CONTENIDO ***/
+				$table_materiales = '
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="table-responsive noSwipe">
+									<table class="table table-striped table-hover">
+										<tbody>
+					';
+
+				// estado del material dentro del popup
+				foreach ($arrayMateriales as $key1 => $value1) {
+					$table_materiales .= '<tr>';
+					// Columna Check
+					switch ($value1["estado"]) {
+						case '0':
+							$table_materiales .= '<td class="nexos-txt-danger"><span class="mdi mdi-dot-circle icon"></span></td>';
+							break;
+						case '1':
+							$table_materiales .= '<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>';
+							break;
+						case '2':
+							$table_materiales .= '
+									<td class="cell-detail">
+										<div class="be-checkbox">
+											<input type="checkbox" id="check_' . $value1['id'] . '" name="cs_codigo" class="material-check_' . $value["cs_num_de_orden"] . '" value="' . $value1['id'] . '">
+											<label for="check_' . $value1['id'] . '"></label>
+										</div>
+									</td>
+								';
+							break;
+					}
+
+					// Columna Datos Generales Material
+					$table_materiales .= '
+							<td class="cell-detail">
+								<span>' . $value1["cs_codigo"] . '</span>
+								<span class="cell-detail-description">Cant. ' . $value1["cs_cantidad_solicitada"] . '</span>
+								<span>Especificación</span>
+								<span class="cell-detail-description">' . $value1["cs_fecha_especificacion"] . '</span>
+							</td>
+						';
+					// Columna Descripcion
+					$table_materiales .= '
+							<td class="cell-detail">
+								<span>' . $value1["cs_descripcion1"] . '</span>
+								<span class="cell-detail-description">' . $value1["cs_descripcion2"] . '</span>
+							</td>
+						';
+					// Columna Datos Generales Material
+					$table_materiales .= '
+							<td class="cell-detail">
+								<span>' . $value1["cs_categoria"] . '</span>
+								<span class="cell-detail-description">' . $value1["cs_subcategoria"] . '</span>
+							</td>
+						';
+					$table_materiales .= '</tr>';
+				}
+
+				$table_materiales .= '
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					';
+			}
+
+			$form_edit_table = str_replace("%materiales%", $table_materiales, $form_edit_table);
+			$_popupEdita = $form_edita->_message_title_modal($value['id'], "Proyecto Orden de Compra - " . $value["cs_num_de_orden"] . ' - ' . $value["cs_tipo_de_orden"], $form_edit_table);
+			$vista .= $_popupEdita;
+			/**** FIN POPUP DE ACTIVACION DE PROYECTO ****/
+
+
+			/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+			switch ($value["estado"]) {
+				case '0':
+					// se asigna contenido de la columna de estado
+					$col_stasus = '<td class="nexos-txt-danger"><span class="mdi mdi-dot-circle icon"></span></td>';
+
+					// se asigna contenido de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								<a href="#" class="icon"><span id="#edita_' . $value['id'] . '"  data-toggle="modal" data-target="#edita_' . $value['id'] . '"  class="mdi mdi-eye"></span></a>
+							</td>
+						';
+					break;
+
+				case '1':
+					// se asigna contenido de la columna de estado
+					if ($_pendientes > 0) {
+						$col_stasus = '<td class="nexos-txt-warning"><span class="mdi mdi-dot-circle icon"></span></td>';
+					} else {
+						$col_stasus = '<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>';
+					}
+					if ($arrayActividades_anuladas[0]["CANTIDAD"] > 0) {
+						$col_stasus = '<td class="nexos-txt-danger"><span class="mdi mdi-dot-circle icon"></span></td>';
+					}
+
+					// se asigna contenido de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								<a href="#" class="icon"><span id="#edita_' . $value['id'] . '"  data-toggle="modal" data-target="#edita_' . $value['id'] . '"  class="mdi mdi-eye"></span></a>
+							</td>
+						';
+
+					break;
+
+				case '2':
+					// se asigna contenido de la columna de estado
+					if ($_pendientes > 0) {
+						$col_stasus = '<td class="nexos-txt-warning"><span class="mdi mdi-dot-circle icon"></span></td>';
+					} else {
+						$col_stasus = '<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>';
+					}
+
+					// se asigna contenido de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								<a href="#" class="icon"><span id="#edita_' . $value['id'] . '"  data-toggle="modal" data-target="#edita_' . $value['id'] . '"  class="mdi mdi-eye"></span></a>
+							</td>
+						';
+
+					break;
+			}
+			/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+
+			// Se maqueta contenido de la tabla 
+			$table_orden_compra .= '<tr>';
+			$table_orden_compra .= $col_stasus;
+			// Columna Cantidad de Materiales
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span class="label label-default">' . $_pendientes . '/' . $value["TOTAL"] . '</span>
+					</td>
+				';
+			// Columna Requisicion
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_num_requisicion"] . ' (' . $value["cs_tipo_requisicion"] . ')</span>
+						<span class="cell-detail-description">' . $value["fecha_recibido_en_cs"] . '</span>
+					</td>
+				';
+			// Columna orden de compra
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_num_de_orden"] . ' (' . $value["cs_tipo_de_orden"] . ') </span>
+						<span class="cell-detail-description">' . $value["cs_fecha_generacion_oc"] . '</span>
+					</td>
+				';
+			// Columna usuarios
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_usuario"] . '</span>
+						<span class="cell-detail-description">' . $value["cs_comprador"] . '</span>
+						<span class="cell-detail-description">Yk - ' . $value["cs_yk"] . '</span>
+					</td>
+				';
+			// Columna Importado / Nacional
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_importado_nacional"] . '</span>
+						<span class="cell-detail-description">Icoterm - ' . $value["cs_incoterm"] . '</span>
+					</td>
+				';
+			// Columna Origen
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_proveedor"] . '</span>
+						<span class="cell-detail-description">Enviado: ' . $value["cs_fecha_envio_a_proveedor"] . '</span>
+					</td>
+				';
+			// Columna Destino
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span></span>
+						<span class="cell-detail-description">Llegada al almacén - ' . $value["cs_llegada_prometida_a_almacen"] . '</span>
+					</td>
+				';
+
+			// se asigna la columna de acciones
+			$table_orden_compra .= $col_action;
+
+			$table_orden_compra .= '</tr>';
+		}
+	}
+
+	$table_orden_compra .= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+} else {
+	echo '<p>no hay registros en esta tabla...</p>';
+}
+/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+$_form_file = '
+		<form action="' . BASE_URL . 'proyecto/orden_compra" method="POST" name="envia_archivo" enctype="multipart/form-data" style="border-radius: 0px;" class="form-horizontal group-border-dashed" >
+			<div class="form-group">
+				<label class="col-sm-8 control-label">Subir Ordenes de Compra</label>
+				<div class="col-sm-4">
+					<input type="file" name="file-2" id="file-2" class="inputfile">
+					<label for="file-2" class="btn-default"> <i class="mdi mdi-upload"></i><span>Busque Archivo...</span></label>
+					<input type="submit" name="sube-archivo" id="sube-archivo" value="Subir" class="btn btn-success">
+					<a href="' . BASE_URL . 'public\files\formatoRemisiones.csv" target="_blank"  alt="Formato Archivos"><img src="' . BASE_URL . 'public\img\excel_2013.png" height="35" width="35"></a>
+				</div>
+			</div>
+		</form>
+	';
+
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Ordenes de Compra
+				<span class="panel-subtitle">Módulo subida de archivo del cliente con orden de compra.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%form-file%
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			%js-ajax%
+	    </script>
+	';
+
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%js-ajax%", $_jsAjax, $vista);
+$vista = str_replace("%content%", $table_orden_compra, $vista);
+$vista = str_replace("%form-file%", $_form_file, $vista);
+
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;
+
+
+/**** FUNCIONES DE SUBIDA DE ARCHIVO ****/
+if (isset($_POST["sube-archivo"])) {
+	ini_set('max_execution_time', 120);
+
+	$table = "cmx_" . $_dbTable;
+	$ruta = BASE_URL . "public/files/";
+	$columnasArchivo = 28;
+	$_registro_exitoso = 0;
+	$_msg_error = "";
+	$_count_row = 0;
+	$archivoValido = true;
+
+	if ($_FILES) {
+		foreach ($_FILES as $key) {
+			$nombre = $key["name"];
+			$ruta_temporal = $key["tmp_name"];
+
+			if ($nombre) {
+				$file_origin = explode(".", $nombre);
+				if ($file_origin[1] == "csv") {
+
+					$x = 0;
+					$info = array();
+					$data = array();
+
+					$archivo = file_get_contents($ruta_temporal);
+					$archivo = ucfirst($archivo);
+
+					$arrayArchivo = explode(";", $archivo);
+					$i = 0;
+
+					foreach ($arrayArchivo as $datos) {
+						$i++;
+						$data[$i - 1] = $datos;
+						if ($i == $columnasArchivo) {
+							$_count_row++;
+
+							$arrayUltimaColumna = explode("\n", $datos);
+
+							$data[$i - 1] = $arrayUltimaColumna[0];
+							$i = 1;
+
+							$x++;
+							if ($x > 1) {
+								$info[$_count_row] = array(
+									"cs_pais" => limpiaTexto($data[0]),
+									"fecha_recibido_en_cs" => limpiaTexto($data[1]),
+									"cs_num_requisicion" => limpiaTexto($data[2]),
+									"cs_tipo_requisicion" => limpiaTexto($data[3]),
+									"cs_compañia" => limpiaTexto($data[4]),
+									"cs_codigo" => limpiaTexto($data[5]),
+									"cs_cantidad_solicitada" => limpiaTexto($data[6]),
+									"cs_descripcion1" => limpiaTexto($data[7]),
+									"cs_descripcion2" => limpiaTexto($data[8]),
+									"cs_usuario" => limpiaTexto($data[9]),
+									"cs_categoria" => limpiaTexto($data[10]),
+									"cs_subcategoria" => limpiaTexto($data[11]),
+									"cs_comprador" => limpiaTexto($data[12]),
+									"cs_status" => limpiaTexto($data[13]),
+									"cs_yk" => limpiaTexto($data[14]),
+									"cs_num_de_orden" => limpiaTexto($data[15]),
+									"cs_tipo_de_orden" => limpiaTexto($data[16]),
+									"cs_proveedor" => limpiaTexto($data[17]),
+									"cs_importado_nacional" => limpiaTexto($data[18]),
+									"cs_incoterm" => limpiaTexto($data[19]),
+									"cs_plazo_entrega_dias" => limpiaTexto($data[20]),
+									"cs_observacion_general" => limpiaTexto($data[21]),
+									"cs_fecha_especificacion" => limpiaTexto($data[22]),
+									"cs_fecha_generacion_oc" => limpiaTexto($data[23]),
+									"cs_fecha_envio_a_proveedor" => limpiaTexto($data[24]),
+									"cs_entrega_prometida_a_com_exterior" => limpiaTexto($data[25]),
+									"cs_llegada_prometida_a_almacen" => limpiaTexto($data[26]),
+									"cs_termino_pago" => limpiaTexto($data[27]),
+								);
+
+								if ($info[$_count_row]["cs_num_de_orden"] != "") {
+									if ($info[$_count_row]["cs_codigo"] != "") {
+										// Se busca que el material y la orden de compra no se repitan
+										if (buscarOrden($info, $info[$_count_row]["cs_num_de_orden"], $info[$_count_row]["cs_codigo"], $info[$_count_row]["cs_cantidad_solicitada"], $_count_row)) {
+											$arrayBuscaMaterial = $this->orden_compra->buscaMaterialNumero($info[$_count_row]["cs_codigo"], $ssn_id_cliente);
+											// print_r("<pre>");
+											// print_r($arrayBuscaMaterial);
+											// print_r("</pre>");
+											if ($arrayBuscaMaterial["rowsNum"] > 0) {
+												$info[$_count_row]["cs_codigo"] = $arrayBuscaMaterial["rowsData"][0]["id"];
+											} else {
+												$archivoValido = false;
+												$_msg_error .= "<p><strong>Error en fila $_count_row:</strong> La columna \"codigo\" no se encuentra bien diligenciada o el material con el código " . $info[$_count_row]["cs_codigo"] . " no ha sido registrado o se encuentra inactivo.</p>";
+											}
+										} else {
+											$archivoValido = false;
+											$_msg_error .= "<p><strong>Error en fila $_count_row:</strong> El material " . $info[$_count_row]["cs_codigo"] . " ya esta asociado en el archivo a la orden de compra " . $info[$_count_row]["cs_num_de_orden"] . ".</p>";
+										}
+									} else {
+										$archivoValido = false;
+										$_msg_error .= "<p><strong>Error en fila $_count_row:</strong> Campo 'CS Código' esta vacio.</p>";
+									}
+								} else {
+									$archivoValido = false;
+									$_msg_error .= "<p><strong>Error en fila $_count_row:</strong> Campo 'CS No de Orden' esta vacio.</p>";
+								}
+							}
+							// se asigna el valor del primer registro de la siguinete fila
+							$data[$i - 1] = $arrayUltimaColumna[1];
+						}
+					}
+				} else {
+					$archivoValido = false;
+					$_msg_error .= '<p>Archivo no válido para subir al servidor, debe ser un archivo plano con extensión <strong>\".csv\"</strong>.</p><p>Se recomienda descargar el formato para su diligenciamiento <a href="' . BASE_URL . 'public/files/formatoRemisiones.csv" target="_blank"  alt="Formato Archivos"><img src="' . BASE_URL . 'public/img/excel_2013.png" height="20" width="20"></a></p>';
+				}
+			} else {
+				$archivoValido = false;
+				$_msg_error .= "Debe seleccionar un archivo válido para subir al servidor.";
+			}
+		}
+
+		// Si el archivo es correcto puede subir la informacion 
+		$contenidoValido = false;
+		if ($archivoValido) {
+			$contenidoValido = true;
+			foreach ($info as $key1 => $value1) {
+				if ($value1["cs_cantidad_solicitada"] > 0) {
+					$sql = '
+							SELECT 
+								COUNT(*) CUANTOS, cmc.codigo
+							FROM 
+								cmx_ordenes_compra crc 
+								INNER JOIN cmx_material_cliente cmc ON cmc.id = crc.cs_codigo
+							WHERE 
+								crc.cs_num_de_orden = "' . $value1["cs_num_de_orden"] . '"
+								AND crc.cs_codigo = "' . $value1["cs_codigo"] . '"
+								AND cmc.id_cliente = "' . $ssn_id_cliente . '"
+								AND crc.estado IN (2);
+						';
+					$buscaMaterial = $Conect->getConsulta($sql);
+					if ($buscaMaterial['rowsData'][0]['CUANTOS'] > 0) {
+						$_msg_error .= "<p><strong>Error en fila " . $key1 . ":</strong> Ya existe en la nube un material con código " . $buscaMaterial['rowsData'][0]['codigo'] . " registrado en la órden de compra " . $value1['cs_num_de_orden'] . ".</p>";
+						$contenidoValido = false;
+					}
+				}
+			}
+		}
+
+		// Si los materiales de larchivo no existen el la base de datos se procede a insertarlos en la base de datos
+		if ($contenidoValido) {
+			foreach ($info as $key1 => $value1) {
+				$Conect->setRegistro($table, $value1);
+				$_registro_exitoso++;
+			}
+			$_msg_error .= "<h4><strong>Se subieron $_registro_exitoso registros exitosamente.</strong></h4>";
+			echo '
+					<script language="javascript">
+						setTimeout(function() { window.location="' . BASE_URL . 'proyecto/orden_compra";  }, 2000);
+					</script>
+				';
+		}
+	} else {
+		$archivoValido = false;
+		$_msg_error .= "Debe subir un archivo";
+	}
+
+	$_msg_color = "danger";
+	if ($contenidoValido) {
+		$_msg_color = "success";
+	}
+	echo '
+			<script language="javascript">
+				console.log("entro en el js del mensaje");
+				$(".nexos-messages").html(\'<div role="alert" class="alert alert-' . $_msg_color . ' alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button>' . $_msg_error . '</div></div>\');
+			</script>
+		';
+}
+/**** FUNCIONES DE SUBIDA DE ARCHIVO ****/
+
+function buscarOrden($array, $ordenCompra, $material, $cantidad, $fila)
+{
+	$valido = true;
+	$x = 2;
+
+	foreach ($array as $key => $value) {
+		if ($x != $fila) {
+			// echo "<h4>Entro en funcion [Orden de compra - $ordenCompra] [codigo material - $material] [cantidad - $cantidad] [fila - $fila] [x - $x] </h4>";
+			if ($value['cs_codigo'] == $material and $value['cs_num_de_orden'] == $ordenCompra) {
+				if ($cantidad != 0) {
+					$valido = false;
+				}
+			}
+			$x++;
+		}
+	}
+	return $valido;
+}
+
+function limpiaTexto($text)
+{
+	$text = filter_var(trim($text), FILTER_SANITIZE_STRING);
+	//Filtro anti-XSS
+	$caracteres_malos = array("<", ">", "\"", "'", "/", "<", ">", "'", "/");
+	$caracteres_buenos = array("& lt;", "& gt;", "& quot;", "& #x27;", "& #x2F;", "& #060;", "& #062;", "& #039;", "& #047;");
+	$consultaBusqueda = str_replace($caracteres_malos, $caracteres_buenos, $text);
+	return $text;
+}

@@ -1,0 +1,571 @@
+<?php
+$Conect = new Consultas;
+$_dbTable = "ordenes_compra"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+$_jsAjax = "";
+
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+
+/********* POPUPS *********/
+/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+// POPUP DE MUESTRA DE INFORMACION
+$info = new Popup();
+// POPUP DE ALERTA DE CONFIRMACION
+$alert = new Popup();
+// POPUP DE FORMULARIO DE EDICION 
+$form_edita = new Popup();
+// POPUP DE FORMULARIO DE CREACION 
+$form_crea = new Popup();
+// POPUP DE MENSAJES DEL MODULO 
+$message = new Popup();
+
+/********* FIN POPUPS *********/
+
+/*** CREACION DE TABLA DE CONTENIDO ***/
+if (isset($this->orden_compra) /* && count($this->orden_compra) */) {
+	/*** SE CREA TABLA DE CONTENIDO ***/
+	$table_orden_compra = '
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:5%;">#</th>
+									<th style="width:1%;">Cantidad Materiales</th>
+									<th style="width:12%;"># Requisición</th>
+									<th style="width:12%;"># Orden</th>
+									<th>Usuarios</th>
+									<th>Importado / Nacional</th>
+									<th>Origen</th>
+									<th>Destino</th>
+									<th style="width:10%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+	$arrayOrden_compra = $this->orden_compra->getTablaProyectos();
+
+	if ($arrayOrden_compra) {
+		foreach ($arrayOrden_compra as $key => $value) {
+
+			/**** CUENTO CUANTOS GRUPOS DE ATIVIDADES HAY EN LA ORDEN DE COMPRA ****/
+			$arrayCuenta_grupos = $this->orden_compra->getGrupoCargas($value["cs_num_de_orden"]);
+			if ($arrayCuenta_grupos) {
+				$grupo = $arrayCuenta_grupos['rowCount'] + 1;
+			} else {
+				$grupo = 1;
+			}
+
+			// Creo el select de usuarios
+			$slct_usuario  = $this->usuarios->getHtmlSelect("responsable", $value["id"], $ssn_id_cliente);
+
+			/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+			switch ($value["estado"]) {
+				case '0':
+					// se asigna contenido de la columna de estado
+					$col_stasus = '<td class="nexos-txt-danger"><span class="mdi mdi-dot-circle icon"></span></td>';
+
+					$_popupHabilita = $alert->_alert_modal_mod_success($value['id'], "Realmente desea habilitar este elemento?", $_dbTable);
+					$vista .= $_popupHabilita[0];
+					$_jsScripts .= $_popupHabilita[1];
+
+					break;
+
+				case '1':
+					// se asigna contenido de la columna de estado
+					$col_stasus = '<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>';
+
+					$_popupHabilita = $alert->_alert_modal_mod_success($value['id'], "Realmente desea habilitar este elemento?", $_dbTable);
+					$vista .= $_popupHabilita[0];
+					$_jsScripts .= $_popupHabilita[1];
+
+					break;
+
+				case '2':
+					// se asigna contenido de la columna de estado
+					$col_stasus = '<td class="nexos-txt-warning"><span class="mdi mdi-dot-circle icon"></span></td>';
+					break;
+			}
+			/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+
+			/**** SE CREA FILTRO PARA QUE NO PERMITA EL ACCESO AL MATERIAL DE LA CARGA CUANDO EL PROYRCTO NO TENGA ACTIVIDADES REALIZADAS ****/
+			$arrayValidaActividades = $this->orden_compra->getVerificaActividades($value["cs_num_de_orden"]);
+			$acumula = 0;
+			$validaActividades = 0;
+			$flagActividad = true;
+			foreach ($arrayValidaActividades as $key1 => $value1) {
+				if ($acumula != 0) {
+					if ($value1["CANTIDAD"] == 0) {
+						$validaActividades = 2;
+						break;
+					} else {
+						$validaActividades = 1;
+					}
+
+					$acumula = $acumula + $value1["CANTIDAD"];
+				} else {
+					if ($flagActividad and $value1["CANTIDAD"] > 0) {
+						$validaActividades = 1;
+						$flagActividad = false;
+					}
+					$acumula = $acumula + $value1["CANTIDAD"];
+				}
+			}
+			/**** FORMULARIO DE ASIGNACION DE PLANTILLA ****/
+			$form_edit_table = '
+					<div id="formulario_' . $value["cs_num_de_orden"] . '_' . $value["id"] . '"></div>
+
+					<input type="hidden" name="cs_num_de_orden" name="cs_num_de_orden_' . $value["cs_num_de_orden"] . '" value="' . $value["cs_num_de_orden"] . '" class="form-control">
+					<div class="panel panel-border panel-contrast">
+						<div class="panel-heading panel-heading-contrast">
+							Orden de Compra - ' . $value["cs_num_de_orden"] . ' (' . $value["cs_tipo_de_orden"] . ')
+							<div class="tools">
+								<a href="#" class="icon hint--top" data-hint="Asignar Plantilla"><span class="icon mdi mdi-check-circle" id="habilita_' . $value["cs_num_de_orden"] . '" data-dismiss="modal"></span></a>
+							</div>
+							<span class="panel-subtitle">Fecha de orden - ' . $value["cs_fecha_generacion_oc"] . '</span>
+							<span class="panel-subtitle">Icoterm - ' . $value["cs_incoterm"] . '</span>
+							<span class="panel-subtitle">Plantilla:</span>
+							%slct_plantilla%
+						</div>
+					</div>
+					<div id="datos_platilla_' . $value["cs_num_de_orden"] . '"></div>
+					<div id="msg_error_' . $value["cs_num_de_orden"] . '"></div>
+					<span><strong>Información del proyecto</strong></span>
+					<table class="table">
+						<tbody>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-3">
+											<span>Orden de compra:</span>
+											<span class="cell-detail-description">' . $value["cs_num_de_orden"] . ' - ' . $value["cs_tipo_de_orden"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Requisición:</span>
+											<span class="cell-detail-description">' . $value["cs_num_requisicion"] . ' - ' . $value["cs_tipo_requisicion"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Usuario:</span>
+											<span class="cell-detail-description">' . $value["cs_usuario"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Comprador:</span>
+											<span class="cell-detail-description">' . $value["cs_comprador"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-6">
+											<span>Origen:</span>
+											<span class="cell-detail-description">' . $value["cs_proveedor"] . '</span>
+											<span class="cell-detail-description">Fecha envío al proveedor - ' . $value["cs_fecha_envio_a_proveedor"] . '</span>
+										</div>
+										<div class="col-sm-6">
+											<span>Destino:</span>
+											<span class="cell-detail-description"></span>
+											<span class="cell-detail-description">Fecha llegada al almacén - ' . $value["cs_llegada_prometida_a_almacen"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									%materiales%
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="row"></div>
+					<div id="resultado' . $value["cs_num_de_orden"] . '"></div>
+				';
+
+			// Validacion JS de seleccion de materiales 
+			$urlBuscaPlantilla = BASE_URL . 'libs/buscar.php?tabla=cmx_plantillas&id_cliente=' . $ssn_id_cliente;
+			$_jsAjax .= '
+					$(\'#slct_plantilla_' . $value["id"] . '\').change(function () {
+						console.log("Entro en funcion slct_plantilla_' . $value["id"] . '");
+						var id_plantilla = $(\'#slct_plantilla_' . $value["id"] . '\').val();
+						if (id_plantilla != "") {
+							console.log("selcciono plantilla " + id_plantilla);
+
+							$.ajax({
+								type: "POST",
+								url: "' . $urlBuscaPlantilla . '",
+								data: "valorBusqueda="+id_plantilla,
+								dataType: "html",
+								beforeSend: function(){
+									console.log("URL de la funcion 1 - ' . $urlBuscaPlantilla . '");
+									$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+								},
+								error: function(){
+									console.log("Pailas no sirve");
+								},
+								success: function(data){
+									$(".nexos-messages").hide();
+									$("#datos_platilla_' . $value["cs_num_de_orden"] . '").empty();
+									$("#datos_platilla_' . $value["cs_num_de_orden"] . '").append(data);
+								}
+							});
+
+							var url = \'' . BASE_URL . 'libs/buscar.php?orden_compra=' . $value["cs_num_de_orden"] . '\';
+							$.ajax({
+								type: "POST",
+								url: url,
+								data: "valorBusqueda="+id_plantilla,
+								dataType: "html",
+								beforeSend: function(){
+									console.log("URL de la funcion 2 - " + url );
+									$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+								},
+								error: function(){
+									console.log("Error");
+								},
+								success: function(data){
+									// console.log(data);
+									$(".nexos-messages").hide();
+									$("#resultado' . $value["cs_num_de_orden"] . '").empty();
+									$("#resultado' . $value["cs_num_de_orden"] . '").append(data);
+								}
+							});
+						} else { 
+							console.log("No selecciono plantilla");
+							// $("#resultado' . $value["cs_num_de_orden"] . '").html(\'\');
+						}
+
+					});
+				';
+
+			// Evento del boton de cracion de actividades de acuerdo con la plantilla seleccionada 
+			$urlActividadesCarga = BASE_URL . 'libs/insertar.php?tabla=cmx_actividades_carga_oc';
+			$msg_danger_plantilla = $message->_message_title_danger($value["cs_num_de_orden"] . "_" . $value["id"], "", "Debe seleccionar una plantilla para poder asignar las actividades");
+			$_jsAjax .= '
+					$(\'#habilita_' . $value["cs_num_de_orden"] . '\').click(function () {
+						console.log("Entro en funcion habilita_' . $value["cs_num_de_orden"] . '	");
+
+						if($(\'#materiales_' . $value["cs_num_de_orden"] . '\').val()){
+							console.log("Si hay elementos seleccionados");
+							var id_plantilla = $(\'#slct_plantilla_' . $value["id"] . '\').val();
+							if (id_plantilla) {
+								console.log("valor de la plantilla " + id_plantilla);
+
+								var materiales = $(\'#materiales_' . $value["cs_num_de_orden"] . '\').val();
+								var arrayMateriales = materiales.split(",");
+
+								for (var i = 0; i < arrayMateriales.length-1; i++) {
+									console.log("Valor de i " + i);
+
+									var actividades = $(\'#cant_actividades_' . $value["cs_num_de_orden"] . '\').val();
+									var arrayActividades = actividades.split(",");
+
+									console.log("este tiene " + (arrayActividades.length-1) + " actividades")
+
+									for ( var j=0; j < arrayActividades.length-1; j++) { 
+										console.log("Valor de arrayActividades " + arrayActividades[j]);
+										var id_carga = arrayMateriales[i];
+										var nombre_actividad = $("#nombre_" + arrayActividades[j]).val();
+										var id_carga = arrayMateriales[i];
+										var descripcion = $("#descripcion_" + arrayActividades[j]).val();
+										var actividad_previa = $("#actividad_previa_" + arrayActividades[j]).val();
+										var orden = $("#orden_" + arrayActividades[j]).val();
+										var documentos = $("#documentos_" + arrayActividades[j]).val();
+										var tiempo_estimado = $("#tiempo_aprobado_" + arrayActividades[j]).val();
+										var costo_estimado = $("#costo_aprobado_" + arrayActividades[j]).val();
+										var bloque = $("#bloque_" + arrayActividades[j]).val();
+
+										var moneda = $("#moneda_" + arrayActividades[j]).val();
+										var responsable = $("#slct_responsable_" + arrayActividades[j]).val();
+										var id_centro_costo = $("#slct_id_centro_costo_" + arrayActividades[j]).val();
+
+
+										var id_form = "form_" + id_carga + "_" + j;
+										console.log("id del formulario - " + id_form);
+
+										$("#formulario_' . $value["cs_num_de_orden"] . '_' . $value["id"] . '").append("<form id=\"" + id_form + "\"><input type=\"hidden\" name=\"id_carga\" class=\"tmp_field\" value=\"" + id_carga + "\" ><input type=\"hidden\" name=\"nombre\" class=\"tmp_field\" value=\"" + nombre_actividad + "\" ><input type=\"hidden\" name=\"descripcion\" class=\"tmp_field\" value=\"" + descripcion + "\" ><input type=\"hidden\" name=\"actividad_previa\" class=\"tmp_field\" value=\"" + actividad_previa + "\" ><input type=\"hidden\" name=\"orden\" class=\"tmp_field\" value=\"" + orden + "\" ><input type=\"hidden\" name=\"documentos\" class=\"tmp_field\" value=\"" + documentos + "\" ><input type=\"hidden\" name=\"tiempo_aprobado\" class=\"tmp_field\" value=\"" + tiempo_estimado + "\" ><input type=\"hidden\" name=\"costo_aprobado\" class=\"tmp_field\" value=\"" + costo_estimado + "\" ><input type=\"hidden\" name=\"moneda\" class=\"tmp_field\" value=\"" + moneda + "\" ><input type=\"hidden\" name=\"responsable\" class=\"tmp_field\" value=\"" + responsable + "\" ><input type=\"hidden\" name=\"id_centro_costo\" class=\"tmp_field\" value=\"" + id_centro_costo + "\" ><input type=\"hidden\" name=\"bloque\" class=\"tmp_field\" value=\"" + bloque + "\" ><input type=\"hidden\" name=\"grupo\" class=\"tmp_field\" value=\"' . $grupo . '\" ></form>");
+
+										console.log("Elemento " + i + " es " + arrayMateriales[i]);
+
+										$.ajax({
+											type		: 	"POST",
+											cache		: 	false,
+											url			: 	"' . $urlActividadesCarga . '",
+											data		: 	$("#" + id_form + "").serialize(),
+											beforeSend	: 	function(jqXHR, settings){
+																console.log("Entra en la funcion pasar actividades ajax...");
+																console.log("formularo - $(\'#" + id_form + "\').serialize()");
+																console.log("Informacion de data... " + $("#" + id_form + "").serialize());
+																console.log("URL de la funcion - ' . $urlActividadesCarga . '");
+																$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+															},
+											error: 			function(){
+																console.log("error1...");
+															},
+											success		: 	function(data) {
+																console.log(data);
+																$("#form_' . $value["id"] . '").remove();
+																$(".nexos-messages").hide();
+																$(".nexos-messages").html(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se han asignado las actividades con éxito.</div></div>\');
+																$("#table1").hide();
+															}
+										});
+									}
+									// $("#table1").hide();
+									// $("#table1").load(location.href+"#table1>*","");
+								}
+								setTimeout(function() { location.reload(false);  }, 3000);
+							} else {
+								console.log("No se ha seleccionado plantilla");
+								$(".nexos-messages").html(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close-circle-o"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong> Debe asignar una plantilla para poder crear las actividades del proyecto.</div></div>\');
+									location.reload(flase);
+							}
+						}else{
+							console.log("No hay elementos seleccionados");
+						}
+					});
+				';
+
+			// se crea los registro del material de la orden de compra
+			$arrayMateriales = $this->orden_compra->getMaterialesProyecto($value["cs_num_de_orden"]);
+			$table_materiales = "La orden de compra no contiene materiales activos.";
+			if ($arrayMateriales) {
+				/*** SE CREA TABLA DE CONTENIDO ***/
+				$table_materiales = '
+						<div class="row">
+							<div class="col-sm-12">
+								<span><strong>Materiales de la Carga</strong></span>
+								<div class="table-responsive noSwipe">
+									<table class="table table-striped table-hover">
+										<tbody>
+					';
+
+				$id_matriales = "";
+				foreach ($arrayMateriales as $key1 => $value1) {
+					$id_matriales .= $value1["id"] . ",";
+					$table_materiales .= '<tr>';
+
+					// Columna Datos Generales Material
+					$table_materiales .= '
+							<td class="cell-detail">
+								<span>' . $value1["cs_codigo"] . '</span>
+								<span class="cell-detail-description">Cant. ' . $value1["cs_cantidad_solicitada"] . '</span>
+							</td>
+						';
+					// Columna Descripcion
+					$table_materiales .= '
+							<td class="cell-detail">
+								<span>' . $value1["cs_descripcion1"] . '</span>
+								<span class="cell-detail-description">' . $value1["cs_descripcion2"] . '</span>
+							</td>
+						';
+					// Columna Datos Generales Material
+					$table_materiales .= '
+							<td class="cell-detail">
+								<span>' . $value1["cs_categoria"] . '</span>
+								<span class="cell-detail-description">' . $value1["cs_subcategoria"] . '</span>
+							</td>
+						';
+					$table_materiales .= '</tr>';
+				}
+
+				$table_materiales .= '
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<input type="hidden" name="materiales_' . $value["cs_num_de_orden"] . '" id="materiales_' . $value["cs_num_de_orden"] . '" value="' . $id_matriales . '" class="form-control">
+					';
+			}
+
+			// genero el select de plantillas
+			$form_edit_table = str_replace("%slct_plantilla%", $this->plantillas->getHtmlSelectConActividades("id_plantilla", $value["id"], $ssn_id_cliente), $form_edit_table);
+			$form_edit_table = str_replace("%materiales%", $table_materiales, $form_edit_table);
+
+			$_popupEdita = $form_edita->_message_title_modal($value['id'], "Asignar actividades a orden de compra - " . $value["cs_num_de_orden"], $form_edit_table);
+			$vista .= $_popupEdita;
+
+			/**** FIN FORMULARIO DE ASIGNACION DE PLANTILLA ****/
+
+			switch ($validaActividades) {
+				case '0': // Si ningun material tiene actividades 
+					// se asigna contenudo de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								<a href="#" class="icon hint--top-left" data-hint="Asignar Actividades"><span id="#edita_' . $value['id'] . '"  data-toggle="modal" data-target="#edita_' . $value['id'] . '"  class="mdi mdi-plus"></span></a>
+							</td>
+						';
+					break;
+
+				case '1': // Todos los materiales del proyecto tienen actividades
+					// se asigna contenudo de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								<a href="' . BASE_URL . 'proyecto/cargas_/' . $value["cs_num_de_orden"] . '" class="icon"><span id="#edita_' . $value['id'] . '"  class="mdi mdi-eye"></span></a>
+							</td>
+						';
+					break;
+
+				case '2': // Algunos materiales tienen actividades y otros no
+					// se asigna contenudo de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								<a href="' . BASE_URL . 'proyecto/cargas_/' . $value["cs_num_de_orden"] . '" class="icon"><span id="#edita_' . $value['id'] . '"  class="mdi mdi-eye"></span></a>
+								<a href="#" class="icon"><span id="#edita_' . $value['id'] . '"  data-toggle="modal" data-target="#edita_' . $value['id'] . '"  class="mdi mdi-plus"></span></a>
+							</td>
+						';
+					break;
+			}
+
+
+			// Se maqueta contenido de la tabla 
+			$table_orden_compra .= '<tr>';
+			$table_orden_compra .= $col_stasus;
+			// Columna Cantidad de Materiales
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span class="label label-default">' . $value["CANT_MATERIAL"] . '</span>
+					</td>
+				';
+			// Columna Requisicion
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_num_requisicion"] . ' (' . $value["cs_tipo_requisicion"] . ')</span>
+						<span class="cell-detail-description">' . $value["fecha_recibido_en_cs"] . '</span>
+					</td>
+				';
+			// Columna orden de compra
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_num_de_orden"] . ' (' . $value["cs_tipo_de_orden"] . ') </span>
+						<span class="cell-detail-description">' . $value["cs_fecha_generacion_oc"] . '</span>
+					</td>
+				';
+			// Columna usuarios
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_usuario"] . '</span>
+						<span class="cell-detail-description">' . $value["cs_comprador"] . '</span>
+						<span class="cell-detail-description">Yk - ' . $value["cs_yk"] . '</span>
+					</td>
+				';
+			// Columna Importado / Nacional
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_importado_nacional"] . '</span>
+						<span class="cell-detail-description">Icoterm - ' . $value["cs_incoterm"] . '</span>
+					</td>
+				';
+			// Columna Origen
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span>' . $value["cs_proveedor"] . '</span>
+						<span class="cell-detail-description">Enviado: ' . $value["cs_fecha_envio_a_proveedor"] . '</span>
+					</td>
+				';
+			// Columna Destino
+			$table_orden_compra .= '
+					<td class="cell-detail">
+						<span></span>
+						<span class="cell-detail-description">Llegada al almacén - ' . $value["cs_llegada_prometida_a_almacen"] . '</span>
+					</td>
+				';
+
+			// se asigna la columna de acciones
+			$table_orden_compra .= $col_action;
+
+			$table_orden_compra .= '</tr>';
+		}
+	}
+
+	$table_orden_compra .= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+}
+/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Proyectos
+				<span class="panel-subtitle">Se visualizan los proyectos.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			%js-ajax%
+	    </script>
+	';
+
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%js-ajax%", $_jsAjax, $vista);
+$vista = str_replace("%content%", $table_orden_compra, $vista);
+
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;

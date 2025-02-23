@@ -1,0 +1,119 @@
+<div class="container-fluid mt-5">
+  <div class="d-flex justify-content-center">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+      <div class="row">
+        <h2 class="mb-4">Crear Filtro</h2>
+        <div class="col-xl-12">
+          <form class="row g-3 mb-6">
+            <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+              <div class="mb-4">
+                <div class="d-flex flex-wrap mb-2">
+                  <h5 class="mb-0 text-body-highlight me-2">Ventana <span style="color:red;"><i>*</i></h5>
+                </div>
+                <select class="form-select form-select-sm select2" id="selectVentanas" style="width:100%;">
+                </select>
+              </div>
+            </div>
+
+            <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+              <div class="mb-4">
+                <div class="d-flex flex-wrap mb-2">
+                  <h5 class="mb-0 text-body-highlight me-2">Filtro <span style="color:red;"><i>*</i></h5>
+                </div>
+                <input class="form-control form-control-sm" id="nombre_filtro" type="text" placeholder="Nombre Filtro"
+                  oninput="this.value = this.value.toUpperCase();" />
+              </div>
+            </div>
+
+            <div class="col-sm-6 col-md-6">
+              <div class="form-floating">
+                <select class="form-select form-select-sm" id="tipo_campo">
+                  <option value="" selected> Selecionar </option>
+                </select>
+                <label for="tipo_campo">Tipo de campo <span style="color:red;"><i>*</i></label>
+              </div>
+            </div>
+
+            <!-- Contenedor para opciones del select -->
+            <div class="col-sm-6 col-md-6" id="opciones_select" style="display: none;">
+              <div class="form-floating">
+                <div class="input-group mb-3">
+                  <input type="text" class="form-control form-control-sm" id="nueva_opcion" placeholder="Opciones para el Select">
+                  <button class="btn btn-outline-secondary btn-sm" type="button" id="agregar_opcion">Agregar</button>
+                </div>
+                <div class="d-flex justify-content-center">
+                  <ul class="list-group" id="lista_opciones"></ul>
+                  <input type="hidden" name="opciones" id="opciones">
+                </div>
+              </div>
+              <!-- </div> -->
+            </div>
+
+            <div class="col-sm-6 col-md-6">
+              <div class="form-floating">
+                <select class="form-select form-select-sm" id="estadoFiltro">
+                  <option selected="selected">Seleccionar</option>
+                  <option value="Activo">Activo</option>
+                  <option value="Inactivo">Inactivo</option>
+                  <option value="Cancelada">Cancelada</option>
+                </select>
+                <label for="estadoFiltro">Estado <span style="color:red;"><i>*</i></label>
+              </div>
+            </div>
+
+            <!-- <div class="col-sm-6 col-md-6">
+              <div class="form-floating">
+                <select class="form-select form-select-sm" id="ordenventana">
+                  <option selected="selected">Seleccionar</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+                <label for="ordenventana">Orden <span style="color:red;"><i>*</i></label>
+              </div>
+            </div> -->
+
+            <div class="col-12 gy-6">
+              <div class="form-floating">
+                <textarea class="form-control" id="descripcion_filtro" placeholder="Leave a comment here"
+                  oninput="this.value = this.value.toUpperCase();" style="height: 100px"></textarea>
+                <label for="descripcion_pantalla">Descripcion</label>
+              </div>
+            </div>
+
+            <div class="col-12 gy-6">
+              <div class="row g-3 justify-content-end">
+                <div class="col-auto">
+                  <button class="btn btn-phoenix-primary btn-sm px-5" type="button" id="btn-cancelar">
+                    <span class="text-danger" data-feather="x"></span> Cancelar</button>
+                </div>
+                <div class="col-auto">
+                  <button class="btn btn-primary btn-sm px-5" id="btn-save-filtro" type="button">
+                    <span data-feather="save"></span> Crear Filtro</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL ?>views/pantallas/js/filtros.js type="text/javascript"></script>
+<script>
+  $(document).ready(function() {
+    $('.select2').select2({
+      placeholder: "Seleccione",
+      allowClear: true
+    });
+  });
+</script>

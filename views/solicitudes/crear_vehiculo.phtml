@@ -1,0 +1,1134 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -25px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="validar_token_form">
+      <div class="menssage_validar_token"></div>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2 text-center" style="margin:25px;">
+              <b>Validar Codigo de seguridad</b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Datos del seguro -->
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Estudio Seguridad:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+              <input type="number" id="num_prefiltro" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Token de seguridad:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+              <input type="text" id="token_val" name="token_val" style="width:100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Placa:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+              <input type="text" id="placa_val" name="placa_val" style="width:100%;">
+            </td>
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="margin:5px;">
+        <tbody>
+          <tr>
+            <td class="text-center">
+              <button type="button" class="btn btn-primary  btn-xs" id="validar_token"><i class="fas fa-sync-alt "></i> Validar Prefiltro</button>
+              <button type="button" class="btn btn-danger  btn-xs" id="cancelar_operacion"><i class="fas fa-times"></i> Cancelar</button>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="form_create" style="display: none;">
+      <div class="nexos_messages_popup"></div>
+      <div id="Mensaje_vigencia"></div>
+      <div id="historicos"></div>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2 text-center" style="margin:25px;">
+              <b>Información del vehiculo nuevo</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;">
+              <b>Datos generales del Vehículo</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Datos generales -->
+      <!-- <div class="table-responsibe"></div> -->
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <td style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Placa:&nbsp;<span style="color:red;"><i>(*)</i></span></td>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;">
+              <input type="text" id="placa" name="placa" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5;font-weight: bold; font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Configuración:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;">
+              <select id="configuracion" class="select2" onchange="configu()" style="width: 100%;">
+                <option value="" selected>Seleccione</option>
+              </select>
+            </td>
+            <input type="hidden" id="id_vehiculo_configuracion" readonly="readonly">
+            <input type="hidden" id="rndc_vehiculo_configuracion" readonly="readonly">
+            <input type="hidden" id="rndc_sigla" readonly="readonly">
+            <th style="background-color: #F5F5F5;font-weight: bold; font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;width: auto; white-space: nowrap;">
+              <div class="input-group">
+                <select id="trailers" class="select2" style="width: 100%;height: 23px;">
+                  <option value="" readonly="readonly">Seleccione opción</option>
+                </select>
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-primary btn-sm" style="height:auto;" id="btn_reload_trailers"><i class="fa-sharp fa-solid fa-rotate"></i></button>
+                </span>
+              </div>
+
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Color:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;width: auto; white-space: nowrap;">
+              <div class="input-group">
+                <input type="text" style="width: 100%;" id="color_tabla" readonly>
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-primary btn-sm" id="btn_cargar_color" style="height:auto;" data-toggle="modal" data-target="#md-fullWidth"><i class="fa-solid fa-list"></i></button>
+                </span>
+              </div>
+              <!-- <select id="color" style="width: 80%;">
+                <option value="">Seleccione</option>
+              </select> -->
+              <input type="hidden" id="id_vehiculo_color">
+              <input type="hidden" id="rndc_vehiculo_color">
+              <input type="hidden" id="color">
+            </td>
+            <th style="background-color: #F5F5F5;font-weight: bold; font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Marca:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;width: auto; white-space: nowrap;">
+              <div class="input-group">
+                <select id="marca" class="select2" style="width: 100%;height: 23px;">
+                  <option value="">Seleccione</option>
+                </select>
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-primary btn-sm" id="btn_reload_marcas" style="height:auto;"><i class="fa-sharp fa-solid fa-rotate"></i></button>
+                </span>
+              </div>
+            </td>
+            <input type="hidden" id="id_vehiculo_marca">
+            <input type="hidden" id="rndc_vehiculo_marca">
+            <th style="background-color: #F5F5F5;font-weight: bold; font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Línea:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;width: auto; white-space: nowrap; ">
+              <select id="linea" class="select2" style="width: 100%;">
+                <option value="">Seleccione</option>
+              </select>
+            </td>
+            <input type="hidden" id="id_vehiculo_linea">
+            <input type="hidden" id="rndc_vehiculo_linea">
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Tipo Combustible:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+              <!-- style="width: 100%;height: 20px !important;" -->
+              <select id="tipo_combustible" style="width: 100%;">
+                <option value="" disabled selected>Seleccione</option>
+                <option value="1">Gasolina</option>
+                <option value="2">GNV</option>
+                <option value="3">Diesel</option>
+                <option value="4" disabled>Gas/Gasolina</option>
+                <option value="5">Electrico</option>
+                <option value="6" disabled>Hidrogeno</option>
+                <option value="7" disabled>Etanol</option>
+                <option value="8" disabled>Biodiesel</option>
+                <option value="9" disabled>GLP</option>
+                <option value="10" disabled>Gaso Elec</option>
+                <option value="11" disabled>Dies Elec</option>
+                <option value="12">ACPM</option>
+                <option value="13" disabled>Gas</option>
+              </select>
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Modelo:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+              <input type="number" min="1950" max="2100" id="modelo" style="width: 50%;">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Fecha de Matrícula:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+              <input type="date" id="f_matricula" name="f_matricula" min="1900-01-01" style="width: 100%;height: auto;">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Clase Vehículo:&nbsp;<span style="color:red;"><i><strong>(*)</strong></i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <select id="clase_v" class="select2" style="width: 100%;">
+                <option value="">Seleccione</option>
+              </select>
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Tipo Carroceria:&nbsp;<span style="color:red;"><i><strong>(*)</strong></i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+              <select id="tipo_carroceria" class="select2">
+                <option value="">Seleccione un tipo de carroceria</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Peso Vacío (Kg):&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              <input type="number" id="peso_vacio" maxlength="4" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Capacidad carga(Kg):&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="number" min="0" id="capacidad_tn" style="width: 50%;">
+              <!-- <div class="input-group"> </div> -->
+            </td>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Peso Bruto (Kg):&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="number" id="peso_bruto" maxlength="6" readonly="readonly" style="width: 100%;">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Tecnomecánica:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+              <input type="text" id="tecnomecanica" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="etiqueta_Expedicion_tecno">
+              Fecha Ex.Tecnomecánica:</th>
+            <td style="border: 1px solid #ddd;  width: auto; white-space: nowrap;">
+              <input size="16" type="date" value="" id="fecha_tecno" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" id="etiqueta_vencimiento_tecno">
+              Fecha V.Tecnomecánica:</th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input size="16" type="date" value="" id="fecha_vig_tecno" style="width: 100%;">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Número Motor:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+              <input type="text" id="num_motor" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Número Chasis:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;  width: auto; white-space: nowrap;">
+              <input type="text" id="num_chasis" style="width: 100%;" oninput="this.value = this.value.toUpperCase();">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd;  width: auto; white-space: nowrap;">
+              Vehículo repotenciado?:</th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <select id="repotencia" style="width: 100%;">
+                <option value="">Seleccione</option>
+                <option value="0">No</option>
+                <option value="1">Si</option>
+              </select>
+            </td>
+          </tr>
+          <tr style="display: none;" id="campo_repotenciado">
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" colspan="8">Repotenciado a:</th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="text" min="0" id="repotenciado" style="width: 100%;" minlength="4" maxlength="4">
+            </td>
+          </tr>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Tipo Vinculación:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap; ">
+              <select id="tipovinculacion" style="width: 100%;">
+                <option value="" readonly="readonly">Seleccione una opción</option>
+                <option value="Tercero">Tercero</option>
+                <option value="Propio">Propio</option>
+                <option value="Afiliado" disabled="disabled">Afiliado</option>
+                <option value="Aliado" disabled="disabled">Aliado</option>
+              </select>
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              Licencia de tránsito:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;  width: auto; white-space: nowrap;">
+              <input type="number" id="lice_transito" min="0" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd;  width: auto; white-space: nowrap;">
+              Cant. viajes:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="number" id="cant_viaje" min="1" style="width: 100%;">
+            </td>
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;">
+              <b>Seguro</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Datos del seguro -->
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Póliza Responsabilidad Civil:</th>
+            <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+              <input type="text" id="numero_polizaRC" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Vencimiento Póliza:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+              <input size="16" type="date" value="" id="fecha_poliza" style="width: 100%;">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left">
+              Número SOAT:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="text" id="numero_poliza" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Vencimiento SOAT:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;width: auto; white-space: nowrap; ">
+              <input size="16" type="date" value="" name="soat_vencimiento" id="soat_vencimiento" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Aseguradora:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;  width: auto; white-space: nowrap; ">
+              <div class="input-group">
+                <input type="text" class="typeahead" style="width: 100%;" id="aseguradora_tabla">
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-primary btn-sm" style="height:auto;" data-toggle="modal" data-target="#Modal_aseguradora"><i class="fas fa-car-crash"></i></button>
+                </span>
+              </div>
+            </td>
+            <input type="hidden" id="id_vehiculo_aseguradora">
+            <input type="hidden" id="rndc_vehiculo_aseguradora">
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;">
+              <b>Operador Gps</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-right">
+              Empresa Satelital:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <div class="input-group">
+                <select id="empresa_satelital" style="width: 100%;height: 23px;"></select>
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-primary btn-sm" id="btn_reload_gps" style="height:auto;"><i class="fa-sharp fa-solid fa-rotate"></i></button>
+                  <!-- <button type="button" class="btn btn-xs" style="height: 19px;width: 20px;background-color: #14A44D;color:#FFFFFF; border: none;"><i class="fa-sharp fa-solid fa-rotate fa-spin-pulse"></i></button> -->
+                </span>
+              </div>
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd;  width: auto; white-space: nowrap;" class="text-right">
+              Web satelital:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap; ">
+              <input type="text" id="web_satelital" placeholder="Web satelital" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd;  width: auto; white-space: nowrap;" class="text-right">
+              Usuario satelital:</th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap; ">
+              <input type="text" id="usuario_satelital" placeholder="Usuario satelital" style="width: 100%;">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd;  width: auto; white-space: nowrap;" class="text-right">
+              Clave satelital:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;  width: auto; white-space: nowrap;" class="text-right">
+              <input type="text" id="clave_satelital" placeholder="Clave satelital" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd;  width: auto; white-space: nowrap;" class="text-right">
+              Fecha Mantenimiento GPS</th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap; ">
+              <input size="16" type="date" value="" id="fecha_mantenimientogps" style="width: 100%;">
+            </td>
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td style="margin:25px;">
+              <b>Documentos</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Licencia transito (documento):&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="foto_transi" onchange="vtransito(this.value)" data-multiple-caption="{count} archivos seleccionados" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_transi" class="form-control input-sm" disabled="disabled">
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Foto del Vehículo (derecha):&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="foto_vehiculod" onchange="vderecha(this.value)" data-multiple-caption="{count} archivos seleccionados" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_derecha" class="form-control input-sm" disabled="disabled">
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Soat (documento):&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="foto_soat" onchange="vsoat(this.value)" data-multiple-caption="{count} archivos seleccionados" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_soat" class="form-control input-sm" disabled="disabled">
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Foto del Vehículo (izquierda):&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="foto_vehiculoi" onchange="vizquierda(this.value)" data-multiple-caption="{count} archivos seleccionados" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_izquierda" class="form-control input-sm" disabled="disabled">
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" id="etiqueta_documento_tecno" class="text-left">
+              Tecnomecánica (documento):</th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="foto_tecno" onchange="vtecno(this.value)" data-multiple-caption="{count} archivos seleccionados" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_tecno" class="form-control input-sm" disabled="disabled">
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Foto del Vehículo (atrás):&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="foto_vehiculoa" onchange="vatras(this.value)" data-multiple-caption="{count} archivos seleccionados" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_atras" class="form-control input-sm" disabled="disabled">
+
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Foto del Vehículo (Frontal)&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="foto_vehiculo" onchange="vfrente(this.value)" data-multiple-caption="{count} archivos seleccionados" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_frontal" class="form-control input-sm" disabled="disabled">
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Foto del Kit mercancias</th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="foto_kit_mercancias" onchange="vkit(this.value)" data-multiple-caption="{count} archivos seleccionados" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_kit" class="form-control input-sm" disabled="disabled">
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td style="margin:25px;">
+              <b>Documento Preoperacional</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Datos del preperacional -->
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Fecha Expedición:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+              <input type="date" value="" id="fecha_expedicion_preoperacional" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Fecha Vencimiento:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+              <input type="date" value="" id="fecha_vencimiento_preoperacional" style="width: 100%;" readonly>
+            </td>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Vigencia:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+              <input type="number" id="vigencia_prepoeracional" style="width: 100%;" readonly value="180">
+            </td>
+            <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Documento:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+              <input type="file" name="file-2" id="documento_preopeacional" accept="image/*,.pdf">
+            </td>
+            <input type="hidden" id="name_preoperacional" class="form-control input-sm" disabled="disabled">
+          </tr>
+        </thead>
+      </table>
+
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td style="margin:25px;">
+              <b> Datos Específicos</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Datos de los terceros -->
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5; font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Propietario:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd; width: 300px; white-space: nowrap;">
+              <div class="input-group">
+                <input type="text" name="propietario_tabla" id="propietario_tabla" style="width: 100%;" readonly>
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-primary btn-sm" id="btn_cargar_propietario" style="height:auto;" data-toggle="modal" data-target="#md-propietarios"><i class="fa-solid fa-users"></i></button>
+                </span>
+              </div>
+            </td>
+            <input type="hidden" id="id_propietario" name="id_propietario">
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+              Poseedor:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;width: 300px; white-space: nowrap; ">
+              <div class="input-group">
+                <input type="text" name="poseedor_tabla" id="poseedor_tabla" style="width: 100%;" readonly>
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-primary btn-sm" id="btn_cargar_poseedor" style="height: auto;" data-toggle="modal" data-target="#md-poseedor"><i class="fa-solid fa-users"></i></button>
+                </span>
+              </div>
+            </td>
+            <input type="hidden" name="id_tenedor" id="id_tenedor">
+            <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">
+              Conductor:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+            <td style="border: 1px solid #ddd;  width: 300px; white-space: nowrap; ">
+              <div class="input-group">
+                <input type="text" name="conductor_tabla" id="conductor_tabla" style="width: 100%;" readonly>
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-primary btn-sm" id="btn_cargar_conductor" data-toggle="modal" data-target="#md-conductor" style="height: auto;"><i class="fa-solid fa-users"></i></button>
+                </span>
+              </div>
+            </td>
+            <input type="hidden" name="id_conductor" id="id_conductor">
+          </tr>
+        </thead>
+      </table>
+      <div class="text-center">
+        <div class="btn-group" role="group" aria-label="..." style="margin-top: 15px;margin-bottom: 15px;">
+          <button type="button" class="btn btn-success btn-xs" id="btn_agregar_vehiculo" style="margin-right: 10px;"><i class="far fa-save"></i> Guardar Vehiculo</button>
+          <button type="button" class="btn btn-danger btn-xs" id="btn_cancelar_registro"><i class="fas fa-times-circle"></i> Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal propietarios -->
+<div class="modal fade" id="md-propietarios" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog full-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button class="close" type="button" data-dismiss="modal" aria-hidden="true" style="color: #FFFFFF;"><span class="mdi mdi-close"></span></button>
+        <h4>Biblioteca de Propietarios</h4>
+      </div>
+      <div class="modal-body" style="padding: 2px 2px 2px;max-height: 700px; overflow-y: auto;overflow-x: hidden;">
+        <div class="row">
+          <!-- <div class="col-md-4"></div> -->
+          <!-- <div class="col-md-4"></div> -->
+          <div class="col-md-5 text-right">
+            <div class="form-group form-group-sm">
+              <div class="input-group input-xs">
+                <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Buscar</div>
+                <!-- <input type="text" name="buscar_propietario" id="buscar_propietario" style="width: 100%;"> -->
+                <input type="text" name="buscar_propietario" id="buscar_propietario" class="form-control input-xs">
+              </div>
+            </div>
+          </div>
+        </div>
+        <table cellpadding="0" cellspacing="0" border="1" style="width: 100%;" id="informe_placas_asignadas">
+          <thead style="border-collapse: collapse;background-color: #332D2D;color:#fff;font-size: 12px;">
+            <tr role="row">
+              <th class="sorting_asc text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">#</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Documento</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Nombre</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Dirección</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Contacto</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;"></th>
+              <!-- <th class="sorting" tabindex="0" aria-controls="table6" rowspan="1" colspan="1" style="width: 200px;" aria-label="CSS grade: activate to sort column ascending">CSS grade</th> -->
+            </tr>
+          </thead>
+          <tbody id="tbl_propietarios" style="font-size: 11px;"></tbody>
+        </table>
+      </div>
+      <!-- <div class="modal-footer"></div> -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal poseedor -->
+<div class="modal fade" id="md-poseedor" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog full-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button class="close" type="button" data-dismiss="modal" aria-hidden="true" style="color: #FFFFFF;"><span class="mdi mdi-close"></span></button>
+        <h4>Biblioteca de Poseedor</h4>
+      </div>
+      <div class="modal-body" style="padding: 2px 2px 2px;max-height: 700px; overflow-y: auto;overflow-x: hidden;">
+        <div class="row">
+          <!-- <div class="col-md-4"></div> -->
+          <!-- <div class="col-md-4"></div> -->
+          <div class="col-md-5 text-right">
+            <div class="form-group form-group-sm">
+              <div class="input-group input-xs">
+                <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Buscar</div>
+                <!-- <input type="text" name="buscar_propietario" id="buscar_propietario" style="width: 100%;"> -->
+                <input type="text" name="buscar_poseedor" id="buscar_poseedor" class="form-control input-xs">
+              </div>
+            </div>
+          </div>
+        </div>
+        <table cellpadding="0" cellspacing="0" border="1" style="width: 100%;" id="informe_placas_asignadas">
+          <thead style="border-collapse: collapse;background-color: #332D2D;color:#fff;font-size: 12px;">
+            <tr role="row">
+              <th class="sorting_asc text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">#</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Documento</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Nombre</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Dirección</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Contacto</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;"></th>
+              <!-- <th class="sorting" tabindex="0" aria-controls="table6" rowspan="1" colspan="1" style="width: 200px;" aria-label="CSS grade: activate to sort column ascending">CSS grade</th> -->
+            </tr>
+          </thead>
+          <tbody id="tbl_poseedor" style="font-size: 11px;"></tbody>
+        </table>
+      </div>
+      <!-- <div class="modal-footer"></div> -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal Conductor -->
+<div class="modal fade" id="md-conductor" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog full-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button class="close" type="button" data-dismiss="modal" aria-hidden="true" style="color: #FFFFFF;"><span class="mdi mdi-close"></span></button>
+        <h4>Biblioteca de Conductores</h4>
+      </div>
+      <div class="modal-body" style="padding: 2px 2px 2px;max-height: 700px; overflow-y: auto;overflow-x: hidden;">
+        <div class="row">
+          <!-- <div class="col-md-4"></div> -->
+          <!-- <div class="col-md-4"></div> -->
+          <div class="col-md-5 text-right">
+            <div class="form-group form-group-sm">
+              <div class="input-group input-xs">
+                <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Buscar</div>
+                <!-- <input type="text" name="buscar_propietario" id="buscar_propietario" style="width: 100%;"> -->
+                <input type="text" name="buscar_conductor" id="buscar_conductor" class="form-control input-xs">
+              </div>
+            </div>
+          </div>
+        </div>
+        <table cellpadding="0" cellspacing="0" border="1" style="width: 100%;" id="informe_placas_asignadas">
+          <thead style="border-collapse: collapse;background-color: #332D2D;color:#fff;font-size: 12px;">
+            <tr role="row">
+              <th class="sorting_asc text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">#</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Documento</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Nombre</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Dirección</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;">Contacto</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; width: auto; white-space: nowrap;"></th>
+              <!-- <th class="sorting" tabindex="0" aria-controls="table6" rowspan="1" colspan="1" style="width: 200px;" aria-label="CSS grade: activate to sort column ascending">CSS grade</th> -->
+            </tr>
+          </thead>
+          <tbody id="tbl_conductor" style="font-size: 11px;"></tbody>
+        </table>
+      </div>
+      <!-- <div class="modal-footer"></div> -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal para agregar la aseguradora -->
+<div class="modal fade" id="Modal_aseguradora" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+  <div class=" modal-dialog" role="document" style="width: 500px;">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding:19px;">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #ffffff;"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Selecccionar Aseguradora</h4>
+      </div>
+      <div class="modal-body" style="justify-content: center;padding: 5px 5px 5px;">
+        <div class="mesanje_error"></div>
+        <div id="caja_aseguradora" style="text-align:center;">
+          <input type="text" class="form-control input-xs typeahead" placeholder="Aseguradoras" id="aseguradora" style="width: 500px;">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><i class="fas fa-times-circle"></i> Cerrar</button>
+        <button type="button" class="btn btn-primary btn-xs" id="pasar_aseguradora"><i class="far fa-save"></i> Guardar Aseguradora</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ventana modal para confirmar o cancelar operacion -->
+<div class="modal fade" id="md-footer-primary" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true" data-backdrop="static">
+  <!-- <div class="modal-dialog modal-sm"> -->
+  <div class="modal-dialog" style="width: 500px;">
+    <div class="modal-content">
+      <!-- <div class="modal-header">
+        <button class="close" type="button" data-dismiss="modal" aria-hidden="true"><span class="mdi mdi-close"></span></button>
+      </div> -->
+      <div class="modal-body">
+        <div class="text-center">
+          <div class="text-primary"><span class="modal-main-icon mdi mdi-info-outline"></span></div>
+          <h4 id="titulo_alerta" style="font-weight: bold;">Information!</h4>
+          <!-- <p id="mensaje_alerta">Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>Fusce ultrices euismod lobortis.</p> -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-xs" type="button" data-dismiss="modal" id="btn_aceptar"><i class="fa-solid fa-check"></i> Aceptar</button>
+        <button class="btn btn-danger btn-xs" type="button" data-dismiss="modal"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="md-actualizar" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true" data-backdrop="static">
+  <!-- <div class="modal-dialog modal-sm"> -->
+  <div class="modal-dialog" style="width: 500px;">
+    <div class="modal-content">
+      <!-- <div class="modal-header">
+        <button class="close" type="button" data-dismiss="modal" aria-hidden="true"><span class="mdi mdi-close"></span></button>
+      </div> -->
+      <div class="modal-body">
+        <div class="text-center">
+          <div class="text-primary"><span class="modal-main-icon mdi mdi-info-outline"></span></div>
+          <h4 class="titulo_alerta" style="font-weight: bold;">Information!</h4>
+          <!-- <p id="mensaje_alerta">Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>Fusce ultrices euismod lobortis.</p> -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-xs" type="button" data-dismiss="modal" id="btn_aceptar_actualizacion"><i class="fa-solid fa-check"></i> Aceptar</button>
+        <button class="btn btn-danger btn-xs" type="button" data-dismiss="modal"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para caragr los colores -->
+<div class="modal fade" id="md-fullWidth" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog full-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button class="close" type="button" data-dismiss="modal" aria-hidden="true" style="color: #FFFFFF;"><span class="mdi mdi-close"></span></button>
+        <h4>Biblioteca de colores</h4>
+      </div>
+      <div class="modal-body" style="padding: 2px 2px 2px;max-height: 700px; overflow-y: auto;overflow-x: hidden;">
+        <div class="row">
+          <div class="col-md-4">
+          </div>
+          <div class="col-md-4">
+          </div>
+          <div class="col-md-4">
+            <div class="form-group form-group-sm">
+              <div class="input-group">
+                <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Buscar</div>
+                <input type="text" name="buscar" id="buscar" class="form-control input-xs" wfd-id="id5">
+              </div>
+            </div>
+          </div>
+        </div>
+        <table cellpadding="0" cellspacing="0" border="1" style="width: 100%;" id="informe_placas_asignadas">
+          <thead style="border-collapse: collapse;background-color: #332D2D;color:#fff;">
+            <tr role="row">
+              <th class="sorting_asc text-center" tabindex="0" style="font-weight: bold; font-size: 12px; width: 50px; white-space: nowrap;">#</th>
+              <th class="sorting" tabindex="0">Color</th>
+              <th class="sorting text-center" tabindex="0" style="font-weight: bold; font-size: 12px; width: 60px; white-space: nowrap;">Estado</th>
+              <th class="sorting" tabindex="0" style="font-weight: bold; font-size: 12px;width: 20px; white-space: nowrap;"></th>
+              <!-- <th class="sorting" tabindex="0" style="background-color: #332D2D;font-weight: bold; font-size: 12px; border: 1px solid #ddd;width: 15px; white-space: nowrap;">Acción</th> -->
+              <!-- <th class="sorting" tabindex="0" aria-controls="table6" rowspan="1" colspan="1" style="width: 200px;" aria-label="CSS grade: activate to sort column ascending">CSS grade</th> -->
+            </tr>
+          </thead>
+          <tbody id="tbl_colores"></tbody>
+        </table>
+      </div>
+      <!-- <div class="modal-footer"></div> -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal mensaje -->
+<div class="modal fade" id="Modal_Mensajes" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+  <div class=" modal-dialog" role="document" style="width: 700px;">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#3B71CA;color:#fff;text-align:left;height: 40px;padding:15px;">
+        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #ffffff;"><span aria-hidden="true">&times;</span></button> -->
+        <h4 class="modal-title" id="myModalLabel">Respuesta de las operaciones</h4>
+      </div>
+      <div class="modal-body" style="justify-content: center;padding: 5px 5px 5px;">
+        <div id="contenedor"></div>
+      </div>
+      <div class="modal-footer" style="justify-content: center;padding: 5px 5px 5px;">
+        <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal" id="btn-cerrar-mensajes"><i class="fas fa-times-circle"></i> Cerrar</button>
+        <!-- <button type="button" class="btn btn-primary btn-xs" id="pasar_municipio"><i class="far fa-save"></i> Guardar Municipio</button> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mensajes para los usuarios de la plataforma -->
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="http://localhost/mvcLuisMiguel/public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-oet" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="http://localhost/mvcLuisMiguel/public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para Oet...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-rndc" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="http://localhost/mvcLuisMiguel/public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para Rndc...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-mensaje_carga" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="http://localhost/mvcLuisMiguel/public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos para traer los datos.</h4>
+  </div>
+</div>
+
+<script src="<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/lib/select2/js/select2.min.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/js/main.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>views/layout/assets/lib/typeahead.bundle.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>public/helpers/helpers.js" type="text/javascript"></script>
+<!-- <script src="<?php echo BASE_URL; ?>views/layout/assets/lib/vehiculos_ajax.js" type="text/javascript"></script> -->
+<script src="<?php echo BASE_URL; ?>views/solicitudes/js/vehiculos.js" type="text/javascript"></script>
+<script src="<?php echo BASE_URL; ?>public/helpers/helpers.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  //creacion
+  function vtransito(fic) {
+    var input = document.getElementById('foto_transi'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp", "jpeg"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 800);
+        // document.getElementById("historicos").innerHTML = mensaje;
+        Swal.fire({
+          title: "Advertencia!",
+          text: mensaje,
+          icon: "warning",
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_transi").val('');
+        } else {
+          $("#name_transi").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vtecno(fic) {
+    var input = document.getElementById('foto_tecno'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp", "jpeg"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 800);
+        // document.getElementById("historicos").innerHTML = mensaje;
+        Swal.fire({
+          title: "Advertencia!",
+          text: mensaje,
+          icon: "warning",
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_tecno").val('');
+        } else {
+          $("#name_tecno").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+
+  function vsoat(fic) {
+    var input = document.getElementById('foto_soat'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp", "jpeg"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 800);
+        // document.getElementById("historicos").innerHTML = mensaje;
+        Swal.fire({
+          title: "Advertencia!",
+          text: mensaje,
+          icon: "warning",
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_soat").val('');
+        } else {
+          $("#name_soat").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vfrente(fic) {
+    var input = document.getElementById('foto_vehiculo'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp", "jpeg"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 800);
+        // document.getElementById("historicos").innerHTML = mensaje;
+        Swal.fire({
+          title: "Advertencia!",
+          text: mensaje,
+          icon: "warning",
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_frontal").val('');
+        } else {
+          $("#name_frontal").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vderecha(fic) {
+    var input = document.getElementById('foto_vehiculod'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp", "jpeg"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 800);
+        // document.getElementById("historicos").innerHTML = mensaje;
+        Swal.fire({
+          title: "Advertencia!",
+          text: mensaje,
+          icon: "warning",
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_derecha").val('');
+        } else {
+          $("#name_derecha").val(fic[fic.length - 1]);
+        }
+      }
+    }
+
+  }
+
+  function vizquierda(fic) {
+    var input = document.getElementById('foto_vehiculoi'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp", "jpeg"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 800);
+        // document.getElementById("historicos").innerHTML = mensaje;
+        Swal.fire({
+          title: "Advertencia!",
+          text: mensaje,
+          icon: "warning",
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_izquierda").val('');
+        } else {
+          $("#name_izquierda").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vatras(fic) {
+    var input = document.getElementById('foto_vehiculoa'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp", "jpeg"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 800);
+        // document.getElementById("historicos").innerHTML = mensaje;
+        Swal.fire({
+          title: "Advertencia!",
+          text: mensaje,
+          icon: "warning",
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_atras").val('');
+        } else {
+          $("#name_atras").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vkit(fic) {
+    var input = document.getElementById('foto_kit_mercancias'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp", "jpeg"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 800);
+        // document.getElementById("historicos").innerHTML = mensaje;
+        Swal.fire({
+          title: "Advertencia!",
+          text: mensaje,
+          icon: "warning",
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_kit").val('');
+        } else {
+          $("#name_kit").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+</script>

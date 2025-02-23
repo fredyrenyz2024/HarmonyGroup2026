@@ -1,0 +1,140 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -10px -39px;">
+    <input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'">
+    <input type="hidden" id="elperfil" class="form-control input-sm" readonly="readonly" value="'.$ssn_id_perfil.'">
+    <!-- <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" id="menu-ordenes" style="padding: 1px 1px 1px;"></div> -->
+    <!-- <div id="contenedor-principal-ordenes"></div> -->
+    <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12">
+      <div class="nexos-messages"></div>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;">
+              <b>Ingresar las fechas de cargue</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;margin-bottom: 10px;font-zise: 8px;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Remesa: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="remesa_id"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Fecha Entrega: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="fecha_entrega"></td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Peso: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="peso"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Volumen: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="volumen"></td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Empaque: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="empaque"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Mercancia </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="mercancia"></td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Placa: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="placa"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Cliente: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="cliente"></td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Remitente: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="remitente"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Direccion remitente: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="direccion_remitente"></td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Destinatario: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="destinatario"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Direccion Destinatario: </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="direccion_destinatario"></td>
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+    <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" style="margin-top: -13px;">
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;">
+              <b>Tiempos logisticos de cargue</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        <label>Fecha y Hora de Llegada de Cargue</label>
+        <input type="hidden" id="tpfecha2" class="form-control input-xs" value="fec_llegada" readonly="readonly">
+        <input type="date" id="firllegada" class="form-control input-xs" value="<?php echo date('Y-m-d') ?>">
+        <input type="text" id="hirllegada" class="form-control input-xs" maxlength="5" placeholder="HH:MM">
+        <p id="error" style="color: red;"></p>
+      </div>
+
+      <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        <label>Fecha y Hora de Entrada de Cargue</label>
+        <input type="hidden" id="tpfecha3" class="form-control input-xs" value="fec_entrada" readonly="readonly">
+        <input type="date" id="firentrada" class="form-control input-xs" value="<?php echo date('Y-m-d') ?>">
+        <input type="text" id="hirentrada" class="form-control input-xs" maxlength="5" placeholder="HH:MM">
+        <p id="error2" style="color: red;"></p>
+      </div>
+
+      <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        <label>Fecha y Hora de Salida de Cargue:</label>
+        <input type="hidden" id="tpfecha4" class="form-control input-xs" value="fec_salida" readonly="readonly">
+        <input type="date" id="firsalida" class="form-control input-xs" value="<?php echo date('Y-m-d') ?>">
+        <input type="text" id="hirsalida" class="form-control input-xs" maxlength="5" placeholder="HH:MM">
+        <p id="error3" style="color: red;"></p>
+      </div>
+
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <input type="hidden" id="idmanifiesto" class="form-control input-xs">
+        <input type="hidden" id="placa" class="form-control input-xs">
+        <input type="hidden" id="idordencargue" class="form-control input-xs">
+      </div>
+
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+        <br>
+        <button id="registrar_tiempo" class="btn btn-success btn-xs"><i class="far fa-save"></i> Guardar Fechas</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>views/tiempo_logistico_cargue/js/tiempo_cargue_ajax.js type="text/javascript">
+</script>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/timepicker.min.js type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

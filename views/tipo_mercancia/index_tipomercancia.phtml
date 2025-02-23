@@ -1,0 +1,614 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$vista = '';
+$table_content='';?>
+
+<?php
+$tabla_productos_min='';
+
+$tabla_productos_min="<div  class='table-responsive noSwipe'>
+									<table id='table1' class='table table-striped table-hover' data-page-length='100'>
+										<thead>
+											<tr class='nexos-encabezado'>
+												<th>Código</th>
+												<th>Descripción</th>
+												<th>Capítulo</th>
+												<th>Acción</th>
+											</tr>
+										</thead>
+										<tbody>";
+	$array2 = $this->tipo_mercancia->Productos_Ministerio();
+	if($array2){
+		$idbtn=0;
+		foreach ($array2["rowsData"] as $key => $value) {
+			$idbtn++;
+
+			$tabla_productos_min.="<tr>
+				<td>$value[id_rndc]</td>
+				<td>$value[descripcion]</td>
+				<td>$value[capitulo]</td>
+				<td>
+				<button id='btn_uno".$idbtn."'  class='btn btn-space btn-success mdi mdi-check' title='Seleccione' style='border-radius:25px;' onclick='Producto_Seleccionado(this);'
+							 data-id='".$value['id_rndc']."'
+							 data-id2='".$value['naturaleza']."'
+							 data-id3='".$value['descripcion']."'
+							 data-id4='".$value['capitulo']."''
+							 data-id5='".$value['id']."'
+							 data-id6='".$value['cod_capitulo']."'
+							 ></button>
+				</td>
+			</tr>";
+		}	
+	}
+$tabla_productos_min.="</tbody>
+					</table>
+				</div>";
+
+$table_content.="<div class='row' >
+			<div class='col-sm-12'>
+				<div  class='table-responsive noSwipe'>
+					<table id='table2' class='table table-striped table-hover' data-page-length='100'>
+						<thead>
+							<tr class='nexos-encabezado'>
+								<th>#</th>
+								<th>Código</th>
+								<th>Mercancía</th>
+								<th style='width:10%;min-width: 10%;'>acciones</th>
+							</tr>
+						</thead>
+						<tbody>";
+						$array = $this->tipo_mercancia->getTabla();
+						if ( $array ) {
+					foreach ($array["rowsData"] as $key => $value) {
+
+						$id=$value['id'];
+						$nom=$value['nombre'];
+						$es=$value['estado'];
+						$id_rndc=$value['id_rndc'];
+
+						$_btn_editar='';
+						$_btn_editar='
+							<button type="button" class="btn-secondary btn btn-xs mdi"
+							<a href="javascript:" onclick="prueba_editar(this)" class="cell-detail hint--top-left" data-hint="" 
+										data-id="'.$id.'">
+										<span class="icon mdi mdi-edit" data-toggle="modal" data-target="#editar_tipo_vehiculo" title="Editar Tipo Mercancía">
+										</span>
+									</a></button>';
+					
+
+
+						if($value['estado']=='Activo'){
+							$_col_status='
+								<td class="text" style="color:green;">
+									<center>
+									<span class="mdi mdi-dot-circle icon"></span>
+									</center>
+								</td>';
+						}
+
+						if($value['estado']=='Inactivo'){
+							$_col_status='
+								<td class="text" style="color:red;">
+									<center>
+									<span class="mdi mdi-dot-circle icon"></span>
+									</center>
+								</td>';
+						}
+						$table_content.='
+							<tr>
+								'.$_col_status.'
+								<td>'.$value['id_rndc'].'</td>
+								<td>'.$value['nombre'].'</td>
+								<td>'.$_btn_editar.'</td>
+							</tr>';
+
+						}
+
+					}
+						$table_content.="</tbody>
+					</table>
+				</div>
+			</div>
+		</div>";
+$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Tipo de Mercancía
+				<div class="tools">
+					<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="Agregar" data-target="#crea_mercancia" ><span class="icon mdi mdi-plus"></span></a> 
+				</div>
+				<span class="panel-subtitle">Módulo para crear tipos de mercancía para la parametrización de campos.</span>
+				<div class=" col-xs-12 col-sm-4 col-md-12">
+					<input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'" >
+				</div>
+			</div>
+			<div class="panel-body">
+				<div class="nexos-messages"></div>
+				<div class="nexos-content">
+					%content%
+				</div>
+				<div class="row">
+				<div class="col-sm-12"></div>
+				</div>
+			</div>
+		</div>
+	'; 
+
+	$vista.='<div id="crea_mercancia" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+		<div class=".modal-dialog-modal-lg.modal-dialog ">
+		<div class="modal-content ">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title"><label style="font-size:19pt; color:white; text-align:center;">
+				Crear Tipo de Mercancía</label>
+				</h3>
+			</div>
+			<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+			<div id="nexos_messages_popup"></div>
+			<div class="row">
+				<div class="col-md-12 col-sm-12 col-xs-12">
+					<span><label  id="cliente2" style="font-weight:800; margin-top:20px;"></label></span>
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<div class="row">
+		            <div class="col-sm-12 col-md-12 col-lg-12">
+		              <div id="accordion1" class="panel-group accordion">
+		                <div class="panel panel-default" id="acordeon_productos">
+		                  <div class="panel-heading">
+		                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne"><i class="icon mdi mdi-chevron-down"></i> Productos Ministerio</a></h4>
+		                  </div>
+		                  <div id="collapseOne" class="panel-collapse collapse in">
+		                    <div class="panel-body">
+		                    '. $tabla_productos_min .'
+		                    </div>
+		                  </div>
+		                </div>         
+		              </div>
+		            </div>
+		          </div>				
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<label style="font-weight:800; margin-top:20px;">Capítulo</label>
+					<input type="text" class="form-control input-sm" id="capitulo" readonly="readonly">	
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<label style="font-weight:800; margin-top:20px;">Producto</label>
+					<input type="text" class="form-control input-sm" id="producto" readonly="readonly">	
+				</div>
+				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+					<label style="font-weight:800; margin-top:20px;">Código RNDC</label>
+					<input type="text" id="codigo_rndc" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-6 col-sm-6 col-md-6 col-lh-6">
+					<label style="font-weight:800; margin-top:20px;">Naturaleza</label>
+					<input type="hidden" id="naturaleza" class="form-control input-sm" readonly="readonly">
+					<input type="text" id="name_naturaleza" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-md-12 col-xs-12 col-sm-12 col-lg-12">
+					<label style="font-weight:800; margin-top:20px;">Nombre para Nexos Cargo:</label>
+					<input type="text" id="tipo" class="form-control input-sm" maxlenght="60" placeholder="Nombre breve, máximo 60 caracteres">	
+				</div>	
+				<div class="col-md-4 col-xs-4 col-sm-4 col-lg-4">
+					<label style="font-weight:800; margin-top:20px;">Estado</label>
+					<input type="text" id="estado" value="Activo" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<br><input type="hidden" id="id_tb_productos" class="form-control input-sm" readonly="readonly">
+					<input type="hidden" id="id_capitulo" class="form-control input-sm" readonly="readonly">
+				</div>
+		<div class="row"></div>
+		</div>
+		<div class="modal-footer">
+			<button type="button"
+			 onclick="crear_mercancia();" class="btn btn-success">Guardar</button>
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	</div>
+	</div>
+</div>';?>
+
+
+<div id="editar_tipo_vehiculo" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="editar_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">EDITAR TIPO MERCANCÍA</label>
+						</h3>
+					</div>
+					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_editar"></div><!-- id para manejar los mensajes de errordel popup -->
+						<div id="content_editar">
+							<div>
+								<label style="font-weight:800; margin-top:20px;">Nombre para Nexos</label>
+								<input type="text" id="e_tipo" class="form-control input-sm">
+							</div>
+							<div>
+								<label style="font-weight:800; margin-top:20px;">Nombre Ministerio</label>
+								<input type="text" id="e_nombre2" class="form-control input-sm" readonly="readonly">
+							</div>
+							<div>
+								<label style="font-weight:800; margin-top:20px;">Capítulo</label>
+								<input type="text" id="e_capitulo" class="form-control input-sm" readonly="readonly">
+							</div>
+							<div>
+								<label style="font-weight:800; margin-top:20px;">Código RNDC</label>
+								<input type="text" id="eid_rndc" class="form-control input-sm" readonly="readonly">
+							</div>
+							<div>
+								<label style="font-weight:800; margin-top:20px;">Naturaleza</label>
+								<input type="text" id="e_natur" class="form-control input-sm" readonly="readonly">
+							</div>
+							<div>
+								<label style="font-weight:800; margin-top:20px;">Estado</label>
+								<select id="e_estado" class="form-control input-sm">	
+								</select>
+							</div>
+							<div>
+								<input type="hidden" id="e_id" class="form-control input-sm">
+								<input type="hidden" id="e_id_productomn" readonly="readonly">
+								<input type="hidden" id="e_id_capitulomn" readonly="readonly">
+							</div>
+						</div>
+					<div class="modal-footer">
+						<button id="btn_actualizar" type="button" class="btn btn-success md-close" onclick="update();" >Actualizar</button>
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+</div>
+
+
+<?php
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
+	echo $vista; ?>
+
+<script type="text/javascript">
+
+	$(document).on('click', '#buscar_producto', function() {
+       $('#ver_estudio').modal('show');
+	});
+	$(document).on('click', '#cierre_estudio', function() {
+		$('#ver_estudio').modal('hide');
+	});
+
+	
+	function Producto_Seleccionado(element){
+		var elemento= $(element);
+		var idrndc=elemento.data('id');
+		var cap=elemento.data('id4');
+		var natur=elemento.data('id2');
+		var producto=elemento.data('id3');
+		var id_tb_producto=elemento.data('id5');
+		var cod_capitulo=elemento.data('id6');
+		var name='';
+		if(natur=='00'){
+			name='Carga normal';
+		}
+		if(natur=='CP'){
+			name='Carga peligrosa';
+		}
+		if(natur=='DP'){
+			name='Desechos peligroso';
+		}
+		$("#name_naturaleza").val(name);
+		$("#naturaleza").val(natur);
+		$("#codigo_rndc").val(idrndc);
+		$("#capitulo").val(cap);
+		$("#producto").val(producto);
+		$("#id_tb_productos").val(id_tb_producto);
+		$("#id_capitulo").val(cod_capitulo);
+		$("#collapseOne").removeClass('in');
+		//$('#collapseOne').css('display', 'none');
+	}
+
+	$("#btn_crea").click(function(){
+		/*$("#nombre_miniesterio").select2({
+			width:'100%'
+		});*/
+		var mer={
+			action:'buscar_mercancia_rndc'
+		};
+		$.ajax({
+			url:"http://localhost/mvcLuisMiguel/libs/tipo_mercancia_parametros_ajax.php",
+		 	type:'POST',
+		 	data:mer,
+		 	dataType:'json',
+		 	success: function(data){
+		 		$("#nombre_miniesterio").html('<option value="">Seleccione</option>');
+		 		if(data){
+		 			data.result.forEach(function(element,index){
+		 				$("#nombre_miniesterio").append('<option value="'+element.id+'">'+element.partida+'             |     '+element.capitulo+'</option>');
+		 			});
+		 		}
+		 	},
+		 	error: function(jqXHR, textStatus, errorThrown){
+		 		console.log('error consulta mercancia');
+		 		console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+		 	}
+ 		});
+	});
+	$("#nombre_miniesterio").change(function(){
+		var producto=$("#nombre_miniesterio").val();
+		if(producto!=''){
+			var datoa={
+				producto:producto,
+				action:'consulta_producto'
+			};
+			$.ajax({
+				url:"http://localhost/mvcLuisMiguel/libs/tipo_mercancia_parametros_ajax.php",
+			 	type:'POST',
+			 	data:datoa,
+			 	dataType:'json',
+			 	success: function(data){
+			 		if(data){
+			 			$("#capitulo").val(data.result[0].capitulo);
+			 			$("#codigo_rndc").val(data.result[0].id_rndc);
+			 		}
+			 	},
+			 	error: function(jqXHR, textStatus, errorThrown){
+			 		console.log('error verificar');
+			 		console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+			 	}
+	 		});
+		}else{
+			$("#capitulo").val('');
+			$("#codigo_rndc").val('');
+		}
+	});
+
+	function crear_mercancia(){
+		var msg_error = "";
+		if(!$("#tipo").val()){
+			msg_error+= "<p>Debe diligenciar el campo <strong> Nombre para Nexos Cargo </strong> para poder crear la Mercancía.</p>";
+		}
+		if(!$("#codigo_rndc").val()){
+			msg_error+= "<p>Debe diligenciar el campo <strong>Código RNDC</strong> para poder crear la Mercancía.</p>";
+		}
+		if(!$("#capitulo").val()){
+			msg_error+= "<p>Debe diligenciar el campo <strong>Capitulo</strong> para poder crear la Mercancía.</p>";
+		}
+		if(!$("#naturaleza").val()){
+			msg_error+= "<p>Debe diligenciar el campo <strong>Naturaleza</strong> para poder crear la Mercancía.</p>";
+		}
+		if(!$("#estado").val()){
+			msg_error+= "<p>Debe diligenciar el campo <strong>Estado</strong> para poder crear la Mercancía.</p>";
+		}
+		if(!$("#producto").val()){
+			msg_error+= "<p>Debe diligenciar el campo <strong>Producto</strong> para poder crear la Mercancía.</p>";
+		}
+		if($("#tipo").val().length > 60){
+			msg_error+= "<p>El campo <strong>Nombre para Nexos Cargo</strong>recibe máximo 60 carácteres.</p>";
+		}
+		if(!msg_error){
+		 creartipo();
+		}else{
+			$("#nexos_messages_popup").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#crea_mercancia").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function creartipo(){
+		tipo=$("#tipo").val();
+		estado=$("#estado").val();
+		name_mini=$("#producto").val();
+		capi=$("#capitulo").val();
+		numero_rndc=$("#codigo_rndc").val();
+		naturaleza=$("#naturaleza").val();
+		idtb=$("#id_tb_productos").val();//PK TABLA cmx_rndc_codificacion_producto
+		id_capitulo=$("#id_capitulo").val();
+		var datos_verificar={
+			tipo:tipo,
+			estado:estado,
+			numero_rndc:numero_rndc,
+			idtb:idtb,
+			id_capitulo:id_capitulo,
+			action:'consultar_tipo_mercancia'
+		};
+		$.ajax({
+		url:"http://localhost/mvcLuisMiguel/libs/tipo_mercancia_parametros_ajax.php",
+	 	type:'POST',
+	 	data:datos_verificar,
+	 	dataType:'json',
+	 	success: function(data){
+	 		if(data.result){
+	 			alert('ya existe un tipo de mercancía con este nombre y código en el sistema, por favor ingrese un nombre diferente o seleccione un producto diferente.');
+	 			$("html, body").animate({ scrollTop: 0 }, 600);
+	 		}else{
+	 			// alert('rehistre');
+	 			 var datos={
+					estado:estado,
+					name_nexos:tipo,
+					numero_rndc:numero_rndc,
+					idtb:idtb,
+					id_capitulo:id_capitulo,
+					action:'crear_tipo_mercancia'
+				};
+			$.ajax({
+				url:"http://localhost/mvcLuisMiguel/libs/tipo_mercancia_parametros_ajax.php",
+			 	type:'POST',
+			 	data:datos,
+			 	dataType:'json',
+			 	success: function(data){
+			 		alert('Datos Registrados Exitosamente!!!');
+			 		$("html, body").animate({ scrollTop: 0 }, 600);
+					setTimeout(function() { location.reload(false);}, 800);
+			 	},
+			 	error: function(jqXHR, textStatus, errorThrown){
+			 		console.log('error mercancia');
+			 	}	
+			});
+		}
+	 	},
+	 	error: function(jqXHR, textStatus, errorThrown){
+	 		console.log('error verificar');
+	 		console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+	 	}
+	 	});
+	}
+
+	function prueba_editar(element){ 
+		var elemento = $(element);
+		var id = elemento.data("id");
+		var buscar_dato={
+			id:id,
+			action:'Buscar_Registro_Producto'
+		};
+		$.ajax({
+			url:"http://localhost/mvcLuisMiguel/libs/tipo_mercancia_parametros_ajax.php",
+		 	type:'POST',
+		 	data:buscar_dato,
+		 	dataType:'json',
+		 	success: function(data){
+		 		if(data){
+		 			$("#e_tipo").val(data.result[0]['nombre']);
+		 			$("#e_nombre2").val(data.result[0]['descripcion']);
+		 			$("#e_capitulo").val(data.result[0]['capitulo']);
+		 			$("#eid_rndc").val(data.result[0]['id_rndc']);
+		 			$("#e_natur").val(data.result[0]['tipo']);
+		 			$("#e_id").val(data.result[0]['idtb']);
+		 			$("#e_id_productomn").val(data.result[0]['id_producto_mn']);
+		 			$("#e_id_capitulomn").val(data.result[0]['id_capitulo_mn']);
+		 			if(data.result[0]['estado']=='Activo'){
+		 				$("#e_estado").html('<option value="Activo">Activo</option>'+
+		 				'<option value="Inactivo">Inactivo</option>');
+		 			}
+		 			if(data.result[0]['estado']=='Inactivo'){
+		 				$("#e_estado").html('<option value="Inactivo">Inactivo</option>'+
+		 				'<option value="Activo">Activo</option>');
+		 			}
+		 		}
+		 	}, 
+		 	error: function(jqXHR, textStatus, errorThrown){
+		 		console.log('error update');
+		 		console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+		 	}
+		});	
+	}
+
+function update(){
+	var msg_error = "";
+	var id_tb=$("#e_id").val();
+	var nom=$("#e_tipo").val();
+	var estado=$("#e_estado").val();
+	var name_mintransporte=$("#e_nombre2").val();
+	var capitu=$("#e_capitulo").val();
+	var idrndc=$("#eid_rndc").val();
+	var natura=$("#e_natur").val();
+	if(!$("#e_tipo").val()){
+		msg_error+= "<p>Debe diligenciar el campo <strong>Nombre para Nexos</strong> para poder actualizar la Mercancía.</p>";
+	}
+	if(!$("#e_nombre2").val()){
+		msg_error+= "<p>Debe diligenciar el campo <strong>Nombre Ministerio</strong> para poder actualizar la Mercancía.</p>";
+	}
+	if(!$("#e_capitulo").val()){
+		msg_error+= "<p>Debe diligenciar el campo <strong>Capítulo</strong> para poder actualizar la Mercancía.</p>";
+	}
+	if(!$("#eid_rndc").val()){
+		msg_error+= "<p>Debe diligenciar el campo <strong>Código RNDC</strong> para poder actualizar la Mercancía.</p>";
+	}
+	if(!$("#e_natur").val()){
+		msg_error+= "<p>Debe diligenciar el campo <strong>Naturaleza</strong> para poder actualizar la Mercancía.</p>";	
+	}
+	if(!$("#e_estado").val()){
+		msg_error+= "<p>Debe diligenciar el campo <strong>Estado</strong> para poder actualizar la Mercancía.</p>";
+	}
+	if($("#e_tipo").val().length > 60){
+		msg_error+= "<p>El campo <strong>Nombre para Nexos</strong> recibe máximo 60 carácteres.</p>";	
+	}
+	if(!msg_error){
+		datos_editar={
+		id:id_tb,
+		nom:nom,
+		estado:estado,
+		action:'actualizar'
+		};
+		$.ajax({
+			url:"http://localhost/mvcLuisMiguel/libs/tipo_mercancia_parametros_ajax.php",
+		 	type:'POST',
+		 	data:datos_editar,
+		 	dataType:'json',
+		 	success: function(data){
+		 		// console.log('sisi update');
+		 		alert('Datos Actualizados Exitosamente!!');
+		 		$("html, body").animate({ scrollTop: 0 }, 600);
+				setTimeout(function() { location.reload(false);  }, 800);
+
+		 	}, 
+		 	error: function(jqXHR, textStatus, errorThrown){
+		 		console.log('error update');
+		 		console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+		 	}
+		});
+	}else{
+		$("#msg_editar").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+		$("#editar_tipo_vehiculo").animate({ scrollTop: 0 }, 600);
+	}
+}
+</script>

@@ -1,0 +1,36 @@
+<?php
+// session_start();
+// $datos = array(
+//     "cliente_id" => $_SESSION["usuario"]["id_cliente"],
+//     "cliente_nombre" => $_SESSION["usuario"]["nombre_cliente"],
+//     "usuario_id" => $_SESSION["usuario"]["id_usuario"],
+//     "perfil_id" => $_SESSION["usuario"]["id_perfil"],
+// );
+// // Convertir los datos a formato JSON
+// $datos_json = json_encode($datos);
+// // URL del endpoint de la API Laravel
+// $url_api = 'http://127.0.0.1:8000/api/session';
+
+// // Configuración de la solicitud cURL
+// $ch = curl_init($url_api);
+// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+// curl_setopt($ch, CURLOPT_POST, 1);
+// curl_setopt($ch, CURLOPT_POSTFIELDS, $datos_json);
+// curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+// // Realizar la solicitud cURL
+// $resultado = curl_exec($ch);
+
+// // Verificar errores
+// if (curl_errno($ch)) {
+//     echo 'Error en la solicitud cURL: ' . curl_error($ch);
+// }
+
+// // Cerrar la sesión cURL
+// curl_close($ch);
+
+// // Manejar la respuesta de la API
+// // echo $resultado;
+// // Redirigir a una nueva ruta después de enviar los datos
+// header('Location: http://127.0.0.1:8000/');
+// exit;

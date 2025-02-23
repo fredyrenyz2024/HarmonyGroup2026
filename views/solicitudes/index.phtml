@@ -1,0 +1,639 @@
+<?php
+$_dbTable = "solicitudes"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+
+$vista = '';
+
+/********* POPUPS *********/
+/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+// POPUP DE MUESTRA DE INFORMACION
+$info = new Popup();
+// POPUP DE ALERTA DE CONFIRMACION
+$alert = new Popup();
+// POPUP DE FORMULARIO DE EDICION 
+$form_edita = new Popup();
+// POPUP DE FORMULARIO DE CREACION 
+$form_crea = new Popup();
+
+$vista .= '
+		<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+		<style>
+			.twitter-typeahead{
+				width: 100%;
+			}
+			.tt-menu {
+				background: white;
+				border-radius: 4px;
+				border: 1px solid gray;
+				width: 100%;
+				max-height: 100px;
+				overflow-y: auto;
+				width: 100%;
+				text-align: left;
+			}
+			.tt-suggestion{
+				padding:5px 10px;
+			}
+			.tt-suggestion.tt-cursor{
+				color: white;
+				background: #0097cf;
+			}
+		</style>
+	';
+$model = new Solicitudes();
+$id_usuario = $_SESSION["usuario"]["id_usuario"];
+$model->ObtenerclientesUsuario($id_usuario);
+$respuesta = $model->respuesta;
+
+$select_clientes = "";
+if ($respuesta == "GOOD") {
+    $arrayclientes = $model->listado;
+    if ($select_clientes > 0) {
+        $ContenidoHTML = [];
+        $mensaje = $model->mensaje;
+        $select_clientes .= "<select id= 'cliente'  class='form-control'><option value =''>Seleccione un cliente</option>";
+        foreach ($arrayclientes as $arraycliente) {
+            $select_clientes .= "<option value='$arraycliente[id]' >$arraycliente[nombre]</option>";
+        }
+        $select_clientes .= "</select>";
+    }
+}
+/********* FIN POPUPS *********/
+
+/*** CREACION DE TABLA DE CONTENIDO ***/
+/*** SE CREA TABLA DE CONTENIDO ***/
+$tabla_solicitudes = "
+		<div class='row' >
+			<div class='col-sm-12'>
+				<div  class='table-responsive noSwipe'>
+					<table id='table1' class='table table-striped table-hover'>
+						<thead>
+							<tr class='nexos-encabezado'>
+								<th style='width:5%;'>#</th>
+								<th style='width:15%;'>Número de solicitud</th>
+								<th>Cliente</th>
+								<th>Contrato</th>
+								<th>Vehículo Solicitado</th>
+								<th>Fecha solicitud</th>
+								<th style='width:7%;min-width: 7%;'</th>
+							</tr>
+						</thead>
+						<tbody >
+			";
+$model = new Solicitudes();
+$model->listarSolicitudes();
+$respuesta = $model->respuesta;
+
+if ($respuesta == "GOOD") {
+    $datossolicitudes = $model->listado;
+    if (count($datossolicitudes) > 0) {
+        $tabla_solicitudes .= "";
+        foreach ($datossolicitudes as $solicitud) {
+            if ($solicitud["estado"] == 'Finalizada') {
+                $tabla_solicitudes .= "
+	                	<tr>
+	                		<td class='nexos-txt-success'>
+	                			<span class='mdi mdi-dot-circle icon'></span>
+	                		</td>
+	                ";
+            } else if ($solicitud["estado"] == 'En proceso') {
+                $tabla_solicitudes .= "
+	                	<tr>
+	                		<td class='nexos-txt-warning'>
+	                			<span class='mdi mdi-dot-circle icon'></span>
+	                		</td>
+	                ";
+            } else if ($solicitud["estado"] == 'Activa') {
+                $tabla_solicitudes .= "
+	                	<tr>
+	                		<td class='nexos-txt-warning'>
+	                			<span class='mdi mdi-dot-circle icon'></span>
+	                			</td>
+	                ";
+            } else if ($solicitud["estado"] == 'Cancelada') {
+                $tabla_solicitudes .= "
+	                	<tr>
+	                		<td class='nexos-txt-danger'>
+	                			<span class='mdi mdi-dot-circle icon'></span>
+	                		</td>
+	                ";
+            }
+
+            $tabla_solicitudes .= '
+					<td class="cell-detail">
+						<span>' . $solicitud["numero_solicitud"] . '</span>
+						<span class="cell-detail-description">Proyecto: ' . $solicitud["numero_importacion"] . '</span>
+						<span class="cell-detail-description">' . $solicitud["tipo_operacion"] . '</span>
+					</td>
+					<td class="cell-detail">
+						<span>' . $solicitud["nombre_cliente"] . '</span>
+						<span class="cell-detail-description">' . $solicitud["cod_cliente"] . '</span>
+					</td>
+					<td class="cell-detail">
+						<span>' . $solicitud["cod_contrato"] . '</span>
+						<span class="cell-detail-description">' . $solicitud["TIPO_CONTRATO"] . '</span>
+					</td>
+					<td class="cell-detail">
+						<span>' . $solicitud["TIPO_VEHICULO"] . '</span>
+						<span class="cell-detail-description">Peso: ' . number_format($solicitud["peso_total_solicitud"], 2, ',', '.') . ' Kg</span>
+					</td>
+					<td class="user-avatar cell-detail user-info">
+						<img src="' . BASE_URL . 'views/layout/assets/img/' . $solicitud["url_avatar"] . '">
+						<span>' . $solicitud["NOMBRE_USUARIO"] . '</span>
+						<span class="cell-detail-description">' . $solicitud["fecha_solicitud"] . '</span>
+					</td>
+				';
+
+            if ($solicitud["estado"] == 'Cancelada') {
+                $tabla_solicitudes .= "
+							<td class='actions'>
+								<a href='javascript:' class='cell-detail  hint--top-left' data-hint='Ver razon de la cancelación' onclick='verrazoncancelacion($solicitud[id_solicitud])'><span class='icon mdi mdi-eye-off'  data-toggle='modal' data-target='#ver_razon_cancelacion'></span></a>
+							</td> 
+						</tr>
+					";
+            } else if ($solicitud["estado"] == 'En proceso') {
+                $tabla_solicitudes .= "	
+							<td class='actions'>
+								<a href='javascript:' class='cell-detail  hint--top-left' data-hint='Ver información detallada' onclick='verdatossolicitud($solicitud[id_solicitud])'><span class='icon mdi mdi-eye'  data-toggle='modal' data-target='#ver_solicitud'></span></a>
+							</td> 
+						</tr>
+					";
+            } else if ($solicitud["estado"] == 'Finalizada') {
+                $tabla_solicitudes .= "	
+							<td class='actions'>
+								<a href='javascript:' class='cell-detail  hint--top-left' data-hint='Ver información detallada' onclick='verdatossolicitud($solicitud[id_solicitud])'><span class='icon mdi mdi-eye'  data-toggle='modal' data-target='#ver_solicitud'></span></a>
+							</td> 
+						</tr>
+					";
+            } else {
+                $tabla_solicitudes .= "	
+							<td class='actions'>
+								<a href='javascript:' class='cell-detail  hint--top-left' data-hint='Editar solicitud' onclick='editardatossolicitud($solicitud[id_solicitud])'><span class='icon mdi mdi-edit'  data-toggle='modal' data-target='#editar_solicitud'></span></a> 
+								<a href='javascript:' class='cell-detail  hint--top-left' data-hint='Cancelar solicitud' onclick='cancelardatossolicitud($solicitud[id_solicitud])'><span class='icon mdi mdi-close-circle'  data-toggle='modal' data-target='#cancelar_solicitud'></span></a> 
+							</td> 
+						</tr>
+					";
+            }
+        }
+    }
+}
+
+$tabla_solicitudes .= '
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	';
+
+/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Solicitudes
+				<div class="tools" style="display:none;">
+					<a href="#" data-toggle="modal" data-target="#crea_solicitud" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+				</div>
+				<span class="panel-subtitle">Módulo para la administración de solicitudes creadas por los diferentes clientes.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/typeahead.bundle.js" type="text/javascript" ></script>
+		<script src="%root_file%lib/solicitudes_ajax.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/daterangepicker/js/daterangepicker.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%lib/moment.js/min/moment.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+				App.formElements();
+			});
+		</script>
+	';
+/****** CREACION CONTENIDO DE POPUPS ******/
+
+// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+?>
+
+<div id="editar_solicitud" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+    <div class="modal-dialog custom-width">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+                <h3 class="modal-title" id="e_num_solicitud"></h3>
+            </div>
+            <div class="modal-body">
+                <div id="errores_solicitud"></div>
+                <form id="e_form_edicion">
+                    <div class="col-xs-12 col-xs-12 col-xs-12 text-right">
+                        <div class="be-checkbox">
+                            <input id="ver_detalle" type="checkbox">
+                            <label for="ver_detalle">Ver detalles</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-xs-12" id="e_encabezado_content"></div>
+                    <div class="col-xs-12 col-xs-12 col-xs-12" id="e_materiales_content"></div>
+                    <div class="panel-group accordion col-xs-12 col-xs-12 col-xs-12" id="accordion_content"></div>
+                </form>
+                <div class="row"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn_e_actualizar_solicitud" type="button" class="btn btn-success">Actualizar solicitud</button>
+                <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="cancelar_solicitud" tabindex="-1" role="dialog" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+
+                    <div class="text-warning"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+                    <h3 id="d_num_solicitud"></h3>
+                    <br>
+                    <div class="xs-mt-1">
+                        <div class="row">
+                            <div class="col-md-3"></div>
+                            <div class="col-md-6">
+                                <label>Razon de la cancelación:</label>
+                                <select class="form-control" id="d_razon_cancelacion">
+                                    <option>Seleccione la razon de la cancelación</option>
+                                    <option value="Cliente cancela el servicio (inconvenientes internos)">Cliente cancela el servicio (inconvenientes internos)</option>
+                                    <option value="Operaciones no asigna vehiculo a tiempo al cliente">Operaciones no asigna vehiculo a tiempo al cliente</option>
+                                    <option value="Vehiculo llega tarde al cargue">Vehiculo llega tarde al cargue</option>
+                                    <option value="Vehiculo no cumple con los requerimientos para el servicio">Vehiculo no cumple con los requerimientos para el servicio</option>
+                                    <option value="No disponibilidad de vehiculos">No disponibilidad de vehiculos</option>
+                                    <option value="Error de digitacion de Servicio al Cliente">Error de digitacion de Servicio al Cliente</option>
+
+                                </select>
+                            </div>
+                            <div class="col-md-3"></div>
+                        </div>
+                        <br>
+                        <input type="hidden" id="d_id_solicitud">
+                        <button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+                        <button id="btn_cancelar_solicitud" type="button" class="btn btn-space btn-warning">Aceptar</button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<div id="ver_razon_cancelacion" tabindex="-1" role="dialog" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+
+                    <div class="text-danger"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+                    <h3 id="cancel_num_solicitud"></h3>
+                    <br>
+                    <div class="xs-mt-1">
+                        <div class="row">
+                            <div class="col-md-3"></div>
+                            <div class="col-md-6" id="caja_razon_cancelacion">
+                            </div>
+                            <div class="col-md-3"></div>
+                        </div>
+                        <br>
+                        <input type="hidden" id="d_id_solicitud">
+                        <button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cerrar</button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<div id="asignar_vehiculos" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+    <div class="modal-dialog custom-width">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+                <h3 class="modal-title" id="titulo_asignar"></h3>
+            </div>
+            <div class="modal-body">
+
+                <div class="panel panel-border panel-contrast ">
+                    <div class="panel-heading panel-heading-contrast">
+                        Vehiculos asociados
+                        <div class="tools">
+                            <a href="#" data-toggle="modal" data-target="#crea_asignaciones" class="cell-detail  hint--top" data-hint="Asignar vehiculos"><span class="icon mdi mdi-plus"></span></a>
+                        </div>
+
+                        <span class="panel-subtitle"></span>
+                    </div>
+                    <div class='row'>
+                        <div class='col-sm-1'></div>
+                        <div class='col-sm-10' id="tabla_asignaciones">
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+                <input type="hidden" id="asig_id_solicitud">
+                <button id="btn_agregar_solicitud" type="button" class="btn btn-success md-close">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="crea_asignaciones" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+    <div class="modal-dialog custom-width">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+                <h3 class="modal-title">Asignar vehiculos</h3>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="formulario_vehiculo" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Vehiculo:</label>
+                            <div id="caja_vehiculo">
+                                <input type="text" class="typeahead form-control" placeholder="Vehiculo" id="placa_vehiculo">
+                            </div>
+                            <input type="hidden" id="id_vehiculo">
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <label>Flete:</label>
+                            <input type="text" id="flete" placeholder="Flete" class="form-control">
+                            <label id="error_flete"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Cedula tenedor:</label>
+                            <input type="text" id="cedula_tenedor" placeholder="Cedula tenedor" class="form-control">
+                            <label id="error_cedula_tenedor"></label>
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <label>Nombre tenedor:</label>
+                            <input type="text" id="nombre_tenedor" placeholder="Nombre tenedor" class="form-control">
+                            <label id="error_nombre_tenedor"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Cedula conductor:</label>
+                            <input type="text" id="cedula_conductor" placeholder="Cedula conductor" class="form-control">
+                            <label id="error_cedula_conductor"></label>
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <label>Nombre conductor:</label>
+                            <input type="text" id="nombre_conductor" placeholder="Nombre conductor" class="form-control">
+                            <label id="error_nombre_conductor"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-12">
+                            <label>Referencias empresariales:</label>
+                            <textarea class="form-control" id="referencias_empresariales"></textarea>
+                            <label id="error_referencias_empresariales"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-12">
+                            <label>Referencias personales:</label>
+                            <textarea class="form-control" id="referencias_personales"></textarea>
+                            <label id="error_referencias_personales"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-12">
+                            <label>Pendientes:</label>
+                            <textarea class="form-control" id="info_pendientes"></textarea>
+                            <label id="error_pendientes"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Calificación:</label>
+                            <input type="text" id="calificacion" placeholder="Calificacion" class="form-control">
+                            <label id="error_calificacion"></label>
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <label>Documentos de soporte:</label>
+                            <input type="file" id="documentos" multiple placeholder="Documentos de soporte" class="form-control">
+                            <label id="error_documentos"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Estado:</label>
+                            <select id="estado_asignacion" class="form-control">
+                                <option value="">Seleccione un estado</option>
+                                <option value="Asignado">Asignado</option>
+                                <option value="Aprobado">Aprobado</option>
+                                <option value="Preaprobado">Preaprobado</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="No Aprobado">No Aprobado</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                            <label id="error_estado"></label>
+                        </div>
+                    </div>
+                </form>
+
+
+                <div class="row"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+
+                <button id="btn_agregar_asignacion" type="button" class="btn btn-success md-close">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="editar_asignaciones" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+    <div class="modal-dialog custom-width">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+                <h3 class="modal-title">Edicion de asignaciones</h3>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="e_formulario_vehiculo" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Vehiculo:</label>
+                            <div id="e_caja_vehiculo">
+                                <input type="text" class="typeahead form-control" placeholder="Vehiculo" id="e_placa_vehiculo">
+                            </div>
+                            <input type="hidden" id="e_id_vehiculo">
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <label>Flete:</label>
+                            <input type="text" id="e_flete" placeholder="Flete" class="form-control">
+                            <label id="e_error_flete"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Cedula tenedor:</label>
+                            <input type="text" id="e_cedula_tenedor" placeholder="Cedula tenedor" class="form-control">
+                            <label id="e_error_cedula_tenedor"></label>
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <label>Nombre tenedor:</label>
+                            <input type="text" id="e_nombre_tenedor" placeholder="Nombre tenedor" class="form-control">
+                            <label id="e_error_nombre_tenedor"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Cedula conductor:</label>
+                            <input type="text" id="e_cedula_conductor" placeholder="Cedula conductor" class="form-control">
+                            <label id="e_error_cedula_conductor"></label>
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <label>Nombre conductor:</label>
+                            <input type="text" id="e_nombre_conductor" placeholder="Nombre conductor" class="form-control">
+                            <label id="e_error_nombre_conductor"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-12">
+                            <label>Referencias empresariales:</label>
+                            <textarea class="form-control" id="e_referencias_empresariales"></textarea>
+                            <label id="e_error_referencias_empresariales"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-12">
+                            <label>Referencias personales:</label>
+                            <textarea class="form-control" id="e_referencias_personales"></textarea>
+                            <label id="e_error_referencias_personales"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-12">
+                            <label>Pendientes:</label>
+                            <textarea class="form-control" id="e_info_pendientes"></textarea>
+                            <label id="e_error_pendientes"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Calificación:</label>
+                            <input type="text" id="e_calificacion" placeholder="Calificacion" class="form-control">
+                            <label id="e_error_calificacion"></label>
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <label>Documentos de soporte:</label>
+                            <input type="file" id="e_documentos" multiple placeholder="Documentos de soporte" class="form-control">
+                            <input type="hidden" id="e_documentos_soporte">
+                            <label id="e_error_documentos"></label>
+                        </div>
+                        <div class="form-group col-xs-6">
+                            <div id="e_caja_enlaces_documentos"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-xs-6">
+                            <label>Estado:</label>
+                            <select id="e_estado_asignacion" class="form-control">
+                                <option value="">Seleccione un estado</option>
+                                <option value="Asignado">Asignado</option>
+                                <option value="Aprobado">Aprobado</option>
+                                <option value="Preaprobado">Preaprobado</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="No Aprobado">No Aprobado</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                            <label id="e_error_estado"></label>
+                        </div>
+                    </div>
+                </form>
+
+
+                <div class="row"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+                <input type="hidden" id="e_id_solicitud_vehiculo">
+
+                <button id="btn_editar_asignacion" type="button" class="btn btn-success md-close">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+
+/* * **** FIN CREACION CONTENIDO DE POPUPS ***** */
+
+/* * ** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  *** */
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $tabla_solicitudes, $vista);
+
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;
+?>

@@ -1,0 +1,1259 @@
+<?php
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_cliente = $_SESSION["usuario"]["nombre_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$ssn_tipo_perfil = $_SESSION["usuario"]["tipo_perfil"];
+$nombre_usuario = $_SESSION['usuario']['nom_usuario'];
+
+$time = date('Y-m-d H:i:s', time());
+
+$vista = '';
+//TRAE EL ID DEL LANZADOR
+
+if ($ssn_tipo_perfil == 'INTERNACIONAL') {
+
+	// Esta información se muestra si el usuario es de nexos
+	if ($ssn_id_cliente == 1) {
+
+		$cuentaSolicitudes = $this->dashboard->getSolicitudesPendientes();
+
+		$cuentaProyectosIniciados = $this->dashboard->getProyectosIniciados();
+
+		/**** Vista de indicadores rapidos ****/
+		$vista .= '
+				<!-- Vista de indicadores rapidos -->
+				<div class="row">
+					<div class="col-xs-12 col-md-6 col-lg-3">
+						<div class="widget widget-tile">
+							<div id="spark1" class="chart sparkline"></div>
+							<div class="data-info">
+								<div class="desc">
+									<a href="' . BASE_URL . 'importacion/index/">Proyectos no iniciados</a>
+								</div>
+								<div class="value">
+									<span class="indicator indicator-equal mdi mdi-chevron-right"></span>
+									<span data-toggle="counter" data-end="' . $cuentaSolicitudes["rowsNum"] . '" class="number">0</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-6 col-lg-3">
+						<div class="widget widget-tile">
+							<div id="spark2" class="chart sparkline"></div>
+							<div class="data-info">
+								<div class="desc">
+									<a href="' . BASE_URL . 'importacion/index/">Proyectos Iniciados</a>
+								</div>
+								<div class="value">
+									<span class="indicator indicator-positive mdi mdi-chevron-up"></span>
+									<span data-toggle="counter" data-end="' . $cuentaProyectosIniciados["rowsNum"] . '" class="number">0</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-6 col-lg-3">
+						<div class="widget widget-tile">
+							<div id="spark3" class="chart sparkline"></div>
+							<div class="data-info">
+								<div class="desc">Terminados</div>
+								<div class="value">
+									<span class="indicator indicator-positive mdi mdi-chevron-up"></span><span data-toggle="counter" data-end="26" class="number">0</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-6 col-lg-3">
+						<div class="widget widget-tile">
+							<div id="spark4" class="chart sparkline"></div>
+							<div class="data-info">
+								<div class="desc">Retrasados</div>
+								<div class="value">
+									<span class="indicator indicator-negative mdi mdi-chevron-down"></span><span data-toggle="counter" data-end="6" class="number">0</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			';
+		if ($ssn_id_perfil == 13 or $ssn_id_perfil == 21 or $ssn_id_perfil == 1) {
+			/**** Resumen de Material Pendiente - Responsive Table ****/
+			$verMaterialPendiente = $this->dashboard->getMaterialPendiente();
+			// print_r("<pre>");
+			// print_r($verMaterialPendiente);
+			// print_r("</pre>");
+
+			$_tabla_material_pendiente = "";
+			if ($verMaterialPendiente) {
+				foreach ($verMaterialPendiente["rowsData"] as $key => $value) {
+
+					// Se calcula el porcentaje de pendiente del material
+					if ($value["peso_pendiente"] > 0) {
+						$peso = round(($value["peso_pendiente"] * 100) / $value["peso"]);
+
+						$peso_unitario = round($value["peso"] / $value["unidades"]);
+						$unidades = ($value["peso_pendiente"] * $value["unidades"]) / $value["peso"];
+					} else {
+						$peso = 0;
+						$unidades = 0;
+					}
+
+					// Se pinta la tabla de material pendiente por descargar
+					$_tabla_material_pendiente .= '
+							<tr>
+								<td class="cell-detail"><span>' . $value["CLIENTE"] . '</span></td>
+								<td class="cell-detail">
+									<span>' . $value["NUM_ORDEN"] . '</span>
+									<span class="cell-detail-description">' . date('Y-m-d H:i:s', $value["NUM_ORDEN"]) . '</span>
+								</td>
+								<td class="cell-detail"><span>' . $value["MATERIAL"] . '</span></td>
+								<td class="cell-detail">
+									<span>' . $value["DESTINO"] . '</span>
+									<span class="cell-detail-description">' . $value["CIUDAD_DESTINO"] . '</span>
+								</td>
+								<td class="milestone">
+									<span class="version">' . number_format($value["peso_pendiente"], 0, ',', '.') . ' / ' . number_format($value["peso"], 0, ',', '.') . '</span>
+									<div class="progress">
+										<div style="width: ' . $peso . '%" class="progress-bar progress-bar-primary"></div>
+									</div>
+								</td>
+								<td class="milestone">
+									<span class="version">' . $unidades . ' / ' . $value["unidades"] . '</span>
+									<div class="progress">
+										<div style="width: ' . $peso . '%" class="progress-bar progress-bar-primary"></div>
+									</div>
+								</td>
+							</tr>
+						';
+				}
+			}
+
+			// Si exite material pra agrupar se muestra
+			if ($_tabla_material_pendiente != "") {
+				$vista .= '
+						<!-- Cargas pendientes de despacho - Responsive Table  -->
+						<div class="row">
+							<div class="col-md-12">
+								<div class="panel panel-default panel-table">
+									<div class="panel-heading">Cargas Pendientes de Despacho
+										<div class="tools">
+											<a href="' . BASE_URL . 'importacion/index" class="cell-detail hint--top" data-hint="Ver Proyectos"><span class="icon mdi mdi-eye"></span></a>
+										</div>
+									</div>
+									<div class="panel-body">
+										<div class="table-responsive noSwipe">
+											<table id="table1" class="table table-striped table-hover">
+												<thead>
+													<tr>
+														<th>Cliente</th>
+														<th>Orden Compra</th>
+														<th>Material</th>
+														<th>Destino</th>
+														<th  style="width: 10%;">Peso Pendiente</th>
+														<th  style="width: 10%;">Unidades</th>
+													</tr>
+												</thead>
+												<tbody>
+													' . $_tabla_material_pendiente . '
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					';
+			}
+			/**** Fin Resumen de Proyectos - Responsive Table ****/
+		}
+
+		/**** Resumen de Seguimientos Pendientes Internacional - Responsive Table ****/
+		if (
+			$ssn_id_perfil == 13 or $ssn_id_perfil == 21
+			or $ssn_id_perfil == 22 or $ssn_id_perfil == 23 or $ssn_id_perfil == 24 or $ssn_id_perfil == 1 or $ssn_id_perfil == 25 or $ssn_id_perfil == 26 or $ssn_id_perfil == 29 or $ssn_id_perfil == 32 or $ssn_id_perfil == 33
+		) {
+			$verIntrSeguimientos = $this->dashboard->getIntrSeguimientos($_SESSION["usuario"]);
+			// print_r("<pre>");
+			// print_r($verIntrSeguimientos);
+			// print_r("</pre>");
+
+			// Se filtra el contenido de la tabla
+			$_flag_seguimientos_cliente = true;
+			if ($ssn_id_perfil == 23) {
+				$_flag_seguimientos_cliente = false;
+			}
+
+			if ($verIntrSeguimientos["general"]) {
+				$_encabezado_seguimeinto = '';
+				if ($_flag_seguimientos_cliente) {
+					$_encabezado_seguimeinto = '
+							<th class="col-xs-3 col-sm-3 col-md-3">Seguimientos Clientes</th>
+							<th class="col-xs-1 col-sm-1 col-md-1"></th>
+						';
+				}
+
+				$table_seguimientos = '
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<table id="table1" class="table table-striped table-hover" data-page-length="25">
+								<thead>
+									<tr class="nexos-encabezado">
+										<th class="col-xs-2 col-sm-2 col-md-2">Proyecto</th>
+										<th class="col-xs-3 col-sm-3 col-md-3">Cliente</th>
+										<th class="col-xs-3 col-sm-3 col-md-3">Origen</th>
+										<th class="col-xs-3 col-sm-3 col-md-3">Destino</th>
+										<th class="col-xs-3 col-sm-3 col-md-3">Seguimientos Operaciones</th>
+										<th class="col-xs-1 col-sm-1 col-md-1"></th>
+										' . $_encabezado_seguimeinto . '
+										<th class="col-xs-1 col-sm-1 col-md-1"></th>
+									</tr>
+								</thead>
+								<tbody>
+					';
+				foreach ($verIntrSeguimientos["general"]["rowsData"] as $key => $value) {
+					// Se filtra la información del estado del proyecto internacional
+					$_msg_estado_proyecto = "";
+					if (isset($verIntrSeguimientos["info_internacional"][$value[0]])) {
+						$info_internacional = $verIntrSeguimientos["info_internacional"][$value[0]];
+
+						// Se filtra el color de los mensajes del estado del proyecto
+						// Oferta Comercial
+						switch ($info_internacional["OFERTA_COMERCIAL"]) {
+							case 'OCN':
+								$_oferta_comercial = ' <strong class="text-danger hint--top" data-hint="Oferta Comercial no presentada">' . $info_internacional["OFERTA_COMERCIAL"] . '</strong> ';
+								break;
+
+							case 'OCP':
+								$_oferta_comercial = ' <strong class="text-warning hint--top" data-hint="Oferta Comercial presentada">' . $info_internacional["OFERTA_COMERCIAL"] . '</strong> ';
+								break;
+
+							case 'OCA':
+								$_oferta_comercial = ' <strong class="text-success hint--top" data-hint="Oferta Comercial aprobada">' . $info_internacional["OFERTA_COMERCIAL"] . '</strong> ';
+								break;
+
+							default:
+								$_oferta_comercial = ' <strong class="text-danger hint--top" data-hint="Error en la Oferta Comercial">ERR</strong> ';
+								break;
+						}
+
+						// Cotización de Proveedores
+						switch ($info_internacional["COTIZACION_PROVEEDORES"]) {
+							case 'SC':
+								$_cotizacion_proveedores = ' <strong class="text-danger hint--top" data-hint="Sin Cotizaciones">' . $info_internacional["COTIZACION_PROVEEDORES"] . '</strong> ';
+								break;
+
+							case 'CP':
+								$_cotizacion_proveedores = ' <strong class="text-warning hint--top" data-hint="Cotizaciones presentadas">' . $info_internacional["COTIZACION_PROVEEDORES"] . '</strong> ';
+								break;
+
+							case 'CPA':
+								$_cotizacion_proveedores = ' <strong class="text-warning hint--top" data-hint="Cotizaciones pendientes de aprobar">' . $info_internacional["COTIZACION_PROVEEDORES"] . '</strong> ';
+								break;
+
+							case 'CA':
+								$_cotizacion_proveedores = ' <strong class="text-success hint--top" data-hint="Cotizaciones aprobadas">' . $info_internacional["COTIZACION_PROVEEDORES"] . '</strong> ';
+								break;
+
+							default:
+								$_cotizacion_proveedores = ' <strong class="text-danger hint--top" data-hint="Error en la Cotizacion de Proveedores">ERR</strong> ';
+								break;
+						}
+
+						// Pruebas de entrega
+						switch ($info_internacional["PRUEBA_ENTREGA"]) {
+							case 'PEP':
+								$_prueba_entrega = ' <strong class="text-danger hint--top" data-hint="Prueba de Entrega pendiente">' . $info_internacional["PRUEBA_ENTREGA"] . '</strong> ';
+								break;
+
+							case 'PEE':
+								$_prueba_entrega = ' <strong class="text-success hint--top" data-hint="Prueba de Entrega presentada">' . $info_internacional["PRUEBA_ENTREGA"] . '</strong> ';
+								break;
+
+							default:
+								$_prueba_entrega = ' <strong class="text-danger hint--top" data-hint="Error en la Prueba de Entrega">ERR</strong> ';
+								break;
+						}
+
+						// Instrucciones de Facturación
+						switch ($info_internacional["INSTRUCCION_FACTURA"]) {
+							case 'IFP':
+								$_instruccion_factura = ' <strong class="text-danger hint--top" data-hint="Instrucción de Factura pendiente">' . $info_internacional["INSTRUCCION_FACTURA"] . '</strong> ';
+								break;
+
+							case 'IFR':
+								$_instruccion_factura = ' <strong class="text-success hint--top" data-hint="Instrucción de Factura realizada">' . $info_internacional["INSTRUCCION_FACTURA"] . '</strong> ';
+								break;
+
+							default:
+								$_instruccion_factura = ' <strong class="text-danger hint--top" data-hint="Error en la Instrucción de Factura">ERR</strong> ';
+								break;
+						}
+
+						// Facturación
+						switch ($info_internacional["FACTURA"]) {
+							case 'FP':
+								$_factura = ' <strong class="text-danger hint--top" data-hint="Factura pendiente">' . $info_internacional["FACTURA"] . '</strong> ';
+								break;
+
+							case 'FR':
+								$_factura = ' <strong class="text-success hint--top" data-hint="Factura realizada">' . $info_internacional["FACTURA"] . '</strong> ';
+								break;
+
+							default:
+								$_factura = ' <strong class="text-danger hint--top" data-hint="Error en la Factura">ERR</strong> ';
+								break;
+						}
+
+						$_msg_estado_proyecto = '<span class="cell-detail-description">' . $_oferta_comercial . $_cotizacion_proveedores . $_prueba_entrega . $_instruccion_factura . $_factura . '</span>';
+					}
+
+					// Se buscan los orígenes del proyecto
+					$_origen = "";
+					if (isset($verIntrSeguimientos["origen"][$value[0]])) {
+						foreach ($verIntrSeguimientos["origen"][$value[0]] as $key_01 => $value_01) {
+							$_origen .= '
+									<span>' . $value_01["sigla"] . '</span>
+									<span class="cell-detail-description">' . $value_01["MUNICIPIO"] . '</span>
+								';
+						}
+					}
+
+					// Se buscan los destinos del proyecto
+					$_destino = "";
+					if (isset($verIntrSeguimientos["destino"][$value[0]])) {
+						foreach ($verIntrSeguimientos["destino"][$value[0]] as $key_01 => $value_01) {
+							$_destino .= '
+									<span>' . $value_01["sigla"] . '</span>
+									<span class="cell-detail-description">' . $value_01["MUNICIPIO"] . '</span>
+								';
+						}
+					}
+
+					// Filtro del contenido de seguimiento de operaciones
+					$_cell_seguimiento_operaciones = '
+							<td class="cell-detail text-center">
+								<span><strong class="text-muted">Sin seguimientos</strong></span>
+							</td>
+						';
+					if ($value["MENSAJE_SEGUIMIENTO_OPERACIONES"]) {
+						$_cell_seguimiento_operaciones = '
+								<td class="user-avatar cell-detail user-info">
+									<img src="' . BASE_URL . 'views/layout/assets/img/' . $value["URL_AUTOR_SEGUIMIENTO_OPERACIONES"] . '">
+									<span>' . $value["AUTOR_SEGUIMIENTO_OPERACIONES"] . '</span>
+									<span class="cell-detail-description">' . $value["MENSAJE_SEGUIMIENTO_OPERACIONES"] . '</span>
+									<span class="cell-detail-description">' . $value["ULTIMO_SEGUIMIENTO_OPERACIONES"] . '</span>
+								</td>
+							';
+					}
+
+					// Filtro del contenido de los días sin seguimiento
+					switch ($value["ESTADO_ACTIVIDAD_OPERACIONES"]) {
+						case '1':
+							$_cell_dias_operaciones = '
+									<td class="text-center">
+										<span class="badge badge-success">Actividad terminada</span>
+									</td>
+								';
+							break;
+
+						case '2':
+							switch ($value["DIAS_OPERACIONES"]) {
+								case '0':
+									$_cell_dias_operaciones = '
+											<td class="text-center">
+												<span class="badge badge-success">' . $value["DIAS_OPERACIONES"] . '</span>
+											</td>
+										';
+									break;
+
+								case '1':
+									$_cell_dias_operaciones = '
+											<td class="text-center">
+												<span class="badge badge-warning">' . $value["DIAS_OPERACIONES"] . '</span>
+											</td>
+										';
+									break;
+
+								default:
+									$_cell_dias_operaciones = '
+											<td class="text-center">
+												<span class="badge badge-danger">' . $value["DIAS_OPERACIONES"] . '</span>
+											</td>
+										';
+									break;
+							}
+							break;
+
+						case '3':
+							$_cell_dias_operaciones = '
+									<td class="text-center">
+										<span class="badge">No iniciado</span>
+									</td>
+								';
+							break;
+
+						default:
+							$_cell_dias_operaciones = '
+									<td class="text-center">
+										<span class="badge badge-danger">Error de estado de actividad</span>
+									</td>
+								';
+							break;
+					}
+
+					// Se filtra el contenido de las columnas de información de los seguimientos del cliente
+					$_cell_seguimiento_clientes = '';
+					$_cell_dias_clientes = '';
+					if ($_flag_seguimientos_cliente) {
+						// Filtro del contenido de seguimiento de clientes
+						$_cell_seguimiento_clientes = '
+								<td class="cell-detail text-center">
+									<span><strong class="text-muted">Sin seguimientos</strong></span>
+								</td>
+							';
+
+						if ($value["MENSAJE_SEGUIMIENTO_CLIENTE"]) {
+							$_cell_seguimiento_clientes = '
+									<td class="user-avatar cell-detail user-info">
+										<img src="' . BASE_URL . 'views/layout/assets/img/' . $value["URL_AUTOR_SEGUIMIENTO_CLIENTE"] . '">
+										<span>' . $value["AUTOR_SEGUIMIENTO_CLIENTE"] . '</span>
+										<span class="cell-detail-description">' . $value["MENSAJE_SEGUIMIENTO_CLIENTE"] . '</span>
+										<span class="cell-detail-description">' . $value["ULTIMO_SEGUIMIENTO_CLIENTE"] . '</span>
+									</td>
+								';
+						}
+
+						// Filtro del contenido de los días sin seguimiento
+						switch ($value["ESTADO_ACTIVIDAD_CLIENTE"]) {
+							case '1':
+								$_cell_dias_clientes = '
+										<td class="text-center">
+											<span class="badge badge-success">Actividad terminada</span>
+										</td>
+									';
+								break;
+
+							case '2':
+								switch ($value["DIAS_CLIENTE"]) {
+									case '0':
+										$_cell_dias_clientes = '
+												<td class="text-center">
+													<span class="badge badge-success">' . $value["DIAS_CLIENTE"] . '</span>
+												</td>
+											';
+										break;
+
+									case '1':
+										$_cell_dias_clientes = '
+												<td class="text-center">
+													<span class="badge badge-warning">' . $value["DIAS_CLIENTE"] . '</span>
+												</td>
+											';
+										break;
+
+									default:
+										$_cell_dias_clientes = '
+												<td class="text-center">
+													<span class="badge badge-danger">' . $value["DIAS_CLIENTE"] . '</span>
+												</td>
+											';
+										break;
+								}
+								break;
+
+							case '3':
+								$_cell_dias_clientes = '
+										<td class="text-center">
+											<span class="badge">No iniciado</span>
+										</td>
+									';
+								break;
+
+							default:
+								$_cell_dias_clientes = '
+										<td class="text-center">
+											<span class="badge badge-danger">Error de estado de actividad</span>
+										</td>
+									';
+								break;
+						}
+					}
+
+					$table_seguimientos .= '
+							<tr>
+								<td class="cell-detail" >
+									<span>' . $value["tipo_operacion"] . '</span>
+									<span class="cell-detail-description">' . $value["importacion"] . '</span>
+									<span class="cell-detail-description"><strong>' . $value["numero_importacion"] . '</strong> | ' . date('Y-m-d', $value["numero_importacion"]) . '</span>
+									' . $_msg_estado_proyecto . '
+								</td>
+								<td class="cell-detail" >
+									<span>' . $value["nombre"] . '</span>
+									<span class="cell-detail-description">' . $value["cod_cliente"] . '</span>
+								</td>
+								<td class="cell-detail" >
+									' . $_origen . '
+								</td>
+								<td class="cell-detail" >
+									' . $_destino . '
+								</td>
+								' . $_cell_seguimiento_operaciones . '
+								' . $_cell_dias_operaciones . '
+								' . $_cell_seguimiento_clientes . '
+								' . $_cell_dias_clientes . '
+								<td class="actions">
+									<a href="' . BASE_URL . 'importacion/ver_actividades/' . $value["numero_importacion"] . '" class="cell-detail hint--top-left" data-hint="Ir al proyecto" ><span class="icon mdi mdi-eye"></span></a>
+								</td>
+							</tr>
+						';
+				}
+				$table_seguimientos .= '
+								</tbody>
+							</table>
+						</div>
+					';
+
+				$_accordion_seguimientos = '
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4 class="panel-title">
+									<a data-toggle="collapse" data-parent="#accordion_intr_seguimientos" href="#collapseSeguimientos">
+										<i class="icon mdi mdi-chevron-down"></i> Seguimientos Pendientes Internacional<strong> (' . $verIntrSeguimientos["general"]["rowsNum"] . ')</strong>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseSeguimientos" class="panel-collapse collapse">
+								<div class="panel-body">
+									' . $table_seguimientos . '
+								</div>
+							</div>
+						</div>
+					';
+
+				$vista .= '
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<div id="accordion_intr_seguimientos" class="panel-group accordion">
+								' . $_accordion_seguimientos . '
+							</div>
+						</div>
+					';
+			}
+		}
+		/**** Fin Resumen de Seguimientos Pendientes - Responsive Table ****/
+	}
+
+	/***** SEGUIMIENTOS PARA CLIENTES Y PERFILES ADMINISTRATIVOS *****/
+	if (($ssn_id_perfil == 13 or $ssn_id_perfil == 21 or $ssn_id_perfil == 1 or $ssn_id_perfil == 29 or $ssn_id_perfil == 33) or $ssn_id_cliente != 1) {
+		/**** Resumen de Seguimientos de Cargue - Responsive Table ****/
+		$verSeguimeintoCargue = $this->dashboard->getSeguimientoCargue($ssn_id_cliente);
+
+		$_tabla_seguimiento_cargue = "";
+		if ($verSeguimeintoCargue) {
+			foreach ($verSeguimeintoCargue["rowsData"] as $key => $value) {
+
+				// Se filtra el contenido del campo observación interna
+				$_observacion_interna = "";
+				if ($ssn_id_cliente == 1) {
+					$_observacion_interna = '
+							<span class="cell-detail-description" style="color: #ea4335;">' . $value["ULTIMO_SEGUIMIENTO_OBSERVACION_INTERNA"] . '</span>
+						';
+				}
+
+				// Se valida la creacion del botón de acceso al reporte de seguimiento de cargue
+				$_btn_seguimiento_cargue = "";
+				if ($value["ULTIMO_SEGUIMIENTO"] == 1) {
+					$_btn_seguimiento_cargue = '
+							<a href="' . BASE_URL . 'importacion/reporte_cargue/' . $value["ID_ACTIVIDAD"] . '/' . $value["numero_importacion"] . '" class="icon hint--top-left" data-hint="Ver Seguimiento"><span class="mdi mdi-eye"></span></a>
+						';
+				}
+
+				$_text_color = "";
+				if ($value["ESTADO_ACTIVIDAD"] == 1) {
+					$_text_color = ' class="text-success" ';
+				}
+
+				// Se pinta la tabla de material pendiente por descargar
+				$_tabla_seguimiento_cargue .= '
+						<tr>
+							<td class="cell-detail">
+								<span>' . $value["NOMBRE_CLIENTE"] . '</span>
+								<span class="cell-detail-description">' . $value["importacion"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["ORIGEN"] . '</span>
+								<span class="cell-detail-description">' . $value["CIUDAD_ORIGEN"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["TIPO_VEHICULO"] . '</span>
+								<span class="cell-detail-description"></span>
+							</td>
+							<td class="cell-detail">
+								<span>' . number_format($value["PESO"], 2, ",", ".") . ' Kg</span>
+								<span class="cell-detail-description"></span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["ULTIMO_SEGUIMIENTO_FECHA"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span ' . $_text_color . '>' . $value["ULTIMO_SEGUIMIENTO_TIPO_SEGUIMIENTO"] . '</span>
+								<span class="cell-detail-description">' . $value["ULTIMO_SEGUIMIENTO_OBSERVACION"] . '</span>
+								' . $_observacion_interna . '
+							</td>
+							<td class="actions">
+								' . $_btn_seguimiento_cargue . '
+							</td>
+						</tr>
+					';
+			}
+		}
+
+		if ($_tabla_seguimiento_cargue != "") {
+			$vista .= '
+					<!-- Resumen de Seguimientos de Cargue - Responsive Table  -->
+					<div class="row">
+						<div class="col-md-12">
+							<div class="panel panel-default panel-table">
+								<div class="panel-heading">Resumen de Seguimientos de Cargue
+									<div class="tools"></div>
+								</div>
+								<div class="panel-body">
+									<div class="table-responsive noSwipe">
+										<table id="table1" class="table table-striped table-hover" data-page-length="25">
+											<thead>
+												<tr>
+													<th>Cliente</th>
+													<th>Origen</th>
+													<th>Vehículo</th>
+													<th>Peso Carga</th>
+													<th>Último Seguimiento</th>
+													<th>Úlitma Observación</th>
+													<th style="width: 5%;"></th>
+												</tr>
+											</thead>
+											<tbody>
+												' . $_tabla_seguimiento_cargue . '
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				';
+		}
+		/**** Fin - Resumen de Seguimientos de Cargue - Responsive Table ****/
+
+		/**** Resumen de Seguimietos de Verificación de materiales - Responsive Table ****/
+		$verVerificacionMaterial = $this->dashboard->getVerificacionMaterial($ssn_id_cliente);
+		// print_r("<pre>");
+		// print_r($verVerificacionMaterial);
+		// print_r("</pre>");
+
+		$_tabla_verificacion_material = "";
+
+		if ($verVerificacionMaterial) {
+			foreach ($verVerificacionMaterial["rowsData"] as $key => $value) {
+				// Se filtra contenido del botón de detlles del seguimiento
+				// Se filtra estado de la actividad
+				$_btn_verificacion_material = "";
+				$_col_status = '
+						<td class="nexos-txt-warning">
+							<div style="display: none;">' . $value["estado"] . '</div>
+							<span class="mdi mdi-dot-circle icon"></span>
+						</td>
+					';
+				if ($value["estado"] == 1) {
+					$_col_status = '
+							<td class="nexos-txt-success">
+								<div style="display: none;">' . $value["estado"] . '</div>
+								<span class="mdi mdi-dot-circle icon"></span>
+							</td>
+						';
+				}
+				$_btn_verificacion_material = '
+							<a href="' . BASE_URL . 'importacion/reporte_verificacion_material/' . $value[0] . '" class="icon hint--top-left" data-hint="Ver Seguimiento"><span class="mdi mdi-eye"></span></a>
+						';
+
+				$_tabla_verificacion_material .= '
+						<tr>
+							' . $_col_status . '
+							<td class="cell-detail">
+								<span class="label label-default">' . $value["CANTIDAD_MATERIALES"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span class="label label-default">' . $value["CANTIDAD_IMAGENES"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["CLIENTE"] . '</span>
+								<span class="cell-detail-description">' . $value["importacion"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["nombre"] . '</span>
+								<span class="cell-detail-description">' . $value["CIUDAD_ORIGEN"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . number_format($value["PESO"], 2, ",", ".") . ' Kg</span>
+								<span class="cell-detail-description"></span>
+							</td>
+							<td class="actions">
+								' . $_btn_verificacion_material . '
+							</td>
+						</tr>
+					';
+			}
+		}
+
+		if ($_tabla_verificacion_material != "") {
+			$vista .= '
+					<!-- Resumen de Verificación de Material - Responsive Table  -->
+					<div class="row">
+						<div class="col-md-12">
+							<div class="panel panel-default panel-table">
+								<div class="panel-heading">Resumen de Verificación de Materiales
+									<div class="tools"></div>
+								</div>
+								<div class="panel-body">
+									<div class="table-responsive noSwipe">
+										<table id="table1" class="table table-striped table-hover" data-page-length="25">
+											<thead>
+												<tr>
+													<th style="width: 5%;"></th>
+													<th style="width: 5%;">Materiales</th>
+													<th style="width: 5%;">Imágenes</th>
+													<th>Cliente</th>
+													<th>Origen</th>
+													<th>Peso Carga</th>
+													<th style="width: 5%;"></th>
+												</tr>
+											</thead>
+											<tbody>
+												' . $_tabla_verificacion_material . '
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				';
+		}
+		/**** Fin - Resumen de Seguimietos de Verificación de materiales - Responsive Table ****/
+
+		/**** Resumen de Seguimientos de Ruta - Responsive Table ****/
+		$verSeguimeintoRutas = $this->dashboard->getSeguimientoRutas($ssn_id_cliente);
+		// print_r("<pre>");
+		// print_r($verSeguimeintoRutas);
+		// print_r("</pre>");
+
+		$_tabla_seguimiento_rutas = "";
+		if ($verSeguimeintoRutas) {
+			foreach ($verSeguimeintoRutas["rowsData"] as $key => $value) {
+				// Se establece si no se ha registrado el seguimiento a tiempo
+				$_lapso = $this->dashboard->getTimeDiff($value["ULTIMO_SEGUIMIENTO_FECHA"], $time);
+				// print_r("<pre>");
+				// print_r($_lapso);
+				// print_r("</pre>");
+				$cell_color = "success";
+				$hint_content = "";
+				if ($value["DIFERENCIA"] > STANDBY_SEGUIMIENTO_HOURS) {
+					$cell_color = "danger";
+					$hint_content = 'data-hint="Seguimiento retrasado por: ' . $_lapso["diferencia_text"] . '"';
+				}
+
+				$_text_color = "";
+				if ($value["ESTADO_ACTIVIDAD"] == 1) {
+					$_text_color = ' class="text-success" ';
+				}
+
+				// Se filtra el contenido del campo observación interna
+				$_observacion_interna = "";
+				if ($ssn_id_cliente == 1) {
+					$_observacion_interna = '
+							<span class="cell-detail-description" style="color: #ea4335;">' . $value["ULTIMO_SEGUIMIENTO_OBSERVACION_INTERNA"] . '</span>
+						';
+				}
+
+				// Se valida la creacion del botón de acceso al reporte de seguimiento de ruta
+				$_btn_seguimiento_ruta = "";
+				if ($value["ULTIMO_SEGUIMIENTO"] == 1) {
+					$_btn_seguimiento_ruta = '
+							<a href="' . BASE_URL . 'importacion/reporte_ruta/' . $value["ID_ACTIVIDAD"] . '/' . $value["numero_importacion"] . '" class="icon hint--top-left" data-hint="Ver Seguimiento"><span class="mdi mdi-eye"></span></a>
+						';
+				}
+
+				// Se pinta la tabla de material pendiente por descargar
+				$_tabla_seguimiento_rutas .= '
+						<tr>
+							<td class="nexos-txt-' . $cell_color . '">
+								<a data-toggle="modal" class="cell-detail md-trigger hint--top-right" ' . $hint_content . '>
+									<span class="icon mdi mdi-dot-circle"></span>
+								</a>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["NOMBRE_CLIENTE"] . '</span>
+								<span class="cell-detail-description">' . $value["importacion"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["ORIGEN"] . '</span>
+								<span class="cell-detail-description">' . $value["CIUDAD_ORIGEN"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["TIPO_VEHICULO"] . '</span>
+								<span class="cell-detail-description"></span>
+							</td>
+							<td class="cell-detail">
+								<span>' . number_format($value["PESO"], 2, ",", ".") . ' Kg</span>
+								<span class="cell-detail-description"></span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["ULTIMO_SEGUIMIENTO_FECHA"] . '</span>
+								<span class="cell-detail-description">' . $value["ULTIMO_SEGUIMIENTO_UBICACION"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span ' . $_text_color . '>' . $value["ULTIMO_SEGUIMIENTO_TIPO_SEGUIMIENTO"] . '</span>
+								<span class="cell-detail-description">' . $value["ULTIMO_SEGUIMIENTO_OBSERVACION"] . '</span>
+								' . $_observacion_interna . '
+							</td>
+							<td class="actions">
+								' . $_btn_seguimiento_ruta . '
+							</td>
+						</tr>
+					';
+			}
+		}
+
+		if ($_tabla_seguimiento_rutas != "") {
+			$vista .= '
+					<!-- Resumen de Seguimientos de Ruta - Responsive Table  -->
+					<div class="row">
+						<div class="col-md-12">
+							<div class="panel panel-default panel-table">
+								<div class="panel-heading">Resumen de Seguimientos de Ruta
+									<div class="tools"></div>
+								</div>
+								<div class="panel-body">
+									<div class="table-responsive">
+										<table id="table1" class="table table-striped table-hover" data-page-length="25">
+											<thead>
+												<tr>
+													<th></th>
+													<th>Cliente</th>
+													<th>Origen</th>
+													<th>Vehículo</th>
+													<th>Peso Carga</th>
+													<th>Último Seguimiento</th>
+													<th>Úlitma Observación</th>
+													<th style="width: 5%;"></th>
+												</tr>
+											</thead>
+											<tbody>
+												' . $_tabla_seguimiento_rutas . '
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				';
+		}
+		/**** Fin - Resumen de Seguimientos de Ruta - Responsive Table ****/
+
+		/**** Resumen de Seguimientos de Descargue - Responsive Table ****/
+		$verSeguimeintoDescargue = $this->dashboard->getSeguimientoDescargue($ssn_id_cliente);
+
+		$_tabla_seguimiento_descargue = "";
+		if ($verSeguimeintoDescargue) {
+			foreach ($verSeguimeintoDescargue["rowsData"] as $key => $value) {
+
+				// Se filtra el contenido del campo observación interna
+				$_observacion_interna = "";
+				if ($ssn_id_cliente == 1) {
+					$_observacion_interna = '
+							<span class="cell-detail-description" style="color: #ea4335;">' . $value["ULTIMO_SEGUIMIENTO_OBSERVACION_INTERNA"] . '</span>
+						';
+				}
+
+				// Se valida la creacion del botón de acceso al reporte de seguimiento de cargue
+				$_btn_seguimiento_cargue = "";
+				if ($value["ULTIMO_SEGUIMIENTO"] == 1) {
+					$_btn_seguimiento_cargue = '
+							<a href="' . BASE_URL . 'importacion/reporte_descargue/' . $value["ID_ACTIVIDAD"] . '/' . $value["numero_importacion"] . '" class="icon hint--top-left" data-hint="Ver Seguimiento"><span class="mdi mdi-eye"></span></a>
+						';
+				}
+
+				$_text_color = "";
+				if ($value["ESTADO_ACTIVIDAD"] == 1) {
+					$_text_color = ' class="text-success" ';
+				}
+
+				// Se pinta la tabla de material pendiente por descargar
+				$_tabla_seguimiento_descargue .= '
+						<tr>
+							<td class="cell-detail">
+								<span>' . $value["NOMBRE_CLIENTE"] . '</span>
+								<span class="cell-detail-description">' . $value["importacion"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["ORIGEN"] . '</span>
+								<span class="cell-detail-description">' . $value["CIUDAD_ORIGEN"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["TIPO_VEHICULO"] . '</span>
+								<span class="cell-detail-description"></span>
+							</td>
+							<td class="cell-detail">
+								<span>' . number_format($value["PESO"], 2, ",", ".") . ' Kg</span>
+								<span class="cell-detail-description"></span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["ULTIMO_SEGUIMIENTO_FECHA"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span ' . $_text_color . '>' . $value["ULTIMO_SEGUIMIENTO_TIPO_SEGUIMIENTO"] . '</span>
+								<span class="cell-detail-description">' . $value["ULTIMO_SEGUIMIENTO_OBSERVACION"] . '</span>
+								' . $_observacion_interna . '
+							</td>
+							<td class="actions">
+								' . $_btn_seguimiento_cargue . '
+							</td>
+						</tr>
+					';
+			}
+		}
+
+		if ($_tabla_seguimiento_descargue != "") {
+			$vista .= '
+					<!-- Resumen de Seguimientos de Descargue - Responsive Table  -->
+					<div class="row">
+						<div class="col-md-12">
+							<div class="panel panel-default panel-table">
+								<div class="panel-heading">Resumen de Seguimientos de Descargue
+									<div class="tools"></div>
+								</div>
+								<div class="panel-body">
+									<div class="table-responsive noSwipe">
+										<table id="table1" class="table table-striped table-hover" data-page-length="25">
+											<thead>
+												<tr>
+													<th>Cliente</th>
+													<th>Origen</th>
+													<th>Vehículo</th>
+													<th>Peso Carga</th>
+													<th>Último Seguimiento</th>
+													<th>Úlitma Observación</th>
+													<th style="width: 5%;"></th>
+												</tr>
+											</thead>
+											<tbody>
+												' . $_tabla_seguimiento_descargue . '
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				';
+		}
+		/**** Fin - Resumen de Seguimientos de Descargue - Responsive Table ****/
+
+		/**** Resumen de Seguimientos para Clientes Pendientes Internacional - Responsive Table ****/
+		if ($ssn_id_cliente != 1) {
+			$verIntrSeguimientos = $this->dashboard->getIntrSeguimientosCliente($_SESSION["usuario"]);
+
+			if ($verIntrSeguimientos["general"]) {
+				$table_seguimientos = '
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<table id="table1" class="table table-striped table-hover" data-page-length="25">
+								<thead>
+									<tr class="nexos-encabezado">
+										<th></th>
+										<th>Proyecto</th>
+										<th>Origen</th>
+										<th>Destino</th>
+										<th>Seguimientos Clientes</th>
+										<th></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+					';
+
+				foreach ($verIntrSeguimientos["general"]["rowsData"] as $key => $value) {
+					// Se buscan los orígenes del proyecto
+					$_origen = "";
+					if (isset($verIntrSeguimientos["origen"][$value[0]])) {
+						foreach ($verIntrSeguimientos["origen"][$value[0]] as $key_01 => $value_01) {
+							$_origen .= '
+									<span>' . $value_01["sigla"] . '</span>
+									<span class="cell-detail-description">' . $value_01["MUNICIPIO"] . '</span>
+								';
+						}
+					}
+
+					// Se buscan los destinos del proyecto
+					$_destino = "";
+					if (isset($verIntrSeguimientos["destino"][$value[0]])) {
+						foreach ($verIntrSeguimientos["destino"][$value[0]] as $key_01 => $value_01) {
+							$_destino .= '
+									<span>' . $value_01["sigla"] . '</span>
+									<span class="cell-detail-description">' . $value_01["MUNICIPIO"] . '</span>
+								';
+						}
+					}
+
+					// Filtro del contenido de seguimiento de clientes
+					$_cell_dias_clientes = '';
+					$_cell_ver_seguimientos = '<td class="cell-detail" ></td>';
+					$_cell_seguimiento_clientes = '
+							<td class="cell-detail">
+								<span><strong class="text-muted">Sin seguimientos</strong></span>
+							</td>
+						';
+					if ($value["MENSAJE_SEGUIMIENTO_CLIENTE"]) {
+						$_cell_seguimiento_clientes = '
+								<td class="user-avatar cell-detail user-info">
+									<img src="' . BASE_URL . 'views/layout/assets/img/' . $value["URL_AUTOR_SEGUIMIENTO_CLIENTE"] . '">
+									<span>' . $value["AUTOR_SEGUIMIENTO_CLIENTE"] . '</span>
+									<span class="cell-detail-description">' . $value["MENSAJE_SEGUIMIENTO_CLIENTE"] . '</span>
+									<span class="cell-detail-description">' . $value["ULTIMO_SEGUIMIENTO_CLIENTE"] . '</span>
+								</td>
+							';
+						$_cell_ver_seguimientos = '
+								<td class="actions-nexos">
+									<center>
+										<a href="' . BASE_URL . 'internacional/reporte_seguimientos/' . $value["ID_PROYECTO"] . '/' . $value["ID_ACTIVIDAD_CLIENTE"] . '/" target="_blank" class="icon hint--top-left" data-hint="Ver Seguimientos">
+											<span class="icon mdi mdi-eye"></span>
+										</a>
+									</center>
+								</td>
+							';
+					}
+
+					// Filtro del contenido de los días sin seguimiento
+					switch ($value["ESTADO_ACTIVIDAD_CLIENTE"]) {
+						case '1':
+							$_cell_dias_clientes = '
+									<td class="text-center">
+										<span class="badge badge-success">Seguimiento terminado</span>
+									</td>
+								';
+							break;
+
+						case '2':
+							switch ($value["DIAS_CLIENTE"]) {
+								case '0':
+									$_cell_dias_clientes = '
+											<td class="text-center">
+												<span class="badge badge-success">' . $value["DIAS_CLIENTE"] . '</span>
+											</td>
+										';
+									break;
+
+								case '1':
+									$_cell_dias_clientes = '
+											<td class="text-center">
+												<span class="badge badge-warning">' . $value["DIAS_CLIENTE"] . '</span>
+											</td>
+										';
+									break;
+
+								default:
+									$_cell_dias_clientes = '
+											<td class="text-center">
+												<span class="badge badge-danger">' . $value["DIAS_CLIENTE"] . '</span>
+											</td>
+										';
+									break;
+							}
+							break;
+
+						case '3':
+							$_cell_dias_clientes = '
+									<td class="text-center">
+										<span class="badge">No iniciado</span>
+									</td>
+								';
+							break;
+
+						default:
+							$_cell_dias_clientes = '
+									<td class="text-center">
+										<span class="badge badge-danger">Error de estado de actividad</span>
+									</td>
+								';
+							break;
+					}
+
+					// Filtro de entregables del seguimiento
+					$_cell_entregable = '<td class="cell-detail" ></td>';
+					if ($value["ENTREGABLE_SEGUIMIENTO_CLIENTE"]) {
+						$_cell_entregable = '
+								<td class="actions-nexos">
+									<center>
+										<a href="' . BASE_URL . 'public/files/importaciones/seguimiento/' . $value["ID_ACTIVIDAD_CLIENTE"] . '/' . $value["ENTREGABLE_SEGUIMIENTO_CLIENTE"] . '" target="_blank" class="icon hint--top" data-hint="Descargar Entregable">
+											<span class="icon mdi mdi-download"></span>
+										</a>
+									</center>
+								</td>
+							';
+					}
+
+					// Se pinta la fila de contenido de la tabla
+					$table_seguimientos .= '
+							<tr>
+								' . $_cell_dias_clientes . '
+								<td class="cell-detail" >
+									<span>' . $value["tipo_operacion"] . '</span>
+									<span class="cell-detail-description"><strong>' . $value["do"] . '</strong></span>
+									<span class="cell-detail-description">' . $value["importacion"] . '</span>
+								</td>
+								<td class="cell-detail" >
+									' . $_origen . '
+								</td>
+								<td class="cell-detail" >
+									' . $_destino . '
+								</td>
+								' . $_cell_seguimiento_clientes . '
+								' . $_cell_entregable . '
+								' . $_cell_ver_seguimientos . '
+							</tr>
+						';
+				}
+				$table_seguimientos .= '
+								</tbody>
+							</table>
+						</div>
+					';
+
+				$_accordion_seguimientos = '
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4 class="panel-title">
+									<a data-toggle="collapse" data-parent="#accordion_intr_seguimientos" href="#collapseSeguimientos">
+										<i class="icon mdi mdi-chevron-down"></i> Seguimientos Cliente - <strong>' . $ssn_cliente . '</strong> <small><strong>(' . $verIntrSeguimientos["general"]["rowsNum"] . ')</strong></small>
+										<span class="panel-subtitle">Seguimientos realizados de la operación.</span>
+									</a>
+								</h4>
+							</div>
+							<div id="collapseSeguimientos" class="panel-collapse collapse">
+								<div class="panel-body">
+									' . $table_seguimientos . '
+								</div>
+							</div>
+						</div>
+					';
+
+				$vista .= '
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<div id="accordion_intr_seguimientos" class="panel-group accordion">
+								' . $_accordion_seguimientos . '
+							</div>
+						</div>
+					';
+			}
+		}
+		/**** Fin - Resumen de Seguimientos para Clientes Pendientes Internacional - Responsive Table ****/
+	}
+} elseif ($ssn_tipo_perfil == 'CLIENTES' && $ssn_id_perfil == 30 || $ssn_tipo_perfil == 'ADMINISTRATIVO' && $ssn_id_perfil == 1) {
+	// var_dump($ssn_tipo_perfil);
+
+	$initials = $this->dashboard->getInitials($nombre_usuario);
+	/**** Vista de indicadores rapidos ****/
+	$vista .= '
+						<!-- Trjetas de las lista de despachos actuales -->
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div class="panel panel-default" style="border-radius: 10px; padding: 15px;backdrop:#FFFFFF !important;">
+								<div class="row">
+										<!-- Nombre de la aplicación -->
+										<div class="col-xs-12">
+												<h5 class="panel-title" style="font-weight: bold;">Despachos Activos</h5>
+										</div>
+
+						 <div class="col-md-12 col-sm-12" style="padding: 1px 1px 1px;">
+								<table class="table table-striped table-borderless" width="100" cellpadding="0" cellspacing="0" border="0">
+									<thead style="background-color:#332D2D;color:#fff;text-align:center;">
+										<tr>
+											<th>#</th>
+											<th>Ruta</th>
+											<th>Placa</th>
+											<th>Estado</th>
+										</tr>
+									</thead>
+									<tbody id="tbody-pedidos-activos">
+										<tr>
+											<td colspan="4" class="text-center">
+												Esperando Información
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+
+								</div>
+						</div>
+				</div>
+
+				<!-- Fin Trjetas de las lista de despachos actuales -->
+';
+}
+
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+		<!-- INICIO JS DEL BEAGLE -->
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-flot/jquery.flot.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-flot/jquery.flot.pie.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-flot/jquery.flot.resize.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-flot/plugins/jquery.flot.orderBars.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-flot/plugins/curvedLines.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery.sparkline/jquery.sparkline.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/countup/countUp.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jqvmap/jquery.vmap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jqvmap/maps/jquery.vmap.world.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-dashboard.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="' . BASE_URL . '/views/clientes_nuevo/js/dashboard_cliente.js" type="text/javascript"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6vpUhRVoEe5U6m7Wh5_LFMCr_g8OzU1E&libraries=places&v=weekly&libraries=marker" defer></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+				App.dashboard();
+			});
+		</script>
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+		</script>
+		<!-- FIN JS DEL BEAGLE -->
+	';
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+echo $vista;

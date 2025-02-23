@@ -1,0 +1,633 @@
+<?php
+
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content='';
+if (isset($this->index_habilitar) ) { 
+	$arrayPermisos = $this->index_habilitar->permisosPerfil( $ssn_id_perfil , 115);
+	$_permisos = $arrayPermisos["rowsData"][0];
+	 $array = $this->index_habilitar->consultar_v_preestudio();
+$table_content .='
+	<div id="la_tabla">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12">
+					<div class="table-responsive noSwipe">
+						<input type="hidden" id="flag_popup">
+						<table id="table1" class="table table-striped table-hover table-fw-widget" data-page-length="100">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th>Placa</th>
+									<th>Propietario</th>
+									<th>Tenedor</th>
+									<th>Conductor</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+								<tbody id="body_tabla">';
+				if ( $array ) {
+					foreach ($array["rowsData"] as $key => $value) {
+
+				$btn_accion='';
+				$btn_consultar='';
+				$btn_estado='';
+				$_col_status='';
+				$id=$value["id"];	
+				$placa=$value["placa_vehiculo"];
+
+
+				$btn_consultar='
+						<button class="btn btn-secondary"
+						<a href="javascript:" onclick="consultar_vehiculo(this)" class="cell-detail hint--top-left"  data-id="'.$id.'" data-id2="'.$placa.'"  ><span class="icon mdi mdi-eye" data-toggle="modal" data-target="#consulte" title="consultar">
+						</span></a></button>';
+
+				$btn_estado='
+						<button class="btn btn-secondary"
+						<a href="javascript:" onclick="estado_vehiculo(this)" class="cell-detail hint--top-left"  data-id="'.$id.'" data-id2="'.$placa.'"  ><span class="icon mdi mdi-balance" data-toggle="modal" data-target="#estados" title="Status">
+						</span></a></button>';		
+
+						$btn_accion='
+						<button class="btn btn-secondary"
+						<a href="javascript:" onclick="prueba_apagar(this)" class="cell-detail hint--top-left"  data-id="'.$id.'" data-id2="'.$placa.'"  ><span class="icon mdi mdi-block" data-toggle="modal" data-target="#inhabilite" title="Acción">
+						</span></a></button>';		
+						// }
+
+			$id=$value["id"];	
+			$placa=$value["placa_vehiculo"];
+
+				$table_content.='<tr>
+					'.$_col_status.'
+					<td>'.$value["placa_vehiculo"].'</td>
+					<td>'.$value["nombre_propietario"].'
+					<br>
+					'.$value["documento_propietario"].'</td>
+					<td>'.$value["nombre_tenedor"].'<br>
+					'.$value["documento_tenedor"].' </td>
+					<td>'.$value["nombre_conductor"].'<br>'
+					.$value["documento_conductor"].'</td>
+					<td>
+						'.$btn_consultar.'
+						'.$btn_estado.'
+						'.$btn_accion.'
+					</td>
+						</tr>';		
+					}
+				}					
+						$table_content .='</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+</div>	
+		'; 
+
+$vista.= '
+	<!-- CONTENEDORES Y REGISTRO DE DATOS-->
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Solicitudes de Vehículos
+				<div class="tools">
+				</div>
+				<span class="panel-subtitle">Módulo para ver las solicitudes de vehiculos por operaciones</span>
+				<input type="hidden" id="usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'" >
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+</div>';
+}?>
+
+<!-- Bloquear o  Desbloquear vehiculo-->
+<div id="inhabilite" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="editar_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">
+						Desbloquear vehículo
+					</label>
+						</h3>
+					</div>
+					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_editar"></div><!-- id para manejar los mensajes de errordel popup -->
+						<div id="content_editar">
+							<div class="row">
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+								<label style="font-weight:800; margin-top:20px;">Placa</label>
+								<input type="text" id="placa_i" class="form-control input-sm text-center" readonly="readonly"
+								style="font-size:12pt;" >
+							</div>
+							<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Fecha</label>
+								<input type="text" id="fecha_i" value="<?php echo date('Y-m-d'); ?>" class="form-control input-sm" readonly="readonly">
+							</div>
+							<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Hora</label>
+							<input type="text" id="hora_i" class="form-control input-sm" readonly="readonly" value="<?php echo date('H:i:s'); ?>" >	
+							</div>
+							<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+								<label style="font-weight:800; margin-top:20px;">Usuario</label>
+								<input type="text" id="usuario_i" class="form-control input-sm" readonly="readonly"      value="<?php echo $ssn_nombre; ?>">
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+								<label style="font-weight:800; margin-top:20px;">Estado</label>
+								<select class="form-control input-sm" id="estado_i">
+									<option value="">Seleccione</option>
+									<option value="Desbloquear">Desbloquear</option>
+									<option value="Bloquear">Bloquear</option>
+								</select>
+							</div>
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+								<label style="font-weight:800; margin-top:20px;">Causalidad</label>
+								<select class="form-control input-sm" id="causalidades">
+								</select>
+							</div>	
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+								<label style="font-weight:800; margin-top:20px;">Observación</label>
+								<textarea class="form-control input-sm" id="obser_i" placeholder="observacion del vehículo"></textarea>
+							</div>	
+
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+								<input type="hidden" id="id_i" class="form-control input-sm" readonly="readonly">
+							</div>
+						</div>	
+							
+						</div>
+					<div class="modal-footer">
+						<button id="btn_actualizar" type="button" class="btn btn-success md-close" onclick="inhabilitar();" >Guardar</button>
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+</div>
+
+<!--estados -->
+<div id="estados" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="editar_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">
+						Status del vehículo
+					</label>
+						</h3>
+					</div>
+					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_editar"></div><!-- id para manejar los mensajes de errordel popup -->
+						<div id="content_editar">
+						<div class="row">
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+								<label style="font-weight:800; margin-top:20px;">Placa</label>
+								<input type="text" id="placa_e" class="form-control input-sm text-center" readonly="readonly"
+								style="font-size:12pt;" >
+							</div>
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+								<input type="hidden" id="id_e" class="form-control input-sm" readonly="readonly">
+							</div>
+						</div>	
+						<div class="row">		
+						<div class="panel-body">
+		                  <table class="table">
+		                    <thead>
+		                      <tr>
+		                        <th style="width:20%;">Estado</th>
+		                        <th style="width:20%;">Causalidad</th>
+		                        <th style="width:20%;">Fecha</th>
+		                        <th style="width:20%;">Hora</th>
+		                        <th style="width:20%;">Usuario</th>
+		                      </tr>
+		                    </thead>
+		                    <tbody id="body_estados">
+		                    </tbody>
+		                  </table>
+		                </div>
+					</div>
+							
+						</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+</div>
+
+<!--consultar vehiculo -->
+<div id="consulte" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="editar_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">
+						Datos del  vehículo
+					</label>
+						</h3>
+					</div>
+					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_editar"></div><!-- id para manejar los mensajes de errordel popup -->
+			<div id="content_editar">
+				<div class="row">
+						<div class="col-xs-12 col-sm-7 col-md-7 col-lg-7">
+								<label style="font-weight:800; margin-top:20px;">Placa</label>
+								<input type="text" id="placa_v" class="form-control input-sm text-center" readonly="readonly"
+								style="font-size:12pt;" >
+						</div>
+
+						<div class="col-xs-12 col-sm-5 col-md-5 col-lg-5">
+							<label style="font-weight:800; margin-top:20px;">Placa trailer</label>
+							<input type="text" id="trailer_v" class="form-control input-sm" readonly="readonly" >
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+							<label style="font-weight:800; margin-top:20px;">Nombre propietario</label>
+							<input type="text" id="propi_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+							<label style="font-weight:800; margin-top:20px;">Documento propietario</label>
+							<input type="text" id="docpropi_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+							<label style="font-weight:800; margin-top:20px;">Nombre Tenedor</label>
+							<input type="text" id="tene_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+							<label style="font-weight:800; margin-top:20px;">Documento Tenedor</label>
+							<input type="text" id="docutene_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+							<label style="font-weight:800; margin-top:20px;">Nombre Conductor</label>
+							<input type="text" id="condu_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+							<label style="font-weight:800; margin-top:20px;">Documento Conductor</label>
+							<input type="text" id="doccondu_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+							<label style="font-weight:800; margin-top:20px;">Web Satélital</label>
+							<input type="text" id="web_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+							<label style="font-weight:800; margin-top:20px;">Usuario satélital</label>
+							<input type="text" id="usersate_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+							<label style="font-weight:800; margin-top:20px;">Clave satélital</label>
+							<input type="text" id="clavesate_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+							<label style="font-weight:800; margin-top:20px;">Fecha</label>
+							<input type="text" id="fecha_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+							<label style="font-weight:800; margin-top:20px;">Hora</label>
+							<input type="text" id="hora_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+							<label style="font-weight:800; margin-top:20px;">Usuario</label>
+							<input type="text" id="user_v" class="form-control input-sm" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+								<input type="hidden" id="id_e" class="form-control input-sm" readonly="readonly">
+						</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+						<label style="font-size:16pt; font-weight:500; color:#2E2E2E; text-align:center; ">Referencias</label>
+					</div>
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+					 <table class="table table-condensed table-hover table-bordered table-striped">
+	                    <thead>
+	                      <tr>
+	                        <th>Nombre Empresa</th>
+	                        <th class="number">Fecha Ingreso</th>
+	                        <th class="number">Fecha Retiro</th>
+	                        <th>Contacto</th>
+	                        <th>Teléfono</th>
+	                        <th>Cargo</th>
+	                      </tr>
+	                    </thead>
+	                    <tbody id="table_referencia">
+	                    </tbody>
+                  	</table>	
+                  </div>
+				</div>	
+				</div>	
+				</div>
+			<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						</div>
+					</div>
+				</div>
+	</div>
+</div>
+
+
+<?php
+$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+';
+$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+$vista = str_replace("%content%" , $table_content , $vista); 
+echo $vista;
+?>
+<script type="text/javascript">
+var url2 =$("#id_url_ajax").val() + "libs/preestudio2_ajax.php";
+//consultar causalidades 
+$("#estado_i").change(function(){
+	// alert('cammbio');
+	var estadohabil=$("#estado_i").val();
+	var datos={
+		estadohabil:estadohabil,
+		action:'datos_causalidad'
+	};
+	$("#causalidades").html('');
+	$.ajax({
+		url:url2,
+	 	type:'POST',
+	 	data:datos,
+	 	dataType:'json',
+	 	success: function(data){
+	 		// console.log('trajo casualidades');
+	 		data.result.forEach(function(element,index){
+	 		$("#causalidades").append('<option value="'+element.id+'">'+element.respuesta+'</option>');
+	 		});
+
+	 	},
+	 	error: function(jqXHR, textStatus, errorThrown){
+	 		console.log('no trajo casualidades');
+	 		console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+	 	}
+	});
+
+
+});
+
+
+//consultar el vehiculo + referencias laborales
+function consultar_vehiculo(element){
+	var elemento = $(element);
+	var id = elemento.data("id");
+	var placa = elemento.data("id2");
+	//consultar vehiculo
+	var vehi={
+		id:id,
+		placa:placa,
+		action:'datos_vehiculo'
+	};
+	$("#table_referencia").html('');
+	$.ajax({
+		url:url2,
+	 	type:'POST',
+	 	data:vehi,
+	 	dataType:'json',
+	 	success: function(data){
+	 		 // console.log('si trajo vehicu');
+	 		 // console.log(data);
+	 		 if(data.result){
+	 		 	$("#placa_v").val(data.result[0].placa_vehiculo);
+	 		 	$("#trailer_v").val(data.result[0].placa_trailer);
+	 		 	$("#propi_v").val(data.result[0].nombre_propietario);
+	 		 	$("#docpropi_v").val(data.result[0].documento_propietario);
+	 		 	$("#tene_v").val(data.result[0].nombre_tenedor);
+	 		 	$("#docutene_v").val(data.result[0].documenti_tenedor);
+	 		 	$("#condu_v").val(data.result[0].nombre_conductor);
+	 		 	$("#doccondu_v").val(data.result[0].documento_conductor);
+	 		 	$("#web_v").val(data.result[0].web_satelital);
+	 		 	$("#usersate_v").val(data.result[0].usuario_satelital);
+	 		 	$("#clavesate_v").val(data.result[0].clave_satelital);
+	 		 	$("#fecha_v").val(data.result[0].fecha);
+	 		 	$("#hora_v").val(data.result[0].hora);
+	 		 	$("#user_v").val(data.result[0].usuario);
+	 		 }
+
+	 		 if(data.result2){
+	 		 	data.result2.forEach(function(element,index){
+	 		 		$("#table_referencia").append('<tr>'+
+	 		 			'<td>'+element.nombre_empresa+'</td>'+
+	 		 			'<td>'+element.fecha_ingreso+'</td>'+
+	 		 			'<td>'+element.fecha_retiro+'</td>'+
+	 		 			'<td>'+element.persona_contacto+'</td>'+
+	 		 			'<td>'+element.celular+'</td>'+
+	 		 			'<td>'+element.cargo+'</td>'+	
+	 		 		'</tr>');	
+	 		 	});
+	 		 }
+	 	},
+	 	error:function(jqXHR, textStatus, errorThrown){
+	 		console.log('no trajovehic');
+			console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+	 	}
+ 	});
+}
+
+//estados del vehiculo
+function estado_vehiculo(element){
+	var elemento = $(element);
+	var id = elemento.data("id");
+	var placa = elemento.data("id2");
+	$("#id_e").val(id);
+	$("#placa_e").val(placa);
+	//consultar estados
+	var consulte={
+		id:id,
+		placa:placa,
+		action:'consultar_estado'
+	};
+	$("#body_estados").html('');
+	$.ajax({
+		url:url2,
+	 	type:'POST',
+	 	data:consulte,
+	 	dataType:'json',
+	 	success: function(data){
+	 		 console.log('si trajo status');
+	 		 console.log(data);
+	 		 if(data.result){
+	 		 	data.result.forEach(function(element,index){
+
+	 		 		if(element.causalidades){
+	 		 			var causa=element.causalidades;
+	 		 		}else{
+	 		 			var causa='';
+	 		 		}
+
+	 		 		$("#body_estados").append('<tr>'+
+	 		 			'<td>'+element.estado_vehiculo+'</td>'+
+	 		 			'<td>'+causa+'</td>'+
+	 		 			'<td>'+element.fecha+'</td>'+
+	 		 			'<td>'+element.hora+'</td>'+
+	 		 			'<td>'+element.usuario+'</td>'+
+	 		 			'</tr>');
+	 		 	});
+	 		 }
+	 	},
+	 	error:function(jqXHR, textStatus, errorThrown){
+	 		console.log('no inhabilito');
+			console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+	 	}
+ 	});
+}
+
+//si esta inhabilitado, habilitar
+function prueba_encender(element){
+	var elemento = $(element);
+	var id = elemento.data("id");
+	var placa = elemento.data("id2");
+	$("#id_h").val(id);
+	$("#placa_h").val(placa);
+}
+
+function habilitar(){
+	var id=$("#id_h").val();
+	var fecha=$("#fecha_h").val();
+	var hora=$("#hora_h").val();
+	var ser=$("#usuario_h").val();
+
+	var dos={
+		id:id,
+		fecha:fecha,
+		hora:hora,
+		user:ser,
+		action:'habilitar_vehiculopreestudio'
+	};
+
+	$.ajax({
+		url:url2,
+	 	type:'POST',
+	 	data:dos,
+	 	dataType:'json',
+	 	success: function(data){
+	 		// console.log('si habilito');
+	 		alert('Ok!! Registro Guardado Exitosamente!!');
+			location.reload(); 
+	 	},
+	 	error: function(jqXHR, textStatus, errorThrown){
+	 		console.log('no habilito');
+			console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+	 	}	
+	 });
+}
+
+//si esta habilitado, inhabilitar
+function prueba_apagar(element){
+	// alert('hello inhabilitar');
+	var elemento = $(element);
+	var id = elemento.data("id");
+	var placa = elemento.data("id2");
+	$("#id_i").val(id);
+	$("#placa_i").val(placa);
+}
+
+function inhabilitar(){
+	var id=$("#id_i").val();
+	var fecha=$("#fecha_i").val();
+	var hora=$("#hora_i").val();
+	var ser=$("#usuario_i").val();
+	var estado=$("#estado_i").val();
+	var causalidad=$("#causalidades").val();
+	var observacion=$("#obser_i").val();
+	var uno={
+		id:id,
+		fecha:fecha,
+		hora:hora,
+		user:ser,
+		estado:estado,
+		causa:causalidad,
+		observa:observacion,
+		action:'inhabilitar_vehiculopreestudio'
+	};
+	$.ajax({
+		url:url2,
+	 	type:'POST',
+	 	data:uno,
+	 	dataType:'json',
+	 	success: function(data){
+	 		// console.log('si inhabilito el vehiculo');
+	 		alert('Ok!! Registro Guardado Exitosamente!!');
+			location.reload(); 
+	 	},
+	 	error:function(jqXHR, textStatus, errorThrown){
+	 		console.log('no inhabilito');
+			console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+	 	}
+ 	});
+}
+
+
+</script>

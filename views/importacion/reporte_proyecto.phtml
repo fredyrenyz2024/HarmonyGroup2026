@@ -1,0 +1,2118 @@
+<?php
+$_jsScripts = "";
+$vista = '
+		<link rel="stylesheet" type="text/css" href="%root_file%lib/morrisjs/morris.css"/>
+	';
+
+$r = new Request();
+$_id_importacion = $r->getArgs()[0];
+$grupo = $r->getArgs()[1];
+
+/**** CONSULTA DE ACTIVIDADES REALIZADAS ****/
+$arrayActividades = $this->informes->getActividadesReporte($_id_importacion, $grupo);
+
+/***** SE PINTA LA INFORMACIÓN DEL PROYECTO *****/
+$info_proyecto = '
+		<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+			<div class="icon">
+				<span class="mdi mdi-check"></span>
+			</div>
+			<div class="message">
+				<strong>Atención!</strong>
+				<p>No información de este proyecto.</p>
+			</div>
+		</div>
+	';
+if (isset($arrayActividades["proyecto"][0])) {
+	$proyecto = $arrayActividades["proyecto"][0];
+
+	$_aduanero = "";
+	if (!$proyecto["ADUANERO"]) {
+		$_aduanero = '<span class="cell-detail-description"><span class="text-danger">El cliente no está reportado con actividad aduanera.</span></span>';
+	}
+	$_tipo_transporte = "";
+	if ($proyecto["TIPO_TRANSPORTE"]) {
+		$_tipo_transporte = '(' . $proyecto["TIPO_TRANSPORTE"] . ')';
+	}
+
+	// Se filtra el contenido de los tramos dependiendo el tipo de proyecto 
+	$_tramos = '';
+
+	if ($proyecto["PUERTO"]) {
+		$_tramos = '
+				<div class="col-sm-3">
+					<span>Origen:</span>
+					<span class="cell-detail-description">' . $proyecto["PUERTO"] . '</span>
+				</div>
+			';
+	}
+
+	if ($proyecto["id_contrato"]) {
+		$arrayTramos = $this->informes->getIntrTramosContrato($proyecto["id_contrato"]);
+		if ($arrayTramos) {
+			$_lista_origenes = '<span>Origen:</span>';
+			$_lista_destinos = '<span>Destino:</span>';
+			foreach ($arrayTramos["rowsData"] as $key_tramos => $value_tramos) {
+				switch ($value_tramos["tipo_tramo"]) {
+					case 'Cargue':
+						$_lista_origenes .= '
+								<span class="cell-detail-description">' . $value_tramos["MUNICIPIO"] . '</span>
+							';
+						break;
+
+					case 'Descargue':
+						$_lista_destinos .= '
+								<span class="cell-detail-description">' . $value_tramos["MUNICIPIO"] . '</span>
+							';
+						break;
+				}
+			}
+		}
+		$_tramos = '
+				<div class="col-sm-3">
+					' . $_lista_origenes . '
+					' . $_lista_destinos . '
+				</div>
+			';
+	}
+
+	if (isset($proyecto["FLAG_INTERNACIONAL"]) and $proyecto["FLAG_INTERNACIONAL"]) {
+		$arrayTramos = $this->informes->getIntrTramosProyecto($proyecto['id_importacion']);
+
+		if ($arrayTramos) {
+			$_lista_origenes = '<span>Origen:</span>';
+			$_lista_destinos = '<span>Destino:</span>';
+			foreach ($arrayTramos as $key_tramos => $value_tramos) {
+				switch ($value_tramos["tipo_tramo"]) {
+					case 'Cargue':
+						$_lista_origenes .= '
+								<span class="cell-detail-description"><strong>' . $value_tramos["sigla"] . '</strong></span>
+								<span class="cell-detail-description">' . $value_tramos["MUNICIPIO"] . '</span>
+							';
+						break;
+
+					case 'Descargue':
+						$_lista_destinos .= '
+								<span class="cell-detail-description"><strong>' . $value_tramos["sigla"] . '</strong></span>
+								<span class="cell-detail-description">' . $value_tramos["MUNICIPIO"] . '</span>
+							';
+						break;
+				}
+			}
+		}
+
+		$_tramos = '
+				<div class="col-sm-3">
+					' . $_lista_origenes . '
+					' . $_lista_destinos . '
+				</div>
+			';
+	}
+
+	$info_proyecto = '
+			<div class="col-xs-12 col-sm-12 col-md-12">
+				<span><strong>Proyecto</strong></span>
+				<table class="table">
+					<tbody>
+						<tr>
+							<td class="cell-detail">
+								<div class="row">
+									<div class="col-sm-2">
+										<span># Proyecto: <small><strong>' . $proyecto["numero_importacion"] . '</strong></small></span>
+										<span class="cell-detail-description">' . $proyecto["importacion"] . '</span>
+										<span class="cell-detail-description">' . date('Y-m-d', $proyecto["numero_importacion"]) . '</span>
+									</div>
+									<div class="col-sm-2">
+										<span>Tipo de Operación:</span>
+										<span class="cell-detail-description">' . $proyecto["tipo_operacion"] . ' ' . $_tipo_transporte . '</span>
+										<span class="cell-detail-description">' . $proyecto["INCOTERM"] . '</span>
+									</div>
+									<div class="col-sm-2">
+										<span>Tipo de Carga:</span>
+										<span class="cell-detail-description">' . $proyecto["TIPO_CARGA"] . '</span>
+										<span class="cell-detail-description">' . $proyecto["contenedor"] . '</span>
+									</div>
+									<div class="col-sm-3">
+										<span>Cliente:</span>
+										<span class="cell-detail-description">' . $proyecto["CLIENTE"] . '</span>
+										' . $_aduanero . '
+									</div>
+									' . $_tramos . '
+								</div>
+							</td>
+						</tr>
+						<tr><td></td></tr>
+					</tbody>
+				</table>
+			</div>
+		';
+}
+/***** FIN - SE PINTA LA INFORMACIÓN DEL PROYECTO *****/
+
+/***** SE PINTA LA INFORMACIÓN DEL CLIENTE DEL PROYECTO *****/
+$cliente = $arrayActividades["cliente"][0];
+
+$info_cliente = '
+		<div class="col-xs-12 col-sm-12 col-md-12">
+			<strong>Cliente</strong>
+			<table class="table">
+				<tbody>
+					<tr>
+						<td class="cell-detail">
+							<div class="col-xs-12 col-sm-6 col-md-3">
+								<span>' . $cliente["nombre"] . '</span>
+								<span class="cell-detail-description">' . $cliente["documento"] . '-' . $cliente["digito_verificacion"] . '</span>
+								<span class="cell-detail-description">' . $cliente["tipo_documento"] . ' (' . $cliente["regimen"] . ')</span>
+								<span class="cell-detail-description">' . $cliente["cod_cliente"] . '</span>
+							</div>
+							<div class="col-xs-12 col-sm-6 col-md-3">
+								<span>Ubicación</span>
+								<span class="cell-detail-description">' . $cliente["direccion"] . '</span>
+								<span class="cell-detail-description">' . $cliente["municipio"] . ' (' . $cliente["depto"] . ' - ' . $cliente["pais"] . ')</span>
+								<span class="cell-detail-description">Tel. ' . $cliente["telefono"] . '</span>
+								<span class="cell-detail-description">' . $cliente["email"] . '</span>
+							</div>
+							<div class="col-xs-12 col-sm-6 col-md-3">
+								<span>Datos de Facturación</span>
+								<span class="cell-detail-description">' . $cliente["fac_direccion_radicacion"] . '</span>
+								<span class="cell-detail-description"><strong>Plazo de pago:</strong> ' . $cliente["tes_plazo_pagos"] . ' días</span>
+								<span class="cell-detail-description"><strong>Días de pago:</strong> ' . $cliente["tes_dias_pagos"] . '</span>
+								<span class="cell-detail-description"><strong>Horario de atención:</strong> ' . $cliente["fac_horario_atencion"] . '</span>
+							</div>
+							<div class="col-xs-12 col-sm-6 col-md-3">
+								<span>Datos de Facturación</span>
+								<span class="cell-detail-description"><strong>Día máximo de pago:</strong> ' . $cliente["fac_dia_max_facturacion"] . '</span>
+								<span class="cell-detail-description"><strong>Instrucción de pago:</strong> ' . $cliente["tes_instruccion_pago"] . '</span>
+							</div>
+						</td>
+					</tr>
+					<tr><td></td></tr>
+				</tbody>
+			</table>
+		</div>
+	';
+/***** FIN - SE PINTA LA INFORMACIÓN DEL CLIENTE DEL PROYECTO *****/
+
+/***** SE PINTA LA INFORMACIÓN DE LAS GUIAS Y MATERIALES PARA PROYECTOS INTERNACIONALES *****/
+$intr_accordion = '';
+$guias = '';
+$resumen_guias = '';
+if (isset($proyecto["FLAG_INTERNACIONAL"]) and $proyecto["FLAG_INTERNACIONAL"]) {
+	$guias = '
+			<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+				<div class="icon">
+					<span class="mdi mdi-check"></span>
+				</div>
+				<div class="message">
+					<strong>Atención!</strong>
+					<p>No se han registrado materiales para este proyecto.</p>
+				</div>
+			</div>
+		';
+
+	/***** Pestaña Oferta Comercial *****/
+	$_oferta_comercial_content = "";
+	$_aprobados_content = "";
+	$_pendientes_content = "";
+	$_eliminados_content = "";
+	$_estado_solicitud = 'panel-border-color panel-border-color-default';
+	if (isset($arrayActividades["oferta_comercial"]) and $arrayActividades["oferta_comercial"]) {
+
+		$_estado_solicitud = 'panel-border-color panel-border-color-warning';
+		$_table_content = "";
+
+		foreach ($arrayActividades["oferta_comercial"] as $key => $value) {
+			// Se valida si la oferta comercia fue aprobada por el cliente 
+			if ($value["ESTADO_SOLICITUD"] == 1) {
+				$_estado_solicitud = 'panel-border-color panel-border-color-success';
+			}
+
+			// Se pregunta el estado de la solicitud
+			$_aprobacion = '<span class="cell-detail-description">Oferta sin aprobar</span>';
+			switch ($value["ESTADO_SOLICITUD"]) {
+				case '0':
+					$_estado_oferta = '
+							<td class="nexos-txt-danger text-center">
+								<center class="hint--top-right" data-hint="Oferta no aprobada.">
+									<span class="mdi mdi-dot-circle icon"></span>
+								</center>
+							</td>
+						';
+					break;
+
+				case '1':
+					$_estado_oferta = '
+							<td class="nexos-txt-success text-center">
+								<center class="hint--top-right" data-hint="Oferta aprobada.">
+									<span class="mdi mdi-dot-circle icon"></span>
+								</center>
+							</td>
+						';
+					$_aprobacion = '<span class="cell-detail-description">Aprobado: <strong>' . $value["APROBADO"] . '</strong></span>';
+					break;
+
+				case '2':
+					$_estado_oferta = '
+							<td class="nexos-txt-warning text-center">
+								<center class="hint--top-right" data-hint="Oferta pendiente de aprobación.">
+									<span class="mdi mdi-dot-circle icon"></span>
+								</center>
+							</td>
+						';
+					break;
+
+				default:
+					$_estado_oferta = '<p class="text-danger">Error en la selección del estado de la solicitud LM</p>';
+					break;
+			}
+
+			$_table_content = '
+					<tr>
+						' . $_estado_oferta . '
+						<td class="cell-detail text-center">
+							<span>' . $value["fecha"] . '</span>
+							' . $_aprobacion . '
+						</td>
+						<td class="cell-detail text-right">
+							<span>' . number_format($value["valor"], 2, ',', '.') . '</span>
+							<span class="cell-detail-description">' . $value["MONEDA"] . '</span>
+						</td>
+						<td class="actions">
+							<a href="' . BASE_URL . 'public/files/internacional/oferta_comercial/' . $value["id_intr_proyecto"] . '/' . $value["url"] . '" target="_blank" class="cell-detail hint--top-left" data-hint="Descargar Oferta">
+								<span class="icon mdi mdi-download"></span>
+							</a>
+						</td>
+					</tr>
+				';
+		}
+
+		// Se recorre el resultado de la cotizaciones para hacer el contenido del entregable 
+		$_cotizaciones_content = '
+				<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+					<div class="icon">
+						<span class="mdi mdi-alert-triangle"></span>
+					</div>
+					<div class="message">
+						<strong>Atención!</strong>
+						<p>No se ha registrado ninguna cotización.</p>
+					</div>
+				</div>
+			';
+
+		if (isset($arrayActividades["cotizaciones"]) and $arrayActividades["cotizaciones"]) {
+
+			// print_r($arrayActividades["cotizaciones"]);
+			// exit();
+
+			$_cotizaciones_data = $this->informes->getOfertaComercialLista($arrayActividades["cotizaciones"]);
+
+			if ($_cotizaciones_data) {
+				$_cotizaciones_content = '
+						<strong>Cotizaciones</strong>
+						<div id="accordion_cotizaciones" class="panel-group accordion">
+					';
+
+				foreach ($_cotizaciones_data as $key_cotizaciones_data => $value_cotizaciones_data) {
+
+					switch ($key_cotizaciones_data) {
+						case 1: // Aprobados
+							// Se llena la pestaña de los proveedores
+							$_proveedores_content = '
+									<strong>Proveedores</strong>
+									<div id="accordion_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="panel-group accordion">
+								';
+							$cant_cotizaciones = 0;
+							foreach ($value_cotizaciones_data as $key_cotizaciones_data_1 => $value_cotizaciones_data_1) {
+
+								/***** CONTENIDO DE LA TABLA DE COTIZACIONES *****/
+								$cant_cotizaciones += COUNT($value_cotizaciones_data_1["cotizacion"]);
+								$_cotizaciones_tabla = '
+										<h4>Cotizaciones</h4>
+										<table class="table table-striped table-hover">
+											<thead>
+												<tr>
+													<th>Concepto</th>
+													<th>Valor</th>
+													<th>Valor en COP</th>
+													<th>Valor en USD</th>
+													<th>Descripción</th>
+													<th></th>
+												</tr>
+											</thead>
+											<tbody>
+									';
+								foreach ($value_cotizaciones_data_1["cotizacion"] as $key_value_cotizaciones_data_1 => $value_value_cotizaciones_data_1) {
+
+									// Contenido de la tabla
+									$div = strtolower(str_replace(" ", "_", $value_value_cotizaciones_data_1["nombre"]));
+									$div = strtolower(str_replace("-", "_", $div));
+
+									// Se valida si tiene valoe en pesos 
+									$_valor_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+									if ($value_value_cotizaciones_data_1["VALOR_PESOS"]) {
+										$_valor_pesos = '<span>' . number_format($value_value_cotizaciones_data_1["VALOR_PESOS"], 2, ',', '.') . '</span>';
+									}
+
+									// Se valida si tiene valoe en USD 
+									$_valor_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+									if ($value_value_cotizaciones_data_1["VALOR_USD"]) {
+										$_valor_usd = '<span>' . number_format($value_value_cotizaciones_data_1["VALOR_USD"], 2, ',', '.') . '</span>';
+									}
+
+									// Se valida si es un sobrecosto
+									$_sobrecosto = "";
+									if ($value_value_cotizaciones_data_1["sobrecosto"] == 1) {
+										$_sobrecosto = '<strong class="text-danger">(Sobrecosto)</strong>';
+									}
+
+									$_cotizaciones_tabla .= '
+											<tr>
+												<td class="cell-detail">
+													<span>' . $value_value_cotizaciones_data_1["nombre"] . ' ' . $_sobrecosto . '</span>
+													<span class="cell-detail-description">' . $value_value_cotizaciones_data_1["fecha_cotizacion"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													<span>' . number_format($value_value_cotizaciones_data_1["valor"], 2, ',', '.') . '</span>
+													<span class="cell-detail-description">' . $value_value_cotizaciones_data_1["MONEDA"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_pesos . '
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_usd . '
+												</td>
+												<td>
+													<textarea id="nota' . $value_value_cotizaciones_data_1['valor'] . '" class="form-control input-xs" readonly="readonly" style="font-size:8px;">' . $value_value_cotizaciones_data_1['descripcion'] . '</textarea>
+												</td>
+												<td class="actions">
+													<a href="' . BASE_URL . 'public/files/internacional/cotizaciones/' . $value_value_cotizaciones_data_1["id_intr_proyecto"] . '/' . $div . '/' . $value_value_cotizaciones_data_1["url"] . '" target="_blank" class="cell-detail hint--top-left" data-hint="Descargar"><span class="icon mdi mdi-download"></span></a>
+												</td>
+											</tr>
+										';
+									/***** FIN - CONTENIDO DE LA TABLA *****/
+								}
+								$_cotizaciones_tabla .= '
+											</tbody>
+										</table>
+									';
+								/***** FIN - CONTENIDO DE LA TABLA DE COTIZACIONES *****/
+
+								/***** CONTENIDO DEL TOTAL DE COTIZACION DEL CLIENTE POR MONEDA *****/
+								$_tabla_total_monedas = '
+										<h4>Resumen de Cotización</h4>
+										<table class="table  table-striped">
+											<thead>
+												<tr>
+													<th>Moneda</th>
+													<th>Cant. Cotizaciones</th>
+													<th>Total</th>
+													<th>Total en COP</th>
+													<th>Total en USD</th>
+												</tr>
+											</thead>
+											<tbody>
+									';
+
+								$_flag_total = true;
+								$_flag_total_usd = true;
+								$total_pesos = 0;
+								$total_usd = 0;
+								$_valor_usd = 0;
+								foreach ($value_cotizaciones_data_1["TOTAL"] as $key_value_cotizaciones_data_1 => $value_value_cotizaciones_data_1) {
+									// Se suma el valor en pesos de la columna 
+									$_valor_pesos = '<span>$' . number_format($value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"], 2, ',', '.') . '</span>';
+									$total_pesos = $total_pesos + (float)$value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"];
+									if (!$value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"]) {
+										$_valor_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+										$_flag_total = false;
+									}
+
+									// Se suma el valor en USD de la columna 
+									$_valor_usd = '<span>$' . number_format($value_value_cotizaciones_data_1["SUMA_VALOR_USD"], 2, ',', '.') . '</span>';
+									$total_usd = $total_usd + (float)$value_value_cotizaciones_data_1["SUMA_VALOR_USD"];
+									if (!$value_value_cotizaciones_data_1["SUMA_VALOR_USD"]) {
+										$_valor_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+										$_flag_total_usd = false;
+									}
+
+									$_tabla_total_monedas .= '
+											<tr>
+												<td class="cell-detail">
+													<span>' . $value_value_cotizaciones_data_1["MONEDA"] . '</span>
+												</td>
+												<td class="cell-detail text-center">
+													<span>' . $value_value_cotizaciones_data_1["cuantos"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													<span>' . number_format($value_value_cotizaciones_data_1["total_cotizacion"], 2, ',', '.') . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_pesos . '
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_usd . '
+												</td>
+											</tr>
+										';
+								}
+
+								// Se filtra el valor total de las cotizaciones en pesos 
+								$_total_pesos = '<span><strong>$' . number_format($total_pesos, 2, ',', '.') . '</strong></span>';
+								if (!$_flag_total) {
+									$_total_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+								}
+
+								// Se filtra el valor total de las cotizaciones en USD 
+								$_total_usd = '<span><strong>$' . number_format($total_usd, 2, ',', '.') . '</strong></span>';
+								if (!$_flag_total_usd) {
+									$_total_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+								}
+
+								$_tabla_total_monedas .= '
+												<tr>
+													<td class="cell-detail">
+														<span><strong>Total Cotizaciones</strong></span>
+													</td>
+													<td class="cell-detail text-center">
+														<span><strong>' . COUNT($value_cotizaciones_data_1["cotizacion"]) . '</strong></span>
+													</td>
+													<td class="cell-detail text-right">
+														<span><strong>Cotización Total</strong></span>
+													</td>
+													<td class="cell-detail text-right">
+														' . $_total_pesos . '
+													</td>
+													<td class="cell-detail text-right">
+														' . $_total_usd . '
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									';
+								/***** FIN - CONTENIDO DEL TOTAL DE COTIZACION DEL CLIENTE POR MONEDA *****/
+
+								// Se crea el contenido de la pestaña del proveedor 
+								$_proveedores_content .= '
+										<div class="panel panel-default panel-border-color panel-border-color-default">
+											<div class="panel-heading">
+												<h4 class="panel-title">
+													<a data-toggle="collapse" data-parent="#accordion_' . $value['id'] . '_' . $key_cotizaciones_data . '" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '_' . $key_cotizaciones_data_1 . '" aria-expanded="false" class="collapsed">
+														<i class="icon mdi mdi-chevron-down"></i> 
+														' . $value_cotizaciones_data_1["PROVEEDOR"] . ' <strong>(' . COUNT($value_cotizaciones_data_1["cotizacion"]) . ')</strong>
+														<span class="panel-subtitle">Valor en COP: ' . $_total_pesos . ' | Valor en USD: ' . $_total_usd . '</strong>
+													</a>
+												</h4>
+											</div>
+											<div id="collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '_' . $key_cotizaciones_data_1 . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+												<div class="panel-body">
+													' . $_tabla_total_monedas . '
+													' . $_cotizaciones_tabla . '
+												</div>
+											</div>
+										</div>
+									';
+							}
+							$_proveedores_content .= '
+									</div>
+								';
+
+							// Se llena la pestaña del estado de las cotizaciones 
+							$_aprobados_content = '
+									<div class="panel panel-default panel-border-color panel-border-color-success">
+										<div class="panel-heading">
+											<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion_cotizaciones" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" aria-expanded="false" class="collapsed"><i class="icon mdi mdi-chevron-down"></i> Aprobadas <strong>(' . $cant_cotizaciones . ')</strong></a></h4>
+										</div>
+										<div id="collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+											<div class="panel-body">
+												' . $_proveedores_content . '
+											</div>
+										</div>
+									</div>
+								';
+							break;
+
+						case 0: // Pendientes
+							// Se llena la pestaña de los proveedores
+							$_proveedores_content = '
+									<strong>Proveedores</strong>
+									<div id="accordion_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="panel-group accordion">
+								';
+							$cant_cotizaciones = 0;
+							foreach ($value_cotizaciones_data as $key_cotizaciones_data_1 => $value_cotizaciones_data_1) {
+								/***** CONTENIDO DE LA TABLA DE COTIZACIONES *****/
+								$cant_cotizaciones += COUNT($value_cotizaciones_data_1["cotizacion"]);
+								$_cotizaciones_tabla = '
+										<h4>Cotizaciones</h4>
+										<table class="table table-striped table-hover">
+											<thead>
+												<tr>
+													<th>Concepto</th>
+													<th>Valor</th>
+													<th>Valor en COP</th>
+													<th>Valor en USD</th>
+													<th>Descripción</th>
+												</tr>
+											</thead>
+											<tbody>
+									';
+								foreach ($value_cotizaciones_data_1["cotizacion"] as $key_value_cotizaciones_data_1 => $value_value_cotizaciones_data_1) {
+									// Contenido de la tabla
+									$div = strtolower(str_replace(" ", "_", $value_value_cotizaciones_data_1["nombre"]));
+									$div = strtolower(str_replace("-", "_", $div));
+
+									// Se valida si tiene valoe en pesos 
+									$_valor_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+									if ($value_value_cotizaciones_data_1["VALOR_PESOS"]) {
+										$_valor_pesos = '<span>' . number_format($value_value_cotizaciones_data_1["VALOR_PESOS"], 2, ',', '.') . '</span>';
+									}
+
+									// Se valida si tiene valoe en USD 
+									$_valor_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+									if ($value_value_cotizaciones_data_1["VALOR_USD"]) {
+										$_valor_usd = '<span>' . number_format($value_value_cotizaciones_data_1["VALOR_USD"], 2, ',', '.') . '</span>';
+									}
+
+									// Se valida si es un sobrecosto
+									$_sobrecosto = "";
+									if ($value_value_cotizaciones_data_1["sobrecosto"] == 1) {
+										$_sobrecosto = '<strong class="text-danger">(Sobrecosto)</strong>';
+									}
+
+									$_cotizaciones_tabla .= '
+											<tr>
+												<td class="cell-detail">
+													<span>' . $value_value_cotizaciones_data_1["nombre"] . ' ' . $_sobrecosto . '</span>
+													<span class="cell-detail-description">' . $value_value_cotizaciones_data_1["fecha_cotizacion"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													<span>' . number_format($value_value_cotizaciones_data_1["valor"], 2, ',', '.') . '</span>
+													<span class="cell-detail-description">' . $value_value_cotizaciones_data_1["MONEDA"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_pesos . '
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_usd . '
+												</td>
+												<td class="actions">
+													<a href="' . BASE_URL . 'public/files/internacional/cotizaciones/' . $value_value_cotizaciones_data_1["id_intr_proyecto"] . '/' . $div . '/' . $value_value_cotizaciones_data_1["url"] . '" target="_blank" class="cell-detail hint--top-left" data-hint="Descargar"><span class="icon mdi mdi-download"></span></a>
+												</td>
+											</tr>
+										';
+									/***** FIN - CONTENIDO DE LA TABLA *****/
+								}
+								$_cotizaciones_tabla .= '
+											</tbody>
+										</table>
+									';
+								/***** FIN - CONTENIDO DE LA TABLA DE COTIZACIONES *****/
+
+								/***** CONTENIDO DEL TOTAL DE COTIZACION DEL CLIENTE POR MONEDA *****/
+								$_tabla_total_monedas = '
+										<h4>Resumen de Cotización</h4>
+										<table class="table  table-striped">
+											<thead>
+												<tr>
+													<th>Moneda</th>
+													<th>Cant. Cotizaciones</th>
+													<th>Total</th>
+													<th>Total en COP</th>
+													<th>Total en USD</th>
+												</tr>
+											</thead>
+											<tbody>
+									';
+
+								$_flag_total = true;
+								$_flag_total_usd = true;
+								$total_pesos = 0;
+								$total_usd = 0;
+								$_valor_usd = 0;
+								foreach ($value_cotizaciones_data_1["TOTAL"] as $key_value_cotizaciones_data_1 => $value_value_cotizaciones_data_1) {
+									// Se suma el valor en pesos de la columna 
+									$_valor_pesos = '<span>$' . number_format($value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"], 2, ',', '.') . '</span>';
+									$total_pesos = $total_pesos + (float)$value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"];
+									if (!$value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"]) {
+										$_valor_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+										$_flag_total = false;
+									}
+
+									// Se suma el valor en USD de la columna 
+									$_valor_usd = '<span>$' . number_format($value_value_cotizaciones_data_1["SUMA_VALOR_USD"], 2, ',', '.') . '</span>';
+									$total_usd = $total_usd + (float)$value_value_cotizaciones_data_1["SUMA_VALOR_USD"];
+									if (!$value_value_cotizaciones_data_1["SUMA_VALOR_USD"]) {
+										$_valor_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+										$_flag_total_usd = false;
+									}
+
+									$_tabla_total_monedas .= '
+											<tr>
+												<td class="cell-detail">
+													<span>' . $value_value_cotizaciones_data_1["MONEDA"] . '</span>
+												</td>
+												<td class="cell-detail text-center">
+													<span>' . $value_value_cotizaciones_data_1["cuantos"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													<span>' . number_format($value_value_cotizaciones_data_1["total_cotizacion"], 2, ',', '.') . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_pesos . '
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_usd . '
+												</td>
+											</tr>
+										';
+								}
+
+								// Se filtra el valor total de las cotizaciones en pesos 
+								$_total_pesos = '<span><strong>$' . number_format($total_pesos, 2, ',', '.') . '</strong></span>';
+								if (!$_flag_total) {
+									$_total_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+								}
+
+								// Se filtra el valor total de las cotizaciones en USD 
+								$_total_usd = '<span><strong>$' . number_format($total_usd, 2, ',', '.') . '</strong></span>';
+								if (!$_flag_total_usd) {
+									$_total_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+								}
+
+								$_tabla_total_monedas .= '
+												<tr>
+													<td class="cell-detail">
+														<span><strong>Total Cotizaciones</strong></span>
+													</td>
+													<td class="cell-detail text-center">
+														<span><strong>' . COUNT($value_cotizaciones_data_1["cotizacion"]) . '</strong></span>
+													</td>
+													<td class="cell-detail text-right">
+														<span><strong>Cotización Total</strong></span>
+													</td>
+													<td class="cell-detail text-right">
+														' . $_total_pesos . '
+													</td>
+													<td class="cell-detail text-right">
+														' . $_total_usd . '
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									';
+								/***** FIN - CONTENIDO DEL TOTAL DE COTIZACION DEL CLIENTE POR MONEDA *****/
+
+								// Se crea el contenido de la pestaña del proveedor 
+								$_proveedores_content .= '
+										<div class="panel panel-default panel-border-color panel-border-color-default">
+											<div class="panel-heading">
+												<h4 class="panel-title">
+													<a data-toggle="collapse" data-parent="#accordion_' . $value['id'] . '_' . $key_cotizaciones_data . '" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '_' . $key_cotizaciones_data_1 . '" aria-expanded="false" class="collapsed">
+														<i class="icon mdi mdi-chevron-down"></i> 
+														' . $value_cotizaciones_data_1["PROVEEDOR"] . ' <strong>(' . COUNT($value_cotizaciones_data_1["cotizacion"]) . ')</strong>
+														<span class="panel-subtitle">Valor en COP: ' . $_total_pesos . ' | Valor en USD: ' . $_total_usd . '</strong>
+													</a>
+												</h4>
+											</div>
+											<div id="collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '_' . $key_cotizaciones_data_1 . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+												<div class="panel-body">
+													' . $_tabla_total_monedas . '
+													' . $_cotizaciones_tabla . '
+												</div>
+											</div>
+										</div>
+									';
+							}
+							$_proveedores_content .= '
+									</div>
+								';
+
+							$_pendientes_content = '
+									<div class="panel panel-default panel-border-color panel-border-color-warning">
+										<div class="panel-heading">
+											<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion_cotizaciones" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="collapsed" aria-expanded="false"><i class="icon mdi mdi-chevron-down"></i> No aprobadas <strong>(' . $cant_cotizaciones . ')</strong></a></h4>
+										</div>
+										<div id="collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="panel-collapse collapse" aria-expanded="false">
+											<div class="panel-body">
+												' . $_proveedores_content . '
+											</div>
+										</div>
+									</div>
+								';
+							break;
+
+						case 2: // Eliminados
+							// Se llena la pestaña de los proveedores
+							$_proveedores_content = '
+									<strong>Proveedores</strong>
+									<div id="accordion_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="panel-group accordion">
+								';
+							$cant_cotizaciones = 0;
+							foreach ($value_cotizaciones_data as $key_cotizaciones_data_1 => $value_cotizaciones_data_1) {
+								/***** CONTENIDO DE LA TABLA DE COTIZACIONES *****/
+								$cant_cotizaciones += COUNT($value_cotizaciones_data_1["cotizacion"]);
+								$_cotizaciones_tabla = '
+										<h4>Cotizaciones</h4>
+										<table class="table table-striped table-hover">
+											<thead>
+												<tr>
+													<th>Concepto</th>
+													<th>Valor</th>
+													<th>Valor en COP</th>
+													<th>Valor en USD</th>
+													<th>Descrpción</th>
+												</tr>
+											</thead>
+											<tbody>
+									';
+								foreach ($value_cotizaciones_data_1["cotizacion"] as $key_value_cotizaciones_data_1 => $value_value_cotizaciones_data_1) {
+									// Contenido de la tabla
+									$div = strtolower(str_replace(" ", "_", $value_value_cotizaciones_data_1["nombre"]));
+									$div = strtolower(str_replace("-", "_", $div));
+
+									// Se valida si tiene valoe en pesos 
+									$_valor_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+									if ($value_value_cotizaciones_data_1["VALOR_PESOS"]) {
+										$_valor_pesos = '<span>' . number_format($value_value_cotizaciones_data_1["VALOR_PESOS"], 2, ',', '.') . '</span>';
+									}
+
+									// Se valida si tiene valoe en USD 
+									$_valor_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+									if ($value_value_cotizaciones_data_1["VALOR_USD"]) {
+										$_valor_usd = '<span>' . number_format($value_value_cotizaciones_data_1["VALOR_USD"], 2, ',', '.') . '</span>';
+									}
+
+									// Se valida si es un sobrecosto
+									$_sobrecosto = "";
+									if ($value_value_cotizaciones_data_1["sobrecosto"] == 1) {
+										$_sobrecosto = '<strong class="text-danger">(Sobrecosto)</strong>';
+									}
+
+									$_cotizaciones_tabla .= '
+											<tr>
+												<td class="cell-detail">
+													<span>' . $value_value_cotizaciones_data_1["nombre"] . ' ' . $_sobrecosto . '</span>
+													<span class="cell-detail-description">' . $value_value_cotizaciones_data_1["fecha_cotizacion"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													<span>' . number_format($value_value_cotizaciones_data_1["valor"], 2, ',', '.') . '</span>
+													<span class="cell-detail-description">' . $value_value_cotizaciones_data_1["MONEDA"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_pesos . '
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_usd . '
+												</td>
+												<td class="actions">
+													<a href="' . BASE_URL . 'public/files/internacional/cotizaciones/' . $value_value_cotizaciones_data_1["id_intr_proyecto"] . '/' . $div . '/' . $value_value_cotizaciones_data_1["url"] . '" target="_blank" class="cell-detail hint--top-left" data-hint="Descargar"><span class="icon mdi mdi-download"></span></a>
+												</td>
+											</tr>
+										';
+									/***** FIN - CONTENIDO DE LA TABLA *****/
+								}
+								$_cotizaciones_tabla .= '
+											</tbody>
+										</table>
+									';
+								/***** FIN - CONTENIDO DE LA TABLA DE COTIZACIONES *****/
+
+								/***** CONTENIDO DEL TOTAL DE COTIZACION DEL CLIENTE POR MONEDA *****/
+								$_tabla_total_monedas = '
+										<h4>Resumen de Cotización</h4>
+										<table class="table  table-striped">
+											<thead>
+												<tr>
+													<th>Moneda</th>
+													<th>Cant. Cotizaciones</th>
+													<th>Total</th>
+													<th>Total en COP</th>
+													<th>Total en USD</th>
+												</tr>
+											</thead>
+											<tbody>
+									';
+
+								$_flag_total = true;
+								$_flag_total_usd = true;
+								$total_pesos = 0;
+								$total_usd = 0;
+								$_valor_usd = 0;
+								foreach ($value_cotizaciones_data_1["TOTAL"] as $key_value_cotizaciones_data_1 => $value_value_cotizaciones_data_1) {
+									// Se suma el valor en pesos de la columna 
+									$_valor_pesos = '<span>$' . number_format($value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"], 2, ',', '.') . '</span>';
+									$total_pesos = $total_pesos + (float)$value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"];
+									if (!$value_value_cotizaciones_data_1["SUMA_VALOR_PESOS"]) {
+										$_valor_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+										$_flag_total = false;
+									}
+
+									// Se suma el valor en USD de la columna 
+									$_valor_usd = '<span>$' . number_format($value_value_cotizaciones_data_1["SUMA_VALOR_USD"], 2, ',', '.') . '</span>';
+									$total_usd = $total_usd + (float)$value_value_cotizaciones_data_1["SUMA_VALOR_USD"];
+									if (!$value_value_cotizaciones_data_1["SUMA_VALOR_USD"]) {
+										$_valor_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+										$_flag_total_usd = false;
+									}
+
+									$_tabla_total_monedas .= '
+											<tr>
+												<td class="cell-detail">
+													<span>' . $value_value_cotizaciones_data_1["MONEDA"] . '</span>
+												</td>
+												<td class="cell-detail text-center">
+													<span>' . $value_value_cotizaciones_data_1["cuantos"] . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													<span>' . number_format($value_value_cotizaciones_data_1["total_cotizacion"], 2, ',', '.') . '</span>
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_pesos . '
+												</td>
+												<td class="cell-detail text-right">
+													' . $_valor_usd . '
+												</td>
+											</tr>
+										';
+								}
+
+								// Se filtra el valor total de las cotizaciones en pesos 
+								$_total_pesos = '<span><strong>$' . number_format($total_pesos, 2, ',', '.') . '</strong></span>';
+								if (!$_flag_total) {
+									$_total_pesos = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+								}
+
+								// Se filtra el valor total de las cotizaciones en USD 
+								$_total_usd = '<span><strong>$' . number_format($total_usd, 2, ',', '.') . '</strong></span>';
+								if (!$_flag_total_usd) {
+									$_total_usd = '<span class="text-danger"><strong>Sin TRM</strong></span>';
+								}
+
+								$_tabla_total_monedas .= '
+												<tr>
+													<td class="cell-detail">
+														<span><strong>Total Cotizaciones</strong></span>
+													</td>
+													<td class="cell-detail text-center">
+														<span><strong>' . COUNT($value_cotizaciones_data_1["cotizacion"]) . '</strong></span>
+													</td>
+													<td class="cell-detail text-right">
+														<span><strong>Cotización Total</strong></span>
+													</td>
+													<td class="cell-detail text-right">
+														' . $_total_pesos . '
+													</td>
+													<td class="cell-detail text-right">
+														' . $_total_usd . '
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									';
+								/***** FIN - CONTENIDO DEL TOTAL DE COTIZACION DEL CLIENTE POR MONEDA *****/
+
+								// Se crea el contenido de la pestaña del proveedor 
+								$_proveedores_content .= '
+										<div class="panel panel-default panel-border-color panel-border-color-default">
+											<div class="panel-heading">
+												<h4 class="panel-title">
+													<a data-toggle="collapse" data-parent="#accordion_' . $value['id'] . '_' . $key_cotizaciones_data . '" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '_' . $key_cotizaciones_data_1 . '" aria-expanded="false" class="collapsed">
+														<i class="icon mdi mdi-chevron-down"></i> 
+														' . $value_cotizaciones_data_1["PROVEEDOR"] . ' <strong>(' . COUNT($value_cotizaciones_data_1["cotizacion"]) . ')</strong>
+														<span class="panel-subtitle">Valor en COP: ' . $_total_pesos . ' | Valor en USD: ' . $_total_usd . '</strong>
+													</a>
+												</h4>
+											</div>
+											<div id="collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '_' . $key_cotizaciones_data_1 . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+												<div class="panel-body">
+													' . $_tabla_total_monedas . '
+													' . $_cotizaciones_tabla . '
+												</div>
+											</div>
+										</div>
+									';
+							}
+							$_proveedores_content .= '
+									</div>
+								';
+
+							$_eliminados_content = '
+									<div class="panel panel-default panel-border-color panel-border-color-danger">
+										<div class="panel-heading">
+											<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion_cotizaciones" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="collapsed" aria-expanded="false"><i class="icon mdi mdi-chevron-down"></i> Eliminadas <strong>(' . $cant_cotizaciones . ')</strong></a></h4>
+										</div>
+										<div id="collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="panel-collapse collapse" aria-expanded="false">
+											<div class="panel-body">
+												' . $_proveedores_content . '
+											</div>
+										</div>
+									</div>
+								';
+							break;
+
+						default:
+							break;
+					}
+				}
+
+				$_cotizaciones_content .= '
+						' . $_aprobados_content . ' 
+						' . $_pendientes_content . '
+						' . $_eliminados_content . '
+						</div>
+					';
+			}
+		}
+
+		$_oferta_comercial_content = '
+				<div class="col-md-2"></div>
+				<div class="col-xs-12 col-sm-12 col-md-8">
+					<table class="table table-condensed">
+						<thead>
+							<tr>
+								<th class="col-xs-1 col-sm-1 col-md-1"></th>
+								<th>Fecha</th>
+								<th>Valor</th>
+								<th class="col-xs-1 col-sm-1 col-md-1"></th>
+							</tr>
+						</thead>
+						<tbody>
+							' . $_table_content . '
+							<tr><td colspan="4"></td></tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="col-md-2"></div>
+			';
+	}
+
+	$oferta_comercial = '';
+	if ($_oferta_comercial_content) {
+		$oferta_comercial = '
+				<div class="panel panel-default ' . $_estado_solicitud . '">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_oferta_comercial" class="collapsed" aria-expanded="false">
+								<i class="icon mdi mdi-chevron-down"></i> Oferta Comercial
+							</a>
+						</h4>
+					</div>
+					<div id="collapse_oferta_comercial" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+						<div class="panel-body">
+							' . $_oferta_comercial_content . '
+							<div class="row"></div>
+							' . $_cotizaciones_content . '
+						</div>
+					</div>
+				</div>
+			';
+	}
+
+	// Se pinta la información de las guias de los materiales de proyectos internacional
+	if (isset($arrayActividades["materiales"]) and $arrayActividades["materiales"]) {
+
+		/***** Pestaña información de las guías *****/
+		$guias = '';
+		$total_piezas = 0;
+		$total_peso = 0;
+		$total_peso_volumetrico = 0;
+		$total_peso_factura = 0;
+
+		foreach ($arrayActividades["materiales"] as $key => $value) {
+			/***** Contenido del accordeón *****/
+			$encabezado = $value['id'];
+			// Se lista los materiales de la Guía
+			$materiales = $value;
+
+			$_col_peso_volumetrico = '<th>Dimensiones por pieza</th>';
+			if ($encabezado["tipo_transporte"] == "AÉREO" or $encabezado["tipo_transporte"] == "MARÍTIMO") {
+				$_col_peso_volumetrico = '<th class="text-center">Peso Volumétrico</th>';
+			}
+
+			$materiales_content = '
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th class="text-center">Material</th>
+								<th class="text-center">Delivery</th>
+								<th class="text-center">Shipment</th>
+								<th class="text-center"># Piezas</th>
+								<th class="text-center">Peso</th>
+								' . $_col_peso_volumetrico . '
+								<th class="text-center">Peso a facturar</th>
+								<th class="text-center">Peligroso</th>
+								<th class="text-center">Hoja de Seguridad</th>
+								<th class="text-center">Refrigerado</th>
+							</tr>
+						</thead>
+						<tbody>
+				';
+
+			// Se filtra contenido de la tabla 
+			$_total_piezas = 0;
+			$_total_peso = 0;
+			$_total_peso_volumetrico = 0;
+			$_total_peso_factura = 0;
+			foreach ($materiales as $key_01 => $value_01) {
+				// Se suma el la cantidad de piezas de los materiales
+				$_total_piezas = $_total_piezas + $value_01["cant_piezas"];
+				$total_piezas = $total_piezas + $value_01["cant_piezas"];
+
+				// Se filtra el contenido del delivery 
+				$_delivery = '<strong>No especificado</strong>';
+				$_delivery_color = 'text-danger';
+				if ($value_01["delivery"]) {
+					$_delivery = $value_01["delivery"];
+					$_delivery_color = '';
+				}
+
+				// Se filtra el contenido del shipment 
+				$_shipment = '<strong>No especificado</strong>';
+				$_shipment_color = 'text-danger';
+				if ($value_01["shipment"]) {
+					$_shipment = $value_01["shipment"];
+					$_shipment_color = '';
+				}
+
+				// Se calcula el peso total del material 
+				$_peso = $value_01["peso"] * $value_01["cant_piezas"];
+				$_total_peso = $_total_peso + $_peso;
+				$total_peso = $total_peso + $_peso;
+
+				// Se calcula el peso volumétrico total del material 
+				$_peso_volumetrico = $value_01["PESO_VOLUMETRICO"] * $value_01["cant_piezas"];
+				$_total_peso_volumetrico = $_total_peso_volumetrico + $_peso_volumetrico;
+				$total_peso_volumetrico = $total_peso_volumetrico + $_peso_volumetrico;
+
+				// Se filtra cual es el peso a facturar al cliente 
+				$_peso_factura = $_peso;
+				$_col_peso_volumetrico = '
+						<td class="cell-detail text-center">
+							<span>' . $value_01["PESO_VOLUMETRICO"] . ' cm<sup>3</sup></span>
+						</td>
+					';
+				// Se pregunta si el proyecto es aéreo o marítimo para filtrar si se cotiza el peso o el peso volumétrico
+				if ($value_01["tipo_transporte"] == "AÉREO" or $value_01["tipo_transporte"] == "MARÍTIMO") {
+					if ((float)$_peso < (float)$_peso_volumetrico) {
+						$_peso_factura = $_peso_volumetrico;
+					}
+					$_col_peso_volumetrico = '
+							<td class="cell-detail text-right">
+								<span>' . number_format($_peso_volumetrico, 5, ',', '.') . ' Kg.</span>
+							</td>
+						';
+				}
+
+				$_total_peso_factura = $_total_peso_factura + (float)$_peso_factura;
+				$total_peso_factura = $total_peso_factura + (float)$_peso_factura;
+
+				// Se filtra el contenido de si es Peligroso
+				$_peligroso_text = 'No';
+				$_hoja_seguridad = '<td class="cell-detail text-center"></td>';
+
+				if ($value_01["material_peligroso"]) {
+					$_peligroso_text = '
+							<span>UN <strong>' . $value_01["un"] . '</strong></span>
+							<a class="cell-detail hint--top" data-hint="' . $value_01["NOM_RIESGO"] . '">
+								<img src="' . BASE_URL . 'public/img/riesgos/' . $value_01["URL_RIESGO"] . '" height="60" width="60">
+								<span class="cell-detail-description">' . $value_01["RIESGO"] . '</span>
+
+							</a>
+						';
+					$_hoja_seguridad = '
+							<td class="actions">
+								<center>
+									<a href="' . BASE_URL . 'public/files/internacional/materiales/' . $value_01["id_tramo"] . '/' . $value_01["url_hoja_seguridad"] . '" target="_blank" class="cell-detail hint--top-left" data-hint="Descargar"><span class="icon mdi mdi-download"></span></a>
+								</center>
+							</td>
+						';
+				}
+
+				// Se filtra el contenido de si es Peligroso
+				$_refrigerado_text = 'No';
+				if ($value_01["refrigerado"]) {
+					$_refrigerado_text = 'Si';
+				}
+
+				$materiales_content .= '
+						<tr>
+							<td class="cell-detail">
+								<span>' . $value_01["material"] . '</span>
+							</td>
+							<td class="cell-detail ' . $_delivery_color . '">
+								<span>' . $_delivery . '</span>
+							</td>
+							<td class="cell-detail ' . $_shipment_color . '">
+								<span>' . $_shipment . '</span>
+							</td>
+							<td class="cell-detail text-center">
+								<span>' . $value_01["cant_piezas"] . '</span>
+							</td>
+							<td class="cell-detail text-right">
+								<span>' . number_format($_peso, 2, ',', '.') . ' Kg.</span>
+							</td>
+							' . $_col_peso_volumetrico . '
+							<td class="cell-detail text-right">
+								<span>' . number_format($_peso_factura, 2, ',', '.') . ' Kg.</span>
+							</td>
+							<td class="cell-detail text-center">
+								<span>' . $_peligroso_text . '</span>
+							</td>
+							' . $_hoja_seguridad . '
+							<td class="cell-detail text-center">
+								<span>' . $_refrigerado_text . '</span>
+							</td>
+						</tr>
+					';
+			}
+
+			$_total_peso_volumetrico_content = '';
+			if ($encabezado["tipo_transporte"] == "AÉREO" or $encabezado["tipo_transporte"] == "MARÍTIMO") {
+				$_total_peso_volumetrico_content = '
+						<div class="col-xs-6 col-sm-3 col-md-3 text-center">
+							<span><strong>Peso Volumétrico Total</strong></span>
+							<span>' . number_format($_total_peso_volumetrico, 2, ',', '.') . ' Kg.</span>
+						</div>
+					';
+			}
+
+			$materiales_content .= '
+							<tr>
+								<td class="cell-detail" colspan="10">
+									<div class="col-xs-6 col-sm-3 col-md-3 text-center">
+										<span><strong>Total Piezas</strong></span>
+										<span>' . $_total_piezas . '</span>
+									</div>
+									<div class="col-xs-6 col-sm-3 col-md-3 text-center">
+										<span><strong>Peso Total</strong></span>
+										<span>' . number_format($_total_peso, 2, ',', '.') . ' Kg.</span>
+									</div>
+									' . $_total_peso_volumetrico_content . '
+									<div class="col-xs-6 col-sm-3 col-md-3 text-center">
+										<span><strong>Peso Facturable</strong></span>
+										<span>' . number_format($_total_peso_factura, 2, ',', '.') . ' Kg.</span>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				';
+
+			// Contenido de la pestaña 
+			$guias = '
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_' . $encabezado[0] . '" class="collapsed" aria-expanded="false">
+									<i class="icon mdi mdi-chevron-down"></i> ' . $encabezado["guia"] . ' <small>' . $encabezado["tipo_transporte"] . '</small>
+									<span class="panel-subtitle"><strong>' . $encabezado["sigla"] . '</strong> ' . $encabezado["direccion"] . ' <strong>' . $encabezado["municipio"] . ' (' . $encabezado["depto"] . ' - ' . $encabezado["pais"] . ')</strong></span>
+								</a>
+							</h4>
+						</div>
+						<div id="collapse_' . $encabezado[0] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+							<div class="panel-body">
+								<strong>Materiales</strong>
+								' . $materiales_content . '
+							</div>
+						</div>
+					</div>
+				';
+			/***** Fin - Contenido del accordeón *****/
+		}
+
+		/***** Pestaña resumen de guías *****/
+		// Contenido del resumen de las guías del proyecto
+		$cotiza_por = "Peso";
+		$total_peso_volumetrico_content = '';
+		if ($encabezado["tipo_transporte"] == "AÉREO" or $encabezado["tipo_transporte"] == "MARÍTIMO") {
+			if ((float)$total_peso < (float)$total_peso_volumetrico) {
+				$cotiza_por = "Volumen";
+			}
+			$total_peso_volumetrico_content = '
+					<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+						<span><strong>Peso Volumétrico Total</strong></span>
+						<span>' . number_format($total_peso_volumetrico, 2, ',', '.') . ' Kg.</span>
+					</div>
+				';
+		}
+
+		$resumen_guias = '
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_resumen_guias" class="collapsed" aria-expanded="false">
+								<i class="icon mdi mdi-chevron-down"></i> Resumen Guías
+							</a>
+						</h4>
+					</div>
+					<div id="collapse_resumen_guias" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+						<div class="panel-body">
+							<table class="table">
+								<tbody>
+									<tr>
+										<td class="cell-detail">
+											<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+												<span><strong>Modo de Transporte</strong></span>
+												<span>' . $encabezado["tipo_transporte"] . '</span>
+											</div>
+											<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+												<span><strong>Total Piezas</strong></span>
+												<span>' . $total_piezas . '</span>
+											</div>
+											<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+												<span><strong>Peso Total</strong></span>
+												<span>' . number_format($total_peso, 2, ',', '.') . ' Kg.</span>
+											</div>
+											' . $total_peso_volumetrico_content . '
+											<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+												<span><strong>Peso Facturable</strong></span>
+												<span>' . number_format($total_peso_factura, 2, ',', '.') . ' Kg.</span>
+											</div>
+											<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+												<span><strong>Cotizar por</strong></span>
+												<span>' . $cotiza_por . '</span>
+											</div>
+										</td>
+									</tr>
+									<tr><td></td></tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			';
+	}
+
+	/***** Pestaña proveedores *****/
+	$_proveedores_content = '';
+	if (isset($arrayActividades["proveedores"])) {
+		$_gran_total_cant_facturas = 0;
+		$_gran_total_factura_pesos = 0;
+		$_gran_total_factura_usd = 0;
+
+		$_proveedores_content = '
+				<div id="accordion2" class="panel-group accordion">
+			';
+		foreach ($arrayActividades["proveedores"] as $key => $value) {
+			// Se pinta las cotizaciones del proveedor
+			$_cotizaciones = '
+					<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+						<div class="icon">
+							<span class="mdi mdi-close"></span>
+						</div>
+						<div class="message">
+							<strong>Atención!</strong>
+							<p>No se ha registrado cotizaciones de este proveedor...</p>
+						</div>
+					</div>
+				';
+
+			if (isset($arrayActividades["proveedor_cotizaciones"][$value['id']])) {
+				$_cotizaciones = '
+						<strong>Cotizaciones</strong>
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th></th>
+									<th>Concepto</th>
+									<th>Fecha</th>
+									<th>Valor</th>
+									<th>Nota</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+					';
+
+				$_total_cotizaciones = 0;
+				$_total_sobrecostos = 0;
+
+				$_flag_cotizacion_valor_pesos = true;
+				$_valor_cotizacion_pesos = 0;
+				$_flag_cotizacion_valor_usd = true;
+				$_valor_cotizacion_usd = 0;
+				$_id_cotizaciones = "";
+				foreach ($arrayActividades["proveedor_cotizaciones"][$value['id']] as $key_01 => $value_01) {
+
+					$_id_cotizaciones .= $value_01[0] . ",";
+					$div = strtolower(str_replace(" ", "_", $value_01["CONCEPTO"]));
+					$div = strtolower(str_replace("-", "_", $div));
+
+					if ($_flag_cotizacion_valor_pesos and $value_01["VALOR_PESOS"]) {
+						if ($value_01["sobrecosto"] == "1") {
+							$_total_sobrecostos += $value_01["VALOR_PESOS"];
+						} else {
+							$_valor_cotizacion_pesos += $value_01["VALOR_PESOS"];
+							$_total_cotizaciones += $value_01["VALOR_PESOS"];
+						}
+					} else {
+						$_flag_cotizacion_valor_pesos = false;
+					}
+
+					if ($_flag_cotizacion_valor_usd and $value_01["VALOR_USD"]) {
+						$_valor_cotizacion_usd += $value_01["VALOR_USD"];
+					} else {
+						$_flag_cotizacion_valor_usd = false;
+					}
+
+					// Se pregunta si es un sobrecosto
+					$_sobrecosto = '';
+					if ($value_01["sobrecosto"]) {
+						$_sobrecosto = '<strong class="text-danger">(Sobrecosto)</strong>';
+					}
+
+					$_btn_color = 'warning';
+					$_btn_text = 'Sin facturar';
+					if ($value_01["id_factura"]) {
+						$_btn_color = 'success';
+						$_btn_text = 'Facturado';
+					}
+
+					$_cotizaciones .= '
+							<tr>
+								<td class="nexos-txt-' . $_btn_color . ' text-center">
+									<center class="hint--top-right" data-hint="' . $_btn_text . '">
+										<span class="mdi mdi-dot-circle icon"></span>
+									</center>
+								</td>
+								<td class="cell-detail">
+									<span>' . $value_01["CONCEPTO"] . '</span>
+									<span class="cell-detail-description">' . $_sobrecosto . '</span>
+								</td>
+								<td class="cell-detail text-center">
+									<span>' . $value_01["fecha_cotizacion"] . '</span>
+								</td>
+								<td class="cell-detail text-right">
+									<span>' . number_format($value_01["valor"], 2, ',', '.') . '</span>
+									<span class="cell-detail-description">' . $value_01["codigo"] . '</span>
+								</td>
+								<td class="cell-detail-description">
+									<textarea id="nota' . $value_01["valor"] . '"  class="form-control input-xs" readonly="readonly" style="font-size:8px;">' . $value_01["descripcion"] . '</textarea>
+								</td>
+								<td class="actions">
+									<a href="' . BASE_URL . 'public/files/internacional/cotizaciones/' . $value_01["id_intr_proyecto"] . '/' . $div . '/' . $value_01["url"] . '" target="_blank" class="cell-detail hint--top-right" data-hint="Descargar Cotización">
+										<span class="icon mdi mdi-download"></span>
+									</a>
+								</td>
+							</tr>
+						';
+
+					// Se llena el arreglo del total de las cotizaciones por moneda
+					if (!isset($array_resumen_cotizaciones[$value_01["codigo"]])) {
+						$array_resumen_cotizaciones[$value_01["codigo"]]["moneda"] = $value_01["nom_moneda"];
+						$array_resumen_cotizaciones[$value_01["codigo"]]["valor"] = $value_01["valor"];
+						$array_resumen_cotizaciones[$value_01["codigo"]]["cantidad"] = 1;
+						if ($_flag_cotizacion_valor_pesos) {
+							$array_resumen_cotizaciones[$value_01["codigo"]]["valor_pesos"] = $value_01["VALOR_PESOS"];
+						} else {
+							$array_resumen_cotizaciones[$value_01["codigo"]]["valor_pesos"] = NULL;
+						}
+						if ($_flag_cotizacion_valor_usd) {
+							$array_resumen_cotizaciones[$value_01["codigo"]]["valor_usd"] = $value_01["VALOR_USD"];
+						} else {
+							$array_resumen_cotizaciones[$value_01["codigo"]]["valor_usd"] = NULL;
+						}
+					} else {
+						$array_resumen_cotizaciones[$value_01["codigo"]]["valor"] += $value_01["valor"];
+						$array_resumen_cotizaciones[$value_01["codigo"]]["cantidad"]++;
+						if ($_flag_cotizacion_valor_pesos) {
+							$array_resumen_cotizaciones[$value_01["codigo"]]["valor_pesos"] += $value_01["VALOR_PESOS"];
+						} else {
+							$array_resumen_cotizaciones[$value_01["codigo"]]["valor_pesos"] = NULL;
+						}
+						if ($_flag_cotizacion_valor_usd) {
+							$array_resumen_cotizaciones[$value_01["codigo"]]["valor_usd"] += $value_01["VALOR_USD"];
+						} else {
+							$array_resumen_cotizaciones[$value_01["codigo"]]["valor_usd"] = NULL;
+						}
+					}
+				}
+
+				$_total_cotizacion_pesos = 'Total en COP: <strong class="text-danger">Sin TRM</strong>';
+				if ($_flag_cotizacion_valor_pesos) {
+					$_total_cotizacion_pesos = 'Total en COP: <strong>' . number_format($_valor_cotizacion_pesos, 2, ',', '.') . '</strong>';
+				}
+				$_total_cotizacion_usd = 'Total en USD: <strong class="text-danger">Sin TRM</strong>';
+				if ($_flag_cotizacion_valor_usd) {
+					$_total_cotizacion_usd = 'Total en USD: <strong>' . number_format($_valor_cotizacion_usd, 2, ',', '.') . '</strong>';
+				}
+				$_cotizaciones .= '
+								<tr>
+									<td colspan="5" class="text-center">
+										' . $_total_cotizacion_pesos . ' | ' . $_total_cotizacion_usd . '
+										<input type="hidden" name="id_cotizaciones_' . $value['id'] . '" value="' . $_id_cotizaciones . '">
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					';
+
+				// Se pinta la tabla de resumen de cotizaciones 
+				$resumen_cotizaciones = '
+						<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+							<div class="icon">
+								<span class="mdi mdi-close"></span>
+							</div>
+							<div class="message">
+								<strong>Atención!</strong>
+								<p>No se han registrado cotizaciones de este proveedor...</p>
+							</div>
+						</div>
+					';
+
+				if (isset($array_resumen_cotizaciones)) {
+					$_resumen_content = '';
+					$_cantidad_cotizaciones = 0;
+					$_pesos_cotizaciones = 0;
+					$_usd_cotizaciones = 0;
+					foreach ($array_resumen_cotizaciones as $key_01 => $value_01) {
+						$_cantidad_cotizaciones += $value_01["cantidad"];
+
+						$_pesos_content = '<strong class="text-danger">Sin TRM</strong>';
+						if ($_flag_cotizacion_valor_pesos) {
+							$_pesos_cotizaciones += $value_01["valor_pesos"];
+							$_pesos_content = '<span>$' . number_format($value_01["valor_pesos"], 2, ',', '.') . '</span>';
+						}
+						$_usd_content = '<strong class="text-danger">Sin TRM</strong>';
+						if ($_flag_cotizacion_valor_usd) {
+							$_usd_cotizaciones += $value_01["valor_usd"];
+							$_usd_content = '<span>$' . number_format($value_01["valor_usd"], 2, ',', '.') . '</span>';
+						}
+						$_resumen_content .= '
+								<tr>
+									<td class="cell-detail">
+										<span>' . $value_01["moneda"] . ' (' . $key_01 . ')</span>
+									</td>
+									<td class="cell-detail text-center">
+										<span>' . $value_01["cantidad"] . '</span>
+									</td>
+									<td class="cell-detail text-right">
+										<span>' . number_format($value_01["valor"], 2, ',', '.') . '</span>
+									</td>
+									<td class="cell-detail text-right">
+										' . $_pesos_content . '
+									</td>
+									<td class="cell-detail text-right">
+										' . $_usd_content . '
+									</td>
+								</tr>
+							';
+					}
+
+					$_pesos_content = '<strong class="text-danger">Sin TRM</strong>';
+					if ($_flag_cotizacion_valor_pesos) {
+						$_pesos_content = '<strong>$' . number_format($_pesos_cotizaciones, 2, ',', '.') . '</strong>';
+					}
+					$_usd_content = '<strong class="text-danger">Sin TRM</strong>';
+					if ($_flag_cotizacion_valor_usd) {
+						$_usd_content = '<strong>$' . number_format($_usd_cotizaciones, 2, ',', '.') . '</strong>';
+					}
+
+					$resumen_cotizaciones = '
+							<strong>Resumen de Cotización</strong>
+							<table class="table table-striped table-condensed">
+								<thead>
+									<tr class="nexos-encabezado">
+										<th>Moneda</th>
+										<th>Cant. Cotizaciones</th>
+										<th>Total</th>
+										<th>Total en COP</th>
+										<th>Total en USD</th>
+									</tr>
+								</thead>
+								<tbody>
+									' . $_resumen_content . '
+									<tr>
+										<td class="cell-detail">
+											<span><strong>Total Cotizaciones</strong></span>
+										</td>
+										<td class="cell-detail text-center">
+											<span><strong>' . $_cantidad_cotizaciones . '</strong></span>
+										</td>
+										<td class="cell-detail text-right">
+											<span><strong>Cotización Total</strong></span>
+										</td>
+										<td class="cell-detail text-right">
+											' . $_pesos_content . '
+										</td>
+										<td class="cell-detail text-right">
+											' . $_usd_content . '
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						';
+				}
+			}
+
+			// Se pinta las facturas del proveedor
+			$_facturas = '
+					<strong>Facturas</strong>
+					<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+						<div class="icon">
+							<span class="mdi mdi-close"></span>
+						</div>
+						<div class="message">
+							<strong>Atención!</strong>
+							<p>No se ha registrado facturas de este proveedor...</p>
+						</div>
+					</div>
+				';
+
+			$_cant_facturas = 0;
+			$_valor_factura_pesos = 0;
+			if (isset($arrayActividades["proveedor_facturas"][$value['id']])) {
+				$_cant_facturas = COUNT($arrayActividades["proveedor_facturas"][$value['id']]);
+				$_facturas = '
+						<strong>Facturas</strong>
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th></th>
+									<th>Factura</th>
+									<th>Valor</th>
+									<th></th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+					';
+
+				$_flag_factura_valor_pesos = true;
+				$_valor_factura_pesos = 0;
+				$_flag_factura_valor_usd = true;
+				$_valor_factura_usd = 0;
+				foreach ($arrayActividades["proveedor_facturas"][$value['id']] as $key_01 => $value_01) {
+					if ($_flag_factura_valor_pesos and $value_01["VALOR_PESOS"]) {
+						$_valor_factura_pesos += $value_01["VALOR_PESOS"];
+					} else {
+						$_flag_factura_valor_pesos = false;
+					}
+					if ($_flag_factura_valor_usd and $value_01["VALOR_USD"]) {
+						$_valor_factura_usd += $value_01["VALOR_USD"];
+					} else {
+						$_flag_factura_valor_usd = false;
+					}
+
+					$_egreso = '
+							<td class="actions nexos-actions">
+								<center class="hint--top-right" data-hint="Sin egreso asignado">
+									<span class="mdi mdi-dot-circle icon"></span>
+								</center>
+							</td>
+						';
+					if ($value_01["id_egreso"]) {
+						$_egreso = '
+								<td class="nexos-txt-warning text-center">
+									<center class="hint--top-right" data-hint="Egreso asignado">
+										<span class="mdi mdi-dot-circle icon"></span>
+									</center>
+								</td>
+							';
+					}
+
+					//EGRESOS
+
+					$descarga_egreso = '';
+					if ($value_01["url_egreso"] != NULL) {
+						$descarga_egreso = '<a href="' . BASE_URL . 'public/files/internacional/egresos/' . $value_01["url_egreso"] . '" target="_blank" class="cell-detail hint--top-right" data-hint="Descargar Egreso">
+										<span class="icon mdi mdi-download"></span>
+									</a>';
+					} else {
+						$descarga_egreso = '';
+					}
+
+
+
+
+					$_facturas .= '
+							<tr>
+								' . $_egreso . '
+								<td class="cell-detail">
+									<span>' . $value_01["num_factura"] . '</span>
+									<span class="cell-detail-description">' . $value_01["fecha_factura"] . '</span>
+								</td>
+								<td class="cell-detail text-right">
+									<span>' . number_format($value_01["valor"], 2, ',', '.') . '</span>
+									<span class="cell-detail-description">' . $value_01["codigo"] . '</span>
+								</td>
+								<td class="actions">
+									<a href="' . BASE_URL . 'public/files/internacional/facturas/' . $value_01["id_intr_proyecto"] . '/' . $value_01["id_proveedor"] . '/' . $value_01["url"] . '" target="_blank" class="cell-detail hint--top-right" data-hint="Descargar Factura">
+										<span class="icon mdi mdi-download"></span>
+									</a>
+
+									' . $descarga_egreso . '
+
+								</td>
+							</tr>
+						';
+				}
+
+				$_total_factura_pesos = 'Total en COP: <strong class="text-danger">Sin TRM</strong>';
+				if ($_flag_factura_valor_pesos) {
+					$_total_factura_pesos = 'Total en COP: <strong>' . number_format($_valor_factura_pesos, 2, ',', '.') . '</strong>';
+					$_gran_total_factura_pesos += $_valor_factura_pesos;
+				}
+				$_total_factura_usd = 'Total en USD: <strong class="text-danger">Sin TRM</strong>';
+				if ($_flag_factura_valor_usd) {
+					$_total_factura_usd = 'Total en USD: <strong>' . number_format($_valor_factura_usd, 2, ',', '.') . '</strong>';
+					$_gran_total_factura_usd += $_valor_factura_usd;
+				}
+				$_facturas .= '
+								<tr>
+									<td colspan="4">
+										' . $_total_factura_pesos . ' | ' . $_total_factura_usd . '
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					';
+			}
+
+			$_panel_color = "default";
+			if ($_cant_facturas > 0) {
+				$_gran_total_cant_facturas += $_cant_facturas;
+				$_panel_color = "warning";
+				if (isset($_valor_cotizacion_pesos) and isset($_valor_factura_pesos)) {
+					if ((int)$_valor_cotizacion_pesos == (int)$_valor_factura_pesos) {
+						$_panel_color = "success";
+					} elseif ((int)$_valor_cotizacion_pesos < (int)$_valor_factura_pesos) {
+						$_panel_color = "danger";
+					}
+				}
+			}
+
+			// Contenido del acordeón por proveedor
+			$_proveedores_content .= '
+					<div class="panel panel-default panel-border-color panel-border-color-' . $_panel_color . ' proveedor" id="proveedor_' . $value['id'] . '">
+						<div class="panel-heading">
+							<div class="tools">
+							</div>
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion2" href="#accordion_' . $value['id'] . '" class="collapsed" aria-expanded="false"><i class="icon mdi mdi-chevron-down"></i> <span class="accordion_title">' . $value["proveedor"] . '</span>
+									<span class="panel-subtitle">Cotizaciones: <strong>(' . $value["CUANTOS"] . ')</strong> | Facturas: <strong>(' . $_cant_facturas . ')</strong> | Total Cotizaciones: <strong>$' . number_format($_total_cotizaciones, 0, ',', '.') . '</strong> | Total Facturas: <strong>$' . number_format($_valor_factura_pesos, 0, ',', '.') . '</strong> | Sobrecostos: <strong>$' . number_format($_total_sobrecostos, 0, ',', '.') . '</strong></span>
+								</a>
+							</h4>
+						</div>
+						<div id="accordion_' . $value['id'] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+							<div class="panel-body">
+								<div class="col-xs-12 col-sm-12 col-md-6">
+									' . $_cotizaciones . '
+								</div>
+								<div class="col-xs-12 col-sm-12 col-md-6">
+									' . $_facturas . '
+								</div>
+							</div>
+						</div>
+					</div>
+				';
+		}
+
+		// Se pinta la tabla de resumen de facturas 
+		$resumen_facturas = '
+				<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+					<div class="icon">
+						<span class="mdi mdi-close"></span>
+					</div>
+					<div class="message">
+						<strong>Atención!</strong>
+						<p>No se han registrado facturas en este proyecto...</p>
+					</div>
+				</div>
+			';
+		if ($_gran_total_cant_facturas > 0) {
+			$_pesos_content = '<strong class="text-danger">Sin TRM</strong>';
+			if ($_flag_factura_valor_pesos) {
+				$_pesos_content = '<strong>$' . number_format($_gran_total_factura_pesos, 2, ',', '.') . '</strong>';
+			}
+			$_usd_content = '<strong class="text-danger">Sin TRM</strong>';
+			if ($_flag_factura_valor_usd) {
+				$_usd_content = '<strong>$' . number_format($_gran_total_factura_usd, 2, ',', '.') . '</strong>';
+			}
+
+			$resumen_facturas = '
+					<strong>Resumen de Facturación</strong>
+					<table class="table table-striped table-condensed">
+						<thead>
+							<tr class="nexos-encabezado">
+								<th>Cant. Facturas</th>
+								<th>Total en COP</th>
+								<th>Total en USD</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="cell-detail text-center">
+									<span><strong>' . $_gran_total_cant_facturas . '</strong></span>
+								</td>
+								<td class="cell-detail text-right">
+									' . $_pesos_content . '
+								</td>
+								<td class="cell-detail text-right">
+									' . $_usd_content . '
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				';
+		}
+
+		// Se llena el contenido de los impuestos generados
+		if (isset($arrayActividades["impuestos"])) {
+			$_impuestos = '
+					<div class="col-xs-0 col-sm-1 col-md-1"></div>
+					<div class="col-xs-12 col-sm-10 col-md-10">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th></th>
+									<th>Proveedor</th>
+									<th>Concepto</th>
+									<th>Fecha</th>
+									<th>Valor</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+				';
+
+			foreach ($arrayActividades["impuestos"] as $key => $value) {
+				$_egreso = '
+						<td class="actions nexos-actions">
+							<center class="hint--top-right" data-hint="Sin egreso asignado">
+								<span class="mdi mdi-dot-circle icon"></span>
+							</center>
+						</td>
+					';
+				if ($value["id_egreso"]) {
+					$_egreso = '
+							<td class="nexos-txt-warning">
+								<center class="hint--top-right" data-hint="Egreso asignado">
+									<span class="mdi mdi-dot-circle icon"></span>
+								</center>
+							</td>
+						';
+				}
+
+				$_impuestos .= '
+						<tr>
+							' . $_egreso . ' 
+							<td class="cell-detail">
+								<span>' . $value["abreviatura"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["nombre"] . '</span>
+								<span class="cell-detail-description">' . $value["descripcion"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . $value["fecha_factura"] . '</span>
+							</td>
+							<td class="cell-detail">
+								<span>' . number_format($value["valor"], 2, ',', '.') . '</span>
+								<span class="cell-detail-description">' . $value["nom_moneda"] . ' (' . $value["codigo"] . ')</span>
+							</td>
+							<td class="actions">
+								<a href="' . BASE_URL . 'public/files/internacional/facturas/' . $_POST["id"] . '/' . $value["id_proveedor"] . '/' . $value["url"] . '" target="_blank" class="cell-detail hint--top-right" data-hint="Descargar Factura">
+									<span class="icon mdi mdi-download"></span>
+								</a>
+							</td>
+						</tr>
+					';
+			}
+
+			$_impuestos .= '
+							</tbody>
+						</table>
+					</div>
+					<div class="col-xs-0 col-sm-1 col-md-1"></div>
+				';
+
+			$_proveedores_content .= '
+					<div class="panel panel-default panel-border-color panel-border-color-default" id="impuesto">
+						<div class="panel-heading">
+							<div class="tools">
+							</div>
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion2" href="#accordion_impuestos" class="collapsed" aria-expanded="false"><i class="icon mdi mdi-chevron-down"></i> Impuestos <strong>(' . COUNT($arrayActividades["impuestos"]) . ')</strong>
+								</a>
+							</h4>
+						</div>
+						<div id="accordion_impuestos" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+							<div class="panel-body">
+								' . $_impuestos . '
+							</div>
+						</div>
+					</div>
+				';
+		}
+
+		$_proveedores_content .= '
+				</div>
+			';
+	}
+
+	$proveedores = '';
+	if ($_proveedores_content) {
+		$proveedores = '
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_proveedores" class="collapsed" aria-expanded="false">
+								<i class="icon mdi mdi-chevron-down"></i> Proveedores
+							</a>
+						</h4>
+					</div>
+					<div id="collapse_proveedores" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+						<div class="panel-body">
+							<div class="col-xs-12 col-sm-12 col-md-6">
+								' . $resumen_cotizaciones . '
+							</div>
+							<div class="col-xs-12 col-sm-12 col-md-6">
+								' . $resumen_facturas . '
+							</div>
+							<div class="row"></div>
+							' . $_proveedores_content . '
+						</div>
+					</div>
+				</div>
+			';
+	}
+	/***** Fin - Contenido de los formularios para subir facturas por proveedor *****/
+
+
+	/***** SE LLENA EL CONTENIDO DEL ACORDEON DE INTERNACIONAL *****/
+	$intr_accordion = '
+			<div class="col-xs-12 col-sm-12 col-md-12">
+				<h3>Información Proyecto Internacional</h3>
+				<div id="accordion1" class="panel-group accordion">
+					' . $oferta_comercial . '
+					' . $resumen_guias . '
+					' . $guias . '
+					' . $proveedores . '
+				</div>
+			</div>
+		';
+}
+/***** FIN - SE PINTA LA INFORMACIÓN DE LAS GUIAS Y MATERIALES PARA PROYECTOS INTERNACIONALES *****/
+
+/**** CONTENIDO DE ACTIVIDADES REALIZADAS ****/
+$_costos = "";
+$_tiempos = "";
+$table_list = '
+		<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+			<div class="icon">
+				<span class="mdi mdi-check"></span>
+			</div>
+			<div class="message">
+				<strong>Atención!</strong>
+				<p>No se ha gestionado ninguna actividad de este proyecto.</p>
+			</div>
+		</div>
+	';
+if (isset($arrayActividades['actividades'])) {
+	// Defino el ancho de las gráficas
+	$ancho_grafica = 6;
+	if ($arrayActividades['actividades'] > 8) {
+		$ancho_grafica = 12;
+	}
+
+	// Gráfica costos
+	$_costos = '
+			<div class="col-xs-12 col-sm-12 col-md-' . $ancho_grafica . '">
+				<div class="panel panel-default">
+					<div class="panel-heading panel-heading-divider">
+						<div class="tools">
+						</div>
+						<span class="title">Costos del Proyecto</span>
+						<span class="panel-subtitle">Comparativo del costo ejecutado en el proyecto con respecto del costo aprobado.</span>
+					</div>
+					<div class="panel-body">
+						<div id="bar-chart-costos" style="height: 250px;"></div>
+					</div>
+				</div>
+			</div>
+		';
+
+	// Gráfica tiempos
+	$_tiempos = '
+			<div class="col-xs-12 col-sm-12 col-md-' . $ancho_grafica . '">
+				<div class="panel panel-default">
+					<div class="panel-heading panel-heading-divider">
+						<div class="tools">
+						</div>
+						<span class="title">Tiempos del Proyecto</span>
+						<span class="panel-subtitle">Comparativo de los tiempos usados en el proyecto con respecto de los tiempos aprobados.</span>
+					</div>
+					<div class="panel-body">
+						<div id="bar-chart-tiempos" style="height: 250px;"></div>
+					</div>
+				</div>
+			</div>
+		';
+
+	$table_list = '
+			<div class="row">
+				<div class="col-sm-12">
+					<strong>Actividades</strong>
+					<table class="table">
+						<thead>
+							<tr>
+								<th style="width: 10%;">Orden</th>
+								<th>Actividad</th>
+								<th style="width: 10%;">Costo Aprobado</th>
+								<th style="width: 10%;">Costo Ejecutado</th>
+								<th style="width: 15%;">Fecha Inicio</th>
+								<th style="width: 15%;">Fecha Finalización</th>
+							</tr>
+						</thead>
+						<tbody>
+		';
+	$array_costos = "";
+	$array_tiempos = "";
+	if (isset($arrayActividades['actividades'])) {
+		foreach ($arrayActividades['actividades'] as $key => $value) {
+			$table_list .= '
+					<tr>
+						<td class="cell-detail text-center">
+							<span>' . $value["orden"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["nombre"] . '</span>
+						</td>
+						<td class="cell-detail text-right">
+							<span>' . $value["costo_aprobado"] . '</span>
+						</td>
+						<td class="cell-detail text-right">
+							<span>' . $value["costo_real"] . '</span>
+						</td>
+						<td class="cell-detail text-center">
+							<span>' . $value["fecha_hora_inicio"] . '</span>
+						</td>
+						<td class="cell-detail text-center">
+							<span>' . $value["fecha_hora_finalizacion"] . '</span>
+						</td>
+					</tr>
+				';
+			$array_costos .= '{actividad: "' . $value["orden"] . '", costo_aprobado: ' . $value["costo_aprobado"] . ', costo_real: ' . $value["costo_real"] . '},';
+
+			$array_tiempos .= '{actividad: "' . $value["orden"] . '", tiempo_aprobado: ' . $value["tiempo_aprobado"] . ', tiempo_real: ' . $value["tiempo_real"] . '},';
+		}
+	}
+
+	$table_list .= '
+							<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		';
+
+	$_jsScripts .= '
+			<script type="text/javascript">
+				var App = (function () {
+					"use strict";
+
+					App.chartsMorris = function( ){
+						//Bar chart
+						function bar_chart(){
+							var color1 = tinycolor( "red" ).lighten( 10 ).toString();
+							var color2 = tinycolor( "green" ).brighten( 10 ).toString();
+
+							Morris.Bar({
+								element: "bar-chart-costos",
+								data: [
+									' . $array_costos . '
+								],
+								xkey: "actividad",
+								ykeys: ["costo_aprobado","costo_real"],
+								labels: ["Costo Aprobado","Costo Real"],
+								barColors: [color1, color2],
+								barRatio: 0.4,
+								xLabelAngle: 0,
+								hideHover: "auto"
+							});
+						}
+						bar_chart();
+
+						function bar_chart_1(){
+							var color1 = tinycolor( "blue" ).lighten( 10 ).toString();
+							var color2 = tinycolor( "green" ).brighten( 10 ).toString();
+
+							Morris.Bar({
+								element: "bar-chart-tiempos",
+								data: [
+									' . $array_tiempos . '
+								],
+								xkey: "actividad",
+								ykeys: ["tiempo_aprobado","tiempo_real"],
+								labels: ["Tiempo Aprobado","Tiempo Real"],
+								barColors: [color1, color2],
+								barRatio: 0.4,
+								xLabelAngle: 0,
+								hideHover: "auto"
+							});
+						}
+						bar_chart_1();
+					};
+
+					return App;
+				})(App || {});	
+			</script>
+		';
+}
+
+$_content = $info_proyecto . $info_cliente . $intr_accordion . $_costos . $_tiempos . $table_list;
+/**** FIN CONTENIDO DE ACTIVIDADES REALIZADAS ****/
+
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$valida_grupo = "";
+if ($r->getArgs()[3] > 1) {
+	$valida_grupo = '/' . $grupo;
+}
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Resumen Proyecto 
+				<div class="tools">
+					<a href="' . BASE_URL . 'importacion/ver_actividades/' . $r->getArgs()[2] . $valida_grupo . '"class="hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>
+				</div>
+				<span class="panel-subtitle"></span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+	';
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/raphael/raphael-min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/morrisjs/morris.min.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.chartsMorris();
+			});
+	    </script>
+	';
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $_content, $vista);
+
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;

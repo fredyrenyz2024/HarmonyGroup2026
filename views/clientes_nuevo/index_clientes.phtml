@@ -1,0 +1,540 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content='';
+
+if ( isset($this->index) ) {
+	$arrayPermisos = $this->index->permisosPerfil( $ssn_id_perfil , 121);
+	$_permisos = $arrayPermisos["rowsData"][0];
+
+if($_permisos["adicionar"]== 1){
+	$btn_crear='';	
+}
+
+$vista.='
+	<div class="panel panel-border panel-contrast">
+		<div class="panel-heading panel-heading-contrast">
+				Segumiento de ruta al vehículo del cliente
+			<div class="tools">
+					'.$btn_crear.'
+			</div>
+			<span class="panel-subtitle">Módulo para .</span>
+			</div>
+			<div class="panel-body">
+				<input type="hidden" id="idcliente" value="'.$ssn_id_cliente.'" >
+				<div class="nexos-messages"></div>
+				<div class="nexos-content">
+					%content%
+				</div>
+				<div class="row">
+				<div class="col-sm-12"></div>
+			</div>
+		</div>
+	</div>
+'; 
+
+$table_content.='
+<div class="col-xs-12 col-sm-12 col-md-12">
+<div class="form-group col-xs-4 col-sm-4 col-md-4">
+	<label>Fecha Inicial</label>
+	<input type="date" id="fecha_inicia" class="form-control input-sm"  value="'.date('Y-m-d').'" >	
+</div>
+<div class="form-group col-xs-4 col-sm-4 col-md-4">
+	<label>Fecha Final</label>
+	<input type="date" id="fecha_final" class="form-control input-sm"  value="'.date('Y-m-d').'"  >
+</div>
+<div class="form-group col-xs-3 col-sm-3 col-md-3">
+	<label></label>
+	<button class="form-control input-sm btn btn-info mdi mdi-search" id="consulte"  onclick="solicitudes_cliente();" >
+		Consultar
+	</button>
+</div>
+</div>';
+
+$table_content.='
+	<div id="esconder">
+	<div class="row" >
+	<div class="col-sm-12">
+		<div  class="table-responsive noSwipe">
+  			<table id="table1" class="table table-striped table-hover table-fw-widget">
+                <thead>
+                   <tr>
+                    <th>N° servicio</th>
+                    <th>Orden</th>
+                    <th>Remesa</th>
+                    <th>Placa</th>
+                    <th>Conductor</th>
+                    <th>Cliente</th>
+                    <th>Manifiesto</th>
+                    <th>Fecha Manifiesto</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                   </tr>
+                </thead>
+                <tbody id="body_esconder">
+                </tbody>
+           	</table>
+		</div>
+	</div>
+	</div>
+</div>';
+}
+
+?>
+
+<!--Crear grupo -->
+<div id="clcorreo" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+ <div class="modal-dialog custom-width">
+   <div class="modal-content">
+	 <div class="modal-header">
+		<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+		<h3 class="modal-title" id="editar_title">
+			<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Correos</label>
+		</h3>
+	  </div>
+	  <div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+		<div id="msg_consultacorreo"></div>
+		<div id="content_correo">
+
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<table class="table table-bordered">
+						<thead>
+							<th>Id servicio</th>
+							<th>Usuario</th>
+							<th>Fechas programadas</th>
+							<th>Hora programada</th>
+							<th>Modo</th>	
+						</thead>
+						<tbody id="tbemailsenviados">
+						</tbody>
+					</table>
+			</div>
+							
+		</div>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	   </div>
+    </div>
+  </div>
+</div>
+
+<!--ubicacion actual del cliente-->
+<div id="ubicacion" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+ <div class="modal-dialog custom-width">
+   <div class="modal-content">
+	 <div class="modal-header">
+		<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+		<h3 class="modal-title" id="editar_title">
+			<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Ubicacion actual</label>
+		</h3>
+	  </div>
+	  <div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+		<div id="msg_creargrupo"></div>
+		<div id="content_ubicacion">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				 <table class="table table-condensed table-hover table-bordered table-striped">
+          		 	<thead>
+          		 		<th>Latitud</th>
+          		 		<th>Longitud</th>
+          		 		<th>Usuario</th>
+          		 		<th>Fecha - Hora</th>
+          		 		<th>Observación</th>
+          		 		<th>Ubicación</th>
+          		 	</thead>
+          		 	<tbody id="tbubicacion">
+          		 	</tbody>	
+          		 </table>
+			</div><br><br>
+
+			<div class="row">
+          		<div id="" style="margin:auto;">
+       				<div id="maplocation" style="height:500px; width:100%; margin-top:30px"></div>
+       			</div>
+          	</div>	
+								
+		</div>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	   </div>
+    </div>
+  </div>
+</div>
+
+
+<!--Seguimientos del cliente -->
+<div id="clseguimiento" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+ <div class="modal-dialog custom-width">
+   <div class="modal-content">
+	 <div class="modal-header">
+		<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+		<h3 class="modal-title" id="editar_title">
+			<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Seguimiento</label>
+		</h3>
+	  </div>
+	  <div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+		<div id="msg_creargrupo"></div>
+		<div id="content_editar">
+			<div>
+				<table class="table table-bordered">
+						<thead>
+							<th>N°</th>
+							<th>Ubicación</th>
+							<th>Detalle 2</th>
+							<th>fecha</th>
+							<th>Hora</th>
+							<th>Usuario</th>
+						</thead>
+						<tbody id="tbseguimiento">
+						</tbody>
+					</table>
+			</div>		
+		</div>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	   </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<?php 
+$vista.= '
+		<script  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMwRwybUARcBql3j71ykZpBTavAmkiqRo"></script>
+
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+';
+
+$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
+	echo $vista;
+?>
+<script type="text/javascript">
+	function solicitudes_cliente(){
+		//alert('lshfs');
+		var url2 =$("#id_url_ajax").val() + "libs/trafico_ajax.php";
+		var idc=$("#idcliente").val();
+		var fecha_inicia=$("#fecha_inicia").val();
+		var fecha_final=$("#fecha_final").val();
+		//alert(idc);
+		var boton='';
+		var tabla={
+			fecha_inicia:fecha_inicia,
+			fecha_fina:fecha_final,
+			idc:idc,
+			action:'tb_clientes'
+		}; 
+		$("#body_esconder").html('');
+		 $.ajax({
+			url:url2,
+			type:'POST',
+			data:tabla,
+			dataType:'json',
+			success: function(data){
+				console.log('si hay fila');
+				var cont=0;
+				if(data.result!=null){
+					data.result.forEach(function(element,index){
+					cont++;
+					var status;
+
+					if(element.estado==1){
+						status='Activo';
+					}
+					if(element.estado==2){
+						status='Suspendido';
+					}
+					if(element.estado==3){
+						status='Completado';
+					}
+
+
+
+				boton_correo='<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-email" id="btn_correo'+cont+'"  data-toggle="modal" data-target="#clcorreo"  data-placement="top"  title="Correos electronico"  data-id="'+element.idservicio+'" data-id2="'+element.idcliente+'" ></button>';
+
+				boton_ubicacion='<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-truck" id="btn_ubicacion'+cont+'"  data-toggle="modal" data-target="#ubicacion"  data-placement="top"  title="ubicación actual" data-id3="'+element.idruta+'"></button>';
+
+				boton_seguiminto='<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-eye" id="btn_seguiminto'+cont+'"  data-toggle="modal" data-target="#clseguimiento"  data-placement="top"  title="Seguimientos" data-id="'+element.idservicio+'" data-id2="'+element.idcliente+'" data-id3="'+element.idruta+'"></button>';
+
+
+				$("#body_esconder").append('<tr>'+
+					'<td>'+element.idservicio+'</td>'+
+					'<td>'+element.orden_cargue+'</td>'+
+					'<td>'+element.remesa+'</td>'+
+					'<td>'+element.placa+'</td>'+
+					'<td>'+element.nombre+
+						'<span class="cell-detail">'+element.numero_documento+'</span>'+
+					'</td>'+
+					'<td>'+element.nombre_cliente+'</td>'+
+					'<td>'+element.n_manifiesto+'</td>'+
+					'<td>'+element.fecha_manifiesto+'</td>'+
+					'<td>'+status+'</td>'+
+					'<td>'+
+						boton_correo+'&nbsp'+
+						boton_seguiminto+'&nbsp'
+						+boton_ubicacion+'&nbsp'+
+					'</td></tr>');
+
+					$("#btn_correo"+cont+"").click(function(element,index){
+						var idservi=$(this).attr('data-id');
+						var idcliente=$(this).attr('data-id2');
+						var buscar={
+							idservi:idservi,
+							idcliente:idcliente,
+							action:'consultar_correoenviado'
+						};
+						$.ajax({
+							url:url2,
+							type:'POST',
+							data:buscar,
+							dataType:'json',
+							success: function(data){
+								$("#tbemailsenviados").html('');
+								if(data.result!=null){
+									data.result.forEach(function(element,index){
+										$("#tbemailsenviados").append('<tr>'+
+											'<td>'+element.id_servicio+'</td>'+
+											'<td>'+element.usuario+'</td>'+
+											'<td>'+element.fecha_inicio+
+											' - '+
+											element.fecha_final+
+											'</td>'+
+											'<td>'+element.hora_envio+'</td>'+
+											'<td>'+element.modalidad+'</td>'
+										+'</tr>');
+								});
+								}
+								},
+							error:function(jqXHR, textStatus, errorThrown){
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+								}	
+						});
+					});
+
+
+					$("#btn_ubicacion"+cont+"").click(function(element,index){
+						var codini=$(this).attr('data-id3');
+						var tb_ubicacion={
+							codini:codini,
+							action:'consultar_ubicacion'
+						};
+						$("#tbubicacion").html('');
+						$.ajax({
+							url:url2,
+							type:'POST',
+							data:tb_ubicacion,
+							dataType:'json',
+							success: function(data){
+								if(data.result!=null){
+									data.result.forEach(function(element,index){
+										$("#tbubicacion").append('<tr>'+
+											'<td>'+element.latitud+'</td>'+
+											'<td>'+element.longitud+'</td>'+
+											'<td>'+element.usuario+'</td>'+
+											'<td>'+element.fecha+' - '+element.hora+'</td>'+
+											'<td>'+element.observacion+'</td>'+
+											'<td>'+element.espacio+'</td>'+
+										+'</tr>');
+									});
+								}
+							},
+							error:function(jqXHR, textStatus, errorThrown){
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+							}
+						});
+
+						//MAPA
+						var control={
+							codini:codini,
+							action:'consulta_puntocontrol'
+						};
+						$.ajax({
+							url:url2,
+							type:'POST',
+							data:control,
+							dataType:'json',
+							success: function(data){	
+								if(data.result!=null){
+									//mapa
+									var latori=data.result[0].latitud_origen;
+									var latdes=data.result[0].latitud_destino;
+									var lonori=data.result[0].longitud_origen;
+									var londes=data.result[0].longitud_destino;
+									var latori_1=parseFloat(latori);
+							        var latdes_1=parseFloat(latdes);
+							        var lonori_1=parseFloat(lonori);
+							        var londes_1=parseFloat(londes);
+
+							        var coord_ori = {lat:latori_1, lng:lonori_1};
+							       	var coord_des = {lat:latdes_1, lng:londes_1};
+							       	var coord_pais = {lat:8.5709,lng:-74.2973};//colombia
+							        var map = new google.maps.Map(document.getElementById('maplocation'),{
+							            zoom: 6 ,center: coord_pais, mapTypeId:'hybrid'
+							        }); 
+
+							        var marker = new google.maps.Marker({
+							            position: coord_ori,
+							            map:map
+							        });
+
+							        marker = new google.maps.Marker({
+							            position: coord_des,
+							            map:map
+							        });
+
+							        var objConfigDR = { map: map };
+							        var objConfigDS = {
+							            origin: coord_ori,
+							            destination: coord_des,
+							            travelMode: google.maps.TravelMode.DRIVING
+							        };
+
+							        //calcular la ruta con los datos satelitales de google
+							       	var ds = new google.maps.DirectionsService();
+							        var dr = new google.maps.DirectionsRenderer(objConfigDR);
+							        ds.route (objConfigDS,fnRutear);
+							        function fnRutear( resultados,  status){
+					       			if (status == "OK"){
+					       				dr.setDirections (resultados);
+					       			}
+							        }
+							        //pintar punto actual
+							       var st, sm,cordenadas; 
+							       st=parseFloat(data.result[0].latitud);
+									sm=parseFloat(data.result[0].longitud);
+									cordenadas={lat:st,lng:sm};
+									var marketpc= new google.maps.Marker({
+										position:cordenadas,
+										icon:"https://img.icons8.com/cotton/48/000000/truck--v1.png",
+										title:"",	
+										map:map
+									});
+								}
+							},
+							error:function(jqXHR, textStatus, errorThrown){
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+							}
+						});
+					});
+
+					$("#btn_seguiminto"+cont+"").click(function(element,index){
+						var idservi=$(this).attr('data-id');
+						var idcliente=$(this).attr('data-id2');
+						var idruta=$(this).attr('data-id3');
+
+						var buscar={
+							idservi:idservi,
+							idcliente:idcliente,
+							idruta:idruta,
+							action:'consultar_seguimiento'
+						};
+						$.ajax({
+							url:url2,
+							type:'POST',
+							data:buscar,
+							dataType:'json',
+							success: function(data){
+								$("#tbseguimiento").html('');
+								if(data.result!=null){
+									data.result.forEach(function(element,index){
+										$("#tbseguimiento").append('<tr>'+'<td>'+element.id+'</td>'+
+									'<td>'+element.municipio+'</td>'+'<td>'+element.novedad+'</td>'+'<td>'+element.fecha+'</td>'+'<td>'+element.hora+'</td>'+'<td>'+element.usuario+'</td>'+'<td>'+'</tr>');
+								});
+								}
+								},
+							error:function(jqXHR, textStatus, errorThrown){
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+								}	
+						});
+
+
+					});
+
+
+
+
+
+
+					});
+				}else{
+					alert('No hay información con este filtro, por el momento');
+				}
+
+			},
+			error:function(jqXHR, textStatus, errorThrown){
+				console.log('no hay fila');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}	
+		});
+	}
+</script>

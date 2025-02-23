@@ -1,0 +1,26 @@
+<?php
+
+//1. se definen las variables de session
+
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+//2. se definen variables para diseñar el contenido
+$vista = '';
+$table_content = '';
+$table_cliente = '';
+$sw1 = "n";
+$origen = '';
+$destino = '';
+$cotizar = '';
+$mercancia = '';
+$_GET["sw"] = "";
+$_GET["clientefiltro"] = "";
+$_POST["clientefiltro"] = "";
+$_POST["tipo"] = "";
+$_POST["buscar_coti"] = "";
+$tabla_cotizaciones = "";
+?>
+
+

@@ -1,0 +1,564 @@
+<?php
+	$_dbTable = "mapas_ruta_control"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+	$_jsAjax = "";
+
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+	$r = new Request();
+	// print_r($r->getArgs());
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+	/********* FIN POPUPS *********/
+
+	/*** CREACION DE TABLA DE CONTENIDO  ***/
+	if(isset($this->rutas) && count($this->rutas)){
+		$arrayRutasControl = $this->rutas->getFilteredTabla( $r->getArgs()[0] );
+		// print_r("<pre>");
+		// print_r($arrayRutasControl);
+		// print_r("</pre>");
+
+		$arrayRuta = $arrayRutasControl["ruta"]['rowsData'][0];
+
+		$_tabla1 = '
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-10">
+					<table class="table">
+						<tbody>
+							<tr>
+								<td class="cell-detail">
+									<div class="form-group col-xs-12 col-sm-6 col-md-3">
+										<span>Ruta:</span>
+										<span class="cell-detail-description">'  . $arrayRuta["nombre"] . '</span>
+									</div>
+									<div class="form-group col-xs-12 col-sm-6 col-md-3">
+										<span>Origen:</span>
+										<span class="cell-detail-description">'  . $arrayRuta["ORIGEN"] . '</span>
+									</div>
+									<div class="form-group col-xs-12 col-sm-6 col-md-3">
+										<span>Destino:</span>
+										<span class="cell-detail-description">'  . $arrayRuta["DESTINO"] . '</span>
+									</div>
+									<div class="form-group col-xs-12 col-sm-6 col-md-3">
+										<span>Tiempo Estimado de Viaje (aprox):</span>
+										<span class="cell-detail-description">'  . $this->rutas->minutesToString($arrayRuta["TIEMPO_ESTIMADO"]) . '</span>
+									</div>
+								</td>
+							</tr>
+							<tr><td></td></tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="col-sm-1"></div>
+			</div>
+		';
+
+		/*** SE CREA TABLA DE CONTENIDO ***/
+		// Se filtra el contenido del mapa 
+		$_content_map = '<h4 class="text-center">Mapa de ruta aqui</h4>';
+		if ($arrayRutasControl["puntos_control"]["rowsNum"] > 1) {
+			$_content_map = '
+				<div class="bs-grid-block">
+					<div class="content" style="height: 400px;">
+						<div id="mapa_ruta_control" style="background-color: gray; width: 100%; height: 100%;"></div>
+					</div>
+				</div>
+			';
+		}
+
+		$_tabla1.= '
+			<div class="row">
+				<div class="col-md-5">
+					' . $_content_map . '
+				</div>
+				<div class="col-sm-7">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover" data-page-length="50">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:5%;"></th>
+									<th style="width:5%">Orden</th>
+									<th>Puntos de control</th>
+									<th style="width:15%;">Tiempo Estimado</th>
+									<th style="width:10%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+		$id_puntos_control = "";
+		if ($arrayRutasControl["puntos_control"]['rowsData']) {
+			// Variables para uso del mapa 
+			$ubicacionPuntosControl = "";
+			$ubicacionPuntosControlIntermedios = "";
+			$_i_mapa = 1;
+
+			foreach ($arrayRutasControl["puntos_control"]['rowsData'] as $key => $value) {
+				$id_puntos_control.= $value["id_punto_control"] . ",";
+
+				// Se establecen parámetros para pintar la ruta en el mapa
+				$ubicacionPuntosControl.= "{ location: { lat: " . $value["latitud"] . ", lng: " . $value["longitud"] . " }, stopover: true },";
+				if ( $_i_mapa > 1 AND $_i_mapa != $arrayRutasControl["puntos_control"]['rowsNum'] ) {
+					$ubicacionPuntosControlIntermedios.= "{ location: { lat: " . $value["latitud"] . ", lng: " . $value["longitud"] . " }, stopover: true },";
+				}
+				$_i_mapa++;
+
+				// se asigna contenido de la columna de estado
+				if ( $value["tipo_punto"] == "PUNTO_UBICACION" ) {
+					$_icon = 'mdi-pin';
+				} else {
+					$_icon = 'mdi-account-box-phone';
+				}
+				$col_stasus = '
+					<td class="actions">
+						<label class="icon hint--top-right" data-hint="' . $value["tipo_punto"] . '">
+							<span class="mdi ' . $_icon . ' icon"></span>
+						</label>
+					</td>
+				';
+
+
+				/***** SE GENERA FORMUARIO DE ORDENAMIENTO DE ACTIVIDAD *****/
+				// Creo el select de actividades de la plantilla
+				$slct_punto_control = $this->rutas->getHtmlSelect( "id_punto_control" , $r->getArgs()[0] , $value["orden"] );
+
+				// Busco las Actividad Previa de la actividad
+				$array_puntos_control_previos = $this->rutas->getActividadesPrevias( $r->getArgs()[0] , $value["orden"]);
+				// print_r("<pre>");
+				// print_r($array_puntos_control_previos);
+				// print_r("</pre>");
+				if ($array_puntos_control_previos['rowsData'][0]['CONTROL_PREVIO']) {
+					$punto_control_previo = '
+						<label>Actividad Previa Actual:</label>
+						<label class="cell-detail-description">' . $array_puntos_control_previos['rowsData'][0]['CONTROL_PREVIO'] . '</label>
+					';
+				} else {
+					$punto_control_previo = '
+						<label>Esta es la primera actividad de la plantilla</label>
+					';
+				}
+
+				/***** SE GENERA FORMUARIO DE EDICION DE ACTIVIDAD *****/
+				$form_edit_table = '
+					<input type="hidden" name="id" value="' . $value[0] . '" class="form-control">
+					<div class="form-group col-xs-6">
+						<label>Nombre:</label>
+						<input type="text" name="nombre" value="' . $value["nombre"] . '" placeholder="Nombre de la Actividad" class="form-control">
+					</div>
+					<div class="form-group col-xs-3">
+						<label>Tiempo estimado:</label>
+						<input type="number" min="1" id="tiempo_' . $value[0] . '" value="" placeholder="Tiempo estimado" class="form-control">
+					</div>
+					<div class="form-group col-xs-3">
+						<label>Medida de Tiempo:</label>
+						<select id="slc_medida_tiempo_' . $value[0] . '" class="form-control">
+							<option value="">Seleccione</option>
+							<option value="1">Minutos</option>
+							<option value="2">Horas</option>
+							<option value="3">Días</option>
+						</select>
+						<input type="hidden" name="tiempo_estimado" id="tiempo_estimado_' . $value[0] . '" value="' . $value["tiempo_estimado"] . '" placeholder="Tiempo estimado" class="form-control">
+					</div>
+					<div class="row"></div>
+				';
+
+				// JS de validacion de tiempos de actividades
+				$_jsScripts.= '
+					<script type="text/javascript">
+						$(document).ready(function(){
+
+							$(\'#slc_medida_tiempo_' . $value[0] . '\').change(function () {
+								console.log("Entro en funcion de cambio del select");
+								var tiempo = $("#tiempo_' . $value[0] . '").val();
+								var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value[0] . ']").val();
+
+								$("#tiempo_estimado_' . $value[0] . '").val(\'\');
+								$("#tiempo_estimado_' . $value[0] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+							});
+
+							$(\'#tiempo_' . $value[0] . '\').blur(function () {
+								console.log("Entro en funcion de blur del campo");
+								var tiempo = $("#tiempo_' . $value[0] . '").val();
+								var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value[0] . ']").val();
+
+								$("#tiempo_estimado_' . $value[0] . '").val(\'\');
+								$("#tiempo_estimado_' . $value[0] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+							});
+
+
+							var minutos = $("#tiempo_estimado_' . $value[0] . '").val();
+							var arrayMinutos = [0,0];
+							if(minutos > 0 ){
+								arrayMinutos = minutesToString(minutos).split(" " , 2);
+							}
+
+							// filtro lo que debe mostrar el campo del tiempo
+							switch (arrayMinutos[1]) {
+								case "minuto":
+									$("#tiempo_' . $value[0] . '").val(\'\');
+									$("#tiempo_' . $value[0] . '").val(arrayMinutos[0]);
+									$("#slc_medida_tiempo_' . $value[0] . '").val(\'\');
+									$("#slc_medida_tiempo_' . $value[0] . '").val(1);
+									break;
+
+								case "minutos":
+									$("#tiempo_' . $value[0] . '").val(\'\');
+									$("#tiempo_' . $value[0] . '").val(arrayMinutos[0]);
+									$("#slc_medida_tiempo_' . $value[0] . '").val(\'\');
+									$("#slc_medida_tiempo_' . $value[0] . '").val(1);
+									break;
+
+								case "hora":
+									$("#tiempo_' . $value[0] . '").val(\'\');
+									$("#tiempo_' . $value[0] . '").val(arrayMinutos[0]);
+									$("#slc_medida_tiempo_' . $value[0] . '").val(\'\');
+									$("#slc_medida_tiempo_' . $value[0] . '").val(2);
+									break;
+
+								case "horas":
+									$("#tiempo_' . $value[0] . '").val(\'\');
+									$("#tiempo_' . $value[0] . '").val(arrayMinutos[0]);
+									$("#slc_medida_tiempo_' . $value[0] . '").val(\'\');
+									$("#slc_medida_tiempo_' . $value[0] . '").val(2);
+									break;
+
+								case "dia":
+									$("#tiempo_' . $value[0] . '").val(\'\');
+									$("#tiempo_' . $value[0] . '").val(arrayMinutos[0]);
+									$("#slc_medida_tiempo_' . $value[0] . '").val(\'\');
+									$("#slc_medida_tiempo_' . $value[0] . '").val(3);
+									break;
+
+								case "dias":
+									$("#tiempo_' . $value[0] . '").val(\'\');
+									$("#tiempo_' . $value[0] . '").val(arrayMinutos[0]);
+									$("#slc_medida_tiempo_' . $value[0] . '").val(\'\');
+									$("#slc_medida_tiempo_' . $value[0] . '").val(3);
+									break;
+							}
+
+							$(\'#slc_medida_tiempo_' . $value[0] . '\').change(function () {
+								var tiempo = $("#tiempo_' . $value[0] . '").val();
+								var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value[0] . ']").val();
+
+								$("#tiempo_estimado_' . $value[0] . '").val(\'\');
+								$("#tiempo_estimado_' . $value[0] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+							});
+
+							$(\'#tiempo_' . $value[0] . '\').blur(function () {
+								var tiempo = $("#tiempo_' . $value[0] . '").val();
+								var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value[0] . ']").val();
+
+								$("#tiempo_estimado_' . $value[0] . '").val(\'\');
+								$("#tiempo_estimado_' . $value[0] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+							});
+						});
+
+					</script>
+				';
+
+				$_popupEdita = $form_edita->_form_modal_update($value[0], "Editar Actividad - " . $value["nombre"] , $form_edit_table, $_dbTable);
+				$vista.= $_popupEdita[0];
+				$_jsScripts.=$_popupEdita[1];
+
+				// Formulario de elimiancion del purto de control
+				$_popupElimina = $alert->_alert_modal_actividad_danger_rutas( $value[0] , $value["id_mapa_ruta"] , "¿Realmente desea inhabilitar este punto de control?" , $_dbTable , "inactivar" , $value["orden"] );
+				$vista.= $_popupElimina[0];
+				$_jsScripts.=$_popupElimina[1];
+
+
+				// se asigna contenudo de la columna de acciones
+				$col_action = '
+					<td class="actions">
+						<a href="' . BASE_URL . '/rutas/detalle_punto_control/' . $value["id_punto_control"] . '/' . $r->getArgs()[0] . '" class="icon hint--top-left" data-hint="Ver Detalle"><span class="mdi mdi-eye"></span></a>
+						<!--
+						<a href="#" data-toggle="modal" data-target="#ordena_actividades_plantilla_oc_' . $value[0] . '" class="cell-detail md-trigger hint--top-left" data-hint="Ordenar"><span class="icon mdi mdi-swap-vertical"></span></a>
+						-->
+						<a href="#" data-toggle="modal" data-target="#elimina_' . $value[0] . '" class="cell-detail md-trigger hint--top-left" data-hint="Inactivar Actividad"><span class="icon mdi mdi-close-circle"></span></a> 
+					</td>
+				';
+				
+				// Se maqueta contenido de la tabla 
+				$_tabla1.= '<tr>';
+				$_tabla1.= $col_stasus;
+				$_tabla1.= '
+					<td class="cell-detail">
+						<span class="label label-default">' . $this->rutas->numeroAletra( $value["orden"] ) . '</span>
+					</td>
+				';
+				$_tabla1.= '
+					<td class="cell-detail">
+						<span>' . $value["nombre"] . '</span>
+						<span class="cell-detail-description">' . $value["ubicacion"] . '</span>
+					</td>
+				';
+				// columna de tiempo estimado
+				$arraytiempo_estimado[0] = 0;
+				$arraytiempo_estimado[1] = "minutos";
+				if ($value["tiempo_estimado"] > 0) {
+					$tiempo_estimado = $this->rutas->minutesToString( $value["tiempo_estimado"] );
+					$arraytiempo_estimado = explode(" ", $tiempo_estimado);
+				}
+				$_tabla1.= '
+					<td class="cell-detail">
+						<span>' . $arraytiempo_estimado[0] . '</span>
+						<span class="cell-detail-description">' . $arraytiempo_estimado[1] . '</span>
+					</td>
+				';
+				// se asigna la columna de acciones
+				$_tabla1.=$col_action;
+				
+				$_tabla1.= '</tr>';
+			}
+		}
+		$_tabla1.= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+	// CREACION DEL BOTON DE HABILITACION DE PLANTILLA
+	$_btn_aprobar_ruta = "";
+	if ($arrayRuta["estado"] == 2 AND $arrayRutasControl["puntos_control"]['rowsData']) {
+		$_popupHabilita = $alert->_alert_modal_mod_success( $r->getArgs()[0] , "Realmente desea habilitar este elemento?" , 'mapas_ruta' );
+		$vista.= $_popupHabilita[0];
+		$_jsScripts.=$_popupHabilita[1];
+
+		// se asigna contenido de la columna de acciones
+		$_btn_aprobar_ruta = '
+				<a href="#" class="icon hint--top" data-hint="Activar Ruta"><span id="#habilita_' . $r->getArgs()[0] . '" data-toggle="modal" data-target="#habilita_' . $r->getArgs()[0] . '" class="icon mdi mdi-check-circle"></span></a>
+		';
+	}
+
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Puntos de Control de Ruta  - <strong>' . $arrayRuta["nombre"] . '</strong>
+				<div class="tools">
+					<a href="' . BASE_URL . 'rutas/mapas_ruta/"class="hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>
+					<a href="#" data-toggle="modal" data-target="#adicionar_punto_control" class="cell-detail hint--top" data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+					' . $_btn_aprobar_ruta . '
+				</div>
+				<span class="panel-subtitle">Se administra las actividades de la platilla.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+		<!-- js para listas arrastrables -->
+		<script src="%root_file%lib/jquery.nestable/jquery.nestable.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-ui-nestable-lists.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+				App.uiNestableLists();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+		</script>
+		%js-ajax%
+	';
+
+	/****** CREACION CONTENIDO DE POPUPS ******/
+	// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+	$slct_puntos_control = $this->rutas->getHtmlSelect( "id_punto_control_previo" , $r->getArgs()[0] , "" );
+	$slct_nuevo_puntos_control = $this->rutas->getHtmlSelectPuntosDeControl( "id_punto_control" , $r->getArgs()[0] , $id_puntos_control );
+	$_flag_puntos = false;
+	if ( $arrayRutasControl["puntos_control"]['rowsData'] ) {
+		$_flag_puntos = true;
+	}
+	$forms = '
+		<input type="hidden" name="orden" id="orden" value="1">
+		<input type="hidden" name="control_previo" id="control_previo" placeholder="control_previo" value="0">
+		<input type="hidden" name="id_mapa_ruta" value="' . $r->getArgs()[0] . '">
+		<input type="hidden" name="flag_puntos" value="' . $_flag_puntos . '">
+		<div class="form-group col-xs-12">
+			<label>Punto de Control Previo:</label>
+			' . $slct_puntos_control . '
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-6">
+			<label>Punto de Control:</label>
+			' . $slct_nuevo_puntos_control . '
+		</div>
+		<div class="form-group col-xs-3">
+			<label>Tiempo estimado:</label>
+			<input type="number" min="1" id="tiempo" value="" placeholder="Tiempo estimado" class="form-control">
+		</div>
+		<div class="form-group col-xs-3">
+			<label>Medida de Tiempo:</label>
+			<select id="slc_medida_tiempo" class="form-control">
+				<option value="">Seleccione</option>
+				<option value="1">Minutos</option>
+				<option value="2">Horas</option>
+				<option value="3">Días</option>
+			</select>
+			<input type="hidden" name="tiempo_estimado" id="tiempo_estimado" value="" placeholder="Tiempo estimado">
+		</div>
+		<div class="row"></div>
+	';
+
+	// JS de validacion de tiempos de actividades
+	$_jsScripts.= '
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$(\'#slc_medida_tiempo\').change(function () {
+					var tiempo = $("#tiempo").val();
+					var unidad_tiempo = $("select[id=slc_medida_tiempo]").val();
+					$("#tiempo_estimado").val(\'\');
+					$("#tiempo_estimado").val(calculaMinutos(tiempo , unidad_tiempo));
+				});
+
+				$(\'#tiempo\').blur(function () {
+					var tiempo = $("#tiempo").val();
+					var unidad_tiempo = $("select[id=slc_medida_tiempo]").val();
+					$("#tiempo_estimado").val(\'\');
+					$("#tiempo_estimado").val(calculaMinutos(tiempo , unidad_tiempo));
+				});
+			});
+		</script>
+	';
+
+	if ($arrayRutasControl["puntos_control"]) {
+		// Se importa la libreria de los mapas 
+		$_jsScripts.='
+			<script>
+				$(function () {});
+
+				var map;
+				var mapa_ruta_control;
+				var markers = [];
+				var tramos = [];
+				var waypoints = [];
+				var inicio_tramo;
+				var status_ruta = false;
+				var status_tramo = false;
+				var num_tramos = 0;
+				var ruta_tramos = [];
+				var info_tramo = "";
+
+				function initMap() {
+					//get api uses
+					var directionsService = new google.maps.DirectionsService;
+					var directionsDisplay = new google.maps.DirectionsRenderer;
+					
+					//waypoints to add
+					var waypts = [ ' . $ubicacionPuntosControl . ' ];
+					var wayroute = [ ' . $ubicacionPuntosControlIntermedios . ' ];
+					
+					//api map
+					var map = new google.maps.Map(document.getElementById(\'mapa_ruta_control\'), {
+						zoom: 6,
+						center: { lat: waypts[0].location.lat, lng: waypts[0].location.lng },
+						// disableDefaultUI: true,
+					});
+
+					//add map
+					directionsDisplay.setMap(map);
+
+					// set the new
+					directionsService.route({
+						origin: { lat: waypts[0].location.lat, lng: waypts[0].location.lng },
+						destination: { lat: waypts[ (waypts.length - 1) ].location.lat, lng: waypts[ (waypts.length - 1) ].location.lng },
+						waypoints: wayroute,
+						optimizeWaypoints: false,
+						travelMode: "DRIVING",
+					}, function (response, status) {
+						if (status === google.maps.DirectionsStatus.OK) {
+							directionsDisplay.setDirections(response);
+						} else {
+							window.alert(\'Ha fallado la comunicación en el mapa por causa de: \' + status);
+						}
+					});
+					var trafficLayer = new google.maps.TrafficLayer();
+					trafficLayer.setMap(map);
+				}
+			</script>
+			<script async defer
+				src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6vpUhRVoEe5U6m7Wh5_LFMCr_g8OzU1E&callback=initMap">
+			</script>
+		';
+	}
+
+	$_popupCrea = $form_crea->_form_modal_multiple_insert_orden_rutas("adicionar_punto_control" ,"Adicionar Punto de Control" , $forms , $_dbTable , "adicionar" , $r->getArgs()[0] , "" );
+	$vista.= $_popupCrea[0];
+	$_jsScripts.=$_popupCrea[1];
+	/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%js-ajax%" , $_jsAjax , $vista);
+	$vista = str_replace("%content%" , $_tabla1 , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>
+<script type="text/javascript">
+	$("#slct_punto_control_<?php echo $r->getArgs()[0];?>").change(function () {
+		var orden = $("#slct_punto_control_<?php echo $r->getArgs()[0];?>").val();
+		$("#orden").val(orden);
+		$("#control_previo").val(orden - 1);
+	});
+</script>

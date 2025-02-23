@@ -1,0 +1,433 @@
+<!-- <div class="container"></div> -->
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -25px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-border panel-contrast">
+        <div class="panel-heading panel-heading-contrast" style="background-color: #54B4D3;color: #FFFFFF;font-weight: bold;">
+          Orden de cargue
+          <div class="tools"> </div>
+          <span class="panel-subtitle" style="color: #FFFFFF;font-weight: normal;">
+            Documento donde se realiza la negociación con el propietario del vehículo, se pactan las reglas de negocio, y se llegan a acuerdos frente al valor del viaje, este documento se le entregara al conductor y lo autoriza para recoger la carga.
+          </span>
+        </div>
+        <div class="panel-body" style="padding: 1px 1px 1px;">
+          <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+          <div class="row" style="margin-top: 10px;">
+            <!--Acordeones -->
+            <div class="col-sm-12">
+              <div class="row">
+                <div id="msg_orden_cargue"></div>
+              </div>
+              <div id="accordion1" class="panel-group accordion">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne"><i class="icon mdi mdi-chevron-down"></i><strong>Datos del vehículo</strong></a></h4>
+                  </div>
+                  <!-- <div id="collapseOne" class="panel-collapse collapse in"> -->
+                  <div id="collapseOne" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                          <label>(*)Placa</label>
+                          <select id="placao" class="form-control input-xs">
+                            <option value="">Seleccione</option>
+                          </select>
+                          <input type="hidden" id="id_servicio" class="form-control input-xs" readonly="readonly">
+                          <input type="hidden" id="id_vehiculo" class="form-control input-xs" readonly="readonly">
+                          <input type="hidden" id="id_estudios" class="form-control input-xs" readonly="readonly">
+                          <input type="hidden" id="id_remitente" class="form-control input-xs" readonly="readonly">
+                          <input type="hidden" id="id_puntoremitente" class="form-control input-xs" readonly="readonly">
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                          <label>Fecha de expedición</label>
+                          <input type="text" id="o_fecha_exedicion" class="form-control input-xs" disabled="disabled" value="<?php echo date('Y-m-d'); ?>">
+                        </div>
+                      </div>
+                      <div class="row" style="padding-top: 15px;">
+                        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+                          <tbody>
+                            <tr>
+                              <td class="celda_titulo2 text-center" style="margin:25px;">
+                                <b>Datos del vehículo</b>
+                              </td>
+                            </tr>
+                            <tr>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000;">
+                          <tbody>
+                            <tr>
+                              <td class="celda_titulo2 text-center" style="margin:25px;">
+                                <b>Propietario</b>
+                              </td>
+                              <td class="celda_titulo2 text-center" style="margin:25px;">
+                                <b>Tenedor</b>
+                              </td>
+                              <td class="celda_titulo2 text-center" style="margin:25px;">
+                                <b>Conductor</b>
+                              </td>
+                            </tr>
+                            <tr>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;padding-top: 15px;">
+                          <thead>
+                            <tr>
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Nombre propietario:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="onom_propietario"></td>
+                              <input type="hidden" id="onom_propietario" class="form-control input-xs" disabled="disabled">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Nombre Tenedor:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="onom_tenedor"></td>
+                              <input type="hidden" id="onom_tenedor" class="form-control input-xs" disabled="disabled">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Nombre Conductor:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="onom_conductor"></td>
+                              <input type="hidden" id="onom_conductor" class="form-control input-xs" disabled="disabled">
+                            </tr>
+                            <tr>
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Documento Propietario:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="odocumento_propietario"></td>
+                              <input type="hidden" id="odocumento_propietario" class="form-control input-xs" disabled="disabled">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Documento Tenedor:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="odocumento_tenedor"></td>
+                              <input type="hidden" id="odocumento_tenedor" class="form-control input-xs" disabled="disabled">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Documento Conductor:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="odocumento_conductor"></td>
+                            </tr>
+                            <input type="hidden" id="odocumento_conductor" class="form-control input-xs" disabled="disabled">
+                            <tr>
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Codigo Propietario:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="id_propietario"></td>
+                              <input type="hidden" id="id_propietario" class="form-control input-xs" readonly="readonly">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Codigo Tenedor:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="id_tenedor"></td>
+                              <input type="hidden" id="id_tenedor" class="form-control input-xs" readonly="readonly">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Telefono Conductor:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="ocelular_conductor"></td>
+                              <input type="hidden" id="ocelular_conductor" class="form-control input-xs" readonly="readonly">
+                              <input type="hidden" id="id_conductor" class="form-control input-xs" readonly="readonly">
+                            </tr>
+                            <tr>
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Carrocería:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="o_carroceria"></td>
+                              <input type="hidden" id="o_carroceria" class="form-control input-xs" disabled="disabled">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Marca:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_marca"></td>
+                              <input type="hidden" id="o_marca" class="form-control input-xs" disabled="disabled">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Módelo:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_modelo"></td>
+                              <input type="hidden" id="ocelular_conductor" class="form-control input-xs" readonly="readonly">
+                              <input type="hidden" id="o_modelo" class="form-control input-xs" disabled="disabled">
+                            </tr>
+                            <tr>
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Color:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="o_color"></td>
+                              <input type="hidden" id="o_color" class="form-control input-xs" disabled="disabled">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Tipo vinculación:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_tipovinculacion"></td>
+                              <input type="hidden" id="o_tipovinculacion" class="form-control input-xs" disabled="disabled">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Clase de vehículo:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_clase"></td>
+                              <input type="hidden" id="o_clase" class="form-control input-xs" disabled="disabled">
+                            </tr>
+                            <tr>
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Remolque:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="o_remolque">
+                                <select id="o_remolque" readonly="readonly" style="width: 100%;">
+                                  <option value="">Seleccione</option>
+                                </select>
+                              </td>
+                              <input type="hidden" id="id_trailer" class="form-control input-xs" readonly="readonly">
+                              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Valor Flete Pactado:</th>
+                              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_flete_pactado"></td>
+                              <input type="hidden" id="o_fletecotizacion" class="form-control input-xs" readonly="readonly">
+                              <input type="hidden" id="o_flete_pactado" class="form-control input-xs" min="1" readonly="readonly">
+                              <input type="hidden" id="o_tarifapactada" class="form-control input-xs" readonly="readonly">
+                              <input type="hidden" id="id_subasta_flete" class="form-control input-xs" readonly="readonly">
+                              <input type="hidden" id="id_esubasta_flete" class="form-control input-xs" readonly="readonly">
+                            </tr>
+                          </thead>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Datos del cliente</strong></a></h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;padding-top: 15px;">
+                        <thead>
+                          <tr>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Identificación:</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="o_identificacion"></td>
+                            <input type="hidden" id="o_identificacion" class="form-control input-xs">
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Nombre:</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_cliente"></td>
+                            <input type="hidden" id="o_cliente" class="form-control input-xs">
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Dirección:</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_direccioncl"></td>
+                            <input type="hidden" id="o_direccioncl" class="form-control input-xs">
+                          </tr>
+                          <tr>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Teléfono:</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="o_telefono"></td>
+                            <input type="hidden" id="o_telefono" class="form-control input-xs">
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Ciudad:</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_ciudad"></td>
+                            <input type="hidden" id="o_ciudad" class="form-control input-xs">
+                            <input type="hidden" id="id_cliente" class="form-control input-xs" readonly="readonly">
+                          </tr>
+                        </thead>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseThree" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Datos del remitente</strong></a></h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse">
+                      <div id="datos_remite"></div>
+                      <div class="panel-body">
+                        <div class="row">
+                          <table class="table" id="adicione_remite">
+                            <thead>
+                              <tr></tr>
+                            </thead>
+                            <tbody></tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseFour" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Datos del destinatario</strong></a></h4>
+                    </div>
+                    <div id="collapseFour" class="panel-collapse collapse">
+                      <div id="datos_destino"></div>
+                      <div class="panel-body">
+                        <div class="row">
+                          <hr>
+                          <table class="table" id="adicione_desti">
+                            <thead>
+                              <tr>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseFive" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Precintos</strong></a></h4>
+                    </div>
+                    <div id="collapseFive" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="row">
+                          <button id="adicione_precinto" class="btn btn-primary btn-xs"><i class="fa-solid fa-square-plus"></i> Agregar precinto</button>
+
+                          <table class="table table-condensed" id="tabla_precintos" style="margin-top: 15px;">
+                            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                              <th>#</th>
+                              <th>Código precinto</th>
+                              <th>Tipo precinto</th>
+                              <th>Acción</th>
+                            </thead>
+                            <tbody></tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseSix" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Datos generales</strong></a></h4>
+                    </div>
+                    <div id="collapseSix" class="panel-collapse collapse">
+                      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;padding-top: 15px;">
+                        <thead>
+                          <tr>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Producto(*):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="o_producto"></td>
+                            <input type="hidden" id="o_producto" class="form-control input-xs">
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Tipo empaque(*):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_empaque"></td>
+                            <input type="hidden" id="o_empaque" class="form-control input-xs">
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Cantidad:</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_cantidad"></td>
+                            <input type="hidden" id="o_cantidad" class="form-control input-xs" min="1" readonly="readonly">
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Volumen(m3):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_volumen"></td>
+                            <input type="hidden" id="o_volumen" class="form-control input-xs" min="0" readonly="readonly">
+                          </tr>
+                          <tr>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">(*)Peso neto Kg (Total):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="o_peso_mercancia"></td>
+                            <input type="hidden" id="o_peso_mercancia" class="form-control input-xs" readonly="readonly" title="Peso neto total de la solicitud">
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">(*)Capacidad carga Vehículo(Kg):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_pesocarro"></td>
+                            <input type="hidden" id="o_pesocarro" class="form-control input-xs" readonly="readonly">
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">(*)Peso neto(Kg):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="o_pesocarga"></td>
+                            <input type="hidden" id="o_pesocarga" class="form-control input-xs" min="1" onChange="javascript:Formatear(this)" readonly="readonly">
+                          </tr>
+                        </thead>
+                      </table>
+                      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;padding-top: 15px;">
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Condiciones especiales de cargue:</th>
+                          <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="to_condicionesw">
+                            <textarea class="form-control input-xs" id="to_condicionesw" onblur='mayuscula(this);' rows="1" style="width: 100%;" readonly></textarea>
+                          </td>
+                        </tr>
+                        </thead>
+                      </table>
+                      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000;">
+                        <tbody>
+                          <tr>
+                            <td class="celda_titulo2 text-center" style="margin:25px;">
+                              <b>Embalaje especial o distribución técnica</b>
+                            </td>
+                            <td class="celda_titulo2 text-center" style="margin:25px;">
+                              <b>Observaciones Adicionales</b>
+                            </td>
+                          </tr>
+                          <tr>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;padding-top: 15px;">
+                        <tr>
+                          <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="to_condicionesw">
+                            <textarea class="form-control input-xs" id="t_embalaje" rows="1" onblur='mayuscula(this);'></textarea>
+                          </td>
+                          <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;" class="to_condicionesw">
+                            <textarea class="form-control input-xs" id="t_observacion" rows="1" onblur='mayuscula(this);'></textarea>
+                          </td>
+                        </tr>
+                        </thead>
+                      </table>
+                    </div>
+                  </div>
+                  <!--Datos Generales  -->
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseSeven" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Contenedor</strong></a></h4>
+                    </div>
+                    <div id="collapseSeven" class="panel-collapse collapse">
+                      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+                        <tbody>
+                          <tr>
+                            <td class="celda_titulo2 text-center" style="margin:25px;" class="o_conten1">
+                              <b>N° contenedor 1 (solicitud servicio)</b>
+                            </td>
+                            <input type="hidden" id="o_conten1" class="form-control input-xs" readonly="readonly">
+                          </tr>
+                          <tr>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;padding-top: 15px;">
+                        <thead>
+                          <tr>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Devolución cnt 2(*):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width:170px;padding: 1px 1px 1px;">
+                              <select id="cnt_opcion" style="width: 100%;">
+                                <option value="0">No</option>
+                                <option value="1">Si</option>
+                              </select>
+                            </td>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">N° contenedor 2 (Nuevo):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width:170px;">
+                              <input type="text" id="o_conten2" style="width: 100%;" disabled>
+                            </td>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Tipo Contenedor 2(*):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width:170px;">
+                              <select id="cnt_tipocon2" style="width: 100%;" disabled>
+                                <option value="">Seleccione</option>
+                              </select>
+                            </td>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Fecha Vencimiento 2(*):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width:170px;">
+                              <input type="date" id="cnt_dias2" style="width: 100%;" disabled>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Municipio Devolución 2(*):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width:170px;padding: 1px 1px 1px;">
+                              <select id="cnt_municipio2" style="width: 100%;" disabled></select>
+                            </td>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Dirección Devolución 2(*):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width:170px;">
+                              <input type="text" id="cnt_direccion2" style="width: 100%;" disabled>
+                            </td>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Fecha comodato 2:</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width:170px;">
+                              <input type="date" id="cnt_fcomodato2" style="width: 100%;" disabled>
+                            </td>
+                            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Peso Vacío 2 (Kg)(*):</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;width:170px;">
+                              <input type="text" id="cnt_peso2" style="width: 100%;" placeholder="sin puntos" disabled>
+                            </td>
+                          </tr>
+                        </thead>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--fin acordeones -->
+              <div class="row text-center">
+                <button id="Registrar_orden" class="btn btn-success btn-xs offset-10"><i class="fa-regular fa-floppy-disk"></i> Guardar orden cargue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Mensajes para los usuarios de la plataforma -->
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-oet" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para Oet...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>views/transporte/js/ajax.js type="text/javascript"></script>
+
+<!-- js para creacion de formularios dinamicos -->
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/nexos.min.js type="text/javascript"></script>
+
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+    App.wizard();
+  });
+</script>
+<!--Final del control de los submenús-->

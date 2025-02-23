@@ -1,0 +1,1131 @@
+<?php
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+	$vista = '';
+	$table_content = "";
+
+	if( isset($this->modulos) ){
+		// Se verifican los permisos del pefil de usuario
+		$arrayPermisos = $this->modulos->permisosPerfil( $ssn_id_perfil , 77);
+		$_permisos = $arrayPermisos["rowsData"][0];
+		// print_r("<pre>");
+		// print_r($_permisos);
+		// print_r("</pre>");
+
+		$arraymodulos = $this->modulos->getMenu();
+		// print_r("<pre>");
+		// print_r($arraymodulos);
+		// print_r("</pre>");
+
+		$table_content ='
+			<div id="data_user" data-id="' . $ssn_id_usuario . '" data-perfil="' . $ssn_id_perfil . '"></div>
+			<div class="table-responsive noSwipe col-xs-12 col-sm-12 col-md-12">
+				<table id="table1" class="table table-striped table-hover table-fw-widget" data-page-length="50">
+					<thead>
+						<tr class="nexos-encabezado index">
+							<th class="col-xs-1 col-sm-1 col-md-1"></th>
+							<th class="col-xs-1 col-sm-1 col-md-1">Orden</th>
+							<th>Menú</th>
+							<th class="col-xs-1 col-sm-1 col-md-1">Cant. Submenús</th>
+							<th class="col-xs-1 col-sm-1 col-md-1"></th>
+						</tr>
+					</thead>
+						<tbody>
+		';
+
+		if ( $arraymodulos["rowsData"] ) {
+			foreach ($arraymodulos["rowsData"] as $key => $value) {
+				// Se filtra la vista del estado 
+				$btn_cambiar_estado = '';
+				switch ($value["estado"]) {
+					case '1':
+						$_col_status = '
+							<td class="nexos-txt-success index" data-id="' . $value[0] . '">
+								<center>
+									<span class="icon mdi mdi-dot-circle"></span>
+								</center>
+							</td>
+						';
+						if ($_permisos["eliminar"]) {
+							$btn_cambiar_estado = '
+								<a href="javascript:" onclick="formCambiarEstado(' . $value[0] . ', 0)" class="cell-detail hint--top-left" data-hint="Inactivar Módulo">
+									<span class="icon mdi mdi-close-circle" data-toggle="modal" data-target="#cambia_estado"></span>
+								</a>';
+						}
+						break;
+
+					case '0':
+						$_col_status = '
+							<td class="nexos-txt-danger index" data-id="' . $value[0] . '">
+								<center>
+									<span class="icon mdi mdi-dot-circle"></span>
+								</center>
+							</td>
+						';
+						if ($_permisos["eliminar"]) {
+							$btn_cambiar_estado = '
+								<a href="javascript:" onclick="formCambiarEstado(' . $value[0] . ', 1)" class="cell-detail hint--top-left" data-hint="Activar Módulo">
+									<span class="icon mdi mdi-check-circle" data-toggle="modal" data-target="#cambia_estado"></span>
+								</a>';
+						}
+						break;
+
+					default:
+						$_col_status = '
+							<td class="actions-nexos">
+								<center>
+									<span class="icon mdi mdi-dot-circle"></span>
+								</center>
+							</td>
+						';
+						$btn_cambiar_estado = '';
+						break;
+				}
+
+				// Se valida si el usuario puede editar los módulos
+				$btn_editar = '';
+				if ($_permisos["editar"]) {
+					$btn_editar = '
+						<a href="javascript:" onclick="formEditar(' . $value[0] . ',\'' . $value["nom_menu"] . '\')" class="cell-detail hint--top-left" data-hint="Editar Menú">
+							<span class="icon mdi mdi-edit" data-toggle="modal" data-target="#editar"></span>
+						</a>
+						<a href="javascript:" onclick="formSubmenu(' . $value[0] . ',\'' . $value["nom_menu"] . '\')" class="cell-detail hint--top-left" data-hint="Administrar Submenú">
+							<span class="icon mdi mdi-menu" data-toggle="modal" data-target="#submenu"></span>
+						</a>
+					';
+				}
+
+				$table_content.='
+					<tr>
+						' . $_col_status . '
+						<td class="cell-detail">
+							<span class="label label-default orden">' . $value["orden"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["nom_menu"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span class="label label-default">' . $value["CUANTOS"] . '</span>
+						</td>
+						<td class="actions">
+							' . $btn_editar . '
+							' . $btn_cambiar_estado . '
+						</td>
+					</tr>
+				';
+			}
+		}
+
+		$table_content.='
+					</tbody>
+				</table>
+			</div>
+		';
+	}
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$btn_crear = '';
+	if ($_permisos["adicionar"]) {
+		$btn_crear = '<a href="#" data-toggle="modal" data-target="#crear" class="cell-detail crear hint--top-left" data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a>';
+	}
+
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Administrar Menús
+				<div class="tools">
+					' . $btn_crear . '
+				</div>
+				<span class="panel-subtitle">Listado de los menús de acceso de la plataforma NexosApp.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+
+		<!-- Popup para crear el menú -->
+		<div id="crear" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title">Crear Módulo</h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_crear"></div>
+						<div class="form-group col-xs-12">
+							<label>Nombre:</label>
+							<input type="text" name="nombre" id="nombre" placeholder="Nombre del Menú" class="form-control input-sm requerido">
+						</div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						<button id="btn_crear" type="button" class="btn btn-success md-close">Guardar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Popup para editar el menú -->
+		<div id="editar" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="editar_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_editar"></div>
+						<input type="hidden" id="id_editar">
+						<div id="editar_content"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						<button id="btn_editar" type="button" class="btn btn-success md-close">Guardar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Popup para cambiar el estado el menú -->
+		<div id="cambia_estado" tabindex="-1" role="dialog" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+					</div>
+					<div class="modal-body">
+						<div id="msg_error_cambia_estado"></div>
+						<div class="text-center">
+							<form id="form_cambiar_estado"></form>
+						</div>
+					</div>
+					<div class="modal-footer"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Popup para administrar los submenu del menú -->
+		<div id="submenu" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="submenu_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_submenu"></div>
+						<input type="hidden" id="id_menu">
+						<div id="submenu_content"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+		</script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista);
+
+	echo $vista;
+?>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#btn_crear").click(function(){
+			$("#nexos_messages_crear").empty();
+			let msg_error = '';
+
+			// Se valida el contenido del formulario
+			let campos = $(this).parents("#crear").find(".requerido");
+			campos.each(function(){
+				if (!$(this).val()) {
+					msg_error+= `<p>Debe diligenciar el campo <strong>${$(this).attr("placeholder")}</strong> para poder crear el menú</p>`;
+				}
+			});
+
+			$.ajaxSetup({async: false});
+			if (!msg_error) {
+				var params = {
+					action: "crear_menu",
+					nombre: $("#nombre").val(),
+				};
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").empty();
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").empty();
+						// console.log(data);
+						if (data.error) { msg_error+= data.error; }
+					}
+				});
+			}
+			if (!msg_error) {
+				funct_msg_success("#nexos_messages_crear");
+				$("#crear").animate({ scrollTop: 0 }, 600);
+				setTimeout(function() { location.reload(false); }, 800);
+			}
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_crear", msg_error); 
+				$("#crear").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+
+		$("#btn_editar").click(function(){
+			$("#nexos_messages_editar").empty();
+			let msg_error = '';
+
+			// Se valida el contenido del formulario
+			let campos = $(this).parents(".modal-content").find(".requerido");
+			campos.each(function(){
+				if (!$(this).val()) {
+					msg_error+= `<p>Debe diligenciar el campo <strong>${$(this).attr("placeholder")}</strong> para poder editar el menú</p>`;
+				}
+			});
+
+			$.ajaxSetup({async: false});
+			if (!msg_error) {
+				var params = {
+					action: "editar_menu",
+					id: $("#id_editar").val(),
+					nombre: $("#e_nombre").val(),
+				};
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").empty();
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").empty();
+						// console.log(data);
+						if (data.error) { msg_error+= data.error; }
+					}
+				});
+			}
+			if (!msg_error) {
+				funct_msg_success("#nexos_messages_editar", `<p>Se ha editado el registro con éxito</p>`);
+				$("#editar").animate({ scrollTop: 0 }, 600);
+				setTimeout(function() { location.reload(false); }, 800);
+			}
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_editar", msg_error); 
+				$("#editar").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+
+		/***** Funciones para el ordenamiento del menú de forma arrastrable *****/
+		var fixHelperModified = function(e, tr) {
+			var $originals = tr.children();
+			var $helper = tr.clone();
+			$helper.children().each(function(index) {
+				$(this).width($originals.eq(index).width())
+			});
+			return $helper;
+		},
+		updateIndex = function(e, ui) {
+			let msg_error = '';
+			let array = new Array();
+			$('td.index', ui.item.parent()).each(function (i) {
+				array.push({
+					id: $(this).data("id"),
+					orden: (i + 1)
+				});
+				let col_status = `
+					<center>
+						<span class="icon mdi mdi-dot-circle"></span>
+					</center>
+				`;
+				$(this).html(col_status);
+				$(this).closest("tr").find(".orden").text(i + 1);
+			});
+
+			$.ajaxSetup({async: false});
+			var params = {
+				action: "ordenar_menu",
+				array,
+			};
+			$.ajax({
+				url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+				type: 'POST',
+				data: params,
+				cache: false,
+				dataType: 'json',
+				beforeSend	: function(jqXHR, settings){
+					funct_msg_loading(".nexos-messages");
+				},
+				error: function (jqXHR, textStatus, errorThrown){
+					$(".nexos-messages").empty();
+					msg_error+= "<p>" + jqXHR.responseText + "</p>";
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+				},
+				success: function (data, textStatus, jqXHR){
+					$(".nexos-messages").empty();
+					// console.log(data);
+					if (data.error) { msg_error+= data.error; }
+				}
+			});
+			if (msg_error) {
+				funct_msg_error(".nexos-messages", msg_error); 
+				$("html, body").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: false});
+		};
+
+		$(".table tbody").sortable({
+			helper: fixHelperModified,
+			stop: updateIndex
+		}).disableSelection();
+		/***** Fin - Funciones para el ordenamiento del menú de forma arrastrable *****/
+	});
+
+	function formEditar(id, nombre, descripcion){
+		if (id != $("#id_editar").val() ) {
+			$("#id_editar").val(id);
+			$("#nexos_messages_editar").empty();
+			$("#editar_content").empty();
+
+			$("#editar_title").text(`Editar Menú - ${nombre}`);
+
+			$("#editar_content").html(`
+				<div class="form-group col-xs-12">
+					<label>Nombre:</label>
+					<input type="text" name="nombre" id="e_nombre" placeholder="Nombre del Módulo" class="form-control input-sm requerido" value="${nombre}">
+				</div>
+			`);
+		}
+	}
+
+	function formCambiarEstado(id, estado){
+		let form_cambiar_estado = '';
+		switch(estado){
+			case 1:
+				form_cambiar_estado+= `
+					<div class="text-success"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+					<h3>Alerta!</h3>
+					<p>Realmente desea habilitar este elemento?</p>
+					<div class="xs-mt-50">
+						<button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+						<button id="btn_cambiar_estado" type="button" class="btn btn-space btn-success btn_cambiar_estado" data-id="${id}" data-estado="${estado}">Activar</button>
+					</div>
+				`;
+				break;
+
+			case 0:
+				form_cambiar_estado+= `
+					<div class="text-danger"><span class="modal-main-icon mdi mdi-close-circle"></span></div>
+					<h3>Alerta!</h3>
+					<p>Realmente desea eliminar este elemento?</p>
+					<div class="xs-mt-50">
+						<button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+						<button id="btn_cambiar_estado" type="button" class="btn btn-space btn-danger btn_cambiar_estado" data-id="${id}" data-estado="${estado}">Inactivar</button>
+					</div>
+				`;
+				break;
+		}
+		$("#form_cambiar_estado").html(form_cambiar_estado);
+
+		$(".btn_cambiar_estado").click(function(){
+			$("#msg_error_cambia_estado").empty();
+			let msg_error = '';
+
+			$.ajaxSetup({async: false});
+			if (!msg_error) {
+				var params = {
+					action: "cambiar_estado_menu",
+					id: $(this).data("id"),
+					estado: $(this).data("estado"),
+				};
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").empty();
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").empty();
+						// console.log(data);
+						if (data.error) { msg_error+= data.error; }
+					}
+				});
+			}
+			if (!msg_error) {
+				funct_msg_success("#msg_error_cambia_estado", `<p>Se ha editado el registro con éxito</p>`);
+				$("#cambia_estado").animate({ scrollTop: 0 }, 600);
+				setTimeout(function() { location.reload(false); }, 800);
+			}
+			if (msg_error) {
+				funct_msg_error("#msg_error_cambia_estado", msg_error); 
+				$("#cambia_estado").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+	}
+
+	function formSubmenu(id, nombre){
+		if (id != $("#id_menu").val() ) {
+			$("#id_menu").val(id);
+			cargarDatosSubmenu(id, nombre);
+		}
+	}
+
+	function cargarDatosSubmenu(id, nombre){
+		$("#nexos_messages_submenu").empty();
+		$("#submenu_title").text(`Submenús del menú - ${nombre}`);
+		$("#submenu_content").empty();
+		let submenus = null;
+		let msg_error = '';
+		let accordion = `
+			<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+				<div class="icon">
+					<span class="mdi mdi-close"></span>
+				</div>
+				<div class="message">
+					<strong>Atención!</strong>
+					<p>No se ha registrado submenús para el menú <strong>${nombre}</strong>.</p>
+				</div>
+			</div>
+		`;
+
+		// Se pinta el formulario para crea el Submenú
+		let form_crear = `
+			<div class="form-group col-xs-12 col-sm-12 col-md-12 be-checkbox text-right">
+				<input type="checkbox" name="check_submenu" id="check_submenu">
+				<label for="check_submenu">Crear submenú</label>
+			</div>
+			<form id="form_crea_submenu">
+				<div class="form-group col-xs-12 col-sm-6 col-md-6">
+					<label>(*) Menú (carpeta de la vista)</label>
+					<input type="text" class="form-control input-sm" name="menu" id="menu" placeholder="Menú">
+				</div>
+				<div class="form-group col-xs-12 col-sm-6 col-md-6">
+					<label>(*) Método (nombre del archivo en la vista, sin extensión)</label>
+					<input type="text" class="form-control input-sm" name="metodo" id="metodo" placeholder="Método">
+				</div>
+				<div class="form-group col-xs-12 col-sm-12 col-md-12">
+					<label>(*) Título</label>
+					<input type="text" class="form-control input-sm" name="titulo" id="titulo" placeholder="Título">
+				</div>
+				<div class="form-group col-xs-12 col-sm-12 col-md-12 text-right">
+					<button id="btn_crea_submenu" type="button" class="btn btn-success md-close">Guardar</button>
+				</div>
+			</form>
+			<div class="row"></div>
+		`;
+
+		// Se pinta el contenido de los acordeones 
+		$.ajaxSetup({async: false});
+		let params = {
+			action: 'buscar_submenus',
+			id
+		}
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				funct_msg_loading(".nexos-messages");
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").empty();
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				$(".nexos-messages").empty();
+				if (data.error) { msg_error+= data.error; }
+				if (data.result) { submenus = data.result; }
+			}
+		});
+
+		if (!msg_error) {
+			if (submenus.general) {
+				let accordion_panel = '';
+				submenus.general.forEach(function(element, index){
+					let panel_color = 'danger';
+					let checked = '';
+					if (element.estado == 1) { 
+						panel_color = 'success'; 
+						checked = 'checked';
+					}
+					// Se pinta la lista de Líneas de negocio disponibles para el submenú
+					let lineas_negocio = `
+						<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+							<div class="icon">
+								<span class="mdi mdi-close"></span>
+							</div>
+							<div class="message">
+								<strong>Atención!</strong>
+								<p>No se ha registrado líneas de negocip para asignar al submenú <strong>${element.titulo}</strong>.</p>
+							</div>
+						</div>
+					`;
+
+					if (submenus.lineas_negocio[element.id]) {
+						let linea_content = '';
+						let id_menu = element.id;
+						submenus.lineas_negocio[element.id].forEach(function(element, index){
+							let checked = '';
+							if (element.CUANTOS > 0) { checked = 'checked'; }
+							linea_content+= `
+								<tr>
+									<td>
+										<div class="be-checkbox">
+											<center>
+												<input type="checkbox" class="check_lineas" id="check_${element.id}" value="${element.id}" ${checked}>
+												<label for="check_${element.id}"></label>
+											</center>
+										</div>
+									</td>
+									<td class="cell-detail">
+										<span>${element.nombre}</span>
+										<span class="cell-detail-description">${element.descripcion}</span>
+									</td>
+								</tr>
+							`;
+						});
+						lineas_negocio = `
+							<table class="table table-hover">
+								<thead>
+									<tr class="fila_modulo">
+										<th class="col-xs-2 col-sm-2 col-md-2">
+											<div class="be-checkbox">
+												<center>
+													<input type="checkbox" class="check_all_lineas" id="check_all_lineas_${element.id}" value="${element.id}">
+													<label for="check_all_lineas_${element.id}"></label>
+												</center>
+											</div>
+										</th>
+										<th>Líneas de Negocio</th>
+									</tr>
+								</thead>
+								<tbody>${linea_content}</tbody>
+							</table>
+						`;
+					}
+
+					let slct_cambia_menu = '';
+					if (submenus.menus) {
+						let _slct_options = '';
+						submenus.menus.forEach(function(element, index){
+							_slct_options+= `<option value="${element.id}" data-orden="${element.CUANTOS}">(${element.orden}) ${element.nom_menu}</option>`;
+						});
+						slct_cambia_menu = `
+							<label class="col-xs-12 col-sm-6 col-sm-3 control-label">Cambiar menú:</label>
+							<div class="col-xs-12 col-sm-6 col-md-9 text-right">
+								<select class="form-control input-xs cambiar_menu" data-id_submenu="${element.id}" data-id_menu="${element.id_menu}" data-orden="${element.orden}">
+									<option disabled selected>Seleccione</option>
+									${_slct_options}
+								<select>
+							</div>
+						`;
+					}
+
+					accordion_panel+= `
+						<div class="panel panel-default panel-border-color panel-border-color-${panel_color}" id="submenu_${element.id}" data-id="${element.id}">
+							<div class="panel-heading">
+								<div class="tools">
+									<div class="be-checkbox">
+										<input type="checkbox" class="check_submenus" id="check_submenu_${element.id}" onclick="cambiar_estado_submenu(this, '${id}', '${nombre}')" value="${element.id}" ${checked}>
+										<label for="check_submenu_${element.id}"></label>
+									</div>
+								</div>
+								<h4 class="panel-title">
+									<a data-toggle="collapse" data-parent="#accordion1" href="#accordion_${element.id}" class="collapsed" aria-expanded="false"><i class="icon mdi mdi-chevron-down"></i> <strong class="orden">${element.orden}</strong> ${element.titulo}
+										<span class="panel-subtitle"></span>
+									</a>
+								</h4>
+							</div>
+							<div id="accordion_${element.id}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+								<div class="panel-body">
+									<div class="form-group col-xs-12 col-sm-8 col-md-8">${slct_cambia_menu}</div>
+									<div class="form-group col-xs-12 col-sm-4 col-md-4 be-checkbox text-right">
+										<input type="checkbox" name="check_submenu_e" id="check_submenu_e">
+										<label for="check_submenu_e">Editar submenú</label>
+									</div>
+									<form class="form_edita_submenu">
+										<div class="form-group col-xs-12 col-sm-6 col-md-6">
+											<label>(*) Menú (carpeta de la vista)</label>
+											<input type="text" class="form-control input-sm menu" placeholder="Menú" value="${element.menu}">
+										</div>
+										<div class="form-group col-xs-12 col-sm-6 col-md-6">
+											<label>(*) Método (nombre del archivo en la vista, sin extensión)</label>
+											<input type="text" class="form-control input-sm metodo"  placeholder="Método" value="${element.metodo}">
+										</div>
+										<div class="form-group col-xs-12 col-sm-12 col-md-12">
+											<label>(*) Título</label>
+											<input type="text" class="form-control input-sm titulo" placeholder="Título" value="${element.titulo}">
+										</div>
+										<div class="form-group col-xs-12 col-sm-12 col-md-12 text-right">
+											<button type="button" class="btn btn-success md-close btn_edita_submenu" data-id="${element.id}">Guardar</button>
+										</div>
+									</form>
+									<div class="row"></div>
+									${lineas_negocio}
+								</div>
+							</div>
+						</div>
+					`;
+				});
+				accordion = `
+					<h4>Submenús de ${nombre}</h4>
+					<div id="accordion1" class="panel-group accordion">
+						${accordion_panel}
+					</div>
+				`;
+			}
+		}
+		if (msg_error) {
+			funct_msg_error("#nexos_messages_submenu", msg_error); 
+			$("#cambia_estado").animate({ scrollTop: 0 }, 600);
+		}
+		$.ajaxSetup({async: true});
+
+		let content = form_crear + accordion;
+
+		$("#submenu_content").html(content);
+
+		/***** Funciones para crear el submenú *****/
+		$("#form_crea_submenu").hide();
+		$("#check_submenu").change(function(){
+			$("#form_crea_submenu").fadeToggle("slow");
+		});
+
+		// Función para crear el submenú
+		$("#btn_crea_submenu").click(function(){
+			$("#nexos_messages_submenu").empty();
+			let msg_error = '';
+			let form = $(this).closest("#form_crea_submenu");
+			let orden = $("#accordion1").find(".panel").length + 1
+
+			$.ajaxSetup({async: false});
+			form.find(".form-control").each(function(){
+				if(!$(this).val()){
+					msg_error+= `<p>Debe diligenciar el campo <strong>${$(this).attr("placeholder")}</strong> para poder crear el submenú.</p>`;
+				}
+			});
+			if(!msg_error){
+				let params = {
+					action: "crear_submenu",
+					id_menu: $("#id_menu").val(),
+					menu: form.find("#menu").val(),
+					metodo: form.find("#metodo").val(),
+					titulo: form.find("#titulo").val(),
+					orden
+				};
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").empty();
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").empty();
+						// console.log(data);
+					}
+				});
+			}
+			if (!msg_error) {
+				cargarDatosSubmenu(id, nombre);
+				funct_msg_success("#nexos_messages_submenu", `<p>Se ha creado el registro con éxito.</p>`); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+
+				$("#nexos_messages_submenu").delay(1500).fadeOut(1000, function(){
+					$("#nexos_messages_submenu").empty();
+					$("#nexos_messages_submenu").show();
+				});
+			}
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_submenu", msg_error); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+		/***** Fin - Funciones para crear el submenú *****/
+
+		/***** Funciones para editar el submenú *****/
+		$(".form_edita_submenu").hide();
+		$("#check_submenu_e").change(function(){
+			$(".form_edita_submenu").fadeToggle("slow");
+		});
+
+		// Función para editar el submenú
+		$(".btn_edita_submenu").click(function(){
+			$("#nexos_messages_submenu").empty();
+			let msg_error = '';
+			let form = $(this).closest(".form_edita_submenu");
+
+			$.ajaxSetup({async: false});
+			form.find(".form-control").each(function(){
+				if(!$(this).val()){
+					msg_error+= `<p>Debe diligenciar el campo <strong>${$(this).attr("placeholder")}</strong> para poder editar el submenú.</p>`;
+				}
+			});
+			if(!msg_error){
+				let params = {
+					action: "editar_submenu",
+					id: $(this).data("id"),
+					menu: form.find(".menu").val(),
+					metodo: form.find(".metodo").val(),
+					titulo: form.find(".titulo").val(),
+				};
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").empty();
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").empty();
+						// console.log(data);
+					}
+				});
+			}
+			if (!msg_error) {
+				cargarDatosSubmenu(id, nombre);
+				funct_msg_success("#nexos_messages_submenu", `<p>Se ha ediatdo el registro con éxito.</p>`); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+
+				$("#nexos_messages_submenu").delay(1500).fadeOut(1000, function(){
+					$("#nexos_messages_submenu").empty();
+					$("#nexos_messages_submenu").show();
+				});
+			}
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_submenu", msg_error); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+		/***** Fin - Funciones para editar el submenú *****/
+
+		/***** Funciones para el ordenamiento del submenú de forma arrastrable *****/
+		var fixHelperModified = function(e, div) {
+			var $originals = div.children();
+			var $helper = div.clone();
+			$helper.children().each(function(index) {
+				$(this).width($originals.eq(index).width())
+			});
+			return $helper;
+		},
+		updateIndex = function(e, ui) {
+			let msg_error = '';
+			let array = new Array();
+			$('div.panel', ui.item.parent()).each(function (i) {
+				array.push({
+					id: $(this).data("id"),
+					orden: (i + 1)
+				});
+				$(this).find(".orden").text(i + 1);
+			});
+
+			$.ajaxSetup({async: false});
+			var params = {
+				action: "ordenar_submenu",
+				array,
+			};
+			$.ajax({
+				url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+				type: 'POST',
+				data: params,
+				cache: false,
+				dataType: 'json',
+				beforeSend	: function(jqXHR, settings){
+					funct_msg_loading(".nexos-messages");
+				},
+				error: function (jqXHR, textStatus, errorThrown){
+					$(".nexos-messages").empty();
+					msg_error+= "<p>" + jqXHR.responseText + "</p>";
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+				},
+				success: function (data, textStatus, jqXHR){
+					$(".nexos-messages").empty();
+					// console.log(data);
+					if (data.error) { msg_error+= data.error; }
+				}
+			});
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_submenu", msg_error); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: false});
+		};
+
+		$("#accordion1").sortable({
+			helper: fixHelperModified,
+			stop: updateIndex
+		}).disableSelection();
+		/***** Fin - Funciones para el ordenamiento del submenú de forma arrastrable *****/
+
+		/***** Funciones para el asignamineto de las lineas de negoscio al submenú *****/
+		// Función para modificar el submenu de forma general del submenú
+		$(".check_all_lineas").click(function(){
+			let id_submenu = $(this).val();
+			let array = new Array();
+			let lineas_negocio = $(this).parents(".table").find(".check_lineas");
+			if ( $(this).is(":checked") ) { 
+				lineas_negocio.prop("checked", true); 
+				lineas_negocio.each(function(){
+					array.push({ id_modulo: $(this).val() });
+				});
+			} 
+			else { lineas_negocio.prop("checked", false); }
+			asigna_modulo(id_submenu, array);
+		});
+
+		// Función para modificar el submenu de forma individual 
+		$(".check_lineas").change(function(){
+			let id_submenu = $(this).parents(".table").find(".check_all_lineas").val();
+			let array = new Array();
+			let lineas_negocio = $(this).parents(".table").find(".check_lineas");
+
+			lineas_negocio.each(function(){
+				if ( $(this).is(":checked") ) {
+					array.push({ id_modulo: $(this).val() });
+				}
+			});
+			asigna_modulo(id_submenu, array);
+		});
+
+		function asigna_modulo(id_submenu, array){
+			let msg_error = '';
+			$.ajaxSetup({async: false});
+			let params = {
+				action: 'asigna_modulo',
+				id_submenu,
+				array,
+				id_usuario: $("#data_user").data("id")
+			}
+			$.ajax({
+				url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+				type: 'POST',
+				data: params,
+				cache: false,
+				dataType: 'json',
+				beforeSend	: function(jqXHR, settings){
+					funct_msg_loading(".nexos-messages");
+				},
+				error: function (jqXHR, textStatus, errorThrown){
+					$(".nexos-messages").empty();
+					msg_error+= "<p>" + jqXHR.responseText + "</p>";
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+				},
+				success: function (data, textStatus, jqXHR){
+					$(".nexos-messages").empty();
+					// console.log(data);
+					if(data.error) { msg_error+= data.error }
+				}
+			});
+			if (!msg_error) {
+				funct_msg_success("#nexos_messages_submenu", `<p>Se ha actualizado el registro con éxito.</p>`); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+
+				$("#nexos_messages_submenu").delay(1500).fadeOut(1000, function(){
+					$("#nexos_messages_submenu").empty();
+					$("#nexos_messages_submenu").show();
+				});
+			}
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_submenu", msg_error); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		}
+		/***** Fin - Funciones para el asignamineto de las lineas de negoscio al submenú *****/
+
+		/***** Funciones para cambis de menu al súbmenu *****/
+		$(".cambiar_menu").change(function(){
+			let msg_error = '';
+			let params = {
+				action: 'cambiar_menu',
+				id_submenu: $(this).data("id_submenu"),
+				id_menu: $(this).val(),
+				orden: $(this).find("option:selected").data("orden"),
+				id_menu_otros: $(this).data("id_menu"),
+				orden_otros: $(this).data("orden")
+			}
+			$.ajaxSetup({async: false});
+			$.ajax({
+				url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+				type: 'POST',
+				data: params,
+				cache: false,
+				dataType: 'json',
+				beforeSend	: function(jqXHR, settings){
+					funct_msg_loading(".nexos-messages");
+				},
+				error: function (jqXHR, textStatus, errorThrown){
+					$(".nexos-messages").empty();
+					msg_error+= "<p>" + jqXHR.responseText + "</p>";
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+				},
+				success: function (data, textStatus, jqXHR){
+					$(".nexos-messages").empty();
+					// console.log(data);
+					if(data.error) { msg_error+= data.error }
+				}
+			});
+			if (!msg_error) {
+				cargarDatosSubmenu(id, nombre);
+				funct_msg_success("#nexos_messages_submenu", `<p>Se ha actualizado el registro con éxito.</p>`); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+
+				$("#nexos_messages_submenu").delay(1500).fadeOut(1000, function(){
+					$("#nexos_messages_submenu").empty();
+					$("#nexos_messages_submenu").show();
+				});
+			}
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_submenu", msg_error); 
+				$("#submenu").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+		/***** Fin - Funciones para cambis de menu al súbmenu *****/
+	}
+
+	// Se crea la funcion para cambiar el estado del submenu
+	function cambiar_estado_submenu(element, id, nombre){
+		let estado = 0;
+		if( element.checked ){ estado = 1; }
+		let params = {
+			action: 'cambiar_estado_submenu',
+			id: element.value,
+			estado
+		}
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				funct_msg_loading(".nexos-messages");
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").empty();
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				$(".nexos-messages").empty();
+				cargarDatosSubmenu(id, nombre);
+			}
+		});
+	}	
+
+</script>

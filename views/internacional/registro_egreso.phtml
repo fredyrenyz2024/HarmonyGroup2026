@@ -1,0 +1,534 @@
+<?php
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>';
+$table_content = "";
+
+if (isset($this->internacional)) {
+	$arrayAnticipoProveedores = $this->internacional->getEgresosProveedores();
+	$arrayPermisos = $this->internacional->permisosPerfil($ssn_id_perfil, 64);
+	$_permisos = $arrayPermisos;
+
+	$table_content = '
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-2"></div>
+				<div class="col-xs-12 col-sm-12 col-md-8">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover table-fw-widget" data-page-length="100">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th></th>
+									<th>Egreso</th>
+									<th>Proveedor</th>
+									<th>Moneda Egreso</th>
+									<th>Valor en COP</th>
+									<th>Fecha</th>
+									<th>Cant. Facturas</th>
+									<th></th>
+								</tr>
+							</thead>
+								<tbody>
+		';
+
+	if ($arrayAnticipoProveedores) {
+		foreach ($arrayAnticipoProveedores as $key => $value) {
+			$_col_actions = '
+					<td class="actions">
+						<a href="javascript:" onclick="verEgreso(' . $value['id'] . ', \'' . $value["numero_egreso"] . '\', ' . $ssn_id_perfil . ')" class="cell-detail hint--top-left" data-hint="Ver Detalle"><span class="icon mdi mdi-eye" data-toggle="modal" data-target="#registro_egreso"></span></a>
+					</td>
+				';
+
+
+			if ($ssn_id_perfil != 24) {
+				$checkbox = '<div class="be-checkbox">
+								<input class="check_egresos" value="' . $value['id'] . '" id="check_egresos_' . $value['id'] . '" type="checkbox">
+								<label for="check_egresos_' . $value['id'] . '"></label>
+								<input type="hidden" name="id_moneda_egreso_' . $value['id'] . '" id="id_moneda_egreso_' . $value['id'] . '" value="' . $value["id_moneda"] . '">
+								<input type="hidden" name="id_proveedor_egreso_' . $value['id'] . '" id="id_proveedor_egreso_' . $value['id'] . '" value="' . $value["id_proveedor"] . '">
+							</div>';
+			} else {
+				$checkbox = '<div class="be-checkbox"></div>';
+			}
+
+
+
+			$table_content .= '
+					<tr>
+						<td>
+							' . $checkbox . '
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["numero_egreso"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["abreviatura"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["MONEDA"] . '</span>
+						</td>
+						<td class="cell-detail text-right">
+							<span>$' . number_format($value["valor"], 2, ',', '.') . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["fecha_egreso"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span class="label label-default">' . $value["CUANTOS"] . '</span>
+						</td>
+
+						' . $_col_actions . '
+					</tr>
+				';
+		}
+	}
+
+	$table_content .= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-2"></div>
+			</div>
+		';
+}
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Registro de Egresos a Proveedores
+				<div class="tools" id="link_registro_egreso"></div>
+				<span class="panel-subtitle">Se sube el registro contable.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="registro_egreso" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="registro_egreso_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_popup_registro_egreso"></div>
+						<div id="contenidoanticipoproveedor"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer" id="foot_contenidoeditainfocliente">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="crea_pago" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="crea_pago_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_popup_crea_pago"></div>
+						<div id="contenidocreapago"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer" id="foot_contenidoeditainfocliente">
+						<button id="btn_crea_pago" type="button" class="btn btn-success md-close">Guardar</button>
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista);
+
+echo $vista;
+?>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#btn_crea_pago").click(function() {
+			// console.log("Entro en función del btn_crea_pago");
+			$("#nexos_messages_popup_crea_pago").empty();
+			var msg_error = "";
+
+			/***** Validación de campos del formulario de subir el registro de egreso *****/
+			var egreso_numero = $("#egreso_numero").val();
+			var egreso_fecha = $("#egreso_fecha").val();
+			var egreso_file = $("#egreso_file").val();
+
+			if (!egreso_numero) {
+				msg_error += "<p>Debe diligenciar el campo <strong># Egreso</strong> para registrar el egreso.</p>";
+			}
+
+			if (!egreso_fecha) {
+				msg_error += "<p>Debe diligenciar el campo <strong>Fecha Egreso</strong> para registrar el egreso.</p>";
+			}
+
+			if (!egreso_file) {
+				msg_error += "<p>Debe diligenciar seleccionar un <strong>Adjunto Egreso</strong> para crear el sobrecosto.</p>";
+			} else {
+				var adjunto = $("#egreso_file")[0].files[0];
+				// Se valida el peso del archivo
+				if (adjunto.size < $("#max_file_size").val()) {
+					// Se valida el tipo de archivo
+					var extension = adjunto.name.split(".");
+					var formato_archivo = "pdf,PDF,zip,ZIP,rar,RAR,doc,DOC,docx,DOCX,jpg,jpeg,png,gif,bmp,tif,JPG,JPEG,PNG,GIF,BMP,TIF,xls,XLS,xlsx,XLSX,ppt,PPT,pptx,PPTX,pps,PPS,ppsx,PPSX,ods,ODS";
+					if (validaFormatoArchivo(formato_archivo, extension[extension.length - 1]) == 0) {
+						msg_error += "<p>Formato del archivo del campo <strong>Adjunto Egreso</strong> no es válido para poder crear el sobrecosto.</p>";
+						msg_error += "<p>Formatos válidos: <strong>" + formato_archivo + "</strong>.</p>";
+					}
+				} else {
+					msg_error += "<p>El archivo del campo <strong>Adjunto Egreso</strong> es muy pesado para subirlo al servidor. El peso máximo del archivo debe ser menor de <strong>" + ($("#max_file_size").val() / 1000000) + "MB</strong>.</p>";
+				}
+			}
+
+			if ($("#pago_fecha").length > 0) {
+				var pago_fecha = $("#pago_fecha").val();
+				if (!pago_fecha) {
+					msg_error += "<p>Debe diligenciar el campo <strong>Fecha Pago</strong> para registrar el egreso.</p>";
+				}
+			}
+
+			if ($("#valor_pago").length > 0) {
+				var valor_pago = $("#valor_pago").val();
+				if (!valor_pago) {
+					msg_error += "<p>Debe diligenciar el campo <strong>Valor Pagado</strong> para registrar el egreso.</p>";
+				}
+			}
+			/***** Fin - Validación de campos del formulario de subir el registro de egreso *****/
+
+			if (!msg_error) {
+				// console.log("Se guarda la información de las facturas de las cotizaciones ya creadas");
+				var params = new FormData($("#form_egreso")[0]);
+
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=registrar_egreso",
+					type: 'POST',
+					contentType: false,
+					data: params,
+					cache: false,
+					dataType: 'json',
+					processData: false,
+					beforeSend: function(jqXHR, settings) {
+						$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$(".nexos-messages").html('');
+						msg_error += "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function(data, textStatus, jqXHR) {
+						$(".nexos-messages").html('');
+						console.log(data);
+
+						if (!data.error) {
+							for (var i = 0; i < data.flag_gestion.length; i++) {
+								let array = data.flag_gestion[i];
+
+								// Si no hay egresos pendientes se gestiona la actividad 
+								if (parseInt(array.registros_pendientes[0]["EGRESOS_PENDIENTES"]) == 0 && parseInt(array.registros_pendientes[0]["PAGOS_PENDIENTES"]) == 0 && array.flag_gestiona_subir_facturas) {
+									var params = {
+										id: array.registros_pendientes[0]["ID_ACTIVIDAD"] + ",",
+										orden: array.registros_pendientes[0]["orden"],
+										fecha_hora_inicio: array.registros_pendientes[0]["fecha_hora_inicio"],
+										id_importacion: array.registros_pendientes[0]["id_importacion"],
+										bloque: array.registros_pendientes[0]["bloque"],
+										grupo: array.registros_pendientes[0]["grupo"],
+										simultaneo: array.registros_pendientes[0]["EGRESOS_PENDIENTES"],
+										tipo_actividad: array.registros_pendientes[0]["tipo_actividad"],
+										costo_real: array.registros_pendientes[0]["costo_real"],
+										respuesta: array.registros_pendientes[0]["respuesta"],
+									}
+									// console.log(params);
+									actualizaActividad(params);
+								}
+							}
+						}
+
+						if (data.error) {
+							msg_error += data.error;
+						}
+					}
+				});
+
+				if (!msg_error) {
+					$("#nexos_messages_popup_crea_pago").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+					$("#crea_pago").animate({
+						scrollTop: 0
+					}, 600);
+					setTimeout(function() {
+						location.reload(false);
+					}, 800);
+				}
+				if (msg_error) {
+					$("#nexos_messages_popup_crea_pago").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+					$("#crea_pago").animate({
+						scrollTop: 0
+					}, 600);
+				}
+			}
+			if (msg_error) {
+				$("#nexos_messages_popup_crea_pago").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+				$("#crea_pago").animate({
+					scrollTop: 0
+				}, 600);
+			}
+		});
+
+		$(".check_egresos").click(function() {
+			// console.log("Entro en funcion de check_egresos");
+			$("#link_registro_egreso").empty();
+			var id = $(this).val();
+			var id_moneda = $("#id_moneda_egreso_" + id).val();
+			var id_proveedor = $("#id_proveedor_egreso_" + id).val();
+			var id_egresos = "";
+
+			if ($(this).prop("checked")) {
+				$(".check_egresos").each(function() {
+					var id_moneda_1 = $("#id_moneda_egreso_" + $(this).val()).val();
+					var id_proveedor_1 = $("#id_proveedor_egreso_" + $(this).val()).val();
+
+					if (id_moneda == id_moneda_1 && id_proveedor == id_proveedor_1) {
+						if ($(this).prop("checked")) {
+							id_egresos += $(this).val() + ",";
+						}
+					} else {
+						$(this).attr("disabled", true);
+					}
+				});
+			} else {
+				if ($(".check_egresos:checked").length == 0) {
+					$(".check_egresos").attr("disabled", false);
+				} else {
+					$(".check_egresos").each(function() {
+						if ($(this).prop("checked")) {
+							id_egresos += $(this).val() + ",";
+						}
+					});
+				}
+			}
+			// console.log(id_egresos);
+			if (id_egresos) {
+				$("#link_registro_egreso").html('<a href="javascript:" onclick="formRegistraEgreso(\'' + id_egresos + '\')" class="cell-detail hint--top-left" data-hint="Generar pago"><span class="icon mdi mdi-plus" data-toggle="modal" data-target="#crea_pago"></span></a>');
+			}
+		});
+	});
+
+	function verEgreso(id, egreso, id_perfil) {
+		// console.log("Entro en función verEgreso");
+		$("#nexos_messages_popup_registro_egreso").empty();
+		$("#registro_egreso_title").empty();
+		$("#contenidoanticipoproveedor").empty();
+		var msg_error = "";
+
+		var params = {
+			id: id,
+			egreso: egreso,
+			id_perfil: id_perfil
+		}
+
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=ver_registro_egreso",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$(".nexos-messages").html('');
+				msg_error += "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function(data, textStatus, jqXHR) {
+				// console.log(data);
+				$(".nexos-messages").html('');
+				$("#nexos_messages_popup_registro_egreso").html("");
+				if (data.content) {
+					$("#registro_egreso_title").html(data.content.title);
+					$("#contenidoanticipoproveedor").html(data.content.content);
+
+					// App.formElements();
+				}
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_registro_egreso").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#registro_egreso").animate({
+				scrollTop: 0
+			}, 600);
+		}
+	}
+
+	function formRegistraEgreso(egresos) {
+		// console.log("Entro en funcion formRegistraEgreso");
+		$("#nexos_messages_popup_registro_egreso").empty();
+		$("#registro_egreso_title").empty();
+		$("#contenidoanticipoproveedor").empty();
+		var msg_error = "";
+
+		var params = {
+			egresos: egresos
+		}
+
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			// url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=form_crea_pago",
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=form_registra_egreso",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$(".nexos-messages").html('');
+				msg_error += "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function(data, textStatus, jqXHR) {
+				// console.log(data);
+				$(".nexos-messages").html('');
+				$("#nexos_messages_popup_registro_egreso").html("");
+				if (data.content) {
+					$("#crea_pago_title").html(data.content.title);
+					$("#contenidocreapago").html(data.content.content);
+					App.formElements();
+				}
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_crea_pago").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#registro_egreso").animate({
+				scrollTop: 0
+			}, 600);
+		}
+	}
+
+	function calculaTRM(elemento, valor) {
+		// console.log("Entro en funcion calculaTRM");
+		var tasa_cambio = elemento.value.replace(/\./g, "").replace(/\,/g, ".");
+		var float_valor = parseFloat(valor);
+		var total_cambio = float_valor * tasa_cambio;
+		var array_total_cambio = String(total_cambio).split(".");
+
+		if (total_cambio.length > 1) {
+			if (total_cambio[1].length == 1) {
+				total_cambio = total_cambio * 10;
+			}
+		} else {
+			total_cambio = parseInt(total_cambio * 100);
+		}
+		$("#valor_pago_pesos").val(getFormatoNumeroDecimal_value(total_cambio));
+	}
+
+	function actualizaActividad(params) {
+		// console.log(params);
+		var msg_error = "";
+
+		// Se actualizan las actividades del proyecto
+		$.ajax({
+			type: "POST",
+			cache: false,
+			url: $("#id_url_ajax").val() + "libs/gestion_actividades.php?tabla=cmx_importacion_actividades&proyecto=importacion",
+			data: params,
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(data) {
+				console.log(data);
+				$("#nexos_messages_popup_crea_pago").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Error en la creación del registro.</div></div>');
+			},
+			success: function(data) {
+				console.log(data);
+			}
+		});
+	}
+</script>

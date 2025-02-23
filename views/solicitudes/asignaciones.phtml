@@ -1,0 +1,478 @@
+<?php
+//include "../models/Solicitudes.php";
+$_dbTable = "agrupaciones"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+
+$vista = '';
+
+/* * ******* POPUPS ******** */
+/* * *** SE INTANCIAN LOS POPUPS DEL MODULO **** */
+// POPUP DE MUESTRA DE INFORMACION
+$info = new Popup();
+// POPUP DE ALERTA DE CONFIRMACION
+$alert = new Popup();
+// POPUP DE FORMULARIO DE EDICION 
+$form_edita = new Popup();
+// POPUP DE FORMULARIO DE CREACION 
+$form_crea = new Popup();
+
+$vista .= '
+    <link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+	<style>
+		.twitter-typeahead{
+			width: 100%;
+		}
+		.tt-menu {
+			background: white;
+			border-radius: 4px;
+			border: 1px solid gray;
+			width: 100%;
+			max-height: 100px;
+			overflow-y: auto;
+			width: 100%;
+			text-align: left;
+		}
+		.tt-suggestion{
+			padding:5px 10px;
+		}
+		.tt-suggestion.tt-cursor{
+			color: white;
+			background: #0097cf;
+		}
+	</style>
+';
+/********* FIN POPUPS ******** */
+
+
+/*** CREACION DE TABLA DE CONTENIDO ***/
+/*** SE CREA TABLA DE CONTENIDO ***/
+$tabla_agrupaciones = "
+	<div class='row' >
+		<div class='col-sm-12'>
+			<div  class='table-responsive noSwipe'>
+				<table id='table1' class='table table-striped table-hover'>
+					<thead>
+						<tr class='nexos-encabezado'>
+							<th style='width:5%;'>#</th>
+							<th>Número de agrupación</th>
+                            <th>Peso</th>
+							<th>Tipo vehículo</th>
+							<th>Fecha</th>
+                            <th>Solicitudes</th>
+                            <th>Placa aprobada</th>
+							<th style='width:7%;min-width: 7%;'</th>
+						</tr>
+					</thead>
+					<tbody >
+";
+
+$model = new Asignaciones();
+$model->listarAgrupaciones();
+$respuesta = $model->respuesta;
+$totalsolicitudes = 0;
+if ($respuesta == "BAD") {
+    $totalsolicitudes = 0;
+}
+if ($respuesta == "GOOD") {
+    $datos_agrupaciones = $model->listado;
+    $totalsolicitudes = count($datos_agrupaciones);
+    if (count($datos_agrupaciones) > 0) {
+        $tabla_agrupaciones .= "";
+        $x = 1;
+		// print_r("<pre>");
+		// print_r($datos_agrupaciones);
+		// print_r("</pre>");
+        foreach ($datos_agrupaciones as $agrupacion) {
+        	// Se hace filtro para que muestre las asignaciones con vehículos no aprobados 
+			if ($agrupacion["cantidad_vehiculo"][0]["VEHICULOS_AUTORIZADOS"] == 0) {
+	            $valor_aprobado= false;
+				$_col_status = "
+					<td class='actions sorting_1'>
+						<center>
+							<span class='mdi mdi-dot-circle icon'></span>
+						</center>
+					</td>
+				";
+
+				// Se pregunta si hay vehiculos asignados
+	        	if ( $agrupacion["cantidad_vehiculo"][0]["id_agrupacion"] ) {
+					$_col_status = "
+						<td class='nexos-txt-warning sorting_1 text-center'>
+							<span class='mdi mdi-dot-circle icon'></span>
+						</td>
+					";
+
+					// Se pregunta si la cantidad de vehiculos cancelados es igual a la cantidad total
+					if ( $agrupacion["cantidad_vehiculo"][0]["CANT_VEHICULOS"] == $agrupacion["cantidad_vehiculo"][0]["VEHICULOS_CANCELADOS"] ) {
+						$_col_status = "
+							<td class='nexos-txt-danger sorting_1 text-center'>
+								<span class='mdi mdi-dot-circle icon'></span>
+							</td>
+						";
+					}
+
+					// Se pregunta si existen vehpiculos ya aprobados
+					if ( $agrupacion["cantidad_vehiculo"][0]["VEHICULOS_AUTORIZADOS"] > 0 ) {
+						$_col_status = "
+							<td class='nexos-txt-success sorting_1 text-center'>
+								<span class='mdi mdi-dot-circle icon'></span>
+							</td>
+						";
+	                    $valor_aprobado = true;
+					}
+	        	}
+
+				$tabla_agrupaciones .= " 
+					<tr>
+						" . $_col_status . "
+						<td class='cell-detail' ><span >$agrupacion[numero_agrupacion]</span></td>
+						<td class='cell-detail' ><span >" . number_format($agrupacion["peso_total"], 2, ",", ".") . " Kg</span></td>
+						<td class='cell-detail' ><span >$agrupacion[tipo_vehiculo]</span></td>
+						<td class='cell-detail' ><span >$agrupacion[fecha_hora_operacion]</span></td>
+						<td class='cell-detail' >
+				";
+
+				$tabla_agrupaciones .= ' 
+					<input type="hidden" id="cant_solicitudes_agrupamiento_' . $agrupacion["id"] . '" value= "' . count($agrupacion["solicitudes"]) . '">
+					<input type="hidden" id="tarifa_transporte_' . $agrupacion["id"] . '" value= "' . $agrupacion["tarifa_transporte"] . '">
+				';
+	            for ($x = 0; $x < count($agrupacion["solicitudes"]); $x++) {
+	                $tabla_agrupaciones .= $agrupacion["solicitudes"][$x];
+	            }
+
+	            if( count($agrupacion["vehiculos"]) > 0 ){
+	                $placa_aprobada="";
+	                for ($x = 0; $x < count($agrupacion["vehiculos"]); $x++) {
+	                    if( $agrupacion["vehiculos"][$x]["estado"] == "Aprobado" OR $agrupacion["vehiculos"][$x]["estado"] == "Anticipo Asignado" OR $agrupacion["vehiculos"][$x]["estado"] == "Planillado" ){
+	                        $valor_aprobado= true;
+	                        $placa_aprobada=$agrupacion["vehiculos"][$x]["placa"];
+	                    }
+	                }
+
+	                if($valor_aprobado == true){
+	                    $tabla_agrupaciones.= "</td><td><span  class='cell-detail'>" . $placa_aprobada . "</span></td>";
+	                }
+	                else{
+	                    $tabla_agrupaciones.= "</td><td><span  class='cell-detail'>No hay placa aprobada</span></td>";
+	                }
+	            }
+	            else{
+	                $tabla_agrupaciones.= "</td><td><span  class='cell-detail'>No hay placa aprobada</span></td>";
+	            }
+	            $tabla_agrupaciones .= "<td class='actions";
+	            if ($agrupacion["codigo_rojo"] == "1"){
+	                $tabla_agrupaciones.=" nexos-txt-danger";
+	            }
+	            else if ($agrupacion["codigo_rojo"] == "0"){
+	            }
+
+	            $tabla_agrupaciones.="''>
+	                <a href='javascript:' class='cell-detail  hint--top-left' data-hint='Asignar vehiculos' onclick='buscarvehiculos($agrupacion[id],\"$agrupacion[numero_agrupacion]\")'  ><span class='icon mdi mdi-car'  data-toggle='modal'data-target='#ver_asignaciones'></span></a>
+	                    <a href='javascript:' class='cell-detail  hint--top-left' data-hint='Ver información solicitud' onclick='verdatossolicitud($agrupacion[id])'><span class='icon mdi mdi-eye'  data-toggle='modal' data-target='#ver_solicitud'></span></a>
+	                    </td> 
+	                </td> 
+				</tr>";
+	            $x++;
+			}
+        }
+    }
+}
+
+$tabla_agrupaciones .= '
+					</tbody>
+				</table>
+				<input type="hidden" id="num_solicitudes" value= "' . $totalsolicitudes . '">
+			</div>
+		</div>
+	</div>
+';
+/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+    <div class="panel panel-border panel-contrast">
+    	<div class="panel-heading panel-heading-contrast">
+    		Vehículos Pendientes
+    		<span class="panel-subtitle">Módulo para la proposición de vehículos a grupos de solicitudes.</span>
+    	</div>
+    	<div class="panel-body xs-mt-15">
+    		<div class="nexos-messages"></div>
+    		%content%
+    		<div class="row">
+    			<div class="col-sm-12">
+    			</div>
+    		</div>
+    	</div>
+    </div>
+';
+
+
+/* * ** CARGA DE ARCHIVOS JS DE LA VISTA *** */
+$vista .= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/typeahead.bundle.js" type="text/javascript" ></script>
+		 <script src="%root_file%lib/asignaciones_ajax.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+        <script src="%root_file%lib/daterangepicker/js/daterangepicker.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+    	<script src="%root_file%lib/moment.js/min/moment.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+	   
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+				App.formElements();
+			});
+	    </script>
+	';
+/****** CREACION CONTENIDO DE POPUPS ******/
+
+// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+?>
+
+<div id="ver_solicitud" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+    <div class="modal-dialog custom-width">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+                <h3 class="modal-title" id="ver_info_solicitud_title"></h3>
+            </div>
+            <div class="modal-body" id="ver_info_solicitud_conten">
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="ver_asignaciones" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+    <div class="modal-dialog custom-width">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+                <h3 class="modal-title" id ="titulo_asignar"></h3>
+            </div>
+            <div class="modal-body" id="contenidoasignacion">
+				<div class="panel panel-border panel-contrast">
+                    <div class="panel-heading panel-heading-contrast">
+                        Asignación de Vehículos
+                        <div class="tools" id="tools_crear_asignacion">
+							<a href="#" data-toggle="modal" data-target="#crea_asignaciones" class="cell-detail  hint--top-left"  data-hint="Asignar vehículo"><span class="icon mdi mdi-plus"></span></a> 
+						</div>
+                        <span class="panel-subtitle"></span>
+                    </div>
+                    <div class="panel-body" id="contenido_asignaciones"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            	<input type="hidden" id= "id_asignacion_agrupamiento">
+                <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="crea_asignaciones" tabindex="-1" role="dialog" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+			</div>
+			<div class="modal-body">
+				<div id="crea_asignaciones_msg"></div>
+				<div class="text-center">
+						<h3 >Por favor seleccione un vehículo del autocomplete y presione Aceptar para asignarlo a este agrupamiento</h3>
+						<br>
+						<div class="xs-mt-1" >
+							<div class="row">
+								<div class="form-group col-xs-4">
+									<input type="number" id="flete" class="form-control input-sm" min="0" placeholder="Flete">
+								</div>
+
+								<div class="form-group col-xs-4">
+									<select id="tipo_tramite" class="form-control input-sm">
+										<option value="">Seleccione el tipo de trámite</option>
+										<option value="Nuevo">Nuevo</option>
+										<option value="Actualizacion">Actualización</option>
+										<option value="Refrendacion">Refrendación</option>
+										<option value="Validacion">Validación</option>
+										<option value="Habilitacion">Habilitación</option>
+										<option value="Legalizacion">Legalización</option>
+									</select>
+								</div>
+								<div class="form-group col-xs-4">
+									<div id="caja_vehiculo">
+		                                <input type="text" class="typeahead form-control input-sm" placeholder="Placa vehículo" id="placa_vehiculo">				
+		                            </div>
+		                            <input type="hidden" id="id_vehiculo">
+									<label id="error_cedula_propietario"></label>
+								</div>
+							</div>
+							<button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+							<button id="btn_crear_asignaciones" type="button"  class="btn btn-space btn-success">Aceptar</button>
+						</div>
+					
+				</div>
+			</div>
+			<div class="modal-footer"></div>
+		</div>
+	</div>
+</div>
+<div id="cancela_asignaciones" tabindex="-1" role="dialog" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+			</div>
+			<div class="modal-body">
+				<div id="cancela_asignaciones_msg"></div>
+				<div class="text-center">
+					<div class="text-danger"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+						<h3 >¿Desea cancelar esta asignación?</h3>
+						<br>
+						<div class="xs-mt-1" >
+							<div class="row">
+							<div class="form-group col-xs-3"></div>
+							<div class="form-group col-xs-6">
+							</div>
+							<div class="form-group col-xs-3"></div>
+                            <div class="form-group col-xs-3"></div>
+                            <div class="form-group col-xs-6">
+								<label for="c_observacion">Observaciones</label>
+								<textarea id="c_observacion" class="form-control input-sm" placeholder="Observaciones"></textarea> 
+							</div>
+                            <div class="form-group col-xs-3"></div>
+						</div>
+						<input type="hidden" id="c_id_asignacion">
+							<button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+							<button id="btn_cancela_asignaciones" type="button"  class="btn btn-space btn-danger">Aceptar</button>
+						</div>
+					
+				</div>
+			</div>
+			<div class="modal-footer"></div>
+		</div>
+	</div>
+</div>
+<div id="cambia_estado_asignaciones" tabindex="-1" role="dialog" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+			</div>
+			<div class="modal-body">
+				<div id="cambia_estado_asignaciones_msg"></div>
+				<div class="text-center">
+					<div class="text-success"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+						<h3 >¿Desea cambiar el estado de esta asignación?</h3>
+						<br>
+						<div class="xs-mt-1" >
+							<div class="row">
+								<div class="form-group col-xs-4">
+									<label for="estado_asignaciones">Estado</label>
+									<select id="estado_asignaciones" class="form-control input-sm" disabled>
+										<!--<option value="Aprobado">Aprobado</option>-->
+                                        <option value="Propuesto">Propuesto</option>
+                                        <option value="Verificacion Flete">Verificación Flete</option>
+										<option value="Preaprobado">Preaprobado</option>
+										<option value="Pendiente">Pendiente</option>
+										<option value="No Aprobado">No Aprobado</option>
+										<option value="Cancelado">Cancelado</option>
+									</select>
+								</div>
+								<div class="form-group col-xs-4">
+									<label for="e_tipo_tramite">Trámite</label>
+									<select id="e_tipo_tramite" class="form-control input-sm">
+										<option value="">Seleccione el tipo de trámite</option>
+										<option value="Nuevo">Nuevo</option>
+										<option value="Actualizacion">Actualización</option>
+										<option value="Refrendacion">Refrendación</option>
+										<option value="Validacion">Validación</option>
+										<option value="Habilitacion">Habilitación</option>
+										<option value="Legalizacion">Legalización</option>
+									</select>
+								</div>
+								<div class="form-group col-xs-4">
+									<label for="e_flete">Valor del flete</label>
+									<input type="number" id="e_flete" class="form-control input-sm" min="0" placeholder="Valor del flete">
+								</div>
+							</div>
+							<div class="row">
+                                <div class="form-group col-xs-3"></div>
+                                <div class="form-group col-xs-6">
+									<label for="e_observaciones">Observaciones</label>
+									<textarea id="e_observaciones" class="form-control input-sm" placeholder="Observaciones"></textarea> 
+								</div>
+                                <div class="form-group col-xs-3"></div>
+							</div>
+							<div class="form-group col-xs-12" id="e_table_content"></div>
+							<input type="hidden" id="e_id_asignacion">
+							<button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+							<button id="btn_cambia_estado_asignacion" type="button"  class="btn btn-space btn-success">Aceptar</button>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer"></div>
+		</div>
+	</div>
+</div>
+<div id="ver_log" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+    <div class="modal-dialog custom-width">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+                <h3 class="modal-title">Log de Eventos</h3>
+            </div>
+            <div class="modal-body" id="ver_log_conten"></div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+
+/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $tabla_agrupaciones, $vista);
+
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;
+?>

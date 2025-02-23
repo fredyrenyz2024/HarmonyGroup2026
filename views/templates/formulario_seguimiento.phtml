@@ -1,0 +1,98 @@
+<div class="comtainer">
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right" style="padding: 1px 1px 1px;">
+    <!--   <div class="btn-group btn-group-xs" role="group" aria-label="..." style="margin: 5px 5px 5px;">
+      Boton para agregar nota de seguimiento o controlador
+      <button type="button" class="btn btn-danger pull-right" id="btn-volver-notas">Volver a las Notas</button>
+    </div>-->
+  </div>
+  <div id="msg_editar_gestion"></div>
+  <div id="content_editar">
+    <div class="row">
+      <input type="hidden" id="procesoq" name="procesoq" value="completado">
+      <input type="hidden" id="estadoq" name="procesoq" value="5">
+    </div>
+
+    <div class="row datoseguimiento">
+      <div class="col-xs12 col-sm-12 col-md-12 col-lg-12">
+        <div class="bs-example" data-example-id="condensed-table">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2" style="margin:25px;">
+                  <b>Asignación del Sitio de Seguimiento y Novedad</b>
+                </td>
+              </tr>
+              <tr>
+              </tr>
+            </tbody>
+          </table>
+          <table cellpadding="0" cellspacing="1" width="100%" border="0" style="font-size: 8pt;">
+            <thead style="font-size: 8pt;background-color: #EEEEEE;border-bottom: 1px #ddd solid;">
+              <tr>
+                <!-- <th>#</th>
+                <th>First Name</th> -->
+                <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Novedad</th>
+                <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">¿Ocurrió?</th>
+                <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Tipo Detalle</th>
+                <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Observación</th>
+                <!-- <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Evidencia</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <!-- <select id="novedad" class="form-control input-xs select2">
+                    <option value=""></option>
+                  </select> -->
+                  <!-- Contenedor para los resultados de búsqueda -->
+                  <ul id="searchResults2" style="list-style-type: none; padding: 0;">
+                    <!-- Los resultados de búsqueda se agregarán aquí -->
+                  </ul>
+                  <input type="text" id="novedad" name="novedad" class="form-control input-xs" autocomplete="off">
+
+                </td>
+                <td style="width: 120px;">
+                  <select id="ocurrio" class="form-control input-xs text-center">
+                    <option value="En sitio" selected>sitio</option>
+                    <option value="Antes">Antes</option>
+                  </select>
+                </td>
+                <td style="width: 300px;">
+                  <ul id="searchResults" style="list-style: none;padding: 0;margin: 0;border: 1px solid #ccc;border-radius: 4px;max-height: 150px;overflow-y: auto;"></ul>
+                  <input type="text" id="nota" name="nota" class="form-control input-xs" style="display: none;" autocomplete="off">
+                  <input type="text" id="accion" class="form-control input-xs text-center" readonly>
+                  <input type="hidden" id="accion_id" class="form-control input-xs text-center">
+                  <input type="hidden" id="codigo_punto" class="form-control input-xs text-center">
+                </td>
+                <td>
+                  <!-- <textarea id="observa" class="form-control input-xs" rows="1" oninput="this.value = this.value.toUpperCase();" style="width: 100%;"></textarea> -->
+                  <textarea id="observa" class="form-control input-xs" rows="1" oninput="this.value = this.value.toUpperCase();" style="width: 500px; height: 32px;"></textarea>
+                </td>
+                <!-- <td>
+                  <input type="file" id="udocumnento" class="form-control input-xs">
+                </td> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 general_novedad">
+        <input type="hidden" id="ubilatitud" class="form-control input-sm" readonly="readonly">
+        <input type="hidden" id="ubilongitud" class="form-control input-sm" readonly="readonly">
+        <input type="hidden" id="proceso" class="form-control input-sm" readonly="readonly" value="seguimiento">
+        <input type="hidden" id="reporte" class="form-control input-sm" readonly="readonly" value="si">
+      </div>
+      <div>
+        <input type="hidden" id="med">
+      </div>
+      <div class="col-xs-12 col-sm-12 col-md-12 col-md-12 text-center" style="margin-top: 25px;">
+        <button id="btn_guadargestion" type="button" class="btn btn-success btn-xs md-close" onclick="" style="margin-right: 50px;"><i class="far fa-save"></i> Guardar</button>
+        <button id="btn_guadar_gestion_enviar" type="button" class="btn btn-info btn-xs md-close" onclick="" style="margin-right: 50px;"><i class="far fa-save"></i> Guardar y enviar</button>
+        <button type="button" class="btn btn-danger btn-xs" id="btn-volver-notas"><i class="fa fa-close"></i>
+          Cancelar</button>
+      </div>
+    </div>
+
+  </div>
+</div>

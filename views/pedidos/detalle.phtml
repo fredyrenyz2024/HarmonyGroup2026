@@ -1,0 +1,178 @@
+<div class="row">
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+    <div class="btn-group" role="group" aria-label="...">
+      <button type="button" class="btn btn-warning btn-xs" id="btn_editar_pedido"><i class="far fa-edit"></i> Editar
+        trazabilidad Pedido</button>
+      <button type="button" class="btn btn-danger btn-xs" id="btn_cancelar_edicion" style="display: none;"><i
+          class="far fa-window-close"></i> Cancelar edicion pedido</button>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 10px;">
+    <div id="mensaje"></div>
+    <div class="bs-example" data-example-id="simple-table">
+      <table class="table table-condensed table-hover">
+        <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+          <tr>
+            <!-- <th>#</th> -->
+            <th>Cliente</th>
+            <th>Referencia</th>
+            <th>Observación</th>
+            <th width>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="clientes" style="width: 280px;"></td>
+            <td id="referencia"></td>
+            <td id="observacion"></td>
+            <td id="acciones"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <h4 class="text-center" style="font-weight: bold;">Progreso Pedido</h4>
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;width: 0;"></div>
+    </div>
+  </div>
+
+  <!-- Tabla de actividades a agestionar -->
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="tabla_gestion_actividades">
+    <h4 class="text-center" style="font-weight: bold;">Listado de actividades</h4>
+    <div class="bs-example" data-example-id="simple-table">
+      <table class="table table-condensed" style="border-left: 1px solid #c7c7ce;border-bottom: 1px solid #c7c7ce;border-right: 1px solid #c7c7ce;">
+        <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+          <tr>
+            <th>#</th>
+            <th>Parametro</th>
+            <th>Actividad</th>
+            <th class="text-center">Costo</th>
+            <th>Responsable</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
+            <th width="100px">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tbody_actividades"></tbody>
+      </table>
+    </div>
+  </div>
+
+
+
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="gestion_pedido">
+    <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+      <div class="form-group">
+        <div class="checkbox">
+          <label style="font-weight: bold;font-size: 15px;">
+            <input type="checkbox" id="publicar" name="publicar" style="transform: scale(1.5);margin-right: 5px;">
+            Publicar Gestion al Cliente
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+      <div class="form-group">
+        <label for="" style="font-weight: bold;">Seleccione Parametro</label>
+        <select name="parametros_pedido" id="parametros_pedido" class="form-control input-xs"></select>
+      </div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+      <div class="form-group">
+        <label for="" style="font-weight: bold;">Seleccione punto parametro</label>
+        <select name="parametros_punto_pedido_opcion" id="parametros_punto_pedido_opcion"
+          class="form-control input-xs"></select>
+      </div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+      <div class="form-group">
+        <label for="" style="font-weight: bold;">Observación</label>
+        <textarea name="observacion_gestion" id="observacion_gestion" cols="30" rows="1" class="form-control input-xs"></textarea>
+      </div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+      <div class="form-group">
+        <label for="" style="font-weight: bold;">Documento</label>
+        <input type="file" name="documento" id="documento" class="form-control input-xs">
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+      <button type="button" class="btn btn-success btn-xs" id="btn_guardar_gestion"><i class="far fa-save"></i> Guardar Gestión</button>
+    </div> -->
+  </div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div id="detalle_gestion"></div>
+  </div>
+
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 2px;" id="acordeones_parametros">
+    <!-- <div class="container"></div> -->
+
+    <div id="cargando_gif" style="text-align: center;">
+      <img src="../../../public/img/nexos_loading.gif" alt="" srcset="" style="width: 40px;"> cargando parametros de
+      trazabilidad.
+    </div>
+    <div class="panel-group" id="accordion" style="display: none;">
+      <h4 class="text-center" style="font-weight: bold;">Parametros de trazabilidad</h4>
+      <!-- Contenido JS -->
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+    <div class="btn-group" role="group" aria-label="...">
+      <button type="button" class="btn btn-success btn-xs" id="btn_guardar_pedido" style="display: none;"><i
+          class="far fa-save"></i> Guardar Edición Pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document" style="width: 450px;">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff;"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Asosiar Solicitud</h4>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;">
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+            <div class="form-group">
+              <label for="" style="font-weight: bold;">Solicitudes de Servicio</label>
+              <select id="solicitudes_cliente" class="form-control input-xs"></select>
+              <input type="hidden" name="cliente_id" id="cliente_id">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+        <button type="button" class="btn btn-primary btn-xs" id="btn_guardar_asosiacion"><i class="far fa-save"></i> Guardar Asosiación</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>views/pedidos/js/detalle_pedidos.js type="text/javascript"></script>
+
+<!-- js para creacion de formularios dinamicos -->
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

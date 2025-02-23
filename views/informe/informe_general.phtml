@@ -1,0 +1,346 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -10px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2 text-center" style="margin:25px;">
+              <b>Informe General de las operaciones</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;">
+              <b>Seleccione los Parámetros para realizar el filtro</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">N°.Manifiesto:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;padding: 1px 1px 1px;">
+              <input type="number" id="num_manifiesto" name="num_manifiesto" style="width: 400px;">
+              <!-- class="form-control input-xs" -->
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">N°.remesa:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <input type="number" id="num_remesa" name="num_remesa" style="width: 400px;">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Tipo Vinculación:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <select name="tipo_vinculacion" id="tipo_vinculacion" style="width: 400px;"></select>
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">N°.Placa:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <input type="text" id="num_placa" name="num_placa" style="width: 400px;">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Origen:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <select name="origen" id="origen" style="width: 400px;"></select>
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Destino:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <select name="destino" id="destino" style="width: 400px;"></select>
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Cliente:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <select name="cliente" id="cliente" style="width: 400px;"></select>
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Conductor:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <select name="conductor" id="conductor" style="width: 400px;"></select>
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Fecha Inicial:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <input type="date" id="fecha_inicial" name="fecha_inicial" style="width: 400px;">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Fecha Final:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <input type="date" id="fecha_final" name="fecha_final" style="width: 400px;">
+            </td>
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;">
+              <b>Campos para vizualizar en el informe</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              N°. Cotizacion:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;padding-left: 20px;">
+              <input type="checkbox" id="cotizacion" name="cotizacion" value="Cotizacion" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha cotización:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_cotizacion" name="fecha_cotizacion" value="Fecha cotizacion" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Estado cotización:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="estado_cotizacion" name="estado_cotizacion" value="Estado cotizacion" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Origen:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="campo_origen" name="campo_origen" value="Origén" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Destino:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="campo_destino" name="campo_destino" value="Destino" class="campo">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Mercancia:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="mercancia" name="mercancia" value="Mercancia" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha solicitud servicio:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_solicitud_servicio" name="fecha_solicitud_servicio" value="F.Solicitud Servicio" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Estado solicitud servicio :</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="estado_solicitud_servicio" name="estado_solicitud_servicio" value="E.Solicitud Servicio" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Prefiltro:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="prefiltro" name="prefiltro" value="Prefiltro" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha prefiltro:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_prefiltro" name="fecha_prefiltro" value="Fecha prefiltro" class="campo">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Estado prefiltro:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="estado_prefiltro" name="estado_prefiltro" value="Estado prefiltro" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Estudio Seguridad:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="estudio_seguridad" name="estudio_seguridad" value="Estudio Seguridad" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha estudio seguridad :</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_estudio_seguridad" name="fecha_estudio_seguridad" value="F.estudio Seguridad" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Estado estudio seguridad:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="estado_estudio_seguridad" name="estado_estudio_seguridad" value="E.estudio Seguridad" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Placa vehículo:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="placa_vehiculo" name="placa_vehiculo" value="Placa vehiculo" class="campo">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Nombre conductor:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="nombre_conductor" name="nombre_conductor" value="Nombre Conductor" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Cédula conductor:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="cedula_conductor" name="cedula_conductor" value="Cedula Conductor" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Nombre propietario:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="nombre_propietario" name="nombre_propietario" value="Nombre Propietario" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Cédula propietario:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="cedula_propietario" name="cedula_propietario" value="Cedula Propietario" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Nombre poseedor:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="nombre_poseedor" name="nombre_poseedor" value="Nombre Poseedor" class="campo">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Cédula poseedor:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="cedula_poseedor" name="cedula_poseedor" value="Cedula possedor" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Subasta:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="subasta" name="subasta" value="Subasta" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha Subasta:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_subaste" name="fecha_subaste" value="Fecha Subasta" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Estado Subasta:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="estado_subasta" name="estado_subasta" value="Estado Subasta" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Orden cargue:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="orden_cargue" name="orden_cargue" value="Orden Cargue" class="campo">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha Orden cargue:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_orden_cargue" name="fecha_orden_cargue" value="F.Orden Cargue" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Estado Orden cargue:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="estado_orden_cargue" name="estado_orden_cargue" value="E.Orden Cargue" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Peso Carga:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="peso_cargua" name="peso_cargua" value="Peso Cargua" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Remesa:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="remesa" name="remesa" value="Remesa" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha Remesa:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_remesa" name="fecha_remesa" value="Fecha Remesa" class="campo">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Valor remesa:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="valor_remesa" name="valor_remesa" value="Valor Remesa" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              N°.Manifiesto:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="num_manifiesto" name="num_manifiesto" value="Numero Manifiesto" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha manifiesto:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_manifiesto" name="fecha_manifiesto" value="Fecha Manifiesto" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Valor Total Flete:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="total_flete" name="total_flete" value="Total Flete" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Valor anticipo:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="total_anticipo" name="total_anticipo" value="Total Anticipo" class="campo">
+            </td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Lugar último seguimiento:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="lugar_ultimo_seguimiento" name="lugar_ultimo_seguimiento" value="L.Ultimo Seguimiento" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Fecha cumplido:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="fecha_cumplido" name="fecha_cumplido" value="Fecha Cumplido" class="campo">
+            </td>
+            <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+              Valor declarado carga:</th>
+            <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+              <input type="checkbox" id="total_declarado_carga" name="total_declarado_carga" value="T.Declarado Cargua" class="campo">
+            </td>
+            <!-- <th
+            style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+            Valor Total Flete:</th>
+          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+            <input type="checkbox" id="total_flete" name="total_flete">
+          </td>
+          <th
+            style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+            Valor anticipo:</th>
+          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; padding-left: 20px;">
+            <input type="checkbox" id="total_anticipo" name="total_anticipo">
+          </td> -->
+          </tr>
+        </thead>
+      </table>
+
+      <div class="text-center" style="margin-top: 15px;">
+        <button type="button" class="btn btn-success btn-xs" id="btn_crear_filtro"><i class="fas fa-filter"></i> Crear Informe</button>
+      </div>
+
+      <div id="msg_present"></div>
+
+      <div id="tabla_filtrada"></div>
+
+      <div class="text-center" style="margin-top: 15px;display: none;">
+        <button type="button" class="btn btn-danger btn-xs" id="btn_crear_filtro"><i class="fas fa-filter"></i> Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/informe/js/informe_general_ajax.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

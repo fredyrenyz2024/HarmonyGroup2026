@@ -1,0 +1,1177 @@
+<?php
+	$Conect = new Consultas;
+	$_dbTable = "material_cliente"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+	$_jsAjax = "";
+
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+	// URL envio de datos ajax 
+	$url = BASE_URL . 'libs/editar.php?tabla=cmx_' . $_dbTable ;
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	/********* FIN POPUPS *********/
+
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if(isset($this->materiales_clientes) && count($this->materiales_clientes)){
+
+		/*** SE CREA TABLA DE CONTENIDO ***/
+		$table_materiales_clientes = '
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover" data-page-length="100">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:5%;"></th>
+									<th style="width:15%;">Cliente</th>
+									<th style="width:15%;">Riesgo</th>
+									<th>Catergoría</th>
+									<th>Grupo</th>
+									<th>Material</th>
+									<th style="width:10%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+		$arrayMateriales_clientes = $this->materiales_clientes->getTabla($ssn_id_cliente);
+		// echo print_r("<pre>");
+		// echo print_r($arrayMateriales_clientes);
+		// echo print_r("</pre>");
+
+		if($arrayMateriales_clientes['rowsData']){
+			foreach ($arrayMateriales_clientes['rowsData'] as $key => $value) {
+
+				/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+				switch ($value["estado"]) {
+					case '0':
+						// se asigna contenido de la columna de estado
+						$col_stasus = '
+							<td class="nexos-txt-danger">
+								<span class="mdi mdi-dot-circle icon"></span>
+								<span style="display: none;">' . $value["estado"] . '</span>
+							</td>
+						';
+
+						$_popupHabilita = $alert->_alert_modal_mod_success( $value[0] , "Realmente desea habilitar este elemento?" , $_dbTable );
+						$vista.= $_popupHabilita[0];
+						$_jsScripts.=$_popupHabilita[1];
+
+						// se asigna contenudo de la columna de acciones
+						$col_action = '
+							<td class="actions">
+								<a href="#" class="icon"><span id="#habilita_' . $value[0] . '" data-toggle="modal" data-target="#habilita_' . $value[0] . '" class="icon mdi mdi-check-circle"></span></a>
+							</td>
+						';
+						break;
+
+					case '1':
+
+						// se asigna contenido de la columna de estado
+						$col_stasus = '
+							<td class="nexos-txt-success">
+								<span class="mdi mdi-dot-circle icon"></span>
+								<span style="display: none;">' . $value["estado"] . '</span>
+							</td>
+						';
+
+						// se genera el formulario de edicion del registro
+
+						// Se crea el select de riesgos
+						$slct_riesgo_material = $this->materiales_clientes->getHtmlSelectRiesgos("riesgo" , $value["riesgo"]);
+						$slct_presentacion = $this->unidades_presentacion->getHtmlSelect("presentacion" , $value["presentacion"]);
+						$slct_empaques = $this->unidades_empaque->getHtmlSelect("tipo_embalaje" , $value["tipo_embalaje"]);
+						$slct_medidas = $this->unidades_medida->getHtmlSelect("unidad_presentacion" , $value["unidad_presentacion"]);
+
+						$form_edit_table = '
+							<input type="hidden" name="id" value="' . $value[0] . '" class="form-control input-xs">
+							<input type="hidden" name="id_cliente" value="' . $ssn_id_cliente . '" class="form-control input-xs">
+
+							<div class="form-group col-xs-12">
+								<label>Subpartida:</label>
+								<input type="number" min="0" name="subpartida" value="' . $value["subpartida"] . '" placeholder="No. de Subpartida" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Código Antiguo:</label>
+								<input type="text" name="codigo_antiguo" value="' . $value["codigo_antiguo"] . '" placeholder="Código Antiguo" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Código Corto:</label>
+								<input type="text" name="codigo_corto" value="' . $value["codigo_corto"] . '" placeholder="Código Corto" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>EAN13:</label>
+								<input type="text" name="ean13" value="' . $value["ean13"] . '" placeholder="ean13" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Código UN:</label>
+								<input type="text" name="codigoUN" value="' . $value["codigoUN"] . '" placeholder="Código UN" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Riesgo:</label>
+								' . $slct_riesgo_material . '
+							</div>
+
+							<div class="form-group col-xs-6">
+								<label>Peso Unitario Bruto:</label>
+								<input type="number" min="0" name="peso_unitario_bruto" value="' . $value["peso_unitario_bruto"] . '" placeholder="Peso unitario bruto" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Peso Unitario Neto:</label>
+								<input type="number" min="0" name="peso_unitario_neto" value="' . $value["peso_unitario_neto"] . '" placeholder="Peso unitario neto" class="form-control input-xs">
+							</div>
+
+							<div class="form-group col-xs-4">
+								<label>Presentación:</label>
+								' . $slct_presentacion . '
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Unidades por presentación:</label>
+								<input type="number" min="0" name="cant_contenido_interno" value="' . $value["cant_contenido_interno"] . '" placeholder="Cantidad Contenido Interno" class="form-control">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Unidad de presentación:</label>
+								' . $slct_medidas . '
+							</div>
+
+							<div class="form-group col-xs-6">
+								<label>Tipo de Embalaje:</label>
+								' . $slct_empaques . '
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Unidades por Empaque:</label>
+								<input type="number" min="0" name="unidades_x_embalaje" value="' . $value["unidades_x_embalaje"] . '" placeholder="Unidades por Empaque" class="form-control">
+							</div>
+
+							<div class="form-group col-xs-4">
+								<label>Largo:</label>
+								<input type="number" min="0" name="largo" value="' . $value["largo"] . '" placeholder="Largo" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Alto:</label>
+								<input type="number" min="0" name="alto" value="' . $value["alto"] . '" placeholder="Alto" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Ancho:</label>
+								<input type="number" min="0" name="ancho" value="' . $value["ancho"] . '" placeholder="Ancho" class="form-control input-xs">
+							</div>
+
+							<div class="form-group col-xs-6">
+								<label>Cupo Autorizado:</label>
+								<input type="number" min="0" name="cupo_autorizado" value="' . $value["cupo_autorizado"] . '" placeholder="Cupo Autorizado" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Vida Útil:</label>
+								<input type="number" min="0" name="vida_util" value="' . $value["vida_util"] . '" placeholder="Vida Útil" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Familia:</label>
+								<input type="text" name="nom_familia" value="' . $value["nom_familia"] . '" placeholder="Familia" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Categoría:</label>
+								<input type="text" name="nom_categoria" value="' . $value["nom_categoria"] . '" placeholder="Categoría" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Grupo:</label>
+								<input type="text" name="grupo" value="' . $value["grupo"] . '" placeholder="Grupo" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Sub-grupo:</label>
+								<input type="text" name="sub_grupo" value="' . $value["sub_grupo"] . '" placeholder="Sub-grupo" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-12">
+								<label>Descripción:</label>
+								<textarea name="descripcion" placeholder="Descripción" class="form-control input-xs">' . $value["descripcion"] . '</textarea>
+							</div>
+							<div class="form-group col-xs-12">
+								<label>Detalle:</label>
+								<textarea name="detalle" placeholder="Detalle" class="form-control input-xs">' . $value["detalle"] . '</textarea>
+							</div>
+							<div class="form-group col-xs-12">
+								<label>Especificación:</label>
+								<textarea name="especificacion" placeholder="Especificación" class="form-control input-xs">' . $value["especificacion"] . '</textarea>
+							</div>
+							<div class="form-group col-xs-12">
+								<label>Característica:</label>
+								<textarea name="caracteristica" placeholder="Característica" class="form-control input-xs">' . $value["caracteristica"] . '</textarea>
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Talla:</label>
+								<input type="text" name="talla" value="' . $value["talla"] . '" placeholder="Talla" class="form-control input-xs">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Color:</label>
+								<input type="text" name="color" value="' . $value["color"] . '" placeholder="Color" class="form-control input-xs">
+							</div>
+							<div class="row"></div>
+						';
+
+						$_popupEdita = $form_edita->_form_modal_update($value[0], "Editar Material - " . $value["descripcion"] , $form_edit_table, $_dbTable);
+						$vista.= $_popupEdita[0];
+						$_jsScripts.=$_popupEdita[1];
+
+						// se genera formulario de subida de archivos 
+						if (!$value["url_ficha_tecnica"] || !$value["url_tarjeta_emergencia"] || !$value["url_hoja_seguridad"]) {
+							$_conent_encabezado = '
+								<label class="col-sm-10">Subir Archivo PDF</label>
+								<input type="submit" name="sube-archivo_' . $value[0] . '" id="sube-archivo' . $value[0] . '" value="Subir" class="btn btn-success">
+							';
+						} else {
+							$_conent_encabezado = '
+								Archivos PDF del Material
+								<span class="panel-subtitle">' . $value["descripcion"] . '</span>
+							';
+						}
+
+						if ($value["url_ficha_tecnica"]) {
+							$_ficha_tecnica = '
+								<div class="panel panel-border panel-contrast">
+									<div class="panel-heading ">
+										Ver Archivo de Ficha Técnica 
+										<div class="tools">
+											<a href="' . BASE_URL . 'public/files/url_ficha_tecnica/' . $value["url_ficha_tecnica"] . '" target="_blank" class="icon"><span class="icon mdi mdi-collection-pdf"></span></a>
+										</div>
+									</div>
+								</div>
+							';
+						}else{
+							$_ficha_tecnica = '
+								<label class="col-sm-6 control-label">Subir Archivo de Ficha Técnica</label>
+								<div class="col-sm-6">
+									<input type="file" name="url_ficha_tecnica" accept="application/pdf" id="url_ficha_tecnica_' . $value[0] . '" class="inputfile">
+									<label for="url_ficha_tecnica_' . $value[0] . '" class="btn-success"> <i class="mdi mdi-upload"></i><span>Busque Archivo...</span></label>
+								</div>
+							';
+						}
+
+						if ($value["url_tarjeta_emergencia"]) {
+							$_tarjeta_emergencia = '
+								<div class="panel panel-border panel-contrast">
+									<div class="panel-heading ">
+										Ver Archivo de Tarjeta de Emergencia 
+										<div class="tools">
+											<a href="' . BASE_URL . 'public/files/url_tarjeta_emergencia/' . $value["url_tarjeta_emergencia"] . '" target="_blank" class="icon"><span class="icon mdi mdi-collection-pdf"></span></a>
+										</div>
+									</div>
+								</div>
+							';
+						}else{
+							$_tarjeta_emergencia = '
+								<label class="col-sm-6 control-label">Subir Archivo de Tarjeta de Emergencia</label>
+								<div class="col-sm-6">
+									<input type="file" name="url_tarjeta_emergencia" accept="application/pdf" id="url_tarjeta_emergencia_' . $value[0] . '" class="inputfile">
+									<label for="url_tarjeta_emergencia_' . $value[0] . '" class="btn-success"> <i class="mdi mdi-upload"></i><span>Busque Archivo...</span></label>
+								</div>
+							';
+						}
+
+						if ($value["url_hoja_seguridad"]) {
+							$_hoja_seguridad = '
+								<div class="panel panel-border panel-contrast">
+									<div class="panel-heading ">
+										Ver Archivo de Hoja de Seguridad 
+										<div class="tools">
+											<a href="' . BASE_URL . 'public/files/url_hoja_seguridad/' . $value["url_hoja_seguridad"] . '" target="_blank" class="icon"><span class="icon mdi mdi-collection-pdf"></span></a>
+										</div>
+									</div>
+								</div>
+							';
+						}else{
+							$_hoja_seguridad = '
+								<label class="col-sm-6 control-label">Subir Archivo de Hoja de Seguridad</label>
+								<div class="col-sm-6">
+									<input type="file" name="url_hoja_seguridad" accept="application/pdf" id="url_hoja_seguridad_' . $value[0] . '" class="inputfile">
+									<label for="url_hoja_seguridad_' . $value[0] . '" class="btn-success"> <i class="mdi mdi-upload"></i><span>Busque Archivo...</span></label>
+								</div>
+							';
+						}
+
+						$form_edit_table_1 = '
+							<form action="' . BASE_URL . 'materiales_clientes/index/" method="POST" name="envia_archivo_' . $value[0] . '" enctype="multipart/form-data" style="border-radius: 0px;" class="form-horizontal group-border-dashed" >
+								<div class="panel panel-border panel-contrast">
+									<div class="panel-heading panel-heading-contrast">
+										' . $_conent_encabezado . '
+									</div>
+								</div>
+								<table class="table">
+									<tbody>
+										<tr>
+											<td>
+												<div class="form-group">
+													' . $_ficha_tecnica . '
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="form-group">
+													' . $_tarjeta_emergencia . '
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="form-group">
+													' . $_hoja_seguridad . '
+												</div>
+											</td>
+										</tr>
+										<tr><td></td></tr>
+									</tbody>
+								</table>
+							</form>
+						';
+						$_popupEditaFiles = $form_edita->_message_title_modal("files_" . $value[0] , "Subir archivos del material - " . $value["codigo_antiguo"] , $form_edit_table_1 );
+						$vista.= $_popupEditaFiles;
+
+						// SE VERIFICA SI SE SUBEN LOS ARCHIVOS
+						if(isset($_POST["sube-archivo_" . $value[0]])) {
+							$_msg_error = '';
+							$_flag_archivos = false;
+							$_flag_hay_archivos = false;
+							// print_r("<pre>");
+							// print_r($_FILES);
+							// print_r("</pre>");
+
+							foreach ($_FILES as $key1 => $value1) {
+								if($_FILES[$key1]["error"] == 0){
+									$_flag_hay_archivos = true;
+									$_flag_archivos = true;
+									// Se verifica la extencion de archivo 
+
+									switch ($key1) {
+										case 'url_ficha_tecnica':
+											$nom_campo = "Ficha Técnica";
+											break;
+										
+										case 'url_tarjeta_emergencia':
+											$nom_campo = "Tarjeta de Emergencia";
+											break;
+										
+										case 'url_hoja_seguridad':
+											$nom_campo = "Hoja de Seguridad";
+											break;
+									}
+
+									$archivo = explode(".", $_FILES[$key1]["name"]);
+									if($archivo[1] == "pdf"){
+										$origen = $_FILES[$key1]["tmp_name"]; 
+										$carpeta_destino = "public/files/" . $key1  ;
+
+										if (!file_exists($carpeta_destino)) {
+											mkdir($carpeta_destino, 0777, true);
+										}
+
+										if (move_uploaded_file($origen , $carpeta_destino . "/" . $value["codigo"] . "." . $archivo[1])) {
+											$_msg_error.= '<p>Se ha copiado el archivo corretamente.</p>';
+
+											$arrayAdjunto = array();
+											$arrayAdjunto[$key1] = $value["codigo"] . "." . $archivo[1];
+											// print_r("<pre>");
+											// print_r($arrayAdjunto);
+											// print_r("</pre>");
+
+											$Conect->updateRegistro("cmx_" . $_dbTable , $arrayAdjunto , $value[0] );
+										}
+										else {
+											$_flag_archivos = false;
+											$_msg_error.= '<p>Se produjo un error al copiar el fichero.</p>';
+										}
+									}else{
+										$_flag_archivos = false;
+										$_msg_error.= '<p>El archivo para subir la "<strong>' . $nom_campo . '</strong>" no tiene el formato válido para ser subido al servidor.</p>';
+									}
+								}
+							}
+
+							if (!$_flag_hay_archivos) {
+								$_msg_error.= '<p>No se seleccionó ningún archivo.</p>';
+							}
+
+							$_msg_color = "danger";
+							if($_flag_archivos) {
+								$_msg_color = "success";
+								echo '
+									<script language="javascript">
+										setTimeout(function() { window.location="' . BASE_URL . 'materiales_clientes/index";  }, 2000);
+									</script>
+								';
+							}
+
+							$_jsAjax.='
+								console.log("entro en el js del mensaje de subida de archivos");
+								$(".nexos-messages").html(\'<div role="alert" class="alert alert-' . $_msg_color . ' alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button>' . $_msg_error . '</div></div>\');
+							';
+						}
+						// FIN DE VERIFICACION DE SI SE SUBEN LOS ARCHIVOS
+
+
+						$_popupElimina = $alert->_alert_modal_mod_danger($value[0], "Realmente desea eliminar este elemento?",$_dbTable);
+						$vista.= $_popupElimina[0];
+						$_jsScripts.=$_popupElimina[1];
+
+						// se asigna contenido de la columna de acciones
+						$col_action = '
+							<td class="actions">
+								<a href="#" class="icon"><span id="edita_' . $value[0] . '" data-toggle="modal" data-target="#edita_' . $value[0] . '" class="icon mdi mdi-edit"></span></a>
+								<a href="#" class="icon"><span id="edita_files_' . $value[0] . '" data-toggle="modal" data-target="#edita_files_' . $value[0] . '" class="icon mdi mdi-upload"></span></a>
+								<a href="#" class="icon"><span id="elimina_' . $value[0] . '" data-toggle="modal" data-target="#elimina_' . $value[0] . '" class="icon mdi mdi-close-circle"></span></a>
+							</td>
+						';
+
+						break;
+				}
+				/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+
+				/******** SE CREAN POPUPS DE INFORMACION DEL MATERIAL ********/
+				// INFORMACIÓN GENERAL DEL MATERIAL - Columna Materiales
+				$info_contenido_1 = '
+					<div class="panel panel-border panel-contrast">
+						<div class="panel-heading panel-heading-contrast">
+							' . $value["descripcion"] . ' (' . $value["NOM_CLIENTE"] . ')
+							<span class="panel-subtitle">Código - ' . $value["codigo"] . '</span>
+							<span class="panel-subtitle">' . $value["detalle"] . '</span>
+						</div>
+					</div>
+					<table class="table">
+						<tbody>
+							<tr>
+								<td class="cell-detail">
+									<div class="col-sm-2">
+										<span>EAN13</span>
+										<span class="cell-detail-description">' . $value["ean13"] . '</span>
+									</div>
+									<div class="col-sm-2">
+										<span>Subpatida</span>
+										<span class="cell-detail-description">' . $value["subpartida"] . '</span>
+									</div>
+									<div class="col-sm-3">
+										<span>Código Antiguo</span>
+										<span class="cell-detail-description">' . $value["codigo_antiguo"] . '</span>
+									</div>
+									<div class="col-sm-3">
+										<span>Código Corto</span>
+										<span class="cell-detail-description">' . $value["codigo_corto"] . '</span>
+									</div>
+									<div class="col-sm-2">
+										<span>Consolidable</span>
+										<span class="cell-detail-description">' . $value["consolidable"] . '</span>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-2">
+											<span>Codigo UN</span>
+											<span class="cell-detail-description">' . $value["codigoUN"] . '</span>
+										</div>
+										<div class="col-sm-1">
+											<img src="' . BASE_URL . 'public/img/riesgos/' . $value["url"] . '" height="50" width="50">
+										</div>
+										<div class="col-sm-2">
+											<span>Riesgo</span>
+											<span class="cell-detail-description">' . $value["numero_riesgo"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Nombre del Riesgo</span>
+											<span class="cell-detail-description">' . $value["nom_riesgo_material"] . '</span>
+										</div>
+										<div class="col-sm-4">
+											<span>Descripción del Riesgo</span>
+											<span class="cell-detail-description">' . $value["DESCRIPCION_RIESGO"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-1"></div>
+										<div class="col-sm-2">
+											<span>Peso Unitario Bruto</span>
+											<span class="cell-detail-description">' . $value["peso_unitario_bruto"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Peso Unitario Neto</span>
+											<span class="cell-detail-description">' . $value["peso_unitario_neto"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Largo</span>
+											<span class="cell-detail-description">' . $value["largo"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Alto</span>
+											<span class="cell-detail-description">' . $value["alto"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Ancho</span>
+											<span class="cell-detail-description">' . $value["ancho"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-2">
+											<span>Presentación</span>
+											<span class="cell-detail-description">' . $value["nom_unidad_presentacion"] . ' x ' . $value["cant_contenido_interno"] . ' ' . $value["nom_unidad_medida"] . ' .</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Embalaje</span>
+											<span class="cell-detail-description">' . $value["nom_unidad_empaque"] . ' x ' . $value["unidades_x_embalaje"] . ' Unid.</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Unidades por Tendido</span>
+											<span class="cell-detail-description">' . $value["unidades_x_tendido"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Planchas por Estiba</span>
+											<span class="cell-detail-description">' . $value["planchas_x_estiba"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Altura de la estiba</span>
+											<span class="cell-detail-description">' . $value["altura_estiba"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Embalajes por estiba</span>
+											<span class="cell-detail-description">' . ($value["unidades_x_tendido"] * $value["planchas_x_estiba"]) . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-2">
+											<span>Volumen Terrestre</span>
+											<span class="cell-detail-description">' . $value["volumen_terrestre"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Volumen Aéreo</span>
+											<span class="cell-detail-description">' . $value["volumen_aereo"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Cupo Autorizado</span>
+											<span class="cell-detail-description">' . $value["cupo_autorizado"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Cantidad Contenido Interno</span>
+											<span class="cell-detail-description">' . $value["cant_contenido_interno"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Vida Útil</span>
+											<span class="cell-detail-description">' . $value["vida_util"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-3">
+											<span>Familia</span>
+											<span class="cell-detail-description">' . $value["nom_familia"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Categoría</span>
+											<span class="cell-detail-description">' . $value["nom_categoria"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Grupo</span>
+											<span class="cell-detail-description">' . $value["grupo"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Sub-grupo</span>
+											<span class="cell-detail-description">' . $value["sub_grupo"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-3">
+											<span>Especificación</span>
+											<span class="cell-detail-description">' . $value["especificacion"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Característica</span>
+											<span class="cell-detail-description">' . $value["caracteristica"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Talla</span>
+											<span class="cell-detail-description">' . $value["talla"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Color</span>
+											<span class="cell-detail-description">' . $value["color"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail"></td>
+							</tr>
+						</tbody>
+					</table>
+				';
+				$vista.= $info->_bootstrap_modal_dialog("info_" . $value[0] , "Información del Material" , $info_contenido_1 );
+				/******** FIN SE CREAN POPUPS DE INFORMACION DEL MATERIAL ********/
+
+				// Se maqueta contenido de la tabla 
+				$table_materiales_clientes.= '<tr>';
+				$table_materiales_clientes.= $col_stasus;
+				// Columna código del material
+				$table_materiales_clientes.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail">
+						<span>' . $value["NOM_CLIENTE"] . '</span>
+						<span class="cell-detail-description">' . $value["codigo"] . '</span>
+						<span class="cell-detail-description">' . $value["ean13"] . '</span>
+					</td>
+				';
+				// Columna datos de riesgo del material
+				$table_materiales_clientes.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail">
+						<span>(' . $value["numero_riesgo"] . ') ' . $value["nom_riesgo_material"] . '</span>
+						<span class="cell-detail-description">Código UN - ' . $value["codigoUN"] . '</span>
+					</td>
+				';
+				// Columna datos de familia y categoria del material
+				$table_materiales_clientes.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail">
+						<span>' . $value["nom_familia"] . '</span>
+						<span class="cell-detail-description">' . $value["nom_categoria"] . '</span>
+					</td>
+				';
+				// Columna datos de grupo del material
+				$table_materiales_clientes.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail">
+						<span>' . $value["grupo"] . '</span>
+						<span class="cell-detail-description">' . $value["sub_grupo"] . '</span>
+					</td>
+				';
+				// Columna Materiales
+				$table_materiales_clientes.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail md-trigger">
+						<span>' . $value["descripcion"] . '</span>
+					</td>
+				';
+
+				// se asigna la columna de acciones
+				$table_materiales_clientes.=$col_action;
+				
+				$table_materiales_clientes.= '</tr>';
+			}
+		}
+
+		$table_materiales_clientes.= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+	$_form_file = '
+		<form action="' . BASE_URL . 'materiales_clientes/index/" method="POST" name="envia_archivo" enctype="multipart/form-data" style="border-radius: 0px;" class="form-horizontal group-border-dashed" >
+			<div class="form-group">
+				<label class="col-sm-8 control-label">Subir Materiales</label>
+				<div class="col-sm-4">
+					<input type="file" name="file" accept="text/comma-separated-values,text/csv,application/csv" id="file" class="inputfile">
+					<label for="file" class="btn-default"> <i class="mdi mdi-upload"></i><span>Busque Archivo...</span></label>
+					<input type="submit" name="sube-archivo" id="sube-archivo" value="Subir" class="btn btn-success">
+					<a href="' . BASE_URL . 'public\files\formatoMateriales.csv" target="_blank"  alt="Formato Archivos"><img src="' . BASE_URL . 'public\img\excel_2013.png" height="35" width="35"></a>
+				</div>
+			</div>
+		</form>
+	';
+
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Administrar Materiales 
+				<div class="tools">
+					<a href="#" data-toggle="modal" data-target="#crea_' . $_dbTable . '" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+				</div>
+				<span class="panel-subtitle">Módulo de administración de materiales de la empresa.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%form-file%
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			%js-ajax%
+	    </script>
+	';
+
+	// Se crea el select de riesgos
+	$slct_riesgos = $this->materiales_clientes->getHtmlSelectRiesgos("riesgo" , "");
+	$slct_presentacion = $this->unidades_presentacion->getHtmlSelect("presentacion" , "");
+	$slct_empaques = $this->unidades_empaque->getHtmlSelect("tipo_embalaje" , "");
+	$slct_medidas = $this->unidades_medida->getHtmlSelect("unidad_presentacion" , "");
+
+	$forms = '
+		<input type="hidden" name="id_cliente" value="' . $ssn_id_cliente . '" class="form-control input-xs">
+		<div class="form-group col-xs-4">
+			<label>Código:</label>
+			<input type="text" name="codigo" value="" placeholder="Código del Material" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Código Antiguo:</label>
+			<input type="text" name="codigo_antiguo" value="" placeholder="Código Antiguo" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Código Corto:</label>
+			<input type="text" name="codigo_corto" value="" placeholder="Código Corto" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>EAN13:</label>
+			<input type="text" name="ean13" value="" placeholder="ean13" class="form-control">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Código UN:</label>
+			<input type="text" name="codigoUN" value="" placeholder="Código UN" class="form-control">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Riesgo:</label>
+			' . $slct_riesgos . '
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Peso Unitario Bruto:</label>
+			<input type="number" min="0" name="peso_unitario_bruto" value="" placeholder="Peso unitario bruto" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Peso Unitario Neto:</label>
+			<input type="number" min="0" name="peso_unitario_neto" value="" placeholder="Peso unitario neto" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Presentación:</label>
+			' . $slct_presentacion . '
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Unidades por presentación:</label>
+			<input type="number" min="0" name="cant_contenido_interno" value="" placeholder="Cantidad Contenido Interno" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Unidad de presentación:</label>
+			' . $slct_medidas . '
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Tipo de Embalaje:</label>
+			' . $slct_empaques . '
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Unidades por Empaque:</label>
+			<input type="number" min="0" name="unidades_x_embalaje" value="" placeholder="Unidades por Empaque" class="form-control">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Largo:</label>
+			<input type="number" min="0" name="largo" value="" placeholder="Largo" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Alto:</label>
+			<input type="number" min="0" name="alto" value="" placeholder="Alto" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Ancho:</label>
+			<input type="number" min="0" name="ancho" value="" placeholder="Ancho" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Subpartida:</label>
+			<input type="number" min="0" name="subpartida" value="" placeholder="No. de Subpartida" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Cupo Autorizado:</label>
+			<input type="number" min="0" name="cupo_autorizado" value="" placeholder="Cupo Autorizado" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Vida Útil:</label>
+			<input type="number" min="0" name="vida_util" value="" placeholder="Vida Útil" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Familia:</label>
+			<input type="text" name="nom_familia" value="" placeholder="Familia" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Categoría:</label>
+			<input type="text" name="nom_categoria" value="" placeholder="Categoría" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Grupo:</label>
+			<input type="text" name="grupo" value="" placeholder="Grupo" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Sub-grupo:</label>
+			<input type="text" name="sub_grupo" value="" placeholder="Sub-grupo" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-12">
+			<label>Descripción:</label>
+			<textarea name="descripcion" placeholder="Descripción" class="form-control input-xs"></textarea>
+		</div>
+		<div class="form-group col-xs-12">
+			<label>Detalle:</label>
+			<textarea name="detalle" placeholder="Detalle" class="form-control input-xs"></textarea>
+		</div>
+		<div class="form-group col-xs-12">
+			<label>Especificación:</label>
+			<textarea name="especificacion" placeholder="Especificación" class="form-control input-xs"></textarea>
+		</div>
+		<div class="form-group col-xs-12">
+			<label>Característica:</label>
+			<textarea name="caracteristica" placeholder="Característica" class="form-control input-xs"></textarea>
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Talla:</label>
+			<input type="text" name="talla" value="" placeholder="Talla" class="form-control input-xs">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Color:</label>
+			<input type="text" name="color" value="" placeholder="Color" class="form-control input-xs">
+		</div>
+		<div class="row"></div>
+	';
+
+	$_popupCrea = $form_crea->_form_modal_simple_insert("crea_" . $_dbTable ,"Crear Material" , $forms , $_dbTable );
+	$vista.= $_popupCrea[0];
+	$_jsScripts.=$_popupCrea[1];
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%js-ajax%" , $_jsAjax , $vista);
+	$vista = str_replace("%content%" , $table_materiales_clientes , $vista);
+	$vista = str_replace("%form-file%" , $_form_file , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+
+	/**** FUNCIONES DE SUBIDA DE ARCHIVO ****/
+	if (isset($_POST["sube-archivo"])) {
+		ini_set('max_execution_time', 480);
+
+		$table = "cmx_" . $_dbTable;
+		$ruta = BASE_URL . "public/files/";
+		$columnasArchivo = 33;
+		$_registro_exitoso = 0;
+		$_msg_error = "";
+		$_count_row = 0;
+		$archivoValido = true;
+
+		if ($_FILES) {
+			// print_r("<pre>");
+			// print_r($_FILES);
+			// print_r("</pre>");
+
+			foreach ($_FILES as $key) {
+				$nombre = $key["name"];
+				$ruta_temporal = $key["tmp_name"];
+
+				if ($nombre) {
+					$file_origin = explode(".", $nombre);
+					if ($file_origin[1] == "csv") {
+
+						$x = 0;
+						$info = array();
+						$data = array();
+
+						$archivo = file_get_contents($ruta_temporal);
+						$archivo = ucfirst($archivo);
+
+						$arrayArchivo = explode(";", $archivo);
+						$i = 0;
+
+						foreach ($arrayArchivo as $datos) {
+							$i++;
+							$data[$i-1] = $datos;
+							if ($i == $columnasArchivo) {
+								$_count_row++;
+
+								$arrayUltimaColumna = explode("\n", $datos);
+
+								$data[$i-1] = $arrayUltimaColumna[0];
+								$i = 1;
+
+								$x++;
+								if($x > 1){
+									$info[$_count_row] = array(
+										"id_cliente" 				=> $ssn_id_cliente, 
+										"subpartida" 				=> limpiaTexto($data[0]), 
+										"codigo" 					=> limpiaTexto($data[1]), 
+										"codigo_antiguo" 			=> limpiaTexto($data[2]), 
+										"codigo_corto"	 			=> limpiaTexto($data[3]), 
+										"ean13"	 					=> limpiaTexto($data[4]), 
+										"codigoUN" 					=> limpiaTexto($data[5]), 
+										"riesgo" 					=> limpiaTexto($data[6]), 
+										"consolidable"				=> limpiaTexto($data[7]), 
+										"peso_unitario_bruto" 		=> limpiaTexto($data[8]), 
+										"peso_unitario_neto" 		=> limpiaTexto($data[9]), 
+										"largo" 					=> limpiaTexto($data[10]), 
+										"alto" 						=> limpiaTexto($data[11]), 
+										"ancho" 					=> limpiaTexto($data[12]), 
+										"cupo_autorizado" 			=> limpiaTexto($data[13]), 
+										"cant_contenido_interno" 	=> limpiaTexto($data[14]), 
+										"vida_util" 				=> limpiaTexto($data[15]), 
+										"nom_familia" 				=> limpiaTexto($data[16]), 
+										"nom_categoria" 			=> limpiaTexto($data[17]), 
+										"grupo" 					=> limpiaTexto($data[18]), 
+										"sub_grupo" 				=> limpiaTexto($data[19]), 
+										"descripcion" 				=> limpiaTexto($data[20]), 
+										"detalle" 					=> limpiaTexto($data[21]), 
+										"especificacion" 			=> limpiaTexto($data[22]), 
+										"caracteristica" 			=> limpiaTexto($data[23]), 
+										"talla" 					=> limpiaTexto($data[24]), 
+										"color" 					=> limpiaTexto($data[25]), 
+										"presentacion"				=> limpiaTexto($data[26]), 
+										"unidad_presentacion"		=> limpiaTexto($data[27]), 
+										"tipo_embalaje"				=> limpiaTexto($data[28]), 
+										"unidades_x_embalaje"		=> limpiaTexto($data[29]), 
+										"unidades_x_tendido"		=> limpiaTexto($data[30]), 
+										"planchas_x_estiba"			=> limpiaTexto($data[31]), 
+										"altura_estiba"				=> limpiaTexto($data[32]), 
+									);
+
+
+									// valido contentido de los campos 
+									if($info[$_count_row]["codigo"] != ""){
+										if($info[$_count_row]["codigoUN"] != ""){
+											if($info[$_count_row]["peso_unitario_bruto"] != ""){
+												if($info[$_count_row]["largo"] != ""){
+													if($info[$_count_row]["alto"] != ""){
+														if($info[$_count_row]["ancho"] != ""){
+															if($info[$_count_row]["descripcion"] != ""){
+																$validaEAN13 = explode("+", $info[$_count_row]["ean13"]);
+																if(!isset($validaEAN13[1])){
+																	if($info[$_count_row]["unidades_x_tendido"] != ""){
+																		if($info[$_count_row]["planchas_x_estiba"] != ""){
+																			if($info[$_count_row]["riesgo"] != ""){
+																				// SE VERIFICA QUE EL RIESGO EXISTA
+																				$arrayRiesgo = $this->materiales_clientes->buscaRiesgoNumero($info[$_count_row]["riesgo"]);
+																				// print_r("<pre>");
+																				// print_r($arrayRiesgo);
+																				// print_r("</pre>");
+																				if ($arrayRiesgo["rowsNum"] > 0 ) {
+																					$info[$_count_row]["riesgo"] = $arrayRiesgo["rowsData"][0]["id"];
+																				} else {
+																					$archivoValido = false;
+																					$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"riesgo\" no se encuentra bien diligenciada. Por favor verifique el número de riesgo de esta fila.</p>";
+																				}
+
+																				// SE SACA EL VOLUMEN TERRESTRE DEL MATERIAL
+																				$volumen_terrestre =  round((($info[$_count_row]["largo"] * $info[$_count_row]["alto"] * $info[$_count_row]["ancho"]) / 4000) * 100) / 100;    
+																				// $boxes['boxes']['idBoxParque'] = $fila['idBoxParque'];
+																				$info[$_count_row]["volumen_terrestre"] = $volumen_terrestre;
+
+																				// SE SACA EL AEREO DEL MATERIAL
+																				$volumen_aereo = round((($info[$_count_row]["largo"] * $info[$_count_row]["alto"] * $info[$_count_row]["ancho"]) / 6000) * 100) / 100;
+																				// $boxes['boxes']['idBoxParque'] = $fila['idBoxParque'];
+																				$info[$_count_row]["volumen_aereo"] = $volumen_aereo;
+																			}
+																			else{
+																				$archivoValido = false;
+																				$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"riesgo\" esta vacía.</p>";
+																			}
+																		}
+																		else{
+																			$archivoValido = false;
+																			$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"Planchas por Estiba\" esta vacía.</p>";
+																		}
+																	}
+																	else{
+																		$archivoValido = false;
+																		$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"Unidades por Tendido\" esta vacía.</p>";
+																	}
+																}
+																else{
+																	$archivoValido = false;
+																	$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"ean13\" tiene un formato no válido.</p>";
+																}
+															}
+															else{
+																$archivoValido = false;
+																$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"descripcion\" esta vacía.</p>";
+															}
+														}
+														else{
+															$archivoValido = false;
+															$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"ancho\" esta vacía.</p>";
+														}
+													}
+													else{
+														$archivoValido = false;
+														$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"alto\" esta vacía.</p>";
+													}
+												}
+												else{
+													$archivoValido = false;
+													$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"largo\" esta vacía.</p>";
+												}
+											}
+											else{
+												$archivoValido = false;
+												$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"peso_unitario_bruto\" esta vacía.</p>";
+											}
+										}
+										else{
+											$archivoValido = false;
+											$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"codigoUN\" esta vacía.</p>";
+										}
+									}
+									else{
+										$archivoValido = false;
+										$_msg_error.= "<p><strong>Error en fila $_count_row:</strong> La columna \"codigo\" esta vacía.</p>";
+									}
+								}
+								// se asigna el valor del primer registro de la siguinete fila
+								$data[$i-1] = $arrayUltimaColumna[1];
+							}
+						}
+					} else {
+						$archivoValido = false;
+						$_msg_error.= '<p>Archivo no válido para subir al servidor, debe ser un archivo plano con extensión <strong>\".csv\"</strong>.</p><p>Se recomienda descargar el formato para su diligenciamiento <a href="' . BASE_URL . 'public/files/formatoMateriales.csv" target="_blank"  alt="Formato Archivos"><img src="' . BASE_URL . 'public/img/excel_2013.png" height="20" width="20"></a></p>';
+					}
+				} else {
+					$archivoValido = false;
+					$_msg_error.= "Debe seleccionar un archivo válido para subir al servidor.";
+				}
+			}
+
+			// print_r("<pre>");
+			// print_r($info);
+			// print_r("</pre>");
+
+			// Si el archivo es correcto puede verificar si la informacion no se encuentra en la base de datos 
+			$contenidoValido = false;
+			if($archivoValido){
+				$contenidoValido = true;
+				$_msg_error.= "<p><strong>Archivo diligenciado correctamente</strong>.</p>";
+				foreach ($info as $key1 => $value1) {
+					$sql = '
+						SELECT 
+							COUNT(*) CUANTOS
+						FROM 
+							cmx_material_cliente cmc
+						WHERE 
+							cmc.codigo = "' . $value1["codigo"] . '"
+							AND cmc.id_cliente = "' . $ssn_id_cliente . '"
+					';
+					$buscaMaterial = $Conect->getConsulta($sql);
+					// print_r("<pre>");
+					// print_r($buscaMaterial);
+					// print_r("</pre>");
+
+					if ($buscaMaterial['rowsData'][0]['CUANTOS'] > 0) {
+						$_msg_error.= "<p><strong>Advertencia en fila " . $key1 . ":</strong> Ya existe en la nube un material con código " . $value1['codigo'] . ".</p>";
+					}
+					else{
+						$Conect->setRegistro($table, $value1);
+						$_registro_exitoso++;
+					}
+				}
+				$_msg_error.= "<h4><strong>Se subieron $_registro_exitoso registros exitosamente.</strong></h4>";
+				echo '
+					<script language="javascript">
+						setTimeout(function() { window.location="' . BASE_URL . 'materiales_clientes/index";  }, 3000);
+					</script>
+				';
+			}
+		} else {
+			$_msg_error.= "Debe subir un archivo";
+		}
+
+		$_msg_color = "danger";
+		if($contenidoValido){
+			$_msg_color = "success";
+		}
+		echo '
+			<script language="javascript">
+				console.log("entro en el js del mensaje");
+				$(".nexos-messages").html(\'<div role="alert" class="alert alert-' . $_msg_color . ' alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button>' . $_msg_error . '</div></div>\');
+			</script>
+		';
+	}
+
+	/**** FUNCIONES DE SUBIDA DE ARCHIVO ****/
+	function limpiaTexto($text){
+		$text = filter_var(trim($text), FILTER_SANITIZE_STRING);
+		//Filtro anti-XSS
+		$caracteres_malos = array("<", ">", "\"", "'", "/", "<", ">", "'", "/");
+		$caracteres_buenos = array("& lt;", "& gt;", "& quot;", "& #x27;", "& #x2F;", "& #060;", "& #062;", "& #039;", "& #047;");
+		$consultaBusqueda = str_replace($caracteres_malos, $caracteres_buenos, $text);
+		return $text;
+	}
+
+?>

@@ -1,0 +1,375 @@
+<?php
+	$_dbTable = "remitente_destinatario"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+	$r = new Request();
+	// print_r($r->getArgs());
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	/********* FIN POPUPS *********/
+
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if(isset($this->bodegas) && count($this->bodegas)){
+
+		$table_material_preentrada = '';
+
+		$arrayPreentradas = $this->bodegas->getMaterialPreEntrada($r->getArgs()[0]);
+		// print_r("<pre>");
+		// print_r($arrayPreentradas);
+		// print_r("</pre>");
+		if ($arrayPreentradas['rowsData']) {
+			$encabezado_info = "<div class='row'><div class='form-group col-xs-3 text-center'><img src='" . BASE_URL . "views/layout/assets/img/logo.png' style='height: 70px; width: 200px;'></div><div class='form-group col-xs-6 text-center'><H3 style='margin-top: 0;'>Informe de Ingreso</H3><span>Ingreso - " . $arrayPreentradas['rowsData'][0]['numero_ingreso'] . "</span><span class='panel-subtitle'>Precinto - " . $arrayPreentradas['rowsData'][0]['precinto'] . "</span></div><div class='form-group col-xs-3'><span>Conductor</span><span class='panel-subtitle'>" . $arrayPreentradas['rowsData'][0]['nom_conductor'] . "</span><span>Documento</span><span class='panel-subtitle'>" . $arrayPreentradas['rowsData'][0]['doc_conductor'] . "</span></div></div><div class='row'></div>";
+
+			$table_info ="<div class='row'><div class='col-sm-12'><div id='accordion1' class='panel-group accordion'><table class='table' style='margin-bottom: 5px;'><tbody><tr><th class='cell-detail' style='width: 7%'><span>Código</span></th><th class='cell-detail'><span>Descripción</span></th><th class='cell-detail' style='width: 7%'><span>Lote</span></th><th class='cell-detail' style='width: 7%'><span>Vence</span></th><th class='cell-detail text-center' style='width: 8%'><span>Unidades</span></th><th class='cell-detail text-center' style='width: 8%'><span>Estibas Completas</span></th><th class='cell-detail text-center' style='width: 8%'><span>Unidades EC</span></th><th class='cell-detail text-center' style='width: 8%'><span>Estibas Parciales</span></th><th class='cell-detail text-center' style='width: 8%'><span>Unidades EP</span></th><td class='cell-detail text-center' style='width: 8%'><span>Unidades x Tendido</span></td><td class='cell-detail text-center' style='width: 8%'><span>Planchas x Estiba</span></td><th class='cell-detail text-center' style='width: 8%'><span>Unidades X Estiba</span></th><th class='actions' style='width: 3%'><span class='icon mdi mdi-check'></span></td></tr></tbody></table>";
+
+			$table_material_preentrada ="
+				<div class='row'>
+					<div class='col-sm-12'>
+						<div id='accordion1' class='panel-group accordion'>
+							<table class='table' style='margin-bottom: 5px;'>
+								<tbody>
+									<tr>
+										<td class='cell-detail' style='width: 7%'>
+											<span>Código</span>
+										</td>
+										<td class='cell-detail'>
+											<span>Descripción</span>
+										</td>
+										<td class='cell-detail' style='width: 7%'>
+											<span>Lote</span>
+										</td>
+										<td class='cell-detail' style='width: 7%'>
+											<span>Vence</span>
+										</td>
+										<td class='cell-detail text-center' style='width: 8%'>
+											<span>Unidades</span>
+										</td>
+										<td class='cell-detail text-center' style='width: 8%'>
+											<span>Estibas Completas</span>
+										</td>
+										<td class='cell-detail text-center' style='width: 8%'>
+											<span>Unidades EC</span>
+										</td>
+										<td class='cell-detail text-center' style='width: 8%'>
+											<span>Estibas Parciales</span>
+										</td>
+										<td class='cell-detail text-center' style='width: 8%'>
+											<span>Unidades EP</span>
+										</td>
+										<td class='cell-detail text-center' style='width: 8%'>
+											<span>Unidades x Tendido</span>
+										</td>
+										<td class='cell-detail text-center' style='width: 8%'>
+											<span>Planchas x Estiba</span>
+										</td>
+										<td class='cell-detail text-center' style='width: 8%'>
+											<span>Unidades X Estiba</span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+			";
+
+			foreach ($arrayPreentradas['rowsData'] as $key => $value) {
+				$qr_estiba = '';
+				$qr_embalaje = '';
+				$_fila_info = "<table class='table' style='margin-bottom: 0;'><tbody><tr><td class='cell-detail' style='width: 7%'><span class='cell-detail-description'>" . $value["codigo"] . "</span></td><td class='cell-detail'><span class='cell-detail-description'>" . $value["descripcion"] . "</span></td><td class='cell-detail' style='width: 7%'><span class='cell-detail-description'>" . $value["lote"] . "</span></td><td class='cell-detail' style='width: 7%'><span class='cell-detail-description'>" . $value["fecha_vencimiento"] . "</span></td><td class='cell-detail text-center' style='width: 8%'><span class='cell-detail-description'>" . $value["cantidad"] . "</span></td><td class='cell-detail text-center' style='width: 8%'><span class='cell-detail-description'>" . $value["ESTIBAS_COMPLETAS"] . "</span></td><td class='cell-detail text-center' style='width: 8%'><span class='cell-detail-description'>" . $value["UNIDADES_EC"] . "</span></td><td class='cell-detail text-center' style='width: 8%'><span class='cell-detail-description'>" . $value["ESTIBAS_INCOMPLETAS"] . "</span></td><td class='cell-detail text-center' style='width: 8%'><span class='cell-detail-description'>" . $value["UNIDADES_EP"] . "</span></td><td class='cell-detail text-center' style='width: 8%'><span class='cell-detail-description'>" . $value["unidades_x_tendido"] . "</span></td><td class='cell-detail text-center' style='width: 8%'><span class='cell-detail-description'>" . $value["planchas_x_estiba"] . "</span></td><td class='cell-detail text-center' style='width: 8%'><span class='cell-detail-description'>" . $value["UNIDADES_X_ESTIBA"] . "</span></td><td class='actions' style='width: 3%'><div class='be-checkbox'><input id='check1' type='checkbox'><label for='check1'></label></div></td></tr></tbody></table>";
+
+				$fila_material_preentrada_1 = "
+					<table class='table' style='margin-bottom: 0;'>
+						<tbody>
+							<tr>
+								<td class='cell-detail' style='width: 7%'>
+									<span class='cell-detail-description'>" . $value["codigo"] . "</span>
+								</td>
+								<td class='cell-detail'>
+									<span class='cell-detail-description'>" . $value["descripcion"] . "</span>
+								</td>
+								<td class='cell-detail' style='width: 7%'>
+									<span class='cell-detail-description'>" . $value["lote"] . "</span>
+								</td>
+								<td class='cell-detail' style='width: 7%'>
+									<span class='cell-detail-description'>" . $value["fecha_vencimiento"] . "</span>
+								</td>
+								<td class='cell-detail text-center' style='width: 8%'>
+									<span class='cell-detail-description'>" . $value["cantidad"] . "</span>
+								</td>
+								<td class='cell-detail text-center' style='width: 8%'>
+									<span class='cell-detail-description'>" . $value["ESTIBAS_COMPLETAS"] . "</span>
+								</td>
+								<td class='cell-detail text-center' style='width: 8%'>
+									<span class='cell-detail-description'>" . $value["UNIDADES_EC"] . "</span>
+								</td>
+								<td class='cell-detail text-center' style='width: 8%'>
+									<span class='cell-detail-description'>" . $value["ESTIBAS_INCOMPLETAS"] . "</span>
+								</td>
+								<td class='cell-detail text-center' style='width: 8%'>
+									<span class='cell-detail-description'>" . $value["UNIDADES_EP"] . "</span>
+								</td>
+								<td class='cell-detail text-center' style='width: 8%'>
+									<span class='cell-detail-description'>" . $value["unidades_x_tendido"] . "</span>
+								</td>
+								<td class='cell-detail text-center' style='width: 8%'>
+									<span class='cell-detail-description'>" . $value["planchas_x_estiba"] . "</span>
+								</td>
+								<td class='cell-detail text-center' style='width: 8%'>
+									<span class='cell-detail-description'>" . $value["UNIDADES_X_ESTIBA"] . "</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				";
+
+				$table_info.= $_fila_info;
+				$table_material_preentrada.='
+					<div class="panel panel-default panel-border-color panel-border-color-default">
+						<div class="panel-heading ">
+							<div class="tools">
+							</div>
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_' . $value[0] . '_' . $value["id"] . '" aria-expanded="false" class="collapsed">
+									<i class="icon mdi mdi-chevron-down"></i>
+									' . $fila_material_preentrada_1 . '
+								</a>
+							</h4>
+						</div>
+						<div id="collapse_' . $value[0] . '_' . $value["id"] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+							<div class="panel-body">
+								%qr-estibas%
+							</div>
+						</div>
+					</div>
+				';
+				$arrayEstibasMaterial = $this->bodegas->getQrEstibasMaterial($value["id"]);
+				// print_r("<pre>");
+				// print_r($arrayEstibasMaterial);
+				// print_r("</pre>");
+				if ($arrayEstibasMaterial["rowsData"]) {
+					$qr_estiba = "<div class='col-sm-3'></div><div class='col-sm-6'><table class='table'><tbody>";
+					foreach ($arrayEstibasMaterial["rowsData"] as $key1 => $value1) {
+						// INFORMACIÓN DE LA ESTIBA
+						$info_contenido = '
+							<div class="panel panel-border panel-contrast">
+								<div class="panel-heading panel-heading-contrast">
+									Información de Estiba - ' . $value1["lote"] . '-' . $value1["grupo"] . ' 
+									<div class="tools">
+										<a href="#" id="imprimir_' . $value1["lote"] . '-' . $value1["grupo"] . '" data-toggle="modal" data-target="#edita_files_" class="cell-detail  hint--top-left" data-hint="Imprimir QR"><span class="icon mdi mdi-print"></span></a> 
+									</div>
+								</div>
+							</div>
+							<div class="form-group col-xs-4"></div>
+							<div class="form-group col-xs-4 text-center" id="' . $value1["lote"] . '-' . $value1["grupo"] . '">
+								<img src="' . BASE_URL . $value1["URL_QR"] . '"  height="180" width="180">
+								<span class="panel-subtitle">
+									Código - ' . $value1["codigo"] . '<br />
+									Lote - ' . $value1["lote"] . '-' . $value1["grupo"] . ' (' . $value1["fecha_vencimiento"] . ')<br />
+									' . $value1["descripcion"] . '<br />
+									Unidades por estiba - ' . $value1["cantidad_grupo"] . ' Unid<br />
+									Presentación - ' . $value1["nom_unidad_presentacion"] . ' x ' . $value1["cant_contenido_interno"] . ' ' . $value1["nom_unidad_medida"] . '<br />
+									Embalaje - ' . $value1["nom_unidad_empaque"] . ' x ' . $value1["unidades_x_embalaje"] . ' Unid
+								</span>
+							</div>
+							<div class="form-group col-xs-4"></div>
+							<div class="row"></div>
+						';
+						$vista.= $info->_bootstrap_modal_dialog("info_" . $value1["lote"] . "_" . $value1["grupo"] , "Impresión de Estiba" , $info_contenido );
+
+						// SCRIPT DE IMPRESIÓN DEL QR DE LA ESTIBA
+						$_jsScripts.='
+							<script type="text/javascript">
+								$("#imprimir_' . $value1["lote"] . '-' . $value1["grupo"] . '").click(function (){
+									$("div#' . $value1["lote"] . '-' . $value1["grupo"] . '").printArea({
+										popWd:	30,
+										popHt: 	60
+									});
+								})
+							</script>
+						';
+
+						// Columna de Cantidad de embalajes del despacho 
+						$_porcentaje = 0;
+						if ($value1["ESTIBAS_DESCARGADAS"] > 0) {
+							$_porcentaje = ceil(($value1["ESTIBAS_DESCARGADAS"] * 100) / $value1["cantidad_grupo"]);
+						}
+						$_fila_lote_almacenados = "<td class='milestone' style='width: 15%;'><span class='version'>" . $value1["ESTIBAS_DESCARGADAS"] . " / " . $value1["cantidad_grupo"] . "</span><div class='progress'><div style='width: " . $_porcentaje . "%' class='progress-bar progress-bar-primary'></div></div></td>";
+						switch ($value1["sub_estado"]) {
+							case '2':
+								// se asigna contenido de la columna de estado
+								$col_stasus = '<td class="nexos-txt-warning"><span class="mdi mdi-dot-circle icon"></span><span style="display: none;">' . $value1["sub_estado"] . '</span></td>';
+								break;
+							
+							case '3':
+								$col_stasus = '<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span><span style="display: none;">' . $value1["sub_estado"] . '</span></td>';
+								break;
+
+							default:
+								$col_stasus = '<td class="nexos-txt-warning"><span class="mdi mdi-dot-circle icon"></span><span style="display: none;">' . $value1["sub_estado"] . '</span></td>';
+								break;
+						}
+
+						$qr_estiba.= "
+							<tr>" . $col_stasus . "
+								<td class='cell-detail'>
+									<span class='cell-detail-description'>" . $value1["ESTIBA"] . "</span>
+								</td>
+								<td class='cell-detail'>
+									<span class='cell-detail-description'>" . $_fila_lote_almacenados . "</span>
+								</td>
+								<td class='actions' data-toggle='modal' data-target='#info_" . $value1["lote"] . "_" . $value1["grupo"] . "'>
+									<a href='#' class='icon hint--top-left' data-hint='Imprimir QR'><span class='mdi mdi-print'></span></a>
+								</td>
+							</tr>
+						";
+					}
+					$qr_estiba.= "<tr><td class='cell-detail' colspan='5'></td></tr></tbody></table></div><div class='col-sm-3'></div>";
+					// $table_material_preentrada.= $qr_estiba;
+				}else{
+					$qr_estiba.= '
+						<div class="form-group col-xs-12 text-center">
+							<span>Este material no ha sido validado para su ingreso a la bodega, por favor ver el módulo "Pre-ingreso".</span>
+						</div>
+					';
+				}
+				$table_material_preentrada = str_replace("%qr-estibas%", $qr_estiba, $table_material_preentrada);
+
+				// $arrayEmbalajeMaterial = $this->bodegas->getQrEmbalajesMaterial($value["id"]);
+				// // print_r("<pre>");
+				// // print_r($arrayEmbalajeMaterial);
+				// // print_r("</pre>");
+
+				// if ($arrayEmbalajeMaterial["rowsData"]) {
+				// 	foreach ($arrayEmbalajeMaterial["rowsData"] as $key2 => $value2) {
+				// 		$qr_embalaje.= '
+				// 			<div class="form-group col-xs-4 text-center">
+				// 				<img src="' . BASE_URL . $value2["URL_QR"] . '"  height="180" width="180">
+				// 				<span class="panel-subtitle">
+				// 					Código - ' . $value2["codigo"] . '<br />
+				// 					Lote - ' . $value2["lote"] . ' (' . $value2["fecha_vencimiento"] . ')<br />
+				// 					' . $value2["descripcion"] . '<br />
+				// 					Presentación - ' . $value2["nom_unidad_presentacion"] . ' x ' . $value2["cant_contenido_interno"] . ' ' . $value2["nom_unidad_medida"] . '
+				// 				</span>
+				// 			</div>
+				// 		';
+				// 	}
+				// }else{
+				// 	$qr_embalaje.= '
+				// 		<div class="form-group col-xs-12 text-center">
+				// 			<span>Este material no ha sido validado para si ingreso a la bodega, por favor ver el módulo "Pre-ingreso".</span>
+				// 		</div>
+				// 	';
+				// }
+				// $table_material_preentrada = str_replace("%qr-embalajes%", $qr_embalaje, $table_material_preentrada);
+				}
+			$table_material_preentrada.='
+						</div>
+					</div>
+				</div>
+			';
+		}
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Material de Pre-entradas - ' . $r->getArgs()[1] . '  
+				<div class="tools">
+					<a href="' . BASE_URL . 'bodegas/pre_entradas" class="cell-detail  hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>
+					<a href="#" id="imprimir" class="cell-detail hint--top" data-hint="Imprimir"><span class="icon mdi mdi-print"></span></a>
+				</div>
+				<span class="panel-subtitle">Es este módulo puede ver las pre-entradas que están disponibles para hacer ingreso de materiales en la bodega.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE IMPRESION PrintThis -->
+		<script src="%root_file%js/printThis.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE IMPRESION PrintArea -->
+		<script src="%root_file%js/jquery.PrintArea.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			$("#imprimir").click(function(){
+				$("#prueba").printThis({
+					importStyle: "block",
+					header: "' . $encabezado_info . '",
+					footer: "' . $table_info . '"
+				});
+			});
+
+	    </script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_material_preentrada  , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>
+

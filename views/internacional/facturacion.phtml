@@ -1,0 +1,354 @@
+<?php
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+	$vista = ' <link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>';
+	$table_content = "";
+
+	if( isset($this->internacional) ){
+		$arrayInstrucciones = $this->internacional->getProyectosIntrFacturacion();
+
+		$table_content ='
+			<div class="table-responsive noSwipe col-xs-12 col-sm-12 col-md-12">
+				<table id="table1" class="table table-striped table-hover table-fw-widget" data-page-length="50">
+					<thead>
+						<tr class="nexos-encabezado">
+							<th class="col-xs-2 col-sm-2 col-md-2"># Proforma</th>
+							<th>Cliente</th>
+							<th class="col-xs-2 col-sm-2 col-md-2">Cantidad de DO´s</th>
+							<th class="col-xs-2 col-sm-2 col-md-2">Total Factura</th>
+							<th class="col-xs-1 col-sm-1 col-md-1"></th>
+						</tr>
+					</thead>
+						<tbody>
+		';
+
+		if ( $arrayInstrucciones["general"] ) {
+			foreach ($arrayInstrucciones["general"] as $key => $value) {
+				// Se buscan los DO's de la proforma 
+				$_do = '';
+				if (isset($arrayInstrucciones["do"][$value['id']])) {
+					foreach ($arrayInstrucciones["do"][$value['id']] as $key_01 => $value_01) {
+						$_do.= '<span class="cell-detail-description">' . $value_01 . '</span>';
+					}
+				}
+
+				$table_content.='
+					<tr>
+						<td class="cell-detail">
+							<span>' . $value["num_proforma"] . '</span>
+							' . $_do . '
+							<span class="cell-detail-description">' . $this->internacional->getTimestampToDate($value["num_proforma"]) . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["sigla"] . '</span>
+							<span class="cell-detail-description">' . $value["DOCUMENTO"] . '</span>
+							<span class="cell-detail-description">' . $value["cod_cliente"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span class="label label-default">' . $value["CUANTOS_DO"] . '</span>
+						</td>
+						<td class="cell-detail text-right">
+							<span>$ ' . number_format($value["total"], 0, ",",".")  . '</span>
+						</td>
+						<td class="actions">
+							<a href="javascript:" onclick="verFormEditaFactura(' . $value['id'] . ')" class="cell-detail hint--top-left" data-hint="Editar Instrucción"><span class="icon mdi mdi-edit" data-toggle="modal" data-target="#ver_facturacion"></span></a>
+						</td>
+					</tr>
+				';
+			}
+		}
+
+		$table_content.='
+					</tbody>
+				</table>
+			</div>
+		';
+	}
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+
+	// Se verifican los permisos del pefil de usuario
+	$arrayPermisos = $this->internacional->permisosPerfil( $ssn_id_perfil , 68);
+	$_permisos = $arrayPermisos;
+	$btn_gestiona = '';
+	if ($_permisos["editar"] == 1) {
+		$btn_gestiona = '<button id="btn_editar_facturacion" type="button" class="btn btn-success md-close">Guardar</button>';
+	}
+
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Facturación Clientes Internacional
+				<span class="panel-subtitle">Se registra la entrega de las facturas al cliente. Se toma la información para la generación de la factura.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+
+		<div id="ver_facturacion" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="ver_facturacion_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_popup_instruccion"></div>
+						<div id="contenidoeditafacturacion"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer">
+						' . $btn_gestiona . '
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE IMPRESION PrintThis -->
+		<script src="%root_file%js/printThis.js" type="text/javascript"></script>
+
+
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista);
+
+	echo $vista;
+?>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#btn_editar_facturacion").click(function(){
+			// console.log("Entro en función del btn_editar_facturacion");
+			$("#nexos_messages_popup_instruccion").empty();
+			var msg_error = "";
+
+			var num_factura = $("#factura").val();
+			var fecha_factura = $("#fecha_factura").val();
+			var fecha_vencimiento = $("#fecha_vencimiento").val();
+			var file_factura = $("#file_factura").val();
+
+			if (file_factura) {
+				if (!num_factura) {
+					msg_error+= "<p>Debe diligenciar el campo <strong># Factura</strong> para registrar la factura del cliente.</p>";
+				}
+				var adjunto = $("#file_factura")[0].files[0];
+				// Se valida el peso del archivo
+				if ( adjunto.size < $("#max_file_size").val() ) {
+					// Se valida el tipo de archivo
+					var extension = adjunto.name.split(".");
+					var formato_archivo = "pdf,PDF,zip,ZIP,rar,RAR,doc,DOC,docx,DOCX,jpg,jpeg,png,gif,bmp,tif,JPG,JPEG,PNG,GIF,BMP,TIF,xls,XLS,xlsx,XLSX,ppt,PPT,pptx,PPTX,pps,PPS,ppsx,PPSX,ods,ODS";
+					if( validaFormatoArchivo( formato_archivo , extension[ extension.length - 1 ]) == 0 ){
+						msg_error+= "<p>Formato del archivo del campo <strong>Factura Recibida</strong> no es válido para poder crear el sobrecosto.</p>";
+						msg_error+= "<p>Formatos válidos: <strong>" + formato_archivo + "</strong>.</p>";
+					}
+				} else {
+					msg_error+= "<p>El archivo del campo <strong>Adjunto Factura</strong> es muy pesado para subirlo al servidor. El peso máximo del archivo debe ser menor de <strong>" + ($("#max_file_size").val() / 1000000 ) + "MB</strong>.</p>";
+				}
+			}
+
+			if (fecha_factura > fecha_vencimiento) {
+				msg_error+= "<p>La <strong>Fecha Factura</strong> no puede ser mayor que la <strong>Fecha Vencimiento</strong> para registrar la factura del cliente.</p>";
+			}
+
+			if (!msg_error) {
+				var params = new FormData( $("#form_instruccion")[0]);
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=gestionar_factura_cliente",
+					type: 'POST',
+					contentType: false,
+					data: params,
+					cache: false,
+					dataType: 'json',
+					processData:false,
+					beforeSend	: function(jqXHR, settings){
+						$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").html('');
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").html('');
+						// console.log(data);
+						if (data.gestiona_actividad) {
+							console.log("Se debe gestionar la actividad");
+							$(".actividades").each(function(){
+								var params = {
+									id : $(this).data("id_actividad") + ",",
+									orden : $(this).data("orden"),
+									fecha_hora_inicio : $(this).data("fecha_hora_inicio"),
+									id_importacion : $(this).data("id_importacion"),
+									bloque : $(this).data("bloque"),
+									grupo : $(this).data("grupo"),
+									simultaneo : $(this).data("simultaneo"),
+									tipo_actividad : $(this).data("tipo_actividad"),
+									costo_real : $(this).data("costo_real"),
+									respuesta : $(this).data("respuesta")
+								}
+								// console.log(params);
+								actualizaActividad(params);
+							});
+						}
+					}
+				});
+				if (!msg_error) {
+					$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+					$("#ver_facturacion").animate({ scrollTop: 0 }, 600);
+					setTimeout(function() { location.reload(false); }, 800);
+				}
+				if (msg_error) {
+					$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+					$("#ver_facturacion").animate({ scrollTop: 0 }, 600);
+				}
+			}
+			if (msg_error) {
+				$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+				$("#ver_facturacion").animate({ scrollTop: 0 }, 600);
+			}
+		});
+	});
+
+	function verFormEditaFactura(id){
+		// console.log("Entro en función verFormEditaFactura");
+		$("#nexos_messages_popup_instruccion").empty();
+		$("#ver_facturacion_title").empty();
+		$("#contenidoeditafacturacion").empty();
+		var msg_error = "";
+
+		var params = {
+			id: id,
+		}
+
+		$.ajaxSetup({async: false});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=form_editar_factura",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").html('');
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				$(".nexos-messages").html('');
+				// console.log(data);
+				if (!msg_error) {
+					$("#nexos_messages_popup_instruccion").html("");
+					if (data.content) {
+						$("#ver_facturacion_title").html(data.content.title);
+						$("#contenidoeditafacturacion").html(data.content.content);
+						$("#proforma_print").hide();
+						App.formElements();
+					}
+				}
+			}
+		});
+		$.ajaxSetup({async: true});
+		if (msg_error) {
+			$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#ver_facturacion").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function actualizaActividad(params){
+		// console.log(params);
+		var msg_error = "";
+
+		// Se actualizan las actividades del proyecto
+		$.ajax({
+			type		: "POST",
+			cache		: false,
+			url 		: $("#id_url_ajax").val() + "libs/gestion_actividades.php?tabla=cmx_importacion_actividades&proyecto=importacion",
+			data		: params,
+			beforeSend	: function(jqXHR, settings){
+						$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error		: function(data) {
+						console.log(data);
+						$(".nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Error en la creación del registro.</div></div>');
+			},
+			success		: function(data) {
+						// console.log(data);
+			}
+		});
+	}
+
+	function imprimirProforma(){
+		// console.log("Entro en función imprimirProforma");
+		$("#proforma_print").printThis({
+			importStyle: "block",
+			header: $("#proforma_print").html(),
+		});
+	}
+
+</script>

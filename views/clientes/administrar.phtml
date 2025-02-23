@@ -1,0 +1,322 @@
+<?php
+	$_dbTable = "clientes"; // SIN EL PREFIJO cmx_
+
+	$vista = '';
+
+	/**** MAQUETA DEL FORMULARIO POR PASOS ****/
+	$step_form = '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Crear Cliente
+				<span class="panel-subtitle">Formulario de creación de clientes.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				<div class="row wizard-row">
+					<div class="col-md-12 fuelux">
+						<div class="block-wizard panel panel-default">
+							<div id="wizard1" class="wizard wizard-ux">
+								<ul class="steps">
+									<li data-step="1" class="active">Generalidades<span class="chevron"></span></li>
+									<li data-step="2">Ubicación<span class="chevron"></span></li>
+								</ul>
+								<div class="actions" style= "display: none;">
+									<button type="button" class="btn btn-xs btn-prev btn-default"><i class="icon mdi mdi-chevron-left"></i>Prev</button>
+									<button type="button" data-last="Finish" class="btn btn-xs btn-next btn-default">Next<i class="icon mdi mdi-chevron-right"></i></button>
+								</div>
+								<div class="step-content">
+									<div class="text-right">
+										<span>(*) Campos Obligatorios</span>
+									</div>
+									%step_content%
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** PASO 1 ****/
+	$step_subform = '
+		<div data-step="1" class="step-pane active">
+			<form  id="crea_"' . $_dbTable . '" name="crea_"' . $_dbTable . '" action="#" data-parsley-namespace="data-parsley-" data-parsley-validate="" novalidate="" class="form-horizontal group-border-dashed">
+		        <div class="form-group no-padding">
+		        	<div class="col-sm-12">
+		        		<h3 class="wizard-title">Información General</h3>
+		        	</div>
+		        </div>
+				<div class="form-group row">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-2">
+						<label class="control-label">(*) Tipo de Documento:</label>
+						%slct_tipo_documento%
+					</div>
+					<div class="col-sm-2">
+						<label class="control-label">(*) Régimen:</label>
+						%slct_regimen%
+					</div>
+					<div class="col-sm-2">
+						<label class="control-label">(*) Documento:</label>
+						<input type="number" min="0" name="documento" id="documento" placeholder="Nit" class="form-control">
+					</div>
+					<div class="col-sm-2">
+						<label class="control-label">(*) Número Verficación:</label>
+						<input type="number" min="0" name="digito_verificacion" id="digito_verificacion" placeholder="# Verificación" class="form-control" readonly="readonly">
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-6">
+						<label class="control-label">(*) Nombre Cliente:</label>
+						<input type="text" name="nombre" placeholder="Nombre Cliente" class="form-control">
+					</div>
+					<div class="col-sm-2">
+						<label class="control-label">Sigla:</label>
+						<input type="text" name="sigla" placeholder="Sigla" class="form-control">
+					</div>
+					<div class="col-sm-1"></div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<label class="control-label">(*) Actividad</label>
+						<textarea name="actividad_cliente" class="form-control parsley-error" data-parsley-id="73" required="" ></textarea>
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-12">
+						<button class="btn btn-default btn-space">Cancel</button>
+						<button data-wizard="#wizard1" class="btn btn-primary btn-space wizard-next">Siguiente</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	';
+
+	/**** PASO 2 ****/
+	$step_subform.= '
+		<div data-step="2" class="step-pane">
+			<form id="crea_"' . $_dbTable . '" name="crea_"' . $_dbTable . '" action="#" data-parsley-namespace="data-parsley-" data-parsley-validate="" novalidate="" class="form-horizontal group-border-dashed">
+		        <div class="form-group no-padding">
+		        	<div class="col-sm-12">
+		        		<h3 class="wizard-title">Ubicación</h3>
+		        	</div>
+		        </div>
+				<div class="form-group row">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-6">
+						<label class="control-label">(*) Ciudad:</label>
+						%slct_ciudad%
+					</div>
+					<div class="col-sm-2">
+						<label class="control-label">Código Postal:</label>
+						<input type="number" min="0" placeholder="Código Postal" class="form-control" required="">
+					</div>
+					<div class="col-sm-1"></div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-3">
+						<label class="control-label">(*) Dirección:</label>
+						<input type="text" name="direccion" placeholder="Dirección" class="form-control" required="">
+					</div>
+					<div class="col-sm-2">
+						<label class="control-label">(*) Teléfono:</label>
+						<input type="number" name="telefono" min="0" placeholder="Teléfono" class="form-control">
+					</div>
+					<div class="col-sm-3">
+						<label class="control-label">(*) E-mail:</label>
+						<input type="mail" name="email" placeholder="E-mail" class="form-control">
+					</div>
+					<div class="col-sm-1"></div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<label class="control-label">Indicaciones de llegada:</label>
+						<textarea required="" class="form-control parsley-error" data-parsley-id="73"></textarea>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<div class="col-sm-12">
+						<button data-wizard="#wizard1" class="btn btn-default btn-space wizard-previous">Atrás</button>
+						<button id="btn_crear" data-wizard="#wizard1" class="btn btn-success btn-space wizard-next">Guardar</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	';
+
+	$step_subform = str_replace("%slct_tipo_documento%" , $this->cliente->getEnumSlctTipoDocumento( "tipo_documento" , "" , "") , $step_subform);
+	$step_subform = str_replace("%slct_regimen%" , $this->cliente->getEnumSlctRegimen( "regimen" , "" , "") , $step_subform);
+	$step_subform = str_replace("%slct_ciudad%" , $this->municipios->getHtmlSelect( "ciudad" , "" ) , $step_subform);
+
+	/**** SE VINCULAN SUB-FORMULARIOS AL AL FORMULARIO POR PASOS ****/
+	$step_form = str_replace('%step_content%', $step_subform, $step_form);
+	$vista.= $step_form;
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.='
+	    <!-- INICIO JS DEL FORM_WIZARD -->
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script type="text/javascript">
+	      $(document).ready(function(){
+	      	//initialize the javascript
+	      	App.init();
+	      	App.wizard();
+	      });
+	    </script>
+	    <!-- FIN JS DEL FORM_WIZARD -->
+	';
+
+
+	$dbTable = "cmx_" . $_dbTable;
+	$url = BASE_URL . 'libs/insertar.php?tabla=' . $dbTable ;
+	$url_buscar_registro = BASE_URL . 'libs/buscar_registro.php?tabla=' . $dbTable ;
+	$vista.='
+		<script type="text/javascript">
+			$("#btn_crear").click(function () {
+				$.ajaxSetup({async: false});
+				$(".nexos-messages").html(\'\');
+
+				// Campos No obligatorios
+				var sigla = $(\'input[name=sigla]\').val();
+				var codigo_postal = $(\'input[name=codigo_postal]\').val();
+				var indicaciones_llegada = $(\'textarea[name=indicaciones_llegada]\').val();
+
+				// Campos obligatorios
+				var msg_error = "";
+
+				var tipo_documento = $(\'select[name=tipo_documento\').val() ;
+				var regimen = $(\'select[name=regimen\').val() ;
+				var documento = $(\'input[name=documento]\').val();
+				var digito_verificacion = $(\'input[name=digito_verificacion]\').val();
+				var nombre = $(\'input[name=nombre]\').val();
+				var actividad_cliente = $(\'textarea[name=actividad_cliente]\').val();
+				var ciudad = $(\'select[name=ciudad\').val() ;
+				var direccion = $(\'input[name=direccion]\').val();
+				var telefono = $(\'input[name=telefono]\').val();
+				var email = $(\'input[name=email]\').val();
+
+				// Validación de campos 
+				if( !tipo_documento ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Tipo de Documento</strong>.</p>";
+				}
+				if( !regimen ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Régimen</strong>.</p>";
+				}
+				if( !documento ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Documento</strong>.</p>";
+				}else{
+					var parametros = {
+						"registro" 			: documento,
+						"campo" 			: "documento"
+					}
+					$.ajax({
+						url			: "' . $url_buscar_registro .'",
+						type		: "POST",
+						data		: parametros,
+						cache		: false,
+						dataType	: "json",
+						beforeSend	: function(jqXHR, settings){
+									console.log("Se busca si existe el cliente");
+						},
+						error		: function(data) {
+									console.log("error");
+						},
+						success		: function(data) {
+									console.log(data);
+									if(!data.respuesta){
+										var flag_registro = true;
+									}else{
+										msg_error+= "<p>Ya existe un cliente registrado con el documento <strong>" + documento + "</strong>.</p>";
+									}
+						}
+					});
+				}
+				if( !digito_verificacion ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Número Verficación</strong>.</p>";
+				}
+				if( !nombre ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Nombre Cliente</strong>.</p>";
+				}
+				if( !actividad_cliente ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Actividad</strong>.</p>";
+				}
+				if( !ciudad ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Ciudad</strong>.</p>";
+				}
+				if( !direccion ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Dirección</strong>.</p>";
+				}
+				if( !telefono ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>Teléfono</strong>.</p>";
+				}
+				if( !email ){
+					msg_error+= "<p>Debe diligenciar el campo <strong>E-mail</strong>.</p>";
+				}
+
+				if( !msg_error ){
+					console.log("Todo OK...");
+					var params = {
+						"tipo_documento"		: tipo_documento,
+						"regimen"				: regimen,
+						"documento" 			: documento,
+						"digito_verificacion"	: digito_verificacion,
+						"nombre"				: nombre,
+						"actividad_cliente"		: actividad_cliente,
+						"ciudad"				: ciudad,
+						"direccion"				: direccion,
+						"telefono"				: telefono,
+						"email"					: email,
+						"sigla"					: sigla,
+						"codigo_postal"			: codigo_postal,
+						"indicaciones_llegada"	: indicaciones_llegada
+					};
+					console.log(params);
+
+					$.ajax({
+						type		: "POST",
+						cache		: false,
+						url			: "' . $url .'",
+						data		: params,
+						beforeSend	: function(jqXHR, settings){
+										console.log("Entra en la funcion insertar ajax...");
+										console.log("entro en funcion insertar : bd tabla - '. $dbTable .'");
+										console.log("entro en funcion insertar : url - '. $url .'");
+										$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+						},
+						success		: function(data) {
+									console.log(data);
+									location.reload();
+						}
+					});
+				}else{
+					$(".nexos-messages").html(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>\' + msg_error + \'</div></div>\');
+					$("html, body").animate({ scrollTop: 0 }, 600);
+				}
+				$.ajaxSetup({async: true});
+			});
+
+			$("#documento").focusout(function () {
+				$("#digito_verificacion").val( calcularDigitoVerificacion( $("#documento").val() ) );
+			});
+		</script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+
+	echo $vista;
+?>

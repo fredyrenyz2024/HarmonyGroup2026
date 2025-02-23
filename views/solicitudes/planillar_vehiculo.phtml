@@ -1,0 +1,538 @@
+<?php
+	$_dbTable = "agrupacion_anticipo"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+	$_time = time();
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	/********* FIN POPUPS *********/
+
+	/*** SE CREA TABLA DE CONTENIDO ***/
+	$table_view = '';
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if( isset($this->solicitudes) ){
+		$table_view = '
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-10">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover" data-page-length="100">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th>Agrupación</th>
+									<th style="width:10%;">Peso Total</th>
+									<th>Vehículo</th>
+									<th>Solicitudes</th>
+									<th style="min-width:5%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+		$planillas = $this->solicitudes->getPlanillas();
+		// print_r("<pre>");
+		// print_r($planillas);
+		// print_r("</pre>");
+
+		if ($planillas["general"]) {
+			foreach ($planillas["general"]['rowsData'] as $key => $value) {
+				// se buscan datos del anticipo 
+				$datos_planilla = $this->solicitudes->getDatosPlanillas($value[0]);
+				$pin_tarjeta = "";
+				$clave = "";
+				$numero_manifiesto = "";
+				$flete = $value["flete"];
+				$anticipo = "";
+				$metodo_desembolso = "";
+				$porcentaje_anticipo = "";
+
+				if ($datos_planilla) {
+					$pin_tarjeta = $datos_planilla["rowsData"][0]["pin_tarjeta"];
+					$clave = $datos_planilla["rowsData"][0]["clave"];
+					$numero_manifiesto = $datos_planilla["rowsData"][0]["numero_manifiesto"];
+					$flete = $datos_planilla["rowsData"][0]["flete"];
+					$anticipo = $datos_planilla["rowsData"][0]["anticipo"];
+					$metodo_desembolso = $datos_planilla["rowsData"][0]["metodo_desembolso"];
+					$porcentaje_anticipo = $datos_planilla["rowsData"][0]["porcentaje_anticipo"];
+				}
+
+				$slct_agencias = $this->solicitudes->getSlctAgencias("agencia", $value[0], $value["ID_AGENCIA"]);
+				$slct_metodo_desembolso = $this->solicitudes->getEnumSlctMetodoDesembolso("metodo_desembolso", $value[0], $metodo_desembolso);
+				$slct_porcentaje_anticipo = $this->solicitudes->getEnumSlctPorcentajeAnticipo("porcentaje_anticipo", $value[0], $porcentaje_anticipo);
+				$slct_beneficiario = $this->solicitudes->getSlctBeneficiario("beneficiario", $value[0], $value["ID_VEHICULO"]);
+
+				$tramos = $this->solicitudes->getTramos($value[0]);
+				// print_r("<pre>");
+				// print_r($tramos);
+				// print_r("</pre>");
+				if ( $tramos ) {
+					$table_tramos = '
+						<span><strong>Tramos</strong></span>
+						<table class="table table-striped table-hover table-condensed">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th>Cliente</th>
+									<th>Tramo</th>
+									<th style="width: 15%;">Operación</th>
+									<th style="width: 15%;">Orden</th>
+								</tr>
+							</thead>
+							<tbody>
+					';
+					$i = 0;
+					$id_tramos = "";
+					foreach ($tramos["rowsData"] as $key_01 => $value_01) {
+						$i++;
+						$id_tramos.= $value_01[0] . ",";
+						$slct_orden = $this->solicitudes->getSlctOrdenTramo( "orden_tramo_" . $value_01[0], $value_01[0], $i, $tramos["rowsNum"], $value[0] );
+
+						$table_tramos.= '
+							<tr role="row" class="odd">
+								<td class="cell-detail">
+									<span>' . $value_01["NOMBRE_CLIENTE"] . '</span>
+								</td>
+								<td class="cell-detail">
+									<span>' . $value_01["NOMBRE_ORIGEN"] . '</span>
+									<span class="cell-detail-description">' . $value_01["direccion"] . '</span>
+									<span class="cell-detail-description">' . $value_01["CIUDAD"] . '</span>
+								</td>
+								<td class="cell-detail">
+									<span>' . $value_01["tipo_operacion"] . '</span>
+									<span class="cell-detail-description">' . $value_01["fecha_hora_operacion"] . '</span>
+									<input type="hidden" class="RNDC_TRAMO_' . $value[0] . '" id="RNDC_TRAMO_' . $value_01[0] . '" value="' . $value_01["RNDC_ID_CIUDAD"] . '">
+									<input type="hidden" id="id_tramo_' . $value_01[0] . '" value="' . $value_01[0] . '">
+								</td>
+								<td class="cell-detail input-xs">
+									' . $slct_orden . '
+								</td>
+							</tr>
+						';
+						$_jsScripts.= '
+							<script type="text/javascript">
+								$(".orden_' . $value[0] . '").each(function(){
+									if( $("#slct_orden_tramo_' . $value_01[0] . '").val() == 1 ){
+										$("#tramo_inicial_' . $value[0] . '").val( $("#id_tramo_' . $value_01[0] . '").val()  );
+										return false;
+									}
+								});
+							</script>
+						';
+					}
+					$_jsScripts.= '
+						<script type="text/javascript">
+							$(".orden_' . $value[0] . '").change(function(){
+								ordena_tramos(' . $value[0] . ', "' . $id_tramos . '", this.getAttribute(\'id\') );
+								$(".orden_' . $value[0] . '").each(function(){
+									$("#tramo_inicial_' . $value[0] . '").val("");
+									if( $("#" + $(this).attr("id")).val() == 1 ){
+										var id_select = $(this).attr("id").split("_");
+										$("#tramo_inicial_' . $value[0] . '").val( $("#id_tramo_" + id_select[ (id_select.length - 1) ] ).val()  );
+										return false;
+									}
+								});
+							});
+						</script>
+					';
+					$table_tramos.= '
+							</tbody>
+						</table>
+						<input type="hidden" name="CODMUNICIPIOORIGENMANIFIESTO_' . $value[0] . '" id="CODMUNICIPIOORIGENMANIFIESTO_' . $value[0] . '" value="' . $tramos["rowsData"][0]["RNDC_ID_CIUDAD"] . '">
+						<input type="hidden" name="CODMUNICIPIODESTINOMANIFIESTO_' . $value[0] . '" id="CODMUNICIPIODESTINOMANIFIESTO_' . $value[0] . '" value="' . $tramos["rowsData"][ $tramos["rowsNum"] - 1 ]["RNDC_ID_CIUDAD"] . '">
+						<input type="hidden" name="tramo_inicial_' . $value[0] . '" id="tramo_inicial_' . $value[0] . '">
+					';
+				}
+
+				// Se buscan los materiales 
+				$material_plantilla = $this->solicitudes->getMaterialPlanilla($value["id"]);
+				// print_r("<pre>");
+				// print_r($material_plantilla);
+				// print_r("</pre>");
+				if ($material_plantilla) {
+					$table_material_planilla = '
+						<div class="form-group col-xs-0 col-sm-1 col-md-1"></div>
+						<div class="form-group col-xs-12 col-sm-10 col-md-10">
+							<strong>Remesas</strong>
+							<table class="table table-striped table-hover table-condensed">
+								<thead>
+									<tr class="nexos-encabezado">
+										<th class="col-xs-3 col-sm-3 col-md-3">Solicitud</th>
+										<th>Material</th>
+										<th class="col-xs-3 col-sm-3 col-md-3"># Remesa</th>
+									</tr>
+								</thead>
+								<tbody>
+					';
+					foreach ($material_plantilla["rowsData"] as $key_01 => $value_01) {
+						$_remesa = 'RMS-' . ($_time + $value_01[0]);
+						if ( $value_01["numero_remesa"] ) {
+							$_remesa = $value_01["numero_remesa"];
+						}
+						$table_material_planilla.= '
+							<tr>
+								<td class="cell-detail">
+									<span>' . $value_01["numero_solicitud"] . '</span>
+									<span class="cell-detail-description">' . $value_01["nombre"] . '</span>
+								</td>
+								<td class="cell-detail">
+									<span>' . $value_01["tipo_mercancia"] . '</span>
+									<span class="cell-detail-description">' . number_format($value_01["peso"], 2, ",", ".") . 'Kg</span>
+								</td>
+								<td class="cell-detail">
+									<span><strong>' . $_remesa . '</strong></span>
+									<input type="hidden" name="numero_remesa_' . $value_01[0] . '" id="numero_remesa_' . $value_01[0] . '" value="' . $_remesa . '">
+								</td>
+							</tr>
+						';
+					}
+
+					// Se pegunta si hay contenedores para devolución
+					if ( isset( $planillas["contenedores_devolucion"][$value["id"]] ) ) {
+						foreach ($planillas["contenedores_devolucion"][$value["id"]] as $key_01 => $value_01) {
+							foreach ($value_01 as $key_02 => $value_02) {
+								$_contenedor = 'CNT-' . ($_time + $value_02[0]);
+								if ( $value_02["numero_remesa"] ) {
+									$_contenedor = $value_02["numero_remesa"];
+								}
+								$table_material_planilla.= '
+									<tr>
+										<td class="cell-detail">
+											<span>' . $value_02["importacion"] . '</span>
+											<span class="cell-detail-description">' . $value_02["numero_importacion"] . '</span>
+										</td>
+										<td class="cell-detail">
+											<span>' . $value_02["contenedor"] . ' (' . $value_02["nombre"] . ')</span>
+											<span class="cell-detail-description">' . number_format($value_02["tara"], 2, ",", ".") . 'Kg</span>
+										</td>
+										<td class="cell-detail">
+											<span><strong>' . $_contenedor . '</strong></span>
+											<input type="hidden" name="contenedor_remesa_' . $value_02[0] . '" id="contenedor_remesa_' . $value_02[0] . '" value="' . $_contenedor . '">
+										</td>
+									</tr>
+								';
+							}
+						}
+					}
+
+					$table_material_planilla.= '
+								</tbody>
+							</table>
+						</div>
+						<div class="form-group col-xs-0 col-sm-1 col-md-1"></div>
+					';
+				}
+
+				$material_proyecto = $this->solicitudes->getMaterialProyecto($value["id"], "Planillar Vehículo");
+				$vista.= $material_proyecto;
+
+				$form_RNDC = '';
+
+				// Se valida el valor el manifiesto 
+				if ( $value["MANIFIESTO"] ) {
+					$_manifiesto = $value["MANIFIESTO"];
+				}else{
+					$_manifiesto = 'MNF-' . ($_time + $value[0]);
+					if ($tramos["rowsData"][0]["RNDC_ID_CIUDAD"] == $tramos["rowsData"][ $tramos["rowsNum"] - 1 ]["RNDC_ID_CIUDAD"]) {
+						$_manifiesto = 'URB-' . ($_time + $value[0]);
+					}
+				}
+
+				// Se valida si se debe poner la placa del trailer
+				$form_placa_trailer = "";
+				if ( $value["trailer"] == 1 ) {
+					$form_placa_trailer = '
+						<div class="form-group col-xs-4">
+							<label>Placa Trailer:</label>
+							<input type="text" name="placa_trailer" id="placa_trailer_' . $value[0] . '" value="' . $value["placa_trailer"] . '" placeholder="Placa Trailer" class="form-control input-sm">
+							<input type="hidden" name="trailer" id="param_trailer_' . $value[0] . '" value="' . $value["trailer"] . '">
+						</div>
+					';
+				}
+
+				// se genera el formulario de edicion del registro
+				$form_edit_table = '
+					<input type="hidden" name="id_agrupacion" value="' . $value[0] . '" class="form-control">
+					<input type="hidden" name="modulo" value="planillar" class="form-control">
+					<div class="form-group col-xs-12">
+						<p>Manifiesto:</p>
+						<h4><strong>' . $_manifiesto . '</strong></h4>
+						<input type="hidden" name="numero_manifiesto" id="numero_manifiesto_' . $value[0] . '" value="' . $_manifiesto . '" class="form-control" >
+					</div>
+					<div id="actividades_content_' . $value[0] . '"></div>
+					<div class="form-group col-xs-6 col-sm-4 col-md-5">
+						<label>(*) Agencia:</label>
+						' . $slct_agencias . '
+					</div>
+					<div class="form-group col-xs-3 col-sm-2 col-md-2">
+						<label>Flete:</label>
+						<input type="number" min="0" name="flete" id="flete_' . $value[0] . '" value="' . $flete . '" placeholder="Flete" class="form-control input-sm" readonly="readonly">
+						<input type="hidden" name="flete" id="param_flete_' . $value[0] . '" value="' . $flete . '" placeholder="Flete" class="form-control" >
+					</div>
+					<div class="form-group col-xs-3 col-sm-2 col-md-2">
+						<label>(*) % Anticipo:</label>
+						' . $slct_porcentaje_anticipo . '
+					</div>
+					<div class="form-group col-xs-12 col-sm-4 col-md-3">
+						<label>(*) Método de Desembolso:</label>
+						' . $slct_metodo_desembolso . '
+					</div>
+					<div class="form-group col-xs-12 col-sm-6 col-md-6">
+						<label>(*) Beneficiario:</label>
+						' . $slct_beneficiario . '
+					</div>
+					' . $form_placa_trailer . '
+					<div class="form-group col-xs-12">
+						' . $table_tramos . '
+					</div>
+					<div class="form-group col-xs-12">
+						' . $form_RNDC . '
+					</div>
+					<div class="form-group col-xs-12">
+						' . $table_material_planilla . '
+					</div>
+					<div class="row"></div>
+				';
+
+				// Se crea el filro para que se gestonen las actividades de "anticipo" e "informar el anticipo al conductor" en caso que el porcentaje de anticipo sea 0%
+				$_jsScripts.= '
+					<script type="text/javascript">
+						$("#slct_porcentaje_anticipo_' . $value[0] . '").change(function(){
+							$("#actividades_content_' . $value[0] . '").empty();
+
+							if( this.value == 0 ){
+								var params = {
+									accion		: "busca_actividades",
+									id 			: ' . $value[0] . ',
+								};
+								// console.log(params);
+								
+								$.ajax({
+									type		: "POST",
+									url			: "' . BASE_URL .'libs/planillar_ajax.php",
+									cache		: false,
+									data		: params,
+									dataType 	: "json",
+									error: function (jqXHR, textStatus, errorThrown){
+										console.log(jqXHR);
+										console.log(textStatus);
+										console.log(errorThrown);
+									},
+									success		: function(data) {
+										// console.log(data);
+										$("#actividades_content_' . $value[0] . '").append(data.content.anticipo);
+										$("#actividades_content_' . $value[0] . '").append(data.content.informar_anticipo);
+									}
+								});
+							}
+						});
+					</script>
+				';
+
+				$_popupEdita = $form_edita->_form_modal_update_validate( $value[0] , "Planillar Vehículo - Agrupamiento # " . $value["numero_agrupacion"] , $form_edit_table , $_dbTable );
+				$vista.= $_popupEdita[0];
+				$_jsScripts.=$_popupEdita[1];
+
+				// Se busca las solicitudes asociadas al agrupamiento del vehículo
+				$solicitud_anticipos = $this->solicitudes->getSolicitudPlanillas($value["id"]);
+				// print_r("<pre>");
+				// print_r($solicitud_anticipos);
+				// print_r("</pre>");
+				$info_solicitudes = "";
+				$id_solicitudes = "";
+				foreach ($solicitud_anticipos["rowsData"] as $key1 => $value1) {
+					$id_solicitudes.= $value1[0] . ",";
+					$info_solicitudes.= $value1["numero_solicitud"];
+
+					$info_solicitudes.= '
+						<input type="hidden" name="NUMIDREMITENTE_' . $value1[0] . '" value="' . $value1["RNDC_DOC_REMITENTE"] . '">
+						<input type="hidden" name="CODSEDEREMITENTE_' . $value1[0] . '" value="' . $value1["RNDC_SEDE_REMITENTE"] . '">
+						<input type="hidden" name="NUMIDDESTINATARIO_' . $value1[0] . '" value="' . $value1["RNDC_DOC_DESTINATARIO"] . '">
+						<input type="hidden" name="CODSEDEDESTINATARIO_' . $value1[0] . '" value="' . $value1["RNDC_SEDE_DESTINATARIO"] . '">
+					';
+
+					// Se valida si el proyecto tiene un contenedor
+					$contenedor = '';
+					$view_tara_contenedor = '';
+					if ( $value1["id_tipo_carga"] == 1 ) {
+						$contenedor = '
+							<input type="hidden" name="PESOCONTENEDORVACIO_' . $value1[0] . '" value="' . $value1["PESO_CONTENEDOR"] . '">
+						';
+						$view_tara_contenedor = '
+							<span class="cell-detail-description"><strong>Contenedor: ' . $value1["TIPO_CONTENEDOR"] . ' - ' . number_format($value1["PESO_CONTENEDOR"], 2, ",", ".") . ' Kg</strong></span>
+						';
+					}
+					$info_solicitudes.= $contenedor;
+					$info_solicitudes.= $view_tara_contenedor;
+				}
+				$info_solicitudes.= '
+					<input type="hidden" name="solicitudes_' . $value[0] . '" value="' . $id_solicitudes . '">
+				';
+
+				// Se busca el vehiculo y conductor del transporte
+				$solicitud_vehiculo = $this->solicitudes->getVehiculoPlanillas($value["id"]);
+				// print_r("<pre>");
+				// print_r($solicitud_vehiculo);
+				// print_r("</pre>");
+				$info_vehiculo = "";
+				foreach ($solicitud_vehiculo["rowsData"] as $key2 => $value2) {
+					$_placa_trailer = "";
+					// Se pregunta si el vehículo tiene trailer
+					if ( $value2["placa_trailer"] ) {
+						$_placa_trailer = '<span class="cell-detail-description">Trailer: ' . $value2["placa_trailer"] . '</span>';
+					}
+					// Se pregunta si el vehículo tiene algún tipo de carrocería establecido
+					$_tipo_carroceria = "";
+					if ( $value2["tipo_carroceria"] ) {
+						$_tipo_carroceria = ' (' . $value2["tipo_carroceria"] . ')';
+					}
+					$info_vehiculo.= '
+						<span>' . $value2["CONDUCTOR"] . '</span>
+						<span class="cell-detail-description">' . $value2["placa"] . '</span>
+						' . $_placa_trailer . ' 
+						<span class="cell-detail-description">' . $value2["nombre"] . $_tipo_carroceria . '</span>
+					';
+				}
+
+				// Se maqueta contenido de la tabla 
+				$table_view.= '
+					<tr>
+						<td class="cell-detail">
+							<span>' . $value["numero_agrupacion"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . number_format($value["peso_total"], 2, ",", ".") . ' Kg</span>
+						</td>
+						<td class="cell-detail">
+							' . $info_vehiculo . '
+						</td>
+						<td class="cell-detail">
+							' . $info_solicitudes . '
+						</td>
+						<td class="actions">
+							<a href="#" data-toggle="modal" data-target="#edita_' . $value[0] . '" class="cell-detail md-trigger hint--top-left" data-hint="Planillar Vehículo">
+								<span class="icon mdi mdi-edit"></span>
+							</a>
+						</td>
+					</tr>
+				';
+			}
+		}
+
+		$table_view.= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Planillar Vehículos
+				<div class="tools">
+				</div>
+				<span class="panel-subtitle">Módulo de asignación del información del Envío, definición del anticipo y la forma de desembolso.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+	';
+
+
+  	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+
+			function ordena_tramos(agrupamiento, id_tramos, slct_actual){
+				var arrayTramos = id_tramos.split(",");
+				for(var i = 0; i < (arrayTramos.length - 1) ; i++){
+					if( "slct_orden_tramo_" + arrayTramos[i] == slct_actual ){
+						if( $("#slct_orden_tramo_" + arrayTramos[i]).val() == 1 ){
+							$("#CODMUNICIPIOORIGENMANIFIESTO_" + agrupamiento).val( $("#RNDC_TRAMO_" + arrayTramos[i] ).val() );
+						}
+						if( $("#slct_orden_tramo_" + arrayTramos[i]).val() == (arrayTramos.length - 1) ){
+							$("#CODMUNICIPIODESTINOMANIFIESTO_" + agrupamiento).val( $("#RNDC_TRAMO_" + arrayTramos[i] ).val() );
+						}
+					}else{
+						if( $("#slct_orden_tramo_" + arrayTramos[i]).val() == 1 ){
+							$("#CODMUNICIPIOORIGENMANIFIESTO_" + agrupamiento).val( $("#RNDC_TRAMO_" + arrayTramos[i] ).val() );
+						}
+						if( $("#slct_orden_tramo_" + arrayTramos[i]).val() == (arrayTramos.length - 1) ){
+							$("#CODMUNICIPIODESTINOMANIFIESTO_" + agrupamiento).val( $("#RNDC_TRAMO_" + arrayTramos[i] ).val() );
+						}
+					}
+				}
+			}
+	    </script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_view , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>

@@ -1,0 +1,586 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content='';
+
+$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Solicitudes de servicio
+				<div class="tools">
+				
+				</div>
+				<span class="panel-subtitle">Módulo para consulta de cotizaciones.</span>
+			</div>
+			<div class="panel-body">
+				<input type="hidden" id="idcliente" value="'.$ssn_id_cliente.'" >
+				<div class="nexos-messages"></div>
+				<div class="nexos-content">
+					%content%
+				</div>
+				<div class="row">
+				<div class="col-sm-12"></div>
+				</div>
+			</div>
+		</div>
+	'; 
+
+
+$table_content.="
+<div class='col-xs-12 col-sm-12 col-md-12'>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label>Seleccione el Estado</label>
+	<select  class='form-control input-sm' id='cotice_estado'>
+		<option value='F1'>Realizada</option>
+		<option value='F3'>Ganada</option>
+		<option value='F4'>Perdida</option>
+		<option value='F5'>Cancelada</option>
+		<option value='F2'>Entregada</option>
+
+	</select>
+</div>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label>Fecha Inicial</label>
+	<input type='date' id='fecha_inicial' date-format='yyyy/mm/dd' class='form-control input-sm' value='". date('Y-m-d')."' >
+</div>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label>Fecha Final</label>   
+    <input type='date' id='fecha_final' date-format='yyyy/mm/dd' class='form-control input-sm' value='". date('Y-m-d')."' >   
+</div>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label></label>
+	<button class='form-control input-sm btn btn-info mdi mdi-search' id='consulte'  onclick='cotizacion_aprobada();'>
+		Consultar
+	</button>
+</div>
+</div>";
+
+$table_content.='
+<div id="esconder">
+<div class="row" >
+	<div class="col-sm-12">
+		<div  class="table-responsive noSwipe">
+  			<table id="table1" class="table table-striped table-hover table-fw-widget">
+                <thead>
+                   <tr>
+                   <th>#</th>
+                    <th>Cotización</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                   </tr>
+                </thead>
+                <tbody id="body_esconder">
+                </tbody>
+           	</table>
+		</div>
+	</div>
+	</div>
+</div>';
+ 
+
+ $vista.= '
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>	
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+		<script src="%root_file%assets/js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
+	echo $vista;
+?>
+
+
+<div class="modal fade" id="vercotizacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="exampleModalLabel"><strong>Consultar Cotización</strong></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       		
+
+       	<div id="content_ver">
+				
+
+
+
+               <div id="titlu"></div>
+          <div class="form-group col-xs-12 col-sm-12 col-md-12" id="linea_negocio">
+              <label style="font-weight:800; margin-top:20px; ">Línea de Negocio&nbsp;<span style="color:red;"><i>(*)</i></span></label><br>
+              <input type="text" id="linea" readonly="readonly" class="form-control input-sm">
+              </div>
+            <div class="titulogeneral col-md-12">
+             <strong>Datos Cliente</strong><hr/ style="border: 0; height: 12px; box-shadow: inset 0 12px 12px -12px #33B5E5;margin-top:2px">
+           </div>
+            <table class="table table-condensed table-hover table-bordered table-striped">
+                <thead style="background-color:;   ">
+                          <tr>
+                            <th>Nombre Cliente</th>
+                            <th>Nit</th>
+                            <th class="">Dirección</th>
+                            <th class="">Teléfono</th>
+                            <th class="">Procedencia</th>
+                          </tr>
+                </thead>
+                <tbody id="cuerpo_cliente">
+                </tbody>
+            </table>
+
+            <div class="titulogeneral col-md-12">
+              <strong>Datos de la Mercancía</strong><hr/ style="border: 0; height: 12px; box-shadow: inset 0 12px 12px -12px #33B5E5;margin-top:2px">
+            </div>
+            <div class="col-md-9 col-xs-12 col-sm-12 col-lg-12">
+              <table class="table table-condensed table-hover table-bordered table-striped">
+                <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Tipo Servicio</th>
+                            <th>Tipo Vehículo</th>
+                            <th>Tipo carga</th>
+                            <th>Tipo transporte</th>
+                            <th>Peso Bruto</th>
+                            <th>Peso neto(Kg)</th>
+                            <th>Peso Neto(Tn)</th>
+                          </tr>
+                </thead>
+                <tbody id="cuerpo_mer1">
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-2 col-xs-12 col-sm-6 col-lg-6">
+              <table class="table table-condensed table-hover table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                   <th>Origen</th>
+                  </tr>
+                </thead>
+                <tbody id="muniorigen">
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-2 col-xs-12 col-sm-6 col-lg-6">
+              <table class="table table-condensed table-hover table-bordered table-striped">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Destino</th>
+                          </tr>
+                        </thead>
+                        <tbody id="munidestino">
+                        </tbody>
+              </table>
+            </div>  
+         
+            <div class="titulogeneral col-md-12">
+              <strong>Datos Servicios especiales</strong><hr/ style="border: 0; height: 12px; box-shadow: inset 0 12px 12px -12px #33B5E5;margin-top:2px">
+            </div>
+            <table class="table table-condensed table-hover table-bordered table-striped">
+              <thead>
+                        <tr>
+                          <th></th>
+                          <th>Tipo Servicio</th>
+                          <th>Cantidad</th>
+                        </tr>
+              </thead>
+              <tbody id="cuerpo_especial">
+              </tbody>
+            </table> 
+          <div class="titulogeneral col-md-12">
+            <strong>Datos Costo del Servicio</strong><hr/ style="border: 0; height: 12px; box-shadow: inset 0 12px 12px -12px #33B5E5;margin-top:2px">
+          </div>
+          <table class="table table-condensed table-hover table-bordered table-striped">
+            <thead>
+                      <tr>
+                        <th>Valor Total Tarifa </th>
+                      </tr>
+            </thead>
+            <tbody id="costos">
+            </tbody>
+          </table>
+             <strong>Costo Servicio especial</strong><hr/ style="border: 0; height: 12px; box-shadow: inset 0 12px 12px -12px #33B5E5;margin-top:2px">
+            <table class="table table-condensed table-hover table-bordered table-striped">
+            <thead>
+                      <tr>
+                        <th>Valor Total Tarifa </th>
+                      </tr>
+            </thead>
+            <tbody id="costos1">
+            </tbody>
+          </table>
+           <strong>Total cotizacion</strong><hr/ style="border: 0; height: 12px; box-shadow: inset 0 12px 12px -12px #33B5E5;margin-top:2px">
+
+             <table class="table table-condensed table-hover table-bordered table-striped">
+            <thead>
+                      <tr>
+                        <th class="text-center">Total</th>
+                      </tr>
+            </thead>
+            <tbody id="total" class="text-center">
+            </tbody>
+          </table>
+
+       	</div><!--conten fin -->    
+		<div class="row"></div>
+		</div>		
+ 		<div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>	
+
+
+
+<script type="text/javascript">
+	function cotizacion_aprobada(){
+		//alert('cotizaciones');
+		//validar que los campos esten llenos
+		url1=$("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php";
+
+		var fi=$("#fecha_inicial").val();
+		var ff=$("#fecha_final").val();
+		var estado=$("#cotice_estado").val();
+		var idcliente=$("#idcliente").val();
+
+		if(fi=='' || ff=='' || estado==''){
+			alert('Por favor seleccione el campo');
+		}else{
+			var col_status;
+			var cotiza={
+				estado:estado,
+				fi:fi,
+				ff:ff,
+				idcliente:idcliente,
+				action:'buscar_cotizacion'
+			};
+		$("#body_esconder").html('');	
+		$.ajax({
+			url:url1,
+			type:'POST',
+			data:cotiza,
+			dataType:'json',
+			success: function(data){
+				cont=0;
+				console.log('success');
+				if(data.result){
+					console.log(data);
+					data.result.forEach(function(element,index){
+						cont++;
+						if(estado=='F3'){
+							col_status = 
+								'<td class="text-warning">'+
+									'<center>'+
+									'<span class="mdi mdi-dot-circle icon"  data-toggle="tooltip" title="Ganada"></span>'+
+									'</center>'+
+								'</td>';
+						}
+						if(estado=='F2'){
+							col_status = 
+								'<td class="text-success">'+
+									'<center>'+
+									'<span class="mdi mdi-dot-circle icon"  data-toggle="tooltip" title="Entregada"></span>'+
+									'</center>'+
+								'</td>';
+						}
+						if(estado=='F1'){
+							col_status = 
+								'<td class="text-default">'+
+									'<center>'+
+									'<span class="mdi mdi-dot-circle icon"  data-toggle="tooltip" title="Realizada" ></span>'+
+									'</center>'+
+								'</td>';
+						}
+						if(estado=='F4'){
+							col_status = 
+								'<td class="text-danger">'+
+									'<center>'+
+									'<span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="Pérdida"  ></span>'+
+									'</center>'+
+								'</td>';
+						}
+						if(estado=='F5'){
+							col_status = 
+								'<td class="text-primary">'+
+									'<center>'+
+									'<span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="Cancelada" ></span>'+
+									'</center>'+
+								'</td>';
+							
+						}
+
+						//botones
+
+						var num=element.n_cotizacion;
+						 boton_ver='<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-eye" id="btn_ver'+cont+'"  data-toggle="modal" data-target="#vercotizacion"  data-placement="top"  title="Ver cotización" data-id="'+num+'"  ></button>';
+
+
+
+
+
+
+
+					$("#body_esconder").append('<tr>'+
+						col_status+
+						'<td>'+element.n_cotizacion+'</td>'+
+						'<td>'+element.nombre_cliente+'</td>'+
+						'<td>'+element.total_cotizacion+'</td>'+
+						'<td>'+boton_ver+'</td>'+
+					+'</tr>');
+
+					$("#btn_ver"+cont+"").click(function(){
+						  // alert('btn ver');
+						var id=$(this).attr('data-id');
+						  // alert(id);
+						
+			              var dato={
+			              ncotizar:id,
+			              action:'ver'
+			              };
+			              $.ajax({
+			                  url:"http://localhost/mvcLuisMiguel/libs/servicio_cliente_ajax.php",
+			                  type:'POST',
+			                  data:dato,
+			                  dataType:'json',
+			                  success: function(data){
+			                    if(data.result){
+			                    $("#titlu").html('<h3 class="text-center"><strong>Número de Cotizacion:'+data.result[0].n_cotizacion+'</strong></h3>');
+			                    $("#linea").val(data.result[0].linea_negocio);  
+			                    $("#cuerpo_cliente").html('<tr>'+
+			                      '<td>'+data.result[0].nombre_cliente+'</td>'+
+			                      '<td>'+data.result[0].nit+'-'+data.result[0].digito+'</td>'+
+			                      '<td>'+data.result[0].direccion+'</td>'+
+			                      '<td>'+data.result[0].telefono+'</td>'+
+			                      '<td>'+data.result[0].procedencia_cotizacion+'</td>'+
+			                      '</tr>');
+			                    $("#costos").html('<tr>'+
+			                      '<td>'+data.result[0].total_transporte+'</td>'+
+			                      '</tr>');
+
+			                    $("#costos1").html('<tr>'+
+			                      '<td>'+data.result[0].tes_tarifa+'</td>'+
+			                      '</tr>');
+
+			                    $("#total").html('<tr>'+
+			                      '<td style="font-weight:700; font-size:16pt;">'+element.total_cotizacion+'</td>'
+			                      +'</tr>');
+
+			                      }
+			                    },
+			                  error: function(jqXHR, textStatus, errorThrown){
+			                    // console.log(data.result);
+			                      console.log(jqXHR);
+			                      console.log(textStatus);
+			                      console.log(errorThrown);
+			                  }
+			              });
+
+			              var dato1={
+			                ncotizar1:id,
+			                action:'ver_mer'
+			              };
+			            $("#cuerpo_mer1").html('');
+			            
+			             $("#muniorigen").html('');
+			             $("#munidestino").html('');
+			             $.ajax({
+			                url:"http://localhost/mvcLuisMiguel/libs/servicio_cliente_ajax.php",
+			                type:'POST',
+			                data:dato1,
+			                dataType:'json',
+			                success: function(data){
+			                  // console.log(data.result);
+			                  data.result.forEach(function(element,index){
+			                    // console.log(element);
+			                    // console.log('OKI');
+			                      //  if(id == element.n_cotizacion){
+			                        $("#cuerpo_mer1").append('<tr>'+
+			                        '<td class="text-primary">'+element.n_cotizacion+'-'+   element.item+'</td>'+
+			                        '<td>'+element.tipo_servicio_mer+'</td>'+
+			                        '<td>'+element.nombre+'</td>'+
+			                        '<td>'+element.tipo_carga+'</td>'+
+			                        '<td>'+element.tipo_transporte+'</td>'+
+			                        '<td>'+element.peso_bruto_kg+'</td>'+
+			                        '<td>'+element.peso_neto_kg+'</td>'+
+			                        '<td>'+element.peso_neto_tn+'</td>'+
+			                        '</tr>');
+
+			                       $("#muniorigen").append('<tr>'+
+			                      '<td>'+element.n_cotizacion+'-'+element.item+'</td>'+
+			                      '<td>'+element.orig+'</td>'+
+			                      '</tr>');
+
+			                      $("#munidestino").append('<tr>'+
+			                        '<td>'+element.n_cotizacion+'-'+element.item+'</td>'+
+			                        '<td>'+element.dest+'</td>'+
+			                        '</tr>');
+			                    
+			                         // }
+			                  });
+
+			             /*     var ori=element.origen;
+			                  var desti=element.destino;
+			                  //TRAER ORIGEN Y DESTINOS para la cotizacion
+			                  var muni_cotizacion={
+			                    origen:ori,
+			                    destino:desti,
+			                    cotizacion:id,
+			                    action:'muni_cotizacion'
+			                  };
+			                  var cotizacion=id;
+			                  $.ajax({
+			                  url:"http://localhost/mvcLuisMiguel/libs/servicio_cliente_ajax.php",
+			                  type:'POST',
+			                  data:muni_cotizacion,
+			                  dataType:'json',
+			                  success: function(data){
+			                    // console.log('TRAER MUNICIPIOS COTIZACION');
+			                    c=0; d=0;
+			                     data.result.forEach(function(element,index){
+			                      c++;
+			                    $("#muniorigen").append('<tr>'+
+			                      '<td>'+cotizacion+-+c+'</td>'+
+			                      '<td>'+element.origi+'</td>'+
+			                      '</tr>');
+			                   }); 
+			                    data.result1.forEach(function(element,index){
+			                      d++;
+			                      $("#munidestino").append('<tr>'+
+			                        '<td>'+cotizacion+'-'+d+'</td>'+
+			                        '<td>'+element.desti+'</td>'+
+			                        '</tr>');
+			                    }); 
+
+			                  },
+			                  error:function(jqXHR, textStatus, errorThrown){
+			                    // console.log('error municipios');
+			                    console.log(jqXHR);
+			                    console.log(textStatus);
+			                    console.log(errorThrown);
+			                  }
+			                });  */
+
+
+			                 
+			                },
+			                error: function(jqXHR, textStatus, errorThrown){
+			                  console.log('error');
+			                  console.log(jqXHR);
+			                  console.log(textStatus);
+			                  console.log(errorThrown);
+			                }
+			             });
+
+			             var dato2={
+			                ncotizar2:id,
+			                action:'ver_espe'
+			             };
+			             $("#cuerpo_especial").html('');
+			             $.ajax({
+			                  url:"http://localhost/mvcLuisMiguel/libs/servicio_cliente_ajax.php",
+			                  type:'POST',
+			                  data:dato2,
+			                  dataType:'json',
+			                  success: function(data){
+			                    // console.log(data.result);
+			                    data.result.forEach(function(element,index){
+			                        //  if(id == element.n_cotizacion){
+			                          
+			                          $("#cuerpo_especial").append('<tr>'+
+			                            '<td>'+element.n_cotizacion+'-<span class="text-primary">'+element.item_mercancia+'</span>'+'-'+element.item_especial+' </td>'+
+			                          '<td>'+element.tipo_servicio+'</td>'+
+			                          '<td>'+element.cantidad+'</td>'+
+			                          '</tr>');
+			                           // }
+			                      });
+			                  },
+			                  error: function(jqXHR, textStatus, errorThrown){
+			                    console.log('error');
+			                    console.log(jqXHR);
+			                    console.log(textStatus);
+			                    console.log(errorThrown);
+			                  }
+			              });
+
+
+					});//cierre del boton ver
+
+
+
+
+
+					});//cierre del foreach
+				}//cierre del if
+			},
+			error:function(jqXHR, textStatus, errorThrown){
+				console.log('no hay fila');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}	
+		}); 
+
+
+	}	
+
+}
+
+</script>

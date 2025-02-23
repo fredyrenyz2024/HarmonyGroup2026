@@ -1,0 +1,862 @@
+<?php
+$_dbTable = "remitente_destinatario"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+$_jsAjax = "";
+
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+
+/********* POPUPS *********/
+/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+// POPUP DE MUESTRA DE INFORMACION
+$info = new Popup();
+// POPUP DE ALERTA DE CONFIRMACION
+$alert = new Popup();
+// POPUP DE FORMULARIO DE EDICION 
+$form_edita = new Popup();
+// POPUP DE FORMULARIO DE CREACION 
+$form_crea = new Popup();
+
+/********* FIN POPUPS *********/
+
+
+/*** CREACION DE TABLA DE CONTENIDO ***/
+if (isset($this->bodegas) /* && count($this->bodegas) */) {
+
+	/*** SE CREA TABLA DE CONTENIDO ***/
+	$table_bodegas = '
+			<div class="row">
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:5%;"></th>
+									<th>Bodega</th>
+									<th>Ubicación</th>
+									<th>Atención</th>
+									<th style="width:15%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+	$arrayBodegas = $this->bodegas->getTabla($ssn_id_cliente);
+	// print_r($arrayBodegas);
+	// exit();
+
+	if ($arrayBodegas) {
+		foreach ($arrayBodegas as $key => $value) {
+			// SE CUENTA CUANTAS ESTIBAS ESTAN EN LA BODEGA
+			$arrayCuentaEstibas = $this->bodegas->getCuentaEstibas($value['remitente_destinatario_id']);
+			// print_r($arrayCuentaEstibas);
+			// INFORMACIÓN GENERAL DE LA BODEGA
+			$info_contenido = '
+					<div class="panel panel-border panel-contrast">
+						<div class="panel-heading panel-heading-contrast">
+							' . $value["nombre"] . '
+							<span class="panel-subtitle">
+								' . $value["sigla"] . '
+							</span>
+							<span class="panel-subtitle">
+								' . $value["direccion"] . ' - ' . $value["municipio"] . ' (' . $value["depto"] . ' - ' . $value["pais"] . ') 
+							</span>
+						</div>
+					</div>
+					<strong>Información General</strong>
+					<table class="table">
+						<tbody>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-3">
+											<span>Código Postal</span>
+											<span class="cell-detail-description">' . $value["codigo_postal"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Atención</span>
+											<span class="cell-detail-description">' . $value["dias_atencion"] . ' (' . $value["horario_atencion"] . ')</span>
+										</div>
+										<div class="col-sm-6">
+											<span>Como llegar</span>
+											<span class="cell-detail-description">' . $value["como_llegar"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-12">
+											<span>Actividad</span>
+											<span class="cell-detail-description">' . $value["descripcion_actividad"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-3">
+											<span>Número de Posiciones</span>
+											<span class="cell-detail-description">' . $value["capacidad_espacios"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Posiciones Ocupadas</span>
+											<span class="cell-detail-description">' . $arrayCuentaEstibas . '</span>
+										</div>
+										<div class="col-sm-6">
+											<span>Posiciones Disponibles</span>
+											<span class="cell-detail-description">' . ($value["capacidad_espacios"] - $arrayCuentaEstibas) . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				';
+			$vista .= $info->_bootstrap_modal_dialog("info_" . $value['id'], "Información General Bodega", $info_contenido);
+
+			/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+			switch ($value["estado"]) {
+				case '0':
+					// se asigna contenido de la columna de estado
+					$col_stasus = '
+							<td class="nexos-txt-danger">
+								<span class="mdi mdi-dot-circle icon"></span>
+								<span style="display: none;">' . $value["estado"] . '</span>
+							</td>
+						';
+
+					$_popupHabilita = $alert->_alert_modal_mod_success($value['id'], "Realmente desea habilitar este elemento?", $_dbTable);
+					$vista .= $_popupHabilita[0];
+					$_jsScripts .= $_popupHabilita[1];
+
+					// se asigna contenudo de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								<a href="#" class="icon"><span id="#habilita_' . $value['id'] . '" data-toggle="modal" data-target="#habilita_' . $value['id'] . '" class="icon mdi mdi-check-circle"></span></a>
+							</td>
+						';
+					break;
+
+				case '1':
+					// se asigna contenido de la columna de estado
+					$col_stasus = '
+							<td class="nexos-txt-success">
+								<span class="mdi mdi-dot-circle icon"></span>
+								<span style="display: none;">' . $value["estado"] . '</span>
+							</td>
+						';
+
+					// Se crea el select de ciudad
+					$slct_ciudad = $this->municipios->getHtmlSelect("id_ciudad", $value["id_ciudad"]);
+
+					// se genera el formulario de edicion del registro
+					$form_edit_table = '
+							<input type="hidden" name="id" value="' . $value['id'] . '" class="form-control">
+							<div class="form-group col-xs-4">
+								<label>*Documento:</label>
+								<input type="text" name="documento" id="documento_' . $value['id'] . '" value="' . $value["documento"] . '" placeholder="Documento de la Bodega" class="form-control" readonly>
+								<label id="error_documento_' . $value['id'] . '"></label>
+							</div>
+							<div class="form-group col-xs-3">
+								<label>*Digito de Verificación:</label>
+								<input type="number" min="0" max="9" name="digito_verificacion" id="digito_verificacion_' . $value['id'] . '" value="' . $value["digito_verificacion"] . '" placeholder="Digito de Verificación" class="form-control" readonly>
+								<label id="error_digito_verificacion_' . $value['id'] . '"></label>
+							</div>
+							<div class="form-group col-xs-3">
+								<label>*Número de Posiciones:</label>
+								<input type="number" min="0" max="9" name="capacidad_espacios" id="capacidad_espacios_' . $value['id'] . '" value="' . $value["capacidad_espacios"] . '" placeholder="Digito de Verificación" class="form-control">
+								<label id="error_capacidad_espacios"></label>
+							</div>
+							<div class="row"></div>
+							<div class="form-group col-xs-6">
+								<label>*Nombre:</label>
+								<input type="text" name="nombre" id="nombre_' . $value['id'] . '" value="' . $value["nombre"] . '" placeholder="Nombre de la Bodega" class="form-control">
+								<label id="error_nombre_' . $value['id'] . '"></label>
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Sigla:</label>
+								<input type="text" name="sigla" id="sigla_' . $value['id'] . '" value="' . $value["sigla"] . '" placeholder="Sigla" class="form-control">
+							</div>
+							<div class="row"></div>
+							<div class="form-group col-xs-12">
+								<label>Descripción Actividad:</label>
+								<textarea name="descripcion_actividad" id="descripcion_actividad_' . $value['id'] . '" placeholder="Descripción Actividad" class="form-control">' . $value["descripcion_actividad"] . '</textarea>
+							</div>
+							<div class="row"></div>
+							<div class="form-group col-xs-2">
+								<label>Código Postal:</label>
+								<input type="number" min="0" name="codigo_postal" id="codigo_postal_' . $value['id'] . '" value="' . $value["codigo_postal"] . '" placeholder="Código Postal" class="form-control">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>*Ciudad:</label>
+								' . $slct_ciudad . '
+								<label id="error_id_ciudad_' . $value['id'] . '"></label>
+							</div>
+							<div class="form-group col-xs-6">
+								<label>*Dirección:</label>
+								<input type="text" name="direccion" id="direccion_' . $value['id'] . '" value="' . $value["direccion"] . '" placeholder="Dirección" class="form-control">
+								<label id="error_direccion_' . $value['id'] . '"></label>
+							</div>
+							<div class="row"></div>
+							<div class="form-group col-xs-6">
+								<label>Cómo llegar:</label>
+								<textarea name="como_llegar" id="como_llegar_' . $value['id'] . '" placeholder="Cómo llegar" class="form-control">' . $value["como_llegar"] . '</textarea>
+							</div>
+							<div class="form-group col-xs-3">
+								<label>*Dias de Atanción:</label>
+								<input type="text" name="dias_atencion" id="dias_atencion_' . $value['id'] . '" value="' . $value["dias_atencion"] . '" placeholder="Dias de Atanción" class="form-control">
+								<label id="error_dias_atencion_' . $value['id'] . '"></label>
+							</div>
+							<div class="form-group col-xs-3">
+								<label>*Horario de Atención:</label>
+								<input type="text" name="horario_atencion" id="horario_atencion_' . $value['id'] . '" value="' . $value["horario_atencion"] . '" placeholder="Horario de Atención" class="form-control">
+								<label id="error_horario_atencion_' . $value['id'] . '"></label>
+							</div>
+							<div class="row"></div>
+						';
+
+					// Validacion de contenido del formulario de creacion
+					$_jsScripts .= '
+							<script type="text/javascript">
+								var validar_nombre_' . $value['id'] . ' = "";
+								var validar_id_ciudad_' . $value['id'] . ' = "";
+								var validar_direccion_' . $value['id'] . ' = "";
+								var validar_dias_atencion_' . $value['id'] . ' = "";
+								var validar_horario_atencion_' . $value['id'] . ' = "";
+
+								$("#nombre_' . $value['id'] . '").focus(function (){
+									$("#nombre_' . $value['id'] . '").keypress(function() {
+										validarkeypress("#error_nombre_' . $value['id'] . '", "#nombre_' . $value['id'] . '");
+									});
+								});
+								$("#nombre_' . $value['id'] . '").focusin(function (){
+									removerClaseserror("#error_nombre_' . $value['id'] . '", "#nombre_' . $value['id'] . '");
+								});
+								$("#nombre_' . $value['id'] . '").focusout(function (){
+									validar_nombre_' . $value['id'] . ' = validaciones("vacio" , $("#nombre_' . $value['id'] . '").val() , "Nombre");
+									if(validar_nombre_' . $value['id'] . ' != true){
+										agregarClaseserror("#error_nombre_' . $value['id'] . '", "#nombre_' . $value['id'] . '", validar_nombre_' . $value['id'] . ');
+									}
+									else{
+										removerClaseserror("#error_nombre_' . $value['id'] . '", "#nombre_' . $value['id'] . '");
+									}
+								});
+
+								$("#id_ciudad_' . $value['id'] . '").focus(function (){
+									$("#id_ciudad_' . $value['id'] . '").keypress(function() {
+										validarkeypress("#error_id_ciudad_' . $value['id'] . '", "#id_ciudad_' . $value['id'] . '");
+									});
+								});
+								$("#id_ciudad_' . $value['id'] . '").focusin(function (){
+									removerClaseserror("#error_id_ciudad_' . $value['id'] . '", "#id_ciudad_' . $value['id'] . '");
+								});
+								$("#id_ciudad_' . $value['id'] . '").focusout(function (){
+									validar_id_ciudad_' . $value['id'] . ' = validaciones("vacio" , $("#id_ciudad_' . $value['id'] . '").val() , "Ciudad");
+									if(validar_id_ciudad_' . $value['id'] . ' != true){
+										agregarClaseserror("#error_id_ciudad_' . $value['id'] . '", "#id_ciudad_' . $value['id'] . '", validar_id_ciudad_' . $value['id'] . ');
+									}
+									else{
+										removerClaseserror("#error_id_ciudad_' . $value['id'] . '", "#id_ciudad_' . $value['id'] . '");
+									}
+								});
+
+								$("#direccion_' . $value['id'] . '").focus(function (){
+									$("#direccion_' . $value['id'] . '").keypress(function() {
+										validarkeypress("#error_direccion_' . $value['id'] . '", "#direccion_' . $value['id'] . '");
+									});
+								});
+								$("#direccion_' . $value['id'] . '").focusin(function (){
+									removerClaseserror("#error_direccion_' . $value['id'] . '", "#direccion_' . $value['id'] . '");
+								});
+								$("#direccion_' . $value['id'] . '").focusout(function (){
+									validar_direccion_' . $value['id'] . ' = validaciones("vacio" , $("#direccion_' . $value['id'] . '").val() , "Dirección");
+									if(validar_direccion_' . $value['id'] . ' != true){
+										agregarClaseserror("#error_direccion_' . $value['id'] . '", "#direccion_' . $value['id'] . '", validar_direccion_' . $value['id'] . ');
+									}
+									else{
+										removerClaseserror("#error_direccion_' . $value['id'] . '", "#direccion_' . $value['id'] . '");
+									}
+								});
+
+								$("#dias_atencion_' . $value['id'] . '").focus(function (){
+									$("#dias_atencion_' . $value['id'] . '").keypress(function() {
+										validarkeypress("#error_dias_atencion_' . $value['id'] . '", "#dias_atencion_' . $value['id'] . '");
+									});
+								});
+								$("#dias_atencion_' . $value['id'] . '").focusin(function (){
+									removerClaseserror("#error_dias_atencion_' . $value['id'] . '", "#dias_atencion_' . $value['id'] . '");
+								});
+								$("#dias_atencion_' . $value['id'] . '").focusout(function (){
+									validar_dias_atencion_' . $value['id'] . ' = validaciones("vacio" , $("#dias_atencion_' . $value['id'] . '").val() , "Días de Atención");
+									if(validar_dias_atencion_' . $value['id'] . ' != true){
+										agregarClaseserror("#error_dias_atencion_' . $value['id'] . '", "#dias_atencion_' . $value['id'] . '", validar_dias_atencion_' . $value['id'] . ');
+									}
+									else{
+										removerClaseserror("#error_dias_atencion_' . $value['id'] . '", "#dias_atencion_' . $value['id'] . '");
+									}
+								});
+
+								$("#horario_atencion_' . $value['id'] . '").focus(function (){
+									$("#horario_atencion_' . $value['id'] . '").keypress(function() {
+										validarkeypress("#error_horario_atencion_' . $value['id'] . '", "#horario_atencion_' . $value['id'] . '");
+									});
+								});
+								$("#horario_atencion_' . $value['id'] . '").focusin(function (){
+									removerClaseserror("#error_horario_atencion_' . $value['id'] . '", "#horario_atencion_' . $value['id'] . '");
+								});
+								$("#horario_atencion_' . $value['id'] . '").focusout(function (){
+									validar_horario_atencion_' . $value['id'] . ' = validaciones("vacio" , $("#horario_atencion_' . $value['id'] . '").val() , "Horario Atención");
+									if(validar_horario_atencion_' . $value['id'] . ' != true){
+										agregarClaseserror("#error_horario_atencion_' . $value['id'] . '", "#horario_atencion_' . $value['id'] . '", validar_horario_atencion_' . $value['id'] . ');
+									}
+									else{
+										removerClaseserror("#error_horario_atencion_' . $value['id'] . '", "#horario_atencion_' . $value['id'] . '");
+									}
+								});
+
+								var flagError = "";
+								if ( validar_nombre_' . $value['id'] . ' != true || validar_id_ciudad_' . $value['id'] . ' != true || validar_direccion_' . $value['id'] . ' != true || validar_dias_atencion_' . $value['id'] . ' != true || validar_horario_atencion_' . $value['id'] . ' != true ) {
+									flagError = false;
+								} else {
+									flagError = true;
+								}
+								
+							</script>
+						';
+
+					$_popupEdita = $form_edita->_form_modal_update($value['id'], "Editar Bodega - " . $value["nombre"], $form_edit_table, $_dbTable);
+					$vista .= $_popupEdita[0];
+					$_jsScripts .= $_popupEdita[1];
+
+					// CONFIGURACION DE  LA BODEGA
+					$form_edit_table_1 = '
+							<form id="form_configura_' . $value['id'] . '">
+								<input type="hidden" name="id_bodega" value="' . $value['id'] . '" class="form-control">
+								<div class="form-group col-xs-4">
+									<label>*Líneas:</label>
+									<input type="number" min="0" name="lineas" id="lineas_' . $value['id'] . '" value="" placeholder="# de Líneas" class="form-control">
+									<label id="error_lineas_' . $value['id'] . '"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label>*Columnas:</label>
+									<input type="number" min="0" name="columnas" id="columnas_' . $value['id'] . '" value="" placeholder="# de Columnas" class="form-control">
+									<label id="error_columnas_' . $value['id'] . '"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label>*Niveles:</label>
+									<input type="number" min="0" max="9" name="niveles" id="niveles_' . $value['id'] . '" value="" placeholder="# de Niveles" class="form-control">
+									<label id="error_niveles_' . $value['id'] . '"></label>
+								</div>
+								<div class="row"></div>
+							</form>
+						';
+					// Validacion de contenido del formulario de creacion
+					$url = BASE_URL . 'libs/configurar_bodega.php';
+					$_jsScripts .= '
+							<script type="text/javascript">
+								var validar_lineas_' . $value['id'] . ' = "";
+								var validar_columnas_' . $value['id'] . ' = "";
+								var validar_niveles_' . $value['id'] . ' = "";
+
+								$("#lineas_' . $value['id'] . '").focus(function (){
+									$("#lineas_' . $value['id'] . '").keypress(function() {
+										validarkeypress("#error_lineas_' . $value['id'] . '", "#lineas_' . $value['id'] . '");
+									});
+								});
+								$("#lineas_' . $value['id'] . '").focusin(function (){
+									removerClaseserror("#error_lineas_' . $value['id'] . '", "#lineas_' . $value['id'] . '");
+								});
+								$("#lineas_' . $value['id'] . '").focusout(function (){
+									validar_lineas_' . $value['id'] . ' = validaciones("vacio" , $("#lineas_' . $value['id'] . '").val() , "Líneas");
+									if(validar_lineas_' . $value['id'] . ' != true){
+										agregarClaseserror("#error_lineas_' . $value['id'] . '", "#lineas_' . $value['id'] . '", validar_lineas_' . $value['id'] . ');
+									}
+									else{
+										removerClaseserror("#error_lineas_' . $value['id'] . '", "#lineas_' . $value['id'] . '");
+									}
+								});
+
+								$("#columnas_' . $value['id'] . '").focus(function (){
+									$("#columnas_' . $value['id'] . '").keypress(function() {
+										validarkeypress("#error_columnas_' . $value['id'] . '", "#columnas_' . $value['id'] . '");
+									});
+								});
+								$("#columnas_' . $value['id'] . '").focusin(function (){
+									removerClaseserror("#error_columnas_' . $value['id'] . '", "#columnas_' . $value['id'] . '");
+								});
+								$("#columnas_' . $value['id'] . '").focusout(function (){
+									validar_columnas_' . $value['id'] . ' = validaciones("vacio" , $("#columnas_' . $value['id'] . '").val() , "Columnas");
+									if(validar_columnas_' . $value['id'] . ' != true){
+										agregarClaseserror("#error_columnas_' . $value['id'] . '", "#columnas_' . $value['id'] . '", validar_columnas_' . $value['id'] . ');
+									}
+									else{
+										removerClaseserror("#error_columnas_' . $value['id'] . '", "#columnas_' . $value['id'] . '");
+									}
+								});
+
+								$("#niveles_' . $value['id'] . '").focus(function (){
+									$("#niveles_' . $value['id'] . '").keypress(function() {
+										validarkeypress("#error_niveles_' . $value['id'] . '", "#niveles_' . $value['id'] . '");
+									});
+								});
+								$("#niveles_' . $value['id'] . '").focusin(function (){
+									removerClaseserror("#error_niveles_' . $value['id'] . '", "#niveles_' . $value['id'] . '");
+								});
+								$("#niveles_' . $value['id'] . '").focusout(function (){
+									validar_niveles_' . $value['id'] . ' = validaciones("vacio" , $("#niveles_' . $value['id'] . '").val() , "Niveles");
+									if(validar_niveles_' . $value['id'] . ' != true){
+										agregarClaseserror("#error_niveles_' . $value['id'] . '", "#niveles_' . $value['id'] . '", validar_niveles_' . $value['id'] . ');
+									}
+									else{
+										removerClaseserror("#error_niveles_' . $value['id'] . '", "#niveles_' . $value['id'] . '");
+									}
+								});
+
+								var flagError = "";
+								if ( validar_lineas_' . $value['id'] . ' != true || validar_columnas_' . $value['id'] . ' != true || validar_niveles_' . $value['id'] . ' != true ) {
+									flagError = false;
+								} else {
+									flagError = true;
+								}
+
+
+								$(\'#btn_form_btn_form_btn_' . $value['id'] . '\').click(function () {
+									var msgError = "";
+
+									var color_msg = "danger";
+									var lineas = $("#lineas_' . $value['id'] . '").val();
+									var columnas = $("#columnas_' . $value['id'] . '").val();
+									var niveles = $("#niveles_' . $value['id'] . '").val();
+
+									if (lineas == 0) {
+										msgError+= "<p>Se debe diliganciar el campo <strong>\"Líneas\"</strong> para establecer la configuración de la bodega</p>";
+									}
+									if (columnas == 0) {
+										msgError+= "<p>Se debe diliganciar el campo <strong>\"Columnas\"</strong> para establecer la configuración de la bodega</p>";
+									}
+									if (niveles == 0) {
+										msgError+= "<p>Se debe diliganciar el campo <strong>\"Niveles\"</strong> para establecer la configuración de la bodega</p>";
+									}
+
+									if (!msgError) {
+										$.ajax({
+											type		: 	"POST",
+											cache		: 	false,
+											url			: 	"' . $url . '",
+											data		: 	$("#form_configura_' . $value['id'] . '").serialize(),
+											beforeSend	:	function(jqXHR, settings){
+															console.log("Entra en la funcion pasar actividades ajax...");
+															$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+											},
+											error 		: function(data){
+															console.log(data);
+														},
+											success		: function(data) {
+															console.log(data);
+															$(".nexos-messages").hide();
+															$(".nexos-messages").html(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se han generado la orden con éxito.</div></div>\');
+															$("#table1").hide();
+															setTimeout(function() { location.reload(false);  }, 2000);
+											}
+										});
+									}
+									else{
+										$(".nexos-messages").html(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close-circle-o"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong> \' + msgError + \'</div></div>\');
+									}
+								});
+							</script>
+						';
+					$vista .= $info->_bootstrap_modal_dialog_btn("form_btn_" . $value['id'], "Configuración de la Bodega", $form_edit_table_1);
+
+					$_popupElimina = $alert->_alert_modal_mod_danger($value['id'], "Realmente desea eliminar este elemento?", $_dbTable);
+					$vista .= $_popupElimina[0];
+					$_jsScripts .= $_popupElimina[1];
+
+					// se asigna contenido de la columna de acciones
+					$arrayConfiguracion = $this->bodegas->getCantUbicaciones($value['id']);
+					// print_r("<pre>");
+					// print_r($arrayConfiguracion);
+					// print_r("</pre>");
+					$btn_configurar = '';
+					if (!$arrayConfiguracion["rowsData"][0]["CUANTOS"]) {
+						$btn_configurar = '
+								<a href="#" class="icon hint--top-left" data-hint="Configuración de Bodega"><span id="form_btn_' . $value['id'] . '" data-toggle="modal" data-target="#form_btn_' . $value['id'] . '" class="icon mdi mdi-storage"></span></a>
+							';
+					}
+
+					$col_action = '
+							<td class="actions">
+								<a href="' . BASE_URL . 'bodegas/ver_configuracion/' . $value['id'] . '" class="icon hint--top-left" data-hint="Ver Configuración de bodega"><span class="icon mdi mdi-eye"></span></a>
+								' . $btn_configurar . '
+								<a href="#" class="icon hint--top-left" data-hint="Editar"><span id="edita_' . $value['id'] . '" data-toggle="modal" data-target="#edita_' . $value['id'] . '" class="icon mdi mdi-edit"></span></a>
+								<a href="#" class="icon hint--top-left" data-hint="Eliminar"><span id="elimina_' . $value['id'] . '"data-toggle="modal" data-target="#elimina_' . $value['id'] . '" class="icon mdi mdi-close-circle"></span></a>
+							</td>
+						';
+
+					break;
+			}
+			/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+
+			// Se maqueta contenido de la tabla 
+			$table_bodegas .= '<tr>';
+			// Columna de estado
+			$table_bodegas .= $col_stasus;
+			// Columna de nombre de la bodega
+			$table_bodegas .= '
+					<td data-toggle="modal" data-target="#info_' . $value['id'] . '" class="cell-detail">
+						<span>' . $value["nombre"] . '</span>
+						<span class="cell-detail-description">' . $value["documento"] . '-' . $value["digito_verificacion"] . '</span>
+					</td>
+				';
+			// Columna de Ubicacion
+			$table_bodegas .= '
+					<td data-toggle="modal" data-target="#info_' . $value['id'] . '" class="cell-detail">
+						<span>' . $value["direccion"] . '</span>
+						<span class="cell-detail-description">' . $value["municipio"] . ' (' . $value["depto"] . ' - ' . $value["pais"] . ')</span>
+					</td>
+				';
+			// Columna de Atencion
+			$table_bodegas .= '
+					<td data-toggle="modal" data-target="#info_' . $value['id'] . '" class="cell-detail">
+						<span>' . $value["dias_atencion"] . '</span>
+						<span class="cell-detail-description">' . $value["horario_atencion"] . '</span>
+					</td>
+				';
+
+			// se asigna la columna de acciones
+			$table_bodegas .= $col_action;
+
+			$table_bodegas .= '</tr>';
+		}
+
+		$table_bodegas .= '
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			';
+	}
+}
+/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Administrar Bodegas
+				<div class="tools">
+					<a href="#" data-toggle="modal" data-target="#crea_' . $_dbTable . '" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+				</div>
+				<span class="panel-subtitle">Administra las bodegas del cliente.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			%js-ajax%
+	    </script>
+	';
+
+
+/****** CREACION CONTENIDO DE POPUPS ******/
+
+// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+
+// Se crea el select de ciudad
+$slct_ciudad = $this->municipios->getHtmlSelect("id_ciudad", "101");
+
+$forms = '
+		<input type="hidden" name="id_relacion" value="" class="form-control input-xs">
+		<input type="hidden" name="id_cliente" value="' . $ssn_id_cliente . '" class="form-control input-xs">
+		<div class="form-group col-xs-4">
+			<label>*Documento:</label>
+			<input type="text" name="documento" id="documento" placeholder="Documento de la Bodega" class="form-control">
+			<label id="error_documento"></label>
+		</div>
+		<div class="form-group col-xs-3">
+			<label>*Digito de Verificación:</label>
+			<input type="number" min="0" max="9" name="digito_verificacion" id="digito_verificacion" placeholder="Digito de Verificación" class="form-control">
+			<label id="error_digito_verificacion"></label>
+		</div>
+		<div class="form-group col-xs-3">
+			<label>*Número de Posiciones:</label>
+			<input type="number" min="0" max="9" name="capacidad_espacios" id="capacidad_espacios" placeholder="Digito de Verificación" class="form-control">
+			<label id="error_capacidad_espacios"></label>
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-6">
+			<label>*Nombre:</label>
+			<input type="text" name="nombre" id="nombre" placeholder="Nombre de la Bodega" class="form-control">
+			<label id="error_nombre"></label>
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Sigla:</label>
+			<input type="text" name="sigla" id="sigla" placeholder="Sigla" class="form-control">
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-12">
+			<label>Descripción Actividad:</label>
+			<textarea name="descripcion_actividad" id="descripcion_actividad" placeholder="Descripción Actividad" class="form-control"></textarea>
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-2">
+			<label>Código Postal:</label>
+			<input type="number" min="0" name="codigo_postal" id="codigo_postal" placeholder="Código Postal" class="form-control">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>*Ciudad:</label>
+			' . $slct_ciudad . '
+			<label id="error_id_ciudad"></label>
+		</div>
+		<div class="form-group col-xs-6">
+			<label>*Dirección:</label>
+			<input type="text" name="direccion" id="direccion" placeholder="Dirección" class="form-control">
+			<label id="error_direccion"></label>
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-6">
+			<label>Cómo llegar:</label>
+			<textarea name="como_llegar" id="como_llegar" placeholder="Cómo llegar" class="form-control"></textarea>
+		</div>
+		<div class="form-group col-xs-3">
+			<label>*Dias de Atanción:</label>
+			<input type="text" name="dias_atencion" id="dias_atencion" placeholder="Dias de Atanción" class="form-control">
+			<label id="error_dias_atencion"></label>
+		</div>
+		<div class="form-group col-xs-3">
+			<label>*Horario de Atención:</label>
+			<input type="text" name="horario_atencion" id="horario_atencion" placeholder="Horario de Atención" class="form-control">
+			<label id="error_horario_atencion"></label>
+		</div>
+		<div class="row"></div>
+	';
+
+// Validacion de contenido del formulario de creacion
+$_jsScripts .= '
+		<script type="text/javascript">
+			var validar_documento = "";
+			var validar_digito_verificacion = "";
+			var validar_nombre = "";
+			var validar_id_ciudad = "";
+			var validar_direccion = "";
+			var validar_dias_atencion = "";
+			var validar_horario_atencion = "";
+
+			$("#documento").focus(function (){
+				$("#documento").keypress(function() {
+					validarkeypress("#error_documento", "#documento");
+				});
+			});
+			$("#documento").focusin(function (){
+				removerClaseserror("#error_documento", "#documento");
+			});
+			$("#documento").focusout(function (){
+				validar_documento = validaciones("vacio" , $("#documento").val() , "Documento");
+				if(validar_documento != true){
+					agregarClaseserror("#error_documento", "#documento", validar_documento);
+				}
+				else{
+					removerClaseserror("#error_documento", "#documento");
+				}
+			});
+
+			$("#digito_verificacion").focus(function (){
+				$("#digito_verificacion").keypress(function() {
+					validarkeypress("#error_digito_verificacion", "#digito_verificacion");
+				});
+			});
+			$("#digito_verificacion").focusin(function (){
+				removerClaseserror("#error_digito_verificacion", "#digito_verificacion");
+			});
+			$("#digito_verificacion").focusout(function (){
+				validar_digito_verificacion = validaciones("vacio" , $("#digito_verificacion").val() , "Digito de Verificación");
+				if(validar_digito_verificacion != true){
+					agregarClaseserror("#error_digito_verificacion", "#digito_verificacion", validar_digito_verificacion);
+				}
+				else{
+					removerClaseserror("#error_digito_verificacion", "#digito_verificacion");
+				}
+			});
+
+			$("#nombre").focus(function (){
+				$("#nombre").keypress(function() {
+					validarkeypress("#error_nombre", "#nombre");
+				});
+			});
+			$("#nombre").focusin(function (){
+				removerClaseserror("#error_nombre", "#nombre");
+			});
+			$("#nombre").focusout(function (){
+				validar_nombre = validaciones("vacio" , $("#nombre").val() , "Nombre");
+				if(validar_nombre != true){
+					agregarClaseserror("#error_nombre", "#nombre", validar_nombre);
+				}
+				else{
+					removerClaseserror("#error_nombre", "#nombre");
+				}
+			});
+
+			$("#id_ciudad").focus(function (){
+				$("#id_ciudad").keypress(function() {
+					validarkeypress("#error_id_ciudad", "#id_ciudad");
+				});
+			});
+			$("#id_ciudad").focusin(function (){
+				removerClaseserror("#error_id_ciudad", "#id_ciudad");
+			});
+			$("#id_ciudad").focusout(function (){
+				validar_id_ciudad = validaciones("vacio" , $("#id_ciudad").val() , "Ciudad");
+				if(validar_id_ciudad != true){
+					agregarClaseserror("#error_id_ciudad", "#id_ciudad", validar_id_ciudad);
+				}
+				else{
+					removerClaseserror("#error_id_ciudad", "#id_ciudad");
+				}
+			});
+
+			$("#direccion").focus(function (){
+				$("#direccion").keypress(function() {
+					validarkeypress("#error_direccion", "#direccion");
+				});
+			});
+			$("#direccion").focusin(function (){
+				removerClaseserror("#error_direccion", "#direccion");
+			});
+			$("#direccion").focusout(function (){
+				validar_direccion = validaciones("vacio" , $("#direccion").val() , "Dirección");
+				if(validar_direccion != true){
+					agregarClaseserror("#error_direccion", "#direccion", validar_direccion);
+				}
+				else{
+					removerClaseserror("#error_direccion", "#direccion");
+				}
+			});
+
+			$("#dias_atencion").focus(function (){
+				$("#dias_atencion").keypress(function() {
+					validarkeypress("#error_dias_atencion", "#dias_atencion");
+				});
+			});
+			$("#dias_atencion").focusin(function (){
+				removerClaseserror("#error_dias_atencion", "#dias_atencion");
+			});
+			$("#dias_atencion").focusout(function (){
+				validar_dias_atencion = validaciones("vacio" , $("#dias_atencion").val() , "Días de Atención");
+				if(validar_dias_atencion != true){
+					agregarClaseserror("#error_dias_atencion", "#dias_atencion", validar_dias_atencion);
+				}
+				else{
+					removerClaseserror("#error_dias_atencion", "#dias_atencion");
+				}
+			});
+
+			$("#horario_atencion").focus(function (){
+				$("#horario_atencion").keypress(function() {
+					validarkeypress("#error_horario_atencion", "#horario_atencion");
+				});
+			});
+			$("#horario_atencion").focusin(function (){
+				removerClaseserror("#error_horario_atencion", "#horario_atencion");
+			});
+			$("#horario_atencion").focusout(function (){
+				validar_horario_atencion = validaciones("vacio" , $("#horario_atencion").val() , "Horario Atención");
+				if(validar_horario_atencion != true){
+					agregarClaseserror("#error_horario_atencion", "#horario_atencion", validar_horario_atencion);
+				}
+				else{
+					removerClaseserror("#error_horario_atencion", "#horario_atencion");
+				}
+			});
+
+			var flagError = "";
+			if ( validar_documento != true || validar_digito_verificacion != true || validar_nombre != true || validar_id_ciudad != true || validar_direccion != true || validar_dias_atencion != true || validar_horario_atencion != true ) {
+				flagError = false;
+			} else {
+				flagError = true;
+			}
+			
+		</script>
+	';
+
+$arrayRelacion["tabla"] = "bodegas";
+$arrayRelacion["campo_relacion"] = "id_remtente_destinatario";
+
+$_popupCrea = $form_crea->_form_modal_relacion_insert("crea_" . $_dbTable, "Crear Bodega", $forms, $_dbTable, $arrayRelacion);
+$vista .= $_popupCrea[0];
+$_jsScripts .= $_popupCrea[1];
+
+
+/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%js-ajax%", $_jsAjax, $vista);
+$vista = str_replace("%content%", $table_bodegas, $vista);
+
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;

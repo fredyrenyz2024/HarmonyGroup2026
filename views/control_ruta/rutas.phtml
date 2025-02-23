@@ -1,0 +1,463 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$vista = '';
+$table_content1 = '';
+$table_content = '';
+if (isset($this->ruta)) {
+  $arrayPermisos = $this->ruta->permisosPerfil($ssn_id_perfil, 116);
+  $_permisos = $arrayPermisos;
+
+  $btn_crear = '';
+  if ($_permisos["adicionar"] == 1) {
+    $btn_crear = '<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail hint--top btn btn-success btn-xs" data-hint="" data-target="#crear_ruta"><i class="fas fa-route" title="Agregar Ruta"></i> Crear Nueva Ruta</a>';
+  }
+
+  $vista .= '
+		<div class="panel panel-border panel-contrast" id="tabla_principal" >
+				<div class="panel-body" style="padding: 1px 1px 1px 1px;">
+					<div class="nexos-messages"></div>
+						<div>
+							%content%
+						</div>
+					</div>
+				</div>
+		</div>
+	';
+
+  $vista .= '
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+						%content1%
+					</div>
+	';
+
+  $table_content1 .= '
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div>
+      <div class="text-right" style="margin-top:5px;">
+        ' . $btn_crear . '
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group col-xs-4 col-sm-4 col-md-4">
+    <label>Seleccione el estado</label>
+    <select class="form-control input-xs" id="elegir">
+      <option value="" readonly="readonly">Seleccione </option>
+      <option value="Origen">Origen</option>
+      <option value="Destino">Destino</option>
+    </select>
+  </div>
+  <div class="form-group col-xs-4 col-sm-4 col-md-4">
+    <label>Lugar</label>
+    <select class="form-control input-xs" id="lugares">
+    </select>
+  </div>
+  <div class="form-group col-xs-4 col-sm-4 col-md-4">
+    <button class=" form-control input-xs btn btn-info btn-xs mdi mdi-search" id="btn_consulta_rutas" style="margin-top:25px;">
+      Consultar
+    </button>
+    <!--<button class=" form-control input-xs btn btn-info btn-xs mdi mdi-search" id="consulte"  onclick="solicitudes_rutas();" style="margin-top:25px;" >
+      Consultar
+    </button>-->
+  </div>
+';
+
+  $table_content .= '
+    <div id="esconder">
+    <div class="row">
+      <div class="col-sm-12" style="margin-top:-50px;">
+        <div class="table-responsive noSwipe">
+          <table id="table1" class="table table-striped table-hover table-condensed table-fw-widget">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th style="width:5px;">#</th>
+                <th style="width:10px;" class="text-center">N° Ruta</th>
+                <th style="width:180px;" class="text-center">Origen</th>
+                <th style="width:180px;" class="text-center">Destino</th>
+                <th style="width:50px;" class="text-center">Estado</th>
+                <th style="width:10px;" class="text-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="body_esconder">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>';
+}
+
+$vista .= '
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+';
+
+?>
+
+<!-- MODAL CREAR RUTA-->
+<div id="crear_ruta" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" data-backdrop="static">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close" style="color: #fff;"><span class="mdi mdi-close"></span></button>
+        <h4 class="modal-title" id="titulo"><i class="fas fa-road"></i> Crear Ruta</h4>
+      </div>
+      <div class="modal-body" style="padding: 2px 2px 2px;">
+        <div id="msg_editar"></div>
+        <div id="content_editar">
+          <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <label style="font-weight:800; margin-top:20px; ">Origen</label>
+                <select class="form-control input-xs" id="origen_c">
+                  <option value="">Seleccione</option>
+                </select>
+              </div>
+              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <label style="font-weight:800; margin-top:20px; ">Destino</label>
+                <select class="form-control input-xs" id="destino_c">
+                  <option value="">Seleccione</option>
+                </select>
+              </div>
+
+              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <label style="font-weight:800; margin-top:20px; ">Latitud origen</label>
+                <input type="number" id="la_ori" class="form-control input-xs" readonly="readonly">
+              </div>
+              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <label style="font-weight:800; margin-top:20px; ">Latitud destino</label>
+                <input type="number" id="la_des" class="form-control input-xs" readonly="readonly">
+              </div>
+              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <label style="font-weight:800; margin-top:20px; ">Longitud origen</label>
+                <input type="number" id="long_ori" class="form-control input-xs" readonly="readonly">
+              </div>
+              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <label style="font-weight:800; margin-top:20px; ">Longitud destino</label>
+                <input type="number" id="long_des" class="form-control input-xs" readonly="readonly">
+              </div>
+              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <label style="font-weight:800; margin-top:20px; ">Tiempo total de la ruta(Min)</label>
+                <input type="number" id="tiempo_c" class="form-control input-xs">
+              </div>
+              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <label style="font-weight:800; margin-top:20px; ">Kilometros totales de la ruta(Km)</label>
+                <input type="number" id="kilometro_c" class="form-control input-xs">
+              </div>
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <label style="font-weight:800; margin-top:20px; ">Observaciones</label>
+                <textarea class="form-control input-xs" id="observa_c"></textarea>
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <label style="font-weight:800; margin-top:20px; ">Fecha</label>
+                <input type="text" id="fecha_c" class="form-control input-xs" readonly="" value="<?php echo date('Y-m-d'); ?>">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <label style="font-weight:800; margin-top:20px; ">Hora</label>
+                <input type="text" id="hora_c" class="form-control input-xs" readonly="" value="<?php echo date('H:i:s'); ?>">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <label style="font-weight:800; margin-top:20px; ">Usuario</label>
+                <input type="text" id="user_c" class="form-control input-xs" readonly="" value="<?php echo $ssn_nombre; ?>">
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-dismiss="modal" class="btn btn-danger md-close btn-xs"><i class="fas fa-times"></i>
+            Cancelar</button>
+          <button id="btn_guadarruta" type="button" class="btn btn-success md-close btn-xs" onclick=""><i class="far fa-save"></i> Guardar Ruta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--consultar ruta tabla filtros -->
+<div id="consulte_ruta" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close" style="color: #fff;"></span></button>
+        <h4 class="modal-title" id="titulo"><i class="fas fa-road"></i> Consultar Ruta</h4>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;">
+        <div id="msg_ver"></div>
+        <div id="content_editar">
+          <!-- <div class="row"></div> -->
+          <div class="table-responsive">
+            <table class="table table-bordered table-condensed">
+              <colgroup>
+                <col class="col-xs-3">
+                <col class="col-xs-3">
+                <col class="col-xs-3">
+                <col class="col-xs-3">
+              </colgroup>
+              <thead>
+                <!-- <tr>
+           <th>Class</th>
+           <th>Description</th>
+         </tr> -->
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Origen
+                  </th>
+                  <td id="origen_vv"><input type="hidden" id="origen_v" readonly="readonly"></td>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Destino
+                  </th>
+                  <td id="destino_vv"> <input type="hidden" id="destino_v" readonly="readonly"></td>
+                </tr>
+                <tr>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Latitud origen
+                  </th>
+                  <td id="vla_ori"></td>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Latitud destino
+                  </th>
+                  <td id="vla_des"></td>
+                </tr>
+                <tr>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Longitud origen
+                  </th>
+                  <td id="vlo_ori"></td>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Longitud destino
+                  </th>
+                  <td id="vlo_des"></td>
+                </tr>
+                <tr>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Tiempo total de ruta(Min)
+                  </th>
+                  <td id="vtiempo"></td>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Kilometros totales de la ruta(Km)
+                  </th>
+                  <td id="vkilometro"></td>
+                </tr>
+                <tr>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Codigo Ruta
+                  </th>
+                  <td id="codigo_v"></td>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Observación
+                  </th>
+                  <td id="observa_v"></td>
+                </tr>
+                <tr>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Fecha
+                  </th>
+                  <td id="fecha_v"></td>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Hora
+                  </th>
+                  <td id="hora_v"></td>
+                </tr>
+                <tr>
+                  <th scope="row" style="background-color: #EEEEEE;">
+                    Usuario
+                  </th>
+                  <td id="user_v"></td>
+                </tr>
+                <tr>
+                  <td colspan="4">
+                    <div id="mapita" style="margin:auto;">
+                      <div id="map" style="height:200px; width:100%;"></div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-dismiss="modal" class="btn btn-danger btn-xs md-close"><i class="fas fa-times"></i>
+            Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--editar ruta tabla filtros -->
+<div id="edite_ruta" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close" style="color: #fff;"></span></button>
+        <h4 class="modal-title" id="titulo"><i class="fas fa-road"></i> Actualizar Ruta</h4>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;">
+        <div class="nexos-messages"></div>
+        <div id="msg_edicion"></div>
+        <div id="content_editar">
+          <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            <label style="font-weight:800; margin-top:10px; ">Código</label>
+            <input type="text" id="codigo_e" readonly="readonly" class="form-control input-xs text-center" style="font-size:12pt;">
+          </div>
+          <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <label style="font-weight:800; margin-top:10px; ">Habilitar</label><br>
+            <select id="habil_e" class="form-control input-xs">
+            </select>
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:10px; ">Origen</label>
+            <select id="origen_e" class="form-control input-xs">
+            </select>
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:10px; ">Destino</label>
+            <select id="destino_e" class="form-control input-xs">
+            </select>
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:10px; ">Latitud origen</label>
+            <input type="number" id="vla_ori_e" clasS="form-control input-xs">
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:10px; ">Latitud destino</label>
+            <input type="number" id="vla_des_e" clasS="form-control input-xs">
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:10px; ">Longitud origen</label>
+            <input type="number" id="vlo_ori_e" clasS="form-control input-xs">
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:10px; ">Longitud destino</label>
+            <input type="number" id="vlo_des_e" clasS="form-control input-xs">
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:10px; ">Tiempo total de la ruta(Min)</label>
+            <input type="number" id="tiempoe" class="form-control input-xs">
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:10px; ">Kilometros totales de la ruta(Km)</label>
+            <input type="number" id="kilometroe" class="form-control input-xs">
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <label style="font-weight:800; margin-top:10px; ">Observación</label>
+            <textarea id="observa_e" class="form-control input-xs"></textarea>
+          </div>
+          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label style="font-weight:800; margin-top:10px;">Fecha</label>
+            <input type="text" id="fecha_e" readonly="readonly" class="form-control input-xs">
+          </div>
+          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label style="font-weight:800; margin-top:10px;">Hora</label>
+            <input type="text" id="hora_e" readonly="readonly" class="form-control input-xs">
+          </div>
+          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label style="font-weight:800; margin-top:10px;">Usuario</label>
+            <input type="text" id="user_e" readonly="readonly" class="form-control input-xs">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger btn-xs md-close" type="button" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+        <button id="btn_updateruta" type="button" class="btn btn-success btn-xs md-close"><i class="fas fa-pencil-alt"></i> Actualizar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>/views/control_ruta/js/rutas.js type="text/javascript"></script>
+
+<?php
+$vista .= '
+
+	<script  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMwRwybUARcBql3j71ykZpBTavAmkiqRo"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+			<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+			<!--<script src="%root_file%lib/rutas_ajax.js" type="text/javascript"></script>-->
+			<script src="%root_file%js/main.js" type="text/javascript"></script>
+			<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+			<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+			<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+			<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+			<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+			<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+			<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+			<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+			<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+			<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+			<script type="text/javascript">
+				$.fn.niftyModal(\'setDefaults\',{
+					overlaySelector: \'.modal-overlay\',
+					closeSelector: \'.modal-close\',
+					classAddAfterOpen: \'modal-show\',
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+					App.dataTables();
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+					App.wizard();
+				});
+			</script>
+';
+
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content1, $vista);
+$vista = str_replace("%content1%", $table_content, $vista);
+echo $vista;
+?>
+<script type="text/javascript">
+  /*function pintar_mapa(latori,latdes,lonori,londes){
+		alert('google maps');
+    			var latori_1=parseFloat(latori);
+             	var latdes_1=parseFloat(latdes);
+             	var lonori_1=parseFloat(lonori);
+             	var londes_1=parseFloat(londes);
+
+             	var coord_ori = {lat:latori_1, lng:lonori_1};
+             	var coord_des = {lat:latdes_1, lng:londes_1};
+
+             	var coord_pais = {lat:8.5709,lng:-74.2973};//colombia
+             	var map = new google.maps.Map(document.getElementByid('map'){
+             		zoom: 6 ,center: coord_pais
+             	});
+	}*/
+</script>

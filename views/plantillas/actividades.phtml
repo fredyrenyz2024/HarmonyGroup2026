@@ -1,0 +1,727 @@
+<?php
+$_dbTable = "actividades_plantilla"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+$_jsAjax = "";
+
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$r = new Request();
+$vista = '';
+
+/********* POPUPS *********/
+/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+// POPUP DE MUESTRA DE INFORMACION
+$info = new Popup();
+// POPUP DE ALERTA DE CONFIRMACION
+$alert = new Popup();
+// POPUP DE FORMULARIO DE EDICION 
+$form_edita = new Popup();
+// POPUP DE FORMULARIO DE CREACION 
+$form_crea = new Popup();
+/********* FIN POPUPS *********/
+
+$bloque_maximo = 0;
+$arrayBloque = $this->plantillas_actividades->getMaxBloque($r->getArgs()[0]);
+
+// echo "<p>" . $arrayBloque["MAXIMO"]. "</p>";
+if ($arrayBloque["MAXIMO"]) {
+	$bloque_maximo = $arrayBloque["MAXIMO"];
+}
+
+
+/*** CREACION DE TABLA DE CONTENIDO  ***/
+// if (isset($this->plantillas_actividades) && count($this->plantillas_actividades)) {
+if (isset($this->plantillas_actividades)) {
+	/*** SE CREA TABLA DE CONTENIDO ***/
+	$_tabla1 = '
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-10">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover" data-page-length="50">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:5%;"></th>
+									<th>Actividades</th>
+									<th>Documentos</th>
+									<th style="width:15%;">Costo Estimado</th>
+									<th style="width:15%;">Tiempo Estimado</th>
+									<th style="width:10%;">Simultáneos</th>
+									<th style="width:10%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+	$arrayPlantilla = $this->plantillas->getdatos($r->getArgs()[0]);
+
+	if ($arrayPlantilla['rowsData']) {
+		foreach ($arrayPlantilla['rowsData'] as $key1 => $value1) {
+			$id_plantilla = $value1["id"];
+			$nom_plantilla = $value1["nom_plantilla"];
+			$tipo_proyecto = $value1["tipo_proyecto"];
+		}
+	}
+
+	$arrayPlantillas_actividades = $this->plantillas_actividades->getFilteredTabla($r->getArgs()[0]);
+
+	if ($arrayPlantillas_actividades) {
+		foreach ($arrayPlantillas_actividades as $key => $value) {
+
+			/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+			switch ($value["estado"]) {
+				case '0':
+					// se asigna contenido de la columna de estado
+					$col_stasus = '
+							<td class="nexos-txt-danger">
+								<span class="mdi mdi-dot-circle icon"></span>
+								<span style="display: none;">' . $value["estado"] . '</span>
+							</td>
+						';
+
+					$_popupHabilita = $alert->_alert_modal_mod_success($value['id'], "Realmente desea habilitar este elemento?", $_dbTable);
+					$vista .= $_popupHabilita[0];
+					$_jsScripts .= $_popupHabilita[1];
+
+					// se asigna contenudo de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								<a href="#" class="icon hint--top-left" data-hint="Habilitar"><span id="#habilita_' . $value['id'] . '" data-toggle="modal" data-target="#habilita_' . $value['id'] . '" class="icon mdi mdi-check-circle"></span></a>
+							</td>
+						';
+					break;
+
+				case '1':
+					// se asigna contenido de la columna de estado
+					$col_stasus = '
+							<td class="nexos-txt-success">
+								<span class="mdi mdi-dot-circle icon"></span>
+								<span style="display: none;">' . $value["estado"] . '</span>
+							</td>
+						';
+
+					/***** SE GENERA FORMUARIO DE ORDENAMIENTO DE ACTIVIDAD *****/
+					// Creo el select de actividades de la plantilla
+					$slct_actividades_plantilla = $this->plantillas_actividades->getHtmlSelectMultiple("actividad_previa", $r->getArgs()[0], $value["orden"], $bloque_maximo);
+
+					// Busco las Actividad Previa de la actividad
+					$array_actividades_previas = $this->plantillas_actividades->getActividadesPrevias($r->getArgs()[0], $value["orden"]);
+
+					if ($array_actividades_previas['rowsData'][0]['ACTIVIDAD_PREVIA']) {
+						$actividad_previa = '
+								<label>Actividad Previa Actual:</label>
+								<label class="cell-detail-description">' . $array_actividades_previas['rowsData'][0]['ACTIVIDAD_PREVIA'] . '</label>
+							';
+					} else {
+						$actividad_previa = '
+								<label>Esta es la primera actividad de la plantilla</label>
+							';
+					}
+
+					// Formulario de ordenamiento de actividades
+					$form_edit_table_3 = '
+							<table class="table">
+								<tbody>
+									<tr>
+										<td class="cell-detail">
+											<div class="row">
+												<div class="form-group col-xs-6">
+													<label>Actividad Actual:</label>
+													<label class="cell-detail-description">' . $value["nombre"] . '</label>
+												</div>
+												<div class="form-group col-xs-6">
+													' . $actividad_previa . '
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr><td></td></tr>
+								</tbody>
+							</table>
+
+							<input type="hidden" name="orden" id="orden_' . $r->getArgs()[0] . $value["orden"] . '" placeholder="orden de la actividad" value="' . $value["orden"] . '">
+							<input type="hidden" name="id_plantilla" placeholder="id_plantilla" value="' . $r->getArgs()[0] . '">
+							<div class="form-group col-xs-12">
+								<label>Actividad Previa Deseada:</label>
+								' . $slct_actividades_plantilla . '
+							</div>
+							<div class="row"></div>
+						';
+					$_popupCrea = $form_crea->_form_modal_multiple_insert_orden1("ordena_actividades_plantilla_oc_" . $value['id'], "Ordenamiento de la Actividad - " . $value["nombre"], $form_edit_table_3, $_dbTable, "modificar", $r->getArgs()[0],  $value["orden"]);
+					$vista .= $_popupCrea[0];
+					$_jsScripts .= $_popupCrea[1];
+
+
+					/***** SE GENERA FORMUARIO DE EDICION DE ACTIVIDAD *****/
+					// genero el select de las monedas 
+					$slct_moneda = $this->monedas->getHtmlSelect("moneda", $value["moneda"]);
+					// genero el select de perfiles responsables
+					$slct_perfil = $this->usuarios->getHtmlSelectPerfilesComercial("perfil_responsable", $value["perfil_responsable"]);
+					// genero el select de centro de costo
+					$slct_centro_costo = $this->centro_costo->getHtmlSelect("id_centro_costo", $value["id_centro_costo"], $ssn_id_cliente);
+					// genero el select de tipo de actividad 
+					$slct_tipo_actividad = $this->plantillas_actividades->getEnumSlctTipoActividad("tipo_actividad", $value['id'], $value["tipo_actividad"]);
+					// genero el select de integracion
+					$slct_integracion = $this->plantillas_actividades->getEnumSlctIntegracion("integracion", $value['id'], $value["integracion"]);
+					// se verifica si la actividad tiene un adjunto obligatorio
+					$checked = "";
+					if ($value["adjunto"] == 1) {
+						$checked = "checked";
+					}
+					$form_edit_table = '
+							<input type="hidden" name="id" value="' . $value['id'] . '" class="form-control">
+							<div class="form-group col-xs-4">
+								<label>Tipo de actividad:</label>
+								' . $slct_tipo_actividad . '
+							</div>
+							<div class="form-group col-xs-3">
+								<label>Integración:</label>
+								' . $slct_integracion . '
+							</div>
+							<div class="form-group col-xs-1"></div>
+							<div class="form-group col-xs-2">
+								<br /><label>Entregable Obligatorio</label>
+							</div>
+							<div class="form-group col-xs-1">
+								<br /><table>
+									<tbody>
+										<tr>
+											<td class="be-checkbox">
+												<input type="checkbox" name="adjunto" value="1" id="check_' . $value['id'] . '" ' . $checked . '>
+												<label for="check_' . $value['id'] . '"></label>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="row"></div>
+							<div class="form-group col-xs-6">
+								<label>Nombre:</label>
+								<input type="text" name="nombre" value="' . $value["nombre"] . '" placeholder="Nombre de la Actividad" class="form-control">
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Documento de entrega:</label>
+								<input type="text" name="documentos" value="' . $value["documentos"] . '" placeholder="Entregable de la actividad" class="form-control">
+							</div>
+							<div class="form-group col-xs-3">
+								<label>Tiempo estimado:</label>
+								<input type="number" min="1" id="tiempo_' . $value['id'] . '" value="" placeholder="Tiempo estimado" class="form-control">
+							</div>
+							<div class="form-group col-xs-3">
+								<label>Medida de Tiempo:</label>
+								<select id="slc_medida_tiempo_' . $value['id'] . '" class="form-control">
+									<option value="">Seleccione</option>
+									<option value="1">Minutos</option>
+									<option value="2">Horas</option>
+									<option value="3">Días</option>
+								</select>
+								<input type="hidden" name="tiempo_estimado" id="tiempo_estimado_' . $value['id'] . '" value="' . $value["tiempo_estimado"] . '" placeholder="Tiempo estimado" class="form-control">
+							</div>
+							<div class="form-group col-xs-2">
+								<label>Costo estimado:</label>
+								<input type="number" min="0" name="costo_estimado" value="' . $value["costo_estimado"] . '" placeholder="Entregable de la actividad" class="form-control text-right">
+							</div>
+							<div class="form-group col-xs-4">
+								<label>Moneda del Costo:</label>
+								' . $slct_moneda . '
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Perfil Responsable:</label>
+								' . $slct_perfil . '
+							</div>
+							<div class="form-group col-xs-6">
+								<label>Centro de Costo:</label>
+								' . $slct_centro_costo . '
+							</div>
+							<div class="form-group col-xs-12">
+								<label>Descripción:</label>
+								<textarea name="descripcion" placeholder="descripcion" class="form-control">' . $value["descripcion"] . '</textarea>
+							</div>
+							<div class="row"></div>
+						';
+
+					// JS de validacion de tiempos de actividades
+					$_jsScripts .= '
+							<script type="text/javascript">
+								$(document).ready(function(){
+
+									$(\'#slc_medida_tiempo_' . $value['id'] . '\').change(function () {
+										console.log("Entro en funcion de cambio del select");
+										var tiempo = $("#tiempo_' . $value['id'] . '").val();
+										var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value['id'] . ']").val();
+
+										$("#tiempo_estimado_' . $value['id'] . '").val(\'\');
+										$("#tiempo_estimado_' . $value['id'] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+									});
+
+									$(\'#tiempo_' . $value['id'] . '\').blur(function () {
+										console.log("Entro en funcion de blur del campo");
+										var tiempo = $("#tiempo_' . $value['id'] . '").val();
+										var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value['id'] . ']").val();
+
+										$("#tiempo_estimado_' . $value['id'] . '").val(\'\');
+										$("#tiempo_estimado_' . $value['id'] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+									});
+
+
+									var minutos = $("#tiempo_estimado_' . $value['id'] . '").val();
+									var arrayMinutos = [0,0];
+									if(minutos > 0 ){
+										arrayMinutos = minutesToString(minutos).split(" " , 2);
+									}
+
+									// filtro lo que debe mostrar el campo del tiempo
+									switch (arrayMinutos[1]) {
+										case "minuto":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(1);
+											break;
+
+										case "minutos":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(1);
+											break;
+
+										case "hora":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(2);
+											break;
+
+										case "horas":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(2);
+											break;
+
+										case "dia":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(3);
+											break;
+
+										case "dias":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(3);
+											break;
+									}
+
+									$(\'#slc_medida_tiempo_' . $value['id'] . '\').change(function () {
+										var tiempo = $("#tiempo_' . $value['id'] . '").val();
+										var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value['id'] . ']").val();
+
+										$("#tiempo_estimado_' . $value['id'] . '").val(\'\');
+										$("#tiempo_estimado_' . $value['id'] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+									});
+
+									$(\'#tiempo_' . $value['id'] . '\').blur(function () {
+										var tiempo = $("#tiempo_' . $value['id'] . '").val();
+										var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value['id'] . ']").val();
+
+										$("#tiempo_estimado_' . $value['id'] . '").val(\'\');
+										$("#tiempo_estimado_' . $value['id'] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+									});
+								});
+
+							</script>
+						';
+
+					$_popupEdita = $form_edita->_form_modal_update($value['id'], "Editar Actividad - " . $value["nombre"], $form_edit_table, $_dbTable);
+					$vista .= $_popupEdita[0];
+					$_jsScripts .= $_popupEdita[1];
+
+					// Formulario de elimiancion de la actividad
+					$_popupElimina = $alert->_alert_modal_actividad_danger1($value['id'], "Realmente desea inhabilitar esta actividad?", $_dbTable, "inactivar", $value["orden"]);
+					$vista .= $_popupElimina[0];
+					$_jsScripts .= $_popupElimina[1];
+
+					$_btn_ordenar = '';
+					$_btn_eliminar = '';
+					$slct_simultaneo = '';
+					if ($value["bloque"] == 0 || $value["bloque"] == 1) {
+						$_btn_ordenar = '
+								<a href="#" data-toggle="modal" data-target="#ordena_actividades_plantilla_oc_' . $value['id'] . '" class="cell-detail md-trigger hint--top-left" data-hint="Ordenar"><span class="icon mdi mdi-swap-vertical"></span></a>
+							';
+						$_btn_eliminar = '
+								<a href="#" data-toggle="modal" data-target="#elimina_' . $value['id'] . '" class="cell-detail md-trigger hint--top-left" data-hint="Inactivar Actividad"><span class="icon mdi mdi-close-circle"></span></a> 
+							';
+						// genero el select de simultaneidad de actividades  
+						$slct_simultaneo = $this->plantillas_actividades->getEnumSlctSimultaneo("simultaneo", $value['id'], $value["simultaneo"]);
+						// Se genera el js del select de simultaneo 
+						$_jsScripts .= '
+								<script type="text/javascript">
+									$(document).ready(function(){
+										$(\'#slct_simultaneo_' . $value['id'] . '\').change(function () {
+											console.log("Entro en funcion de cambio del select simultaneo ' . $value['id'] . ' ");
+											var simultaneo = $(\'#slct_simultaneo_' . $value['id'] . '\').val();
+											var bloque = 0;
+											var integracion = "' . $value["integracion"] . '"
+											if( simultaneo != 0 || integracion == "soluciones" ){
+												bloque = 1;
+											}
+
+											params = { 
+												id : ' . $value['id'] . ',
+												simultaneo : parseInt( $(\'#slct_simultaneo_' . $value['id'] . '\').val() ),
+												bloque: bloque
+											}
+											// console.log(params);
+
+											$.ajax({
+												type		: "POST",
+												cache		: false,
+												url			: "' . BASE_URL . '/libs/editar.php?tabla=cmx_actividades_plantilla",
+												data		: params,
+												beforeSend	: function(jqXHR, settings){
+																$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+												},
+												success		: function(data) {
+																console.log(data);
+																var bloque = ' . $value["bloque"] . ';
+
+																if( bloque == 1){
+																	var id_plantilla = ' . $r->getArgs()[0] . ';
+																	var orden = ' . $value["orden"] . ';
+																	params_1 = {
+																		id_plantilla : id_plantilla,
+																		bloque : bloque,
+																		orden : orden,
+																		simultaneo : simultaneo
+																	}
+																	// console.log( params_1 );
+
+																	$.ajax({
+																		type		: "POST",
+																		cache		: false,
+																		url			: "' . BASE_URL . '/libs/asignar_simultaneo.php?tabla=cmx_actividades_plantilla",
+																		data		: params_1,
+																		success		: function(data) {
+																						console.log(data);
+																		}
+																	});
+																}
+																$(".nexos-messages").html(\'\');
+												}
+											});
+										});
+									});
+
+								</script>
+							';
+					}
+					// se asigna contenudo de la columna de acciones
+					$col_action = '
+							<td class="actions">
+								' . $_btn_ordenar . '
+								<a href="#" data-toggle="modal" data-target="#edita_' . $value['id'] . '" class="cell-detail md-trigger hint--top-left" data-hint="Editar"><span class="icon mdi mdi-edit"></span></a> 
+								' . $_btn_eliminar . '
+							</td>
+						';
+
+					break;
+			}
+			/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+
+			// Se maqueta contenido de la tabla 
+			$_tabla1 .= '<tr>';
+			$_tabla1 .= $col_stasus;
+			$_tabla1 .= '
+					<td class="cell-detail">
+						<span>' . $value["nombre"] . '</span>
+						<span class="cell-detail-description">' . $value["descripcion"] . '</span>
+					</td>
+				';
+			$_tabla1 .= '
+					<td class="cell-detail">
+						<span>' . $value["documentos"] . '</span>
+					</td>
+				';
+			$_tabla1 .= '
+					<td class="cell-detail">
+						<span>' . $value["costo_estimado"] . '</span>
+						<span class="cell-detail-description">' . $value["nom_moneda"] . '</span>
+						<span class="cell-detail-description">' . $value["codigo"] . '</span>
+					</td>
+				';
+			// columna de tiempo estimado
+			$arraytiempo_estimado[0] = 0;
+			$arraytiempo_estimado[1] = "minutos";
+			if ($value["tiempo_estimado"] > 0) {
+				$tiempo_estimado = $this->plantillas_actividades->minutesToString($value["tiempo_estimado"]);
+				$arraytiempo_estimado = explode(" ", $tiempo_estimado);
+			}
+			$_tabla1 .= '
+					<td class="cell-detail">
+						<span>' . $arraytiempo_estimado[0] . '</span>
+						<span class="cell-detail-description">' . $arraytiempo_estimado[1] . '</span>
+					</td>
+				';
+			$_tabla1 .= '
+					<td class="cell-detail input-xs">
+						' . $slct_simultaneo . '
+					</td>
+				';
+			// se asigna la columna de acciones
+			$_tabla1 .= $col_action;
+
+			$_tabla1 .= '</tr>';
+		}
+	}
+	$_tabla1 .= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+}
+/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+
+// CREACION DEL BOTON DE HABILITACION DE PLANTILLA
+$_btn_aprobar_plantilla = "";
+if ($arrayPlantilla['rowsData'][0]["estado"] == 2) {
+	$_popupHabilita = $alert->_alert_modal_mod_success($r->getArgs()[0], "Realmente desea habilitar este elemento?", 'plantillas');
+	$vista .= $_popupHabilita[0];
+	$_jsScripts .= $_popupHabilita[1];
+
+	// se asigna contenido de la columna de acciones
+	$_btn_aprobar_plantilla = '
+				<a href="#" class="icon hint--top" data-hint="Activar Plantilla"><span id="#habilita_' . $r->getArgs()[0] . '" data-toggle="modal" data-target="#habilita_' . $r->getArgs()[0] . '" class="icon mdi mdi-check-circle"></span></a>
+		';
+}
+
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Actividades de Plantilla - <strong>[' . $tipo_proyecto . '] ' . $nom_plantilla . '</strong>
+				<div class="tools">
+					<a href="' . BASE_URL . 'plantillas/index/"class="hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>
+					<a href="#" data-toggle="modal" data-target="#crea_actividades_carga_oc" class="cell-detail hint--top" data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+					' . $_btn_aprobar_plantilla . '
+				</div>
+				<span class="panel-subtitle">Se administra las actividades de la platilla.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+	';
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+			
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+		<!-- js para listas arrastrables -->
+		<script src="%root_file%lib/jquery.nestable/jquery.nestable.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-ui-nestable-lists.js" type="text/javascript"></script>
+	  <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+				App.uiNestableLists();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+	    </script>
+		%js-ajax%
+	';
+
+
+/****** CREACION CONTENIDO DE POPUPS ******/
+
+
+// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+
+// genero el select de las monedas 
+$slct_moneda = $this->monedas->getHtmlSelect("moneda", "");
+// genero el select de perfiles responsables
+$slct_perfil = $this->usuarios->getHtmlSelectPerfilesComercial("perfil_responsable", "");
+// genero el select de centro de costo
+$slct_centro_costo = $this->centro_costo->getHtmlSelect("id_centro_costo", "", $ssn_id_cliente);
+// genero el select de actividades de la platilla 
+$slct_actividades = $this->plantillas_actividades->getHtmlSelectMultiple("actividad_previa", $id_plantilla, "", $bloque_maximo);
+// genero el select de tipo de actividad 
+$slct_tipo_actividad = $this->plantillas_actividades->getEnumSlctTipoActividad("tipo_actividad", "", "");
+// genero el select de integracion
+$slct_integracion = $this->plantillas_actividades->getEnumSlctIntegracion("integracion", "", "");
+
+$forms = '
+		<input type="hidden" name="orden" id="orden_' . $r->getArgs()[0] . '_" placeholder="orden de la actividad" value="1">
+		<input type="hidden" name="actividad_previa" placeholder="actividad_previa" value="0">
+		<input type="hidden" name="bloque" id="bloque" placeholder="bloque" value="0">
+		<input type="hidden" name="id_plantilla" value="' . $id_plantilla . '" placeholder="id de plantilla" class="form-control">
+		<div class="form-group col-xs-12">
+			<label>Actividad Previa:</label>
+			' . $slct_actividades . '
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Tipo de actividad:</label>
+			' . $slct_tipo_actividad . '
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Integración:</label>
+			' . $slct_integracion . '
+		</div>
+		<div class="form-group col-xs-1"></div>
+		<div class="form-group col-xs-2">
+			<br /><label>Entregable Obligatorio</label>
+		</div>
+		<div class="form-group col-xs-1">
+			<br />
+			<table>
+				<tbody>
+					<tr>
+						<td class="be-checkbox">
+							<input type="checkbox" name="adjunto" value="1" id="check_">
+							<label for="check_"></label>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-6">
+			<label>Nombre:</label>
+			<input type="text" name="nombre" value="" placeholder="Nombre de la Actividad" class="form-control">
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Documento de entrega:</label>
+			<input type="text" name="documentos" value="" placeholder="Documento de entrega" class="form-control">
+		</div>
+		<div class="form-group col-xs-3">
+			<label>Tiempo estimado:</label>
+			<input type="number" min="1" id="tiempo" value="" placeholder="Tiempo estimado" class="form-control">
+		</div>
+		<div class="form-group col-xs-3">
+			<label>Medida de Tiempo:</label>
+			<select id="slc_medida_tiempo" class="form-control">
+				<option value="">Seleccione</option>
+				<option value="1">Minutos</option>
+				<option value="2">Horas</option>
+				<option value="3">Días</option>
+			</select>
+			<input type="hidden" name="tiempo_estimado" id="tiempo_estimado" value="" placeholder="Tiempo estimado" class="form-control">
+		</div>
+		<div class="form-group col-xs-2">
+			<label>Costo estimado:</label>
+			<input type="number" min="0" name="costo_estimado" value="" placeholder="Costo Estimado" class="form-control text-right">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Moneda del Costo:</label>
+			' . $slct_moneda . '
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-6">
+			<label>Perfil Responsable:</label>
+			' . $slct_perfil . '
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Centro de Costo:</label>
+			' . $slct_centro_costo . '
+		</div>
+		<div class="form-group col-xs-12">
+			<label>Descripción:</label>
+			<textarea name="descripcion" placeholder="descripcion" class="form-control"></textarea>
+		</div>
+		<div class="row"></div>
+	';
+
+// JS de validacion de tiempos de actividades
+$_jsScripts .= '
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$(\'#slc_medida_tiempo\').change(function () {
+					var tiempo = $("#tiempo").val();
+					var unidad_tiempo = $("select[id=slc_medida_tiempo]").val();
+					$("#tiempo_estimado").val(\'\');
+					$("#tiempo_estimado").val(calculaMinutos(tiempo , unidad_tiempo));
+				});
+
+				$(\'#slct_integracion_\').change(function () {
+					var bloque = 0;
+
+					if( $("select[id=slct_integracion_]").val() ){
+						bloque = 1;
+					}
+					$("#bloque").val(bloque);
+				});
+
+				$(\'#tiempo\').blur(function () {
+					var tiempo = $("#tiempo").val();
+					var unidad_tiempo = $("select[id=slc_medida_tiempo]").val();
+					$("#tiempo_estimado").val(\'\');
+					$("#tiempo_estimado").val(calculaMinutos(tiempo , unidad_tiempo));
+				});
+			});
+		</script>
+	';
+
+$_popupCrea = $form_crea->_form_modal_multiple_insert_orden1("crea_actividades_carga_oc", "Crear Actividad", $forms, $_dbTable, "adicionar", $r->getArgs()[0], "");
+$vista .= $_popupCrea[0];
+$_jsScripts .= $_popupCrea[1];
+/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%js-ajax%", $_jsAjax, $vista);
+$vista = str_replace("%content%", $_tabla1, $vista);
+
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;
+
+?>
+<script type="text/javascript">
+	$("#slct_actividades_plantilla_<?php echo $r->getArgs()[0]; ?>").change(function() {
+		var orden_maximo = Math.max.apply(null, $("#slct_actividades_plantilla_<?php echo $r->getArgs()[0]; ?>").val());
+		console.log("Este es el maximo orden de la actividad " + orden_maximo);
+		$("#orden_<?php echo $r->getArgs()[0]; ?>_").val(parseInt(orden_maximo) + 1);
+	});
+</script>

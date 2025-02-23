@@ -1,0 +1,241 @@
+<?php
+	$_dbTable = "fletes"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+
+	$vista = '
+		<link rel="stylesheet" type="text/css" href="%root_file%lib/morrisjs/morris.css"/>
+		<link rel="stylesheet" href="%root_file%css/style.css" type="text/css"/>
+	';
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if(isset($this->informes)){
+		/*** SE CREA TABLA DE CONTENIDO ***/
+		$content = '
+			<div class="form-group col-xs-12 col-sm-12 col-md-3" id="filtros-informe_rentabilidad"></div>
+			<div class="form-group col-xs-12 col-sm-12 col-md-9" id="area-informe_rentabilidad"></div>
+		';
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Rentabilidad
+				<div class="tools"></div>
+				<span class="panel-subtitle"></span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+	';
+
+  	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/raphael/raphael-min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/morrisjs/morris.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/nexos.min.js" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+		</script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $content , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#area-informe_rentabilidad").css("height", "500px");
+		cargarRentabilidad();
+	});
+
+	function cargarRentabilidad(){
+		$(".nexos-messages").empty();
+		var msg_error = '';
+		var id_grafica = "area-informe_rentabilidad";
+		$("#" + id_grafica).empty();
+
+		var params = {
+			filtro 		: "inicial",
+		}
+
+		$.ajaxSetup({async: false});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/informes_ajax.php?action=cargar_informe_rentabilidad",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			error: function (jqXHR, textStatus, errorThrown){
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+				if(jqXHR.responseText){
+					msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				}
+			},
+			success: function (data, textStatus, jqXHR){
+				// console.log(data);
+				if (!data.error) {
+					$("#filtros-informe_rentabilidad").html(data.content.filtros);
+
+					let array = data.result.informe;
+					let xkey;
+					let ykey = new Array();
+					for (var key in array[0]) {
+						if (!xkey) { xkey = key; } 
+						else { ykey.push(key); }
+					}
+
+					/***** BAR CHART *****/
+					let params_bar_chart = {
+						id: id_grafica,
+						data: array,
+						xkey: xkey,
+						ykeys: ykey,
+						labels: ['Ingreso', 'Costo', 'Margen'],
+						barColors: ["#96b858", "#de690b", "#4d7db7"]
+					}
+					bar_chart(params_bar_chart); // La funcion se encuentra en nexos.min.js
+
+					// Función para el manejo de los filtros 
+					$(".filtro").change(function(){
+						let array_filtros = new Array();
+						$("#msg_filtros").empty();
+
+						$(".filtro").each(function(){
+							if ($(this).val()) {
+								array_filtros.push($(this).val());
+							}
+						});
+
+						if (array_filtros.length > 0) {
+							cargarRentabilidadFiltros();
+						} else {
+							cargarRentabilidad();
+						}
+					});
+				} else {
+					msg_error+= data.error;
+				}
+			}
+		});
+		$.ajaxSetup({async: true});
+
+		if(msg_error){
+			$(".nexos-messages").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$(".nexos-messages").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function cargarRentabilidadFiltros(){
+		$(".nexos-messages").empty();
+		var msg_error = '';
+		var id_grafica = "area-informe_rentabilidad";
+		$("#" + id_grafica).empty();
+
+
+		var array = new Array;
+		$(".filtro").each(function(){
+			let element = $(this);
+			if ( element.val() ) {
+				element.find("option").each(function(){
+					let option = $(this);
+					if (option.is(":selected") ) {
+						let label = option.parents(".form_field").find(".data_label").text();
+						let campo = option.parents(".form_field").find(".data_label").data("campo");
+						let array_1 = {
+							'campo' : campo,
+							'value' : option.val()
+						}
+						array.push(array_1);
+						$("#msg_filtros").append(`<p>${label} <strong>${option.text()}</strong></p>`);
+					}
+				});
+			}
+		});
+		if (array.length > 0) {
+			var params = {
+				filtro 		: "filtrado",
+				filtros 	: array
+			}
+			// console.log(params);
+
+			$.ajaxSetup({async: false});
+			$.ajax({
+				url: $("#id_url_ajax").val() + "libs/informes_ajax.php?action=cargar_informe_rentabilidad",
+				type: 'POST',
+				data: params,
+				cache: false,
+				dataType: 'json',
+				beforeSend	: function(jqXHR, settings){
+					$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+				},
+				error: function (jqXHR, textStatus, errorThrown){
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+					if(jqXHR.responseText){
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+					}
+				},
+				success: function (data, textStatus, jqXHR){
+					// console.log(data);
+					if (!data.error) {
+						let array = data.result.informe;
+						let xkey;
+						let ykey = new Array();
+						for (var key in array[0]) {
+							if (!xkey) { xkey = key; } 
+							else { ykey.push(key); }
+						}
+
+						/***** BAR CHART *****/
+						let params_bar_chart = {
+							id: id_grafica,
+							data: array,
+							xkey: xkey,
+							ykeys: ykey,
+							labels: ['Ingreso', 'Costo', 'Margen'],
+							barColors: ["#96b858", "#de690b", "#4d7db7"]
+						}
+						bar_chart(params_bar_chart);
+					} else {
+						msg_error+= data.error;
+					}
+				}
+			});
+			$.ajaxSetup({async: true});
+
+			if (!msg_error) {
+				$(".nexos-messages").empty();
+			}
+
+			if(msg_error){
+				$(".nexos-messages").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+				$(".nexos-messages").animate({ scrollTop: 0 }, 600);
+			}
+		}
+	}
+</script>

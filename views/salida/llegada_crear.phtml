@@ -1,0 +1,202 @@
+<div class="panel panel-border panel-contrast">
+	<div class="panel-heading panel-heading-contrast">
+		Llegada de vehículos
+		<div class="tools">	</div>
+		<span class="panel-subtitle">Descripción.</span>
+		<div class="col-xs-12 col-sm-4 col-md-12">
+			<input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'" >
+			<input type="hidden" id="elperfil" class="form-control input-sm" readonly="readonly" value="0">
+		</div>
+	</div>
+	<div class="panel-body">
+		<div class="nexos-messages"></div>
+      <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+		<div class="nexos-content">	
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<div id="accordion1" class="panel-group accordion">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne"><i class="icon mdi mdi-chevron-down"></i><strong>Información Salida</strong></a></h4>
+                  </div>
+                  <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body"> 
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label>Seleccione vehículo(*)</label>
+                          <select id="vehiculos_lle" class="form-control input-sm text-center">
+                           <option value="">Seleccione</option> 
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row">
+                         <hr/>  
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>N° Manifiesto</label>
+                           <input type="text" id="ll_num_manifiesto" class="form-control input-sm" readonly="readonly">
+                         </div> 
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Origen</label>
+                           <input type="text" id="ll_origen" class="form-control input-sm" readonly="readonly">
+                         </div> 
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Destino</label>
+                           <input type="text" id="ll_destino" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Placa</label>
+                           <input type="text" id="ll_placa" class="form-control input-sm" readonly="readonly">
+                         </div> 
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Conductor</label>
+                           <input type="text" id="ll_conductor" class="form-control input-sm" readonly="readonly"> 
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Teléfono</label>
+                           <input type="text" id="ll_celular" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Placa trailer</label>
+                           <input type="text" id="ll_trailer" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Marca</label>
+                           <input type="text" id="ll_marca" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Línea</label> 
+                           <input type="text" id="ll_linea" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Carrocería</label>
+                           <input type="text" id="ll_carroceria" class="form-control input-sm" readonly="readonly"> 
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>GPS</label> 
+                           <input type="text" id="ll_gps" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Agencia</label> 
+                           <input type="text" id="ll_agencia" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                           <label>Plan de ruta</label>
+                           <input type="text" id="ll_plan" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                           <label>Detalle de ruta</label>
+                           <input type="text" id="ll_detalle_ruta" class="form-control input-sm" readonly="readonly">
+                         </div>
+                           <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                           <label>Fecha tentativa de salida</label>
+                           <input type="text" id="ll_fecsalidat" class="form-control input-sm" readonly="readonly">
+                         </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                           <label>Hora tentativa de salida</label>
+                           <input type="text" id="ll_horasalidat" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                           <label>Fecha programada salida</label>
+                           <input type="date" id="ll_fechasalidap" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                           <label>Hora programada de salida</label>
+                           <input type="text" id="ll_horasalidap" class="form-control input-sm" readonly="readonly">
+                         </div>
+                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                           <label>Observación</label>
+                           <textarea id="ll_observar" class="form-control input-sm" readonly="readonly"></textarea>
+                         </div>
+                         <input type="hidden" id="id_tiempo" class="form-control input-sm" readonly="readonly">
+                         <input type="hidden" id="ll_origennum" class="form-control input-sm" readonly="readonly">
+                         <input type="hidden" id="ll_destinonum" class="form-control input-sm" readonly="readonly">
+                         <input type="hidden" id="ll_doccondu" class="form-control input-sm" readonly="readonly">
+                         <input type="hidden" id="ll_detalle_ruta_id" class="form-control input-sm" readonly="readonly">
+                         <input type="hidden" id="ll_idsalida" class="form-control input-sm" readonly="readonly">
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>
+                      <strong>Remesas</strong></a></h4>
+                  </div>
+                  <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                           <div class="panel-body">
+                               <table class="table table-condensed table-hover table-bordered table-striped">
+                                <thead>
+                                  <tr>
+                                    <th>#</th>
+                                    <th class="number">Remesa</th>
+                                    <th class="number">Mercancía</th>
+                                    <th class="number">Empaque</th>
+                                     <th class="number">Cantidad</th>
+                                    <th class="number">Remitente</th>
+                                    <th class="number">Destinatario</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="remesa"> 
+                                </tbody>
+                              </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseFour" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Información LLegada</strong></a></h4>
+                  </div>
+                  <div id="collapseFour" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      <div class="row">
+                       <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                         <label>Fecha de llegada(*)</label>
+                         <input type="date" id="fecha_llegada_programada" class="form-control input-sm">
+                       </div>
+                       <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                         <label>Hora de llegada(*)</label>
+                         <input type="time" id="hora_llegada_programada" class="form-control input-sm">
+                       </div>
+                       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                         <label>Observación llegada(*)</label>
+                         <textarea id="observa_llegada" class="form-control input-sm"></textarea>
+                       </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+          </div>
+				</div>
+			</div>
+			<div class="row text-center">
+        <button id="Registrar_llegada" class="btn-sm btn-success mdi mdi-check offset-10"> Guardar</button>
+			</div>
+		</div>
+	</div>	
+	</div>
+</div>
+
+     <script src=<?php echo BASE_URL;?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/js/main.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+     <script src=<?php echo BASE_URL;?>/views/salida/js/llegada_ajax.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+//initialize the javascript
+  App.init();
+  App.wizard();
+});
+</script>

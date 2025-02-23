@@ -1,0 +1,550 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -25px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-border panel-contrast">
+        <div class="panel-heading panel-heading-contrast" style="background-color: #54B4D3;color: #FFFFFF;font-weight: bold;">
+          Manifiesto
+          <div class="tools"> </div>
+          <span class="panel-subtitle" style="color: #FFFFFF;font-weight: normal;">Documento que ampara el transporte de mercancía ante las distintas autoridades, donde se asocia la remesa de la carga que se transporta en esa operación.</span>
+          <div class="col-xs-12 col-sm-4 col-md-12">
+            <input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'">
+            <input type="hidden" id="elperfil" class="form-control input-sm" readonly="readonly" value="0">
+          </div>
+        </div>
+        <div class="panel-body" style="padding: 1px 1px 1px;">
+          <div class="nexos-messages"></div>
+          <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+          <div class="nexos-content">
+            <div class="row">
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div id="accordion1" class="panel-group accordion">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>
+                          <strong>Información de la mercancía transportada</strong></a></h4>
+                    </div>
+                    <!-- <div id="collapseTwo" class="panel-collapse collapse  in"> -->
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Escoger Placa</label>
+                            <select id="escoger" class="form-control input-xs">
+                              <option value="">Seleccione</option>
+                            </select>
+                            <input type="hidden" name="configuracion_vehiculo" id="configuracion_vehiculo">
+                            <input type="hidden" name="codigo_origen_manifesto" id="codigo_origen_manifesto">
+                            <input type="hidden" name="codigo_destino_manifesto" id="codigo_destino_manifesto">
+                            <input type="hidden" name="nombre_agencia_manifiesto" id="nombre_agencia_manifiesto">
+                          </div>
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Remesas pertenecientes a la placa seleccionada</label>
+                            <table class="table table-bordered">
+                              <thead>
+                                <tr>
+                                  <th style="width:7%;">Remesa</th>
+                                  <th style="width:25%;">Origen-Destino</th>
+                                  <th style="width:15%;">Servicio-Cant</th>
+                                  <th style="width:15%;">Producto</th>
+                                  <th style="width:15%;">Destinatario</th>
+                                  <th style="width:15%;">Remitente</th>
+                                  <th class="text-center" style="width:15%;">Itr</th>
+                                </tr>
+                              </thead>
+                              <tbody id="table_remesa"></tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne"><i class="icon mdi mdi-chevron-down"></i><strong>Datos Manifiesto</strong></a></h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Fecha expedición</label>
+                            <input type="text" id="fecha_expe" class="form-control input-xs" readonly="readonly" value="<?php echo date('Y-m-d'); ?>">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Tipo Manifiesto</label>
+                            <!-- I CODOPERACIONTRANSPORTE -->
+                            <select id="tipo_manifiesto" class="form-control input-xs">
+                              <option value="">Seleccione</option>
+                              <option value="1">General</option>
+                              <option value="2">Multiparada</option>
+                              <option value="3">Viaje Vacío</option>
+                              <option value="4">Varios viajes en el Dia</option>
+                              <option value="8" disabled="disabled">Viaje de Ida y Regreso</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Origen del viaje</label>
+                            <select id="origen_viaje" class="form-control input-xs">
+                              <option value="">Seleccionar</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Destino del viaje</label>
+                            <select id="destino_viaje" class="form-control input-xs">
+                              <option value="">Seleccionar</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>N° Autorización</label>
+                            <input type="text" id="" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Peso sumatoria de remesas</label>
+                            <input type="text" id="suma_remesas" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Volumen Sumatoria</label>
+                            <input type="text" id="suma_volumen" class="form-control input-sm" readonly="readonly">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseFour" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Información del vehículo y conductor</strong></a></h4>
+                    </div>
+                    <div id="collapseFour" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                            <label><strong>Datos del titular</strong></label>
+                            <hr>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Titular del Manifiesto</label>
+                            <input type="text" id="titular" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Documento identificación</label>
+                            <input type="text" id="tidentificacion" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Dirección</label>
+                            <input type="text" id="tdireccion" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Teléfono</label>
+                            <input type="text" id="ttelefono" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Ciudad</label>
+                            <input type="text" id="tciudad" class="form-control input-xs" readonly="readonly">
+                          </div>
+
+                        </div>
+                        <div class="row">
+                          <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                            <label><strong>Datos del vehículo</strong></label>
+                            <hr>
+                          </div>
+                          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+                            <label>Placa</label>
+                            <input type="text" id="plak" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+                            <label>Marca</label>
+                            <input type="text" id="mark" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+                            <label>Placa semiremolque</label>
+                            <input type="text" id="trailer" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                            <label>Configuración</label>
+                            <input type="text" id="config" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Peso vacío (Kg)</label>
+                            <input type="text" id="peso" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Capacidad de Carga (Kg)</label>
+                            <input type="number" id="capacidad_carga" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>N° póliza (N° Soat)</label>
+                            <input type="text" id="poliza" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Compañía de seguros</label>
+                            <input type="text" id="seguro" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4  col-md-4 col-lg-4">
+                            <label>F.vencim/Soat</label>
+                            <input type="text" id="fechavence" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4  col-md-4 col-lg-4">
+                            <label>Tipo Vinculación</label>
+                            <input type="text" id="vincula" class="form-control input-xs" hidden="hidden">
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                            <label><strong>Datos del conductor</strong></label>
+                            <hr>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Conductor</label>
+                            <input type="text" id="cnombre" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Documento identificación</label>
+                            <input type="text" id="cidentifica" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Dirección</label>
+                            <input type="text" id="cdireccion" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Teléfono</label>
+                            <input type="text" id="ctelefono" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>N° licencia</label>
+                            <input type="text" id="clicencia" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Ciudad</label>
+                            <input type="text" id="cciudad" class="form-control input-xs" readonly="readonly">
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                            <label><strong>Datos del conductor2</strong></label>
+                            <hr>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Nombre 2° conductor</label>
+                            <input type="text" id="" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Documento identificación 2° conductor</label>
+                            <input type="text" id="" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Dirección 2° conductor</label>
+                            <input type="text" id="" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Teléfono 2° conductor</label>
+                            <input type="text" id="" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>N° licencia 2° conductor</label>
+                            <input type="text" id="" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Ciudad 2° conductor</label>
+                            <input type="text" id="" class="form-control input-xs" readonly="readonly">
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                            <label><strong>Datos de tenedor</strong></label>
+                            <hr>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Poseedor o tenedor vhículo</label>
+                            <input type="text" id="tnombre" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Documento identificación</label>
+                            <input type="text" id="tnumero" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Dirección</label>
+                            <input type="text" id="tedireccion" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Teléfono</label>
+                            <input type="text" id="tetelefono" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Ciudad</label>
+                            <input type="text" id="teciudad" class="form-control input-xs" readonly="readonly">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapsepre" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Valores</strong></a></h4>
+                    </div>
+                    <div id="collapsepre" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+                            <label>Valor total del viaje</label>
+                            <input type="text" id="total_viaje" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+                            <label>Retención en la fuente (1%)</label>
+                            <input type="text" id="valor_retefuente" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+                            <label>Retención ICA (4*1.000)</label>
+                            <input type="text" id="valor_reteica" class="form-control input-xs" readonly="readonly">
+                          </div>
+                        </div>
+                        <div class="row">
+                          <hr>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Requiere anticipo</label>
+                            <select id="requiere_anticipo" class="form-control input-xs">
+                              <option value="">Seleccione</option>
+                              <option value="1">Si</option>
+                              <option value="0">No</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Valor Límite Anticipo(65%)</label>
+                            <input type="text" id="valor_anticipo_lim" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Valor Anticipo</label>
+                            <input type="text" id="valor_anticipo" class="form-control input-xs">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Porcentaje de anticipo%</label>
+                            <!--<select id="porcentaje_anticipo" class="form-control input-xs">
+                           <option value="">Seleccione</option>
+                         </select>-->
+                            <input type="text" id="porcentaje_anticipo" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label>Método desembolso</label>
+                            <select id="metodo_desembolsa" class="form-control input-xs">
+                              <option value="">Seleccione</option>
+                              <option value="2">Efectivo</option>
+                              <option value="3">Transferencia</option>
+                              <option value="4">Transferencia propia</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <hr>
+                          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                            <label>Valor Neto a Pagar</label>
+                            <input type="text" id="valor_neto" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                            <label>Saldo</label>
+                            <input type="text" id="saldo_manifi" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                            <label>Lugar</label>
+                            <input type="text" id="agencia" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                            <label>Fecha sugerida de pago</label>
+                            <input type="text" id="fecha_pago" class="form-control input-xs" readonly="readonly">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Cargue pagado por</label>
+                            <select id="cargue" class="form-control input-xs">
+                              <option value="">Seleccione</option>
+                              <!-- <option value="1">Empresa</option> -->
+                              <option value="2">Destinatario</option>
+                              <option value="3">Remitente</option>
+                              <!-- <option value="4">Conductor</option> -->
+                            </select>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Descargue pagado por</label>
+                            <select id="descargue" class="form-control input-xs">
+                              <option value="">Seleccione</option>
+                              <!-- <option value="1">Empresa</option> -->
+                              <option value="2">Destinatario</option>
+                              <option value="3">Remitente</option>
+                              <!-- <option value="4">Conductor</option> -->
+                            </select>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <hr>
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Observación</label>
+                            <textarea id="obs" class="form-control input-sm" style="height:20%;">SI EL MANIFIESTO NO PUDO SUBIRSE A LA PLATAFORMA RNDC y según Resolución 377 de 2013 art. 10parágrafo 1 inciso B LA EMPRESA TIENE 24 horas para reportar el MANIFIESTO VIA ELECTRONICA. Señor Conductor: en caso de emergencia o inconvenientes en ruta, comuníquese con Trafico y Seguridad a los números 316 7432712 – 316 7422131. (Atención 24H). HORARIO DE TRANSITO DE 04 A LAS 23 EL INCUMPLIMIENTO GENERA SANCIONES DISCIPLINARIA Y/O ECONOMICAS</textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row text-center">
+              <button id="Registrar_remesa" class="btn btn-success btn-xs offset-10"><i class="fa-regular fa-floppy-disk"></i> Guardar Manifiesto</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="actualizar_tarifas" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #ffffff;"><span aria-hidden="true">&times;</span></button> -->
+        <h4 class="modal-title" id="myModalLabel"><i class="fas fa-file-invoice-dollar"></i> Actualizar Tarifa</h4>
+      </div>
+      <div class="modal-body" style="padding: 5px 5px 5px;">
+        <div id="notificaciones"></div>
+        <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
+          <div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
+          <div class="message">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button><strong>Advertencia!</strong> Error MAN045: La Empresa de Transporte únicamente podrá expedir Manifiestos
+            de Carga que registren un valor a pagar <br> igual o superior a los costos eficientes de operación de SiceTac. Resolución 20243040058015 de 28/11/2024.
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+            <label>Valor tarifa</label>
+            <input type="text" id="total_manifiesto_tarifa" class="form-control input-xs">
+          </div>
+          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+            <label>Retención en la fuente (1%)</label>
+            <input type="text" id="valor_retefuente_tarifa" class="form-control input-xs" readonly>
+          </div>
+          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+            <label>Retención ICA (4*1.000)</label>
+            <input type="text" id="valor_reteica_tarifa" class="form-control input-xs" readonly>
+          </div>
+          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+            <label>Valor Límite Anticipo(65%)</label>
+            <input type="text" id="valor_anticipo_lim_tarifa" class="form-control input-xs" readonly>
+          </div>
+          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+            <label>Valor Neto a Pagar</label>
+            <input type="text" id="valor_neto_tarifa" class="form-control input-xs" readonly>
+          </div>
+          <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+            <label>Valor Saldo a Pagar</label>
+            <input type="text" id="saldo_manifi_tarifa" class="form-control input-xs" readonly>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <!-- <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><i class="fas fa-times"></i>
+          Cerrar</button> -->
+        <button type="button" class="btn btn-primary btn-xs" id="Actualizar_trarifa"><i class="far fa-save"></i>
+          Actualizar </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="listar_tarifas" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #ffffff;"><span aria-hidden="true">&times;</span></button> -->
+        <h4 class="modal-title" id="myModalLabel"><i class="fas fa-file-invoice-dollar"></i> Actualizar Tarifa</h4>
+      </div>
+      <div class="modal-body" style="padding: 5px 5px 5px;">
+        <div id="notificaciones"></div>
+        <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
+          <div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
+          <div class="message">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button><strong>Advertencia!</strong> Error MAN045: La Empresa de Transporte únicamente podrá expedir Manifiestos
+            de Carga que registren un valor a pagar <br> igual o superior a los costos eficientes de operación de SiceTac. Resolución 20243040058015 de 28/11/2024.
+          </div>
+        </div>
+        <div class="row">
+          <div class="table-responsive noSwipe">
+            <table class="table table-condensed table-hover dataTable">
+              <thead>
+                <tr>
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">#</th>
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Unidad Transporte</th>
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Tipo Carga</th>
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Ruta</th>
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Valor</th>
+                  <!-- <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Valor Tonelada</th> -->
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Valor Hora</th>
+                  <!-- <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Distancia</th> -->
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Total Horas</th>
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Total Viaje</th>
+                  <th style="color: white;width: auto; white-space: nowrap;color:#000000;" scope="col">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbody_tarifas_sicetac"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><i class="fas fa-times"></i>
+          Cerrar</button>
+        <button type="button" class="btn btn-primary btn-xs" id="Actualizar_trarifa"><i class="far fa-save"></i>
+          Actualizar </button>
+      </div> -->
+    </div>
+  </div>
+</div>
+
+
+<!-- Mensajes para los usuarios de la plataforma -->
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-oet" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para Oet...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-rndc" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para el Ministerio...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/manifiesto/js/manifiesto_prueba_ajax.js type="text/javascript"></script>
+
+<!-- js para creacion de formularios dinamicos -->
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

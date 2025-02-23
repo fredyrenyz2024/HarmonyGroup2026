@@ -1,0 +1,727 @@
+<?php
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+    //2. se definen variables para diseñar el contenido 
+	$vista = '';
+	$table_content='';
+	$formulario='';
+	$table_cliente='';
+	if ( isset($this->pedir_vehiculo2) ) { 
+	 	$arrayPermisos = $this->pedir_vehiculo2->permisosPerfil( $ssn_id_perfil , 80);
+	 	$_permisos = $arrayPermisos["rowsData"][0];
+	 	$array = $this->pedir_vehiculo2->GetEstudioVehiculos();
+
+	 	 $table_content="
+			<div class='row' >
+						<div class='col-sm-12'>
+							<div  class='table-responsive noSwipe'>
+								<table id='table1' class='table table-striped table-hover' data-page-length='100'>
+									<thead>
+										<tr class='nexos-encabezado'>
+											<th>#</th>
+											<th>Placa</th>
+											<th>Tipo Vehículo</th>
+											<th>Acciones</th>
+										</tr>
+									</thead>
+									<tbody>"; 
+		if ( $array ) {
+			foreach ($array["rowsData"] as $key => $value) {
+
+				$fecha_soat=$value["vence_soat"];
+				$fecha_tecnomecanica=$value["tecno_fecha_vigencia"];
+				$fecha_licencia=$value["rndc_vencimiento_licencia"];
+				$fecha_actual=date('Y-m-d');
+				$fechaactual2=date("d/m/Y");
+				// $fecha_licencia2=date_format($fecha_licencia,"Y-m-d");
+				// $d= new DateTime();
+				// $fechaactual2=$d->format('d/m/y');
+
+					if($fecha_soat <= $fecha_actual || 
+						$fecha_tecnomecanica <= $fecha_actual ||
+						$fecha_licencia <= $fechaactual2){
+
+							if($fecha_soat <= $fecha_actual){
+								$_col_status='<td class="text-danger">
+								<center>
+									<span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="Soat Vencido"></span>
+								</center>
+							</td>';
+							}
+
+							if($fecha_tecnomecanica <= $fecha_actual ){
+								$_col_status='<td class="text-danger">
+								<center>
+									<span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="Tecnomecánica Vencido"></span>
+								</center>
+							</td>';
+							}
+
+							if($fecha_licencia <= $fechaactual2){
+								$_col_status='<td class="text-danger">
+								<center>
+									<span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="Licencia Vencida"></span>
+								</center>
+								</td>';
+							}
+						
+							
+					}else{
+						$_col_status ='<td class="text-success">
+								<center>
+									<span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="Activo"></span>
+								</center>
+							</td>';
+					}
+
+				//placa de la tabla a la que se envía la solicitud	
+				$lo_placa=$value["lo_placa"];
+				$placa=$value["placa"];	
+				$idsolicitud=$value["id_solictud"];
+				$_btn_estudio='';
+				if($lo_placa==null){
+					$_btn_estudio='
+					<button type="button" class="btn-secondary btn btn-xs " data-toogle="tooltip" data-placement="top" 
+					<a href="javascript:" onclick="Visualizar(this)"; class="cell-detail hint--top-left"  data-id="'.$value["id"].'" data-id2="'.$value["placa"].'"  data-id3="'.$value["tipo_vehiculo"].'" >
+						<span class="icon mdi mdi-car input-md" data-toggle="modal" data-target="#solicite_estudio" title="solicitud estudio">
+						</span>
+					</a></button>
+				';
+
+				}else if($lo_placa==$placa && $idsolicitud =='0'){
+					$_btn_estudio='
+						<button type="button" class="btn-secondary btn btn-xs mdi "  data-placement="top" 
+						<a href="javascript:"  class="cell-detail hint--top-left" >
+						<span class="icon mdi mdi-check input-md" data-toggle="modal" data-target="#" title="Estudio Solicitado por Operaciones">
+						</span>
+					</a></button>
+					';
+				}else if($lo_placa==$placa && $idsolicitud >'0'){
+					$_btn_estudio='
+						<button type="button" class="btn-secondary btn btn-xs mdi " data-placement="top" 
+						<a href="javascript:"  class="cell-detail hint--top-left" >
+						<span class="icon mdi mdi-check input-md" data-toggle="modal" data-target="#" title="Estudio Solicitado por Atención al cliente, este estudio ya fue solicitado">
+						</span>
+					</a></button>
+					';
+				}
+
+				
+				// $_btn_estudio='
+				// 	<button><a href="javascript:" onclick="Visualizar(this)"; class="cell-detail hint--top-left" data-hint="solicitud estudio" data-id="'.$value["id"].'" data-id2="'.$value["placa"].'"  data-id3="'.$value["tipo_vehiculo"].'" >
+				// 		<span class="icon mdi mdi-car input-md" data-toggle="modal" data-target="#solicite_estudio">
+				// 		</span>Solicitar <br>Estudio Seguridad
+				// 	</a></button>
+				// ';
+
+				$_btn_ver='';
+				$_btn_ver='
+					<button type="button" class="btn-secondary btn btn-xs mdi mdi-edit" data-placement="top" 
+					<a href="javascript:" onclick="consultarvehiculo(this)"; class="cell-detail hint--top-left" data-hint="" data-id="'.$value["id"].'" data-id2="'.$value["placa"].'" >
+						<span class="icon mdi mdi-eye input-md" data-toggle="modal" data-target="#ver_vehiculo" title="Consultar Vehículo"  >
+						</span>
+					</a></button>
+				';
+
+				$_btn_fechas='';
+				/*
+				$_btn_fechas='
+					<button><a href="javascript:" onclick="fechas(this)"; class="cell-detail hint--top-left" data-hint="Consultar Fechas" data-id="'.$value["id_sol"].'" data-id2="'.$value["placa_vehiculo"].'" >
+						<span class="icon mdi mdi-calendar-alt input-md" data-toggle="modal" data-target="#ver_fechas">
+						</span>Consultar <br> Fechas
+					</a></button>
+				'; */
+
+				$_btn_fechas='
+					<button type="button" class="btn-secondary btn btn-xs "  data-placement="top" 
+					<a href="javascript:" onclick="fechas(this)"; class="cell-detail hint--top-left"  data-id="'.$value["elid"].'" data-id2="'.$value["placa"].'" >
+						<span class="icon mdi mdi-calendar-alt input-md" data-toggle="modal" data-target="#ver_fechas" title="Consultar Fechas" >
+						</span>
+					</a></button>
+				';
+
+					$table_content.= '
+					<tr>
+						'.$_col_status.'
+						<td  class="cell-detail" >
+							<span>'.$value['placa'].'</span>
+						</td>
+						<td  class="cell-detail" >
+                       		<span>'.$value['tipo_vehiculo'] .'</span>
+						</td>
+						<td  class="cell-detail" >
+						   '.$_btn_estudio.' 
+						   '.$_btn_ver.' 
+						   '.$_btn_fechas.'
+						</td>
+						</tr>';
+			}
+		}								
+		$table_content.=  		"</tbody>
+					</table>
+				</div>
+			</div>
+	</div>";
+	$vista.='
+	<!-- CONTENEDORES Y REGISTRO DE DATOS-->
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				SOLICITAR ESTUDIO VEHÍCULO
+				<div class="tools">
+				</div>
+				<span class="panel-subtitle">Módulo para solicitar el estudio de vehículo</span>
+				<input type="hidden" id="usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'" >
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>';
+
+	}?>
+
+	<div id="solicite_estudio" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h2 class="modal-title text-center" id="ver_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">SOLICITAR ESTUDIO VEHÍCULO</label>
+						</h2>
+					</div>
+					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_ver"></div><!-- id para manejar los mensajes de errordel popup -->
+						<div id="content_ver">
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+								<div class="row">
+									<div class="col-md-3 col-sm-12 col-xs-12 ">
+										<label style="font-weight:800; margin-top:20px;">Placa</label>
+										 <input type="text" id="placa" value="" readonly="readonly" class="form-control input-sm text-center" style="font-size:15px;">
+									</div>
+									<div class="col-md-3 col-sm-12 col-xs-12 ">
+										<label style="font-weight:800; margin-top:20px;">Id Vehículo</label>
+										 <input type="text" id="idvehiculo" value="" readonly="readonly" class="form-control input-sm text-center" style="font-size:15px;">
+									</div>
+									<div class="col-md-3 col-sm-12 col-xs-12 ">
+										<label style="font-weight:800; margin-top:20px;">Id tipo vehículo</label>
+										 <input type="text" id="idtvehiculo" value="" readonly="readonly" class="form-control input-sm text-center" style="font-size:15px;">
+									</div>
+									<div class="col-md-12 col-sm-12 col-xs-12 ">
+										<label style="font-weight:800; margin-top:20px;">Observaciones</label>
+										 <textarea class="form-control input-sm" id="observacion"></textarea>
+									</div>
+								</div>	
+							</div>
+						</div><!--conten fin -->
+						<div class="row"></div><!-- separar contenido entre el body y el footer-->
+					</div>
+					<div class="modal-footer">
+						<button type="button" id="Solicitar" class="btn btn-success btn-md">Solicitar</button>
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+	</div>	
+
+	<div id="ver_vehiculo" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h2 class="modal-title text-center" id="ver_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">CONSULTAR VEHÍCULO</label>
+						</h2>
+					</div>
+					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_ver"></div><!-- id para manejar los mensajes de errordel popup -->
+						<div id="content_ver">
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+								<div class="row"  >
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Placa:</label>
+									<input type="text" id="v_placa" placeholder="Placa" class="form-control">
+									<label id="error_v_placa"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Configuración:</label>
+									<input type="text" id="v_config" placeholder="Configuración" class="form-control">
+									<label id="error_v_config"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Color:</label>
+									<input type="text" id="v_color" placeholder="Color" class="form-control">
+									<label id="error_v_color"></label>
+								</div>
+							<!--	<div class="form-group col-xs-6">
+									<label>Placa trailer:</label>
+									<input type="text" id="v_placa_trailer" placeholder="Placa Trailer" class="form-control">
+									<label id="error_v_placa_trailer"></label>
+								</div> -->
+							</div>	
+							<div class="row">
+								<div class="form-group col-xs-3">
+									<label style="font-weight:800; margin-top:20px;">Marca:</label>
+									<input type="text" id="v_marca" placeholder="Marca" class="form-control">
+									<label id="error_v_marca"></label>
+								</div>
+								<div class="form-group col-xs-3">
+									<label style="font-weight:800; margin-top:20px;">Línea:</label>
+									<input type="text" id="v_linea" placeholder="Linea" class="form-control">
+									<label id="error_v_linea"></label>
+								</div>
+								<div class="form-group col-xs-3">
+									<label style="font-weight:800; margin-top:20px;">Modelo:</label>
+									<input type="text" id="v_modelo" placeholder="Modelo" class="form-control">
+									<label id="error_v_modelo"></label>
+								</div>
+								<div class="form-group col-xs-3">
+									<label style="font-weight:800; margin-top:20px;">Peso Vacío:</label>
+									<input type="text" id="v_peso" placeholder="Peso" class="form-control">
+									<label id="error_v_peso"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Tipo Combustible:</label>
+									<input type="text" id="v_combustible" placeholder="Tipo Combustible" class="form-control">
+									<label id="error_v_combustible"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Tipo Vehículo:</label>
+									<input type="text" id="v_tvehiculo" placeholder="Tipo Vehículo" class="form-control">
+									<label id="error_v_tvehiculo"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Tipo Carrocería:</label>
+									<input type="text" id="v_tcerroceria" placeholder="Tipo Carrocería" class="form-control">
+									<label id="error_v_tcerroceria"></label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">N° Soat:</label>
+									<input type="text" id="v_soat" placeholder="Soat" class="form-control">
+									<label id="error_v_soat"></label>
+								</div>
+								<div class="form-group col-xs-3">
+									<label style="font-weight:800; margin-top:20px;">Vence Soat:</label>
+									<input type="text" id="v_vencesoat" placeholder="Soat" class="form-control">
+									<label id="error_v_vencesoat"></label>
+								</div>
+								<div class="form-group col-xs-5">
+									<label style="font-weight:800; margin-top:20px;">Aseguradora:</label>
+									<input type="text" id="v_asegura" placeholder="aseguradora" class="form-control">
+									<label id="error_v_asegura"></label>
+								</div>
+							</div>
+							<div class="row" >
+								<div class="form-group col-xs-6">
+									<label style="font-weight:800; margin-top:20px;">Tipo de vehiculo:</label>
+										<div id="v_caja_tipo_vehiculo">
+			                                <input type="text" class="typeahead form-control" placeholder="Tipo de vehiculo" id="v_tipo_vehiculo">				
+			                            </div>
+			                            <input type="hidden" id="v_id_tipo_vehiculo">
+									</div>	
+								<div class="form-group col-xs-6">
+									<label style="font-weight:800; margin-top:20px;">Tipo Carroceria:</label>
+									<input type="text" id="v_tipo_carroceria" placeholder="Tipo Carroceria" class="form-control">
+									<label id="error_v_usuario_satelital"></label>
+								</div>
+							</div>	
+							<div class="row" >
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Web satelital:</label>
+									<input type="text" id="v_web_satelital" placeholder="Web satelital" class="form-control">
+									<label id="error_v_web_satelital"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Usuario satelital:</label>
+									<input type="text" id="v_usuario_satelital" placeholder="Usuario satelital" class="form-control">
+									<label id="error_v_usuario_satelital"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Clave satelital:</label>
+									<input type="text" id="v_clave_satelital" placeholder="Clave satelital" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+							</div>	
+							<div class="row">
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Número Motor:</label>
+									<input type="text" id="v_num_motor" placeholder="v_num_motor" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+								<div class="form-group col-xs-3">
+									<label style="font-weight:800; margin-top:20px;">Número Chasis:</label>
+									<input type="text" id="v_num_chasis" placeholder="v_num_chasis" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Póliza Responsabilidad Civil:</label>
+									<input type="text" id="v_poliza" placeholder="v_poliza" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Vence Póliza:</label>
+									<input type="text" id="v_vencepoliza" placeholder="vence poliza" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+								<div class="form-group col-xs-3">
+									<label style="font-weight:800; margin-top:20px;">Repotenciado:</label>
+									<input type="text" id="v_repotenciado" placeholder="v_repotenciado" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Tipo Vinculación:</label>
+									<input type="text" id="v_vinculacion" placeholder="v_vinculación" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+								<div class="form-group col-xs-3">
+									<label style="font-weight:800; margin-top:20px;">Fecha Mantenimiento GPS:</label>
+									<input type="text" id="v_mantenimiento" placeholder="v_mantenimiento" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label style="font-weight:800; margin-top:20px;">Capacidad(Tn):</label>
+									<input type="text" id="v_capacidad" placeholder="v_capacidad" class="form-control">
+									<label id="error_v_clave_satelital"></label>
+								</div>
+							</div>
+						<!--	<div class="row">
+								<div class="form-group col-xs-4">
+									<label>Tecnomecánica:</label>
+									<input type="text" id="v_tecno" placeholder="Tecnomecanica" class="form-control">
+									<label id="error_v_tecno"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label>Fecha Expedición:</label>
+									<input type="text" id="v_etecno" placeholder="Fecha Expedición" class="form-control">
+									<label id="error_v_etecno"></label>
+								</div>
+								<div class="form-group col-xs-4">
+									<label>Fecha Vigencia:</label>
+									<input type="text" id="v_vitecno" placeholder="Fecha Vigencia" class="form-control">
+									<label id="error_v_vitecno"></label>
+								</div>
+							</div> -->
+							<div class="row" >
+								<div class="form-group col-xs-6">
+									<label style="font-weight:800; margin-top:20px;">Documento propietario:</label>
+									<div id="v_caja_propietario">
+		                                <input type="text" class="typeahead form-control" placeholder="Documento propietario" id="v_cedula_propietario">				
+		                            </div>
+		                            <input type="hidden" id="v_id_propietario">
+									<label id="v_error_cedula_propietario"></label>
+								</div>
+								<div class="form-group col-xs-6">
+									<label style="font-weight:800; margin-top:20px;">Nombre propietario:</label>
+									<input type="text" id="v_nombre_propietario" placeholder="Nombre propietario" disabled class="form-control">
+								</div>
+							</div>
+							<div class="row" >
+								<div class="form-group col-xs-6">
+									<label style="font-weight:800; margin-top:20px;">Documento tenedor:</label>
+									<div id="v_caja_tenedor">
+		                                <input type="text" class="typeahead form-control" placeholder="Documento tenedor" id="v_cedula_tenedor">				
+		                            </div>
+		                            <input type="hidden" id="v_id_tenedor">
+									<label id="v_error_cedula_tenedor"></label>
+								</div>
+								<div class="form-group col-xs-6">
+									<label style="font-weight:800; margin-top:20px;">Nombre tenedor:</label>
+									<input type="text" id="v_nombre_tenedor" placeholder="Nombre tenedor" disabled class="form-control">
+								</div>
+							</div>
+							<div class="row" >
+								<div class="form-group col-xs-6">
+									<label style="font-weight:800; margin-top:20px;">Documento conductor:</label>
+									<div id="v_caja_conductor">
+		                                <input type="text" class="typeahead form-control" placeholder="Documento conductor" id="v_cedula_conductor">				
+		                            </div>
+		                            <input type="hidden" id="v_id_conductor">
+									<label id="v_error_cedula_conductor"></label>
+								</div>
+								<div class="form-group col-xs-6">
+									<label style="font-weight:800; margin-top:20px;">Nombre conductor:</label>
+									<input type="text" id="v_nombre_conductor" placeholder="Nombre conductor" disabled class="form-control">
+								</div>
+							</div>
+							</div>
+						</div><!--conten fin -->
+						<div class="row"></div><!-- separar contenido entre el body y el footer-->
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+	</div>	
+
+	<div id="ver_fechas" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h2 class="modal-title text-center" id="ver_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">CONSULTAR FECHAS</label>
+						</h2>
+					</div>
+					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_ver"></div><!-- id para manejar los mensajes de errordel popup -->
+						<div class="col-sx-12 col-md-12 col-md-12 col-lg-12">
+							<div class="row">
+								<div class="col-md-12 col-sm-12">
+									<label style="font-weight:800; margin-top:20px;">Soat</label>
+									<input type="text" id="numsoat" class="form-control input-sm" readonly="">
+									<label style="font-weight:800; margin-top:20px;">Fecha Vence Soat</label>
+									<input type="text" id="fechasoat" class="form-control" readonly="">
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12 col-sm-12">
+								<label style="font-weight:800; margin-top:20px;">Tecnomecánica</label>
+								<input type="text" id="numtecno" class="form-control input-sm" readonly="">
+								<label style="font-weight:800; margin-top:20px;">Fecha Vence Tencomecánica</label>
+									<input type="text" id="fechatecno" class="form-control" readonly="">
+								</div>	
+							</div>
+							<div class="row">
+								<div class="col-md-12 col-sm-12">
+								<label style="font-weight:800; margin-top:20px;">Número Licencia</label>	
+								<input type="text" id="numlicencia" class="form-control input-sm" readonly="">
+								<label style="font-weight:800; margin-top:20px;">Fecha Vence Licencia</label>
+								<input type="text" id="fechalicencia" class="form-control" readonly="">
+								</div>	
+							</div>
+						</div>	
+						<div class="row"></div><!-- separar contenido entre el body y el footer-->
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+	</div>	
+	<?php	
+	$vista.= '
+			<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+			<script src="%root_file%js/main.js" type="text/javascript"></script>
+			<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+			<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+			<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+			<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+
+			<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+			<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+			<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+			<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+			<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+			<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+			<script type="text/javascript">
+				$.fn.niftyModal(\'setDefaults\',{
+					overlaySelector: \'.modal-overlay\',
+					closeSelector: \'.modal-close\',
+					classAddAfterOpen: \'modal-show\',
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+					App.dataTables();
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+					App.wizard();
+				});
+			</script>
+		';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****///7.1   NO TOCARRRRRRRRR NUNCA
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
+	echo $vista;
+?>
+<script type="text/javascript">
+	function Visualizar(element){
+		// alert('visualizar');
+		var elemento = $(element);
+		var id = elemento.data("id");
+		var placa = elemento.data("id2");
+		var tipovehiculo = elemento.data("id3");
+
+		$("#placa").val(placa);
+		$("#idvehiculo").val(id);
+		$("#idtvehiculo").val(tipovehiculo);
+	}
+
+	function consultarvehiculo(element){
+		// alert('consultar vehiculo');
+		var elemento = $(element);
+		var id = elemento.data("id");
+
+		var dato={
+			idvehiculo:id,
+			action:'consultarvehiculo'
+		};
+		$.ajax({
+			url:"http://localhost/mvcLuisMiguel/libs/solicitudes_nacional_ajax.php",
+ 			type:'POST',
+ 			data:dato,
+ 			dataType:'json',
+ 			success:function(data){
+ 				// console.log(data);
+ 				if(data){
+ 					$("#v_placa").val(data.result[0].placa);
+ 					$("#v_config").val(data.result[0].configuracion);
+ 					$("#v_color").val(data.result[0].color);
+ 					$("#v_marca").val(data.result[0].marca);
+ 					$("#v_linea").val(data.result[0].linea);
+ 					$("#v_modelo").val(data.result[0].anio_fabricacion);
+ 					$("#v_peso").val(data.result[0].peso);
+ 					$("#v_combustible").val(data.result[0].cod_tipo_combustible);
+ 					$("#v_tvehiculo").val(data.result[0].tipo_vehiculo);
+ 					$("#v_tipo_carroceria").val(data.result[0].tipo_carroceria);
+ 					$("#v_soat").val(data.result[0].num_soat);
+ 					$("#v_vencesoat").val(data.result[0].vence_soat);
+ 					$("#v_asegura").val(data.result[0].aseguradora);
+ 					$("#v_tipo_vehiculo").val(data.result[0].tipo_vehiculo);
+ 					$("#v_web_satelital").val(data.result[0].web_satelital);
+ 					$("#v_usuario_satelital").val(data.result[0].usuario_satelital);
+ 					$("#v_clave_satelital").val(data.result[0].clave_satelital);
+ 					$("#v_num_motor").val(data.result[0].num_motor);
+ 					$("#v_num_chasis").val(data.result[0].num_chasis);
+ 					$("#v_poliza").val(data.result[0].poliza_responsabilidad);
+ 					$("#v_vencepoliza").val(data.result[0].vence_poliza);
+ 					$("#v_repotenciado").val(data.result[0].repotenciado);
+ 					$("#v_vinculacion").val(data.result[0].tipo_vinculacion);
+ 					$("#v_mantenimiento").val(data.result[0].fecha_mant_gps);
+ 					$("#v_capacidad").val(data.result[0].capacidad_tn);
+
+ 					//datos del los propietarios
+ 					$("#v_cedula_propietario").val(data.result2[0].documento_propietario);
+ 					$("#v_nombre_propietario").val(data.result2[0].nombre_propietario);
+ 					$("#v_cedula_tenedor").val(data.result2[0].documento_tenedor);
+ 					$("#v_nombre_tenedor").val(data.result2[0].nombre_tenedor);
+ 					$("#v_cedula_conductor").val(data.result2[0].documento_conductor);
+ 					$("#v_nombre_conductor").val(data.result2[0].nombre_conductor);
+ 				}
+ 			},
+ 			error:function(jqXHR, textStatus, errorThrown){
+ 				console.log('error de asignacion');
+	 			console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+ 			}
+ 		});	
+	}
+
+	function fechas(element){
+		// alert('fechas');
+		var elemento = $(element);
+		var id = elemento.data("id");
+		var dato={
+			idvehiculo:id,
+			action:'consultarfechas'
+		};
+		$.ajax({
+			url:"http://localhost/mvcLuisMiguel/libs/solicitudes_nacional_ajax.php",
+ 			type:'POST',
+ 			data:dato,
+ 			dataType:'json',
+ 			success:function(data){
+ 				// alert('hay datos');
+ 				// console.log(data);
+ 				if(data){
+ 					$("#numsoat").val(data.result[0].num_soat);
+ 					$("#fechasoat").val(data.result[0].vence_soat);
+ 					$("#numtecno").val(data.result[0].tecnomecanica);
+ 					$("#fechatecno").val(data.result[0].tecno_fecha_vigencia);
+ 					$("#numlicencia").val(data.result[0].rndc_numero_licencia);
+ 					$("#fechalicencia").val(data.result[0].rndc_vencimiento_licencia);				
+ 				}
+
+ 			},
+ 			error:function(jqXHR, textStatus, errorThrown){
+
+ 				alert('No hay Datos');
+ 				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+ 			}	
+ 		});	
+	}
+
+	$("#Solicitar").click(function(){
+		// alert('Solicitar estudio');
+		var placa=$("#placa").val();
+		var idvehiculo=$("#idvehiculo").val();
+		var tipovehiculo=$("#idtvehiculo").val();
+		var usuario=$("#usuario").val();
+		var observacion=$("#observacion").val();
+
+		// alert(placa);
+		// alert(idvehiculo);
+		// alert(tipovehiculo);
+		// alert(usuario);
+		
+
+		var asigne={
+			placa:placa,
+			user:usuario,
+			idsolicitud:idvehiculo,
+			tipovehiculo:tipovehiculo,
+			observacion:observacion,
+			action:'asinar_vehiculo_solicitud_solo'
+			};
+			$.ajax({
+				url:"http://localhost/mvcLuisMiguel/libs/solicitudes_nacional_ajax.php",
+	 			type:'POST',
+	 			data:asigne,
+	 			dataType:'json',
+	 			success: function(data){
+	 				alert('Datos registrados exitosamente!!!');
+	 				$("html, body").animate({ scrollTop: 0 }, 600);
+					setTimeout(function() { location.reload(false);  }, 800);
+	 				
+	 			},
+	 			error: function(jqXHR, textStatus, errorThrown){
+	 				console.log('error de asignacion');
+	 				console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+	 			}
+	 		});	
+
+
+	});
+
+</script>

@@ -1,0 +1,507 @@
+<?php
+	$_jsScripts = "";
+	$vista = '';
+
+	$r = new Request();
+	// print_r("<pre>");
+	// print_r($r->getArgs());
+	// print_r("</pre>");
+	$_id_importacion = $r->getArgs()[0];
+	$grupo = $r->getArgs()[1];
+
+	/**** CONSULTA DE ACTIVIDADES REALIZADAS ****/
+	$arrayActividades = $this->informes->getSeguimientosClienteReporte($_id_importacion , $grupo);
+	// print_r("<pre>");
+	// print_r($arrayActividades);
+	// print_r("</pre>");
+
+	/***** SE PINTA LA INFORMACIÓN DEL PROYECTO *****/
+	$info_proyecto = '
+		<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+			<div class="icon">
+				<span class="mdi mdi-check"></span>
+			</div>
+			<div class="message">
+				<strong>Atención!</strong>
+				<p>No información de este proyecto.</p>
+			</div>
+		</div>
+	';
+	$_flag_internacional = false;
+	if ( isset($arrayActividades["proyecto"][0]) ) {
+		$_flag_internacional = true;
+		$proyecto = $arrayActividades["proyecto"][0];
+		// print_r("<pre>");
+		// print_r($proyecto);
+		// print_r("</pre>");
+
+		$_aduanero = "";
+		if (!$proyecto["ADUANERO"]) {
+			$_aduanero = '<span class="cell-detail-description"><span class="text-danger">El cliente no está reportado con actividad aduanera.</span></span>';
+		}
+		$_tipo_transporte = "";
+		if ($proyecto["TIPO_TRANSPORTE"]) {
+			$_tipo_transporte = '(' . $proyecto["TIPO_TRANSPORTE"] . ')';
+		}
+		$info_proyecto = '
+			<div class="col-xs-12 col-sm-12 col-md-12">
+				<span><strong>Proyecto</strong></span>
+				<table class="table">
+					<tbody>
+						<tr>
+							<td class="cell-detail">
+								<div class="row">
+									<div class="col-sm-2">
+										<span># Proyecto: <small><strong>' . $proyecto["numero_importacion"] . '</strong></small></span>
+										<span class="cell-detail-description">' . $proyecto["importacion"] . '</span>
+										<span class="cell-detail-description">' . date('Y-m-d', $proyecto["numero_importacion"]) . '</span>
+									</div>
+									<div class="col-sm-2">
+										<span>Tipo de Operación:</span>
+										<span class="cell-detail-description">' . $proyecto["tipo_operacion"] . ' ' . $_tipo_transporte . '</span>
+										<span class="cell-detail-description">' . $proyecto["INCOTERM"] . '</span>
+									</div>
+									<div class="col-sm-2">
+										<span>Tipo de Carga:</span>
+										<span class="cell-detail-description">' . $proyecto["TIPO_CARGA"] . '</span>
+										<span class="cell-detail-description">' . $proyecto["contenedor"] . '</span>
+									</div>
+									<div class="col-sm-3">
+										<span>Cliente:</span>
+										<span class="cell-detail-description">' . $proyecto["CLIENTE"] . '</span>
+										' . $_aduanero . '
+									</div>
+									<div class="col-sm-3">
+										<span>Origen:</span>
+										<span class="cell-detail-description">' . $proyecto["PUERTO"] . '</span>
+									</div>
+								</div>
+							</td>
+						</tr>
+						<tr><td></td></tr>
+					</tbody>
+				</table>
+			</div>
+		';
+	}
+	/***** FIN - SE PINTA LA INFORMACIÓN DEL PROYECTO *****/
+
+	/***** SE PINTA LA INFORMACIÓN DE LAS GUIAS Y MATERIALES PARA PROYECTOS INTERNACIONALES *****/
+	$guias = '';
+	if ( $_flag_internacional ) {
+		$resumen_guias = "";
+		$guias = '
+			<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+				<div class="icon">
+					<span class="mdi mdi-check"></span>
+				</div>
+				<div class="message">
+					<strong>Atención!</strong>
+					<p>No se han registrado materiales para este proyecto.</p>
+				</div>
+			</div>
+		';
+		if ( isset($arrayActividades["materiales"]) ) {
+			// Se pinta la información de las guias de los materiales de proyectos internacional
+			if ($arrayActividades["materiales"]) {
+				// print_r("<pre>");
+				// print_r($arrayActividades["materiales"]);
+				// print_r("</pre>");
+
+				$guias = '
+					<div class="col-xs-12 col-sm-12 col-md-12">
+						<h3>Guías Internacional</h3>
+						<div id="accordion1" class="panel-group accordion">
+				';
+
+				$total_piezas = 0;
+				$total_peso = 0;
+				$total_peso_volumetrico = 0;
+				$total_peso_factura = 0;
+
+				foreach ($arrayActividades["materiales"] as $key => $value) {
+					/***** Contenido del accordeón *****/
+					$encabezado = $value[0];
+					// print_r("<pre>");
+					// print_r($encabezado);
+					// print_r("</pre>");
+
+					// Se lista los materiales de la Guía
+					$materiales = $value;
+					// print_r("<pre>");
+					// print_r($materiales);
+					// print_r("</pre>");
+
+					$_col_peso_volumetrico = '<th>Dimensiones por pieza</th>';
+					if ( $encabezado["tipo_transporte"] == "AÉREO" OR $encabezado["tipo_transporte"] == "MARÍTIMO" ) {
+						$_col_peso_volumetrico = '<th class="text-center">Peso Volumétrico</th>';
+					}
+
+					$materiales_content = '
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th class="text-center">Material</th>
+									<th class="text-center">Delivery</th>
+									<th class="text-center">Shipment</th>
+									<th class="text-center"># Piezas</th>
+									<th class="text-center">Peso</th>
+									' . $_col_peso_volumetrico . '
+									<th class="text-center">Peso a facturar</th>
+									<th class="text-center">Peligroso</th>
+									<th class="text-center">Hoja de Seguridad</th>
+									<th class="text-center">Refrigerado</th>
+								</tr>
+							</thead>
+							<tbody>
+					';
+
+					// Se filtra contenido de la tabla 
+					$_total_piezas = 0;
+					$_total_peso = 0;
+					$_total_peso_volumetrico = 0;
+					$_total_peso_factura = 0;
+					foreach ($materiales as $key_01 => $value_01) {
+						// Se suma el la cantidad de piezas de los materiales
+						$_total_piezas = $_total_piezas + $value_01["cant_piezas"];
+						$total_piezas = $total_piezas + $value_01["cant_piezas"];
+
+						// Se filtra el contenido del delivery 
+						$_delivery = '<strong>No especificado</strong>';
+						$_delivery_color = 'text-danger';
+						if ($value_01["delivery"]) {
+							$_delivery = $value_01["delivery"];
+							$_delivery_color = '';
+						}
+
+						// Se filtra el contenido del shipment 
+						$_shipment = '<strong>No especificado</strong>';
+						$_shipment_color = 'text-danger';
+						if ($value_01["shipment"]) {
+							$_shipment = $value_01["shipment"];
+							$_shipment_color = '';
+						}
+
+						// Se calcula el peso total del material 
+						$_peso = $value_01["peso"] * $value_01["cant_piezas"];
+						$_total_peso = $_total_peso + $_peso;
+						$total_peso = $total_peso + $_peso;
+
+						// Se calcula el peso volumétrico total del material 
+						$_peso_volumetrico = $value_01["PESO_VOLUMETRICO"] * $value_01["cant_piezas"];
+						$_total_peso_volumetrico = $_total_peso_volumetrico + $_peso_volumetrico;
+						$total_peso_volumetrico = $total_peso_volumetrico + $_peso_volumetrico;
+
+						// Se filtra cual es el peso a facturar al cliente 
+						$_peso_factura = $_peso;
+						$_col_peso_volumetrico = '
+							<td class="cell-detail text-center">
+								<span>' . $value_01["PESO_VOLUMETRICO"] . ' cm<sup>3</sup></span>
+							</td>
+						';
+						// Se pregunta si el proyecto es aéreo o marítimo para filtrar si se cotiza el peso o el peso volumétrico
+						if ( $value_01["tipo_transporte"] == "AÉREO" OR $value_01["tipo_transporte"] == "MARÍTIMO" ) {
+							if ( (float)$_peso < (float)$_peso_volumetrico ) {
+								$_peso_factura = $_peso_volumetrico;
+							}
+							$_col_peso_volumetrico = '
+								<td class="cell-detail text-right">
+									<span>' . number_format($_peso_volumetrico, 5, ',', '.') . ' Kg.</span>
+								</td>
+							';
+						}
+
+						$_total_peso_factura = $_total_peso_factura + (float)$_peso_factura;
+						$total_peso_factura = $total_peso_factura + (float)$_peso_factura;
+
+						// Se filtra el contenido de si es Peligroso
+						$_peligroso_text = 'No';
+						$_hoja_seguridad = '<td class="cell-detail text-center"></td>';
+
+						if ($value_01["material_peligroso"]) {
+							$_peligroso_text = '
+								<span>UN <strong>' . $value_01["un"] . '</strong></span>
+								<a class="cell-detail hint--top" data-hint="' . $value_01["NOM_RIESGO"] . '">
+									<img src="' . BASE_URL . 'public/img/riesgos/' . $value_01["URL_RIESGO"] . '" height="60" width="60">
+									<span class="cell-detail-description">' . $value_01["RIESGO"] . '</span>
+
+								</a>
+							';
+							$_hoja_seguridad = '
+								<td class="actions">
+									<center>
+										<a href="' . BASE_URL . 'public/files/internacional/materiales/' . $value_01["id_tramo"] . '/' . $value_01["url_hoja_seguridad"] . '" target="_blank" class="cell-detail hint--top-left" data-hint="Descargar"><span class="icon mdi mdi-download"></span></a>
+									</center>
+								</td>
+							';
+						}
+
+						// Se filtra el contenido de si es Peligroso
+						$_refrigerado_text = 'No';
+						if ( $value_01["refrigerado"] ) {
+							$_refrigerado_text = 'Si';
+						}
+
+						$materiales_content.= '
+							<tr>
+								<td class="cell-detail">
+									<span>' . $value_01["material"] . '</span>
+								</td>
+								<td class="cell-detail ' . $_delivery_color . '">
+									<span>' . $_delivery . '</span>
+								</td>
+								<td class="cell-detail ' . $_shipment_color . '">
+									<span>' . $_shipment . '</span>
+								</td>
+								<td class="cell-detail text-center">
+									<span>' . $value_01["cant_piezas"] . '</span>
+								</td>
+								<td class="cell-detail text-right">
+									<span>' . number_format($_peso, 2, ',', '.') . ' Kg.</span>
+								</td>
+								' . $_col_peso_volumetrico . '
+								<td class="cell-detail text-right">
+									<span>' . number_format($_peso_factura, 2, ',', '.') . ' Kg.</span>
+								</td>
+								<td class="cell-detail text-center">
+									<span>' . $_peligroso_text . '</span>
+								</td>
+								' . $_hoja_seguridad . '
+								<td class="cell-detail text-center">
+									<span>' . $_refrigerado_text . '</span>
+								</td>
+							</tr>
+						';
+					}
+
+					$_total_peso_volumetrico_content = '';
+					if ( $encabezado["tipo_transporte"] == "AÉREO" OR $encabezado["tipo_transporte"] == "MARÍTIMO" ) {
+						$_total_peso_volumetrico_content = '
+							<div class="col-xs-6 col-sm-3 col-md-3 text-center">
+								<span><strong>Peso Volumétrico Total</strong></span>
+								<span>' . number_format($_total_peso_volumetrico, 2, ',', '.') . ' Kg.</span>
+							</div>
+						';
+					}
+
+					$materiales_content.= '
+								<tr>
+									<td class="cell-detail" colspan="10">
+										<div class="col-xs-6 col-sm-3 col-md-3 text-center">
+											<span><strong>Total Piezas</strong></span>
+											<span>' . $_total_piezas . '</span>
+										</div>
+										<div class="col-xs-6 col-sm-3 col-md-3 text-center">
+											<span><strong>Peso Total</strong></span>
+											<span>' . number_format($_total_peso, 2, ',', '.') . ' Kg.</span>
+										</div>
+										' . $_total_peso_volumetrico_content . '
+										<div class="col-xs-6 col-sm-3 col-md-3 text-center">
+											<span><strong>Peso Facturable</strong></span>
+											<span>' . number_format($_total_peso_factura, 2, ',', '.') . ' Kg.</span>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					';
+
+					// Contenido de la pestaña 
+					$guias.= '
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4 class="panel-title">
+									<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_' . $encabezado[0] . '" class="collapsed" aria-expanded="false">
+										<i class="icon mdi mdi-chevron-down"></i> ' . $encabezado["guia"] . ' <small>' . $encabezado["tipo_transporte"] . '</small>
+										<span class="panel-subtitle"><strong>' . $encabezado["sigla"] . '</strong> ' . $encabezado["direccion"] . ' <strong>' . $encabezado["municipio"] . ' (' . $encabezado["depto"] . ' - ' . $encabezado["pais"] . ')</strong></span>
+									</a>
+								</h4>
+							</div>
+							<div id="collapse_' . $encabezado[0] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+								<div class="panel-body">
+									<strong>Materiales</strong>
+									' . $materiales_content . '
+								</div>
+							</div>
+						</div>
+					';
+					/***** Fin - Contenido del accordeón *****/
+				}
+
+				$guias.= '
+						</div>
+					</div>
+				';
+
+				// Contenido del resumen de las guías del proyecto
+				$cotiza_por = "Peso";
+				$total_peso_volumetrico_content = '';
+				if ( $encabezado["tipo_transporte"] == "AÉREO" OR $encabezado["tipo_transporte"] == "MARÍTIMO" ) {
+					if ( (float)$total_peso < (float)$total_peso_volumetrico ) {
+						$cotiza_por = "Volumen";
+					}
+					$total_peso_volumetrico_content = '
+						<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+							<span><strong>Peso Volumétrico Total</strong></span>
+							<span>' . number_format($total_peso_volumetrico, 2, ',', '.') . ' Kg.</span>
+						</div>
+					';
+				}
+
+				$resumen_guias = '
+					<div class="col-xs-12 col-sm-12 col-md-12">
+						<strong>Resúmen Guías</strong>
+						<table class="table">
+							<tbody>
+								<tr>
+									<td class="cell-detail">
+										<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+											<span><strong>Modo de Transporte</strong></span>
+											<span>' . $encabezado["tipo_transporte"] . '</span>
+										</div>
+										<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+											<span><strong>Total Piezas</strong></span>
+											<span>' . $total_piezas . '</span>
+										</div>
+										<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+											<span><strong>Peso Total</strong></span>
+											<span>' . number_format($total_peso, 2, ',', '.') . ' Kg.</span>
+										</div>
+										' . $total_peso_volumetrico_content . '
+										<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+											<span><strong>Peso Facturable</strong></span>
+											<span>' . number_format($total_peso_factura, 2, ',', '.') . ' Kg.</span>
+										</div>
+										<div class="col-xs-6 col-sm-4 col-md-2 text-center">
+											<span><strong>Cotizar por</strong></span>
+											<span>' . $cotiza_por . '</span>
+										</div>
+									</td>
+								</tr>
+								<tr><td></td></tr>
+							</tbody>
+						</table>
+					</div>
+				';
+			}
+		}
+	}
+	/***** FIN - SE PINTA LA INFORMACIÓN DE LAS GUIAS Y MATERIALES PARA PROYECTOS INTERNACIONALES *****/
+
+	/***** SE PINTA LA TABLA DE SEGUIMIENTOS Al CLIENTE DEL PROYECTO *****/
+	$table_seguimientos = '
+		<div class="col-xs-1 col-sm-1 col-md-3"></div>
+		<div class="col-xs-12 col-sm-12 col-md-6">
+			<table id="table1" class="table table-striped table-hover" data-page-length="50">
+				<thead>
+					<tr class="nexos-encabezado">
+						<th>Autor</th>
+						<th>Seguimiento</th>
+						<th>Fecha</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+	';
+	if (isset($arrayActividades["rowsData"])) {
+		foreach ($arrayActividades["rowsData"] as $key => $value) {
+			$_cell_entregable = '';
+			if ($value["url"]) {
+				$_cell_entregable = '
+						<center>
+							<a href="' . BASE_URL . 'public/files/importaciones/seguimiento/' . $value["id_actividad"] . '/' . $value["url"] . '" target="_blank" class="icon hint--top" data-hint="Descargar Entregable">
+								<span class="icon mdi mdi-download"></span>
+							</a>
+						</center>
+				';
+			}
+
+			// Se pinta la fila de contenido de la tabla
+			$table_seguimientos.= '
+				<tr>
+					<td class="user-avatar cell-detail user-info">
+						<img src="' . BASE_URL . 'views/layout/assets/img/' . $value["avatar"] . '">
+						<span>' . $value["nom_usuario"] . '</span>
+					</td>
+					<td class="cell-detail" >
+						<span>' . $value["observacion"] . '</span>
+					</td>
+					<td class="cell-detail" >
+						<span>' . $value["fecha_hora"] . '</span>
+					</td>
+					<td class="actions-nexos">
+						' . $_cell_entregable . '
+					</td>
+				</tr>
+			';
+		}
+	}
+	$table_seguimientos.= '
+				</tbody>
+			</table>
+		</div>
+		<div class="col-xs-1 col-sm-1 col-md-3"></div>
+	';
+	/***** FIN - SE PINTA LA TABLA DE SEGUIMIENTOS Al CLIENTE DEL PROYECTO *****/
+
+	$_content = $info_proyecto . $resumen_guias . $guias . $table_seguimientos;
+
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Resumen Proyecto 
+				<div class="tools">
+					<a href="' . BASE_URL . 'index/index1/"class="hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>
+				</div>
+				<span class="panel-subtitle"></span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+	';
+
+ 	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+	    </script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $_content , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+?>

@@ -1,0 +1,277 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+          <div class="row">
+            <section>
+              <H3 class="text-center"><strong>Cumplido</strong></H2>
+                <div class="panel-heading panel-heading-contrast">
+                  <span class="panel-subtitle">
+                    El módulo de Cumplido nos permite cerrar el despacho de operaciones y trasladar el proceso a la legalicacion en contabilidad.
+                  </span>
+                </div>
+            </section>
+          </div>
+          <div class="row">
+            <!--Acordeones -->
+            <div class="col-sm-12">
+              <div id="accordion1" class="panel-group accordion">
+                <!--Datos manifiesto -->
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne"><i class="icon mdi mdi-chevron-down"></i><strong>Datos Básicos</strong></a></h4>
+                  </div>
+                  <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label>Manifiesto(*)</label>
+                          <select id="placao" class="form-control input-xs select2">
+                            <option value="">Seleccione</option>
+                          </select>
+                          <input type="hidden" id="id_servicio" class="form-control input-xs" readonly="readonly">
+                          <input type="hidden" id="id_vehiculo" class="form-control input-xs" readonly="readonly">
+                          <input type="hidden" id="id_estudios" class="form-control input-xs" readonly="readonly">
+                          <input type="hidden" id="id_remitente" class="form-control input-xs" readonly="readonly">
+                        </div>
+                      </div>
+                      <div class="row">
+                        <hr>
+                        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                          <label>Manifiesto Seleccionado</label>
+                          <input type="text" id="id_manifiesto" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                          <label>Fecha de expedición</label>
+                          <input type="text" id="o_fecha_exedicion" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Tipo Manifiesto</label>
+                          <input type="text" id="tipo_manifiesto" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Origen</label>
+                          <input type="text" id="origen" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Destino</label>
+                          <input type="text" id="destino" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Placa</label>
+                          <input type="text" id="placa" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Poseedor</label>
+                          <input type="text" id="nameposee" class="form-control input-md" readonly="readonly">
+                          <input type="text" id="docposee" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Propietario</label>
+                          <input type="text" id="namepropi" class="form-control input-md" readonly="readonly">
+                          <input type="text" id="docpropi" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Conductor</label>
+                          <input type="text" id="nameconduc" class="form-control input-md" readonly="readonly">
+                          <input type="text" id="docconduc" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Cantidad Multas</label>
+                          <input type="number" id="cant_multa" class="form-control input-sm">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Tarifa Multa</label>
+                          <input type="text" id="tarif_multa" class="form-control input-sm" value="50.000" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label>Valor Multa</label>
+                          <input type="text" id="valor_multa" class="form-control input-sm" readonly="readonly">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--Datos de pago -->
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseTwos" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Datos de Pago</strong></a></h4>
+                  </div>
+                  <div id="collapseTwos" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-xs-4 col-md-4 col-lg-4 col-lg-4">
+                          <label>Fecha estimada de Pago</label>
+                          <input type="text" id="fecha_pago" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-lg-4 col-lg-4">
+                          <label>Agencia de Pago</label>
+                          <input type="text" id="agencia_pago" class="form-control input-sm" readonly="readonly">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--Remesas Manifiestos -->
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseThree" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Remesas & Ordenes</strong></a></h4>
+                  </div>
+                  <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="panel-body">
+                          <div class="table-responsive noSwipe">
+                            <table class="table table-condensed table-hover table-bordered table-striped">
+                              <thead>
+                                <tr>
+                                  <th style="width:20%;" rowspan="2">Orden - Remesa</th>
+                                  <th style="width:17%;">Fecha</th>
+                                  <th style="width:15%;">Hora</th>
+                                  <th style="width:10%;">Observación</th>
+                                  <th style="width:10%;">Tipo Fecha</th>
+                                </tr>
+                              </thead>
+                              <tbody id="tabla_cargue">
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="panel-body">
+                          <div class="table-responsive noSwipe">
+                            <table class="table table-condensed table-hover table-bordered table-striped">
+                              <thead>
+                                <tr>
+                                  <th style="width:20%;" rowspan="2">Remesa</th>
+                                  <th style="width:15%;">Fecha</th>
+                                  <th style="width:10%;">Hora</th>
+                                  <th style="width:10%;">Observación</th>
+                                  <th style="width:10%;">Tipo Fecha</th>
+                                </tr>
+                              </thead>
+                              <tbody id="tabla_descargue">
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+                <!-- DATOS DEL CUMPLIDO -->
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Datos de Registro</strong></a></h4>
+                  </div>
+                  <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                          <label>Fecha de expedición cumplido</label>
+                          <input type="text" id="expide_cumplido" class="form-control input-xs" disabled="disabled" value="<?php echo date('Y-m-d'); ?>">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label>Novedad</label>
+                          <textarea id="noveda" class="form-control input-sm"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--fin acordeones -->
+          </div>
+          <div class="row text-center">
+            <button id="Registrar_Cumplido" class="btn btn-success btn-sm "><i class="mdi mdi-check offset-10"></i> Cumplir</button>
+            <!--<button id="" class="btn-sm btn-secondary offset-10">Borrar</button>-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Mensajes para los usuarios de la plataforma -->
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-oet" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para Oet...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-rndc" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para Rndc...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<div id="loading-overlay-mensaje_carga" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos para traer los datos.</h4>
+  </div>
+</div>
+
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/transporte/js/cumplidoajax.js type="text/javascript"></script>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+    //App.wizard();
+  });
+</script>
+<!--Final del control de los submenús-->
+
+
+<?php
+/*
+	$vista.='
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+
+		
+
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+	'; 	
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	echo $vista;
+	*/
+?>

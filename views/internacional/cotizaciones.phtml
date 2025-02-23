@@ -1,0 +1,959 @@
+<?php
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>';
+
+$table_content = "";
+if (isset($this->internacional)) {
+	// Se verifican los permisos del pefil de usuario
+	$arrayPermisos = $this->internacional->permisosPerfil($ssn_id_perfil, 59);
+	$_permisos = $arrayPermisos;
+
+	$arrayCotizaciones = $this->internacional->getProyectosCotizacion();
+
+	$table_content = '
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover table-fw-widget" data-page-length="100">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th class="col-xs-1 col-sm-1 col-md-1"></th>
+									<th>Proyecto</th>
+									<th>Cliente</th>
+									<th>Negociación</th>
+									<th class="col-xs-1 col-sm-1 col-md-1">Oferta Comercial</th>
+									<th class="col-xs-1 col-sm-1 col-md-1">Primer Cotización</th>
+									<th class="col-xs-1 col-sm-1 col-md-1">Contador</th>
+									<th></th>
+								</tr>
+							</thead>
+								<tbody>';
+
+	if ($arrayCotizaciones) {
+		foreach ($arrayCotizaciones as $key => $value) {
+			$_oferta_comercial = '<span><strong class="text-danger">No presentada</strong></span>';
+			if ($value["CANT_OFERTA_COMERCIAL"] > 0) {
+				$_oferta_comercial = '<span class="text-center">' . $value["FECHA_OFERTA_COMERCIAL"] . '</span>';
+			}
+
+			$_primer_cotizacion = '';
+			if ($value["FECHA_PRIMER_COTIZACION"]) {
+				$_primer_cotizacion = '<span>' . date('Y-m-d', strtotime($value["FECHA_PRIMER_COTIZACION"])) . '</span>';
+			}
+
+			$primer_hora = '';
+			if ($value["HORA_PRIMER_COTIZACION"]) {
+
+				$primer_hora = '<span>' . $value["HORA_PRIMER_COTIZACION"] . '</span>';
+			}
+
+			$_valor_declarado = '<span class="text-danger">Valor declarado no registrado</span>';
+			if ($value["valor_declarado"] and $value["MONEDA"]) {
+				$_valor_declarado = number_format($value["valor_declarado"], 0, ',', '.') . ' ' . $value["MONEDA"];
+			}
+
+			$_col_actions = '
+					<td class="actions">
+						<a href="javascript:" onclick="editarCotizacion(' . $value['ID_PROYECTO_INTERNACIONAL'] . ', ' . $ssn_id_perfil . ')" class="cell-detail hint--top-left" data-hint="Editar Cotización"><span class="icon mdi mdi-edit" data-toggle="modal" data-target="#edita_cotizacion"></span></a>
+					</td>
+				';
+
+			switch ($value["COTIZACIONES"]) {
+				case '0':
+					$_col_status = "actions nexos-actions";
+					break;
+
+				case '1':
+					$_col_status = "nexos-txt-warning";
+					break;
+
+				case '2':
+					$_col_status = "nexos-txt-success";
+					break;
+			}
+			$table_content .= '
+					<tr>
+						<td class="' . $_col_status . '">
+							<span style="display: none;">' . $value["COTIZACIONES"] . '</span>
+							<center class="hint--top-right" data-hint="Aprobadas ' . $value["COTIZACIONES_APROBADAS"] . ' de ' . $value["CONCEPTOS_COTIZADOS"] . '">
+								<span class="mdi mdi-dot-circle icon"></span>
+							</center>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["tipo_operacion"] . '</span>
+							<span class="cell-detail-description">' . $value["importacion"] . '</span>
+							<span class="cell-detail-description">' . $value["numero_importacion"] . '</span>
+							<span class="cell-detail-description">'
+				. date('Y-m-d', strtotime($value["fecha_hora_inicio"])) . '.'
+				. date('H:is', strtotime($value["fecha_hora_inicio"])) . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["sigla"] . '</span>
+							<span class="cell-detail-description">' . $value["DOC_CLIENTE"] . '</span>
+							<span class="cell-detail-description">' . $value["cod_cliente"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["tipo_transporte"] . ' (' . $value["incoterm"] . ')</span>
+							<span class="cell-detail-description">Valor Declarado: <strong>' . $_valor_declarado . '</strong></span>
+						</td>
+						<td class="cell-detail">
+							' . $_oferta_comercial . '
+						</td>
+						<td class="cell-detail">
+							' . $_primer_cotizacion . '
+							' . $primer_hora . '
+						</td>
+						<td class="cell-detail">
+							<span class="label label-default" title="Destino">' . $value["DESTINOS"] . '</span>
+							<span class="label label-default" title="total cotizaciones por concepto">In: ' . $value["CANT_COTIZACINES_INLAND"] . ' / Flete: ' . $value["CANT_COTIZACINES_FLETE"] . '</span>
+						</td>
+						' . $_col_actions . '
+					</tr>
+				';
+		}
+	}
+	$table_content .= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+}
+
+// Se filtra si el usuario puede adicionar cotizaciones 
+$_btn_adicionar = '';
+if ($_permisos["adicionar"] == 1) {
+	$_btn_adicionar = '<button id="btn_edita_cotizacion" type="button" class="btn btn-success md-close">Guardar</button>';
+}
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Cotizaciones
+				<span class="panel-subtitle">Se genera las cotizaciones a los proveedores sobre una solicitud presentada por un cliente.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="edita_cotizacion" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="edita_cotizacion_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_popup_cotizacion"></div>
+						<div id="contenidoeditacotizacion"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer" id="foot_contenidoeditainfocliente">
+						' . $_btn_adicionar . '
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista);
+
+echo $vista;
+?>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#btn_edita_cotizacion").click(function() {
+			//alert('edita 1');
+			var msg_error = "";
+			// Se valida si se está dando por terminada la cotización - SELECT
+			if ($("#flag_cotizacion").val()) {
+				switch ($("#flag_cotizacion").val()) {
+					case "0": // Se cancela la cotización
+						if (!$("#cotizacion_respuesta").val() && $(".div_respuesta").css("display") != "none") {
+							msg_error += "<p>Debe diligenciar el campo <strong>Observación</strong> para cancelar la cotización.</p>";
+						}
+
+						if (!msg_error) {
+							var params = {
+								id: $("#id_actividad").val(),
+								orden: $("#orden").val(),
+								fecha_hora_inicio: $("#fecha_hora_inicio").val(),
+								id_importacion: $("#id_importacion").val(),
+								bloque: $("#bloque").val(),
+								grupo: $("#grupo").val(),
+								simultaneo: $("#simultaneo").val(),
+								tipo_actividad: $("#tipo_actividad").val(),
+								costo_real: $("#costo_real").val(),
+								respuesta: $("#cotizacion_respuesta").val(),
+								id_intr_proyecto: $("#id_intr_proyecto").val(),
+							}
+							// console.log(params);
+							$.ajaxSetup({
+								async: false
+							});
+							$.ajax({
+								url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=cancelar_solicitud",
+								type: 'POST',
+								data: params,
+								cache: false,
+								beforeSend: function(jqXHR, settings) {
+									$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+								},
+								error: function(jqXHR, textStatus, errorThrown) {
+									$(".nexos-messages").html('');
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+								},
+								success: function(data, textStatus, jqXHR) {
+									$(".nexos-messages").html('');
+									// console.log(data);
+									$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+									$("#edita_cotizacion").animate({
+										scrollTop: 0
+									}, 600);
+									setTimeout(function() {
+										location.reload(false);
+									}, 800);
+								}
+							});
+							$.ajaxSetup({
+								async: true
+							});
+						}
+						if (msg_error) {
+							$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+							$("#edita_cotizacion").animate({
+								scrollTop: 0
+							}, 600);
+						}
+						break;
+
+					case "1": // Se aprueba la cotización
+						var msg_error = "";
+
+						var fecha = $("#fecha_oferta").val();
+						var id_moneda = $("select[name=moneda_oferta]").val();
+						var valor = $("#valor_oferta").val();
+						var url = $("#url_oferta").val();
+
+						// Se valida la información del formulario 
+						if (fecha || id_moneda || valor || url) {
+							if (!fecha) {
+								msg_error += "<p>Debe diligenciar el campo <strong>Fecha Oferta</strong> para registrar la nueva cotización.</p>";
+							}
+							if (!id_moneda) {
+								msg_error += "<p>Debe seleccionar un <strong>Moneda Oferta</strong> para registrar la nueva cotización.</p>";
+							}
+							if (!valor) {
+								msg_error += "<p>Debe diligenciar el campo <strong>Valor Oferta</strong> para registrar la nueva cotización.</p>";
+							}
+							if (!url) {
+								msg_error += "<p>Debe seleccionar un <strong>Archivo Oferta</strong> para registrar la nueva cotización.</p>";
+							} else {
+								var adjunto = $("#url_oferta")[0].files[0];
+								// Se valida el peso del archivo
+								if (adjunto.size < $("#max_file_size").val()) {
+									// Se valida el tipo de archivo
+									var extension = adjunto.name.split(".");
+									var formato_archivo = "pdf,PDF,zip,ZIP,rar,RAR,doc,DOC,docx,DOCX,jpg,jpeg,png,gif,bmp,tif,JPG,JPEG,PNG,GIF,BMP,TIF,xls,XLS,xlsx,XLSX,ppt,PPT,pptx,PPTX,pps,PPS,ppsx,PPSX,ods,ODS";
+									if (validaFormatoArchivo(formato_archivo, extension[extension.length - 1]) == 0) {
+										msg_error += "<p>Formato del archivo del <strong>Archivo Oferta</strong> no es válido para registrar la nueva cotización.</p>";
+										msg_error += "<p>Formatos válidos: <strong>" + formato_archivo + "</strong>.</p>";
+									}
+								} else {
+									msg_error += "<p>El archivo del campo <strong>Archivo Oferta</strong> es muy pesado para subirlo al servidor. El peso máximo del archivo debe ser menor de <strong>" + ($("#max_file_size").val() / 1000000) + "MB</strong>.</p>";
+								}
+							}
+						}
+
+						if (!msg_error) {
+							// Se genera el DO de la solicitud 
+							var params = {
+								id: $("#id_intr_proyecto").val(),
+								numero_importacion: $("#numero_importacion").val(),
+							}
+							actualizaSolicitud(params);
+
+							// Si se solicita una actualización de la cotización se gestiona el cambio
+							if (fecha && id_moneda && valor && url) {
+								actualizaOferta("form_oferta");
+							}
+
+							// Se actualizan las actividades del proyecto
+							var params = {
+								id: $("#id_actividad").val() + ",",
+								orden: $("#orden").val(),
+								fecha_hora_inicio: $("#fecha_hora_inicio").val(),
+								id_importacion: $("#id_importacion").val(),
+								bloque: $("#bloque").val(),
+								grupo: $("#grupo").val(),
+								simultaneo: $("#simultaneo").val(),
+								tipo_actividad: $("#tipo_actividad").val(),
+								costo_real: $("#costo_real").val(),
+								respuesta: $("#respuesta").val(),
+							};
+
+							$.ajax({
+								type: "POST",
+								cache: false,
+								url: $("#id_url_ajax").val() + "libs/gestion_actividades.php?tabla=cmx_importacion_actividades&proyecto=importacion",
+								data: params,
+								beforeSend: function(jqXHR, settings) {
+									$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+								},
+								error: function(data) {
+									console.log(data);
+									$(".nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Error en la creacion del registro.</div></div>');
+								},
+								success: function(data) {
+									// console.log(data);
+									$(".nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se ha creado el registro con éxito.</div></div>');
+									$("html, body").animate({
+										scrollTop: 0
+									}, 600);
+									setTimeout(function() {
+										location.reload(false);
+									}, 800);
+								}
+							});
+						}
+
+						if (msg_error) {
+							$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+							$("#edita_cotizacion").animate({
+								scrollTop: 0
+							}, 600);
+						}
+						break;
+				}
+			} else {
+				let flag_valida = false;
+				let params = new Array();
+
+				$(".concepto").each(function() {
+					// console.log("El id es - " + $(this).attr("id") )
+					let id = $(this).attr("id");
+					let accordeon = $("#" + id + "_nombre").val();
+					let cotizacion = $("#" + id + "_cotizacion").text();
+					let msg_error_1 = "";
+
+					var id_proveedor = $("#slct_proveedores_" + id).val();
+					var proveedor = $("#" + id + "_proveedor").val();
+					if (!id_proveedor) {
+						var campo = $("#slct_proveedores_" + id).attr("placeholder");
+						msg_error_1 += "<p>Debe seleccionar un <strong>" + campo + "</strong> de la <strong>" + cotizacion + "</strong> del accordeón <strong>" + accordeon + "</strong> para generar la cotización.</p>";
+					}
+
+					var valor = $("#" + id + "_valor").val();
+					if (!valor) {
+						var campo = $("#" + id + "_valor").attr("placeholder");
+						msg_error_1 += "<p>Debe diligenciar el campo <strong>" + campo + "</strong> de la <strong>" + cotizacion + "</strong> del accordeón <strong>" + accordeon + "</strong> para generar la cotización.</p>";
+					}
+
+					var id_moneda = $("#slct_monedas_" + id).val();
+					if (!id_moneda) {
+						var campo = $("#slct_monedas_" + id).attr("placeholder");
+						msg_error_1 += "<p>Debe seleccionar una <strong>" + campo + "</strong> de la <strong>" + cotizacion + "</strong> del accordeón <strong>" + accordeon + "</strong> para generar la cotización.</p>";
+					}
+
+					var fecha_cotizacion = $("#" + id + "_fecha").val();
+					/*if ( !fecha_cotizacion ) {
+						var campo = $("#" + id + "_fecha").attr("placeholder");
+						msg_error_1+= "<p>Debe diligenciar el campo <strong>" + campo + "</strong> de la <strong>" + cotizacion + "</strong> del accordeón <strong>" + accordeon + "</strong> para generar la cotización.</p>";
+					}*/
+
+					var url = $("#" + id + "_file").val();
+					var campo = $("#" + id + "_file").attr("placeholder");
+					if (!url) {
+						msg_error_1 += "<p>Debe diligenciar el campo <strong>" + campo + "</strong> de la <strong>" + cotizacion + "</strong> del accordeón <strong>" + accordeon + "</strong> para generar la cotización.</p>";
+					} else {
+						var adjunto = $("#" + id + "_file")[0].files[0];
+						// Se valida el peso del archivo
+						if (adjunto.size < $("#max_file_size").val()) {
+							// Se valida el tipo de archivo
+							var extension = adjunto.name.split(".");
+							var formato_archivo = "pdf,PDF,zip,ZIP,rar,RAR,doc,DOC,docx,DOCX,jpg,jpeg,png,gif,bmp,tif,JPG,JPEG,PNG,GIF,BMP,TIF,xls,XLS,xlsx,XLSX,ppt,PPT,pptx,PPTX,pps,PPS,ppsx,PPSX,ods,ODS";
+							if (validaFormatoArchivo(formato_archivo, extension[extension.length - 1]) == 0) {
+								msg_error_1 += "<p>Formato del archivo del campo <strong>" + campo + "</strong> de la <strong>" + cotizacion + "</strong> del acordeón <strong>" + accordeon + "</strong> no es válido para poder editar el cliente.</p>";
+								msg_error_1 += "<p>Formatos válidos: <strong>" + formato_archivo + "</strong>.</p>";
+							}
+						} else {
+							msg_error_1 += "<p>El archivo del campo <strong>" + campo + "</strong> en la pestaña <strong>" + cotizacion + "</strong> del acordeón <strong>" + accordeon + "</strong> es muy pesado para subirlo al servidor. El peso máximo del archivo debe ser menor de <strong>" + ($("#max_file_size").val() / 1000000) + "MB</strong>.</p>";
+						}
+					}
+
+					if (id_proveedor || proveedor || valor || id_moneda || url) {
+						flag_valida = true;
+						if (!msg_error_1) {
+							params.push(id);
+						} else {
+							msg_error += msg_error_1;
+						}
+					}
+				});
+
+				if (!flag_valida) {
+					msg_error += "<p>No se diligenció nunguna cotización para agregarla a la solicitud</p>";
+				}
+
+				if (!msg_error) {
+					// console.log("Se puede diligenciar las cotizacioones");
+					for (var i = 0; i < params.length; i++) {
+						agregarCotizacion(params[i]);
+					}
+				}
+				if (msg_error) {
+					$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+					$("#edita_cotizacion").animate({
+						scrollTop: 0
+					}, 600);
+				}
+			}
+		});
+	});
+
+	function editarCotizacion(id, id_perfil) {
+
+		//alert('edita dos');
+
+		// console.log("Entro en función editarCotizacion");
+		$("#edita_cotizacion_title").empty();
+		$("#nexos_messages_popup_cotizacion").empty();
+		$("#contenidoeditacotizacion").empty();
+		var msg_error = "";
+
+		var params = {
+			id: id,
+			id_perfil: id_perfil
+		}
+
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=editar_cotizacion",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$(".nexos-messages").html('');
+				msg_error += "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function(data, textStatus, jqXHR) {
+				$(".nexos-messages").html('');
+				// console.log(data);
+				if (!msg_error) {
+					$("#nexos_messages_popup_cotizacion").html("");
+					if (data.content) {
+						$("#edita_cotizacion_title").html(data.content.title);
+						$("#contenidoeditacotizacion").html(data.content.content);
+						$(".div_respuesta").css("display", "none");
+						$(".div_oferta").css("display", "none");
+						$(".info_proyecto").css("display", "none");
+
+						$("#flag_cotizacion").change(function() {
+							$("#nexos_messages_popup_cotizacion").html('');
+							var select = $(this).attr("id");
+							$("#" + select + " option[value='']").attr("selected", false);
+							$(".selecciona_cotizacion").attr("disabled", false);
+							var msg_error = "";
+
+							if ($(this).val()) {
+								switch ($(this).val()) {
+									case "0": // Cuando no se aprueba la cotización 
+										$(".div_respuesta").removeAttr("style");
+										$(".div_oferta").css("display", "none");
+										break;
+
+									case "1": // Cuando se aprueba la cotización
+										$(".div_respuesta").css("display", "none");
+
+										if ($("#oferta_content").length == 0) {
+											msg_error += '<p>No se ha presentado ninguna oferta comercial al cliente para poder aprobar la cotización de los proveedores.</p>';
+										}
+
+										var flag_aprueba = false;
+										$(".concepto").each(function() {
+											var div_concepto = $(this).attr("id");
+											var accordeon = $("#" + div_concepto + "_nombre").val();
+											// Se pregunta si el concepto tiene cotizaciones registradas
+											if ($(".div_" + div_concepto).length > 0) {
+												flag_aprueba = true;
+												var i = 0;
+												$(".div_" + $(this).attr("id")).each(function(e) {
+													var check_cotizacion = "check_" + div_concepto + "_" + (e + 1);
+													if ($("#" + check_cotizacion).prop("checked")) {
+														i++;
+													}
+												});
+												// Se pregunta si el concepto ya tiene alguna cotizacion seleccionada
+												if (i == 0) {
+													msg_error += '<p>No se ha aprobado ninuguna cotización del concepto <strong>' + accordeon + '</strong>.</p>';
+												}
+											}
+										});
+
+										if (!flag_aprueba) {
+											msg_error += '<p>No se ha subido ninguna cotización.</p>';
+										}
+
+										if (msg_error) {
+											$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+											$("#edita_cotizacion").animate({
+												scrollTop: 0
+											}, 600);
+											$("#" + select + " option[value='']").attr("selected", true);
+											$("#" + select).val("");
+										}
+										if (!msg_error) {
+											$(".selecciona_cotizacion").attr("disabled", true);
+											$(".div_oferta").removeAttr("style");
+										}
+										break;
+								}
+							} else {
+								$(".div_respuesta").css("display", "none");
+								$(".div_oferta").css("display", "none");
+							}
+						});
+
+						$("#check_info").change(function() {
+							// $(".info_proyecto").toggle(500);
+							$(".info_proyecto").css("display", "none");
+							if ($(this).prop("checked")) {
+								$(".info_proyecto").removeAttr("style");
+							}
+						});
+
+						App.formElements();
+					}
+				}
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_cotizacion").animate({
+				scrollTop: 0
+			}, 600);
+		}
+	}
+
+	function actualizaSolicitud(data) {
+		console.log(data);
+		var msg_error = "";
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=actualiza_solicitud",
+			type: 'POST',
+			data: data,
+			cache: false,
+			dataType: 'json',
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$(".nexos-messages").html('');
+				msg_error += "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function(data, textStatus, jqXHR) {
+				$(".nexos-messages").html('');
+				// console.log(data);
+				$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+				$("#edita_cotizacion").animate({
+					scrollTop: 0
+				}, 600);
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_cotizacion").animate({
+				scrollTop: 0
+			}, 600);
+		}
+	}
+
+	function actualizaOferta(form) {
+		var params = new FormData($("#" + form)[0]);
+		var msg_error = "";
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=actualiza_oferta",
+			type: 'POST',
+			contentType: false,
+			data: params,
+			cache: false,
+			dataType: 'json',
+			processData: false,
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$(".nexos-messages").html('');
+				msg_error += "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function(data, textStatus, jqXHR) {
+				$(".nexos-messages").html('');
+				// console.log(data);
+				$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+				$("#edita_cotizacion").animate({
+					scrollTop: 0
+				}, 600);
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_cotizacion").animate({
+				scrollTop: 0
+			}, 600);
+		}
+	}
+
+	function agregarCotizacion(data) {
+		// console.log("Entro en función agregarCotizacion");
+		// console.log(data);
+		var fhoy = moment().format('YYYY-MM-DD');
+		//var horahoy=moment().format('HH:mm:ss');
+		var msg_error = "";
+		var params = new FormData($("#form_" + data)[0]);
+		params.append("id_intr_proyecto", $("#id_intr_proyecto").val());
+		params.append("id_concepto", $("#id_concepto_" + data).val());
+		params.append("id_proveedor", $("#slct_proveedores_" + data).val());
+		params.append("proveedor", $("#" + data + "_proveedor").val());
+		params.append("valor", $("#" + data + "_valor").val());
+		params.append("id_moneda", $("#slct_monedas_" + data).val());
+		//params.append( "fecha_cotizacion" , $("#" + data + "_fecha").val() );
+		params.append("fecha_cotizacion", fhoy);
+		if ($("#" + data + "_descripcion").val()) {
+			params.append("descripcion", $("#" + data + "_descripcion").val());
+		}
+		//params.append("hora_cotizacion", horahoy);
+		params.append("div", data);
+
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=agregar_cotizacion",
+			type: 'POST',
+			contentType: false,
+			data: params,
+			cache: false,
+			dataType: 'json',
+			processData: false,
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$(".nexos-messages").html('');
+				msg_error += "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function(data, textStatus, jqXHR) {
+				$(".nexos-messages").html('');
+				// console.log(data);
+				$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+				$("#edita_cotizacion").animate({
+					scrollTop: 0
+				}, 600);
+				setTimeout(function() {
+					location.reload(false);
+				}, 800);
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_cotizacion").animate({
+				scrollTop: 0
+			}, 600);
+		}
+	}
+
+	function flag_cotizacion(clase, id) {
+		// console.log("Entro en función flag_cotizacion");
+		var id_panel_header = id.replace("check", "div_header");
+		var class_panel_header = clase.replace("check", "div_header");
+		// console.log(id_panel_header);
+		// console.log(class_panel_header);
+
+		// Se busca la posición del check en la tabla
+		var arrayId = id.split("_");
+		var id_cotizacion = arrayId[(arrayId.length - 1)];
+
+		// Se verifica si el check queda activo
+		var flag_checked = false;
+		if ($("#" + id).prop('checked')) {
+			flag_checked = true;
+		}
+
+		// Se inactivan los checks del grupo de cotizaciones 
+		$("." + clase).prop("checked", false);
+
+		var arraydiv = clase.split("_");
+		var div_accordeon = "";
+		for (var i = 1; i < arraydiv.length; i++) {
+			if ((arraydiv.length - 1) == i) {
+				div_accordeon += arraydiv[i];
+			} else {
+				div_accordeon += arraydiv[i] + "_";
+			}
+		}
+
+		// Se pregunta si el check queda activo o inactivo
+		$("." + class_panel_header).attr("class", "panel-heading " + class_panel_header);
+		$("#" + div_accordeon).attr("class", "panel panel-default panel-border-color panel-border-color-warning concepto");
+		if (flag_checked) {
+			$("#" + id_panel_header).attr("class", "panel-heading panel-border-color panel-border-color-success " + class_panel_header);
+			$("#" + div_accordeon).attr("class", "panel panel-default panel-border-color panel-border-color-success concepto");
+			$("#" + id).prop("checked", true);
+		}
+
+		// Se actualiza la informacion en la base de datos 
+		var params = {
+			id_intr_proyecto: $("#id_intr_proyecto").val(),
+			id_concepto: $("#id_concepto_" + div_accordeon).val(),
+			id_cotizacion: $("#" + div_accordeon + "_id_" + id_cotizacion).val(),
+			flag_checked: flag_checked
+		}
+		// console.log(params);
+
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=autoriza_cotizacion",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$(".nexos-messages").html('');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function(data, textStatus, jqXHR) {
+				// console.log(data);
+				$(".nexos-messages").html('');
+				$("#total_cotizacion").empty();
+				$("#total_cotizacion").html(data.content);
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+	}
+
+	function quitarCotizacion(element) {
+		// console.log("Entro en funcion quitarCotizacion");
+		var arraydiv = element.split("-");
+
+		var div = arraydiv[0];
+		var id_solicitud = arraydiv[1];
+		var id_concepto = arraydiv[2];
+		var id_cotizacion = arraydiv[3];
+
+		// Se actualiza la informacion en la base de datos 
+		var params = {
+			id: id_cotizacion,
+			id_solicitud: id_solicitud,
+			id_concepto: id_concepto,
+			div: div
+		}
+		// console.log(params);
+
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=borra_cotizacion",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend: function(jqXHR, settings) {
+				$("#row_" + div).empty();
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$(".nexos-messages").html('');
+				// console.log(jqXHR);
+				// console.log(textStatus);
+				// console.log(errorThrown);
+			},
+			success: function(data, textStatus, jqXHR) {
+				// console.log(data);
+				$(".nexos-messages").html('');
+				$("#row_" + div).append(data.content);
+				$("#" + div).attr("class", "panel panel-default panel-border-color " + data.accordion_color + " concepto");
+				App.formElements();
+			}
+		});
+	}
+
+
+	function actualizarCotizacion(element) {
+		var arraydiv = element.split("-");
+		var div = arraydiv[0];
+		var id_solicitud = arraydiv[1];
+		var id_concepto = arraydiv[2];
+		var id_cotizacion = arraydiv[3];
+		var observe = $("#descri" + id_cotizacion + "").val();
+		var moneda = $("#monedaco" + id_cotizacion + "").val();
+		//alert(id_cotizacion);
+		//alert(moneda);
+		//alert($("#monedaco"+id_cotizacion+"").val());
+		var params = {
+			id: id_cotizacion,
+			div: div,
+			descrip: observe,
+			money: moneda
+		};
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=edita_cotizacion",
+			type: 'POST',
+			data: params,
+			dataType: 'json',
+			error: function(jqXHR, textStatus, errorThrown) {
+				$("#nexos_messages_popup_cotizacion").html('');
+				msg_error += "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function(data) {
+				$("#nexos_messages_popup_cotizacion").html('');
+				if (data) {
+					$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+					$("#edita_cotizacion").animate({
+						scrollTop: 0
+					}, 600);
+					setTimeout(function() {
+						location.reload(false);
+					}, 800);
+				}
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_cotizacion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_cotizacion").animate({
+				scrollTop: 0
+			}, 600);
+		}
+	}
+
+	function buscaProveedor(element, div) {
+		// console.log("Entro en función buscaProveedor");
+		var id = $(element).attr("id");
+		$("#" + div + "_proveedor").val($("#" + id + " option:selected").text());
+	}
+</script>

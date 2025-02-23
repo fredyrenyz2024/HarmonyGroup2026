@@ -1,0 +1,262 @@
+<?php
+	//traer variables de sesion 
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_nom_usuario = $_SESSION["usuario"]["nom_usuario"];
+	$ssn_nom_perfil = $_SESSION["usuario"]["nombre_perfil"];
+	$ssn_id_bodega = $_SESSION["usuario"]["id_bodega"];
+	$ssn_avatar = $_SESSION["usuario"]["avatar"];
+	$ssn_email = $_SESSION["usuario"]["email"];
+    $ssn_nombre_cliente = $_SESSION["usuario"]["nombre_cliente"];
+
+// print_r("<pre>");
+// print_r($_SESSION);
+// print_r("</pre>");
+
+	//enviar al modelo el id del usuario y el número de identificación
+	// $result = $this->usuarios->getcambioclave($ssn_id_usuario,$documento,$email);
+	//crear variables a rellenar
+	$vista = '';
+	//rellenar la variable
+	$vista='
+		<div class="col-md-5">
+			<div class="user-display">
+				<div class="user-display-bg"><img src="%root_file%img/user-profile-display.png" alt="Perfil de fondo"></div>
+				<div class="user-display-bottom">
+					<div class="user-display-avatar"><img src="%root_file%img/'. $ssn_avatar.'" alt="' . $ssn_nom_usuario . '"></div>
+					<div class="user-display-info">
+						<div class="name"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">'.$ssn_nom_usuario.'</font></font></div>
+						<div class="nick"><span class="mdi mdi-account"></span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> '.$ssn_nom_perfil.'</font></font></div>
+						<div class="nick"><span class="mdi mdi-email"></span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> '.$ssn_email.'</font></font></div>
+					</div>
+					<div class="row user-display-details">
+						<div class="form-group col-md-6 col-sm-12 col-xs-12">
+							<div class="title"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Cliente</font></font></div>
+							<div class="counter"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">           '.$ssn_nombre_cliente.'</font></font></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-7">
+			<div class="panel panel-border panel-contrast" id="panel_clave">
+				<div class="panel-heading panel-heading-contrast text-center"><strong>
+					Cambiar Contraseña 
+					</strong><div class="tools"></div>
+					<span class="panel-subtitle"></span>
+				</div>
+				<div class="panel-body xs-mt-15">
+				<div role="alert" class="alert alert-contrast alert-primary alert-dismissible  mensajito">
+                    <div class="icon"><span class="mdi mdi-check"></span></div>
+         			<div class="message">
+                      <p class="text-center">
+                      	<strong>
+                      	El botón para registrar su cambio aparecerá cuando el proceso este completo y no tenga ningún error
+                     	</strong>
+                      </p>
+                    </div>
+                </div>
+					<div class="nexos-messages"></div>
+					<form id="form_cambioclave">
+						<div class="form-group col-xs-12 col-sm-12 col-md-12">
+							<label>Contraseña Anterior</label>
+							<input type="password" placeholder="Contraseña Anterior" id="code" class="form-control input-sm">
+							<label id="error_code"></label>
+						</div>
+						<div class="form-group col-xs-12 col-sm-6 col-md-6 nueva_clave_content">
+							<label>Nueva Contraseña:</label>
+							<input type="password" placeholder="Nueva Contraseña" id="new_pass" name="new_pass" class="form-control input-sm nueva_clave" data-id_usuario="'.$ssn_id_usuario.'">
+							<label id="error_new_pass"></label>
+						</div>
+						<div class="form-group col-xs-12 col-sm-6 col-md-6 nueva_clave_content">
+							<label>Confirmar Nueva Contraseña:</label>
+							<input type="password" placeholder="Confirmar Nueva Contraseña" id="confirm_pass" name="confirm_pass" class="form-control input-sm nueva_clave">
+							<label id="error_confirm_pass"></label>
+						</div>
+					</form>
+					<div class="col-xs-12 col-sm-12 col-md-12 text-right btn_content">
+						<button id ="btn_cambiarclave" class="btn text-right btn-space btn-success" style="font-size:15px;">Cambiar Clave
+						</button>
+					</div>
+					<div class="row">
+						<div class="col-sm-12"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****///7. carga en la misma variable las librerías para darfuncionalidad a los menus y a la paginación
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script>
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+		</script>
+	';
+
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	echo $vista;
+?>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$(".nueva_clave_content").hide();
+		$(".btn_content").hide();
+
+
+		//valida que se oprima el boton del formulario
+		$("#btn_cambiarclave").click(function(){
+			$(".nexos-messages").empty();
+			let msg_error = ""; 
+			var form = $('#form_cambioclave'); //cobija todo lo que este dentro del formulario 
+			var campos=form.find('.form-control');//encontrar los campos del formulario que tengasn la clase form-control 
+			//alert (campos.length);
+			campos.each(function(){//usa el placeholder, valida que los campos no estén vacíos y usa el placeholder para mostrar que campo debe diligenciar el usuario
+				if(!$(this).val() ){
+					msg_error+= `<p>Debe diligenciar el campo <strong>${$(this).attr('placeholder')}</strong> para poder cambiar la clave.</p>`;
+				}
+			});
+
+			// Validar si los datos pertenecen al usuario logueado 
+			if (!msg_error) {
+				let datos = form.find("#new_pass");
+
+				var params = {
+					action: "cambiar_clave_bd",
+					id_usuario: datos.data("id_usuario"),
+					pass: datos.val()
+
+				}
+				$.ajaxSetup({async: false});
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/usuarios_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").html('');
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").html('');
+						// console.log(data);
+					}
+				});
+				$.ajaxSetup({async: true});
+			}
+			if(!msg_error){
+				funct_msg_success(".nexos-messages", `<p>Se ha actualizado la clave con éxito.</p>`); 
+				$(".form-control").val("");
+				$("#panel_clave").animate({ scrollTop: 0 }, 600);
+				$(".nexos-messages").fadeOut(5000);
+			} 
+
+			if (msg_error) { //se crean los mensajes de error que se 	muestran en la parte superior del formulario cambio clave
+				funct_msg_error(".nexos-messages", msg_error); 
+				$("#panel_clave").animate({ scrollTop: 0 }, 600);
+			}
+		});
+                                   
+		//quitarle el foco a la clave anterior y validar la clave para saber si corresponde la clave ingresada con la clave de la base de datos
+		$('#code').blur(function(){      
+			$(".nexos-messages").empty();
+			let msg_error = "";
+			let msg_succes="El botón para registrar su cambio aparecerá cuando el proceso este completo y no tenga ningún error";
+			//si tiene valor la clave anterior realiza la petición si no no muestra nada 
+			if ($(this).val()) {
+				var params = {
+					action: "validar_clave",
+					id_usuario: $("#new_pass").data("id_usuario"),
+					pass: $(this).val()
+				}
+				$.ajaxSetup({async: false});
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/usuarios_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").html('');
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").html('');
+						// console.log(data);
+						if (data.result == 0) {
+							msg_error+= `<p>La contraseña ingresada no pertenece al usuario actual.</p>`;
+						}
+					}
+				});
+				$.ajaxSetup({async: true});
+				if (!msg_error) {
+					$(".nueva_clave_content").show();
+					$("#new_pass").focus();
+				}
+				if (msg_error) {
+					$(".nueva_clave_content").hide();
+					$(".btn_content").hide();
+					funct_msg_error(".nexos-messages", msg_error); 
+					$("#panel_clave").animate({ scrollTop: 0 }, 600);
+				}
+			}
+		});
+
+		//se quita el foco del campo clave y valida que en la funcion 'valida clave'(protocolo de seguridad de la nueva contraseña) funcione todo correctamente incluye que la clave no se repita  .
+		// $("#new_pass").blur(function(){ 
+		// 	$(".nexos-messages").empty();
+		// 	let msg_error = "";
+		// 	var clave = $(this).val();
+		// 	let flag_clave = valida_clave(clave,$(this).data('id_usuario'));
+		// 	if(flag_clave){ msg_error+= flag_clave; }
+		// 	if (msg_error) {
+		// 		$(".btn_content").hide();
+		// 		$('#confirm_pass').attr("disabled","disabled").val('');
+		// 		setTimeout(function(){ funct_msg_error(".nexos-messages", msg_error); }, 10);
+		// 		$("#panel_clave").animate({ scrollTop: 0 }, 600);
+		// 	}
+		// });
+
+		//enfocar el campo clave principal, 
+		$("#new_pass").focus(function(){
+			$(".nexos-messages").empty();
+			$('#confirm_pass').removeAttr("disabled");
+			$(this).val("");
+		});
+
+		// Se valida que las claves sean iguales para que aparezca el boton o desaparezca 
+		$(".nueva_clave").blur(function(){
+			$(".nexos-messages").empty();
+			let msg_error = "";
+			msg_error+= claves_iguales($("#new_pass").val(), $("#confirm_pass").val());
+			if (!msg_error && $("#new_pass").val() && $("#confirm_pass").val()) {
+				$(".btn_content").show(); 
+			}
+			if (msg_error) { //se crean los mensajes de error que se muestran en la parte superior del formulario cambio clave
+				funct_msg_error(".nexos-messages", msg_error); 
+				$("#panel_clave").animate({ scrollTop: 0 }, 600);
+				$(".btn_content").hide();
+			}
+		}); 
+	});	
+</script>

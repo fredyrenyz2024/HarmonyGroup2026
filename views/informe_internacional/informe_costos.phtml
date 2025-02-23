@@ -1,0 +1,113 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -20px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #3B71CA;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2 text-center" style="margin:25px;">
+              <b>Informe de Costos</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #3B71CA;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;">
+              <b>Debe diligenciar algun campo para realizar el informe</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5; width: auto; white-space: nowrap;font-weight: bold;border: 1px solid #ddd;padding: 1px;" class="text-center">Fecha Inicial:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: 200px;">
+              <input type="date" id="fecha_inicial" name="fecha_inicial" style="width: 100%;" value="<?php echo date("Y-m-d") ?>">
+            </td>
+            <th style="background-color: #F5F5F5; width: auto; white-space: nowrap;font-weight: bold;border: 1px solid #ddd;padding: 1px;" class="text-center">Fecha Final:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: 200px;">
+              <input type="date" id="fecha_final" name="fecha_final" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; width: auto; white-space: nowrap;font-weight: bold;border: 1px solid #ddd;padding: 1px;" class="text-center">DO:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: 200px;">
+              <input type="text" id="num_do" name="num_do" style="width: 100%;">
+            </td>
+            <th style="background-color: #F5F5F5; width: auto; white-space: nowrap;font-weight: bold;border: 1px solid #ddd;padding: 1px;" class="text-center">Cliente:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: 200px;">
+              <input type="text" id="cliente" name="cliente" style="width: 100%;">
+            </td>
+            <!-- <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <button type="button" class="btn btn-primary btn-xs" id="aplicar_filtro"><i class="fas fa-filter"></i>Aplicar Filtro</button>
+            </td> -->
+          </tr>
+        </thead>
+      </table>
+
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;">
+        <thead>
+          <tr>
+            <!-- <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Numero de Solicitudes:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="text-center">
+              <span class="badge badge-primary" id="num_solicitudes">0</span>
+            </td>
+            <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Solicitudes diligenciadas:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="text-center">
+              <span class="badge badge-success" id="num_solicitudes_diligenciadas">0</span>
+            </td> -->
+            <td class="text-right" style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="5">
+              <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+            </td>
+          </tr>
+        </thead>
+      </table>
+
+      <div class="table-responsive">
+        <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;" style="border: #3B71CA;" id="informe_costos">
+          <thead style="border-collapse: collapse;background-color: #3B71CA;color:#fff;">
+            <tr>
+              <th class="text-center">Cliente Servicio</th>
+              <th class="text-center">N° Do</th>
+              <th class="text-center">Fecha Do</th>
+              <th class="text-center">Fecha oferta comercial</th>
+              <th class="text-center">Proveedor</th>
+              <th class="text-center">Concepto</th>
+              <th class="text-center">Moneda</th>
+              <th class="text-center">N° cotizacion trm</th>
+              <th class="text-center">Valor cotización</th>
+              <th class="text-center">N° Factura</th>
+              <th class="text-center">Fecha factura</th>
+              <th class="text-center">Valor</th>
+              <th class="text-center">Moneda factura</th>
+              <th class="text-center">Observaciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbl_informe_costo" style="border-collapse: collapse;font-size: 10px;"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/informe/js/informe_placas_asiganadas_ajax.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>/views/informe_internacional/js/informe_costo.js type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

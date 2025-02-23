@@ -1,0 +1,170 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$vista = '';
+$table_content = "";
+
+$array = $this->asigne_conductor->getTabla();
+
+$table_content .= "<div class='row' >
+			<div class='col-sm-12'>
+				<div  class='table-responsive noSwipe'>
+					<table id='table1' class='table table-striped table-hover' data-page-length='100'>
+						<thead>
+							<tr class='nexos-encabezado'>
+								<th>#</th>
+								<th>Placa</th>
+								<th>Tipo Vehículo</th>
+								<th>Conductor</th>
+								<th>N° Identificación</th>
+								<th style='width:10%;min-width: 10%;'>acciones</th>
+							</tr>
+						</thead>
+						<tbody>";
+if ($array) {
+    foreach ($array["rowsData"] as $key => $value) {
+        $table_content .= "
+					<tr>
+					<td></td>
+					<td class='cell-detail'>
+						<span >$value[placa]</span>
+					</td>
+					<td class='cell-detail'>
+						<span>$value[tipo_vehiculo]</span>
+					</td>
+					<td class='cell-detail'>
+						<span>$value[nombre]</span>
+					</td>
+					<td class='cell-detail'>
+						<span>$value[numero_documento]</span>
+					</td>
+					<td></td>
+					</tr>";
+
+    }
+}
+
+$table_content .= "</tbody>
+					</table>
+				</div>
+			</div>
+		</div>";
+
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Asignar Conductor a Vehículo
+				<div class="tools">
+					<a href="#" data-toggle="modal" data-target="#crear" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a>
+				</div>
+				<span class="panel-subtitle">Módulo para asignar un conductor a un Vehículo.</span>
+				<div class=" col-xs-12 col-sm-4 col-md-12">
+					<input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="' . $ssn_nombre . '" >
+				</div>
+			</div>
+			<div class="panel-body">
+				<div class="nexos-messages"></div>
+				<div class="nexos-content">
+					%content%
+				</div>
+				<div class="row">
+				<div class="col-sm-12"></div>
+				</div>
+			</div>
+		</div>
+	';
+
+$vista .= '
+	<div id="crear" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<form id="form_crea">
+						<div class="modal-header">
+							<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+							<h3 class="modal-title">Aregar Conductor Vehículo</h3>
+						</div>
+						<div class="modal-body">
+						<div class="row">
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<div class="col-md-12 col-sm-12">
+								<label>Seleccione Vehículo</label>
+
+							</div>
+							<div class="col-md-12 col-sm-12">
+								<label>Seleccione Conductor para el Vehículo</label>
+
+							</div>
+
+							</div>
+						</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+							<button id="btn_crea" type="button" class="btn btn-success md-close">Guardar</button>
+						</div>
+						</div>
+			</div>
+		</div>
+
+';
+
+$vista .= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista);
+echo $vista;

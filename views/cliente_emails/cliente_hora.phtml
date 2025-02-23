@@ -1,0 +1,816 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content = '';
+
+if (isset($this->cliente_hora)) {
+	$arrayPermisos = $this->cliente_hora->permisosPerfil($ssn_id_perfil, 129);
+	$_permisos = $arrayPermisos;
+	$btn_crear = '';
+	if ($_permisos["adicionar"] == 1) {
+		$btn_crear = '
+		<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="" data-target="#crear_hora"><span class="icon mdi mdi-plus" title="Agregar Hora"></span></a>';
+	}
+
+	$vista .= '
+	<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Cliente Hora
+				<div class="tools">
+					' . $btn_crear . '
+				</div>
+				<span class="panel-subtitle">Módulo donde se parametrizan las horas en las que se le enviarán los correos automaticos a los clientes.</span>
+			</div>
+			<div class="panel-body">
+				<div class="nexos-messages"></div>
+				<div class="nexos-content">
+					%content%
+				</div>
+				<div class="row">
+				<div class="col-sm-12"></div>
+				</div>
+			</div>
+		</div>
+	';
+
+	$table_content .= "
+<div class='col-xs-12 col-sm-12 col-md-12'>
+<!--
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label>Fecha Inicial</label>
+	<input type='date' id='fecha_inicial' date-format='yyyy/mm/dd' class='form-control input-sm' value='" . date('Y-m-d') . "' >
+</div>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label>Fecha Final</label>   
+    <input type='date' id='fecha_final' date-format='yyyy/mm/dd' class='form-control input-sm' value='" . date('Y-m-d') . "' >   
+</div>
+-->
+<div class='form-group col-xs-6 col-sm-6 col-md-6 col-lg-6'>
+	<labe>Seleccione el cliente</label>
+	<select id='cliente' class='form-control input-sm'></select>
+</div>
+
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label></label>
+	<button class='form-control input-sm btn btn-info mdi mdi-search' id='consulte'  onclick='HoraCliente();'>
+		Consultar
+	</button>
+</div>
+</div>";
+
+	$table_content .= '
+<div id="esconder">
+<div class="row" >
+	<div class="col-sm-12">
+		<div  class="table-responsive noSwipe">
+  			<table id="table2" class="table table-striped table-hover table-fw-widget">
+                <thead>
+                   <tr>
+                   <th>#</th>
+                    <th>Cliente</th>
+                    <th>Permanente</th>
+                    <th>Tiempos</th>
+                    <th>Acción</th>
+                   </tr>
+                </thead>
+                <tbody id="body_esconder">
+                </tbody>
+           	</table>
+		</div>
+	</div>
+	</div>
+</div>';
+} ?>
+
+<!--Crear Hora-->
+<div id="crear_hora" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="editar_title">
+					<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Crear Hora</label>
+				</h3>
+			</div>
+			<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+				<div id="msg_crearhora"></div>
+				<div id="content_editar">
+					<div class="row">
+
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label><strong>Cliente</strong></label>
+							<select id="a_cliente" class="form-control input-sm"></select>
+						</div>
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+							<label><strong>Permanente?</strong></label>
+							<select id="a_permanencia" class="form-control input-sm">
+								<option value="">Seleccione</option>
+								<option value="0">No</option>
+								<option value="1">Si</option>
+							</select>
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label><strong>Hora envío</strong></label>
+							<input type="time" id="a_henvio" class="form-control" data-show-meridian="true" data-start-view="1">
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label><strong>Fecha inicio</strong></label>
+							<input type="date" id="a_finicio" class="form-control">
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label><strong>Fecha final</strong></label>
+							<input type="date" id="a_ffinal" class="form-control">
+						</div>
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<br>
+							<!-- <div id="msg_horaspermanentes"></div> -->
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="btn_guadarhora" type="button" class="btn btn-success md-close" onclick="">Guardar</button>
+					<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Ver Hora-->
+<div id="verhoracliente" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="editar_title">
+					<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Consultar Hora Cliente</label>
+				</h3>
+			</div>
+			<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+				<div id="msg_edicion2"></div>
+				<div id="content_editar">
+					<div class="row">
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label><strong>Cliente</strong></label>
+							<input type="text" id="vcliente" class="form-control input-sm" disabled="disabled">
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label><strong>Permanencia</strong></label>
+							<input type="text" id="vpermanencia" class="form-control input-sm" disabled="disabled">
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Fecha inicio</strong></label>
+							<input type="text" id="vinicio" class="form-control input-sm" disabled="disabled">
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Fecha final</strong></label>
+							<input type="text" id="vfinal" class="form-control input-sm" disabled="disabled">
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Hora envío</strong></label>
+							<input type="text" id="vhoraenvio" class="form-control input-sm" disabled="disabled">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Usuario</strong></label>
+							<input type="text" id="vuser" class="form-control input-sm" disabled="disabled">
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Fecha</strong></label>
+							<input type="text" id="vfecha" class="form-control input-sm" disabled="disabled">
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Hora</strong></label>
+							<input type="text" id="vhora" class="form-control input-sm" disabled="disabled">
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--Editar Hora -->
+<div id="editarhoracliente" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="editar_title">
+					<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Actualizar Hora Cliente</label>
+				</h3>
+			</div>
+			<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+				<div id="msg_edicion"></div>
+				<div id="content_editar">
+					<div class="row">
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label><strong>Cliente</strong></label>
+							<select id="ecliente" class="form-control input-sm" disabled="disabled">
+							</select>
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label><strong>Permanencia</strong></label>
+							<select id="epermanence" class="form-control input-sm"></select>
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Fecha inicio</strong></label>
+							<input type="date" id="einicio" class="form-control input-sm">
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Fecha final</strong></label>
+							<input type="date" id="efinal" class="form-control input-sm">
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label><strong>Hora envío</strong></label>
+							<input type="time" id="ehoraenvio" class="form-control input-sm">
+						</div>
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<input type="hidden" id="eidtb">
+						</div>
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<br>
+							<div id="msge_horaspermanentes"></div>
+						</div>
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button id="btn_actualizar" type="button" class="btn btn-success md-close">Guardar</button>
+					<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<?php
+$vista .= '
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>	
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+		<script src="%root_file%assets/js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/ //7.1   NO TOCARRRRRRRRR NUNCA
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista);
+echo $vista;
+?>
+<script type="text/javascript">
+	url1 = $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php";
+	$(document).ready(function() {
+		clientes_select();
+		clientes_hora();
+		$("#a_permanencia").change(function() {
+			$("#msg_horaspermanentes").html('');
+			var p = $("#a_permanencia").val();
+			if (p == '') {
+				alert('Seleccione una opción del campo permanente');
+			}
+			if (p == 1) { //Si
+				$("#a_henvio").prop('disabled', true);
+				$("#a_finicio").prop('disabled', true);
+				$("#a_ffinal").prop('disabled', true);
+				$("#a_henvio").val('');
+				$("#a_finicio").val('');
+				$("#a_ffinal").val('');
+				$("#msg_horaspermanentes").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Horas Permanentes:</strong><p> 08:00 AM  -  12:00 PM - 17:00 PM</p>' +
+					'<p><strong>Tener presente:</strong> Las horas registradas como no permanentes para este cliente serán inactivadas definitivamente, ya que un cliente solo puede tener una clasificación horaria.</p>' +
+					'</div></div>');
+			}
+			if (p == 0) { //No
+				$("#a_henvio").prop('disabled', false);
+				$("#a_finicio").prop('disabled', false);
+				$("#a_ffinal").prop('disabled', false);
+				$("#msg_horaspermanentes").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Tener Presente:</strong><p>Las horas permanentes que encuentre el sistema serán inactivas definitivamente, ya que un cliente solo puede tener una clasificación horaria.</p>' +
+					'</div></div>');
+			}
+			var cliente = $("#a_cliente").val();
+			var consulta_validacion = {
+				cliente_sl: cliente,
+				action: 'validar_registro'
+			};
+			$.ajax({
+				url: url1,
+				type: 'POST',
+				data: consulta_validacion,
+				dataType: 'json',
+				success: function(data) {
+					if (data) {
+						var msg_error = "";
+						//cantidad de permanencia
+						canidad = (data.result[0][0]);
+						if ($("#a_permanencia").val() !== '') {
+							if (canidad > 0 && $("#a_permanencia").val() == '1') {
+								//si hay registros permanentes, entonces no dejar registrar hora permanente
+								msg_error += "<p>Este Cliente <strong>ya tiene horas permanentes regitradas </strong> y activas en el sistema.</p>";
+							}
+							if (canidad == 0 && $("#a_permanencia").val() == '1') {
+								//dejar registrar horas , si permanente es NO
+							}
+							if (canidad > 0 && $("#a_permanencia").val() == '0') {
+								//dejar registrar una hora mas
+							}
+							if (canidad == 0 && $("#a_permanencia").val() == '0') {
+								//dejar registrar porque no existe ninguna para ese cliente
+							}
+							if (msg_error) {
+								$("#msg_crearhora").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+								$("#crear_hora").animate({
+									scrollTop: 0
+								}, 600);
+								$("#btn_guadarhora").hide();
+							} else {
+								$("#msg_crearhora").html('');
+								$("#btn_guadarhora").show();
+							}
+						}
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+				}
+			});
+		});
+
+		$("#epermanence").change(function() {
+			$("#msge_horaspermanentes").html('');
+			var p = $("#epermanence").val();
+			if (p == 1) {
+				$("#ehoraenvio").prop('disabled', true);
+				$("#einicio").prop('disabled', true);
+				$("#efinal").prop('disabled', true);
+				$("#ehoraenvio").val('');
+				$("#einicio").val('');
+				$("#efinal").val('');
+				$("#msge_horaspermanentes").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Horas Permanentes:</strong><p> 08:00 AM  -  12:00 PM -  17:00 PM</p></div></div>');
+			}
+			if (p == 0) {
+				$("#ehoraenvio").prop('disabled', false);
+				$("#einicio").prop('disabled', false);
+				$("#efinal").prop('disabled', false);
+				$("#msge_horaspermanentes").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Tener Presente:</strong><p>Las horas permanentes que encuentre el sistema serán inactivas definitivamente, ya que un cliente solo puede tener una clasificación horaria.</p>' +
+					'</div></div>');
+			}
+		});
+
+		$("#a_cliente").change(function() {
+			//buscar si tiene 
+			var cliente = $("#a_cliente").val();
+			var consulta_validacion = {
+				cliente_sl: cliente,
+				action: 'validar_registro'
+			};
+			$.ajax({
+				url: url1,
+				type: 'POST',
+				data: consulta_validacion,
+				dataType: 'json',
+				success: function(data) {
+					if (data) {
+						var msg_error = "";
+						//cantidad de permanencia
+						canidad = (data.result[0][0]);
+						if ($("#a_permanencia").val() !== '') {
+
+							if (canidad > 0 && $("#a_permanencia").val() == '1') {
+								//si hay registros permanentes, entonces no dejar registrar hora permanente
+								msg_error += "<p>Este Cliente <strong>ya tiene horas permanentes regitradas </strong> y activas en el sistema.</p>";
+							}
+							if (canidad == 0 && $("#a_permanencia").val() == '1') {
+								//dejar registrar horas , si permanente es NO
+							}
+							if (canidad > 0 && $("#a_permanencia").val() == '0') {
+								//dejar registrar una hora mas
+							}
+							if (canidad == 0 && $("#a_permanencia").val() == '0') {
+								//dejar registrar porque no existe ninguna para ese cliente
+							}
+							if (msg_error) {
+								$("#msg_crearhora").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+								$("#crear_hora").animate({
+									scrollTop: 0
+								}, 600);
+								$("#btn_guadarhora").hide();
+							} else {
+								$("#msg_crearhora").html('');
+								$("#btn_guadarhora").show();
+							}
+						}
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+				}
+			});
+		});
+		//validaciones
+		$("#btn_guadarhora").click(function() {
+			var msg_error = '';
+			if (!$("#a_cliente").val()) {
+				msg_error += "<p>Debe diligenciar el campo <strong>Cliente</strong> para poder registrar .</p>";
+			}
+			if (!$("#a_permanencia").val()) {
+				msg_error += "<p>Debe diligenciar el campo <strong>Permanente?</strong> para poder registrar .</p>";
+			}
+			if ($("#a_permanencia").val()) {
+				if ($("#a_permanencia").val() == '0') {
+					if (!$("#a_henvio").val()) {
+						msg_error += "<p>Debe diligenciar el campo <strong>Hora envío</strong> para poder registrar .</p>";
+					}
+					if (!$("#a_finicio").val()) {
+						msg_error += "<p>Debe diligenciar el campo <strong>Fecha inicio</strong> para poder registrar .</p>";
+					}
+					if (!$("#a_ffinal").val()) {
+						msg_error += "<p>Debe diligenciar el campo <strong>Fecha final</strong> para poder registrar .</p>";
+					}
+				}
+			}
+			if (!msg_error) {
+				Registrar_Hora();
+			} else {
+				$("#msg_crearhora").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+				$("#crear_hora").animate({
+					scrollTop: 0
+				}, 600);
+			}
+		});
+
+		$("#btn_actualizar").click(function() {
+			var msg_error = '';
+			if (!$("#ecliente").val()) {
+				msg_error += "<p>Debe diligenciar el campo <strong>Cliente</strong> para poder actualizar .</p>";
+			}
+			if (!$("#epermanence").val()) {
+				msg_error += "<p>Debe diligenciar el campo <strong>Permanencia</strong> para poder actualizar .</p>";
+			}
+			if ($("#epermanence").val()) {
+				if ($("#epermanence").val() == '0') {
+					if (!$("#einicio").val()) {
+						msg_error += "<p>Debe diligenciar el campo <strong>Fecha inicio</strong> para poder actualizar .</p>";
+					}
+					if (!$("#efinal").val()) {
+						msg_error += "<p>Debe diligenciar el campo <strong>Fecha final</strong> para poder actualizar .</p>";
+					}
+					if (!$("#ehoraenvio").val()) {
+						msg_error += "<p>Debe diligenciar el campo <strong>Hora envío</strong> para poder actualizar .</p>";
+					}
+					if ($("#ehoraenvio").val() == '00:00:00') {
+						msg_error += "<p>Debe diligenciar el campo <strong>Hora envío</strong>con una hora diferente a 00:00 para poder actualizar .</p>";
+					}
+				}
+			}
+			if (!msg_error) {
+				Actualiza_hora();
+			} else {
+				$("#msg_edicion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+				$("#editarhoracliente").animate({
+					scrollTop: 0
+				}, 600);
+			}
+		});
+
+	});
+	var url = $("#id_url_ajax").val() + "libs/grupo_ajax.php";
+
+	function clientes_select() {
+		var dato = {
+			action: 'consultar_cliente'
+		};
+		$("#a_cliente").html('');
+		$("#a_cliente").html('<option value="">Seleccione</option>');
+		$.ajax({
+			url: url,
+			type: 'POST',
+			data: dato,
+			dataType: 'json',
+			success: function(data) {
+				if (data) {
+					data.result.forEach(function(element, index) {
+						$("#a_cliente").append('<option value="' + element.id + '">' + element.nombre + '</option>');
+					});
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
+	}
+
+	function clientes_hora() {
+		var datop = {
+			action: 'consultar_cliente_tabla'
+		};
+		$("#cliente").html('<option value="">Seleccione</option>');
+		$.ajax({
+			url: url,
+			type: 'POST',
+			data: datop,
+			dataType: 'json',
+			success: function(data) {
+				if (data) {
+					data.result.forEach(function(element, index) {
+						$("#cliente").append('<option value="' + element.id + '">' + element.nombre + ' / ' + element.documento + '</option>');
+					});
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
+	}
+
+	function Registrar_Hora() {
+		var cliente = $("#a_cliente").val();
+		var hora = $("#a_henvio").val();
+		var fi = $("#a_finicio").val();
+		var ff = $("#a_ffinal").val();
+		var per = $("#a_permanencia").val();
+		registro = {
+			cliente: cliente,
+			hora: hora,
+			fi: fi,
+			ff: ff,
+			per: per,
+			action: 'Registrohora_envio_correo'
+		};
+
+		$.ajax({
+			url: url1,
+			type: 'POST',
+			data: registro,
+			dataType: 'json',
+			success: function(data) {
+				alert('Registro Datos Existosamente!!!');
+				location.reload();
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log('error');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
+	}
+
+	function Actualiza_hora() {
+		var cliente = $("#ecliente").val();
+		var fini = $("#einicio").val();
+		var ffin = $("#efinal").val();
+		var perma = $("#epermanence").val();
+		var horae = $("#ehoraenvio").val();
+		var idtb = $("#eidtb").val();
+
+		var update = {
+			cliente: cliente,
+			fini: fini,
+			ffin: ffin,
+			perma: perma,
+			horae: horae,
+			idtb: idtb,
+			action: 'Actualiza_horaenvio'
+		};
+
+		$.ajax({
+			url: url1,
+			type: 'POST',
+			data: update,
+			dataType: 'json',
+			success: function(data) {
+				alert('Datos Actualizados Existosamente!!!');
+				location.reload();
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log('error');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
+	}
+
+	function HoraCliente() { //TABLA
+		var cliente = $("#cliente").val();
+		if (cliente == '') {
+			alert('Por favor seleccione un cliente de la lista');
+			$("#body_esconder").html('');
+		} else {
+			var search = {
+				cliente_hora: cliente,
+				action: 'buscar_hora_cliente'
+			};
+			$("#body_esconder").html('');
+			$.ajax({
+				url: url1,
+				type: 'POST',
+				data: search,
+				dataType: 'json',
+				success: function(data) {
+					var cont = 0;
+					data.result.forEach(function(element, index) {
+						cont++;
+						var idtb = element.id; //tabla de horas de envio
+						var p;
+						var col_status;
+						var btn_ver = '';
+						var btn_editar = '';
+						//Botones
+
+						btn_ver = '<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-eye" id="btn_ver' + cont + '"  data-toggle="modal" data-target="#verhoracliente"  data-placement="top"  title="Ver Datos" data-id="' + idtb + '"></button>';
+
+						btn_editar = '<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-edit" id="btn_editar' + cont + '"  data-toggle="modal" data-target="#editarhoracliente"  data-placement="top"  title="Editar Datos" data-id="' + idtb + '"></button>';
+
+						if (element.permanencia == 1) {
+							p = 'Si';
+						}
+						if (element.permanencia == 0) {
+							p = 'NO';
+						}
+						col_status =
+							'<td class="text-success">' +
+							'<center>' +
+							'<span class="mdi mdi-dot-circle icon"  data-toggle="tooltip" title="Activo"></span>' +
+							'</center>' +
+							'</td>';
+						$("#body_esconder").append('<tr>' +
+							col_status +
+							'<td>' + element.nombre + '</td>' +
+							'<td>' + p + '</td>' +
+							'<td>(' + element.fecha_inicio + ') (' + element.fecha_final + ')</td>' +
+							'<td>' +
+							btn_ver + '&nbsp;' +
+							btn_editar +
+							'</td>' +
+							'</tr>');
+						//boton ver
+						$("#btn_ver" + cont + "").click(function() {
+							var id = $(this).attr('data-id');
+							var buscar = {
+								id: id,
+								action: 'ver_horacliente'
+							};
+							$.ajax({
+								url: url1,
+								type: 'POST',
+								data: buscar,
+								dataType: 'json',
+								success: function(data) {
+									if (data) {
+										var per;
+										if (data.result[0].permanencia == 1) {
+											per = 'Si';
+										}
+										if (data.result[0].permanencia == 0) {
+											per = 'No';
+										}
+										$("#vcliente").val(data.result[0].nombre);
+										$("#vinicio").val(data.result[0].fecha_inicio);
+										$("#vfinal").val(data.result[0].fecha_final);
+										$("#vpermanencia").val(per);
+										$("#vhoraenvio").val(data.result[0].hora_envio);
+
+										$("#vuser").val(data.result[0].usuario);
+										$("#vfecha").val(data.result[0].fecha);
+										$("#vhora").val(data.result[0].hora);
+									}
+								},
+								error: function(jqXHR, textStatus, errorThrown) {
+									console.log('no trajo datos de cliente');
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+								}
+							});
+						});
+						//boton de consulta para formulario de edición
+						$("#btn_editar" + cont + "").click(function() {
+							var id = $(this).attr('data-id'); //
+							$("#eidtb").val(id);
+							var buscar = {
+								id: id,
+								action: 'edita_horacliente'
+							};
+							$.ajax({
+								url: url1,
+								type: 'POST',
+								data: buscar,
+								dataType: 'json',
+								success: function(data) {
+									if (data) {
+										$("#ecliente").html('');
+										data.result[0].clientene.forEach(function(element, index) {
+											var tmpSelected = "";
+											if (element.selected) {
+												tmpSelected = "selected";
+											}
+											$("#ecliente").
+											append('<option ' + tmpSelected + ' value="' + element.id + '">' + element.nombre + '</option>');
+										});
+										if (data.result[0].permanencia == 1) {
+											p = 'Si';
+											$("#epermanence").html('<option value="1">Si</option>' +
+												'<option value="0">No</option>');
+
+											//bloquear los campos
+											$("#ehoraenvio").prop('disabled', true);
+											$("#einicio").prop('disabled', true);
+											$("#efinal").prop('disabled', true);
+										} else {
+											$("#epermanence").html('<option value="0">No</option>' +
+												'<option value="1">Si</option>');
+											$("#ehoraenvio").prop('disabled', false);
+											$("#einicio").prop('disabled', false);
+											$("#efinal").prop('disabled', false);
+
+										}
+										$("#ehoraenvio").val(data.result[0].hora_envio);
+										$("#einicio").val(data.result[0].fecha_inicio);
+										$("#efinal").val(data.result[0].fecha_final);
+									}
+								},
+								error: function(jqXHR, textStatus, errorThrown) {
+									console.log('no trajo datos de cliente');
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+								}
+							});
+						});
+					});
+
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+				}
+			});
+		}
+	}
+</script>

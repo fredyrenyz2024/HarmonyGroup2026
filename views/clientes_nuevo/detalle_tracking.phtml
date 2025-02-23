@@ -1,0 +1,73 @@
+<div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12 my-4">
+  <div class="widget widget-title" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 4px 4px 4px;">
+    <div class="card-header">
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px;">Mapa Geografico</h3>
+    </div>
+    <div class="card-body p-1">
+      <div id="mapgeografico" style="height:300px; width:100%;"></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="widget widget-title" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 4px 4px 4px;">
+    <div class="card-header">
+      <h3>Seguimiento Vehicular</h3>
+    </div>
+    <div class="card-body p-1">
+      <div class="col-lg-12">
+        <div class="table-responsive noSwipe">
+          <!-- Ruta origen y destino -->
+          <div class="text-center fw-bold h5" style="font-size: 18px; font-weight: 800; margin-bottom: 5px;">Ruta del despacho - <span id="titulo_referencia"></span></div>
+          <table class="table table-sm border text-center" style="width:100%" cellpadding="0" cellspacing="0" border="0">
+            <thead style="font-size: 14px;">
+              <tr>
+                <th style="background-color: #332D2D;color:#FFFFFF;">Ruta</th>
+                <td id="nombre_plan"></td>
+              </tr>
+            </thead>
+          </table>
+
+          <table class="table table-sm border text-center">
+            <thead style="background-color: #332D2D;color:#FFFFFF;width:100%">
+              <tr>
+                <th>#</th>
+                <th>Punto</th>
+                <th>Municipio</th>
+                <th>Fecha &amp; Hora</th>
+                <th>Usuario</th>
+              </tr>
+            </thead>
+            <tbody id="tbody_tiempos" style="font-size: 12px;">
+              <tr>
+                <td colspan="5" class="text-center" style="font-size: 13px;">Esperando Información</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/clientes_nuevo/js/detalle_tracking.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6vpUhRVoEe5U6m7Wh5_LFMCr_g8OzU1E&libraries=places&v=weekly&libraries=marker" defer></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

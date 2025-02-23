@@ -1,0 +1,210 @@
+<?php
+	$Conect = new Consultas;
+	$_dbTable = "material_bodega"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+	$_jsAjax = "";
+
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+	$ssn_id_bodega = $_SESSION["usuario"]["id_bodega"];
+
+	$r = new Request();
+	// print_r($r->getArgs());
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	/********* FIN POPUPS *********/
+
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if(isset($this->bodegas) && count($this->bodegas)){
+
+		/*** SE CREA TABLA DE CONTENIDO ***/
+		$table_materiales_bodega = '
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:7%;">Ubicación</th>
+									<th>Bodega</th>
+									<th>Material</th>
+									<th>Lote</th>
+									<th>Embalaje</th>
+									<th style="width:6%;">Disponibles</th>
+									<th style="width:5%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+		$arrayMateriales_clientes = $this->bodegas->getListaInventario($ssn_id_bodega);
+		// print_r("<pre>");
+		// print_r($arrayMateriales_clientes);
+		// print_r("</pre>");
+
+		if($arrayMateriales_clientes['rowsData']){
+			$_flag_cuenta_ubicaciones = false;
+
+			foreach ($arrayMateriales_clientes['rowsData'] as $key => $value) {
+				// Se maqueta contenido de la tabla 
+				$table_materiales_bodega.= '<tr>';
+
+				// Columna Ubicación
+				$table_materiales_bodega.= '
+					<td class="cell-detail md-trigger">
+						<span>' . $value["UBICACION"] . '</span>
+					</td>
+				';
+
+				// Columna Clientes
+				$table_materiales_bodega.= '
+					<td class="cell-detail md-trigger">
+						<span>' . $value["NOM_BODEGA"] . '</span>
+						<span class="cell-detail-description">' . $value["NOM_CLIENTE"] . '</span>
+					</td>
+				';
+
+				// Columna Materiales
+				$table_materiales_bodega.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail md-trigger">
+						<span>' . $value["descripcion"] . '</span>
+						<span class="cell-detail-description">' . $value["codigo"] . '</span>
+					</td>
+				';
+
+				// Columna Lote 
+				$table_materiales_bodega.= '
+					<td class="cell-detail">
+						<span>' . $value["lote"] . '-' . $value["GRUPO_ESTIBA"] . '</span>
+						<span class="cell-detail-description">' . $value["fecha_vencimiento"] . '</span>
+					</td>
+				';
+
+				// Columna datos de cantiidad y embalaje del material
+				$table_materiales_bodega.= '
+					<td class="cell-detail">
+						<span>' . $value["nom_unidad_empaque"] . ' x ' . $value["unidades_x_embalaje"] . ' unid</span>
+						<span class="cell-detail-description">' . $value["nom_unidad_presentacion"] . ' x ' . $value["cant_contenido_interno"] . ' ' . $value["nom_unidad_medida"] . '</span>
+					</td>
+				';
+
+				// Columna de Estado de la estiba 
+				$_porcentaje = ceil(($value["DISPONIBLE"] * 100) / $value["CUPO_ESTIBA"]);
+				$table_materiales_bodega.= '
+					<td class="milestone">
+						<span class="version">' . $value["DISPONIBLE"] . ' / ' . $value["CUPO_ESTIBA"] . '</span>
+						<div class="progress">
+							<div style="width: ' . $_porcentaje . '%" class="progress-bar progress-bar-primary"></div>
+						</div>
+					</td>
+				';
+
+				// se asigna la columna de acciones
+				$table_materiales_bodega.='
+					<td class="actions">
+						<a href="' . BASE_URL . 'bodegas/form_generar_traslado/' . $value[0] . '/' . $value["ID_BODEGA"] . '" class="hint--top-left" data-hint="Trasladar"><span class="icon mdi mdi-swap-vertical"></span></a>
+					</td>
+				';
+				
+				$table_materiales_bodega.= '</tr>';
+			}
+		}
+
+		$table_materiales_bodega.= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Generar Traslado
+				<span class="panel-subtitle">Módulo que para generar el traslado de ubicación de una estiba dentro de la bodega.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			%js-ajax%
+	    </script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%js-ajax%" , $_jsAjax , $vista);
+	$vista = str_replace("%content%" , $table_materiales_bodega , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>

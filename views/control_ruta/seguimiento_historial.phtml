@@ -1,0 +1,147 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -10px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;font-weight: 300;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo text-center" style="margin:25px;">
+              <b>Datos de Despacho<span id="num_manifiestos"></span></b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;margin-bottom: 10px;font-zise: 8px;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Manifiesto:</th>
+            <td class="manifiesto gif-cell" style="border: 1px solid #ddd;padding: 1px;"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Origen: </th>
+            <td class="origen gif-cell" style="border: 1px solid #ddd;padding: 1px;"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Destino </th>
+            <td class="destino gif-cell" style="border: 1px solid #ddd;padding: 1px;"></td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Placa </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="placa gif-cell"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Conductor </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="conductor gif-cell"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Identificación </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="identificacion gif-cell"></td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Marca </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="marca gif-cell"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Línea </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="linea gif-cell"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Configuración </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="configuracion gif-cell"></td>
+          </tr>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Aseguradora </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="aseguradora gif-cell"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+              Remolque </th>
+            <td style="border: 1px solid #ddd;padding: 1px;" class="remolque gif-cell"></td>
+            <th style="background-color: #F5F5F5; width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;"></th>
+            <td></td>
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;font-weight: 300;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo text-center" style="margin:25px;">
+              <b>Información de notas del controlador<span id=""></span></b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 12px;margin-top: 5px;">
+        <thead>
+          <tr>
+            <!-- <td style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="4" class="text-right">
+              <button type="button" class="btn btn-primary btn-xs" id="btn-filtro"><i class="fas fa-filter"></i> Aplicar</button>
+            </td> -->
+            <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+            </td>
+          </tr>
+        </thead>
+      </table>
+
+      <div class="table-responsive">
+
+
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;font-weight: 300;" id="historial_seguimiento">
+          <thead>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Municipio</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Tipo Seguimiento</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Observación</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Punto</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Fecha</th>
+            <!-- <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Hora</th> -->
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Usuario</th>
+          </thead>
+          <tbody class="historial" style="background-color: white;color:black;font-weight: 300;"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de loagoin -->
+<dialog id="modal1">
+  <div style="text-align: center;">
+    <img src="http://localhost/prueba/public/img/nexos_loading.gif" height="100" width="100">
+    <h3>Solicitud en proceso...</h3>
+    <h4>Por favor, espere unos segundos.</h4>
+  </div>
+  <!--<button onclick="window.modal1.close();">Cerrar</button>-->
+</dialog>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js
+  type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/control_ruta/js/seguimiento_historial.js type="text/javascript"></script>
+
+<!-- js para creacion de formularios dinamicos -->
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js
+  type="text/javascript"></script>
+
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+
+  // var fadeInButton = document.getElementById("fadeInButton");
+  // var fadeOutButton = document.getElementById("fadeOutButton");
+  // var myDiv = document.getElementById("myDiv");
+
+  // fadeInButton.addEventListener("click", function() {
+  //   myDiv.style.display = "block";
+  // });
+
+  // fadeOutButton.addEventListener("click", function() {
+  //   myDiv.style.display = "none";
+  // });
+</script>

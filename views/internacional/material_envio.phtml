@@ -1,0 +1,534 @@
+<?php
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content = "";
+
+if (isset($this->internacional)) {
+	$arrayListaProyectos = $this->internacional->getProyectosSinMaterial();
+	// print_r($arrayListaProyectos);
+	// exit();
+
+	$table_content = '
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12">
+					<div class="table-responsive noSwipe">
+						<input type="hidden" id="flag_popup">
+						<table id="table1" class="table table-striped table-hover table-fw-widget" data-page-length="100">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th>Proyecto</th>
+									<th>Cliente</th>
+									<th class="col-xs-1 col-sm-1 col-md-1">Negociación</th>
+									<th class="col-xs-1 col-sm-1 col-md-1">Cant. Detinos</th>
+									<th class="col-xs-2 col-sm-2 col-md-2">Valor Declarado</th>
+									<th class="col-xs-1 col-sm-1 col-md-1"></th>
+								</tr>
+							</thead>
+								<tbody>
+		';
+
+	if ($arrayListaProyectos) {
+		foreach ($arrayListaProyectos as $key => $value) {
+			$_col_actions = '
+					<td class="actions">
+						<a href="javascript:" onclick="registrar_material(' . $value['id'] . ')" class="cell-detail hint--top-left" data-hint="Ver Detalle"><span class="icon mdi mdi-edit" data-toggle="modal" data-target="#registro_material"></span></a>
+					</td>
+				';
+
+			$_valor_declarado = '<span class="text-danger"><strong>No declarado</strong></span>';
+			if ($value["valor_declarado"]) {
+				$_valor_declarado = '
+						<span>$' . number_format($value["valor_declarado"], 2, ',', '.') . '</span>
+						<span class="cell-detail-description">' . $value["MONEDA"] . '</span>
+					';
+			}
+
+			$table_content .= '
+					<tr>
+						<td class="cell-detail">
+							<span>' . $value["tipo_operacion"] . '</span>
+							<span class="cell-detail-description">' . $value["numero_importacion"] . '</span>
+							<span class="cell-detail-description">' . $value["importacion"] . '</span>
+							<span class="cell-detail-description">' . date('Y-m-d', strtotime($value["fecha_hora_inicio"])) . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["sigla"] . '</span>
+							<span class="cell-detail-description">' . $value["DOCUMENTO_CLIENTE"] . '</span>
+							<span class="cell-detail-description">' . $value["cod_cliente"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span>' . $value["incoterm"] . '</span>
+							<span class="cell-detail-description">' . $value["tipo_transporte"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span class="label label-default">' . $value["CANT_DESTINOS"] . '</span>
+						</td>
+						<td class="cell-detail text-right">
+							' . $_valor_declarado . '
+						</td>
+						' . $_col_actions . '
+					</tr>
+				';
+		}
+	}
+
+	$table_content .= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+}
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Registrar Materiales de Envío
+				<div class="tools"></div>
+				<span class="panel-subtitle"></span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="registro_material" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="registro_material_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_popup_registro_material"></div>
+						<div id="contenidoregistromaterial"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer">
+						<button id="btn_registra_material" type="button" class="btn btn-success md-close">Guardar</button>
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista);
+
+echo $vista;
+?>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#btn_registra_material").click(function() {
+			// console.log("Entro en función del btn_registra_material");
+			$("#nexos_messages_popup_registro_material").empty();
+			var msg_error = "";
+
+			/***** Validación de campos del formulario de creación de materiales *****/
+			$(".tramos").each(function() {
+				var id = $(this).val();
+				var ciudad_destino = $("#ciudad_destino_" + id).val();
+				var destino = $("#destino_" + id).val();
+				$(".registro_material_clon_" + id).each(function(e) {
+					var i = e + 1;
+					var material = $("#material_" + id + "_" + i).val();
+					var piezas = $("#cantidad_piezas_" + id + "_" + i).val();
+					var id_empaque = $("#slct_empaque_" + id + "_" + i + "_").val();
+					var peso = $("#peso_" + id + "_" + i).val();
+					var largo = $("#largo_" + id + "_" + i).val();
+					var alto = $("#alto_" + id + "_" + i).val();
+					var ancho = $("#ancho_" + id + "_" + i).val();
+
+					var valida_material_peligroso = false;
+					if ($("#check_peligroso_" + id + "_" + i).is(":checked")) {
+						valida_material_peligroso = true;
+					}
+
+					if (!material) {
+						msg_error += '<p>Debe diligenciar el campo <strong>Material</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+					}
+					if (!piezas || piezas == 0) {
+						msg_error += '<p>Debe diligenciar el campo <strong># Piezas</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+					}
+					if (!id_empaque) {
+						msg_error += '<p>Debe seleccionar un <strong>Empaque</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+					}
+					if (!peso) {
+						msg_error += '<p>Debe diligenciar el campo <strong>Peso Unitario</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+					}
+					if (!largo) {
+						msg_error += '<p>Debe diligenciar el campo <strong>Largo</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+					}
+					if (!alto) {
+						msg_error += '<p>Debe diligenciar el campo <strong>Alto</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+					}
+					if (!ancho) {
+						msg_error += '<p>Debe diligenciar el campo <strong>Ancho</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+					}
+
+					if (valida_material_peligroso) {
+						var un = $("#un_" + id + "_" + i).val();
+						var riesgo = $("#slct_riesgo_" + id + "_" + i + "_").val();
+						var hoja_seguridad = $("#hoja_seguridad_file_" + id + "_" + i).val();
+
+						if (!un) {
+							msg_error += '<p>Debe diligenciar el campo <strong>Código UN</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+						}
+						if (!riesgo) {
+							msg_error += '<p>Debe seleccionar un <strong>Riesgo</strong> del <strong>Material ' + i + '</strong> del tramo <strong>' + ciudad_destino + ' - ' + destino + '</strong> para registrar el material.</p>';
+						}
+						if (!hoja_seguridad) {
+							msg_error += "<p>Debe seleccionar un <strong>Adjunto Egreso</strong> para crear el sobrecosto.</p>";
+						} else {
+							var adjunto = $("#hoja_seguridad_file_" + id + "_" + i)[0].files[0];
+							// Se valida el peso del archivo
+							if (adjunto.size < $("#max_file_size").val()) {
+								// Se valida el tipo de archivo
+								var extension = adjunto.name.split(".");
+								var formato_archivo = "pdf,PDF,zip,ZIP,rar,RAR,doc,DOC,docx,DOCX,jpg,jpeg,png,gif,bmp,tif,JPG,JPEG,PNG,GIF,BMP,TIF,xls,XLS,xlsx,XLSX,ppt,PPT,pptx,PPTX,pps,PPS,ppsx,PPSX,ods,ODS";
+								if (validaFormatoArchivo(formato_archivo, extension[extension.length - 1]) == 0) {
+									msg_error += "<p>Formato del archivo del campo <strong>Adjunto Egreso</strong> no es válido para poder crear el sobrecosto.</p>";
+									msg_error += "<p>Formatos válidos: <strong>" + formato_archivo + "</strong>.</p>";
+								}
+							} else {
+								msg_error += "<p>El archivo del campo <strong>Adjunto Egreso</strong> es muy pesado para subirlo al servidor. El peso máximo del archivo debe ser menor de <strong>" + ($("#max_file_size").val() / 1000000) + "MB</strong>.</p>";
+							}
+						}
+					}
+				});
+			});
+			/***** Fin - Validación de campos del formulario de creación de materiales *****/
+
+			if (!msg_error) {
+				// console.log("Se guarda la información de los materiales del proyecto");
+				var params = new FormData($("#form_registro_material")[0]);
+
+				$.ajaxSetup({
+					async: false
+				});
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=registrar_materiales",
+					type: 'POST',
+					contentType: false,
+					data: params,
+					cache: false,
+					dataType: 'json',
+					processData: false,
+					beforeSend: function(jqXHR, settings) {
+						$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$(".nexos-messages").html('');
+						msg_error += "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function(data, textStatus, jqXHR) {
+						$(".nexos-messages").html('');
+						// console.log(data);
+						for (var i = 0; i < data.flag_gestion.length; i++) {
+							let array = data.flag_gestion[i];
+
+							var params = {
+								id: array["ID_ACTIVIDAD"] + ",",
+								orden: array["orden"],
+								fecha_hora_inicio: array["fecha_hora_inicio"],
+								id_importacion: array["id_importacion"],
+								bloque: array["bloque"],
+								grupo: array["grupo"],
+								simultaneo: array["EGRESOS_PENDIENTES"],
+								tipo_actividad: array["tipo_actividad"],
+								costo_real: array["costo_real"],
+								respuesta: array["respuesta"],
+							}
+							// console.log(params);
+							actualizaActividad(params);
+						}
+
+						if (data.error) {
+							msg_error += data.error;
+						}
+					}
+				});
+				$.ajaxSetup({
+					async: true
+				});
+
+				if (!msg_error) {
+					$("#nexos_messages_popup_registro_material").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+					$("#registro_material").animate({
+						scrollTop: 0
+					}, 600);
+					setTimeout(function() {
+						location.reload(false);
+					}, 800);
+				}
+				if (msg_error) {
+					$("#nexos_messages_popup_registro_material").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+					$("#registro_material").animate({
+						scrollTop: 0
+					}, 600);
+				}
+			}
+			if (msg_error) {
+				$("#nexos_messages_popup_registro_material").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+				$("#registro_material").animate({
+					scrollTop: 0
+				}, 600);
+			}
+		});
+	});
+
+	function registrar_material(id) {
+		if ($("#flag_popup").val() != id) {
+			$("#flag_popup").val(id);
+			$("#nexos_messages_popup_registro_material").empty();
+			$("#registro_material_title").empty();
+			$("#contenidoregistromaterial").empty();
+			var msg_error = "";
+
+			var params = {
+				id: id,
+			}
+			$.ajaxSetup({
+				async: false
+			});
+			$.ajax({
+				url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=form_registro_material",
+				type: 'POST',
+				data: params,
+				cache: false,
+				dataType: 'json',
+				beforeSend: function(jqXHR, settings) {
+					$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$(".nexos-messages").html('');
+					msg_error += "<p>" + jqXHR.responseText + "</p>";
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);
+				},
+				success: function(data, textStatus, jqXHR) {
+					// console.log(data);
+					$(".nexos-messages").html('');
+					$("#nexos_messages_popup_registro_material").html("");
+					if (data.content) {
+						$("#registro_material_title").html(data.content.title);
+						$("#contenidoregistromaterial").html(data.content.content);
+						$(".peligroso_content").css("display", "none");
+
+						$(".check_peligroso").change(function() {
+							var array = $(this).attr("id").split("_");
+							var class_content = "peligroso_content_" + array[(array.length - 2)] + "_" + array[(array.length - 1)];
+
+							$("." + class_content).css("display", "none");
+							if ($(this).is(":checked")) {
+								$("." + class_content).removeAttr("style");
+							}
+						});
+
+						/******** FUNCIONES PARA ADICIÓN DINÁMICA DE MATERIALES ********/
+						// Se valida si se inactiva el botón de quitado de formularios de material
+						$(".btn-danger").each(function() {
+							var array = $(this).attr("id").split("_");
+							var id = array[(array.length - 1)];
+							if ($('.registro_material_clon_' + id).length == 1) {
+								$(this).attr('disabled', 'disabled');
+							}
+						});
+
+						// Programación del botón de agregar material
+						$(".btn-success").click(function() {
+							var array = $(this).attr("id").split("_");
+							var id = array[(array.length - 1)];
+
+							var num = $('.registro_material_clon_' + id).length;
+							var newNum = new Number(num + 1);
+
+							// create the new element via clone(), and manipulate it's ID using newNum value
+							var newElem = $('#form_registro_material_' + id + '_' + num).clone().attr('id', 'form_registro_material_' + id + '_' + newNum);
+							newElem.children('#div_title_' + id + '_' + num).attr('id', 'div_title_' + id + '_' + newNum);
+							newElem.children('#div_delivery_' + id + '_' + num).attr('id', 'div_delivery_' + id + '_' + newNum);
+							newElem.children('#div_shipment_' + id + '_' + num).attr('id', 'div_shipment_' + id + '_' + newNum);
+							newElem.children('#div_material_' + id + '_' + num).attr('id', 'div_material_' + id + '_' + newNum);
+							newElem.children('#div_posicion_arancelaria_' + id + '_' + num).attr('id', 'div_posicion_arancelaria_' + id + '_' + newNum);
+							newElem.children('#div_cantidad_piezas_' + id + '_' + num).attr('id', 'div_cantidad_piezas_' + id + '_' + newNum);
+							newElem.children('#div_empaque_' + id + '_' + num).attr('id', 'div_empaque_' + id + '_' + newNum);
+							newElem.children('#div_peso_' + id + '_' + num).attr('id', 'div_peso_' + id + '_' + newNum);
+							newElem.children('#div_largo_' + id + '_' + num).attr('id', 'div_largo_' + id + '_' + newNum);
+							newElem.children('#div_alto_' + id + '_' + num).attr('id', 'div_alto_' + id + '_' + newNum);
+							newElem.children('#div_ancho_' + id + '_' + num).attr('id', 'div_ancho_' + id + '_' + newNum);
+							newElem.children('#div_check_refrigerado_' + id + '_' + num).attr('id', 'div_check_refrigerado_' + id + '_' + newNum);
+							newElem.children('#div_check_peligroso_' + id + '_' + num).attr('id', 'div_check_peligroso_' + id + '_' + newNum);
+							newElem.children('#div_un_' + id + '_' + num).attr('id', 'div_un_' + id + '_' + newNum).attr('class', 'form-group col-xs-6 col-sm-2 col-md-2 peligroso_content peligroso_content_' + id + '_' + newNum).css('display', 'none');
+							newElem.children('#div_riesgo_' + id + '_' + num).attr('id', 'div_riesgo_' + id + '_' + newNum).attr('class', 'form-group col-xs-6 col-sm-2 col-md-2 peligroso_content peligroso_content_' + id + '_' + newNum).css('display', 'none');
+							newElem.children('#div_hoja_seguridad_file_' + id + '_' + num).attr('id', 'div_hoja_seguridad_file_' + id + '_' + newNum).attr('class', 'form-group col-xs-6 col-sm-3 col-md-3 peligroso_content peligroso_content_' + id + '_' + newNum).css('display', 'none');
+
+							// manipulate the name/id values of the input inside the new element
+							newElem.find('#div_title_' + id + '_' + newNum + ' #title_' + id + '_' + num).html("Material " + newNum);
+							newElem.find('#div_title_' + id + '_' + newNum + ' #title_' + id + '_' + num).attr('id', 'title_' + id + '_' + newNum).html("Material " + newNum);
+							newElem.find('#div_delivery_' + id + '_' + newNum + ' #delivery_' + id + '_' + num).attr('id', 'delivery_' + id + '_' + newNum).attr('name', 'delivery_' + id + '_' + newNum).val('');
+							newElem.find('#div_shipment_' + id + '_' + newNum + ' #shipment_' + id + '_' + num).attr('id', 'shipment_' + id + '_' + newNum).attr('name', 'shipment_' + id + '_' + newNum).val('');
+							newElem.find('#div_material_' + id + '_' + newNum + ' #material_' + id + '_' + num).attr('id', 'material_' + id + '_' + newNum).attr('name', 'material_' + id + '_' + newNum).val('');
+							newElem.find('#div_posicion_arancelaria_' + id + '_' + newNum + ' #posicion_arancelaria_' + id + '_' + num).attr('id', 'posicion_arancelaria_' + id + '_' + newNum).attr('name', 'posicion_arancelaria_' + id + '_' + newNum).val('');
+							newElem.find('#div_cantidad_piezas_' + id + '_' + newNum + ' #cantidad_piezas_' + id + '_' + num).attr('id', 'cantidad_piezas_' + id + '_' + newNum).attr('name', 'cantidad_piezas_' + id + '_' + newNum).val('1');
+							newElem.find('#div_empaque_' + id + '_' + newNum + ' #slct_empaque_' + id + '_' + num + '_').attr('id', 'slct_empaque_' + id + '_' + newNum + '_').attr('name', 'empaque_' + id + '_' + newNum);
+							newElem.find('#div_peso_' + id + '_' + newNum + ' #peso_' + id + '_' + num).attr('id', 'peso_' + id + '_' + newNum).attr('name', 'peso_' + id + '_' + newNum).val('');
+							newElem.find('#div_largo_' + id + '_' + newNum + ' #largo_' + id + '_' + num).attr('id', 'largo_' + id + '_' + newNum).attr('name', 'largo_' + id + '_' + newNum).val('');
+							newElem.find('#div_alto_' + id + '_' + newNum + ' #alto_' + id + '_' + num).attr('id', 'alto_' + id + '_' + newNum).attr('name', 'alto_' + id + '_' + newNum).val('');
+							newElem.find('#div_ancho_' + id + '_' + newNum + ' #ancho_' + id + '_' + num).attr('id', 'ancho_' + id + '_' + newNum).attr('name', 'ancho_' + id + '_' + newNum).val('');
+							newElem.find('#div_check_refrigerado_' + id + '_' + newNum + ' #check_refrigerado_' + id + '_' + num).attr('id', 'check_refrigerado_' + id + '_' + newNum).attr('name', 'check_refrigerado_' + id + '_' + newNum).prop('checked', false);
+							newElem.find('#div_check_refrigerado_' + id + '_' + newNum + ' #label_check_refrigerado_' + id + '_' + num).attr('id', 'label_check_refrigerado_' + id + '_' + newNum).attr('for', 'check_refrigerado_' + id + '_' + newNum);
+							newElem.find('#div_check_peligroso_' + id + '_' + newNum + ' #check_peligroso_' + id + '_' + num).attr('id', 'check_peligroso_' + id + '_' + newNum).attr('name', 'check_peligroso_' + id + '_' + newNum).prop('checked', false);
+							newElem.find('#div_check_peligroso_' + id + '_' + newNum + ' #label_check_peligroso_' + id + '_' + num).attr('id', 'label_check_peligroso_' + id + '_' + newNum).attr('for', 'check_peligroso_' + id + '_' + newNum);
+							newElem.find('#div_un_' + id + '_' + newNum + ' #un_' + id + '_' + num).attr('id', 'un_' + id + '_' + newNum).attr('name', 'un_' + id + '_' + newNum);
+							newElem.find('#div_riesgo_' + id + '_' + newNum + ' #slct_riesgo_' + id + '_' + num + '_').attr('id', 'slct_riesgo_' + id + '_' + newNum + '_').attr('name', 'riesgo_' + id + '_' + newNum);
+							newElem.find('#div_hoja_seguridad_file_' + id + '_' + newNum + ' #hoja_seguridad_file_' + id + '_' + num).attr('id', 'hoja_seguridad_file_' + id + '_' + newNum).attr('name', 'hoja_seguridad_file_' + id + '_' + newNum).val('').clone(true);
+							newElem.find('#div_hoja_seguridad_file_' + id + '_' + newNum + ' #label_hoja_seguridad_file_' + id + '_' + num).attr('id', 'label_hoja_seguridad_file_' + id + '_' + newNum).attr('for', 'hoja_seguridad_file_' + id + '_' + newNum);
+
+							// insert the new element after the last "duplicatable" input field
+							$('#form_registro_material_' + id + '_' + num).after(newElem);
+
+							// // enable the "remove" button
+							$('#btn_quita_material_' + id).removeAttr("disabled");
+
+							// business rule: you can only add 100 names
+							if (newNum == 50)
+								$(this).attr('disabled', 'disabled');
+
+							$(".check_peligroso").change(function() {
+								var array = $(this).attr("id").split("_");
+								var class_content = "peligroso_content_" + array[(array.length - 2)] + "_" + array[(array.length - 1)];
+
+								$("." + class_content).css("display", "none");
+								if ($(this).is(":checked")) {
+									$("." + class_content).removeAttr("style");
+								}
+							});
+						});
+
+						// Programación del botón de quitar material
+						$(".btn-danger").click(function() {
+							var array = $(this).attr("id").split("_");
+							var id = array[(array.length - 1)];
+
+							num = $('.registro_material_clon_' + id).length;
+
+							$('#form_registro_material_' + id + '_' + num).remove();
+
+							// enable the "add" button
+							$('#btn_agrega_material_' + id).removeAttr("disabled");
+
+							// if only one element remains, disable the "remove" button
+							if (num - 1 == 1) {
+								$(this).attr('disabled', 'disabled');
+							}
+						});
+						/******** FIN - FUNCIONES PARA ADICIÓN DINÁMICA DE MATERIALES ********/
+					}
+				}
+			});
+			$.ajaxSetup({
+				async: true
+			});
+
+			if (msg_error) {
+				$("#nexos_messages_popup_registro_material").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+				$("#registro_material").animate({
+					scrollTop: 0
+				}, 600);
+			}
+		}
+	}
+
+	function actualizaActividad(params) {
+		// console.log(params);
+		var msg_error = "";
+
+		// Se actualizan las actividades del proyecto
+		$.ajax({
+			type: "POST",
+			cache: false,
+			url: $("#id_url_ajax").val() + "libs/gestion_actividades.php?tabla=cmx_importacion_actividades&proyecto=importacion",
+			data: params,
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(data) {
+				console.log(data);
+				$("#nexos_messages_popup_registro_material").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Error en la creación del registro.</div></div>');
+			},
+			success: function(data) {
+				console.log(data);
+			}
+		});
+	}
+</script>

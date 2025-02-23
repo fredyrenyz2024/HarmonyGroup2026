@@ -1,0 +1,107 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -10px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div id="mensaje"></div>
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;">
+        <thead>
+          <tr>
+            <td class="text-left" style="border: 1px solid #ddd;padding: 1px 1px 1px;width: auto; white-space: nowrap;" colspan="1">
+              <b style="font-size: 14px;font-weight: bold;">Buscar:</b> <input type="text" id="buscar_manifiesto" style="width: 250px;height: 22px;font-size: 12px;">
+            </td>
+            <td class="text-left" style="border: 1px solid #ddd;padding: 1px 1px 1px;width: auto; white-space: nowrap;" colspan="1">
+              <b style="font-size: 14px;font-weight: bold;">Agencias:</b>
+              <select name="agencias" id="agencias" style="width: 250px;height: 22px;font-size: 12px;">
+                <option value="">Seleccionar agencia</option>
+                <option value="Bogotá">Bogotá</option>
+                <option value="Cartagena">Cartagena</option>
+                <option value="Buenaventura">Buenaventura</option>
+              </select>
+            </td>
+            <td class="text-right" style="border: 1px solid #ddd;padding: 1px 1px 1px;width: auto; white-space: nowrap;" colspan="2">
+              <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="http://localhost/mvcLuisMiguel/public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+            </td>
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;font-weight: 300;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2 text-left" style="margin:25px;">
+              <b>Se encontraron <span id="num_manifiestos"></span> Manifiestos si darle llegada</b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-responsive noSwipe">
+        <!-- <table id="table1" class="table table-condensed table-hover" style="font-size: 8pt;"> -->
+        <table class="table" cellpadding="0" cellspacing="0" border="0" style="width: 100%;font-size: 11px;border-bottom: 1px solid #332D2D;height: 5px;" id="informe_placas_asignadas">
+          <thead style="border-collapse: collapse;background-color: #FBFBFB;color:#332D2D;">
+            <tr>
+              <th style="text-align: center; width: auto; white-space: nowrap;">Manifiesto</th>
+              <!-- <th style="width: auto; white-space: nowrap;">Tiempo</th> -->
+              <th style="width: auto; white-space: nowrap;">Tipo Manifiesto</th>
+              <!-- <th style="">Semaforo</th> -->
+              <th style="width: auto; white-space: nowrap;">Agencia</th>
+              <th style="width: auto; white-space: nowrap;">Origen</th>
+              <th style="width: auto; white-space: nowrap;">Destino</th>
+              <th style="width: auto; white-space: nowrap;">Mercancias</th>
+              <th style="width: auto; white-space: nowrap;">Dta</th>
+              <th style="width: auto; white-space: nowrap;">Vehículo</th>
+              <th style="width: auto; white-space: nowrap;">Conductor</th>
+              <th style="width: auto; white-space: nowrap;">Celular</th>
+              <th style="width: auto; white-space: nowrap;">Cliente</th>
+              <th style=" white-space: nowrap;">Novedad</th>
+              <th style=" white-space: nowrap;">Fecha Hora</th>
+              <th style=" white-space: nowrap;">Sitio</th>
+              <th style=" white-space: nowrap;">Observación</th>
+              <th style=" white-space: nowrap;">Usuario</th>
+            </tr>
+          </thead>
+          <tbody id="tablero_llegada" style="font-size: 7pt;"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="md-footer-primary" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="close" type="button" data-dismiss="modal" aria-hidden="true"><span class="mdi mdi-close"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          <div class="text-primary"><span class="modal-main-icon mdi mdi-info-outline"></span></div>
+          <h3><b>Información!</b></h3>
+          <h4>Enviar Manifiesto<b id="num_man"></b> a operaciones para cumplir.</h4>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger btn-xs" type="button" data-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary btn-xs" type="button" data-dismiss="modal" id="btn_finalizar">Proceder</button>
+        <input type="hidden" name="" id="maniesto"><input type="hidden" name="" id="cod_inicio"><input type="hidden" name="" id="cod_punto">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/control_ruta/js/llegadas.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

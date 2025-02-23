@@ -1,0 +1,296 @@
+<?php
+//include "../models/Solicitudes.php";
+	$_dbTable = "agrupaciones"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	$vista.='
+		<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+		<style>
+			.twitter-typeahead{
+				width: 100%;
+			}
+			.tt-menu {
+				background: white;
+				border-radius: 4px;
+				border: 1px solid gray;
+				width: 100%;
+				max-height: 100px;
+				overflow-y: auto;
+				width: 100%;
+				text-align: left;
+			}
+			.tt-suggestion{
+				padding:5px 10px;
+			}
+			.tt-suggestion.tt-cursor{
+				color: white;
+				background: #0097cf;
+			}
+		</style>';
+	/********* FIN POPUPS *********/
+
+	/*** SE CREA TABLA DE CONTENIDO ***/
+	$tabla_solicitudes = '
+		<div class="row">
+			<div class="col-sm-12">
+				<div  class="table-responsive noSwipe">
+					<table id="table1" class="table table-striped table-hover">
+						<thead>
+							<tr class="nexos-encabezado">
+								<th style="width:5%;">#</th>
+								<th style="width:15%;">Número de solicitud</th>
+								<th>Cliente</th>
+								<th>Contrato</th>
+								<th>Carga</th>
+								<th>Tipo Vehículo Propuesto</th>
+								<th>Fechas</th>
+								<th style="width:3%;min-width: 3%;"</th>
+							</tr>
+						</thead>
+						<tbody >
+	';
+	$model = new Agrupaciones();
+	$model->listarSolicitudes();
+	$respuesta= $model->respuesta;
+	// print_r("<pre>");
+	// print_r($model);
+	// print_r("</pre>");
+
+	$totalsolicitudes=0;
+	if($respuesta== "BAD"){
+		$totalsolicitudes=0;
+	}
+	if ($respuesta == "GOOD") {
+        $datossolicitudes = $model->listado;
+                $totalsolicitudes=count($datossolicitudes);
+        if(count($datossolicitudes)>0){
+            $tabla_solicitudes.= "";
+            $x=1;
+            foreach ($datossolicitudes as $solicitud) {
+				$tabla_solicitudes.= "
+					<tr>
+						<td>
+							<span> 
+								<div class='be-checkbox '>
+									<input name='$solicitud[id_solicitud]' class='check_solicitudes' value='$solicitud[id_solicitud]' id='num_sol$solicitud[id_solicitud]' type='checkbox' >
+									<label for='num_sol$solicitud[id_solicitud]'></label>
+									<input type='hidden' value='$solicitud[tipo_operacion]' id='tipo_operacion$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[peso_total]' id='peso_total_carga$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[peso_pendiente]' id='peso_solicit$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[numero_solicitud]' id='numero_solicit$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[ID_CONTRATO]' id='id_contrato$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[porcentaje_ganancia]' id='porcentaje_ganancia$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[valor_compra]' id='valor_compra$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[valor_venta]' id='valor_venta$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[id_tipo_carga]' id='id_tipo_carga$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[flete_acumulado]' id='flete_acumulado$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[prorrateo_acumulado]' id='prorrateo_acumulado$solicitud[id_solicitud]'>
+									<input type='hidden' value='$solicitud[tara_contenedor]' id='tara_contenedor$solicitud[id_solicitud]'>
+								</div>
+							</span>
+						</td>
+				";
+
+				$tipo_carroceria = "";
+				if ( $solicitud["carroceria"] ) {
+					$tipo_carroceria = "(" . $solicitud["carroceria"] . ")";
+				}
+
+				$_tara_carga = '';
+				if ( $solicitud["CONTENEDOR"] ) {
+					$_tara_carga = '
+						<span>Tara: </span>
+						<span class="cell-detail-description" >' . $solicitud["CONTENEDOR"] . '</span>
+						<span class="cell-detail-description" >' . number_format($solicitud["tara_contenedor"], 2, ',', '.') . ' Kg.</span>
+					';
+				}
+
+				$tabla_solicitudes.='   
+					<td class="cell-detail">
+						<span>' . $solicitud["numero_solicitud"] . '</span>
+						<span class="cell-detail-description">Proyecto: ' . $solicitud["numero_importacion"] . '</span>
+						<span class="cell-detail-description">' . $solicitud["tipo_operacion"] . '</span>
+					</td>
+					<td class="cell-detail">
+						<span>' . $solicitud["nombre_cliente"] . '</span>
+					</td>
+					<td class="cell-detail">
+						<span>' . $solicitud["cod_contrato"] . '</span>
+						<span class="cell-detail-description">' . $solicitud["TIPO_CONTRATO"] . '</span>
+					</td>
+					<td class="cell-detail">
+						<span>Peso Carga: </span>
+						<span class="cell-detail-description">' . number_format($solicitud["peso_pendiente"], 2, ',', '.') . ' Kg.</span>
+						' . $_tara_carga . '
+					</td>
+					<td class="cell-detail">
+						<span>' . $solicitud["tipo_vehiculo"] . ' ' . $tipo_carroceria . '</span>
+						<span class="cell-detail-description">' . $solicitud["tipo_movilizacion"] . '</span>
+					</td>
+					<td class="cell-detail">
+						<span class="cell-detail-description">Solicitud: ' . $solicitud["fecha_solicitud"] . '</span>
+						<span class="cell-detail-description">Entrega: ' . $solicitud["fecha_entrega"] . '</span>
+					</td>
+				';
+
+        		$tabla_solicitudes.="
+        				<td class='actions'>
+							<!--<a href='javascript:' class='cell-detail  hint--top-left' data-hint='Asignar vehiculos' onclick='buscarvehiculos($solicitud[id_solicitud])'  ><span class='icon mdi mdi-car'  data-toggle='modal'data-target='#asignar_vehiculos'></span></a>-->
+							<a href='javascript:' class='cell-detail  hint--top-left' data-hint='Ver información solicitud' onclick='verdatossolicitud($solicitud[id_solicitud])'><span class='icon mdi mdi-eye'  data-toggle='modal' data-target='#ver_solicitud'></span></a>
+						</td> 
+					</tr>
+				";
+				$x++;
+            }
+        }
+    }
+
+	$tabla_solicitudes.= '
+						</tbody>
+					</table>
+					<input type="hidden" id="num_solicitudes" value= "'.$totalsolicitudes.'">
+				</div>
+			</div>
+		</div>
+	';
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Operaciones pendientes
+				<div class="tools" >
+					<a href="#" data-toggle="modal" data-target="#crea_agrupamiento" class="cell-detail  hint--top"  data-hint="Agrupar"><span class="icon mdi mdi-plus" id="btn_buscar_solicitudes_seleccionadas"></span></a> 
+				</div>
+				<span class="panel-subtitle">Módulo para el agrupamiento y desagrupamiento de solicitudes para asignación de vehículos.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/typeahead.bundle.js" type="text/javascript" ></script>
+		<script src="%root_file%lib/agrupaciones_ajax.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/daterangepicker/js/daterangepicker.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%lib/moment.js/min/moment.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+	   
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+				App.formElements();
+
+			});
+	    </script>
+	';
+
+	/****** CREACION CONTENIDO DE POPUPS ******/
+?>
+
+<div id="ver_solicitud" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="v_num_solicitud"></h3>
+			</div>
+			<div class="modal-body">
+				<div class="error_content"></div>
+				<div id="info_content"></div>
+				<div class="panel-group accordion col-xs-12 col-xs-12 col-xs-12" id="accordion_content"></div>
+ 			</div>
+			<div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="crea_agrupamiento" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title">Crear un agrupamiento/desagrupamiento</h3>
+			</div>
+			<div class="modal-body" id="contenidoagrupamiento">
+				<div class="row"></div>
+			</div>
+			<div class="modal-footer" id="foot_contenidoagrupamiento">
+				<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+				<button id="btn_crear_agrupacion"  type="button" class="btn btn-success md-close">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php
+	/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $tabla_solicitudes , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>

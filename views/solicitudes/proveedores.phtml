@@ -1,0 +1,3446 @@
+<?php
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$_dbTable = "solicitudes"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+$tablita = "";
+$vista = '
+		<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+		<style>
+			.twitter-typeahead{ width: 100%; }
+			.tt-menu {
+				background: white;
+				border-radius: 4px;
+				border: 1px solid gray;
+				width: 100%;
+				max-height: 100px;
+				overflow-y: auto;
+				width: 100%;
+				text-align: left;
+			}
+			.tt-suggestion{ padding:5px 10px;
+			.tt-suggestion.tt-cursor{
+				color: white;
+				background: #0097cf;
+			}
+		</style>
+  </div>
+    ';
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/typeahead.bundle.js" type="text/javascript" ></script>
+		<script src="%root_file%lib/proveedores_ajax.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+		<!-- js para creacion de formularios dinamicos -->
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/daterangepicker/js/daterangepicker.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%lib/moment.js/min/moment.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+				App.formElements();
+			});
+
+			$(document).ready(function(){
+				//initialize the javascript
+				App.dataTables();
+			});
+		</script>';
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$tablita .= '
+
+   <table id="table" class="table table-striped table-hover table-fw-widget" data-page-length="100" style="border-top:#FFFFFF 1px solid;"> 
+    <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+      <tr>
+        <th class="col-xs-1 col-sm-1 col-md-1">#</th>
+        <th>Documento</th>
+        <th>Nombre</th>
+        <th>Ubicación</th>
+        <th class="col-xs-1 col-sm-1 col-md-1">Contacto</th>
+        <th class="col-xs-1 col-sm-1 col-md-1">Actividad</th>
+        <th class="col-xs-1 col-sm-1 col-md-1"></th>
+      </tr>
+    </thead>
+  <tbody id="principal_cuerpo"></tbody>
+  </table>';
+$select_paises = '';
+$select_paises .= '<select id="provepais" class="form-control input-sm">';
+$array = $this->proveedores->getPaises();
+if ($array) {
+  foreach ($array["rowsData"] as $key => $value) {
+    $select_paises .= "<option value='$value[id]'>
+							$value[pais] - $value[depto] - $value[municipio]
+						</option>";
+  }
+}
+$select_paises .= '</select>';
+
+$vista .= '
+<div class="nexos-content">
+    <div class="row" style="margin:-58px -18px -58px -18px;">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"> 
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12 text-right" style="margin-top:15px;">
+              <button  type="button" class="btn btn-primary btn-sm hint--top" onclick="crear_proveedor();" data-hint="Agregar">
+                <span class="icon mdi mdi-plus"></span> Agregar Proveedor
+              </button>
+            </div>
+            <input type="hidden" id="perfil" value="' . $_SESSION["usuario"]["id_perfil"] . '" readonly="readonly" class="form-control">
+
+            <div class="nexos-messages"></div>
+
+            <div class="panel panel-default">
+              <div class="panel-body" style="padding: 1px 1px 1px">
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label><strong>Tipo Actividad</strong></label>
+                  <select id="activity" class="form-control input-sm">
+                    <option value="">Seleccione</option>
+                    <option value="1">Propietario</option>
+                    <option value="2">Poseedor</option>
+                    <option value="3">Conductor</option>
+                    <option value="6">Propietario Trailer</option>
+                    <option value="4">Proveedor</option>
+                    <option value="5">Todos</option>
+                  </select>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 valorT">
+                  <label><strong>Buscar por</strong></label>
+                  <select class="form-control input-sm" id="tipologia">
+                    <option value="">Seleccione</option>
+                  </select>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 valor2">
+                  <label><strong>Número Documento</strong></label>
+                  <input type="number" id="num" class="form-control input-sm" />
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 valor1">
+                  <label><strong>Nombre</strong></label>
+                  <input type="text" id="name" class="form-control input-sm" />
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 valor3">
+                  <label><strong>Criterio 1</strong></label>
+                  <select id="criterio1" class="form-control input-sm">
+                    <option value="">Seleccione</option>
+                  </select>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 valor4">
+                  <label><strong>Criterio 2</strong></label>
+                  <select id="criterio2" class="form-control input-sm">
+                    <option value="">Seleccione</option>
+                  </select>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                  <input type="hidden" id="input_seguridad" class="form-control input-sm" readonly="readonly" />
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12 text-center">
+                  <br>
+                  <button class="btn btn-success btn-sm btn-btn-search align-rigth" id="buscar_prove"><span class="mdi mdi-search-in-page"></span> Buscar Proveedor</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+';
+
+$vista .= '<div class="">' . $tablita . '</div>';
+// $vista .= '
+//     <div class="">' . $tablita . '</div>
+//     <div class="row">
+//       <div class="col-sm-12"></div>
+//     </div>
+// 	';
+/****** CREACION CONTENIDO DE POPUPS ******/
+?>
+
+<!-- POPUP DE VISTA DE PROVEEDORES -->
+<!--VER PROVEEDORES NUEVO -->
+<div id="ver_proveedornuevo" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" data-backdrop="static">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close" style="color: #fff;"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title" style="color: #fff;font-weight: 700;"><i class="fa-regular fa-address-card"></i> Consultar Proveedor</h3>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;">
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+          <tbody>
+            <tr>
+              <td class="celda_titulo2 text-center" style="margin:25px;">
+                <b>Información del proveedore en NexosApp</b>
+              </td>
+            </tr>
+            <tr>
+            </tr>
+          </tbody>
+        </table>
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+          <tbody>
+            <tr>
+              <td class="celda_titulo2" style="margin:25px;">
+                <b>Actividades de proveedor</b>
+              </td>
+            </tr>
+            <tr>
+            </tr>
+          </tbody>
+        </table>
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+          <!-- <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;" id="tbl_Datos_basicos"> -->
+          <thead>
+            <tr>
+              <td class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                <input type="checkbox" id="v_Conductor" name="v_Conductor" class="v_tipo_actividad" style=" transform: scale(1.2);" disabled="">
+              </td>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                Conductor</th>
+              <td class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+                <input type="checkbox" id="v_poseedor_vehiculo" name="v_poseedor_vehiculo" class="v_tipo_actividad" style=" transform: scale(1.2);" disabled="">
+              </td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                Poseedor Vehículo</th>
+              <td class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+                <input type="checkbox" id="v_propietario_vehiculo" name="v_propietario_vehiculo" class="v_tipo_actividad" style=" transform: scale(1.2);" disabled="">
+              </td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                Propietario Vehículo</th>
+              <td class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+                <input type="checkbox" id="propietario_trailer" name="propietario_trailer" class="tipo_actividad" style=" transform: scale(1.2);">
+              </td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                Propietario Trailer</th>
+              <td class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap; ">
+                <input type="checkbox" id="v_Proveedor" name="v_Proveedor" class="v_tipo_actividad" style=" transform: scale(1.2);" disabled="">
+              </td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                Proveedor</th>
+            </tr>
+          </thead>
+        </table>
+        <div class="row">
+          <!-- <h4 class="text-center"><strong>Consulta en NexosAPP</strong></h4> -->
+          <!--Success Tabs-->
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="panel panel-default">
+              <h4 class="text-center text-primary" id="titulo_ver"><strong></strong></h4>
+              <div class="tab-container">
+                <ul class="nav nav-tabs nav-tabs-success">
+                  <li class="active"><a href="#home1" data-toggle="tab">Datos Básicos</a></li>
+                  <li id="datos_conductor"><a href="#profile1" data-toggle="tab">Datos Conductor</a></li>
+                  <li id="datos_proveedor_internacional"><a href="#proveedores1" data-toggle="tab">Datos Proveedor</a></li>
+                </ul>
+                <div class="tab-content" style="padding:1px 1px 1px 1px;">
+                  <div id="home1" class="tab-pane active cont" style="padding: 1px 1px 1px;">
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Tipo de documento:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;margin: 0;" id="v_tipo_documento"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Número de documento:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;margin: 0;" id="v_numero_documento"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Dígito verific.:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_digito_verificacion"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Nombre o Razón social:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_nombre"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Primer Apellido:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_ape1"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Segundo Apellido:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_ape2"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Abreviatura:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_abreviatura"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Teléfono Fijo Contacto:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_contacto"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Celular Contacto 1:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_celular"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Celular Contacto 2:&nbsp;<span style="color:blue;"><i><strong>(*)</strong></i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_celular2"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Correo electrónico:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_email"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Municipio:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_municipio"></td>
+                          <input type="hidden" id="v_id_municipio">
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Dirección:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_direccion"></td>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Tipo de identificación:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_tipo_identificacion"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Estado:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_estado"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Sexo:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_sexo"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Documento identificación:&nbsp;<span style="color:blue;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_name_documento">
+                            <!-- <input type="file" name="file-2" id="documentos" onchange="docu_identificable(this.value)" data-multiple-caption="{count} archivos seleccionados" style="width: 100%;"> -->
+                          </td>
+                          <input type="hidden" id="docu_soporte" style="width: 100%;" readonly="readonly">
+                          <input type="hidden" id="namedocu">
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Documento:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="documento"></td>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+                  <!--INICIO DEL TAB CONDUCTORES -->
+                  <div id="profile1" class="tab-pane cont">
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Catergoría Licencia:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_categoria_licencia"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Número de Licencia:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_numero_licencia"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha vencimiento Licencia:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fechavencelicencia"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Nacimiento:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_fecha_nacimiento"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Grupo sanguineo: (*)</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_sangre"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Documento Rut:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_documento_rut"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Documento Licencia:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_documento_licencia"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Ingreso:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_ingreso"></td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <!--referencia 1 -->
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="celda_titulo2 text-center" style="margin:25px;">
+                            <b>Referencias Laborales</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #E0E0E0;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-left" style="margin:25px;">
+                            <b class="text-info">Empresa N° 1</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Nombre Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_referencias_empresariales1"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Ingreso:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fechari1"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Retiro:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fecharr1"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Persona Contacto:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_rcontac1"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_rcelu1"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Cargo:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_rcargo1"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Antiguedad:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_ranti1">
+                          </td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #E0E0E0;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-left" style="margin:25px;">
+                            <b class="text-info">Empresa N° 2</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Nombre Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_referencias_empresariales2"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Ingreso:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fechari2"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Retiro:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fecharr2"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Persona Contacto:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_rcontac2"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_rcelu2"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Cargo:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_rcargo2"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Antiguedad:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_ranti2">
+                          </td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #E0E0E0;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-left" style="margin:25px;">
+                            <b class="text-info">Empresa N° 3</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Nombre Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_referencias_empresariales3"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Ingreso:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fechari3"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Retiro:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fecharr3"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Persona Contacto:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_rcontac3"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_rcelu3"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Cargo:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_rcargo3"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Antiguedad:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_ranti3">
+                          </td>
+                        </tr>
+                      </thead>
+                    </table>
+
+                    <!--Referencias personales -->
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="celda_titulo2 text-center" style="margin:25px;">
+                            <b>Referencias Personales</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #E0E0E0;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-left" style="margin:25px;">
+                            <b class="text-info">Contacto 1</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Nombre:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_referencias_personales1"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fechap1"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Parentesco:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_pare1"></td>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Teléfono:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_ptel1"></td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #E0E0E0;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-left" style="margin:25px;">
+                            <b class="text-info">Contacto 2</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Nombre:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_referencias_personales2"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fechap2"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Parentesco:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_pare2"></td>
+                          <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Teléfono:&nbsp;<span style="color:red;"><i>(*)</i></span></th>
+                          <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_ptel2"></td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-center" style="margin:25px;">
+                            <b>Planilla de seguridad social</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha vencimiento:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fechaeps"> </td>
+                          <input type="hidden" id="namedocu_eps" style="width: 100%;" disabled="">
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Documento:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_documento_seguridad_social"><button class="btn btn-primary btn-xs" style="width: 100%;height: 100%;" onclick="abrir_fotos('public/files/proveedores/eps/10169/', 'RUT-COPORACION-UMB (1).pdf')"><i class="fa-regular fa-image"></i> Documento Seguridad Social</button></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Estado:</th>
+                          <td style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap;" id="v_estado_seguridad_social"></td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-center" style="margin:25px;">
+                            <b>Cursos Mercancias Peligrosas</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Fecha Vencimiento:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_fechacurso"> </td>
+                          <input type="hidden" id="namedocu_curso" style="width: 100%;" disabled="">
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Documento:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_documento_mercancias_peligrosas"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Estado:</th>
+                          <td style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap;" id="v_estado_mercancias_peligrosas">Vigente</td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <!--ARCHIVOS -->
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-center" style="margin:25px;">
+                            <b>Fotos del Conductor</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Foto Frontal:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="foto_frontal"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Foto Derecha:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="foto_frontal_derecha"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Foto Izquierda:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="foto_frontal_izquierda"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Foto Indumentaria:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="foto_indumentaria"> </td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Documento Licencia</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_documento_licencia_pdf"></td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Certificado Rut:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_certificado_rut"></td>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+
+                  <!--PROVEEDORES	-->
+                  <div id="proveedores1" class="tab-pane cont">
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-center" style="margin:25px;">
+                            <b>Detalle Proveedor</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+                      <thead>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Tipo de proveedor:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_proveedorinternacional"> </td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Localización Operacional:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_localizacion"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Zona:</th>
+                          <td style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap;" id="v_zona">Vigente</td>
+                        </tr>
+                        <tr>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Tipo de servicio:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_tiposervice"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Detalle 1:</th>
+                          <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_de1"></td>
+                          <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                            Detalle 2:</th>
+                          <td style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap;" id="v_de2">Vigente</td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+                      <tbody>
+                        <tr>
+                          <td class="text-center" style="margin:25px;">
+                            <b>Contactos</b>
+                          </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <!-- <table class="table table-bordered"> -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;border-top: 1px #fff solid;">
+                      <thead style="border-collapse: collapse;background-color: #332D2D;color:#fff;">
+                        <th style="width:20%;">Nombres</th>
+                        <th style="width:15%;">Cargo</th>
+                        <th style="width:15%;">Teléfono</th>
+                        <th style="width:15%;">Celular</th>
+                        <th style="width:10%;">Correo</th>
+                        <th style="width:20%;">Info. critica</th>
+                        <th style="width:20%;">Referencia</th>
+                      </thead>
+                      <tbody id="tcontactos">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--cierre del primero row-->
+        </div>
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000;border-top: 1px #fff solid;">
+          <tbody>
+            <tr>
+              <td class="text-center" style="margin:25px;">
+                <b>Consulatr estados recurso</b>
+              </td>
+            </tr>
+            <tr>
+            </tr>
+          </tbody>
+        </table>
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">
+                RNDC:</th>
+              <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="panel_rndc"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">
+                Oet:</th>
+              <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="panel_oet"></td>
+            </tr>
+          </thead>
+        </table>
+
+        <!-- <div class="row">
+          <h4 class="text-center"><strong>Consulta RNDC</strong></h4>
+          <div class="col-md-12">
+            <div class="panel panel-border-color panel-border-color-success">
+              <div class="panel-heading"></div>
+              <div class="panel-body" id="panel_rndc">
+              </div>
+            </div>
+          </div>
+        </div> -->
+        <!-- <div class="row">
+          <h4 class="text-center"><strong>Consulta Oet</strong></h4>
+          <div class="col-md-12">
+            <div class="panel panel-border-color panel-border-color-success">
+              <div class="panel-heading"></div>
+              <div class="panel-body" id="panel_oet">
+              </div>
+            </div>
+          </div>
+        </div> -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP DE EDICION DE PROVEEDORES -->
+<div id="editar_proveedor" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title" id="titulo_editar"></h3>
+      </div>
+      <div class="modal-body" style="margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+        <div class="row">
+          <div class="nexos-messages_editap"></div>
+        </div>
+        <!--CHECKBOX-->
+        <div class="row">
+          <input type="hidden" id="idproveedor_Editar">
+          <div class="form-group col-xs-12 col-sm-12 col-md-12">
+            <H3 id="estado_bloqueo"></H3><br>
+            <label>Tipo de actividad&nbsp;<span style="color:red;"><i>(*)</i></span></label><br>
+            <div class="be-checkbox inline">
+              <input class="e_tipo_actividad" id="e_Conductor" type="checkbox" disabled="disabled">
+              <label for="e_Conductor">Conductor</label>
+            </div>
+            <!--<div class="be-checkbox inline">
+							<input  class="e_tipo_actividad" id="e_Empleado" type="checkbox" >
+							<label for="e_Empleado">Empleado</label>
+						</div>-->
+            <div class="be-checkbox inline">
+              <input class="e_tipo_actividad" id="e_poseedor_vehiculo" type="checkbox" disabled="disabled">
+              <label for="e_poseedor_vehiculo">Poseedor Vehículo</label>
+            </div>
+            <div class="be-checkbox inline">
+              <input class="e_tipo_actividad" id="e_propietario_vehiculo" type="checkbox" disabled="disabled">
+              <label for="e_propietario_vehiculo">Propietario Vehículo</label>
+            </div>
+            <div class="be-checkbox inline">
+              <input class="e_tipo_actividad" id="e_Proveedor" type="checkbox" disabled="disabled">
+              <label for="e_Proveedor">Proveedor</label>
+            </div>
+          </div>
+        </div>
+        <!--ACORDIONES-->
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div id="accordion1" class="panel-group accordion">
+              <div class="panel panel-default" id="acordeon_general">
+                <div class="panel-heading">
+                  <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapsefive"><i class="icon mdi mdi-chevron-down"></i><strong>Datos Generales</strong></a></h4>
+                </div>
+                <div id="collapsefive" class="panel-collapse collapse in">
+                  <div class="panel-body" id="paneluno">
+                    <div class="col-xs-12 col-sm-4 col-md-12">
+                      <label>Nombre o Razón social:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <input type="text" id="e_rndc_nombre" placeholder="Nombre o Razón social" class="form-control input-sm des">
+                      <input type="hidden" id="e_nombre" placeholder="" readonly="readonly" onblur="mayuscula(this);">
+                      <label id="error_e_rndc_nombre"></label>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                      <label>Primer apellido: &nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <input type="text" id="e_apellido1" class="form-control input-sm" onblur="mayuscula(this);">
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                      <label>Segundo apellido</label>
+                      <input type="text" id="e_apellido2" class="form-control input-sm" onblur="mayuscula(this);">
+                    </div>
+                    <div class="col-xs-12 col-sm-8 col-md-8">
+                      <label>Abreviatura:</i></span></label>
+                      <input type="text" id="e_abreviatura" placeholder="Abreviatura" class="form-control input-sm des" onblur="mayuscula(this);">
+                      <label id="error_e_abreviatura"></label>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                      <label>Tipo de documento:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <input type="text" id="e_tipo_documento" class="form-control input-sm des" readonly="" onblur="mayuscula(this);">
+                      <label id="e_error_tipo_documento"></label>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-5">
+                      <label>Número de documento:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <input type="text" id="e_numero_documento" placeholder="Número de documento" class="form-control input-sm des" readonly="">
+                      <label id="e_error_numero_documento"></label>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-3">
+                      <label>Tipo de identificación:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <input type="text" id="e_tipo_identificacion" class="form-control input-sm des" disabled>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 col-md-4">
+                      <label>Teléfono Fijo Contacto:</label>
+                      <input type="text" id="e_contacto" placeholder="Teléfono Contacto" maxlength="7" class="form-control input-sm des">
+                      <label id="error_e_contacto"></label>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 col-md-3">
+                      <label>Celular Contacto:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <input type="text" id="e_celular" placeholder="Celular Contacto" maxlength="10" class="form-control input-sm des">
+                      <label id="error_e_celular"></label>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 col-md-4 CelularContacto">
+                      <label>Celular Contacto 2:&nbsp;<span style="color:blue;"><i>(*)</i></span></label>
+                      <input type="text" id="e_celular2" placeholder="Celular Contacto" maxlength="10" class="form-control input-sm des">
+                      <label id="error_celular"></label>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-5">
+                      <label>Correo electrónico:</label>
+                      <input type="text" id="e_email" placeholder="Correo electrónico" class="form-control input-sm des" onblur="mayuscula(this);">
+                      <label id="e_error_email"></label>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                      <label>Estado:</label>
+                      <select id="e_estado" class="form-control input-sm des">
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                      </select>
+                      <label id="e_error_estado"></label>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4">
+                      <label>Municipio:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <select type="text" class="typeahead form-control input-sm des" placeholder="Municipio" id="e_municipio">
+                      </select>
+                      <label id="e_error_municipio"></label>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4">
+                      <label>Dirección:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <button class="btn-success mdi mdi-arrows btn-xs" id="btnmascarae_direccion"></button>
+                      <input type="text" id="e_direccion" placeholder="Dirección" class="form-control input-sm des" onblur="mayuscula(this);" readonly="readonly">
+                      <label id="e_error_direccion"></label>
+                    </div>
+
+                    <!--Mascara de direccion -->
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="div_mascarae">
+                      <div class="col-sm-12" style="color:blue;">
+                        <hr>
+                        </hr>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label><strong>Generador Dirección</strong></label>
+                        </div>
+                        <div class="col-xs-3 col-sm-3 col-md-3">
+                          <div class="be-checkbox inline">
+                            <input type="checkbox" id="Complemente" class="form-control input-sm comple_direce">
+                            <label for="Complemente">¿Complemento?</label>
+                          </div>
+                        </div>
+                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                          <button id="limpiare" class="btn-xs btn-info">Limpiar</button>
+                        </div>
+                      </div>
+                      <div class="col-sm-3">
+                        <label><strong>Tipo vía:(*)</strong></label>
+                        <select id="di_tipoviae" class="form-control input-xs addresse">
+                          <option value="">Seleccione</option>
+                          <option value="AC">AC Avenida calle</option>
+                          <option value="AD">AD Administración</option>
+                          <option value="ADL">ADL Adelante</option>
+                          <option value="AER">AER Aeropuerto</option>
+                          <option value="AG">AG Agencia</option>
+                          <option value="AGP">AGP Agrupación</option>
+                          <option value="AK">AK Avenida carrera</option>
+                          <option value="AL">AL Altillo</option>
+                          <option value="ALD">ALD Al lado</option>
+                          <option value="ALM">ALM Almacén</option>
+                          <option value="AP">AP Apartamento</option>
+                          <option value="APTDO">APTDO Apartado</option>
+                          <option value="ATR">ATR Atrás</option>
+                          <option value="AUT">AUT Autopista</option>
+                          <option value="AV">AV Avenida</option>
+                          <option value="AVIAL">AVIAL Anillo vial</option>
+                          <option value="BG">BG Bodega</option>
+                          <option value="BL">BL Bloque</option>
+                          <option value="BLV">BLV Boulevard</option>
+                          <option value="BR">BR Barrio</option>
+                          <option value="C">C Corregimiento</option>
+                          <option value="CA">CA Casa</option>
+                          <option value="CAS">CAS Caserío</option>
+                          <option value="CC">CC Centro comercial</option>
+                          <option value="CD">CD Ciudadela</option>
+                          <option value="CEL">CEL Célula</option>
+                          <option value="CEN">CEN Centro</option>
+                          <option value="CIR">CIR Circular</option>
+                          <option value="CL">CL Calle</option>
+                          <option value="CLJ">CLJ Callejón</option>
+                          <option value="CN">CN Camino</option>
+                          <option value="CON">CON Conjunto residencial</option>
+                          <option value="CONJ">CONJ Conjunto</option>
+                          <option value="CR">CR Carrera</option>
+                          <option value="CRT">CRT Carretera</option>
+                          <option value="CRV">CRV Circunvalar</option>
+                          <option value="CS">CS Consultorio</option>
+                          <option value="DG">DG Diagonal</option>DG Diagonal
+                          <option value="DP">DP Depósito</option>
+                          <option value="DPTO">DPTO Departamento</option>
+                          <option value="DS">DS Depósito sótano</option>
+                          <option value="ED">ED Edificio</option>
+                          <option value="EN">EN Entrada</option>
+                          <option value="ES">ES Escalera</option>
+                          <option value="ESQ">ESQ Esquina</option>
+                          <option value="ESTE">ESTE Este</option>
+                          <option value="ET">ET Etapa</option>
+                          <option value="EX">EX Exterior</option>
+                          <option value="FCA">FCA Finca</option>
+                          <option value="GJ">GJ Garaje</option>
+                          <option value="GS">GS Garaje sótano</option>
+                          <option value="GT">GT Glorieta</option>
+                          <option value="HC">HC Hacienda</option>
+                          <option value="HG">HG Hangar</option>
+                          <option value="IN">IN Interior</option>
+                          <option value="IP">IP Inspección de Policía</option>
+                          <option value="IPD">IPD Inspección Departamental</option>
+                          <option value="IPM">IPM Inspección Municipal</option>
+                          <option value="KM">KM Kilómetro</option>
+                          <option value="LC">LC Local</option>
+                          <option value="LM">LM Local mezzanine</option>
+                          <option value="LT">LT Lote</option>
+                          <option value="MD">MD Módulo</option>
+                          <option value="MJ">MJ Mojón</option>
+                          <option value="MLL">MLL Muelle</option>
+                          <option value="MN">MN Mezzanine</option>
+                          <option value="MZ">MZ Manzana</option>
+                          <option value="NOMBRE VIA">NOMBRE VIA Vías de nombre común</option>
+                          <option value="NORTE">NORTE Norte</option>
+                          <option value="O">O Oriente</option>
+                          <option value="OCC">OCC Occidente</option>
+                          <option value="OESTE">OESTE Oeste</option>
+                          <option value="OF">OF Oficina</option>
+                          <option value="P">P Piso</option>
+                          <option value="PA">PA Parcela</option>
+                          <option value="PAR">PAR Parque</option>
+                          <option value="PD">PD Predio</option>
+                          <option value="PH">PH Penthouse</option>
+                          <option value="PJ">PJ Pasaje</option>
+                          <option value="PL">PL Planta</option>
+                          <option value="PN">PN Puente</option>
+                          <option value="POR">POR Portería</option>
+                          <option value="POS">POS Poste</option>
+                          <option value="PQ">PQ Parqueadero</option>
+                          <option value="PRJ">PRJ Paraje</option>
+                          <option value="PS">PS Paseo</option>
+                          <option value="PT">PT Puesto</option>
+                          <option value="PW">PW Park Way</option>
+                          <option value="RP">RP Round Point</option>
+                          <option value="SA">SA Salón</option>
+                          <option value="SC">SC Salón comunal</option>
+                          <option value="SD">SD Salida</option>
+                          <option value="SEC">SEC Sector</option>
+                          <option value="SL">SL Solar</option>
+                          <option value="SM">SM Súper manzana</option>
+                          <option value="SS">SS Semisótano</option>
+                          <option value="ST">ST Sótano</option>
+                          <option value="SUITE">SUITE Suite</option>
+                          <option value="SUR">SUR Sur</option>
+                          <option value="TER">TER Terminal</option>
+                          <option value="TERPLN">TERPLN Terraplén</option>
+                          <option value="TO">TO Torre</option>
+                          <option value="TV">TV Transversal</option>
+                          <option value="TZ">TZ Terraza</option>
+                          <option value="UN">UN Unidad</option>
+                          <option value="UR">UR Unidad residencial</option>
+                          <option value="URB">URB Urbanización</option>
+                          <option value="VRD">VRD Vereda</option>
+                          <option value="VTE">VTE Variante</option>
+                          <option value="ZF">ZF Zona franca</option>
+                          <option value="ZN">ZN Zona</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-3">
+                        <label><strong>Nombre/Num de vía:(*)</strong> </label>
+                        <input type="text" id="di_nomviae" class="form-control input-xs addresse">
+                      </div>
+                      <div class="col-sm-3">
+                        <label><strong>Letra:</strong></label><br>
+                        <select id="di_letra1e" class="form-control input-xs addresse">
+                          <option value="">Seleccione</option>
+                          <option value="A">A</option>
+                          <option valu="B">B</option>
+                          <option value="C">C</option>
+                          <option value="D">D</option>
+                          <option value="E">E</option>
+                          <option value="F">F</option>
+                          <option value="G">G</option>
+                          <option value="H">H</option>
+                          <option value="I">I</option>
+                          <option value="J">J</option>
+                          <option value="K">K</option>
+                          <option value="L">L</option>
+                          <option value="M">M</option>
+                          <option value="N">N</option>
+                          <option value="O">O</option>
+                          <option value="P">P</option>
+                          <option value="Q">Q</option>
+                          <option value="R">R</option>
+                          <option value="S">S</option>
+                          <option value="T">T</option>
+                          <option value="U">U</option>
+                          <option value="V">V</option>
+                          <option value="W">W</option>
+                          <option value="X">X</option>
+                          <option value="Y">Y</option>
+                          <option value="Z">Z</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-3">
+                        <label><strong>Prefijo:</strong></label>
+                        <select id="di_prefijo1e" class="form-control input-xs addresse">
+                          <option value="">Seleccione</option>
+                          <option value="BIS">BIS</option>
+                        </select>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <hr />
+                      </div>
+                      <div class="col-sm-4">
+                        <label><strong>Letra:</strong></label>
+                        <select id="di_letra2e" class="form-control input-xs addresse">
+                          <option value="">Seleccione</option>
+                          <option value="A">A</option>
+                          <option valu="B">B</option>
+                          <option value="C">C</option>
+                          <option value="D">D</option>
+                          <option value="E">E</option>
+                          <option value="F">F</option>
+                          <option value="G">G</option>
+                          <option value="H">H</option>
+                          <option value="I">I</option>
+                          <option value="J">J</option>
+                          <option value="K">K</option>
+                          <option value="L">L</option>
+                          <option value="M">M</option>
+                          <option value="N">N</option>
+                          <option value="O">O</option>
+                          <option value="P">P</option>
+                          <option value="Q">Q</option>
+                          <option value="R">R</option>
+                          <option value="S">S</option>
+                          <option value="T">T</option>
+                          <option value="U">U</option>
+                          <option value="V">V</option>
+                          <option value="W">W</option>
+                          <option value="X">X</option>
+                          <option value="Y">Y</option>
+                          <option value="Z">Z</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-4">
+                        <label><strong>Cuadrante:</strong></label>
+                        <select id="di_cuadrantee" class="form-control input-xs addresse">
+                          <option value="">Seleccione</option>
+                          <option value="Norte">Norte</option>
+                          <option value="Sur">Sur</option>
+                          <option value="Este">Este</option>
+                          <option value="Oeste">Oeste</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-4">
+                        <label><strong>Número:</strong></label>
+                        <input type="number" id="di_num1e" class="form-control input-xs addresse">
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <hr />
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label><strong>Letra:</strong></label>
+                        <select id="di_letra3e" class="form-control input-xs addresse">
+                          <option value="">Seleccione</option>
+                          <option value="A">A</option>
+                          <option valu="B">B</option>
+                          <option value="C">C</option>
+                          <option value="D">D</option>
+                          <option value="E">E</option>
+                          <option value="F">F</option>
+                          <option value="G">G</option>
+                          <option value="H">H</option>
+                          <option value="">I</option>
+                          <option value="J">J</option>
+                          <option value="K">K</option>
+                          <option value="L">L</option>
+                          <option value="M">M</option>
+                          <option value="N">N</option>
+                          <option value="O">O</option>
+                          <option value="P">P</option>
+                          <option value="Q">Q</option>
+                          <option value="R">R</option>
+                          <option value="S">S</option>
+                          <option value="T">T</option>
+                          <option value="U">U</option>
+                          <option value="V">V</option>
+                          <option value="W">W</option>
+                          <option value="X">X</option>
+                          <option value="Y">Y</option>
+                          <option value="Z">Z</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-4">
+                        <label><strong>Número:</strong></label>
+                        <input type="number" id="di_numero2e" class="form-control input-xs addresse">
+                      </div>
+                      <div class="col-sm-4">
+                        <label><strong>Cuadrante:</strong></label>
+                        <select id="di_cuadrantee2" class="form-control input-xs addresse">
+                          <option value="">Seleccione</option>
+                          <option value="Norte">Norte</option>
+                          <option value="Sur">Sur</option>
+                          <option value="Este">Este</option>
+                          <option value="Oeste">Oeste</option>
+                        </select>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="e_complemento">
+                        <div class="col-sm-10">
+                          <hr>
+                          </hr><label>Complemento 1</label>
+                        </div>
+                        <div class="col-sm-6">
+                          <label><strong>Tipo vía:</strong></label>
+                          <select id="di_tipovia1e" class="form-control input-xs addresse">
+                            <option value="">Seleccione</option>
+                            <option value="AC">AC Avenida calle</option>
+                            <option value="AD">AD Administración</option>
+                            <option value="ADL">ADL Adelante</option>
+                            <option value="AER">AER Aeropuerto</option>
+                            <option value="AG">AG Agencia</option>
+                            <option value="AGP">AGP Agrupación</option>
+                            <option value="AK">AK Avenida carrera</option>
+                            <option value="AL">AL Altillo</option>
+                            <option value="ALD">ALD Al lado</option>
+                            <option value="ALM">ALM Almacén</option>
+                            <option value="AP">AP Apartamento</option>
+                            <option value="APTDO">APTDO Apartado</option>
+                            <option value="ATR">ATR Atrás</option>
+                            <option value="AUT">AUT Autopista</option>
+                            <option value="AV">AV Avenida</option>
+                            <option value="AVIAL">AVIAL Anillo vial</option>
+                            <option value="BG">BG Bodega</option>
+                            <option value="BL">BL Bloque</option>
+                            <option value="BLV">BLV Boulevard</option>
+                            <option value="BR">BR Barrio</option>
+                            <option value="C">C Corregimiento</option>
+                            <option value="CA">CA Casa</option>
+                            <option value="CAS">CAS Caserío</option>
+                            <option value="CC">CC Centro comercial</option>
+                            <option value="CD">CD Ciudadela</option>
+                            <option value="CEL">CEL Célula</option>
+                            <option value="CEN">CEN Centro</option>
+                            <option value="CIR">CIR Circular</option>
+                            <option value="CL">CL Calle</option>
+                            <option value="CLJ">CLJ Callejón</option>
+                            <option value="CN">CN Camino</option>
+                            <option value="CON">CON Conjunto residencial</option>
+                            <option value="CONJ">CONJ Conjunto</option>
+                            <option value="CR">CR Carrera</option>
+                            <option value="CRT">CRT Carretera</option>
+                            <option value="CRV">CRV Circunvalar</option>
+                            <option value="CS">CS Consultorio</option>
+                            <option value="DG">DG Diagonal</option>DG Diagonal
+                            <option value="DP">DP Depósito</option>
+                            <option value="DPTO">DPTO Departamento</option>
+                            <option value="DS">DS Depósito sótano</option>
+                            <option value="ED">ED Edificio</option>
+                            <option value="EN">EN Entrada</option>
+                            <option value="ES">ES Escalera</option>
+                            <option value="ESQ">ESQ Esquina</option>
+                            <option value="ESTE">ESTE Este</option>
+                            <option value="ET">ET Etapa</option>
+                            <option value="EX">EX Exterior</option>
+                            <option value="FCA">FCA Finca</option>
+                            <option value="GJ">GJ Garaje</option>
+                            <option value="GS">GS Garaje sótano</option>
+                            <option value="GT">GT Glorieta</option>
+                            <option value="HC">HC Hacienda</option>
+                            <option value="HG">HG Hangar</option>
+                            <option value="IN">IN Interior</option>
+                            <option value="IP">IP Inspección de Policía</option>
+                            <option value="IPD">IPD Inspección Departamental</option>
+                            <option value="IPM">IPM Inspección Municipal</option>
+                            <option value="KM">KM Kilómetro</option>
+                            <option value="LC">LC Local</option>
+                            <option value="LM">LM Local mezzanine</option>
+                            <option value="LT">LT Lote</option>
+                            <option value="MD">MD Módulo</option>
+                            <option value="MJ">MJ Mojón</option>
+                            <option value="MLL">MLL Muelle</option>
+                            <option value="MN">MN Mezzanine</option>
+                            <option value="MZ">MZ Manzana</option>
+                            <option value="NOMBRE VIA">NOMBRE VIA Vías de nombre común</option>
+                            <option value="NORTE">NORTE Norte</option>
+                            <option value="O">O Oriente</option>
+                            <option value="OCC">OCC Occidente</option>
+                            <option value="OESTE">OESTE Oeste</option>
+                            <option value="OF">OF Oficina</option>
+                            <option value="P">P Piso</option>
+                            <option value="PA">PA Parcela</option>
+                            <option value="PAR">PAR Parque</option>
+                            <option value="PD">PD Predio</option>
+                            <option value="PH">PH Penthouse</option>
+                            <option value="PJ">PJ Pasaje</option>
+                            <option value="PL">PL Planta</option>
+                            <option value="PN">PN Puente</option>
+                            <option value="POR">POR Portería</option>
+                            <option value="POS">POS Poste</option>
+                            <option value="PQ">PQ Parqueadero</option>
+                            <option value="PRJ">PRJ Paraje</option>
+                            <option value="PS">PS Paseo</option>
+                            <option value="PT">PT Puesto</option>
+                            <option value="PW">PW Park Way</option>
+                            <option value="RP">RP Round Point</option>
+                            <option value="SA">SA Salón</option>
+                            <option value="SC">SC Salón comunal</option>
+                            <option value="SD">SD Salida</option>
+                            <option value="SEC">SEC Sector</option>
+                            <option value="SL">SL Solar</option>
+                            <option value="SM">SM Súper manzana</option>
+                            <option value="SS">SS Semisótano</option>
+                            <option value="ST">ST Sótano</option>
+                            <option value="SUITE">SUITE Suite</option>
+                            <option value="SUR">SUR Sur</option>
+                            <option value="TER">TER Terminal</option>
+                            <option value="TERPLN">TERPLN Terraplén</option>
+                            <option value="TO">TO Torre</option>
+                            <option value="TV">TV Transversal</option>
+                            <option value="TZ">TZ Terraza</option>
+                            <option value="UN">UN Unidad</option>
+                            <option value="UR">UR Unidad residencial</option>
+                            <option value="URB">URB Urbanización</option>
+                            <option value="VRD">VRD Vereda</option>
+                            <option value="VTE">VTE Variante</option>
+                            <option value="ZF">ZF Zona franca</option>
+                            <option value="ZN">ZN Zona</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-6">
+                          <label><strong>Número/Nombre</strong></label>
+                          <input type="text" id="di_numero3e" class="form-control input-xs addresse">
+                        </div>
+                      </div>
+                      <div class="col-sm-12 col-md-12 col-lg-12">
+                        <label><strong>Dirección final</strong></label>
+                        <input type="text" id="direccion_compuestae" class="form-control input-xs" readonly="readonly">
+                      </div>
+                      <div class="col-sm-10">
+                        <hr>
+                        </hr>
+                      </div>
+                    </div>
+                    <!--Dirección -->
+
+
+                    <div class="col-xs-12 col-sm-4 col-md-3">
+                      <label>Dígito de verificación:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                      <input type="number" id="e_digito_verificacion" disabled placeholder="Digito de verificación" class="form-control input-sm des">
+                      <label id="e_error_digito_verificacion"></label>
+                    </div>
+
+                    <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                      <label>Cedulas:</label>
+                      <label id="e_caja_cedula"></label>
+                      <input type="hidden" id="namefre1">
+                      <div class="row">
+                        <input type="file" name="file-d" id="e_documentos" onchange="ecedula(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                        <label for="e_documentos" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>cedula</span></label>
+                        <input type="text" id="textocedulas" class="form-control input-sm" readonly="readonly">
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                      <div id="e_caja_documentos"></div>
+                      <label id="e_error_documentos"></label>
+                    </div>
+                    <hr>
+                    <div class="row edicion_dato_financiero">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <hr>
+                        <h4>Datos Financieros</h4>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table class="table table-striped table-hover table-fw-widget" data-page-length="100">
+                          <thead>
+                            <tr>
+                              <td>Actividad</td>
+                              <td>Obligación</td>
+                              <td>Banco</td>
+                              <td>Tipo cuenta</td>
+                              <td>Número cuenta</td>
+                              <td>Accion</td>
+                            </tr>
+                          </thead>
+                          <tbody id="tb_cuenta_finan"></tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-2 ">
+                      <input type="hidden" id="eusuario" readonly="" class="form-control input-sm">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--Detalle proveedor -->
+              <div class="panel panel-default" id="acordeon_proveedor">
+                <div class="panel-heading">
+                  <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseseven"><i class="icon mdi mdi-chevron-down"></i><strong>Detalle Proveedor</strong></a></h4>
+                </div>
+                <div id="collapseseven" class="panel-collapse collapse in">
+                  <div class="panel-body" id="paneltres">
+
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label>Tipo de proveedor</label><br>
+                        <input class="etipo_proveedor" id="enacional" type="radio" name="tipo_proveedor" value="1">
+                        <label for="enacional">Nacional</label>
+                        <input class="etipo_proveedor" id="einternacional" type="radio" name="tipo_proveedor" value="2">
+                        <label for="einternacional">Internacional</label>
+                      </div>
+                      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <label>Localización</label>
+                        <select class="form-control input-sm" id="e_localizacion">
+                          <option value="">Seleccione</option>
+                        </select>
+                      </div>
+
+                      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <label>Zona</label>
+                        <textarea id="e_zona" class="form-control input-sm"></textarea>
+                      </div>
+                    </div><br>
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel panel-border-color panel-border-color-primary">
+                          <div class="panel-heading">Datos generales</div>
+                          <div class="panel-body">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                              <label>Tipo de servicio</label>
+                              <select id="e_tiposervicio" class="form-control input-sm" onchange="tipo_service()">
+                              </select>
+                            </div>
+
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                              <label>Detalle 1</label>
+                              <select id="edetalle1" class="form-control input-sm">
+
+                              </select>
+                            </div>
+
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                              <label>Detalle 2</label>
+                              <select id="edetalle2" class="form-control input-sm">
+
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel panel-border-color panel-border-color-primary">
+                          <div class="panel-heading">Contacto</div>
+                          <div class="panel-body">
+
+                            <table class="table table-bordered" id="etbcontact">
+                              <thead>
+
+                              </thead>
+                              <tbody>
+                              </tbody>
+                            </table>
+                            <input type="hidden" id="ecant_contacto" class="form-control">
+
+                          </div>
+                        </div>
+                      </div>
+                    </div><br><br>
+
+                  </div>
+                </div>
+              </div>
+              <!--contactos de proveedor -->
+              <div class="panel panel-default" id="acordeon_conproveedor">
+                <div class="panel-heading">
+                  <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapsenine"><i class="icon mdi mdi-chevron-down"></i><strong>Contactos Proveedor</strong></a></h4>
+                </div>
+                <div id="collapsenine" class="panel-collapse collapse in">
+                  <div class="panel-body" id="paneltres">
+
+                    <div class="row">
+                      <div class="panel panel-border-color panel-border-color-primary">
+                        <div class="panel-heading">Agregar mas contactos</div>
+                        <div class="panel-body">
+
+                          <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                            <label>Agregar contacto</label>
+                            <button class="form-control btn btn-info mdi mdi-plus input-xs text-center" id="agregar_filam"></button>
+                          </div><br>
+
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table class="table table-bordered">
+                              <thead style="border-color:blue;">
+                              </thead>
+                              <tbody id="mas_contactos">
+                              </tbody>
+                            </table>
+                          </div>
+                          <input type="hidden" id="more_contactos">
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <!--panel de datos especificos-->
+              <div class="panel panel-default" id="acordeon_conductor">
+                <div class="panel-heading">
+                  <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapsesix" class="collapsed"><i class="icon mdi mdi-chevron-down"></i> <strong>Datos
+                        Específicos</strong></a>
+                  </h4>
+                </div>
+                <div id="collapsesix" class="panel-collapse collapse">
+                  <div class="panel-body">,
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-3 col-md-3">
+                        <label>Categoría Licencia&nbsp;<span style="color:red;"><i>(*)</i></label>
+                        <!-- input type="text" class="form-control input-sm des" id="e_categoria" readonly="" >
+								-->
+                        <select id="e_categoria" class="form-control input-sm">
+                        </select>
+                      </div>
+                      <div class="col-xs-12 col-md-6 col-sm-6">
+                        <label>Número Licencia&nbsp;<span style="color:red;"><i>(*)</i></label>
+                        <input type="text" id="e_num_licencia" class="form-control input-sm des">
+                      </div>
+                      <div class="col-xs-12 col-md-3 col-md-3">
+                        <label>Vencimiento Licencia&nbsp;<span style="color:red;"><i>(*)</i></label>
+                        <input type="date" id="e_vence_licencia" class="form-control input-sm des" size="16">
+                      </div>
+
+                    </div>
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-6 col-md-6">
+                        <label>Subir Licencia</label><br>
+                        <input type="hidden" id="namelicencia">
+                        <input type="hidden" id="e_ruta_licencia">
+                        <input type="file" name="file-d" id="e_docu_licencia" data-multiple-caption="{count} archivos seleccionados" multiple class="inputfile form-control input-lg">
+                        <label for="e_docu_licencia" class="btn-primary des"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div>
+                        <h4 class="text-primary text-center">Referencias Laborales</h4>
+                      </div>
+                      <div class="col-xs-12 col-sm-8 col-md-8 REmpresarial1">
+                        <label>Empresa 1:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input class="form-control input-sm des" id="e_referencias_empresariales1" onblur="mayuscula(this);">
+                        <label id="error_referencias_empresariales"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Fecha Ingreso 1:</label>
+
+                        <input type="date" id="e_fecha_referencia1" class="form-control input-sm">
+                        <label id="error_fecha_empresarial1"></label>
+                      </div>
+
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Fecha Retiro 1:</label>
+                        <input type="date" id="e_fecha_retiro1" class="form-control input-sm">
+                        <label id="error_fecha_empresarial1"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Persona Contacto :</label>
+                        <input type="text" id="e_contacto_ref1" placeholder="Nombre Contacto" class="form-control input-sm des" onblur="mayuscula(this);">
+                        <label id="error_contacto"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="int" id="e_celular_ref1" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm des">
+                        <label id="error_celularref1"></label>
+                      </div>
+                      <!-- row-->
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-xs-12 col-sm-6 col-md-6">
+                        <label>Cargo :</label>
+                        <input type="text" id="e_cargo_ref1" placeholder="Cargo" class="form-control input-sm des" onblur="mayuscula(this);">
+                        <label id="error_cargo"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-6 col-md-6">
+                        <label>Antiguedad:</label>
+                        <input type="number" id="e_anti_ref1" min="0" placeholder="Antiguedad" class="form-control input-sm des">
+                        <label id="error_antig"></label>
+                      </div>
+
+                      <div class="form-group col-xs-12 col-sm-3 col-md-3">
+                        <input type="hidden" id="e_idrefe1" class="form-control input-sm">
+                      </div>
+
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-8 col-md-8 REmpresarial2">
+                        <label>Empresa 2:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" class="form-control input-sm des" id="e_referencias_empresariales2" onblur="mayuscula(this);">
+                        <label id="error_referencia_empresarial2"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-4 col-md-4 REmpresarial1">
+                        <label>Fecha Ingreso 2:</label>
+                        <input type="date" id="e_fecha_referencia2" class="form-control input-sm">
+                        <label id="error_fecha_empresarial2"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Fecha Retiro 2:</label>
+                        <input type="date" id="e_fecha_retiro2" class="form-control input-sm">
+                        <label id="error_fecha_empresarial1"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Persona Contacto :</label>
+                        <input type="text" id="e_contacto_ref2" placeholder="Nombre Contacto" class="form-control input-sm des">
+                        <label id="error_contacto"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="int" id="e_celular_ref2" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm des">
+                        <label id="error_celularref1"></label>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="form-group col-xs-12 col-sm-6 col-md-6">
+                        <label>Cargo:</label>
+                        <input type="text" id="e_cargo_ref2" placeholder="Cargo" class="form-control input-sm des" onblur="mayuscula(this);">
+                        <label id="error_cargo"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-6 col-md-6">
+                        <label>Antiguedad:</span></label>
+                        <input type="number" id="e_anti_ref2" min="0" placeholder="Antiguedad" class="form-control input-sm des">
+                        <label id="error_antig"></label>
+                      </div>
+
+                      <div class="form-group col-xs-12 col-sm-3 col-md-3">
+                        <input type="hidden" id="e_idrefe2" class="form-control input-sm">
+                      </div>
+                    </div>
+
+
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-8 col-md-8 REmpresarial2">
+                        <label>Empresa 3:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" class="form-control input-sm des" id="e_referencias_empresariales3" onblur="mayuscula(this);">
+                        <label id="error_referencia_empresarial2"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-4 col-md-4 REmpresarial1">
+                        <label>Fecha Ingreso 3:</label>
+                        <input type="date" id="e_fecha_referencia3" class="form-control input-sm">
+                        <label id="error_fecha_empresarial2"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Fecha Retiro 3:</label>
+                        <input type="date" id="e_fecha_retiro3" class="form-control input-sm">
+                        <label id="error_fecha_empresarial1"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Persona Contacto :</label>
+                        <input type="text" id="e_contacto_ref3" placeholder="Nombre Contacto" class="form-control input-sm des">
+                        <label id="error_contacto"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="int" id="e_celular_ref3" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm des">
+                        <label id="error_celularref1"></label>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="form-group col-xs-12 col-sm-6 col-md-6">
+                        <label>Cargo:</label>
+                        <input type="text" id="e_cargo_ref3" placeholder="Cargo" class="form-control input-sm des" onblur="mayuscula(this);">
+                        <label id="error_cargo"></label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-6 col-md-6">
+                        <label>Antiguedad:</label>
+                        <input type="number" id="e_anti_ref3" min="0" placeholder="Antiguedad" class="form-control input-sm des">
+                        <label id="error_antig"></label>
+                      </div>
+
+                      <div class="form-group col-xs-12 col-sm-3 col-md-3">
+                        <input type="hidden" id="e_idrefe3" class="form-control input-sm">
+                      </div>
+
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-8 col-md-8 REmpresarial2">
+                        <label>Contacto En Caso De Emergencia:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input class="form-control input-sm des" id="e_referencias_personales1" onblur="mayuscula(this);">
+                        <label id="error_referencias_personales"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-4 col-md-4 FPersonal1">
+                        <label>Fecha 1:</label>
+                        <input type="date" id="e_fecha_personal1" class="form-control input-sm">
+                        <label id="error_referencias_personales1"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
+                        <label>Parentezco:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <select class="form-control input-sm des" id="e_parenp1">
+                        </select>
+                        <label id="error_referencias_personales"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-6 col-md-6 REmpresarial2">
+                        <label>Teléfono:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="number" id="e_telefonop1" min="0" maxlength="10" class="form-control input-sm des">
+                        <label id="error_referencias_personales"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-3 col-md-3 REmpresarial2">
+                        <input type="hidden" id="e_idp1" class="form-control">
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-8 col-md-8 RPersonal2">
+                        <label>Nombre Referencia Personal :&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" class="form-control input-sm des" id="e_referencias_personales2" onblur="mayuscula(this);">
+                        <label id="error_referencias_personales"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-4 col-md-4 FRpersonal2">
+                        <label>Fecha 2:</label>
+                        <input type="date" id="e_fecha_personal2" class="form-control input-sm">
+                        <label id="error_referencias_personales"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
+                        <label>Parentezco:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <select class="form-control input-sm des" id="e_parenp2">
+                        </select>
+                        <label id="error_referencias_personales"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-6 col-md-6 REmpresarial2">
+                        <label>Teléfono:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="number" id="e_telefonop2" min="0" maxlength="10" class="form-control input-sm des">
+                        <label id="error_referencias_personales"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-3 col-md-3 REmpresarial2">
+                        <input type="hidden" id="e_idp2" class="form-control">
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-8 col-md-8 NombreEps">
+                        <label>Planilla de seguridad social:</label>
+                        <input type="text" id="e_name_eps" placeholder="Planilla seguridad" class="form-control input-sm des" onblur="mayuscula(this);">
+                        <label id="error_eps"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-4 col-md-4 FVenceEps">
+                        <label>Fecha vencimiento plan. seguridad social:</label>
+                        <input type="date" id="e_vence_eps" class="form-control input-sm">
+                        <label id="error_feps"></label>
+                      </div>
+                      <!--	<div class="col-xs-12 col-sm-3 col-md-3 ultimo pago">
+											<label>Último Pago Eps</label>
+											<div data-min-view="2" data-start-view="4" data-date-format="yyyy/mm/dd" data-link-field="dtp_input1" class="input-group date datetimepicker">
+												<input size="16" type="text"  id="e_ultimo_eps" class="form-control input-sm des" readonly=”readonly”>
+												<span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
+											</div>
+										</div> -->
+                    </div>
+                    <!--	<div class="row">
+									<div class="col-xs-12 col-sm-8 col-md-8 NombreArl">
+										<label>Nombre de la ARL:</label>
+										<input type="text" id="e_name_arl" placeholder="ARL" class="form-control input-sm des" onblur="mayuscula(this);">
+										<label id="error_arl"></label>
+									</div>
+									<div class="col-xs-12 col-sm-4 col-md-4 FVArl ">
+										<label>Fecha Vencimiento ARL:</label>
+										<div data-min-view="2" data-start-view="4" data-date-format="yyyy/mm/dd" data-link-field="dtp_input1" class="input-group date datetimepicker">
+											<input size="16" type="text"  id="e_vence_arl" class="form-control input-sm des" readonly=”readonly”>
+											<span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
+										</div>
+										<label id="error_farl"></label>
+									</div>
+									<div class="col-xs-12 col-sm-3 col-md-3 ultimo pago">
+										<label>Último Pago Arl</label>
+										<div data-min-view="2" data-start-view="4" data-date-format="yyyy/mm/dd" data-link-field="dtp_input1" class="input-group date datetimepicker">
+											<input size="16" type="text"  id="e_ultimo_arl" class="form-control input-sm des" readonly=”readonly”>
+											<span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
+										</div>
+									</div>
+								</div> -->
+
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-8 col-md-8 NombreEntidad">
+                        <label>Entidad curso peligroso:</label>
+                        <input type="text" id="e_nom_enti" class="form-control input-sm des" onblur="mayuscula(this);">
+                        <label id="error_nom_enti"></label>
+                      </div>
+                      <div class="col-xs-12 col-sm-4 col-md-4 FVCurso">
+                        <label>Fecha Vencimiento del Curso:</label>
+                        <input type="date" id="e_vence_curso" class="form-control input-sm">
+                        <label id="error_nom_enti"></label>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-xs-4">
+                        <label>Sexo:</label>
+                        <select class="form-control input-sm des" id="e_sexo">
+                          <option></option>
+                        </select>
+                        <label id="e_error_sexo"></label>
+                      </div>
+                      <div class="form-group col-xs-4">
+                        <label>Fecha Nacimiento:</label>
+                        <input type="date" id="e_fecha_nacimiento" class="form-control input-sm">
+                        <label id="v_error_nacimiento"></label>
+                      </div>
+                      <div class="form-group col-xs-4">
+                        <label>Grupo sanguíneo:(*)</label>
+                        <select class="form-control input-sm des" id="e_sangre">
+                        </select>
+                        <label id="v_error_rh"></label>
+                      </div>
+                      <div class="form-group col-xs-6">
+                        <label>Estado Civil:</label>
+                        <select class="form-control input-sm des" id="e_civil">
+                        </select>
+                        <label id="v_error_civil"></label>
+                      </div>
+                      <div class="form-group col-xs-6">
+                        <label>Fecha Ingreso:</label>
+                        <input type="date" id="e_ingreso" class="form-control input-sm">
+                        <label id="v_error_ingreso"></label>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <input type="hidden" id="tb_dcondu" class="form-control input-sm">
+                      <input type="hidden" id="id_tbdetalle" class="form-control input-sm">
+                      <h4 class="text-center text-primary" style="font-size:16pt; font-weight:800px;">Actualizar
+                        documentos</h4>
+                    </div>
+                    <!--laboral 1 -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Referencia Laboral 1:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="lab1">g</label>
+                      </div>
+                      <div class=" form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Doc. Laboral 1:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="namefre1">
+                        <div class="row">
+                          <div id="e_caja_referencia1"></div>
+                          <input type="hidden" id="e_ruta_ref1">
+                          <input type="file" name="file-d" id="e_documento_referencia1" onchange="elab1(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_documento_referencia1" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>laboral1</span></label>
+                        </div>
+                      </div>
+
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="lab1n" class="form-control input-sm" disabled="disabled">
+                      </div>
+                      <input type="hidden" id="idlab1">
+                    </div>
+                    <!--laboral2 -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Referencia Laboral 2:</label>
+                      </div>
+
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="lab2">b</label>
+                      </div>
+
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Doc. Laboral 2:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="nameref2">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_ref2">
+                          <input type="file" name="file-d" id="e_documento_referencia2" onchange="elab2(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_documento_referencia2" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                          <label id="error_documento_empresarial2"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="lab2n" class="form-control input-sm" disabled="disabled">
+                      </div>
+                      <input type="hidden" id="idlab2">
+                    </div>
+
+                    <!--laboral3 -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Referencia Laboral 3:</label>
+                      </div>
+
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="lab3">c</label>
+                      </div>
+
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4">
+                        <label>Doc. Laboral 3:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="nameref3">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_ref3">
+                          <input type="file" name="file-d" id="e_documento_referencia3" onchange="elab3(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_documento_referencia3" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                          <label id="error_documento_empresarial2"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="lab3n" class="form-control input-sm" disabled="disabled">
+                      </div>
+                      <input type="hidden" id="idlab3">
+                    </div>
+
+                    <!-- personales 1-->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Referencia Personal 1:</label>
+                      </div>
+
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="per1">c</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-12 col-md-4 ">
+                        <label>Doc. Personal 1:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="namepersonal1">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_per1">
+                          <input type="file" name="file-d" id="e_documento_personal1" onchange="eper1(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_documento_personal1" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                          <label id="error_referencias_personales"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="per1n" class="form-control input-sm" disabled="disabled">
+                      </div>
+                      <input type="hidden" id="idper1">
+                    </div>
+                    <!-- personales 2-->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Referencia Personal 2:</label>
+                      </div>
+                    </div>
+                    <!-- personales 2-->
+                    <div class="row">
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="per2">d</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-12 col-md-4">
+                        <label>Documento Personal 2:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="namepersonal2">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_per2">
+                          <input type="file" name="file-d" id="e_documento_personal2" onchange="eper2(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_documento_personal2" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                          <label id="error_referencias_personales"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="per2n" class="form-control input-sm" disabled="disabled">
+                      </div>
+                      <input type="hidden" id="idper2">
+                    </div>
+
+                    <!--EPS -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Planilla
+                          de seguridad:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="eps1">e</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Planilla de seguridad:</label>
+                        <input type="hidden" id="nameeps">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_eps">
+                          <input type="file" name="file-d" id="e_docu_eps" onchange="eeps1(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_docu_eps" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                          <label id="error_certificado"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="epsname" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+                    <!-- ARL -->
+                    <!--	<div class="row">
+										<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+											<label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">ARL:</label>
+										</div>
+										<div class="col-xs-4 col-sm-4 col-md-4">
+											<label>Documento Actual</label><br>
+											<label id="arl1">t</label>
+										</div>
+										<div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+											<label>Documento ARL:</label>
+											<input type="hidden" id="namearl">
+											<div class="row">
+											<input type="hidden" id="e_ruta_arl">
+											<input type="file" name="file-d" id="e_docu_arl"
+											 onchange="earl(this.value)"
+											data-multiple-caption="{count} archivos seleccionados"  class="inputfile form-control input-lg des">
+							                <label for="e_docu_arl" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+											<label id="error_docuarl"></label>
+											</div>
+										</div>
+										<div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+											<label>Nom. nuevo documento</label>
+											<input type="text" id="arlname" class="form-control input-sm" disabled="disabled" >
+										</div>
+								</div>  -->
+
+                    <!-- RUT -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">RUT:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="rut1">t</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Documento RUT:</label>
+                        <input type="hidden" id="namearl">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_rut">
+                          <input type="file" name="file-d" id="e_docu_rut" onchange="erut(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_docu_rut" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                          <label id="error_docuarl"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="rutname" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <!-- Licencia conduccion -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Licencia:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="licen1">t</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Documento Licencia:</label>
+                        <input type="hidden" id="namearl">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_lice">
+                          <input type="file" name="file-d" id="e_docu_lice" onchange="elice(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_docu_lice" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                          <label id="error_docuarl"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="licenname" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <!--curso peligroso -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Curso
+                          mercancias peligrosas:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="curso1">danger</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Certificado del Curso:</label>
+                        <input type="hidden" id="namecurso">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_curso">
+                          <input type="file" name="file-d" id="e_docu_curso" onchange="ecurso(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_docu_curso" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+                          <label id="error_curso"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="cursoname" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <!--foto indumentaria -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">EPPS:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="indu1">in</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4 AFotosIndumentaria">
+                        <label>Fotos EPPS:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="nameindu">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_indumentaria">
+                          <input type="file" name="file-d" id="e_foto_indume" onchange="eindu(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_foto_indume" class="btn-warning"> <i class="icon mdi mdi-file input-md"></i><span>Foto EPPS</span></label>
+                          <label id="error_foto_indume"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="induname" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <!--Fotos del conductor -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center text-primary" style="font-size:14pt; font-weight:700; text-align:center;">Fotos del conductor:</label>
+                      </div>
+                    </div>
+                    <!--Foto frontal-->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Foto
+                          frontal:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="frontal1">frontal</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4 AFotosConductor">
+                        <label>Fotos del Conductor:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="namefotos">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_fotos">
+                          <input type="file" name="file-d" id="e_foto_conductor" onchange="efrontal(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_foto_conductor" class="btn-warning"> <i class="icon mdi mdi-file input-md"></i><span>Foto Conductor</span></label>
+                          <label id="error_foto_conductor"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="frontalname" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <!--Foto derecha-->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Foto
+                          derecha:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="derecha1">derecha</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4 AFotosConductor">
+                        <label>Fotos del Conductor:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="namefotos">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_fotos">
+                          <input type="file" name="file-d" id="e_foto_derecha" onchange="ederecha(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_foto_derecha" class="btn-warning"> <i class="icon mdi mdi-file input-md"></i><span>Foto Conductor</span></label>
+                          <label id="error_foto_conductor"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="derechaname" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <!--Foto izquierda-->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Foto
+                          izquierda:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="izquierda1">izq</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4 AFotosConductor">
+                        <label>Fotos del Conductor:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="namefotos">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_fotos">
+                          <input type="file" name="file-d" id="e_foto_izquierda" onchange="eizquierda(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_foto_izquierda" class="btn-warning"> <i class="icon mdi mdi-file input-md"></i><span>Foto Conductor</span></label>
+                          <label id="error_foto_conductor"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="izquierdaname" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <!--Acuerdos -->
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label class="text-center" style="font-size:12pt; font-weight:700; text-align:center;">Acuerdo
+                          1:</label>
+                      </div>
+                      <div class="col-xs-4 col-sm-4 col-md-4">
+                        <label>Documento Actual</label><br>
+                        <label id="acuerdo1">ac1</label>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4 AFotosConductor">
+                        <label>Acuerdo 1:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="hidden" id="namefotos">
+                        <div class="row">
+                          <input type="hidden" id="e_ruta_fotos">
+                          <input type="file" name="file-d" id="e_acuerdo1" onchange="eacuerdo1(this.value)" data-multiple-caption="{count} archivos seleccionados" class="inputfile form-control input-lg des">
+                          <label for="e_acuerdo1" class="btn-warning"> <i class="icon mdi mdi-file input-md"></i><span>acuerdo</span></label>
+                          <label id="error_foto_conductor"></label>
+                        </div>
+                      </div>
+                      <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <label>Nom. nuevo documento</label>
+                        <input type="text" id="acuerdo1name" class="form-control input-sm" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <!--DIVS DE  -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn_editar_proveedornew" type="button" class="btn btn-success">Actualizar</button>
+        <input type="hidden" id="e_id_proveedor">
+        <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP DE INACTIVACIÓN DE PROVEEDORES -->
+<div id="inactivar_proveedor" tabindex="-1" role="dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          <div class="text-danger"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+          <h3 id="titulo_inactivar">¿Desea Inactivar Este Proveedor?</h3>
+          <br>
+          <div class="xs-mt-1">
+            <div class="row"></div>
+            <input type="hidden" id="i_id_proveedor">
+            <button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+            <button id="btn_inactivar_proveedor" type="button" class="btn btn-space btn-danger">Aceptar</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP DE ACTIVAVCIÓN DE PROVEEDORES -->
+<div id="activar_proveedor" tabindex="-1" role="dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+
+          <div class="text-success"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+          <h3 id="titulo_activar">¿Desea Activar Este Proveedor?</h3>
+          <br>
+          <div class="xs-mt-1">
+            <div class="row"></div>
+            <input type="hidden" id="a_id_proveedor">
+            <button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+            <button id="btn_activar_proveedor" type="button" class="btn btn-space btn-success">Aceptar</button>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<!--HISTORICO DE VEHICULOS   historico_proveedor-->
+<div id="historico_proveedor" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title" id="">Historial de Vehículos</h3>
+      </div>
+      <div class="modal-body">
+        <div id="nexos_messages_popuph">
+          <p class="text-center text-danger" id="nexos_messages_popuph">
+          <p>
+        </div>
+        <div class='row'>
+          <div class='col-sm-12'>
+            <div class=''>
+              <table id="table3" class="table table-striped table-hover table-fw-widget">
+                <thead>
+                  <tr class='nexos-encabezado'>
+                    <th>#</th>
+                    <th>Placa</th>
+                    <th>Fecha Anterior</th>
+                    <th>Fecha Actual</th>
+                  </tr>
+                </thead>
+                <tbody id="vehiculo">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--CUENTAS BANCARIAS poseedor y propietario -->
+<div id="Agrega_Financiero" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title" id="">Datos Bancarios</h3>
+      </div>
+      <div class="modal-body">
+        <div id="nexos_messages_finan">
+          <p class="text-center text-danger" id="nexos_messages_popuph">
+          <p>
+        </div>
+        <div class="row">
+          <section class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label>Agregar Cuenta</label>
+            <button id="adicione_cuenta" class="btn btn-primary mdi mdi-plus"></button>
+          </section>
+        </div>
+        <div class='row'>
+          <div class='col-sm-12'>
+            <div class=''>
+              <table id="table3" class="table table-striped table-hover table-fw-widget">
+                <thead>
+                  <tr class='nexos-encabezado'>
+                    <th>#</th>
+                    <th>Actividad</th>
+                    <th>Obligación</th>
+                    <th>Banco</th>
+                    <th>Tipo cuenta</th>
+                    <th>Número cuenta</th>
+                  </tr>
+                </thead>
+                <tbody id="dato_bancario">
+                </tbody>
+              </table>
+              <input type="hidden" id="num_proveedor" class="form-control input-sm" readonly="readonly">
+            </div>
+          </div>
+        </div>
+        <div class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn_crear_cuentas" type="button" class="btn btn-success">Registrar</button>
+        <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<?php
+/****** FIN CREACION CONTENIDO DE POPUPS ******/
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;
+?>
+<script type="text/javascript">
+  //funcion para convertir el texto en mayuscula en cada input
+  let urls = window.location;
+  // console.log("🚀 ~ url:", urls);
+
+  valores = window.location.search;
+  var params = new URLSearchParams(valores);
+  // console.log("🚀 ~ valores:", params.get('idmenu'));
+
+  function mayuscula(elemento) {
+    let texto = elemento.value;
+    elemento.value = texto.toUpperCase();
+  }
+  $(document).ready(function() {
+    $(".valorT").hide(); //tipos de filtro
+    $(".valor1").hide(); //nombre
+    $(".valor2").hide(); //numero
+    $(".valor3").hide(); //pais
+    $(".valor4").hide(); //tipo proveedor
+    $(".valor5").hide(); //tipo servicio
+    $(".valor6").hide(); //servicio
+    $("#buscar_prove").hide();
+    $("#activity").change(function() {
+      acti = $("#activity").val();
+      if (acti == '') {
+        alert('Señor usuario por favor seleccione un tipo de actividad');
+        $("#tipologia").html('<option value=""></option>');
+        $(".valorT").hide();
+        $("#buscar_prove").hide();
+      }
+      if (acti == 1) { //propietario
+        $(".valorT").show();
+        $(".valor1").hide();
+        $(".valor2").hide();
+        $(".valor3").hide();
+        $(".valor4").hide();
+        $("#tipologia").html(
+          '<option value="">Seleccione</option>' +
+          '<option value="name">Nombre</option>' +
+          '<option value="num">Número documento</option>');
+        $("#criterio1").val('');
+        $("#criterio2").val('');
+        $("#input_seguridad").val(0);
+        $("#buscar_prove").show();
+      }
+      if (acti == 2) { //poseedor
+        $(".valorT").show();
+        $(".valor1").hide();
+        $(".valor2").hide();
+        $(".valor3").hide();
+        $(".valor4").hide();
+        $("#tipologia").html(
+          '<option value="">Seleccione</option>' +
+          '<option value="name">Nombre</option>' +
+          '<option value="num">Número documento</option>');
+        $("#criterio1").val('');
+        $("#criterio2").val('');
+        $("#input_seguridad").val(0);
+        $("#buscar_prove").show();
+      }
+      if (acti == 3) { //conductor
+        $(".valorT").show();
+        $(".valor1").hide();
+        $(".valor2").hide();
+        $(".valor3").hide();
+        $(".valor4").hide();
+        $("#tipologia").html(
+          '<option value="">Seleccione</option>' +
+          '<option value="name">Nombre</option>' +
+          '<option value="num">Número documento</option>');
+        $("#criterio1").val('');
+        $("#criterio2").val('');
+        $("#input_seguridad").val(0);
+        $("#buscar_prove").show();
+      }
+      if (acti == 6) { //Proppppppppprio Trailer
+        $(".valorT").show();
+        $(".valor1").hide();
+        $(".valor2").hide();
+        $(".valor3").hide();
+        $(".valor4").hide();
+        $("#tipologia").html(
+          '<option value="">Seleccione</option>' +
+          '<option value="name">Nombre</option>' +
+          '<option value="num">Número documento</option>');
+        $("#criterio1").val('');
+        $("#criterio2").val('');
+        $("#input_seguridad").val(0);
+        $("#buscar_prove").show();
+      }
+
+      if (acti == 4) { //proveedor
+        $(".valorT").show();
+        $(".valor1").hide();
+        $(".valor2").hide();
+        $(".valor3").hide();
+        $(".valor4").hide();
+        $("#name").val('');
+        $("#num").val('');
+        $("#criterio1").val('');
+        $("#criterio2").val('');
+        $("#input_seguridad").val(0);
+        $("#tipologia").html(
+          '<option value="">Seleccione</option>' +
+          '<option value="prove">Tipo Proveedor</option>' +
+          '<option value="name">Nombre</option>' +
+          '<option value="num">Documento</option>' +
+          '<option value="geo">Localización</option>' +
+          '<option value="servicio">Tipo Servicio</option>');
+        $("#buscar_prove").show();
+      }
+      if (acti == 5) { //todos
+        $(".valorT").show();
+        $(".valor1").hide();
+        $(".valor2").hide();
+        $(".valor3").hide();
+        $(".valor4").hide();
+        $("#tipologia").html(
+          '<option value="">Seleccione</option>' +
+          '<option value="name">Nombre</option>' +
+          '<option value="num">Número documento</option>');
+        $("#criterio1").val('');
+        $("#criterio2").val('');
+        $("#input_seguridad").val(0);
+        $("#buscar_prove").show();
+      }
+    });
+    $("#tipologia").change(function() {
+      var tipolo = $("#tipologia").val();
+      if (tipolo == 'name') {
+        $(".valor1").show();
+        $(".valor2").hide();
+        $(".valor3").hide();
+        $(".valor4").hide();
+        $("#num").val('');
+        $("#input_seguridad").val(0);
+      }
+      if (tipolo == 'num') {
+        $(".valor2").show();
+        $(".valor1").hide();
+        $(".valor3").hide();
+        $(".valor4").hide();
+        $("#name").val('');
+        $("#input_seguridad").val(0);
+      }
+      if (tipolo == 'prove') {
+        $(".valor2").hide();
+        $(".valor1").hide();
+        $(".valor3").show();
+        $(".valor4").hide();
+        $("#criterio1").html('<option value="1">Nacional</option>' +
+          '<option value="2">Internacional</option>');
+        $("#input_seguridad").val(0);
+      }
+      if (tipolo == 'geo') {
+        $(".valor2").hide();
+        $(".valor1").hide();
+        $(".valor3").show();
+        $(".valor4").hide();
+        $("#input_seguridad").val(0);
+        $("#criterio1").html('<option value="">Seleccionar</option>');
+        var paises = {
+          action: 'localizacion_operacional'
+        };
+        $.ajax({
+          url: "http://principal.nexosapp.com/libs/hojas_de_vida_ajax.php",
+          type: 'POST',
+          data: paises,
+          dataType: 'json',
+          success: function(data) {
+            data.result.forEach(function(element, index) {
+              $("#criterio1").append('<option value="' + element.id + '">' + element.municipio +
+                ' | ' +
+                element.depto + '</option>');
+            });
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.log('no trajo paises localizacion operacional');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+          }
+        });
+      }
+      if (tipolo == 'servicio') {
+        $(".valor2").hide();
+        $(".valor1").hide();
+        $(".valor3").show();
+        $(".valor4").hide();
+        $("#criterio1").html('<option value="">Seleccionar</option>' +
+          '<option value="Transporte">Transporte</option>' +
+          '<option value="Porteadores">Porteadores</option>' +
+          '<option value="Adecuaciones">Adecuaciones</option>' +
+          '<option value="Aduana">Aduana</option>' +
+          '<option value="Impuestos">Impuestos</option>' +
+          '<option value="Agenciamiento de carga">Agenciamiento de carga</option>' +
+          '<option value="Tramites operativos">Trámites operativos</option>' +
+          '<option value="Tramites Administrativos">Trámites administrativos</option>');
+        $("#input_seguridad").val(1);
+      }
+    });
+
+    $("#criterio1").change(function() {
+      var valor1 = $("#criterio1").val();
+      //var input=$("#input_seguridad").val(1);
+      var input = 1;
+      if (valor1 == 'Transporte' && input == 1) {
+        $(".valor4").show();
+        $("#criterio2").html('<option value="">Seleccione</option>' +
+          '<option value="Aerolinea de carga/pasajeros">Áerea / Aerolinea de carga/pasajeros</option>' +
+          '<option value="Courier Internacional">Áerea / Courier Internacional</option>' +
+          '<option value="Agentes aereos">Áerea / Agentes aereos</option>' +
+          '<option value="Aereos nacional">Áerea / Aereos nacional</option>' +
+          '<option value="Navieras">Marítima /Navieras </option>' +
+          '<option value="Agentes maritimos">Marítima / Agentes maritimos</option>' +
+          '<option value="Transportadores terrestres">Terrestre / Transportadores terrestres</option>' +
+          '<option value="Nacionales">Terrestre / Nacionales</option>' +
+          '<option value="Transportadores urbanos">Terrestre / Transportadores urbanos</option>');
+        $("#input_seguridad").val(1);
+      }
+      if (valor1 == 'Porteadores' && input == 1) {
+        $(".valor4").show();
+        $("#criterio2").html('<option value="">Seleccione</option>' +
+          '<option value="Puertos">Puertos</option>' +
+          '<option value="Aeropuertos">Aeropuertos</option>' +
+          '<option value="Entes regulatorios">Entes regulatorios</option>' +
+          '<option value="Trámites en frontera">Trámites en frontera</option>');
+        $("#input_seguridad").val(1);
+      }
+      if (valor1 == 'Agenciamiento de carga' && input == 1) {
+        $(".valor4").show();
+        $("#criterio2").html('<option value="">Seleccione</option>' +
+          '<option value="Agente de carga">Agente de carga</option>' +
+          '<option value="Consolidador neutral">Consolidador neutral</option>');
+        $("#input_seguridad").val(1);
+      }
+      if (valor1 == 'Tramites Administrativos' && input == 1) {
+        $(".valor4").show();
+        $("#criterio2").html('<option value="">Seleccione</option>' +
+          '<option value="Navidad">Navidad</option>' +
+          '<option value="Calendarios">Calendarios</option>' +
+          '<option value="Dotaciones">Dotaciones</option>' +
+          '<option value="Servicios públicos">Servicios públicos</option>');
+        $("#input_seguridad").val(1);
+
+      }
+      if (valor1 == 'Adecuaciones' || valor1 == 'Aduana' || valor1 == 'Impuestos' || valor1 ==
+        'Tramites operativos') {
+        $("#criterio2").html('');
+        $("#input_seguridad").val(0);
+        $(".valor4").hide()
+      }
+    });
+
+    $("#buscar_prove").click(function() {
+      var msg_error = "";
+
+      var a, b, c, d, e, f;
+      a = $("#activity").val();
+      b = $("#tipologia").val();
+      c = $("#name").val();
+      d = $("#num").val();
+      e = $("#criterio1").val();
+      f = $("#criterio2").val();
+      if (a == '1' || a == '2' || a == '3') {
+        if (b == '') {
+          msg_error +=
+            "<p>Por favor seleccione <strong>buscar por </strong>para hacer búsqueda del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if ($("#input_seguridad").val() == 1) {
+          if (b !== '' && e == '') {
+            msg_error += "<p>Por favor seleccione el criterio para hacer búsqueda del tercero.</p>";
+            $(".nexos-messages").html(
+              '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+              msg_error + '</div></div>');
+            $(".panel-body").animate({
+              scrollTop: 0
+            }, 600);
+          }
+        }
+        if (b == 'name' && c == '') {
+          msg_error += "<p>Por favor diligencie el Nombre del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if (b == 'num' && d == '') {
+          msg_error += "<p>Por favor diligencie el Documento del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+      }
+      if (a == '4') {
+        if (b == '') {
+          msg_error += "<p>Por favor seleccione la tipología para hacer búsqueda del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        /*if(b!=='name' &&  b!=='num' && e==''){
+		 			msg_error+= "<p>Por favor seleccione el criterio para hacer búsqueda del tercero.</p>";
+		 			$(".nexos-messages").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+					$(".panel-body").animate({ scrollTop: 0 }, 600);
+		 		}*/
+        if (b == 'prove' && e == '') {
+          msg_error += "<p>Por favor seleccione criterio1 para hacer búsqueda del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if (b == 'name' && c == '') {
+          msg_error += "<p>Por favor ingrese Nombre para hacer búsqueda del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if (b == 'num' && d == '') {
+          msg_error += "<p>Por favor ingrese Documento para hacer búsqueda del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if (b == 'geo' && e == '') {
+          msg_error += "<p>Por favor Seleccione Localización para hacer búsqueda del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if (b == 'servicio' && e == '') {
+          msg_error += "<p>Por favor Seleccione Criterio1 para hacer búsqueda del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if ($("#input_seguridad").val() == 1) {
+          if (b !== '' && e !== '' && f == '') {
+            msg_error += "<p>Por favor Seleccione Criterio2 para hacer búsqueda del tercero.</p>";
+            $(".nexos-messages").html(
+              '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+              msg_error + '</div></div>');
+            $(".panel-body").animate({
+              scrollTop: 0
+            }, 600);
+          }
+        }
+      }
+      if (a == '5') {
+        if (b == '') {
+          msg_error +=
+            "<p>Por favor seleccione <strong>buscar por </strong>para hacer búsqueda del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if (b == 'name' && c == '') {
+          msg_error += "<p>Por favor diligencie el Nombre del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+        if (b == 'num' && d == '') {
+          msg_error += "<p>Por favor diligencie el Documento del tercero.</p>";
+          $(".nexos-messages").html(
+            '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+            msg_error + '</div></div>');
+          $(".panel-body").animate({
+            scrollTop: 0
+          }, 600);
+        }
+      }
+      if (!msg_error) {
+        cargar_proveedores(a, b, c, d, e, f);
+      }
+    });
+  });
+
+  // Ejemplo de uso
+  var claveSecreta = "miClaveSecreta123";
+
+  function encryptData(data, key) {
+    return CryptoJS.AES.encrypt(data, key).toString();
+  }
+
+  // Función para codificar en Base64
+  function codificarBase64(texto) {
+    return btoa(texto);
+  }
+
+  // Función para decodificar Base64
+  function decodificarBase64(textoCodificado) {
+    return atob(textoCodificado);
+  }
+
+  // function decryptData(encryptedData, key) {
+  //   var bytes = CryptoJS.AES.decrypt(encryptedData, key);
+  //   return bytes.toString(CryptoJS.enc.Utf8);
+  // }
+
+  function cargar_proveedores(a, b, c, d, e, f) {
+    var perfil_user = $("#perfil").val();
+    // a=tipo proveedor, b=buscar por, c=nombre, d=documento, e=criterio1, f=criterio2
+    // alert(b);
+    // $('#table1').dataTable().clear();
+    var msg_error = '';
+    var dato = {
+      tipo: a,
+      valor: b,
+      name: c,
+      docu: d,
+      param1: e,
+      param2: f
+    };
+    // $("#table1").empty();
+    $("#principal_cuerpo").html('');
+    $.ajaxSetup({
+      async: false
+    });
+    $.ajax({
+      url: $("#id_url_ajax").val() + "libs/lista_proveedores_ajax.php?action=cargar_proveedores",
+      type: "POST",
+      data: dato,
+      cache: false,
+      dataType: "json",
+      error: function(jqXHR, textStatus, errorThrown) {
+        $(".nexos-messages").html('');
+        msg_error += "<p>" + jqXHR.responseText + "</p>";
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      },
+      success: function(data) {
+        // console.log(data);
+        $("#principal_cuerpo").html('');
+        if (data.error) {
+          msg_error = data.error;
+        }
+        if (data.sql) {
+          $.each(data.sql, function(i, item) {
+            var btn_color = "";
+            if (item.estado == 'Activo') {
+              var btn_color = "nexos-txt-success";
+            } else if (item.estado == 'Inactivo') {
+              var btn_color = "nexos-txt-danger";
+            }
+
+            var msg_rndc = '';
+            if (item.rndc_id) {
+              msg_rndc = `<strong class="text-success">RNDC</strong>`;
+            }
+
+            // Se filtra el contenido del bton de activación o desactivación dependiendo el estado del proveedor
+            var btn_estado = "";
+            if (item.estado == 'Activo') {
+              $palabra = 'Activo';
+              btn_estado = `
+								<a href="javascript:" onclick="datosinactivarproveedor(${item.numdoc_nexos})" class="cell-detail  hint--top-left" data-hint="Inactivar proveedor">
+									<span class="icon mdi mdi-close-circle" data-toggle="modal" data-target="#inactivar_proveedor"></span>
+								</a>
+							`;
+            } else if (item.estado == 'Inactivo') {
+              $palabra = 'Inactivo';
+              btn_estado = `
+								<a href="javascript:" onclick="datosactivarproveedor(${item.numdoc_nexos})"  class="cell-detail  hint--top-left" data-hint="Activar proveedor" >
+									<span class="icon mdi mdi-check-circle "  data-toggle="modal" data-target="#activar_proveedor"></span>
+								</a>
+							`;
+            }
+
+            // Se valida el contenido del documento del proveedor
+            var documento = item.numero_documento;
+            if (item.tipo_documento == "NIT") {
+              documento = item.numero_documento + "-" + item.digito_verificacion;
+            }
+
+            // Se valida los contactos del proveedor
+            var contacto = "";
+            if (item.contacto) {
+              contacto += `
+								<span>Contacto</span>
+								<span class="cell-detail-description">${item.contacto}</span>
+							`;
+            }
+            if (item.celular) {
+              contacto += `
+								<span>Celular</span>
+								<span class="cell-detail-description">${item.celular}</span>
+							`;
+            }
+            $("#idproveedor_Editar").val(item.id);
+            if (btn_color == 'sucess') {
+              $esta = '';
+            }
+            if (btn_color == 'Danger') {
+              $esta = '';
+            }
+
+            $btn_financiero = '';
+            if (item.actividad == 'Propietario Vehiculo' || item.actividad == 'Poseedor Vehiculo') {
+              $btn_financiero =
+                `<a href="javascript:" onclick="AgregaFinanciero(${item.numdoc_nexos})" class="cell-detail hint--top-left" data-hint="Agregar Dato Financiero" ><span class="icon mdi mdi-money" data-toggle="modal" data-target="#Agrega_Financiero"></span></a>`;
+            }
+
+            btn_edicion = '';
+            if (perfil_user != 8 && perfil_user != 9) {
+              // let num =
+              var numdoc_nexos_encriptado = codificarBase64(item.numdoc_nexos);
+              // console.log("Texto encriptado:", decodificarBase64(numdoc_nexos_encriptado));
+              btn_edicion =
+                `<a href="${$("#id_url_ajax").val()}solicitudes/editar_proveedor/?num_proveedor=${numdoc_nexos_encriptado}&idmenu=${params.get('idmenu')}"  class="cell-detail  hint--top-left" data-hint="Editar proveedor" "><span class="icon mdi mdi-edit"></span></a>`;
+              // btn_edicion =
+              //   `<a href="javascript:" onclick="editardatosProveedorn0(${item.numdoc_nexos})" class="cell-detail  hint--top-left" data-hint="Editar proveedor" "><span class="icon mdi mdi-edit" data-toggle="modal" data-target="#editar_proveedor"></span></a>`;
+            }
+
+            $("#principal_cuerpo").append(`
+							<tr>
+								<td class="${btn_color}">
+									<center><span class="mdi mdi-dot-circle icon"  title="${$palabra}"></span></center>
+								</td>
+								<td class="cell-detail" >
+									<span>${msg_rndc} ${documento}</span>
+									<span class="cell-detail-description">${item.tipo_documento}</span>
+								</td>
+								<td class="cell-detail" >
+									<span>${item.nombre} ${item.apellido1}
+									${item.apellido2}</span>
+								</td>
+								<td class="cell-detail" >
+									<span>${item.direccion}</span>
+									<span class="cell-detail-description">${item.ciudad}</span>
+								</td>
+								<td class="cell-detail" >
+									<span>${contacto}</span>
+								</td>
+								<td class="cell-detail" >
+									<span>${item.actividad}</span>
+								</td>
+								<td class="actions">
+								<!--
+									<a href="javascript:" onclick="Agrega_Financiero(${item.numdoc_nexos})" class="cell-detail hint--top-left" data-hint="Agregar Dato Financiero" ><span class="icon mdi mdi-money" data-toggle="modal" data-target="#Agrega_Financiero"></span></a> -->
+
+									<a href="javascript:" onclick="verProveedor(${item.numdoc_nexos})" class="cell-detail hint--top-left" data-hint="consultar" ><span class="icon mdi mdi-eye" data-toggle="modal" data-target="#ver_proveedornuevo"></span></a>
+
+									` + btn_edicion + `
+
+									<a href="javascript:" onclick="historicodatosProveedor(${item.numdoc_nexos})" class="cell-detail  hint--top-left" data-hint="Vehículos que ha tenido  conductor" "><span class="icon mdi mdi-car" data-toggle="modal" data-target="#historico_proveedor"></span></a>
+									${$btn_financiero}
+									${btn_estado}
+								</td>
+							</tr>
+						`);
+          });
+          /*	table_content+= `
+          						</tbody>
+          					</table>
+          				</div>
+          			</div>
+          		</div>
+
+          		</div>
+          	`; */
+          // $('#table1').dataTable().clear();
+          // $(".nexos-content").append(tablita);
+          // App.dataTables();
+        }
+      }
+    });
+    if (msg_error) {
+      funct_msg_error(".nexos-messages", msg_error);
+      $("html, body").animate({
+        scrollTop: 0
+      }, 600);
+    }
+    $.ajaxSetup({
+      async: true
+    });
+
+  }
+
+
+
+  // //TRAER NOMBRE DE LOS FICHEROS
+  // function docu_identificable(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#docu_soporte").val('');
+  //   } else {
+  //     $("#docu_soporte").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //referencia laboral1
+  // function lab1(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_soporte").val('');
+  //   } else {
+  //     $("#name_soporte").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //referencia laboral2
+  // function lab2(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_soporte2").val('');
+  //   } else {
+  //     $("#name_soporte2").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //referencia laboral3
+  // function lab3(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_soporte3").val('');
+  //   } else {
+  //     $("#name_soporte3").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //referencias personales 1
+  // function per1(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#docu_personal1").val('');
+  //   } else {
+  //     $("#docu_personal1").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //referencias personales 2
+  // function per2(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#docu_personal2").val('');
+  //   } else {
+  //     $("#docu_personal2").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //EPS
+  // function eps(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#namedocu_eps").val('');
+  //   } else {
+  //     $("#namedocu_eps").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //ARL
+  // function Arl(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#namedocu_arl").val('');
+  //   } else {
+  //     $("#namedocu_arl").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //CURSO MERCANCIAS PELIGROSAS
+  // function curso(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#namedocu_curso").val('');
+  //   } else {
+  //     $("#namedocu_curso").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //nombre foto frontal
+  // function name_fontal(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_fontall").val('');
+  //   } else {
+  //     $("#name_fontall").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //nombre foto derecha
+  // function name_derecho(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_derecha").val('');
+  //   } else {
+  //     $("#name_derecha").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //nombre foto izquierda
+  // function name_izquierdo(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_izquierda").val('');
+  //   } else {
+  //     $("#name_izquierda").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //nombre foto indumentaria
+  // function name_indu(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_indum").val('');
+  //   } else {
+  //     $("#name_indum").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //acuerdo 1
+  // function acuerdo_uno(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_a1").val('');
+  //   } else {
+  //     $("#name_a1").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //acuerdo 2
+  // function acuerdo_dos(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_a2").val('');
+  //   } else {
+  //     $("#name_a2").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //acuerdo 3
+  // function acuerdo_tres(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_a3").val('');
+  //   } else {
+  //     $("#name_a3").val(fic[fic.length - 1]);
+  //   }
+  // }
+  // //acuerdo 4
+  // function acuerdo_cuatro(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_a4").val('');
+  //   } else {
+  //     $("#name_a4").val(fic[fic.length - 1]);
+  //   }
+  // }
+  //TRAER NOMBRE DE LPS FICHEROS PARA EDITAR
+  function ecedula(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#textocedulas").val('');
+    } else {
+      $("#textocedulas").val(fic[fic.length - 1]);
+    }
+  }
+
+  function elab1(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#lab1n").val('');
+    } else {
+      $("#lab1n").val(fic[fic.length - 1]);
+    }
+  }
+
+  function elab2(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#lab2n").val('');
+    } else {
+      $("#lab2n").val(fic[fic.length - 1]);
+    }
+  }
+
+  function elab3(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#lab3n").val('');
+    } else {
+      $("#lab3n").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eper1(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#per1n").val('');
+    } else {
+      $("#per1n").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eper2(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#per2n").val('');
+    } else {
+      $("#per2n").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eeps1(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#epsname").val('');
+    } else {
+      $("#epsname").val(fic[fic.length - 1]);
+    }
+  }
+
+  function erut(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#rutname").val('');
+    } else {
+      $("#rutname").val(fic[fic.length - 1]);
+    }
+  }
+
+  function earl(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#arlname").val('');
+    } else {
+      $("#arlname").val(fic[fic.length - 1]);
+    }
+  }
+
+  function elice(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#licenname").val('');
+    } else {
+      $("#licenname").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eindu(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#induname").val('');
+    } else {
+      $("#induname").val(fic[fic.length - 1]);
+    }
+  }
+
+  function efrontal(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#frontalname").val('');
+    } else {
+      $("#frontalname").val(fic[fic.length - 1]);
+    }
+  }
+
+  function ederecha(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#derechaname").val('');
+    } else {
+      $("#derechaname").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eizquierda(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#izquierdaname").val('');
+    } else {
+      $("#izquierdaname").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eacuerdo1(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#acuerdo1name").val('');
+    } else {
+      $("#acuerdo1name").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eacuerdo2(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#acuerdo2name").val('');
+    } else {
+      $("#acuerdo2name").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eacuerdo3(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#acuerdo3name").val('');
+    } else {
+      $("#acuerdo3name").val(fic[fic.length - 1]);
+    }
+  }
+
+  function eacuerdo4(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#acuerdo4name").val('');
+    } else {
+      $("#acuerdo4name").val(fic[fic.length - 1]);
+    }
+  }
+
+  function ecurso(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#cursoname").val('');
+    } else {
+      $("#cursoname").val(fic[fic.length - 1]);
+    }
+  }
+  //CONCATENA MASCARA DE DIRECCIONES
+  $(".address").change(function() {
+    tipovia = $("#di_tipovia").val();
+    di_nomvia = $("#di_nomvia").val();
+    di_letra1 = $("#di_letra1").val();
+    di_prefijo1 = $("#di_prefijo1").val();
+    di_letra2 = $("#di_letra2").val();
+    di_cuadrante = $("#di_cuadrante").val();
+    di_num1 = $("#di_num1").val();
+    di_letra3 = $("#di_letra3").val();
+    di_numero2 = $("#di_numero2").val();
+    di_cuadrante2 = $("#di_cuadrante2").val();
+    di_tipovia1 = $("#di_tipovia1").val();
+    di_numero3 = $("#di_numero3").val();
+    var nomenclatura = (tipovia + ' ' + di_nomvia + ' ' + di_letra1 + ' ' + di_prefijo1 + ' ' + di_letra2 + ' ' +
+      di_cuadrante + ' ' + di_num1 + ' ' + di_letra3 + ' ' + di_numero2 + ' ' + di_cuadrante2 + ' ' +
+      di_tipovia1 +
+      ' ' + di_numero3);
+    $("#direccion_compuesta").val(nomenclatura);
+    $("#direccion").val(nomenclatura);
+  });
+  $("#Complement").change(function() {
+    if ($(this).is(":checked")) {
+      $("#div_complemento").show();
+    } else {
+      $("#div_complemento").hide();
+    }
+  });
+  $("#limpiar").click(function() {
+    $("#di_tipovia").prop('selected', 'false');
+    $("#di_nomvia").val('');
+    $("#di_letra1").attr('selected', 'false');
+    $("#di_prefijo1").attr('selected', 'false');
+    $("#di_letra2").attr('selected', 'false');
+    $("#di_cuadrante").attr('selected', 'false');
+    $("#di_num1").val('');
+    $("#di_letra3").attr('selected', 'false');
+    $("#di_numero2").val('');
+    $("#di_cuadrante2").attr('selected', 'false');
+    $("#di_tipovia1").attr('selected', 'false');
+    $("#di_numero3").val('');
+    $("#direccion_compuesta").val('');
+    $("#direccion").val('');
+  });
+
+  $(".addresse").change(function() {
+    tipovia = $("#di_tipoviae").val();
+    di_nomvia = $("#di_nomviae").val();
+    di_letra1 = $("#di_letra1e").val();
+    di_prefijo1 = $("#di_prefijo1e").val();
+    di_letra2 = $("#di_letra2e").val();
+    di_cuadrante = $("#di_cuadrantee").val();
+    di_num1 = $("#di_num1e").val();
+    di_letra3 = $("#di_letra3e").val();
+    di_numero2 = $("#di_numero2e").val();
+    di_cuadrante2 = $("#di_cuadrantee2").val();
+    di_tipovia1 = $("#di_tipovia1e").val();
+    di_numero3 = $("#di_numero3e").val();
+    var nomenclatura = (tipovia + ' ' + di_nomvia + ' ' + di_letra1 + ' ' + di_prefijo1 + ' ' + di_letra2 + ' ' +
+      di_cuadrante + ' ' + di_num1 + ' ' + di_letra3 + ' ' + di_numero2 + ' ' + di_cuadrante2 + ' ' +
+      di_tipovia1 +
+      ' ' + di_numero3);
+    $("#direccion_compuestae").val(nomenclatura);
+    $("#e_direccion").val(nomenclatura);
+  });
+  $("#Complemente").change(function() {
+    if ($(this).is(":checked")) {
+      $("#e_complemento").show();
+    } else {
+      $("#e_complemento").hide();
+    }
+  });
+  $("#limpiare").click(function() {
+    $("#di_tipoviae").prop('selected', 'false');
+    $("#di_nomviae").val('');
+    $("#di_letra1e").prop('selected', 'false');
+    $("#di_prefijo1e").prop('selected', 'false');
+    $("#di_letra2e").prop('selected', 'false');
+    $("#di_cuadrantee").prop('selected', 'false');
+    $("#di_num1e").val('');
+    $("#di_letra3e").prop('selected', 'false');
+    $("#di_numero2e").val('');
+    $("#di_cuadrantee2").prop('selected', 'false');
+    $("#di_tipovia1e").prop('selected', 'false');
+    $("#di_numero3e").val('');
+    $("#direccion_compuestae").val('');
+    $("#e_direccion").val('');
+  });
+</script>

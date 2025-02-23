@@ -1,0 +1,260 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12 mt-0">
+      <!--<div class="widget widget-tile" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 15px;box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);border-color: #ffffff;">-->
+      <div class="panel panel-default" style="border-radius: 10px; padding: 15px;">
+        <div class="data-info">
+          <div class="row align-items-center">
+            <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <div class="markdown text-muted">
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <div class="input-group">
+                        <div class="input-group-addon" style="font-weight: bold;font-size: 14px;"><i class="fas fa-filter"></i></div>
+                        <select class="form-control input-xs" name="filtro" id="filtro">
+                          <option value="">Seleccionar filtro</option>
+                          <option value="Fecha">Filtro Fecha</option>
+                          <option value="Pedido">Filtrar Pedido</option>
+                          <!--  <option value="fecha_cliente">Filtrar Cliente & Fecha</option> -->
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <div class="input-group">
+                        <div class="input-group-addon" style="font-weight: bold;font-size: 12px;">Fecha inicio</div>
+                        <input type="date" name="fecha_inicial" id="fecha_inicial" class="form-control input-xs fecha_inicial" value="' . date(" Y-m-d") . '">
+														</div>
+													</div>
+												</div>
+
+												<div class="col-xs-12 col-sm-4 col-md-3 col-lg-3">
+													<div class="form-group form-group-sm">
+														<div class="input-group">
+															<div class="input-group-addon" style="font-weight: bold;font-size: 12px;">Fecha fin</div>
+															<input type="date" name="fecha_final" id="fecha_final" class="form-control input-xs fecha_final" value="' . date("Y-m-d") . '">
+														</div>
+													</div>
+												</div>
+
+												<!-- Numero del cliente -->
+													<input type="hidden" name="cliente" id="cliente_id" value="' . $ssn_id_cliente . '" />
+												<!-- Fin numero del cliente -->
+
+												<div class="col-xs-12 col-sm-4 col-md-3 col-lg-3">
+													<div class="form-group form-group-sm">
+														<div class="input-group">
+															<div class="input-group-addon" style="font-weight: bold;font-size: 12px;">Pedido</div>
+															<input type="text" name="numdoc_predido" id="numdoc_predido" class="form-control input-xs numdoc_predido">
+														</div>
+													</div>
+												</div>
+											
+											<div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top: 3px;padding: 5px 5px 5px 10px;text-align: center;">
+												<button type="button" class="btn btn-primary btn-sm" style="width: auto;" id="filtrar">
+													<i class="fa-solid fa-magnifying-glass"></i> Aplicar Filtro
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			<!--Tarjetas de Session y Version-->
+					<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+						<div class="panel panel-default" style="border-radius: 10px; padding: 15px;">
+							<div class="row">
+									<!-- Iniciales del usuario -->
+									<div class="col-xs-2 text-center">
+											<div class="initials-circle" style="width: 50px; height: 50px; border-radius: 50%; background-color: #1f1f1f; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px;">
+												' . $initials . ' <!-- Aquí podrías pasar dinámicamente las iniciales del usuario -->
+											</div>
+									</div>
+									<!-- Texto de bienvenida y nombre del usuario -->
+									<div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+											<h5 class="panel-title" style="font-weight: bold;">Bienvenido(a)</h5>
+											<p class="panel-text">' . $_SESSION['usuario']['nom_usuario'] . '</p> <!-- Aquí podrías pasar dinámicamente el nombre del usuario -->
+									</div>
+									<!-- Botón de desconectar -->
+									<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 text-center">
+											<a href="' . BASE_URL . '/libs/cerrar.php" class="btn btn-default btn-xs">
+													<i class="fa fa-sign-out"></i> Desconectar
+											</a>
+									</div>
+							</div>
+					</div>
+				</div>
+
+				<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+						<div class="panel panel-default" style="border-radius: 10px; padding: 15px;backdrop:#FFFFFF !important;">
+								<div class="row">
+										<!-- Nombre de la aplicación -->
+										<div class="col-xs-9">
+												<h5 class="panel-title" style="font-weight: bold;">NexosApp</h5>
+												<p class="panel-text">v1.0</p>
+										</div>
+								</div>
+						</div>
+				</div>
+				<!--Fin tarjetas de Session y Version-->
+
+        
+
+
+
+			<!-- Trjetas de las lista de los despachos -->
+				<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+					<div class="widget widget-title"
+						style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 4px 4px 4px;">
+						<div class="table-responsive noSwipe">
+							<h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px;">Pedidos</h3>
+							<div class="col-md-12 col-sm-12" style="padding: 1px 1px 1px;">
+								<table class="table table-striped table-borderless" width="100" cellpadding="0" cellspacing="0" border="0">
+									<thead style="background-color:#332D2D;color:#fff;text-align:center;">
+										<tr>
+											<th>#</th>
+											<th>Referencia</th>
+											<th>Fecha</th>
+											<th>Estado</th>
+										</tr>
+									</thead>
+									<tbody id="tbody-pedidos">
+										<tr>
+											<td colspan="4" class="text-center">
+												Esperando Información
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+					<div class="widget widget-title"
+						style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 4px 4px 4px;">
+						<div class="table-responsive noSwipe">
+							<div class="row">
+								<div class="col-md-6 col-sm-12">
+										<h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px;">Despachos</h3>
+								</div>
+								<div class="col-md-6 col-sm-12" >
+										<select class="form-control input-xs" name="despachos" id="despachos" style="margin-top:10px;">
+											<option value="">Seleccionar despachos</option>
+										</select>
+								</div>
+							</div>
+							<div class="col-md-12 col-sm-12" style="padding: 1px 1px 1px;">
+								<table class="table table-striped table-borderless" width="100" cellpadding="0" cellspacing="0" border="0">
+									<thead style="background-color:#332D2D;color:#fff;text-align:center;">
+										<tr>
+											<th scope="col">#</th>
+											<th scope="col">Orden cargue</th>
+											<th scope="col">Remesa</th>
+											<th scope="col">Manifiesto</th>
+											<th scope="col">Cumplido</th>
+											<th scope="col">Fecha</th>
+											<th scope="col">Usuario</th>
+										</tr>
+									</thead>
+									<tbody id="tbody-despachos">
+										<tr>
+											<td colspan="7" class="text-center">
+												Esperando Información
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			<!-- Fin Trjetas de las lista de los despachos -->
+
+      <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12 my-4">
+       	<div class="widget widget-title" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 4px 4px 4px;">
+          <div class="card-header">
+						<h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px;">Seguimiento Vehicular</h3>
+          </div>
+          <div class="card-body p-1">
+            <div id="mapgeografico" style="height:300px; width:100%;"></div>
+          </div>
+        </div>
+      </div>
+
+
+			       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="widget widget-title" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 4px 4px 4px;">
+            <div class="card-header">
+                <h3>Seguimiento Vehicular</h3>
+            </div>
+            <div class="card-body p-1">
+                <div class="col-lg-12">
+									 <div class="table-responsive noSwipe">
+                    <!-- Ruta origen y destino -->
+                    <div class="text-center fw-bold h5"  style="font-size: 18px; font-weight: 800; margin-bottom: 5px;">Ruta del despacho - <span id="titulo_referencia"></span></div>
+                    <table class="table table-sm border text-center" style="width:100%" cellpadding="0" cellspacing="0" border="0">
+                        <thead style="font-size: 14px;">
+                            <tr>
+                                <th style="background-color: #332D2D;color:#FFFFFF;">Ruta</th>
+                                <td id="nombre_plan"></td>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <table class="table table-sm border text-center">
+                        <thead style="background-color: #332D2D;color:#FFFFFF;width:100%">
+                            <tr>
+                                <th>#</th>
+                                <th>Punto</th>
+                                <th>Municipio</th>
+                                <th>Fecha &amp; Hora</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody_tiempos" style="font-size: 12px;">
+                            <tr>
+                                <td colspan="5" class="text-center" style="font-size: 13px;">Esperando Información</td>
+                            </tr>
+                        </tbody>
+                    </table>
+ 									</div>
+                </div>
+            </div>
+        </div>
+    </div>
+			</div>
+		</div>
+
+		<!-- Mensajes para los usuarios de la plataforma -->
+		<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+			<div style="text-align: center;">
+				<img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="120" width="120">
+				<h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+				<h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+			</div>
+		</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<!-- <script src=<?php echo BASE_URL; ?>/views/control_ruta/js/tablero_ajax.js type="text/javascript"></script> -->
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

@@ -1,0 +1,354 @@
+<?php
+	$vista = '';
+
+	/**** MAQUETA DEL FORMULARIO POR PASOS ****/
+  $step_form = '
+    <div class="panel panel-border panel-contrast">
+      <div class="panel-heading panel-heading-contrast">
+        Clientes
+        <span class="panel-subtitle">Muestra los clientes que pertenecen a Nexos.</span>
+      </div>
+      <div class="panel-body xs-mt-15">
+        <div class="row wizard-row">
+          <div class="col-md-12 fuelux">
+            <div class="block-wizard panel panel-default">
+              <div id="wizard1" class="wizard wizard-ux">
+                <ul class="steps">
+                  <li data-step="1" class="active">Generalidades<span class="chevron"></span></li>
+                  <li data-step="2">Trayecto<span class="chevron"></span></li>
+                  <li data-step="3">Material<span class="chevron"></span></li>
+                </ul>
+                <div class="actions" style= "display: none;">
+                  <button type="button" class="btn btn-xs btn-prev btn-default"><i class="icon mdi mdi-chevron-left"></i>Prev</button>
+                  <button type="button" data-last="Finish" class="btn btn-xs btn-next btn-default">Next<i class="icon mdi mdi-chevron-right"></i></button>
+                </div>
+                <div class="step-content">
+                  %step_content%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ';
+
+	/**** PASO 1 ****/
+	$step_subform = '
+	    <div data-step="1" class="step-pane active">
+	      <form action="#" data-parsley-namespace="data-parsley-" data-parsley-validate="" novalidate="" class="form-horizontal group-border-dashed">
+	        <div class="form-group no-padding">
+	          <div class="col-sm-7">
+	            <h3 class="wizard-title">Datos del Proyecto</h3>
+	          </div>
+	        </div>
+	        <div class="form-group">
+	          <label class="col-sm-4 control-label">Nombre</label>
+	          <div class="col-sm-6">
+	            <input type="text" name="nom_proyecto" id="nom_proyecto" placeholder="Titulo del proyecto" class="form-control">
+	          </div>
+	        </div>
+	        <div class="form-group">
+            <label class="col-sm-4 control-label">Tipo Operación</label>
+            <div class="col-sm-2">
+                <select class="select2 select2-hidden-accessible" id="tipo_operacion" aria-hidden="true">
+                    <option value="" disabled selected>Seleccione</option>
+                    <option value="p1">FAS</option>
+                    <option value="p2">FOB</option>
+                    <option value="p3">CFR</option>
+                    <option value="p4">CIF</option>
+                    <option value="p5">EXW</option>
+                    <option value="p6">FCA</option>
+                    <option value="p7">CPT</option>
+                    <option value="p7">CIP</option>
+                    <option value="p7">DAT</option>
+                    <option value="p7">DAP</option>
+                    <option value="p7">DDP</option>
+                  </optgroup>
+                </select>
+            </div>
+            <label class="col-sm-2 control-label">Clase Operación</label>
+            <div class="col-sm-2">
+                <select class="select2 select2-hidden-accessible" id="clase_operacion" aria-hidden="true">
+                    <option value="" disabled selected>Seleccione</option>
+                    <option value="1">Aéreo</option>
+                    <option value="2">Marítimo</option>
+                    <option value="3">Terrestre</option>
+                    <option value="4">Fluvial</option>
+                    <option value="5">Multomodal</option>
+                  </optgroup>
+                </select>
+            </div>
+	        </div>
+	        <div class="form-group">
+	          <label class="col-sm-4 control-label">Cliente</label>
+	          <div class="col-sm-6">
+              <select class="select2 select2-hidden-accessible" aria-hidden="true">
+                <option selected disabled>Seleccione</option>
+                <option value="1">Praxis de Colombia</option>
+                <option value="2">Nexos Group</option>
+                <option value="3">Coca Cola</option>
+                <option value="3">Pepsi Cola</option>
+                <option value="3">Limonada Postobon</option>
+                <option value="3">Carbones de Colombia</option>
+                <option value="3">Algo</option>
+              </select>
+	          </div>
+	        </div>
+	        <div class="form-group">
+	          <label class="col-sm-4 control-label">Detalles del Proyecto</label>
+	          <div class="col-sm-6">
+              <textarea required="" class="form-control parsley-error" data-parsley-id="73"></textarea>
+	          </div>
+	        </div>
+	        <div class="form-group">
+	          <div class="col-sm-offset-2 col-sm-10">
+	            <button class="btn btn-default btn-space">Cancel</button>
+	            <button data-wizard="#wizard1" class="btn btn-primary btn-space wizard-next">Siguiente</button>
+	          </div>
+	        </div>
+	      </form>
+	    </div>
+	';
+
+	/**** PASO 2 ****/
+	$step_subform.= '
+    <div data-step="2" class="step-pane">
+      <form action="#" data-parsley-namespace="data-parsley-" data-parsley-validate="" novalidate="" class="form-horizontal group-border-dashed">
+        <div class="form-group no-padding">
+          <div class="col-sm-7">
+            <h3 class="wizard-title">Trayecto del Proyecto</h3>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-6">
+            <label class="control-label">Origen</label>
+            <select class="select2">
+                <option value="">Seleccione</option>
+              <optgroup label="Praxis">
+                <option value="p2">Planta Centro (Bogota) - Cll 13 # 15-44</option>
+                <option value="p3">Planta Fontibon (Bogota) - Cll 13 # 105-44</option>
+                <option value="p4">Bodega Puerto (Buenventura) - Puerto Buenaventura</option>
+                <option value="p4">Bodega Puerto (Cartagena) - Puerto Buenaventura</option>
+                <option value="p4">Bodega Puerto (Santa Marta) - Puerto Buenaventura</option>
+                <option value="p4">Planta Tocancipa (Tocancipa) - Cll 5 # 25-66</option>
+                <option value="p4">Planta Mosquera (Mosquera) - P.I Los Cerezos Bodega 6</option>
+              </optgroup>
+              <optgroup label="Otro Cliente">
+                <option value="p2">Otra Planta Centro (Bogota) - Cll 13 # 15-44</option>
+                <option value="p3">Otra Planta Fontibon (Bogota) - Cll 13 # 105-44</option>
+                <option value="p4">Otra Bodega Puerto (Buenventura) - Puerto Buenaventura</option>
+                <option value="p4">Otra Bodega Puerto (Cartagena) - Puerto Buenaventura</option>
+                <option value="p4">Otra Bodega Puerto (Santa Marta) - Puerto Buenaventura</option>
+                <option value="p4">Otra Planta Tocancipa (Tocancipa) - Cll 5 # 25-66</option>
+                <option value="p4">Otra Planta Mosquera (Mosquera) - P.I Los Cerezos Bodega 6</option>
+              </optgroup>
+            </select>
+            <label class="control-label">Contactos de Origen</label>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                <th style="width:30%;">Contacto</th>
+                <th style="width:30%;">Telefono</th>
+                <th style="width:40%;">E-mail</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="success">
+                  <td class="cell-detail"> <span>%contacto%</span><span class="cell-detail-description">%cargo%</span></td>
+                  <td class="cell-detail"> <span>%celular%</span><span class="cell-detail-description">%telefono%</span></td>
+                  <td class="cell-detail"> <span>%e-mail%</span></td>
+                </tr>
+                <tr class="success">
+                  <td class="cell-detail"> <span>%contacto%</span><span class="cell-detail-description">%cargo%</span></td>
+                  <td class="cell-detail"> <span>%celular%</span><span class="cell-detail-description">%telefono%</span></td>
+                  <td class="cell-detail"> <span>%e-mail%</span></td>
+                </tr>
+                <tr class="success">
+                  <td class="cell-detail"> <span>%contacto%</span><span class="cell-detail-description">%cargo%</span></td>
+                  <td class="cell-detail"> <span>%celular%</span><span class="cell-detail-description">%telefono%</span></td>
+                  <td class="cell-detail"> <span>%e-mail%</span></td>
+                </tr>
+                <tr class="success">
+                  <td class="cell-detail"> <span>%contacto%</span><span class="cell-detail-description">%cargo%</span></td>
+                  <td class="cell-detail"> <span>%celular%</span><span class="cell-detail-description">%telefono%</span></td>
+                  <td class="cell-detail"> <span>%e-mail%</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-sm-6">
+            <label class="control-label">Destino</label>
+            <select class="select2">
+                <option value="">Seleccione</option>
+              <optgroup label="Praxis">
+                <option value="p2">Planta Centro (Bogota) - Cll 13 # 15-44</option>
+                <option value="p3">Planta Fontibon (Bogota) - Cll 13 # 105-44</option>
+                <option value="p4">Bodega Puerto (Buenventura) - Puerto Buenaventura</option>
+                <option value="p4">Bodega Puerto (Cartagena) - Puerto Buenaventura</option>
+                <option value="p4">Bodega Puerto (Santa Marta) - Puerto Buenaventura</option>
+                <option value="p4">Planta Tocancipa (Tocancipa) - Cll 5 # 25-66</option>
+                <option value="p4">Planta Mosquera (Mosquera) - P.I Los Cerezos Bodega 6</option>
+              </optgroup>
+              <optgroup label="Otro Cliente">
+                <option value="p2">Otra Planta Centro (Bogota) - Cll 13 # 15-44</option>
+                <option value="p3">Otra Planta Fontibon (Bogota) - Cll 13 # 105-44</option>
+                <option value="p4">Otra Bodega Puerto (Buenventura) - Puerto Buenaventura</option>
+                <option value="p4">Otra Bodega Puerto (Cartagena) - Puerto Buenaventura</option>
+                <option value="p4">Otra Bodega Puerto (Santa Marta) - Puerto Buenaventura</option>
+                <option value="p4">Otra Planta Tocancipa (Tocancipa) - Cll 5 # 25-66</option>
+                <option value="p4">Otra Planta Mosquera (Mosquera) - P.I Los Cerezos Bodega 6</option>
+              </optgroup>
+            </select>
+            <label class="control-label">Contactos de Destino</label>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                <th style="width:30%;">Contacto</th>
+                <th style="width:30%;">Telefono</th>
+                <th style="width:40%;">E-mail</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="success">
+                  <td class="cell-detail"> <span>%contacto%</span><span class="cell-detail-description">%cargo%</span></td>
+                  <td class="cell-detail"> <span>%celular%</span><span class="cell-detail-description">%telefono%</span></td>
+                  <td class="cell-detail"> <span>%e-mail%</span></td>
+                </tr>
+                <tr class="success">
+                  <td class="cell-detail"> <span>%contacto%</span><span class="cell-detail-description">%cargo%</span></td>
+                  <td class="cell-detail"> <span>%celular%</span><span class="cell-detail-description">%telefono%</span></td>
+                  <td class="cell-detail"> <span>%e-mail%</span></td>
+                </tr>
+                <tr class="success">
+                  <td class="cell-detail"> <span>%contacto%</span><span class="cell-detail-description">%cargo%</span></td>
+                  <td class="cell-detail"> <span>%celular%</span><span class="cell-detail-description">%telefono%</span></td>
+                  <td class="cell-detail"> <span>%e-mail%</span></td>
+                </tr>
+                <tr class="success">
+                  <td class="cell-detail"> <span>%contacto%</span><span class="cell-detail-description">%cargo%</span></td>
+                  <td class="cell-detail"> <span>%celular%</span><span class="cell-detail-description">%telefono%</span></td>
+                  <td class="cell-detail"> <span>%e-mail%</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-12">
+            <button data-wizard="#wizard1" class="btn btn-default btn-space wizard-previous">Atrás</button>
+            <button data-wizard="#wizard1" class="btn btn-primary btn-space wizard-next">Siguiente</button>
+          </div>
+        </div>
+      </form>
+    </div>
+	';
+
+	/**** PASO 3 ****/
+	$step_subform.= '
+        <div data-step="3" class="step-pane">
+          <form action="#" data-parsley-namespace="data-parsley-" data-parsley-validate="" novalidate="" class="form-horizontal group-border-dashed">
+            <div class="form-group no-padding">
+              <div class="col-sm-7">
+                <h3 class="wizard-title">Selección de Materiales</h3>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-6">
+                <label class="control-label">Material</label>
+                <select class="select2 select2-hidden-accessible" tabindex="-1" id="id_material" name="id_material" aria-hidden="true">
+                  <option value="" disabled selected>Seleccione</option>
+                  <option value="1">%codigo_cliente% - Gas Licuado</option>
+                  <option value="2">%codigo_cliente% - Bicarbonato de sodio</option>
+                  <option value="3">%codigo_cliente% - Sulfuro de Potacio</option>
+                  <option value="4">%codigo_cliente% - Nitrato de amonio</option>
+                  <option value="5">%codigo_cliente% - Oxigeno Liquido</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <label class="control-label">Cantidad</label>
+                <input type="number" min="0" name="cantidad" id="cantidad" placeholder="cantidad" class="form-control" required>
+              </div>
+              <div class="col-sm-2">
+                <div class="icon-container" id="agrega_material">
+                  <div class="icon">
+                    <span class="mdi mdi-plus"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+
+
+
+              <div class="col-sm-2"></div>
+              <div class="col-sm-6">
+                <table class="table table-striped table-hover" id="tabla-material">
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col-sm-2"></div>
+
+
+
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <button data-wizard="#wizard1" class="btn btn-default btn-space wizard-previous">Atrás</button>
+                <button data-wizard="#wizard1" class="btn btn-success btn-space wizard-next">Guardar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+	';
+
+	/**** SE VINCULAN SUB-FORMULARIOS AL AL FORMULARIO POR PASOS ****/
+	$step_form = str_replace('%step_content%', $step_subform, $step_form);
+	$vista.= $step_form;
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.='
+	    <!-- INICIO JS DEL FORM_WIZARD -->
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script type="text/javascript">
+	      $(document).ready(function(){
+	      	//initialize the javascript
+	      	App.init();
+	      	App.wizard();
+	      });
+	    </script>
+	    <!-- FIN JS DEL FORM_WIZARD -->
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+
+	echo $vista;
+
+
+?>
+
+<!-- maqueta que agrega materiales al formulario -->
+<script type="text/javascript">
+  $('#agrega_material').click(function () {
+    var tabla_materiales = '<tr id="material-file"><td class="cell-detail"><span>%material%</span><span class="cell-detail-description">Riesgo -%riesgo%</span></td><td class="cell-detail"><span>%cantidad%</span><span class="cell-detail-description">%unidad-medida%</span></td><td class="actions"><div class="icon"><span class="mdi mdi-delete" id="elimina-fila"></span></div></td></tr>';
+    $( "#tabla-material" ).append(tabla_materiales);
+  });
+
+  // $("#material-file").click(function(){
+  //   id = $(this).index();
+  //   alert(id);
+  // });
+
+</script>
+

@@ -1,0 +1,1101 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$vista = '';
+$table_content='';
+$table_solicitud='';
+if ( isset($this->preestudio) ) { 
+	$arrayPermisos = $this->preestudio->permisosPerfil( $ssn_id_perfil , 111);
+		$_permisos = $arrayPermisos["rowsData"][0];
+	 	$array = $this->preestudio->getTabla_principal();
+	 	
+$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Preestudio
+				<div class="tools">
+          <a id="btn_notificar" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="notificación de seguridad" data-target="#"><span class="icon mdi mdi-notifications-active"></span></a> 
+
+					<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="Agregar" data-target="#crea_vehiculopreestudio"><span class="icon mdi mdi-plus"></span></a> 
+				<!--	<a id="btn_hoy" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="Solicitudes Canceladas" data-target="#solicitud_dia"><span class="icon mdi mdi-brightness-2"></span></a> -->
+
+				</div>
+				<span class="panel-subtitle">Mòdulo para la solicitud de prefiltro.</span>
+			</div>
+			<div class="panel-body">
+				<div class="nexos-messages"></div>
+				<div class="nexos-content">
+					%content%
+				</div>
+				<div class="row">
+				<div class="col-sm-12"></div>
+				</div>
+			</div>
+		</div>
+'; 
+
+	$table_content.='
+<div class="col-xs-12 col-sm-12 col-md-12">
+<div class="form-group col-xs-6 col-sm-6 col-md-3">
+	<label>Seleccione el estado</label>
+	<select  class="form-control input-sm" id="cotice">
+    <option value="t">Todos</option>
+		<option value="iniciado">Iniciado</option>
+		<option value="rechazado">Rechazado</option>
+		<option value="pendiente">Pendiente</option>
+		<option value="aprobado">Aprobado</option>
+		<option value="cancelado">Cancelado</option>
+	</select>
+</div>
+<div class="form-group col-xs-6 col-sm-6 col-md-3">
+	<label>Fecha Inicial</label>
+	<input type="date" id="fecha_inicial" date-format="yyyy/mm/dd" class="form-control input-sm"
+     value="'.  date('Y-m-d') .'">
+</div>
+<div class="form-group col-xs-6 col-sm-6 col-md-3">
+	<label>Fecha Final</label>   
+    <input type="date" id="fecha_final" date-format="yyyy/mm/dd" class="form-control input-sm"  
+    value="'.  date('Y-m-d') .'"  >   
+</div>
+<div class="form-group col-xs-6 col-sm-6 col-md-3">
+	<label></label>
+	<button class="form-control input-sm btn btn-info mdi mdi-search" id="consulte"  onclick="solicitudes();" >
+		Consultar
+	</button>
+</div>
+</div>
+';	
+
+$table_content.='
+<div id="esconder">
+<div class="row" >
+	<div class="col-sm-12">
+		<div  class="table-responsive noSwipe">
+  			<table id="table1" class="table table-striped table-hover table-fw-widget">
+                <thead>
+                   <tr>
+                    <th>#</th>
+                    <th>N° Solicitud</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Vehiculo</th>
+                    <th>Estado Solicitud</th>
+                    <th>Acción</th>
+                   </tr>
+                </thead>
+                <tbody id="body_esconder">
+                </tbody>
+           	</table>
+		</div>
+	</div>
+	</div>
+</div>';
+
+
+ $table_solicitud.="
+			<div class='row' >
+						<div class='col-sm-12'>
+							<div  class='table-responsive noSwipe'>
+								<table id='table1' class='table table-striped table-hover' data-page-length='100'>
+									<thead>
+										<tr class='nexos-encabezado'>
+											<th>#</th>
+											<th>Nº solicitud</th>
+											<th>Fecha</th>
+											<th>vehiculo</th>
+											<th>Acciones</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+								</div>
+							</div>
+						</div>";
+}?>
+
+<div id="crea_vehiculopreestudio" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+		<div class=".modal-dialog-modal-lg.modal-dialog ">
+		<div class="modal-content ">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title">Crear Solicitudes</h3>
+			</div>
+			<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+			<div id="nexos_messages_popup"></div>
+			<!--CABECERA-->
+			<div class="row">
+				<h3><p class="text-center" style="font-size:20pt; font-weight:500; color:#2E2E2E;">Consultar vehículo por placa</p></h3>
+				<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+					<label>Placa:</label>
+					<input type="text" id="placa" class="form-control input-sm">					
+				</div>
+				<div class="col-xs-12 col-md-3 col-sm-3 col-lg-3">
+					<br><button class="btn btn-primary"  onclick="consultar_placa();">Buscar</button>
+				</div>
+				<div class="col-xs-12 col-md-3 col-sm-3 col-lg-3">
+					<br><button class="btn btn-warning" id="registre_carro">Ingresar Vehículo</button>
+				</div>
+				
+			</div>
+      <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12" id="mensaje_vehiculo_bloquear"></div>
+			<div class="col-xs-6 col-sm-12 col-md-12 col-lg-12" id="mensaje_inciado"></div>
+			<!--CUERPO EDITAR PREESTUDIO-->
+			<div class="row" style="padding-right:15px; padding-left:15px; padding-bottom:15px;  padding-top:15px;" id="diveditardatos">
+
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<p class="text-left" style="font-size:10pt; font-weight:500; color:#2E2E2E;">Señor Usuario recuerde que podra actualizar datos siempre y cuando su solicitud  este en proceso por parte del área de seguridad</p>
+			</div>	
+			 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"    class="editedatosvehiculo">
+            <div id="accordion1" class="panel-group accordion" >
+                <div class="panel panel-default" id="update_preestudy">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#edite_vehiculo"><i class="icon mdi mdi-chevron-down"></i>Editar datos del vehículo</a></h4>
+                  </div>
+                  <div id="edite_vehiculo" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                        <label>Tipología del vehículo</label>
+                          <div class="form-group">
+                      <label class="col-sm-3 control-label">Seleccione</label>
+                      <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="be-radio inline">
+                          <input type="radio" checked="" name="rad3" id="rad8" value="1">
+                          <label for="rad8">Vehículo Nuevo</label>
+                        </div>
+                        <div class="be-radio inline">
+                          <input type="radio" checked="" name="rad3" id="rad9" value="2">
+                          <label for="rad9">Vehículo Habilitar</label>
+                        </div>
+                        <div class="be-radio inline">
+                          <input type="radio" checked="" name="rad3" id="rad6" value="3">
+                          <label for="rad6">Vehículo Actualizar</label>
+                        </div>
+                        <div class="be-radio inline">
+                          <button tyoe="button" class="btn btn-secondary btn btn-sm mdi mdi-balance" id="btm_estatus"  data-toggle="modal" data-target="#estado_carprees"></button>
+                        </div>
+                      </div>
+                    </div>
+                </div>  
+                    	<div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    		<label>Número</label>
+                    		<input type="text" id="e_consecutivo" class="form-control input-sm" disabled="disabled">
+                    	</div>
+                    	<div class="col-xs-12 col-md-8 col-sm-8 col-lg-8">
+                    		<label>Placa Vehículo</label>
+                    		<input type="text" id="e_placa" class="form-control input-sm" disabled="disabled">
+                    	</div>	
+                    	<div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    		<label>Placa Trailer</label>
+                    		<input type="text" id="e_trailer" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    		<label>Web Satélital</label>
+                    		<input type="text" id="e_web" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    		<label>Usuario Satélital</label>
+                    		<input type="text" id="e_usuario" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    		<label>Clave</label>
+                    		<input type="text" id="e_clave" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    		<label>Nombre Propietario</label>
+                    		<input type="text" id="e_propietario" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    		<label>Documento</label>
+                    		<input type="number" id="e_numpro" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    		<label>Nombre Tenedor</label>
+                    		<input type="text" id="e_tenedor" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    		<label>Documento</label>
+                    		<input type="number" id="e_numtene" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    		<label>Nombre Conductor</label>
+                    		<input type="text" id="e_conductor" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    		<label>Documento</label>
+                    		<input type="number" id="e_numcondu" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    		<input type="hidden" id="ecab" value="2">
+                    		<input type="hidden" id="refi" value="3">
+                    		<input type="hidden" id="total_edicion" >
+                    	</div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><br>
+        							<table class="table" id="editar_table_ref" >
+        							   <thead>
+        	               </thead>
+                         <tbody>
+                         </tbody>
+        							</table>
+						        </div>
+                    </div>
+                  </div>
+                </div>
+                <!--Acordeon para actualizar la solicitud -->
+                <div class="panel panel-default" id="update_sol">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#edite_solicitud" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>Editar datos de la solicitud</a></h4>
+                  </div>
+                  <div id="edite_solicitud" class="panel-collapse collapse">
+                    <div class="panel-body">
+                    	<div class="col-xs-12 col-md-9 col-sm-9 col-lg-9">
+                    		<label>Nombre del Cliente</label>
+                    		<input type="text" id="scliente" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                    		<label>N° Solicitud</label>
+                    		<input type="text" id="sconsecutivo" class="form-control input-sm" readonly="readonly">
+                    	</div>
+                      <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12">
+                        <label>Observación</label>
+                        <textarea class="form-control input-sm" id="sobserve" ></textarea>
+                      </div>
+                    	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    		<label>Fecha</label>
+                    		<input type="text" id="sfecha" class="form-control input-sm" value="<?php echo date('Y-m-d');  ?>" readonly="readonly">
+                    	</div>
+                    	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    		<label>Hora</label>
+                    		<input type="text" id="shora" class="form-control input-sm" value="<?php echo date('H:i:s'); ?>" readonly="readonly" >
+                    	</div>
+                    	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    		<label>Usuario</label>
+                    		<input type="text" id="suser" class="form-control input-sm" value="<?php echo $ssn_nombre;  ?>" readonly="readonly">
+                    	</div>
+                    </div>
+                  </div>
+                </div>
+                <!--Acordeon para registrar nuva solicitud -->
+                 <div class="panel panel-default" id="new_sol">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#nueva_solicitud" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>Agregar datos de la nueva solicitud</a></h4>
+                  </div>
+                  <div id="nueva_solicitud" class="panel-collapse collapse">
+                    <div class="panel-body">
+                    	<div class="col-xs-12 col-md-9 col-sm-9 col-lg-9">
+                    		<label>Nombre del Cliente</label>
+                    		<input type="text" id="scliente_new" class="form-control input-sm">
+                    	</div>
+                    	<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                    		<label>N° Solicitud</label>
+                    		<input type="text" id="sconsecutivo_antes" class="form-control input-sm" readonly="readonly">
+                    	</div>
+                    	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    		<label>Fecha</label>
+                    		<input type="text" id="fecha_new" class="form-control input-sm" value="<?php echo date('Y-m-d');  ?>" readonly="readonly">
+                    	</div>
+                    	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    		<label>Hora</label>
+                    		<input type="text" id="hora_new" class="form-control input-sm" value="<?php echo date('H:i:s'); ?>" readonly="readonly" >
+                    	</div>
+                    	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    		<label>Usuario</label>
+                    		<input type="text" id="user_new" class="form-control input-sm" value="<?php echo $ssn_nombre;  ?>" readonly="readonly">
+                    	</div>
+                      <div class="col-xs-6 col-sm-12 
+                      col-md-12 col-lg-12">
+                        <label>Observaciones</label>
+                        <textarea id="observacion_new" class="form-control"></textarea>
+                      </div> 
+                    </div>
+                  </div>
+                </div>
+            </div>
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                   	<button class="btn btn-success" id="btn_editarpreestudio">Actualizar P-S</button>
+                   	<button id="crear" class="btn btn-warning">Crear Solicitud</button>
+               </div>
+            </div>
+
+			
+			</div>	
+<!--CUERPO DEL VEHICULO PREESTUDIO CREAR PREESTUDIO-->
+		<div class="row" style="padding-right:15px; padding-left:15px; padding-bottom:15px;  padding-top:15px;" id="divdatos" >
+			 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div id="accordion1" class="panel-group accordion">
+          <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseThree" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>DATOS DEL VEHÍCULO</a></h4>
+                  </div>
+                  <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                    	<div class="sms"></div>
+                <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    		<label>Tipología del vehículo</label>
+                    		  <div class="form-group">
+                      <label class="col-sm-3 control-label">Seleccione</label>
+                      <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="be-radio inline">
+                          <input type="radio" checked="" name="rad3" id="rad1" value="1">
+                          <label for="rad1">Vehículo nuevo</label>
+                        </div>
+                        <div class="be-radio inline">
+                          <input type="radio" checked="" name="rad3" id="rad2" value="2">
+                          <label for="rad2">Vehículo habilitar</label>
+                        </div>
+                        <div class="be-radio inline">
+                          <input type="radio" checked="" name="rad3" id="rad3" value="3">
+                          <label for="rad3">Vehículo actualizar</label>
+                        </div>
+                      </div>
+                    </div>
+                </div>	
+                    	<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+						<label>Placa Vehiculo</label>
+						<input type="text" id="placag" class="form-control input-sm">
+						</div>
+						<div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+							<label>Placa Trailer</label>
+							<input type="text" id="placat" class="form-control input-sm">
+						</div>
+						<div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+							<label>Web Sátelital</label>
+							<input type="text" id="web" class="form-control input-sm">					
+						</div>
+						<div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+							<label>Usuario</label>
+							<input type="text" id="user_satelite" class="form-control input-sm">
+						</div>
+						<div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+							<label>Clave</label>
+							<input type="text" id="clave" class="form-control input-sm">
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>Nombre Propietario</label>
+							<input type="text" id="nompro" class="form-control input-sm">
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>Documento</label>
+							<input type="number" id="docupro" class="form-control input-sm">
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>Nombre Tenedor</label>
+							<input type="text" id="nomtene" class="form-control input-sm">
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>Documento</label>
+							<input type="number" id="docutene" class="form-control input-sm">
+						</div>	
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">		
+							<label>Nombre Conductor</label>
+							<input type="text" id="nomcondu" class="form-control input-sm">
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>Documento</label>
+							<input type="number" id="docucondu" class="form-control input-sm">
+						</div>	
+            <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                 <button class="btn btn-info " id="btn_cab">GUARDAR CABECERA</button>
+             </div> 
+
+				</div>
+    </div>
+  </div>
+<!--REFERENCIAS COARDEON 2-->
+     <div class="panel panel-default" id="a2">
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseref" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>REFERENCIAS</a></h4>
+                  </div>
+                  <div id="collapseref" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      
+                      <div class="col-xs-6 col-sm-2 col-md-2 col-lg-2" style="margin-top:10px; text-align:center; ">
+                        <button  class=" form-control btn btn-info mdi mdi-plus input-xs text-center" data-toggle="tooltip" data-placement="top" title="Agregar fila" id="agregar_fila">
+                       </button>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                      <h2><p class="text-center text-info">Referencias  Laborales</p></h2><br>
+                    </div>  
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                      <table class="table table-info" id="table_mercancia" >
+                        <thead style="border-color:blue;">   
+                                </thead>
+                                 <tbody>
+                                 </tbody>
+                              </table>
+                    </div>
+                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <input type="hidden" id="cab" value="1">
+                      <input type="hidden" id="ref" value="2">
+                  </div>
+                  <!--cierre del acordeon 2-->
+          </div>
+       </div>
+   </div>
+
+
+      <!--SOLICITUD ACORDEON 3 -->          
+    <div class="panel panel-default" id="s3" >
+                  <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseFour" class="collapsed"><i class="icon mdi mdi-chevron-down"></i> DATOS DE LA SOLICITUD</a></h4>
+                  </div>
+                  <div id="collapseFour" class="panel-collapse collapse">
+                    <div class="panel-body"> 
+
+
+
+                      
+                  <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+      							<label>Nombre del Cliente</label>
+      							<input type="text" id="nombre_cliente" class="form-control input-sm">
+						      </div>
+						<div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+							<label>Fecha</label>
+							<input type="text" id="fpree" value="<?php echo date('Y-m-d'); ?>" class="form-control input-sm"  readonly="readonly">
+						</div>	
+						<div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+							<label>Hora</label>
+							<input type="text" id="hpree" value="<?php echo date('H:i:s'); ?>"  class="form-control input-sm"  readonly="readonly">
+						</div>
+						<div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+							<label>Usuario</label>
+							<input type="text" id="userpree" class="form-control input-sm" value="<?php echo $ssn_nombre; ?>" readonly="readonly">
+						</div>
+						<div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+							<label>Observaciones</label>
+							<textarea id="obserpree" class="form-control input-sm"></textarea>
+						</div>
+                    </div>
+                  </div>
+    </div>
+              </div>
+              <!--GUARDAR SOLO  -->
+              	<div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+					<button id="crear_preestudio" class="btn btn-success">Guardar</button>
+				<!--GUARDAR CON UPDATE EN CMX_VEHICULOS-->	
+					<button id="crear_preestudio2" class="btn btn-primary">Guardar</button>
+				</div>
+            </div>
+	</div>
+	<!--CUERPO DE LA SOLICITUD-->
+	</div>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close" id="cierremodal"  >Cancelar</button>
+		</div>
+	</div>
+	</div>
+</div>
+
+<!--SOLICITUDES DIARIAS -->
+<div id="solicitud_dia" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+		<div class=".modal-dialog-modal-lg.modal-dialog ">
+		<div class="modal-content ">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title">Solicitudes Canceladas</h3>
+			</div>
+			<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+			<div id="nexos_messages_popup"></div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					
+
+
+					<div class='row' >
+						<div class='col-sm-12'>
+							<div  class='table-responsive noSwipe'>
+								<table id='table1' class='table table-striped table-hover' data-page-length='100'>
+									<thead>
+										<tr class='nexos-encabezado'>
+											<th>#</th>
+											<th>Nº solicitud</th>
+											<th>Fecha</th>
+											<th>vehiculo</th>
+											<th>Acciones</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+								</div>
+							</div>
+						</div>
+
+				</div>	
+			</div>
+			</div>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	</div>
+	</div>
+</div>
+
+<!--ver Solicitudes tabla principal-->
+<div id="versolicitud" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+		<div class=".modal-dialog-modal-lg.modal-dialog ">
+		<div class="modal-content ">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title">Solicitudes</h3>
+			</div>
+			<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+			<div id="nexos_messages_popup"></div>
+			<div class="row">
+        <label id="estado_ver" style="font-size:16pt; font-weight:500; color:#2E2E2E;"></label>
+				<br><h4 class="text-center" style="font-size:20pt; font-weight:500; color:#2E2E2E;"><strong>Datos de la Solicitud</strong></h4>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<label>Cliente</label>
+					<input type="text" id="vcliente" class="form-control input-sm text-center" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" >
+					<label>Id Solicitud</label>
+					<input type="text" id="vid" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Placa</label>
+					<input type="text" id="vplaca" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Consecutivo</label>
+					<input type="text" id="vconse" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Fecha</label>
+					<input type="text" id="vfecha" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Hora</label>
+					<input type="text" id="vhora" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Usuario</label>
+					<input type="text" id="vuser" class="form-control input-sm" readonly="readonly">
+				</div></div>
+				<div class="row">
+				<br><h4 class="text-center" style="font-size:20pt; font-weight:500; color:#2E2E2E;"><strong>Datos del Vehículo</strong></h4>
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+					<label>Nombre Propietario</label>
+					<input type="text" id="vpropi" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Documento</label>
+					<input type="text" id="vpdocumento" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+					<label>Nombre Tenedor</label>
+					<input type="text" id="vtene" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Documento</label>
+					<input type="text" id="vtdocumento" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+					<label>Nombre Conductor</label>
+					<input type="text" id="vcondu" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Documento</label>
+					<input type="text" id="vcdocumento" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+					<label>Web</label>
+					<input type="text" id="vweb" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+					<label>Usuario</label>
+					<input type="text" id="vwuser" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+					<label>clave</label>
+					<input type="text" id="vwclave" class="form-control input-sm" readonly="readonly">
+				</div>	
+			</div>
+			<!-- REFERENCIAS-->
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<br><h4 class="text-center" style="font-size:20pt; font-weight:500; color:#2E2E2E;"><strong>Referencias</strong></h4>
+				<div class="panel-body">
+		                  <table class="table">
+		                    <thead style="text-align:left; 
+                        color:white; background-color:#33b5e5;" 
+                        >
+		                      <tr>
+		                        <th style="width:30%;">Empresa</th>
+		                        <th style="width:15%;">Ingreso</th>
+		                         <th style="width:15%;">Retiro</th>
+		                        <th style="width:20%;">Contacto</th>
+		                        <th style="width:15%;">Celular</th>
+		                        <th style="width:15%;">Cargo</th>
+		                      </tr>
+		                    </thead>
+		                    <tbody id="consulta_referencia"> 
+		                    </tbody>
+		                  </table>
+		        </div>
+
+
+			</div>
+
+			</div>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
+<!--editar solicitud tabla filtros -->
+<div id="editesolicitud" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+		<div class=".modal-dialog-modal-lg.modal-dialog ">
+		<div class="modal-content ">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title">Editar Solicitud</h3>
+			</div>
+			<div class="modal-body"  style=" margin-top:20pt; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+			<div id="nexos_messages_popup"></div>
+				<div class="row">
+         <label id="estado_edi"  style="font-size:16pt; font-weight:500; color:#2E2E2E;"></label>
+				<br><h4 class="text-center" style="font-size:20pt; font-weight:500; color:#2E2E2E;"><strong>Datos de la Solicitud</strong></h4>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" >
+					<label>Id Solicitud</label>
+					<input type="text" id="eid" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Placa</label>
+					<input type="text" id="eplaca" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Consecutivo</label>
+					<input type="text" id="econse" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Fecha</label>
+					<input type="text" id="efecha" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Hora</label>
+					<input type="text" id="ehora" class="form-control input-sm" readonly="readonly">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Usuario</label>
+					<input type="text" id="euser" class="form-control input-sm" readonly="readonly">
+				</div>
+			</div>
+			<div class="row">
+				<br><h4 class="text-center" style="font-size:20pt; font-weight:500; color:#2E2E2E;"><strong>Datos del Vehículo</strong></h4>
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+					<label>Cliente</label>
+					<input type="text" id="ecliente" class="form-control input-sm text-center" >
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Placa Trailer</label>
+					<input type="text" id="etrailer" class="form-control input-sm text-center" >
+				</div>
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+					<label>Nombre Propietario</label>
+					<input type="text" id="epropi" class="form-control input-sm" >
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Documento</label>
+					<input type="text" id="epdocumento" class="form-control input-sm" >
+				</div>
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+					<label>Nombre Tenedor</label>
+					<input type="text" id="etene" class="form-control input-sm" >
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Documento</label>
+					<input type="text" id="etdocumento" class="form-control input-sm" >
+				</div>
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+					<label>Nombre Conductor</label>
+					<input type="text" id="econdu" class="form-control input-sm">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Documento</label>
+					<input type="text" id="ecdocumento" class="form-control input-sm" >
+				</div>
+				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+					<label>Web</label>
+					<input type="text" id="eweb" class="form-control input-sm" >
+				</div>
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+					<label>Usuario</label>
+					<input type="text" id="ewuser" class="form-control input-sm" >
+				</div>
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+					<label>clave</label>
+					<input type="text" id="ewclave" class="form-control input-sm" >
+				</div>
+				
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<br><h3 class="text-center" style="font-size:20pt; font-weight:500; color:#2E2E2E;"><strong>Referencias Laborales Actuales</strong></h3>
+					<div class="panel-body">
+		                  <table class="table" id="editar_table_actual">
+		                    <thead>
+		                    </thead>
+		                    <tbody>
+		                    </tbody>
+		                  </table>
+		        </div>
+				</div> 
+			</div>	
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<input type="hidden" id="s_cab" value="2">
+					<input type="hidden" id="s_ref" value="3">
+					<input type="hidden" id="s_total_refe">
+				</div>
+			</div>
+			</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-success" id="actualizar_solicitud">Actualizar</button>
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	</div>
+	</div>
+</div>
+
+<!--registrar mas referencias -->
+<div id="mas_referencias" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h2 class="modal-title" id="editar_title">
+						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">Agregar o Eliminar Referencias a la Solicitud</label>
+						</h2>
+					</div>
+				<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+						<div id="msg_editar"></div><!-- id para manejar los mensajes de errordel popup -->
+				<div id="content_editar">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+          <label>N° Solicitud</label>
+          <input type="text" id="num_preestudio" class="form-control input-sm text-center" readonly="readonly">
+        </div><br>
+          <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><br>
+             <br>
+              <table class="table">
+                    <thead>
+                      <tr  style="text-align:left;color:white; background-color:#33b5e5;">
+                        <th style="width:14.3%;">
+                         #
+                        </th>
+                        <th style="width:14.3%;">Empresa</th>
+                        <th style="width:14.3%;">Fecha ingreso</th>
+                        <th style="width:14.3%;">Fecha Retiro</th>
+                        <th style="width:14.3%;">Contacto</th>
+                        <th style="width:14.3%;">Telefono</th>
+                        <th style="width:14.3%;">Cargo</th>
+                      </tr>
+                    </thead>
+                    <tbody id="elimine_ref" >
+                      
+                    </tbody>
+              </table>
+            </div>
+          </div><br>
+				<div class="row">
+				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6"><br>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+						<button  class=" form-control btn btn-info mdi mdi-plus input-xs text-center" data-toggle="tooltip" data-placement="top" title="Agregar fila" id="agregar_fila_edit">
+				  </button>
+        </div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<div class="panel-body">
+		                  <table class="table" id="masreferencia">
+		                    <thead>
+		                    </thead>
+		                    <tbody>
+		                    </tbody>
+		                  </table>
+		       		 </div>
+				</div>
+						</div>
+						</div>
+					<div class="modal-footer">
+						<button id="aumento_referencia" type="button" class="btn btn-success md-close">Guardar</button>
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+</div>
+
+<!--Respuestas de seguridad status -->
+<div id="respuesta_seguridad" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+    <div class=".modal-dialog-modal-lg.modal-dialog ">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title">Respuestas de Seguridad</h3>
+      </div>
+      <div class="modal-body"  style=" margin-top:20pt; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+      <div id="nexos_messages_popup"></div>
+      <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+          <label>Placa</label>
+          <input type="text" id="rplaca" class="form-control input-sm text-center" readonly="readonly" >
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+           <h4 class="text-center text-primary"><strong>Respuestas area de Seguridad</strong></h4>
+        </div><br>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <div class="panel-body">
+            <table class="table">
+              <thead style=" text-align:left; color:white; background-color:#33b5e5;">
+                <tr>
+                  <th>Estado</th>
+                  <th>Causalidad</th>
+                  <th>Usuario</th>
+                  <th>Fecha / Hora</th>
+                </tr>
+              </thead>
+              <tbody id="respuestas_seguridad">
+              </tbody>
+            </table>
+            </div>
+        </div> 
+      </div>  
+      <div class="row">
+      </div>
+      </div>
+    <div class="modal-footer">
+      <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!--status tabla filtros -->
+<div id="vertrazo" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+    <div class=".modal-dialog-modal-lg.modal-dialog ">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title">Status</h3>
+      </div>
+      <div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+      <div id="nexos_messages_popup"></div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <table class="table">
+                    <thead style="text-align:left; ">
+                      <tr>
+                        <th style="width:20%;">Área</th>
+                        <th style="width:20%;">Estado</th>
+                        <th style="width:20%;">Fecha</th>
+                        <th style="width:20%;">Hora</th>
+                        <th style="width:20%;">Usuario</th>
+                      </tr>
+                    </thead>
+                    <tbody id="body_status">
+                    </tbody>
+                  </table>
+        </div>
+      </div>
+      </div>
+    <div class="modal-footer">
+      <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+<!--estados del VEHICULO tabla cmx_vehiculos_preestudio_estado -->
+<div id="estado_carprees" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+    <div class=".modal-dialog-modal-lg.modal-dialog ">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title">Status del Vehículo</h3>
+      </div>
+      <div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+      <div id="nexos_messages_popup"></div>
+      <div>
+        <label>Placa</label>
+        <input type="text" id="plaqui" class="form-control input-sm" readonly="readonly">
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <table class="table">
+            <thead style="text-align:left; ">
+              <tr>
+                <th style="width:25%;">Estado</th>
+                <th style="width:25%;">Fecha</th>
+                <th style="width:25%;">Hora</th>
+                <th style="width:25%;">Usuario</th>
+              </tr>
+            </thead>
+            <tbody id="body_estado">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div>
+    <div class="modal-footer">
+      <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+
+
+
+<?php
+$vista.= '
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+
+			<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/preestudio_ajax.js" type="text/javascript"></script>
+			<script src="%root_file%js/main.js" type="text/javascript"></script>
+			<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+			<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+			<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+			<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+
+			<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+			<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+			<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+			<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+			<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+			<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+			<script type="text/javascript">
+				$.fn.niftyModal(\'setDefaults\',{
+					overlaySelector: \'.modal-overlay\',
+					closeSelector: \'.modal-close\',
+					classAddAfterOpen: \'modal-show\',
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+					App.dataTables();
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+					App.wizard();
+				});
+			</script>
+';
+
+$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+$vista = str_replace("%content%" , $table_content , $vista);
+echo $vista;
+
+?>
+<script type="text/javascript">
+$(document).ready(function(){
+  $("#btm_estatus").click(function(){
+    	var url2 =$("#id_url_ajax").val() + "libs/preestudio2_ajax.php";
+      // alert('jshdsg');
+      placaA=$("#placa").val();
+      $("#plaqui").val(placaA);
+    		//traer el parametro de control hora
+    		var param={
+          placa:placaA,
+    			action:'estado_vehiculos'
+    		};
+
+      $("#body_estado").html(''); 
+      $.ajax({
+       url:url2,
+       type:'POST',
+       data:param,
+       dataType:'json',
+       success: function(data){
+       console.log('si trajo estados del vehiculo');
+          if(data){
+            data.result.forEach(function(element,index){
+              $("#body_estado").append('<tr>'+
+                '<td>'+element.estado_vehiculo+'</td>'+
+                '<td>'+element.fecha+'</td>'+
+                '<td>'+element.hora+'</td>'+
+                '<td>'+element.usuario+'</td>'+
+                '</tr>');
+            });
+          }
+       },
+       error: function(jqXHR, textStatus, errorThrown){
+          console.log('no hay estados para el vehiculo');
+          console.log(jqXHR);
+          console.log(textStatus);
+          console.log(errorThrown);
+       }
+     });
+    	// 	$.ajax({
+    	// 	url:url2,
+    	// 	type:'POST',
+    	// 	data:param,
+    	// 	dataType:'json',
+    	// 	success: function(data){
+    	// 		console.log('si hay parametro');
+    	// 		if(data.result!=null){
+    	// 			//parametro
+    	// 			var horap=data.result[0].hora;
+    	// 			//fecha y hora actual
+    	// 			var fecha_hoy =moment().format('YYYY-MM-DD');
+    	// 			var hora_hoy=moment().format('HH:mm:ss');
+    	// 			//fecha final
+    	// 			var fecha_final =moment().format('YYYY-MM-DD');
+    	// 			//FECHA INICIAL
+    	// 			alert(horap);
+    	// 			alert(fecha_hoy);
+    	// 			alert(hora_hoy);
+    	// 			//restar fecha y hora actual - parametro
+
+    	// 		}else if(data.result==null){
+    	// 			alert('No Existe Ninguna Hora Registrada, Por Favor Ingrese una en el Módulo Parámetros');
+    	// 		}
+    	// 	},
+    	// 	error: function(jqXHR, textStatus, errorThrown){
+    	// 		console.log('no hay parametro');
+    	// 		console.log(jqXHR);
+    	// 		console.log(textStatus);
+    	// 		console.log(errorThrown);
+    	// 	}
+    	// });
+
+  });
+  //boton luna
+
+
+
+	});
+</script>

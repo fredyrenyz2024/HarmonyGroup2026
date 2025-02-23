@@ -1,0 +1,832 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$vista = '';
+$table_content='';
+if (isset($this->automatico) ) { 
+$arrayPermisos = $this->automatico->permisosPerfil( $ssn_id_perfil , 131);
+$_permisos = $arrayPermisos["rowsData"][0];
+
+$vista.="
+<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 msg_tabla'>
+</div>
+<div class='form-group col-xs-4 col-sm-4 col-md-4'>
+	<label>Filtrar</label>
+	<select id='filtro' class='form-control input-sm'>
+		<option value='1'>Fecha</option>
+		<option value='2'>Cédula</option>
+		<option value='3'>Placa</option>
+		<option value='4'>Cliente</option>
+	</select>
+</div>
+<div class='col-xs-8 col-sm-8 col-md-8 col-lg-8 espacio1'>
+	<div class='form-group col-xs-4 col-sm-4 col-md-4'>
+	<label>Fecha Inicial</label>
+	<input type='date' id='fecha_inicial' date-format='yyyy/mm/dd' class='form-control input-sm' value='". date('Y-m-d')."' >
+	</div>
+	<div class='form-group col-xs-4 col-sm-4 col-md-4'>
+	<label>Fecha Final</label>   
+    <input type='date' id='fecha_final' date-format='yyyy/mm/dd' class='form-control input-sm' value='". date('Y-m-d')."' >   
+	</div>
+</div>
+
+<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 espacio2'>
+		<label>Cédula</label>
+		<input type='number' class='form-control input-sm'>
+</div>
+
+<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 espaciop'>
+		<label>Placa</label>
+		<input type='text' class='form-control input-sm'>
+</div>
+
+<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 espacio3'>
+	<label>Cliente</label>
+	<select id='cliente' class='form-control input-sm'>
+		<option value=''></option>
+	</select>
+</div>
+
+<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4 espacio4'>
+	<br><button class='btn btn-primary input-sm' title='consulta' onclick='consultar_tabla()'>Buscar
+	</button> &nbsp;
+	<br><br>
+</div>";
+
+$vista.='
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">%content%</div>';
+
+$table_content.='
+	<div  class="table-responsive noSwipe">
+			<table id="table" class="table table-striped table-hover" data-page-length="100">
+			<thead>
+				<tr class="nexos-encabezado">
+					<th>N° servicio</th>	
+					<th>Orden</th>
+					<th>Remesa</th>	
+					<th>Placa</th>
+					<th>Conductor</th>
+					<th>Cliente</th>
+					<th>Manifiesto</th>		
+					<th>Fecha manifiesto</th>
+					<th>Estado</th>
+					<th>Acción</th>
+				</tr>
+			</thead>
+			<tbody id="contenido_tabla">
+			</tbody>
+			</table>';
+
+}?>
+
+<div id="consultar" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+ <div class="modal-dialog custom-width">
+   <div class="modal-content">
+	 <div class="modal-header">
+		<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+		<h3 class="modal-title" id="editar_title">
+			<label id="titulo"style="font-size:20pt; color:white; font-weight:800; ">Datos pertenecientes al cliente</label>
+		</h3>
+	  </div>
+	  <div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+		<div id="msg_edicion_grupo"></div>
+		<div id="content_editar">
+			<div class="row">
+				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+					<label>Placa</label>
+					<input type="text" id="cplaca" class="form-control input-sm" disabled="disabled">
+				</div>
+
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<h4><strong>Grupos asociados al cliente</strong></h4>
+				</div>
+				<div class="col-xs-12 col-sm-12  col-md-12 col-lg-12 ">
+					<table class="table table-bordered">
+						<thead>
+							<th>N° servicio</th>
+							<th>Contacto</th>
+							<th>Teléfono</th>
+							<th>Cargo</th>
+							<th>Área</th>
+							<th>Email</th>
+						</thead>
+						<tbody id="tbgrupo">
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<h4><strong>Datos de seguimiento</strong></h4>
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table class="table table-bordered">
+						<thead>
+							<th>Estado</th>
+							<th>Fecha</th>
+							<th>Hora</th>
+							<th>Usuario</th>		
+						</thead>
+						<tbody id="tbestado">
+						</tbody>
+					</table>
+					<table class="table table-bordered">
+						<thead>
+							<th>N°</th>
+							<th>Tipo seguimiento</th>
+							<th>Detalle</th>
+							<th>Detalle 2</th>
+							<th>fecha</th>
+							<th>Hora</th>
+							<th>Usuario</th>
+							<th>Reporta cliente</th>
+						</thead>
+						<tbody id="tbseguimiento">
+						</tbody>
+					</table>
+				</div>
+			</div>	
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<h4><strong>Horas programadas</strong></h4>
+					<table class="table table-bordered">
+						<thead>
+							<th>Cliente</th>
+							<th>Hora</th>
+							<th>Fecha inicio</th>
+							<th>Fecha fin</th>
+						</thead>
+						<tbody id="horaprog">
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<h4><strong>Emails enviados</strong></h4>
+					<table class="table table-bordered">
+						<thead>
+							<th>Id servicio</th>
+							<th>Usuario</th>
+							<th>fecha envío</th>
+							<th>hora envío</th>
+							<th>Fechas programadas</th>
+							<th>Hora programada</th>
+							<th>Modo</th>	
+						</thead>
+						<tbody id="tbemailsenviados">
+						</tbody>
+					</table>
+				</div>	
+			</div>
+
+		</div>	
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	   </div>
+    </div>
+  </div>
+</div>
+
+<div id="manual_envio" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+ <div class="modal-dialog custom-width">
+   <div class="modal-content">
+	 <div class="modal-header">
+		<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+		<h3 class="modal-title" id="editar_title">
+			<label id="titulo"style="font-size:24pt; color:white; font-weight:800; ">Envio correo manualmente</label>
+		</h3>
+	  </div>
+	  <div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+		<div id="msg_manual"></div>
+		<div id="content_manual">
+
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<h4><strong>Grupos</strong></h4>
+			</div>
+			<table class="table table-bordered">
+					<thead>
+						<th>N° servicio</th>
+						<th>Cliente</th>
+						<th>Contacto</th>
+						<th>Teléfono</th>
+						<th>Cargo</th>
+						<th>Área</th>
+						<th>Email</th>
+					</thead>
+					<tbody id="tbgrupod">
+						
+					</tbody>
+				</table>
+		</div>
+
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<h4><strong>Datos de seguimiento</strong></h4>
+				</div>
+				<input type="hidden" id="codigoruta" class="form-control input-sm">
+				<input type="hidden" id="soliservicio" class="form-control input-sm">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table class="table table-bordered">
+						<thead>
+							<th>Estado</th>
+							<th>Fecha</th>
+							<th>Hora</th>
+							<th>Usuario</th>		
+						</thead>
+						<tbody id="tbestadod">
+						</tbody>
+					</table>
+					<table class="table table-bordered">
+						<thead>
+							<th>N°</th>
+							<th>Tipo seguimiento</th>
+							<th>Detalle</th>
+							<th>Detalle 2</th>
+							<th>fecha</th>
+							<th>Hora</th>
+							<th>Usuario</th>
+							<th>Reporta cliente</th>
+						</thead>
+						<tbody id="tbseguimientod">
+						</tbody>
+					</table>
+				</div>
+			</div>	
+		</div>
+		</div>	
+		<div class="modal-footer">
+			<button type="button" id="btnenviomanual" class="btn btn-success">Enviar</button>
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	   </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="suspender" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+ <div class="modal-dialog custom-width">
+   <div class="modal-content">
+	 <div class="modal-header">
+		<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+		<h3 class="modal-title" id="editar_title">
+			<label id="titulo"style="font-size:24pt; color:white; font-weight:800; ">Suspender envio de correo</label>
+		</h3>
+	  </div>
+	  <div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+		<div id="msg_edicion_grupo"></div>
+		<div id="content_editar">
+
+			<div class="row">
+
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>N° ruta</label>
+					<input type="text" id="sucodini" class="form-control input-sm" disabled="disabled">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>N° servicio</label>
+					<input type="text" id="suservi" class="form-control input-sm" disabled="disabled">
+				</div>
+				
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Remesa</label>
+					<input type="text" id="suremesa" class="form-control input-sm" disabled="disabled">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Orden</label>
+					<input type="text" id="suorden" class="form-control input-sm" disabled="disabled">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Placa</label>
+					<input type="text" id="suplaca" class="form-control input-sm" disabled="disabled">
+				</div>
+				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+					<label>Conductor</label>
+					<input type="text" id="suconductor" class="form-control input-sm" disabled="disabled">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Cliente</label>
+					<input type="text" id="sucliente" class="form-control input-sm" disabled="disabled">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Manifiesto</label>
+					<input type="text" id="sumani" class="form-control input-sm" disabled="disabled">
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<label>Fecha Manifiesto</label>
+					<input type="text" id="sufechamani" class="form-control input-sm" disabled="disabled">
+				</div>
+			</div>
+
+			<div class="row">
+				<div  class="col-xs-6 col-sm-6 col-md-6">
+				<label>Estado:</label>
+				<select id="suestado" class="form-control input-sm">
+					<option value="1">Activo</option>
+					<option value="2">Suspendido</option>
+					<option value="3">Completado</option>
+				</select>
+				</div>
+			</div>	
+		</div>	
+		<div class="modal-footer">
+			<button id="btn_cesar" type="button" class="btn btn-success md-close" onclick="">Guardar</button>
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+		</div>
+	   </div>
+    </div>
+  </div>
+</div>
+
+
+
+<?php	
+$vista.= '
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>	
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+		<script src="%root_file%assets/js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+	</script>';
+
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista); 
+	echo $vista;
+?>
+
+<script type="text/javascript">
+var url=$("#id_url_ajax").val()+"libs/trafico2_ajax.php";
+
+$(document).ready(function(){
+var fhoy=moment().format('YYYY-MM-DD');
+var horahoy=moment().format('HH:mm:ss');
+//$("#p_fecha").html('');
+$("#p_fecha").html(fhoy+' - '+horahoy);
+
+$(".espacio1").show();
+$(".espacio2").hide();
+$(".espacio3").hide();
+$(".espacio4").show();
+$(".espaciop").hide();
+
+$("#filtro").change(function(){
+	var t=$("#filtro").val();
+	if(t==1){//fecha
+		$(".espacio1").show();
+		$(".espacio2").hide();
+		$(".espacio3").hide();
+		$(".espaciop").hide();
+		$(".espacio4").show();
+	}
+	if(t==2){
+		$(".espacio1").hide();
+		$(".espacio2").show();
+		$(".espacio3").hide();
+		$(".espacio4").show();
+		$(".espaciop").hide();
+	}
+	if(t==3){
+		$(".espacio1").hide();
+		$(".espacio2").hide();
+		$(".espacio3").hide();
+		$(".espacio4").show();
+		$(".espaciop").show();
+	}
+	if(t==4){
+		$(".espacio1").hide();
+		$(".espacio2").hide();
+		$(".espacio3").show();
+		$(".espacio4").show();
+		$(".espaciop").hide();
+	}
+	});
+});	
+
+$("#btn_cesar").click(function(){
+	var estado=$("#suestado").val();
+	var codini=$("#sucodini").val();
+	var soli_servicio=$("#suservi").val();
+	var susp={
+		status:estado,
+		codini:codini,
+		service:soli_servicio,
+		action:'suspender_correo'
+	};
+	$.ajax({
+		url:url2,
+		type:'POST',
+		data:susp,
+		dataType:'json',
+		success: function(data){
+				alert('Datos Actualizados Exitosamente!!');
+				/*
+				$("#contenido_tabla").html('');
+				consultar_tabla();*/
+				location.reload();
+
+		},
+		error:function(jqXHR, textStatus, errorThrown){
+			alert('ocurrio un error en la suspensión del correo');
+			console.log(jqXHR);
+			console.log(textStatus);
+			console.log(errorThrown);
+		}
+	});
+});
+
+
+$("#btnenviomanual").click(function(){
+	//nombre cliente , correos clientes, mensaje
+	var idfila=$('#tbgrupod tr').length;//cantidad de filas de la tabla
+	var from='';
+	var e , d;
+	var mensaje;
+	var iniruta=$("#codigoruta").val();
+	var service=$("#soliservicio").val();
+	//Recorrer tabla seguimiento
+	//var dos=1;
+	/*for(d=1; d <= $("#tbseguimientod tr").length; d++){
+		for(m=1; m<=d; m++){
+
+			mensaje[d][i]=
+			$('#filas'+m+'').find('td').eq(0).html();
+			$('#filas'+m+'').find('td').eq(1).html();
+			$('#filas'+m+'').find('td').eq(2).html();
+			$('#filas'+m+'').find('td').eq(3).html();
+			$('#filas'+m+'').find('td').eq(4).html();
+			$('#filas'+m+'').find('td').eq(5).html();
+			$('#filas'+m+'').find('td').eq(6).html();
+			$('#filas'+m+'').find('td').eq(7).html();
+		}
+	}*/
+	//Recorrer tabla Grupo
+	var cont=1;
+	for(e=1; e <= $("#tbgrupod tr").length; e++){
+		for(n=1; n<=e; n++){
+		var cliente=$('#fila'+n+'').find('td').eq(1).html();
+		var correo=$('#fila'+n+'').find('td').eq(6).html();
+		}
+		if(cont==1){
+			from=correo;
+		}else if(cont > 1 && cont <= idfila){
+			from=from+','+correo;
+		}
+		cont++;
+	}
+	var data = null;
+	data = new FormData();
+	data.append("accion", 'enviar_correo');
+	data.append("cliente", cliente);
+	data.append("para", from);
+	data.append("iniruta", iniruta);
+	data.append("servicio", service);
+	$.ajax({
+			url:url,
+ 			type:'POST',
+ 			data:data,
+ 			cache: false,
+ 			processData: false,
+ 			contentType: false,
+ 			dataType:'json',
+ 			success: function(data){
+ 				alert('correo enviado Exitosamente!!');
+ 				// console.log('se envio el correo');
+ 				$("html, body").animate({ scrollTop: 0 }, 600);
+					setTimeout(function() { location.reload(false);  }, 800);
+
+ 			},
+ 			error: function(jqXHR, textStatus, errorThrown){
+ 				alert('este correo no ha sido enviado');
+ 				console.log('no envio correo');
+ 				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+ 			}
+ 		});
+
+
+
+
+});
+
+
+var url2=$("#id_url_ajax").val()+"libs/reporte_trafico.php";
+function consultar_tabla(){
+
+	var msg_error='';
+	var f=$("#filtro").val();
+	if(f==1){
+		var f1=$("#fecha_inicial").val();
+		var f2=$("#fecha_final").val();
+		var table={
+			f:f,
+			fechai:f1,
+			fechaf:f2,
+			action:'consultar_datos'
+		};
+	$.ajax({
+		url:url2,
+		type:'POST',
+		data:table,
+		dataType:'json',
+		success: function(data){
+			if(data.result!=null){
+				var cont=0;
+				data.result.forEach(function(element,index){
+					cont++;
+					var bt_manual, bt_ver, status;
+					var trailer;
+					if(element.placatrailer){
+						trailer=element.placatrailer;
+					}else{
+						trailer='Sin trailer';
+					}
+
+					bt_ver='<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-eye" id="btn_ver'+cont+'"  data-toggle="modal" data-target="#consultar"  data-placement="top"  title="Ver Datos" data-id="'+element.id+'" data-id2="'+element.idplanilla+'"  data-id3="'+element.placa+'"  data-id4="'+element.nombre_cliente+'" data-id5="'+element.idservicio+'" ></button>';
+
+					bt_manual='<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-thumb-up-down" id="btn_manual'+cont+'"  data-toggle="modal" data-target="#manual_envio"  data-placement="top"  title="Ver Datos" data-id="'+element.id+'" data-id2="'+element.idplanilla+'"  data-id3="'+element.placa+'" data-id4="'+element.idservicio+'" "></button>';
+
+					bt_estado='<button type="button" class="btn btn-secondary btn btn-sm mdi mdi-edit" id="btn_estado'+cont+'"  data-toggle="modal" data-target="#suspender"  data-placement="top"  title="Detener envio de correo"                data-id="'+element.id+'"      data-id2="'+element.idservicio+'"  data-id3="'+element.remesa+'" data-id4="'+element.remesa+'" data-id5="'+element.placa+'"  data-id6="'+element.nombre+'" data-id7="'+element.numero_documento+'" data-id8="'+element.nombre_cliente+'" data-id9="'+element.n_manifiesto+'" data-id10="'+element.fecha_manifiesto+'"   "></button>';
+
+					if(element.estado==1){
+						status='Activo';
+					}
+					if(element.estado==2){
+						status='Suspendido';
+					}
+					if(element.estado==3){
+						status='Completado';
+					}
+
+					$("#contenido_tabla").append('<tr>'+
+						'<td class="cell-detail">'+element.idservicio+'</td>'+
+						'<td>'+element.orden_cargue+'</td>'+
+						'<td>'+element.remesa+'</td>'+
+					'<td class="cell-detail">'+element.placa+'<span class="cell-detail-description">'+trailer+'</span>'+
+					'</td>'+
+					'<td>'+element.nombre
+					+'<span class="cell-detail-description">'+element.numero_documento+'</span>'
+					+'</td>'+
+					'<td>'+element.nombre_cliente+          '</td>'+
+					'<td>'+element.n_manifiesto+'</td>'+
+					'<td>'+element.fecha_manifiesto+'</td>'+
+					'<td>'+status+'</td>'+
+					'<td>'+
+						bt_ver+'&nbsp;'+
+						bt_manual+'&nbsp;'+
+						bt_estado
+					+'</td>'+
+					'</tr>');
+
+					$("#btn_ver"+cont+"").click(function(){
+						var codini=$(this).attr('data-id');
+						var plani=$(this).attr('data-id2');
+						var pk=$(this).attr('data-id3');
+						var cliente=$(this).attr('data-id4');
+						var servi=$(this).attr('data-id5');
+						$("#cplaca").val(pk);
+						var traer={
+							codini:codini,
+							plani:plani,
+							cliente:cliente,
+							servi:servi,
+							action:'consultar_grupos'
+						};
+						$.ajax({
+							url:url2,
+							type:'POST',
+							data:traer,
+							dataType:'json',
+							success: function(data){
+								$("#tbgrupo").html('');
+								$("#tbseguimiento").html('');
+								$("#tbestado").html('');
+								$("#tbemailsenviados").html('');
+								if(data.result!=null){
+									data.result.forEach(function(element,index){
+									$("#tbgrupo").append('<tr>'+
+									'<td>'+element.id_servicio+'</td>'+
+									'<td>'+element.nombre_contactos+'</td>'+
+									'<td>'+element.telefono+'</td>'+
+									'<td>'+element.cargo+'</td>'+
+									'<td>'+element.areaa+'</td>'+
+									'<td>'+element.email+'</td>'+'</tr>');
+									});
+								}
+								if(data.result2!=null){
+									data.result2.forEach(function(element,index){	
+									$("#tbseguimiento").append('<tr>'+'<td>'+element.id+'</td>'+
+									'<td>'+element.tipo_seguimiento+'</td>'+
+									'<td>'+element.municipio+'</td>'+'<td>'+element.novedad+'</td>'+'<td>'+element.fecha+'</td>'+'<td>'+element.hora+'</td>'+'<td>'+element.usuario+'</td>'+'<td>'+element.reporte_cliente+'</td>'+'</tr>');
+											});
+								}
+								if(data.result3!=null){
+									data.result3.forEach(function(element,index){
+										$("#tbestado").append('<tr>'+
+										'<td>'+element.estado+'</td>'+
+										'<td>'+element.fecha+'</td>'+
+										'<td>'+element.hora+'</td>'+
+										'<td>'+element.usuario+'</td>'+
+										'</tr>');
+									});
+								}
+								if(data.result4!=null){
+									$("#horaprog").html('');
+									data.result4.forEach(function(element,index){
+										$("#horaprog").append('<tr>'+
+											'<td>'+element.nombre+'</td>'+
+											'<td>'+element.hora_envio+'</td>'+
+											'<td>'+element.fecha_inicio+'</td>'+
+											'<td>'+element.fecha_final+'</td>'+
+										+'</tr>');
+									});
+								}
+
+								if(data.result5!=null){
+									data.result5.forEach(function(element,index){
+										$("#tbemailsenviados").append('<tr>'+
+											'<td>'+element.id_servicio+'</td>'+
+											'<td>'+element.usuario+'</td>'+
+											'<td>'+element.fecha+'</td>'+
+											'<td>'+element.hora+'</td>'+
+											'<td>'+element.fecha_inicio+
+											' - '+
+											element.fecha_final+
+											'</td>'+
+											'<td>'+element.hora_envio+'</td>'+
+											'<td>'+element.modalidad+'</td>'
+										+'</tr>');
+									});
+								}
+
+							},
+							error:function(jqXHR, textStatus, errorThrown){
+								alert('No consulto');
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+							}
+						});
+					});
+
+
+					$("#btn_manual"+cont+"").click(function(){
+						var codini=$(this).attr('data-id');
+						var plani=$(this).attr('data-id2');
+						var servi=$(this).attr('data-id4');
+						$("#codigoruta").val(codini);
+						$("#soliservicio").val(servi);
+						var traer={
+							codini:codini,
+							plani:plani,
+							servi:servi,
+							action:'consultar_grupos2'
+						};
+						$.ajax({
+							url:url2,
+							type:'POST',
+							data:traer,
+							dataType:'json',
+							success: function(data){
+								$("#tbgrupod").html('');
+								$("#tbseguimientod").html('');
+								$("#tbestadod").html('');
+								if(data.result!=null){
+									c=0;
+									data.result.forEach(function(element,index){
+										c++;
+									$("#tbgrupod").append('<tr id="fila'+c+'">'+
+									'<td>'+element.id_servicio+'</td>'+
+									'<td>'+element.nombre+'</td>'+
+									'<td>'+element.nombre_contactos+'</td>'+
+									'<td>'+element.telefono+'</td>'+
+									'<td>'+element.cargo+'</td>'+
+									'<td>'+element.areaa+'</td>'+
+									'<td>'+element.email+'</td>'+'</tr>');
+									});
+								}
+								if(data.result2!=null){
+									var t=0;
+									data.result2.forEach(function(element,index){	
+										t++;
+									$("#tbseguimientod").append('<tr id="filas'+t+'">'+'<td>'+element.id+'</td>'+
+									'<td>'+element.tipo_seguimiento+'</td>'+
+									'<td>'+element.municipio+'</td>'+'<td>'+element.novedad+'</td>'+'<td>'+element.fecha+'</td>'+'<td>'+element.hora+'</td>'+'<td>'+element.usuario+'</td>'+'<td>'+element.reporte_cliente+'</td>'+'</tr>');
+											});
+								}
+								if(data.result3!=null){
+									data.result3.forEach(function(element,index){
+										$("#tbestadod").append('<tr>'+
+										'<td>'+element.estado+'</td>'+
+										'<td>'+element.fecha+'</td>'+
+										'<td>'+element.hora+'</td>'+
+										'<td>'+element.usuario+'</td>'+
+										'</tr>');
+									});
+								}
+							},
+							error:function(jqXHR, textStatus, errorThrown){
+								alert('No consulto');
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);
+							}
+						});
+					});
+
+					$("#btn_estado"+cont+"").click(function(){
+						var codini=$(this).attr('data-id');
+						var servi=$(this).attr('data-id2');
+						var orden=$(this).attr('data-id3');
+						var fechao=$(this).attr('data-id4');
+						var placa=$(this).attr('data-id5');
+						var condu=$(this).attr('data-id6');
+						var numcondu=$(this).attr('data-id7');
+						var cliente=$(this).attr('data-id8');
+						var mani=$(this).attr('data-id9');
+						var fmani=$(this).attr('data-id10');
+						$("#sucodini").val(codini);
+						$("#suservi").val(servi);
+						$("#suremesa").val(fechao);
+						$("#suplaca").val(placa);
+						$("#suconductor").val(condu);
+						$("#sucliente").val(cliente);
+						$("#sumani").val(mani);
+						$("#sufechamani").val(fmani);
+						$("#suorden").val(orden);
+					});
+
+				});
+			}else{
+				msg_error+= "<p>No hay datos con estas fechas, por favor seleccione otra.</p>";
+				$(".msg_tabla").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			}
+		},
+		error:function(jqXHR, textStatus, errorThrown){
+			alert('ocurrio un error en consulta de tabla');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+		}
+	});
+
+	}
+}
+
+	
+
+</script>

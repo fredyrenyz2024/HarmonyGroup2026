@@ -1,0 +1,434 @@
+<?php
+	$Conect = new Consultas;
+	$_dbTable = "material_bodega"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+	$_jsAjax = "";
+
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+	$ssn_id_bodega = $_SESSION["usuario"]["id_bodega"];
+
+	$r = new Request();
+	// print_r($r->getArgs());
+
+	// URL envio de datos ajax 
+	$url = BASE_URL . 'libs/editar.php?tabla=cmx_' . $_dbTable ;
+
+	$vista = '
+		<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+	';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	/********* FIN POPUPS *********/
+
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if(isset($this->materiales_clientes) && count($this->materiales_clientes)){
+
+		/*** SE CREA TABLA DE CONTENIDO ***/
+		$table_materiales_clientes = '
+			<div class="row">
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th>Material</th>
+									<th>Lote</th>
+									<th>Cantidad</th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+		$arrayMateriales_clientes = $this->bodegas->getMaterialSalida($r->getArgs()[0] , $ssn_id_bodega);
+		// print_r("<pre>");
+		// print_r($arrayMateriales_clientes);
+		// print_r("</pre>");
+
+		if($arrayMateriales_clientes['rowsData']){
+			foreach ($arrayMateriales_clientes['rowsData'] as $key => $value) {
+
+				/******** SE CREAN POPUPS DE INFORMACION DEL MATERIAL DE ENVIO ********/
+				// INFORMACIÓN GENERAL DEL MATERIAL - Columna Materiales
+				$info_contenido = '
+					<div class="panel panel-border panel-contrast">
+						<div class="panel-heading panel-heading-contrast">
+							' . $value["descripcion"] . ' 
+							<span class="panel-subtitle">Código - ' . $value["codigo"] . '</span>
+							<span class="panel-subtitle">' . $value["detalle"] . '</span>
+						</div>
+					</div>
+					<table class="table">
+						<tbody>
+							<tr>
+								<td class="cell-detail">
+									<div class="col-sm-2">
+										<span>EAN13</span>
+										<span class="cell-detail-description">' . $value["ean13"] . '</span>
+									</div>
+									<div class="col-sm-2">
+										<span>Subpatida</span>
+										<span class="cell-detail-description">' . $value["subpartida"] . '</span>
+									</div>
+									<div class="col-sm-3">
+										<span>Código Antiguo</span>
+										<span class="cell-detail-description">' . $value["codigo_antiguo"] . '</span>
+									</div>
+									<div class="col-sm-3">
+										<span>Código Corto</span>
+										<span class="cell-detail-description">' . $value["codigo_corto"] . '</span>
+									</div>
+									<div class="col-sm-2">
+										<span>Consolidable</span>
+										<span class="cell-detail-description">' . $value["consolidable"] . '</span>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-2">
+											<span>Codigo UN</span>
+											<span class="cell-detail-description">' . $value["codigoUN"] . '</span>
+										</div>
+										<div class="col-sm-1">
+											<img src="' . BASE_URL . 'public/img/riesgos/' . $value["url"] . '" height="50" width="50">
+										</div>
+										<div class="col-sm-2">
+											<span>Riesgo</span>
+											<span class="cell-detail-description">' . $value["numero_riesgo"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Nombre del Riesgo</span>
+											<span class="cell-detail-description">' . $value["nom_riesgo_material"] . '</span>
+										</div>
+										<div class="col-sm-4">
+											<span>Descripción del Riesgo</span>
+											<span class="cell-detail-description">' . $value["DESCRIPCION_RIESGO"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-1"></div>
+										<div class="col-sm-2">
+											<span>Peso Unitario Bruto</span>
+											<span class="cell-detail-description">' . $value["peso_unitario_bruto"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Peso Unitario Neto</span>
+											<span class="cell-detail-description">' . $value["peso_unitario_neto"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Largo</span>
+											<span class="cell-detail-description">' . $value["largo"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Alto</span>
+											<span class="cell-detail-description">' . $value["alto"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Ancho</span>
+											<span class="cell-detail-description">' . $value["ancho"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-2">
+											<span>Presentación</span>
+											<span class="cell-detail-description">' . $value["nom_unidad_presentacion"] . ' x ' . $value["cant_contenido_interno"] . ' ' . $value["nom_unidad_medida"] . ' .</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Embalaje</span>
+											<span class="cell-detail-description">' . $value["nom_unidad_empaque"] . ' x ' . $value["unidades_x_embalaje"] . ' Unid.</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Unidades por Tendido</span>
+											<span class="cell-detail-description">' . $value["unidades_x_tendido"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Planchas por Estiba</span>
+											<span class="cell-detail-description">' . $value["planchas_x_estiba"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Altura de la estiba</span>
+											<span class="cell-detail-description">' . $value["altura_estiba"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Embalajes por estiba</span>
+											<span class="cell-detail-description">' . ($value["unidades_x_tendido"] * $value["planchas_x_estiba"]) . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-2">
+											<span>Volumen Terrestre</span>
+											<span class="cell-detail-description">' . $value["volumen_terrestre"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Volumen Aéreo</span>
+											<span class="cell-detail-description">' . $value["volumen_aereo"] . '</span>
+										</div>
+										<div class="col-sm-2">
+											<span>Cupo Autorizado</span>
+											<span class="cell-detail-description">' . $value["cupo_autorizado"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Cantidad Contenido Interno</span>
+											<span class="cell-detail-description">' . $value["cant_contenido_interno"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Vida Útil</span>
+											<span class="cell-detail-description">' . $value["vida_util"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-3">
+											<span>Familia</span>
+											<span class="cell-detail-description">' . $value["nom_familia"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Categoría</span>
+											<span class="cell-detail-description">' . $value["nom_categoria"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Grupo</span>
+											<span class="cell-detail-description">' . $value["grupo"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Sub-grupo</span>
+											<span class="cell-detail-description">' . $value["sub_grupo"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail">
+									<div class="row">
+										<div class="col-sm-3">
+											<span>Especificación</span>
+											<span class="cell-detail-description">' . $value["especificacion"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Característica</span>
+											<span class="cell-detail-description">' . $value["caracteristica"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Talla</span>
+											<span class="cell-detail-description">' . $value["talla"] . '</span>
+										</div>
+										<div class="col-sm-3">
+											<span>Color</span>
+											<span class="cell-detail-description">' . $value["color"] . '</span>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="cell-detail"></td>
+							</tr>
+						</tbody>
+					</table>
+				';
+				$vista.= $info->_bootstrap_modal_dialog("info_" . $value[0] , "Información del Material" , $info_contenido );
+				/******** FIN SE CREAN POPUPS DE INFORMACION DEL MATERIAL ********/
+
+				// Se maqueta contenido de la tabla 
+				$table_materiales_clientes.= '<tr>';
+				// Columna Materiales
+				$table_materiales_clientes.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail md-trigger">
+						<span>' . $value["descripcion"] . '</span>
+						<span class="cell-detail-description">' . $value["codigo"] . '</span>
+					</td>
+				';
+				// Columna datos de lote y vencimiento del material
+				$table_materiales_clientes.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail">
+						<span>' . $value["lote"] . '</span>
+						<span class="cell-detail-description">Vence - ' . $value["fecha_vencimiento"] . '</span>
+					</td>
+				';
+				// Columna datos de cantiidad y embalaje del material
+				$table_materiales_clientes.= '
+					<td data-toggle="modal" data-target="#info_' . $value[0] . '" class="cell-detail">
+						<span>' . $value["cantidad"] . '</span>
+						<span class="cell-detail-description">' . $value["nom_unidad_empaque"] . ' x ' . $value["unidades_x_embalaje"] . ' unid</span>
+						<span class="cell-detail-description">' . $value["nom_unidad_presentacion"] . ' x ' . $value["cant_contenido_interno"] . ' ' . $value["nom_unidad_medida"] . '</span>
+					</td>
+				';
+
+				$table_materiales_clientes.= '</tr>';
+			}
+		}
+
+		$table_materiales_clientes.= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Materiales Delivery -  ' . $r->getArgs()[0] . '
+				<div class="tools">
+					<a href="' . BASE_URL . 'bodegas/generar_despacho/" class="hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>
+					<!--
+					<a href="#" class="icon" data-toggle="modal" data-target="#habilita_11"><span id="#habilita_11" class="icon mdi mdi-check-circle"></span></a>
+					<a href="#" data-toggle="modal" data-target="#crea_' . $_dbTable . '" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+					-->
+				</div>
+				<span class="panel-subtitle">Visualización detallada de los materiales que se componen en el Delivery.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.formElements();
+			});
+			%js-ajax%
+	    </script>
+	';
+
+	// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+	// Se crea el select de materiales para envio
+	$slct_materiales = $this->bodegas->getHtmlSelectMaterial("id_material" , "" , $ssn_id_cliente );
+	// Se crea el select de empaques
+	$slct_empaques = $this->unidades_empaque->getHtmlSelect("embalaje" , "" );
+	// Se asigna el tiempo por defecto para el vencimiento del material
+	$fecha_actual = date("Y-m-d");
+	$forms = '
+		<input type="hidden" name="id_ingreso" value="' . $r->getArgs()[0] . '" class="form-control">
+		<div class="form-group col-xs-12">
+			<label>Material:</label>
+			' . $slct_materiales . '
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Lote:</label>
+			<input type="text" name="lote" id="lote" value="" placeholder="Lote" class="form-control">
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Fecha Vencimiento:</label>
+			<div data-min-view="2" data-date-format="yyyy-mm-dd" class="input-group date datetimepicker">
+				<input size="16" type="text" value="' . $fecha_actual . '" name="fecha_vencimiento" id="fecha_vencimiento" class="form-control" readonly=”readonly”>
+				<span class="input-group-addon btn btn-primary">
+					<i class="icon-th mdi mdi-calendar"></i>
+				</span>
+			</div>
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Cantidad:</label>
+			<input type="number" min="0" name="cantidad" id="cantidad" value="" placeholder="Cantidad" class="form-control">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Embalaje:</label>
+			' . $slct_empaques . '
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Unidades por Embalaje:</label>
+			<input type="number" min="0" name="unidades_x_embalaje" id="unidades_x_embalaje" value="" placeholder="Unidades por Embalaje" class="form-control">
+		</div>
+	';
+
+	// $_popupCrea = $form_crea->_form_modal_simple_insert("crea_" . $_dbTable ,"Generar Ingreso" , $forms , $_dbTable );
+	// $vista.= $_popupCrea[0];
+	// $_jsScripts.=$_popupCrea[1];
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%js-ajax%" , $_jsAjax , $vista);
+	$vista = str_replace("%content%" , $table_materiales_clientes , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>

@@ -1,0 +1,256 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -10px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2 text-center" style="margin:25px;">
+              <b>Configuración Inicial </b>
+            </td>
+          </tr>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+      <div class="col-12 col-lg-12" style="padding: 1px 1px 1px;">
+        <div class="tab-container">
+          <ul class="nav nav-tabs nav-tabs-classic" role="tablist">
+            <li class="nav-item"><a class="nav-link active" href="#classic_home" data-toggle="tab" role="tab" aria-selected="true" style="font-weight: 700;">Datos Basicos de la Empresa</a></li>
+            <li class="nav-item"><a class="nav-link" href="#classic_profile" data-toggle="tab" role="tab" aria-selected="false" id="btn_form_agencia" style="font-weight: 700;">Datos Basicos de las Agencias</a></li>
+            <!-- <li class="nav-item"><a class="nav-link" href="#classic_messages" data-toggle="tab" role="tab" aria-selected="false" id="btn_form_ambiente" style="font-weight: 700;">Datos Basicos de los ambientes</a></li>
+            <li class="nav-item"><a class="nav-link" href="#classic_messages" data-toggle="tab" role="tab" aria-selected="false" style="font-weight: 700;">Maestro de consecutivos</a></li> -->
+          </ul>
+          <div class="tab-content" style="padding: 1px 1px 1px;">
+            <div id="mensaje" class="oculto"></div>
+            <div class="tab-pane active" id="classic_home" role="tabpanel">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #9FA6B2;color:#fff;border-top: 1px #fff solid;">
+                <tbody>
+                  <tr>
+                    <td class="celda_titulo2" style="margin:25px;">
+                      <b>Datos basicos empresa Transportadora</b>
+                    </td>
+                  </tr>
+                  <tr>
+                  </tr>
+                </tbody>
+              </table>
+              <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 11px;">
+                <thead>
+                  <tr>
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Nit:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="number" id="nit_empresa" name="nit_empresa" style="width: 300px;">
+                      <input type="text" id="digito_empresa" name="digito_empresa" style="width: 100px;" readonly>
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 350px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Nombre o Razón Social:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="nombre_empresa" name="nombre_empresa" style="width: 400px;">
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 300px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Representantem Legal:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="representante_empresa" name="representante_empresa" style="width: 300px;">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="6" class="text-center">
+                      <button type="button" class="btn btn-success btn-xs" id="btn_save_empresa" style="margin-top: 10px;"><i class="fas fa-save"></i> Guardar Empresa</button>
+                    </td>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            <div class="tab-pane" id="classic_profile" role="tabpanel">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #9FA6B2;color:#fff;border-top: 1px #fff solid;">
+                <tbody>
+                  <tr>
+                    <td class="celda_titulo2" style="margin:25px;">
+                      <b>Datos basicos empresa ambiente</b>
+                    </td>
+                  </tr>
+                  <tr>
+                  </tr>
+                </tbody>
+              </table>
+              <div id="mensaje"></div>
+              <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 11px;">
+                <thead>
+                  <tr>
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Empresas:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <select name="empresa" id="empresa">
+                        <option value="">Seleccionar Empresa</option>
+                      </select>
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 350px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Nombre o Razón Social:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="nombre_agencia" name="nombre_agencia" style="width: 400px;">
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 350px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Abreviatura:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="abreviatura" name="abreviatura" style="width: 50px;">
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 300px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Estado Agencia:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <select name="estado_agencia" id="estado_agencia">
+                        <option value="">Seleccionar Estado</option>
+                        <option value="ACTIVA">ACTIVA</option>
+                        <option value="INACTIVA">INACTIVA</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="8" class="text-center">
+                      <button type="button" class="btn btn-success btn-xs" id="btn_save_agencia" style="margin-top: 10px;"><i class="fas fa-save"></i> Guardar Agencia</button>
+                    </td>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            <div class="tab-pane" id="classic_messages" role="tabpanel">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #9FA6B2;color:#fff;border-top: 1px #fff solid;">
+                <tbody>
+                  <tr>
+                    <td class="celda_titulo2" style="margin:25px;">
+                      <b>Datos basicos ambiente empresa</b>
+                    </td>
+                  </tr>
+                  <tr>
+                  </tr>
+                </tbody>
+              </table>
+              <div id="mensaje"></div>
+              <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 11px;" id="tbl_ambientes">
+                <thead>
+                  <tr>
+                    <td colspan="8" class="text-right" style="background-color: #F5F5F5; width: 350px;font-weight: bold;border: 1px solid #ddd;">
+                      <button type="button" class="btn btn-primary btn-xs" id="btn_agregar_fila"><i class="far fa-plus-square"></i> Agregar</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Agencia:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <select name="select_agencia" id="select_agencia" style="width: 350px;">
+                        <option value="">Seleccionar Agencia</option>
+                      </select>
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Ambiente:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <select name="ambiente_agencia" id="ambiente_agencia">
+                        <option value="">Seleccionar</option>
+                        <option value="PRODUCCION">Producción</option>
+                        <option value="PRUEBA">Prueba</option>
+                      </select>
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Proveedor:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <select name="proveedor" id="proveedor">
+                        <option value="">Seleccionar</option>
+                        <option value="AVANSAT">Avansat</option>
+                        <option value="RNDC">Ministerio Rndc</option>
+                      </select>
+                    </td>
+                    <!-- <th style="background-color: #FFFFFF; width: 350px;font-weight: bold;padding: 5px;"></th>
+                    <td style="padding: 1px;width: auto; white-space: nowrap;"></td> -->
+                    <!-- <th style="background-color: #F5F5F5; width: 350px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Nombre url:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="nombre_url[]" name="nombre_url[]" style="width: 120px;">
+                    </td> -->
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Url Conexión:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="url_conexion[]" name="url_conexion[]" style="width: 600px;">
+                    </td>
+                  </tr>
+
+                  <!-- <tr class="text-right" style="text-align: right;" id="variables_conexion">
+                    <th style="background-color: #FFFFFF; width: 200px;font-weight: bold;padding: 5px;"></th>
+                    <td style="padding: 1px;width: auto; white-space: nowrap;"></td>
+                    <th style="background-color: #FFFFFF; width: 200px;font-weight: bold;padding: 5px;"></th>
+                    <td style="padding: 1px;width: auto; white-space: nowrap;"></td>
+                    <th style="background-color: #F5F5F5; width: 350px;font-weight: bold;padding: 5px;">Nombre url:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="nombre_agencia" name="nombre_agencia" style="width: 120px;">
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 350px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Url Conexión:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="abreviatura" name="abreviatura" style="width: 450px;">
+                    </td>
+                  </tr> -->
+
+                  <!-- <tr>
+                    <td colspan="8" class="text-center">
+                      <button type="button" class="btn btn-success btn-xs" id="btn_save_ambiente" style="margin-top: 10px;"><i class="fas fa-save"></i> Guardar Ambiente</button>
+                    </td>
+                  </tr> -->
+                </thead>
+                <tfoot>
+                  <tr>
+                    <td colspan="8" class="text-center">
+                      <button type="button" class="btn btn-success btn-xs" id="btn_save_ambiente" style="margin-top: 10px;"><i class="fas fa-save"></i> Guardar Ambiente</button>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;">
+                <thead>
+                  <tr>
+                    <td class="text-right" style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="5">
+                      <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                    </td>
+                  </tr>
+                </thead>
+              </table> -->
+
+      <!-- <div class="table-responsive">
+                <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;" style="border: #332D2D;" id="informe_afacturacion">
+                  <thead style="border-collapse: collapse;font-zise: 8px;background-color: #332D2D;color:#fff;">
+                    <tr>
+                      <th class="text-center"><b>Pedido</b></th>
+              <th class="text-center"><b>Manifiesto</b></th>
+              <th class="text-center"><b>Fecha</b></th>
+              <th class="text-center"><b>Placa</b></th>
+              <th class="text-center"><b>Valor Flete</b></th>
+              <th class="text-center"><b>Anticipo</b></th>
+              <th class="text-center"><b>Cumplido</b></th>
+              <th class="text-center"><b>Remesa</b></th>
+              <th class="text-center"><b>Cliente</b></th>
+              <th class="text-center"><b>Sobreanticipo</b></th>
+              <th class="text-center"><b>Liquidación</b></th>
+              <th class="text-center"><b>Factura</b></th>
+              <th class="text-center"><b>Aprobado</b></th>
+              <th class="text-center"><b>Radicado</b></th>
+              </tr>
+              </thead>
+              <tbody id="tbl_informe_factu" style="border-collapse: collapse;font-size: 10px;">
+                <div id="tablaVaciaMensaje" style="display: none;">No hay datos disponibles</div>
+              </tbody>
+              </table>
+            </div> -->
+
+
+
+    </div>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/empresa/js/empresa.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>/public/helpers/helpers.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

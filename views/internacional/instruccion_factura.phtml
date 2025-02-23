@@ -1,0 +1,926 @@
+<?php
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+	$vista = '';
+	$table_content = "";
+
+	if( isset($this->internacional) ){
+		$arrayClientes = $this->internacional->getProyectosInstruccionFactura();
+		$arrayTRM = $this->internacional->getTrmHoyFacturas();
+		$arrayPermisos = $this->internacional->permisosPerfil( $ssn_id_perfil , 67);
+		$_permisos = $arrayPermisos;
+
+		$table_content ='
+			<div class="form-group col-xs-1 col-sm-2 col-md-4"></div>
+			<div class="form-group col-xs-12 col-sm-8 col-md-4 tabla_trm_inicio">
+				' . $arrayTRM["content"] . '
+			</div>
+			<div class="form-group col-xs-1 col-sm-2 col-md-4"></div>
+			<div class="row"></div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-2"></div>
+				<div class="col-xs-12 col-sm-12 col-md-8">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover table-fw-widget" data-page-length="50">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th>Cliente</th>
+									<th class="col-xs-2 col-sm-2 col-md-2"># de Proyectos</th>
+									<th>Total en COP</th>
+									<th>Total en USD</th>
+									<th class="col-xs-1 col-sm-1 col-md-1"></th>
+								</tr>
+							</thead>
+								<tbody>
+		';
+
+		if ( $arrayClientes["general"] ) {
+			foreach ($arrayClientes["general"] as $key => $value) {
+				// Se valida la información del valor en pesos
+				$_valor_pesos = '<span>' . number_format($value["VALOR_PESOS"], 2, ',', '.') . '</span>';
+				if (!$value["VALOR_PESOS"]) {
+					$_valor_pesos = '<span><strong class="text-danger">Sin TRM</strong></span>';
+				}
+
+				// Se valida la información del valor en USD
+				$_valor_usd = '<span>' . number_format($value["VALOR_USD"], 2, ',', '.') . '</span>';
+				if (!$value["VALOR_USD"]) {
+					$_valor_usd = '<span><strong class="text-danger">Sin TRM</strong></span>';
+				}
+
+				$table_content.='
+					<tr>
+						<td class="cell-detail">
+							<span>' . $value["cliente"] . '</span>
+							<span class="cell-detail-description">' . $value["DOCUMENTO"] . '</span>
+							<span class="cell-detail-description">' . $value["cod_cliente"] . '</span>
+						</td>
+						<td class="cell-detail">
+							<span class="label label-default">' . $value["cant_proyectos"] . '</span>
+						</td>
+						<td class="cell-detail text-right">
+							' . $_valor_pesos . '
+						</td>
+						<td class="cell-detail text-right">
+							' . $_valor_usd . '
+						</td>
+						<td class="actions">
+							<a href="javascript:" onclick="editarInstruccion(' . $value["id"] . ', ' . $ssn_id_perfil . ')" class="cell-detail hint--top-left" data-hint="Editar Instrucción"><span class="icon mdi mdi-edit" data-toggle="modal" data-target="#edita_instruccion"></span></a>
+						</td>
+					</tr>
+				';
+			}
+		}
+
+		$table_content.='
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-2"></div>
+			</div>
+		';
+	}
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$btn_guardar='';
+	if($ssn_id_perfil !=22 ){
+		$btn_guardar='<button id="btn_edita_instruccion" type="button" class="btn btn-success md-close">Guardar</button>';
+	} 
+
+	if($ssn_id_perfil ==22  ){
+		if($ssn_id_usuario==68 || $ssn_id_usuario==133 ){
+		$btn_guardar='<button id="btn_edita_instruccion" type="button" class="btn btn-success md-close">Guardar</button>';
+		}
+	}
+
+
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Instrucciones de Factura
+				<span class="panel-subtitle">Se establece la información que debe contener la factura del cliente.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="edita_instruccion" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="edita_instruccion_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_popup_instruccion"></div>
+						<div id="contenidoeditainstruccion"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer">
+						'.$btn_guardar.'
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista);
+
+	echo $vista;
+?>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#btn_edita_instruccion").click(function(){
+			// console.log("Entro en función del btn_edita_instruccion");
+			$("#nexos_messages_popup_instruccion").empty();
+			$("#proyectos").val("");
+			var msg_error = "";
+
+			// Se recorre los proyectos a facturar
+			if ($(".check_instrucciones:checked").length > 0 ) {
+				var id_proyectos = "";
+				$(".check_instrucciones:checked").each(function(){
+					id_proyectos+= $(this).val() + ",";
+				});
+				$("#proyectos").val(id_proyectos);
+			} else {
+				msg_error+= "<p>No se ha seleccionado ningún proyecto para generar la instrucción de factura.</p>";
+			}
+
+			if (!msg_error) {
+				try {
+					var params = new FormData( $("#form_instruccion")[0]);
+					$.ajax({
+						url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=crear_instruccion",
+						type: 'POST',
+						contentType: false,
+						data: params,
+						cache: false,
+						dataType: 'json',
+						processData:false,
+						beforeSend	: function(jqXHR, settings){
+							$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+						},
+						error: function (jqXHR, textStatus, errorThrown){
+							$(".nexos-messages").html('');
+							msg_error+= "<p>" + jqXHR.responseText + "</p>";
+							console.log(jqXHR);
+							console.log(textStatus);
+							console.log(errorThrown);
+						},
+						success: function (data, textStatus, jqXHR){
+							$(".nexos-messages").html('');
+							// console.log(data);
+							// Se gestiona la actividad 
+							$(".check_instrucciones:checked").each(function(){
+								var actividades = $(this).closest(".panel").find(".datos_actividad");
+								var params = {
+									id : actividades.data("id_actividad") + ",",
+									orden : actividades.data("orden"),
+									fecha_hora_inicio : actividades.data("fecha_hora_inicio"),
+									id_importacion : actividades.data("id_importacion"),
+									bloque : actividades.data("bloque"),
+									grupo : actividades.data("grupo"),
+									simultaneo : actividades.data("simultaneo"),
+									tipo_actividad : actividades.data("tipo_actividad"),
+									costo_real : actividades.data("costo_real"),
+									respuesta : actividades.data("respuesta")
+								}
+								// console.log(params);
+								actualizaActividad(params);
+							});
+						}
+					});
+				}
+				catch(err) {
+					msg_error+= "<p><strong>" + err.message + ".</strong> Por favor intente gestionar la actividad nuevamente.</p>";
+				}
+
+				if (!msg_error) {
+					$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>');
+					$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+					setTimeout(function() { location.reload(false); }, 800);
+				}
+				if (msg_error) {
+					$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+					$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+				}
+			}
+			if (msg_error) {
+				$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+				$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+			}
+		});
+	});
+
+	function editarInstruccion(id, id_perfil){
+		//alert('EDITAR INSTRUCCION');
+		// console.log("Entro en función editarInstruccion");
+		$("#nexos_messages_popup_instruccion").empty();
+		$("#edita_instruccion_title").empty();
+		$("#contenidoeditainstruccion").empty();
+		var msg_error = "";
+
+		var params = {
+			id: id,
+			id_perfil: id_perfil
+		}
+		$.ajaxSetup({async: false});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=form_instruccion_factura",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").html('');
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				$(".nexos-messages").html('');
+				// console.log(data);
+				if (!msg_error) {
+					$("#nexos_messages_popup_instruccion").html("");
+					if (data.content) {
+						$("#edita_instruccion_title").html(data.content.title);
+						$("#contenidoeditainstruccion").html(data.content.content);
+						$(".form_content").hide();
+						$(".agenciamiento_visible").hide();
+						$("#impresion_content").fadeToggle(300);
+						$("#impresion_view_content").hide();
+
+						// Función para visualización del modelo de proforma 
+						$("#btn_ver_proforma").click(function(){
+							$("encabezado_content").empty();
+							$("cuerpo_content").empty();
+							$("totales_content").empty();
+							$('#impresion_view_content').fadeToggle(300);
+
+							if ( $('#impresion_view_content').is(":visible") ) {
+								verModeloProforma();
+							}
+						});
+
+						// Función de check de selección de proyecto a facturar
+						$(".check_instrucciones").click(function(){
+							//alert('UNO');
+							$("#table_impuestos").html("");
+							$("#total_factura").val("");
+							$("#total_agenciamiento").val("");
+							$("#total_sobrecostos").val("");
+							$("#iva_factura").val("");
+							$("#total_impuestos_pesos").val("");
+							$('#impresion_view_content').fadeOut(300);
+
+							$(this).closest('.panel').find('.form_content').fadeToggle(300);
+							if (!$(this).is(":checked")) {
+								$(this).closest('.panel').find('.check_agenciamiento').prop("checked",false);
+								$(this).closest('.panel').find('.valor_pesos').val( $(this).closest(".panel").find(".valor_pesos_fijo").val() );
+								$(this).closest('.panel').find('.valor_agenciamiento').val("");
+							}
+
+							if ($(".check_instrucciones:checked").length > 0 ) {
+								$("#impresion_content").fadeToggle(300);
+								var arrayImpuestos = Array();
+								var total_factura = 0;
+								var total_agenciamiento = 0;
+								var total_iva_agenciamiento = 0;
+								var total_impuestos = 0;
+								var total_sobrecostos = 0;
+								$(".check_instrucciones:checked").each(function(){
+									//alert('DOS');
+									/***** Se liquida el valor de los impuestos que se hallan generado *****/
+									if ($(this).closest(".panel").find(".moneda_impuesto").length > 0) {
+										$(this).closest(".panel").find(".moneda_impuesto").each(function(){
+											var id_moneda_impuesto = $(this).data("id_moneda_impuesto");
+											var moneda_impuesto = $(this).val();
+											var valor_impuesto = $(this).data("valor_impuesto");
+											var valor_pesos = $(this).data("valor_impuesto_pesos");
+											var array = {
+												id_moneda : id_moneda_impuesto,
+												moneda : moneda_impuesto,
+												valor_impuesto : valor_impuesto,
+												valor_pesos : valor_pesos
+											}
+											arrayImpuestos.push(array);
+										});
+									} 
+									/***** Fin - Se liquida el valor de los impuestos que se hallan generado *****/
+
+									/***** Se toma el valor total de los sobre costos *****/
+									if ( $(this).closest(".panel").find(".total_sobrecosto").length > 0 ) {
+										total_sobrecostos+= parseFloat($(this).closest(".panel").find(".total_sobrecosto").val());
+									}
+									/***** Fin - Se toma el valor total de los sobre costos *****/
+
+									/***** Se liquida el valor total de la proforma de factura *****/
+									total_factura+= parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val());
+									if ( $(this).closest(".panel").find(".check_agenciamiento").is(":checked") ) {
+										var valor_proyecto = ( parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val()) * 0.9 );
+										var valor_agenciamiento = parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val()) - valor_proyecto;
+										total_agenciamiento+= valor_agenciamiento;
+										var iva_agenciamiento = parseFloat(valor_agenciamiento * 0.19);
+										total_iva_agenciamiento+= iva_agenciamiento;
+
+										alert('OK');
+
+
+									} else {
+										var valor_proyecto = parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val());
+									}
+									$(this).closest(".panel").find(".valor_pesos").val(valor_proyecto);
+									$(this).closest(".panel").find(".valor_agenciamiento").val(valor_agenciamiento);
+									/***** Fin - Se liquida el valor total de la proforma de factura *****/
+								});
+
+								if (total_agenciamiento == 0) { total_agenciamiento = ""; }
+								$("#total_agenciamiento").val(total_agenciamiento);
+
+								if (total_iva_agenciamiento == 0) { total_iva_agenciamiento = ""; }
+								$("#iva_factura").val(total_iva_agenciamiento);
+
+								if (arrayImpuestos.length > 0) { tablaImpuestos(arrayImpuestos); }
+
+								if ($("#total_impuestos_pesos").length > 0) {
+									if (!$("#total_impuestos_pesos").val()) { $("#total_impuestos_pesos").val("0"); } 
+								}
+
+								if (total_impuestos == 0) { total_impuestos = ""; }
+								if (total_sobrecostos == 0) { total_sobrecostos = ""; }
+								$("#total_sobrecostos").val(total_sobrecostos);
+
+								total_factura = total_factura + parseInt($("#total_impuestos_pesos").val()) + total_sobrecostos;
+								$("#total_factura").val(total_factura);
+							} else { $("#impresion_content").fadeToggle(300); }
+						});
+
+						// Función de check de selección del agenciamiento de un proyecto
+						$(".check_agenciamiento").click(function(){
+							//alert('TRES');
+							$("#total_factura").val("");
+							$("#total_agenciamiento").val("");
+							$("#iva_factura").val("");
+							$('#impresion_view_content').fadeOut(300);
+							calcularInstruccion();
+						});
+
+						$(".valor_facturar").blur(function(){
+							$('#impresion_view_content').fadeOut(300);
+
+							var total_factura = 0;
+							var total_sobrecostos = 0;
+							$(".check_instrucciones:checked").each(function(){
+								total_factura+= parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val());
+								/***** Se toma el valor total de los sobre costos *****/
+								if ( $(this).closest(".panel").find(".valor_facturar").length > 0 ) {
+									$(this).closest(".panel").find(".valor_facturar").each(function(){
+										if ($(this).val()) {
+											var valor = $(this).val();
+											var valor_sobrecosto = valor.replace(/\./g,"").replace(/\,/g,".");
+											total_sobrecostos+= parseFloat(valor_sobrecosto);
+										}
+									});
+								}
+								$(this).closest(".panel").find(".total_sobrecosto").val(total_sobrecostos);
+								/***** Fin - Se toma el valor total de los sobre costos *****/
+							});
+							total_factura = total_factura + parseInt($("#total_impuestos_pesos").val()) + total_sobrecostos;
+							$("#total_factura").val(total_factura);
+							$("#total_sobrecostos").val(total_sobrecostos);
+						});
+
+						$(".slct_moneda").change(function(){
+							$("#tmp_muestra_ajuste").empty();
+							$('#impresion_view_content').fadeOut(300);
+							var msg_error = "";
+							var element = $(this);
+							var new_id_moneda = element.val();
+							var new_text_moneda = element.find("option:selected").text();
+
+							var panel = element.closest(".panel");
+							let valor_oferta = panel.data("valor_oferta");
+							let new_valor_oferta = panel.data("valor_oferta");
+							let id_oferta = panel.data("id_oferta");
+							let flag_valor_oferta = false;
+							if (new_id_moneda != 2) {
+								$(".trm_dia_facturacion").each(function(){
+									if ($(this).data("id_moneda") == new_id_moneda) {
+										new_valor_oferta = valor_oferta * $(this).data("valor_facturacion");
+										flag_valor_oferta = true;
+										return false;
+									} 
+								});
+								if (!flag_valor_oferta) { msg_error+= '<p>No se encontró una TRM para reliquidar la oferta comercial.</p>'; }
+							}
+
+							if (!msg_error) {
+								$(".nexos-messages").empty();
+								let msg_content = '';
+								if (new_id_moneda != "2") {
+									msg_content = `
+										<h4>El valor de la oferta comercial es de <strong>${getSeparadorMiles_1(valor_oferta)} ${new_text_moneda}</strong></h4>
+										<h4>El valor de la oferta comercial en <strong>COP</strong> es de <strong>$${getSeparadorMiles_1(new_valor_oferta)}</strong></h4>
+									`;
+								} else {
+									new_valor_oferta = valor_oferta;
+									msg_content = `<h4>El valor de la oferta comercial es de <strong>$${getSeparadorMiles_1(new_valor_oferta)} COP</strong></h4>`;
+								}
+								$("#tmp_muestra_ajuste").html(`
+									<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button>
+										<div class="text-center">
+											${msg_content}
+										</div>
+									</div></div>
+								`);
+								let form = element.closest(".form_content");
+								form.find(".valor_pesos_fijo").val(new_valor_oferta);
+								// form.find(".valor_pesos_fijo").val(new_valor_oferta);
+								if ( form.find(".check_agenciamiento").is(":checked") ) {
+									var valor_proyecto = ( parseFloat(form.find(".valor_pesos_fijo").val()) * 0.9 );
+									var valor_agenciamiento = parseFloat(form.find(".valor_pesos_fijo").val()) - valor_proyecto;
+									form.find(".valor_pesos").val(valor_proyecto);
+									form.find(".valor_agenciamiento").val(valor_agenciamiento);
+								} 
+								else { form.find(".valor_pesos").val(new_valor_oferta); }
+								calcularInstruccion();
+
+								let params = {
+									id: id_oferta,
+									id_moneda: new_id_moneda
+								}
+								actualizaMonedaOferta(params);
+							}
+							if (msg_error) {
+								$(".nexos-messages").empty();
+								$("#tmp_muestra_ajuste").html(`
+									<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible">
+										<div class="icon">
+											<span class="mdi mdi-check"></span>
+										</div>
+										<div class="message">
+											<button type="button" data-dismiss="alert" aria-label="Close" class="close">
+												<span aria-hidden="true" class="mdi mdi-close"></span>
+											</button>
+											<strong>Atención!</strong>${msg_error}
+										</div>
+									</div>
+								`);
+							}
+						});
+					}
+				}
+			}
+		});
+		$.ajaxSetup({async: true});
+		if (msg_error) {
+			$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function tablaImpuestos(array){
+		var msg_error;
+
+		params = {
+			array: array
+		}
+		$.ajaxSetup({async: false});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=tabla_resumen_impuestos",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").html('');
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				// console.log(data);
+				$(".nexos-messages").html('');
+				$("#table_impuestos").html(data.content);
+				$("#total_impuestos_pesos").val(data.total_impuestos_pesos);
+			}
+		});
+		$.ajaxSetup({async: true});
+		if (msg_error) {
+			$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function cambiaEntregableDocumento(element){
+		var msg_error;
+		var soporte_facturacion = 0; 
+		if ( $(element).is(":checked") ) {
+			soporte_facturacion = 1;
+		}
+
+		params = {
+			id: $(element).val(),
+			soporte_facturacion : soporte_facturacion
+		}
+
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=ajusta_documento_entrega",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").html('');
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				// console.log(data);
+				$(".nexos-messages").html('');
+			}
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function calcularInstruccion(){
+		if ($(".check_instrucciones:checked").length > 0 ) {
+			var total_factura = 0;
+			var total_agenciamiento = 0;
+			var total_iva_agenciamiento = 0;
+			var total_sobrecostos = 0;
+			$(".check_instrucciones:checked").each(function(){
+				//alert('CUATRO');
+				total_factura+= parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val());
+				if ( $(this).closest(".panel").find(".check_agenciamiento").is(":checked") ) {
+					var valor_proyecto = ( parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val()) * 0.9);
+					var valor_agenciamiento = parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val()) - valor_proyecto;
+					total_agenciamiento+= valor_agenciamiento;
+					var iva_agenciamiento = parseFloat(valor_agenciamiento * 0.19); 
+					total_iva_agenciamiento+= iva_agenciamiento;
+				} else { var valor_proyecto = parseFloat($(this).closest(".panel").find(".valor_pesos_fijo").val()); }
+
+				/***** Se toma el valor total de los sobre costos *****/
+				if ( $(this).closest(".panel").find(".total_sobrecosto").length > 0 ) {
+					total_sobrecostos+= parseFloat($(this).closest(".panel").find(".total_sobrecosto").val());
+				}
+				/***** Fin - Se toma el valor total de los sobre costos *****/
+
+				$(this).closest(".panel").find(".valor_pesos").val(valor_proyecto);
+				$(this).closest(".panel").find(".valor_agenciamiento").val(valor_agenciamiento);
+			});
+
+			total_factura = total_factura + parseInt($("#total_impuestos_pesos").val()) + total_sobrecostos;
+			$("#total_factura").val(total_factura);
+			if (total_agenciamiento == 0) { total_agenciamiento = ""; }
+			$("#total_agenciamiento").val(total_agenciamiento);
+
+			if (total_iva_agenciamiento == 0) { total_iva_agenciamiento = ""; }
+			$("#iva_factura").val(total_iva_agenciamiento);
+
+			if (total_sobrecostos == 0) { total_sobrecostos = ""; }
+			$("#total_sobrecostos").val(total_sobrecostos);
+		}
+	}
+
+	function actualizaMonedaOferta(params){
+		var msg_error;
+
+		$.ajaxSetup({async: false});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=actuliza_moneda_oferta",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").html('');
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				$(".nexos-messages").html('');
+				// console.log(data);
+			}
+		});
+		$.ajaxSetup({async: true});
+		if (msg_error) {
+			$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function cambiaVistaConcepto(element){
+		$('#impresion_view_content').fadeOut(300);
+		var msg_error;
+		var fct_muestra_concepto = 0; 
+		if ( $(element).is(":checked") ) { fct_muestra_concepto = 1; }
+
+		params = {
+			id: $(element).val(),
+			fct_muestra_concepto : fct_muestra_concepto
+		}
+
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=ajusta_vista_concepto",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").html('');
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				// console.log(data);
+				$(".nexos-messages").html('');
+			}
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function verModeloProforma(){
+		/***** CONTENIDO DEL ENCABEZADO *****/
+		var arrayEncabezado = {
+			cliente_nombre : $("#tabla_cliente").data("cliente_nombre"),
+			cliente_nit : $("#tabla_cliente").data("cliente_nit"),
+			cliente_direccion : $("#tabla_cliente").data("cliente_direccion"),
+			cliente_municipio : $("#tabla_cliente").data("cliente_municipio"),
+		}
+		/***** FIN - CONTENIDO DEL ENCABEZADO *****/
+
+		/***** CONTENIDO DEL CUERPO *****/
+		var arrayCuerpo = new Array();
+		$(".check_instrucciones:checked").each(function(){
+			var arrayProyecto = new Array();
+			var id_proyecto = $(this).closest(".panel").data("id_proyecto");
+
+			/***** Se buscan los valores a liquidar el proyecto *****/
+			var agenciamiento = false;
+			if ( $(this).closest(".panel").find(".check_agenciamiento").is(":checked") ) {
+				agenciamiento = true;
+			}
+			var valor_servicio = $(this).closest(".panel").find(".valor_pesos").val();
+			var valor_agenciamiento = $(this).closest(".panel").find(".valor_agenciamiento").val();
+			var arrayValores = {
+				agenciamiento : agenciamiento,
+				valor_servicio : valor_servicio,
+				valor_agenciamiento : valor_agenciamiento
+			}
+			/***** Fin - Se buscan los valores a liquidar el proyecto *****/
+
+			/***** Se buscan los conceptos a mostrar en la factura *****/
+			if ($(this).closest(".panel").find(".conceptos").length > 0) {
+				// Se hay conceptos seleccionados se adicionan al arreglo
+				var arrayConceptos = new Array();
+				if ( $(this).closest(".panel").find(".check_concepto:checked").length > 0 ) {
+					$(this).closest(".panel").find(".check_concepto:checked").each(function(){
+						arrayConceptos.push($(this).data("concepto"));
+					});
+				}
+			}
+			/***** Fin - Se buscan los conceptos a mostrar en la factura *****/
+
+			/***** Se buscan la información de los impuestos *****/
+			var arrayDatosImpuestos = new Array();
+			if ($(this).closest(".panel").find(".impuestos").length > 0) {
+				if ( $(this).closest(".panel").find(".impuestos").find(".datos_impuesto").length > 0 ) {
+					$(this).closest(".panel").find(".impuestos").find(".datos_impuesto").each(function(){
+						var datos_impuestos = {
+							id: $(this).val(),
+							id_proyecto : id_proyecto,
+							valor: $(this).data("valor_pesos"),
+							descripcion: $(this).data("descripcion")
+						}
+						arrayDatosImpuestos.push(datos_impuestos);
+					});
+				}
+			}
+			/***** Fin - Se buscan la información de los impuestos *****/
+
+			/***** Se buscan el total por moneda de los impuestos *****/
+			var arrayTotalImpuestos = new Array();
+			if ($(this).closest(".panel").find(".impuestos").length > 0) {
+				if ( $(this).closest(".panel").find(".impuestos").find(".suma_impuestos").length > 0 ) {
+					$(this).closest(".panel").find(".impuestos").find(".suma_impuestos").each(function(){
+						var datos_impuestos = {
+							moneda: $(this).data("moneda"),
+							valor: $(this).val()
+						}
+						arrayTotalImpuestos.push(datos_impuestos);
+					});
+				}
+			}
+			/***** Fin - Se buscan el total por moneda de los impuestos *****/
+
+			/***** Se buscan la información de los sobrecostos *****/
+			var arrayDatosSobrecostos = new Array();
+			if ($(this).closest(".panel").find(".sobrecostos").length > 0) {
+				if ( $(this).closest(".panel").find(".sobrecostos").find(".valor_facturar").length > 0 ) {
+					$(this).closest(".panel").find(".sobrecostos").find(".valor_facturar").each(function(){
+						var valor = $(this).val();
+						valor = valor.replace(/\./g,"").replace(/\,/g,".")
+						var datos_sobrecosto = {
+							id: $(this).data("id"),
+							id_proyecto : id_proyecto,
+							valor: valor,
+							descripcion: $(this).data("descripcion")
+						}
+						arrayDatosSobrecostos.push(datos_sobrecosto);
+					});
+				}
+			}
+			/***** Fin - Se buscan la información de los sobrecostos *****/
+
+			arrayProyecto.push(id_proyecto,arrayConceptos,arrayValores,arrayDatosImpuestos,arrayTotalImpuestos,arrayDatosSobrecostos);
+			arrayCuerpo.push(arrayProyecto);
+		});
+		var cuerpo = arrayCuerpo;
+		/***** FIN - CONTENIDO DEL CUERPO *****/
+
+		/***** CONTENIDO DE LOS TOTALES DE LA PROFORMA *****/
+		// Contenido de los trm del día 
+		var arrayTRM = new Array();
+		if ($("#contenidoeditainstruccion").find(".trm_dia_facturacion").length > 0) {
+			$("#contenidoeditainstruccion").find(".trm_dia_facturacion").each(function(){
+				var datos = {
+					moneda: $(this).data("moneda_trm"),
+					valor: $(this).data("valor_facturacion")
+				}
+				arrayTRM.push(datos);
+			});
+		}
+
+		// Contenido de los totales de la factura 
+		var valor_iva = $("#iva_factura").val();
+		if (!valor_iva) { valor_iva = 0; }
+		var retefuente = 0;
+		var valor_total_factura = ( parseFloat($("#total_factura").val()) - parseFloat(retefuente) + parseFloat(valor_iva) );
+		var arrayTotales = {
+			subtotal : parseInt($("#total_factura").val()),
+			retefuente : retefuente,
+			valor_iva : valor_iva,
+			valor_total_factura : valor_total_factura,
+			trm_dia : arrayTRM
+		}
+		/***** FIN - CONTENIDO DE LOS TOTALES DE LA PROFORMA *****/
+
+		var msg_error = "";
+		var params = {
+			encabezado : arrayEncabezado,
+			cuerpo : cuerpo,
+			totales : arrayTotales
+		}
+		// console.log(params);
+
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/internacional_ajax.php?action=ver_formato_proforma",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend	: function(jqXHR, settings){
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function (jqXHR, textStatus, errorThrown){
+				$(".nexos-messages").html('');
+				msg_error+= "<p>" + jqXHR.responseText + "</p>";
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			success: function (data, textStatus, jqXHR){
+				// console.log(data);
+				$(".nexos-messages").html('');
+				$("#encabezado_content").html(data.content.encabezado);
+				$("#cuerpo_content").html(data.content.cuerpo);
+				$("#totales_content").html(data.content.totales);
+			}
+		});
+		if (msg_error) {
+			$("#nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+			$("#edita_instruccion").animate({ scrollTop: 0 }, 600);
+		}
+	}
+
+	function actualizaActividad(params){
+		// console.log(params);
+		var msg_error = "";
+
+		// Se actualizan las actividades del proyecto
+		$.ajax({
+			type: "POST",
+			cache: false,
+			url: $("#id_url_ajax").val() + "libs/gestion_actividades.php?tabla=cmx_importacion_actividades&proyecto=importacion",
+			data: params,
+			beforeSend: function(jqXHR, settings){
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(data) {
+				// console.log(data);
+				$(".nexos_messages_popup_instruccion").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Error en la creación del registro.</div></div>');
+			},
+			success: function(data) {
+				// console.log(data);
+			}
+		});
+	}
+</script>

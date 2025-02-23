@@ -1,0 +1,509 @@
+<?php
+$vista = "";
+/* * ** CARGA DE ARCHIVOS JS DE LA VISTA *** */
+$vista .= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>            
+	    <script type="text/javascript">
+	      $(document).ready(function(){
+	          //initialize the javascript
+	        App.init();
+                
+	      });
+	    </script>
+	';
+
+/* * ** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  *** */
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+
+echo $vista;
+?>
+<style>
+/* Always set the map height explicitly to define the size of the div
+     * element that contains the map. */
+#map {
+  height: 100%;
+}
+
+/* Optional: Makes the sample page fill the window. */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: 'Roboto', 'sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}
+</style>
+<!--<div id="floating-panel">
+  <input onclick="clearMarkers();" type=button value="Hide Markers">
+  <input onclick="showMarkers();" type=button value="Show All Markers">
+  <input onclick="deleteMarkers();" type=button value="Delete Markers">
+</div>-->
+
+
+
+
+
+
+
+<div class="panel panel-border panel-contrast">
+  <div class="panel-heading panel-heading-contrast">
+    Ingreso de rutas
+    <span class="panel-subtitle">Modulo para control de rutas en el sistema </span>
+  </div>
+  <div class="panel-body xs-mt-15">
+    <div id="respuesta"></div>
+    <div class="row" style="padding:15px;">
+      <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+        <label>Hola, por favor ingrese el origen y el destino de la ruta </label>
+        <div id="map" class="col-md-12 col-xs-12 col-sm-12 img-responsive" style="height:  300px;"></div>
+      </div>
+      <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12 img-responsive">
+        <label></label>
+        <div class="panel panel-border panel-contrast">
+          <div class="panel-heading panel-heading-contrast">
+            <label>El punto verde donde esta la letra <b>A</b> es el punto de partida de la ruta</label>
+            <label>El punto rojo donde esta la letra <b>B</b> es el punto de llegada</label>
+            <label id="total_recorrido"> </label>
+            <div id="div_btn_ruta" style="display: none;">
+              <p class="text-right">
+                <button id="btn_agregar_ruta" class="btn btn-space btn-primary" style="font-size:15px">Agregar
+                  ruta</button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="panel panel-border panel-contrast">
+  <div class="panel-heading panel-heading-contrast">
+    Ingreso de tramos para rutas
+    <span class="panel-subtitle">Módulo para control de tramos para las rutas creadas en el sistema </span>
+  </div>
+  <div class="panel-body xs-mt-15">
+    <div class="row" style="padding:15px;" id="div_tramo">
+      <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+        <div class="form-group">
+          <label>Escoge el tipo de retraso</label>
+          <select id="tipo_retraso" name="tipo_retraso" class="form-control">
+            <option value="Sin novedad">Sin Novedad</option>
+            <option value="Accidente">Accidente</option>
+            <option value="Tráfico Pesado">Tráfico Pesado</option>
+          </select>
+          <label id="error_tipo_retraso"></label>
+        </div>
+        <div class="form-group">
+          <label>Describa toda la novedad</label>
+          <textarea id="novedad" class="form-control"></textarea>
+          <label id="error_novedad"></label>
+        </div>
+        <div class="row xs-pt-15">
+          <div class="col-xs-12">
+            <p class="text-right">
+              <button id="btn_agregar_tramo" class="btn btn-space btn-primary"
+                style="font-size:15px; display: none;">Agregar tramo</button>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+        <div id="mapa_ruta" class="img-responsive" style="height:  300px;"></div>
+      </div>
+    </div>
+    <div>
+      <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+        <div id="mapa_ruta_tramos" class="img-responsive"></div>
+      </div>
+      <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+        <div class="panel panel-border panel-contrast">
+          <div class="panel-heading panel-heading-contrast" id="informacion_tramos">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var ruta_servidor = "<?php echo BASE_URL ?>";
+$(function() {});
+
+var map;
+var mapa_ruta;
+var mapa_ruta_tramos;
+var markers = [];
+var tramos = [];
+var waypoints = [];
+var inicio_tramo;
+var status_ruta = false;
+var status_tramo = false;
+var num_tramos = 0;
+var ruta_tramos = [];
+var info_tramo = "";
+
+function initMap() {
+  var haightAshbury = {
+    lat: 4.7097100,
+    lng: -74.0677500
+  };
+  var code = {
+    lat: 4.7097100,
+    lng: -74.0677500
+  };
+  mapa_ruta = new google.maps.Map(document.getElementById('mapa_ruta'), {
+    zoom: 5,
+    center: code
+  });
+  var trafficLayer = new google.maps.TrafficLayer();
+  trafficLayer.setMap(mapa_ruta);
+  var directionsService = new google.maps.DirectionsService;
+  var directionsDisplay = new google.maps.DirectionsRenderer;
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 5,
+    center: haightAshbury
+  });
+  directionsDisplay.setMap(map);
+  map.addListener('click', function(event) {
+    addMarkerruta(event.latLng);
+
+    if (status_ruta == false) {
+      if (markers.length == 2) {
+        inicio_tramo = markers[0]['position'];
+        origen_lat = markers[0]['position'].lat();
+        origen_lng = markers[0]['position'].lng();
+        destino_lat = markers[1]['position'].lat();
+        destino_lng = markers[1]['position'].lng();
+        calculateAndDisplayRoute(directionsService, directionsDisplay, origen_lat, origen_lng, destino_lat,
+          destino_lng);
+        deleteMarkers();
+      }
+    } else {}
+  });
+  var tempiniciotramo;
+  var directionsServices = new google.maps.DirectionsService;
+  var directionsDisplays = new google.maps.DirectionsRenderer;
+  directionsDisplays.setMap(mapa_ruta);
+  mapa_ruta.addListener('click', function(event) {
+    if (status_ruta == true) {
+      addMarkertramo(inicio_tramo);
+      addMarkertramo(event.latLng);
+      $("#btn_agregar_tramo").css("display", "block");
+      // if (status_tramo == false) {
+      if (tramos.length == 2) {
+        origen_lat = tramos[0]['position'].lat();
+        origen_lng = tramos[0]['position'].lng();
+        destino_lat = tramos[1]['position'].lat();
+        destino_lng = tramos[1]['position'].lng();
+        tempiniciotramo = tramos[1]['position'];
+        waypoints = [];
+        calculateAndDisplayRoutetramo(directionsServices, directionsDisplays, origen_lat, origen_lng, destino_lat,
+          destino_lng);
+        deleteTramos();
+        status_tramo = true;
+        $("#btn_agregar_tramo").click(function() {
+          if (status_ruta == false) {
+            $("#respuesta").html(
+              '<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong></strong> Para agregar un tramo, debe asignar la ruta primero</div></div>'
+              );
+          } else {
+            if (status_tramo == true) {
+              num_tramos = num_tramos + 1;
+              console.log(num_tramos);
+              if (num_tramos == 1) {
+                ruta_tramos[num_tramos - 1] = inicio_tramo;
+              }
+              if (num_tramos >= 1) {
+                tramoa = sacarletras(num_tramos);
+                tramob = sacarletras((num_tramos + 1));
+                info_tramo +=
+                  "<div class='row'><div class='col-md-3 col-lg-3 col-xs-3 col-sm-3'><label> Tramo <br>(" +
+                  tramoa + "-" + tramob + ")</div>\n\
+                                                   <div class='col-md-4 col-lg-4 col-xs-4 col-sm-4'><label> " + $(
+                    "#tipo_retraso").val() + "</label></div>\n\
+                                                   <div class='col-md-5 col-lg-5 col-xs-5 col-sm-5'><label>" + $(
+                    "#novedad").val() + "</label><br></div></div>";
+                $("#informacion_tramos").html(info_tramo);
+                $("#novedad").val("");
+                $("#tipo_retraso").val("");
+                ruta_tramos.push(tempiniciotramo);
+                $("#mapa_ruta_tramos").css("height", '300px');
+
+                mapa_ruta_tramos = new google.maps.Map(document.getElementById('mapa_ruta_tramos'), {
+                  zoom: 5,
+                  center: code
+                });
+                var trafficLayer = new google.maps.TrafficLayer();
+                trafficLayer.setMap(mapa_ruta_tramos);
+                var directionsService = new google.maps.DirectionsService;
+                var directionsDisplay = new google.maps.DirectionsRenderer;
+                for (i = 1; i < ruta_tramos.length - 1; i++) {
+                  waypoints[i - 1] = {
+                    location: new google.maps.LatLng(ruta_tramos[i].lat(), ruta_tramos[i].lng()),
+                    stopover: true
+                  }
+
+                }
+                directionsDisplay.setMap(mapa_ruta_tramos);
+                origen_lat = ruta_tramos[0].lat();
+                origen_lng = ruta_tramos[0].lng();
+                destino_lat = ruta_tramos[ruta_tramos.length - 1].lat();
+                destino_lng = ruta_tramos[ruta_tramos.length - 1].lng();
+                calculateAndDisplayRoute(directionsService, directionsDisplay, origen_lat, origen_lng,
+                  destino_lat, destino_lng);
+              }
+              inicio_tramo = tempiniciotramo;
+              status_tramo = false;
+            } else {}
+          }
+
+        });
+        //addMarkertramo(inicio_tramo);
+
+      }
+      // } 
+    }
+  });
+  var trafficLayer = new google.maps.TrafficLayer();
+  trafficLayer.setMap(map);
+}
+
+function sacarletras(num_tramo) {
+  switch (num_tramo) {
+    case 1:
+      letra = "A";
+      break;
+    case 2:
+      letra = "B";
+      break;
+    case 3:
+      letra = "C";
+      break;
+    case 4:
+      letra = "D";
+      break;
+    case 5:
+      letra = "E";
+      break;
+    case 6:
+      letra = "F";
+      break;
+    case 7:
+      letra = "G";
+      break;
+    case 8:
+      letra = "H";
+      break;
+    case 9:
+      letra = "I";
+      break;
+    case 10:
+      letra = "J";
+      break;
+    case 11:
+      letra = "K";
+      break;
+    case 12:
+      letra = "L";
+      break;
+    case 13:
+      letra = "M";
+      break;
+    case 14:
+      letra = "N";
+      break;
+    case 15:
+      letra = "O";
+      break;
+    case 16:
+      letra = "P";
+      break;
+    case 17:
+      letra = "Q";
+      break;
+    default:
+      letra = "sin letra";
+      break;
+  }
+  return letra;
+}
+
+function calculateAndDisplayRoutetramo(directionsService, directionsDisplay, origen_lat, origen_lng, destino_lat,
+  destino_lng) {
+  console.log("Funcion 1 ");
+  directionsService.route({
+    origin: {
+      lat: origen_lat,
+      lng: origen_lng
+    },
+    destination: {
+      lat: destino_lat,
+      lng: destino_lng
+    },
+    waypoints: waypoints,
+    optimizeWaypoints: true,
+    travelMode: 'DRIVING'
+  }, function(response, status) {
+    if (status === 'OK') {
+      directionsDisplay.setDirections(response);
+
+    } else {
+      window.alert("Puede que en este punto de destino no pueda pasar el vehiculo, intente otra ubicacion");
+    }
+  });
+}
+
+function calculateAndDisplayRoute(directionsService, directionsDisplay, origen_lat, origen_lng, destino_lat,
+  destino_lng) {
+  console.log("Funcion 2 ");
+  directionsService.route({
+    origin: {
+      lat: origen_lat,
+      lng: origen_lng
+    },
+    destination: {
+      lat: destino_lat,
+      lng: destino_lng
+    },
+    waypoints: waypoints,
+    optimizeWaypoints: true,
+    travelMode: 'DRIVING'
+  }, function(response, status) {
+    if (status === 'OK') {
+      directionsDisplay.setDirections(response);
+      aprox_recorrido = getKilometros(origen_lat, origen_lng, destino_lat, destino_lng);
+      $("#total_recorrido").text("Este trayecto tiene un recorrido de aproximadamente: " + aprox_recorrido + " km");
+      $("#div_btn_ruta").css("display", "block");
+      $("#btn_agregar_ruta").click(function() {
+        $.ajax({
+          type: "POST", //TIPO DE PETICION PUEDE SER GET
+          dataType: "json", //EL TIPO DE DATO QUE DEVUELVE PUEDE SER JSON/TEXT/HTML/XML
+          url: ruta_servidor + "libs/myajax.php", //DIRECCION DONDE SE ENCUENTRA LA OPERACION A REALIZAR
+          data: {
+            origen_lat: origen_lat,
+            origen_lng: origen_lng,
+            destino_lat: destino_lat,
+            destino_lng: destino_lng,
+            Op: "insertar_ruta"
+          }, //DATOS ENVIADOS PUEDE SER TEXT A TRAVEZ DE LA URL O PUEDE SER UN OBJETO
+          beforeSend: function() { //ACCION QUE SUCEDE ANTES DE HACER EL SUBMIT
+          },
+          success: function(
+          response) { //ACCION QUE SUCEDE DESPUES DE REALIZAR CORRECTAMENTE LA PETCION EL CUAL NOS TRAE UNA RESPUESTA
+            if (response.respuesta == "GOOD") { //MANDAMOS EL MENSAJE QUE NOS DEVUELVE EL RESPONSE
+              $("#respuesta").html(
+                '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong></strong> Se ha agregado la ruta correctamente </div></div>'
+                );
+              status_ruta = true;
+            } else {
+
+            }
+          },
+          error: function() { //SI OCURRE UN ERROR 
+            alert("El servicio no esta disponible intentelo mas tarde"); //MENSAJE EN CASO DE ERROR
+          }
+        });
+        return false;
+      });
+    } else {
+      window.alert("Puede que en este punto de destino no pueda pasar el vehiculo, intente otra ubicacion");
+    }
+  });
+}
+
+getKilometros = function(lat1, lon1, lat2, lon2) {
+  rad = function(x) {
+    return x * Math.PI / 180;
+  }
+  var R = 6378.137; //Radio de la tierra en km
+  var dLat = rad(lat2 - lat1);
+  var dLong = rad(lon2 - lon1);
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLong / 2) *
+    Math.sin(dLong / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = (R * c) * 1.1;
+  return d.toFixed(3); //Retorna tres decimales
+}
+
+// Adds a marker to the map and push to the array.
+function addMarkerruta(location) {
+  if (status_ruta == false) {
+    var marker = new google.maps.Marker({
+      position: location,
+      map: map
+
+    });
+    marker.setTitle("Control");
+    markers.push(marker);
+  }
+}
+
+function addMarkertramo(location) {
+
+  var tramo = new google.maps.Marker({
+    position: location,
+    map: mapa_ruta
+  });
+  tramo.setTitle("Control");
+  tramos.push(tramo);
+}
+
+// Sets the map on all markers in the array.
+function setMapOnAll(map) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
+}
+
+function setMaprutaOnAll(map) {
+  for (var i = 0; i < tramos.length; i++) {
+    tramos[i].setMap(map);
+  }
+}
+
+// Removes the markers from the map, but keeps them in the array.
+function clearMarkers() {
+  setMapOnAll(null);
+}
+
+function clearTramos() {
+  setMaprutaOnAll(null);
+}
+
+// Shows any markers currently in the array.
+function showMarkers() {
+  setMapOnAll(map);
+}
+// Deletes all markers in the array by removing references to them.
+function deleteMarkers() {
+  clearMarkers();
+  markers = [];
+}
+
+function deleteTramos() {
+  clearTramos();
+  tramos = [];
+}
+</script>
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6vpUhRVoEe5U6m7Wh5_LFMCr_g8OzU1E&callback=initMap">
+</script>

@@ -1,0 +1,576 @@
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -25px -39px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-border panel-contrast">
+        <div class="panel-heading panel-heading-contrast" style="background-color: #54B4D3;color: #FFFFFF;font-weight: bold;">
+          Remesa
+          <div class="tools"> </div>
+          <span class="panel-subtitle" style="color: #FFFFFF;font-weight: normal;">
+            Es el contrato que se tiene entre la empresa de transporte y el cliente, el cual asegura la mercancía y permite generar el cobro de este servicio al cliente.
+          </span>
+          <div class=" col-xs-12 col-sm-4 col-md-12">
+            <input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'">
+            <input type="hidden" id="elperfil" class="form-control input-sm" readonly="readonly" value="0">
+          </div>
+        </div>
+
+        <div class="panel-body" style="padding: 1px 1px 1px;">
+          <div class="nexos-messages"></div>
+          <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+          <div class="nexos-content">
+            <div class="row">
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div id="accordion1" class="panel-group accordion">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne"><i class="icon mdi mdi-chevron-down"></i><strong>Datos remesa</strong></a></h4>
+                    </div>
+                    <!-- <div id="collapseOne" class="panel-collapse collapse in"> -->
+                    <div id="collapseOne" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <input type="hidden" id="num_oc" class="form-control input-sm" readonly="readonly">
+                          <input type="hidden" id="num_remi" class="form-control input-sm" readonly="readonly">
+                          <input type="hidden" id="num_dest" class="form-control input-sm" readonly="readonly">
+                          <input type="hidden" id="num_solicitud" class="form-control input-sm" readonly="readonly">
+                          <input type="hidden" id="id_puntorem" class="form-control input-sm" readonly="readonly">
+
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label><strong>Orden de cargue</strong> </label>
+                          <select id="orden_cargue" class="form-control input-sm">
+                            <option value="">Seleccione</option>
+                          </select>
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label><strong>N° remesa</strong></label>
+                          <input type="text" id="id_remesa" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label><strong>Fecha realización</strong></label>
+                          <input type="date" id="fecha_remesa" class="form-control input-sm" value="<?php echo date('Y-m-d'); ?>" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label><strong>Hora realización</strong></label>
+                          <input type="time" id="hora_remesa" class="form-control input-sm" value="<?php echo date('H:i:s'); ?>" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label><strong>Oficina</strong></label>
+                          <input type="text" id="oficina" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label><strong>Tipo empaque</strong></label>
+                          <input type="text" id="tempaque" class="form-control input-sm" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label><strong>Tipo operación</strong></label>
+                          <input type="text" id="toperacion" class="form-control input-sm" readonly="readonly">
+                        </div>
+
+                        <input type="hidden" id="volumen_total" class="form-control input-sm" readonly="readonly">
+                        <input type="hidden" id="peso_neto_tn" class="form-control input-sm" readonly="readonly">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label><strong>Origen y Destino</strong></label>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label id="origen_destino"></label>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                          <label><strong>Observación</strong></label>
+                          <input type="text" id="observacion_cliente" class="form-control input-sm" readonly="readonly">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>
+                          <strong>Remitente / Destinatario</strong></a></h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                      <div class="panel-body">
+
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label><strong>Datos de remitente</strong></label>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Nombre</strong></label>
+                            <input type="text" id="rnombre" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>identificación</strong></label>
+                            <input type="text" id="ridentifica" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Dirección</strong></label>
+                            <input type="text" id="rdireccion" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Ciudad</strong></label>
+                            <input type="text" id="rciudad" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Teléfono</strong></label>
+                            <input type="text" id="rtelefono" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label><strong>Datos de destinatario</strong></label>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Nombre</strong></label>
+                            <input type="text" id="dnombre" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>identificación</strong></label>
+                            <input type="text" id="didentifica" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Dirección</strong></label>
+                            <input type="text" id="ddireccion" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Ciudad</strong></label>
+                            <input type="text" id="dciudad" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Teléfono</strong></label>
+                            <input type="text" id="dtelefono" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Facturar a</strong></label>
+                            <input type="text" id="dfactura" class="form-control input-sm" readonly="readonly">
+                            <input type="hidden" id="dciudad" class="form-control input-sm">
+                          </div>
+                          <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Observación destinatario</strong></label>
+                            <input type="text" id="observacion_destinatario" class="form-control input-sm" readonly="readonly">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseFour" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Datos Despacho / Datos cargue y descargue</strong></a></h4>
+                    </div>
+                    <div id="collapseFour" class="panel-collapse collapse">
+                      <div class="panel-body">
+
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label><strong>Datos de despacho</strong></label>
+                          </div>
+
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Placa</strong></label>
+                            <input type="text" id="placa" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Conductor</strong></label>
+                            <input type="text" id="conductor" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>N° identificación</strong></label>
+                            <input type="text" id="condu_identifica" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Remesa contado</strong></label>
+                            <select id="rcontacto_remesa" class="form-control input-sm">
+                              <option value="0">No</option>
+                              <option value="1">Si</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Remesa contraentrega</strong></label>
+                            <select id="rcontra_remesa" class="form-control input-sm">
+                              <option value="0">No</option>
+                              <option value="1">Si</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Valor declarado</strong></label>
+                            <br><label>XXXXXXXXXXXX</label>
+                            <input type="hidden" id="valor_mercancia" class="form-control input-sm" readonly="readonly">
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label><strong>Datos Pactados de cargue y descargue</strong></label>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Fecha pactada cargue</strong> </label>
+                            <input type="date" id="r_fechacargue" class="form-control input-sm" data-date-format="dd/mm/yyyy">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Hora pactada del cargue</strong> </label>
+                            <input type="time" id="r_horacargue" class="form-control input-sm" format="">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Cantidad horas pacto cargue</strong></label>
+                            <select id="cant_hour_cargue" class="form-control input-sm" title="Minutos adicionales al total de horas pactadas para el cargue. Incluye minutos de espera, minutos de cargue y documentación">
+                              <option value="">Seleccione</option>
+                              <option value="00">00</option>
+                              <option value="01">01</option>
+                              <option value="02">02</option>
+                              <option value="03">03</option>
+                              <option value="04">04</option>
+                              <option value="05">05</option>
+                              <option value="06">06</option>
+                              <option value="07">07</option>
+                              <option value="08">08</option>
+                              <option value="09">09</option>
+                              <option value="10">10</option>
+                              <option value="11">11</option>
+                              <option value="12">12</option>
+                              <option value="13">13</option>
+                              <option value="14">14</option>
+                              <option value="15">15</option>
+                              <option value="16">16</option>
+                              <option value="17">17</option>
+                              <option value="18">18</option>
+                              <option value="19">19</option>
+                              <option value="20">20</option>
+                              <option value="21">21</option>
+                              <option value="22">22</option>
+                              <option value="23">23</option>
+                              <option value="24">24</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6s">
+                            <label><strong>Cantidad Minutos pacto cargue</strong></label>
+                            <!-- <input type="text" id="cant_min_cargue" class="form-control input-sm" maxlength="2"  minlength="2" placeholder="Minutos adicionales al total de horas pactadas de cargue - 00 a 59"> -->
+                            <select id="cant_min_cargue" class="form-control input-sm" title="Minutos adicionales al total de horas pactadas para el cargue. Incluye minutos de espera, minutos de cargue y documentación">
+                              <option value="">Seleccione</option>
+                              <option value="00">00</option>
+                              <option value="01">01</option>
+                              <option value="02">02</option>
+                              <option value="03">03</option>
+                              <option value="04">04</option>
+                              <option value="05">05</option>
+                              <option value="06">06</option>
+                              <option value="07">07</option>
+                              <option value="08">08</option>
+                              <option value="09">09</option>
+                              <option value="10">10</option>
+                              <option value="11">11</option>
+                              <option value="12">12</option>
+                              <option value="13">13</option>
+                              <option value="14">14</option>
+                              <option value="15">15</option>
+                              <option value="16">16</option>
+                              <option value="17">17</option>
+                              <option value="18">18</option>
+                              <option value="19">19</option>
+                              <option value="20">20</option>
+                              <option value="21">21</option>
+                              <option value="22">22</option>
+                              <option value="23">23</option>
+                              <option value="24">24</option>
+                              <option value="25">25</option>
+                              <option value="26">26</option>
+                              <option value="27">27</option>
+                              <option value="28">28</option>
+                              <option value="29">29</option>
+                              <option value="30">30</option>
+                              <option value="31">31</option>
+                              <option value="32">32</option>
+                              <option value="33">33</option>
+                              <option value="34">34</option>
+                              <option value="35">35</option>
+                              <option value="36">36</option>
+                              <option value="37">37</option>
+                              <option value="38">38</option>
+                              <option value="39">39</option>
+                              <option value="40">40</option>
+                              <option value="41">41</option>
+                              <option value="42">42</option>
+                              <option value="43">43</option>
+                              <option value="44">44</option>
+                              <option value="45">45</option>
+                              <option value="46">46</option>
+                              <option value="47">47</option>
+                              <option value="48">48</option>
+                              <option value="49">49</option>
+                              <option value="50">50</option>
+                              <option value="51">51</option>
+                              <option value="52">52</option>
+                              <option value="53">53</option>
+                              <option value="54">54</option>
+                              <option value="55">55</option>
+                              <option value="56">56</option>
+                              <option value="57">57</option>
+                              <option value="58">58</option>
+                              <option value="59">59</option>
+                            </select>
+
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Fecha pactada descargue</strong></label>
+                            <input type="date" id="r_fechadescargue" class="form-control input-sm" data-date-format="dd/mm/yyyy">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Hora pactada del descargue</strong></label>
+                            <input type="time" id="r_horadescargue" class="form-control input-sm">
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Cantidad Horas pacto descargue</strong></label>
+                            <select id="cant_hour_descargue" class="form-control input-sm" title="Minutos adicionales al total de horas pactadas para el descargue. Incluye minutos de espera, minutos de descargue y documentación">
+                              <option value="">Seleccione</option>
+                              <option value="00">00</option>
+                              <option value="01">01</option>
+                              <option value="02">02</option>
+                              <option value="03">03</option>
+                              <option value="04">04</option>
+                              <option value="05">05</option>
+                              <option value="06">06</option>
+                              <option value="07">07</option>
+                              <option value="08">08</option>
+                              <option value="09">09</option>
+                              <option value="10">10</option>
+                              <option value="11">11</option>
+                              <option value="12">12</option>
+                              <option value="13">13</option>
+                              <option value="14">14</option>
+                              <option value="15">15</option>
+                              <option value="16">16</option>
+                              <option value="17">17</option>
+                              <option value="18">18</option>
+                              <option value="19">19</option>
+                              <option value="20">20</option>
+                              <option value="21">21</option>
+                              <option value="22">22</option>
+                              <option value="23">23</option>
+                              <option value="24">24</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Cantidad Minutos pacto descargue</strong></label>
+                            <select id="cant_min_descargue" class="form-control input-sm" title="Minutos adicionales al total de horas pactadas para el descargue. Incluye minutos de espera, minutos de descargue y documentación">
+                              <option value="">Seleccione</option>
+                              <option value="00">00</option>
+                              <option value="01">01</option>
+                              <option value="02">02</option>
+                              <option value="03">03</option>
+                              <option value="04">04</option>
+                              <option value="05">05</option>
+                              <option value="06">06</option>
+                              <option value="07">07</option>
+                              <option value="08">08</option>
+                              <option value="09">09</option>
+                              <option value="10">10</option>
+                              <option value="11">11</option>
+                              <option value="12">12</option>
+                              <option value="13">13</option>
+                              <option value="14">14</option>
+                              <option value="15">15</option>
+                              <option value="16">16</option>
+                              <option value="17">17</option>
+                              <option value="18">18</option>
+                              <option value="19">19</option>
+                              <option value="20">20</option>
+                              <option value="21">21</option>
+                              <option value="22">22</option>
+                              <option value="23">23</option>
+                              <option value="24">24</option>
+                              <option value="25">25</option>
+                              <option value="26">26</option>
+                              <option value="27">27</option>
+                              <option value="28">28</option>
+                              <option value="29">29</option>
+                              <option value="30">30</option>
+                              <option value="31">31</option>
+                              <option value="32">32</option>
+                              <option value="33">33</option>
+                              <option value="34">34</option>
+                              <option value="35">35</option>
+                              <option value="36">36</option>
+                              <option value="37">37</option>
+                              <option value="38">38</option>
+                              <option value="39">39</option>
+                              <option value="40">40</option>
+                              <option value="41">41</option>
+                              <option value="42">42</option>
+                              <option value="43">43</option>
+                              <option value="44">44</option>
+                              <option value="45">45</option>
+                              <option value="46">46</option>
+                              <option value="47">47</option>
+                              <option value="48">48</option>
+                              <option value="49">49</option>
+                              <option value="50">50</option>
+                              <option value="51">51</option>
+                              <option value="52">52</option>
+                              <option value="53">53</option>
+                              <option value="54">54</option>
+                              <option value="55">55</option>
+                              <option value="56">56</option>
+                              <option value="57">57</option>
+                              <option value="58">58</option>
+                              <option value="59">59</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseFou" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Datos de Mercancía / Datos de propietario</strong></a></h4>
+                    </div>
+                    <div id="collapseFou" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label><strong>Datos de Mercancía</strong></label>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Mercancía</strong></label>
+                            <input type="text" id="mercancia" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Naturaleza</strong></label>
+                            <input type="text" id="naturaleza" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Cant. estimada</strong></label>
+                            <input type="number" id="cantidad" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Cant. cargada (Kg)</strong></label>
+                            <input type="text" id="cantidad_real" class="form-control input-sm">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Tipo servicio</strong></label>
+                            <input type="text" id="unidad_medida" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Observación</strong></label>
+                            <select id="tipo_novedad" class="form-control input-sm">
+                              <option value="">Seleccione</option>
+                              <option value="cargue">Cargue</option>
+                              <option value="en_ruta">En ruta</option>
+                              <option value="descargue">Descargue</option>
+                            </select>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Descripción</strong></label>
+                            <textarea id="describ_novedad" class="form-control input-sm" placeholder="Sea breve"></textarea>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Archivo adjunto</strong></label>
+                            <input type="file" id="archivo_adjunto" class="form-control input-sm" onchange="return fileValidation()" enctype="multipart/form-data">
+                            <input type="text" id="imagePreview2" class="form-control input-xs" readonly="readonly">
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label><strong>Datos de propietario de la carga</strong></label>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Tipo identificación</strong></label>
+                            <input type="text" id="protipoi" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Número de identificación</strong></label>
+                            <input type="text" id="pronumero" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Nombre</strong></label>
+                            <input type="text" id="pronombre" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Dirección</strong></label>
+                            <input type="text" id="prodireccion" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Municipio</strong></label>
+                            <input type="text" id="promunicipio" class="form-control input-sm" readonly="readonly">
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <label><strong>Código postal</strong></label>
+                            <input type="text" id="propostal" class="form-control input-sm" readonly="readonly">
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label><strong>Datos solicitud de servicio</strong></label>
+                          </div>
+                          <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Fecha estimada entrega</strong></label>
+                            <input type="date" id="fecha_entrega" class="form-control input-sm">
+                          </div>
+                          <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <label><strong>Hora estimada entrega</strong></label>
+                            <input type="time" id="hora_entrega" class="form-control input-sm">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapsepre" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Precintos</strong></a></h4>
+                    </div>
+                    <div id="collapsepre" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label><strong>Precintos asoaciados a la Orden Cargue</strong></label>
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <td>Serial</td>
+                                  <td>Tipo</td>
+                                </tr>
+                              </thead>
+                              <tbody id="tb_precinto">
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row text-center">
+              <button id="Registrar_remesa" class="btn btn-success btn-xs offset-10"><i class="fa-regular fa-floppy-disk"></i> Guardar Remesa</button>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Mensajes para los usuarios de la plataforma -->
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/transporte/js/remesa_ajax.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

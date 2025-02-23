@@ -1,0 +1,920 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content = '';
+$table_content2 = '';
+$cod_inicia = '';
+$form_asignacion = '';
+$fomr_content = '';
+$table_estudios = '';
+
+if (isset($this->inicia_ruta)) {
+	$arrayPermisos = $this->inicia_ruta->permisosPerfil($ssn_id_perfil, 118);
+	$_permisos = $arrayPermisos;
+	$btn_crear = '';
+	if ($_permisos["adicionar"] == 1) {
+		$btn_crear = '<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="" data-target="#crear_inicio"><span class="icon mdi mdi-plus" title="Crear plan de ruta" style="font-size:40px;"></span></a>';
+	}
+
+	// $estado = '';
+	// $estado .= '<select id="estado" class="form-control input-sm">';
+	// $array3 = $this->inicia_ruta->cargar_estado();
+	// if ($array3) {
+	// 	foreach ($array3["rowsData"] as $key => $value) {
+
+	// 		$estado .= "<option value=" . $value['id'] . ">" . $value['estado'] . "</option>";
+	// 	}
+	// }
+
+	// $estado .= "</select>";
+
+	$table_estudios .= "
+	<div class='row' id='tabla-manifiestos'>
+		<div class='col-sm-12'>
+		<div  class='table-responsive noSwipe'>
+			<table id='tables1' class='table table-striped table-hover' data-page-length='100'>
+			<thead style='background-color:#332D2D;color:#fff;text-align:center;'>
+			<tr>
+				<th class='text-center'>Manifiesto</th>
+				<th class='text-center'>Tipo Manifiesto</th>
+				<th class='text-center'>Itr</th>
+				<th class='text-center'>Origen</th>
+				<th class='text-center'>Destino</th>
+				<th class='text-center'>Placa</th>
+				<th class='text-center'>Fecha Emision</th>
+				<th class='text-center'>Acción</th>
+			</tr>
+			</thead>
+		<tbody class='text-center' id='tbody_manifiestos_pendientes'>";
+	// $array3 = $this->inicia_ruta->planillas_seguridad();
+	// $uno = 0;
+
+	// if (is_array($array3['result'])) {
+	// 	foreach ($array3['result']["rowsData"] as $key => $value) {
+	// 		$uno++;
+	// 		if ($value['tipo_manifiesto'] == 1) {
+	// 			$manifiesto = "General";
+	// 		} elseif ($value['tipo_manifiesto'] == 2) {
+	// 			$manifiesto = "Multiparada";
+	// 		} elseif ($value['tipo_manifiesto'] == 3) {
+	// 			$manifiesto = "Viaje Vacío";
+	// 		} elseif ($value['tipo_manifiesto'] == 4) {
+	// 			$manifiesto = "Varios viajes en el Dia";
+	// 		} elseif ($value['tipo_manifiesto'] == 8) {
+	// 			$manifiesto = "Viaje de Ida y Regreso";
+	// 		}
+
+	// 		if ($value['manifiesto_itr'] == 'SI') {
+	// 			$itr = '<span class="badge badge-success float-right">SI</span>';
+	// 		} else {
+	// 			$itr = '<span class="badge badge-danger float-right">No</span>';
+	// 		}
+
+	// 		$table_estudios .= "
+  //           <tr>
+  //               <td class='cell-detail'>
+  //                   <span>{$value['n_manifiesto']}</span>
+  //               </td>
+  //               <td class='cell-detail'>
+  //                   <span>{$manifiesto}</span>
+  //               </td>
+  //               <td class='cell-detail'>
+  //                   <span>{$itr}</span>
+  //               </td>
+  //               <td class='cell-detail'>
+  //                   <span>{$value['origen_final']}</span>
+  //               </td>
+  //               <td class='cell-detail'>
+  //                   <span>{$value['destino_final']}</span>
+  //               </td>
+  //               <td class='cell-detail'>
+  //                   <span>{$value['placa_manifiesto']}</span>
+  //               </td>
+  //               <td class='cell-detail'>
+  //                   <span>{$value['fecha_expedicion']}-{$value['hora_expedicion']}</span>
+  //               </td>
+  //               <td>
+  //                   <button id='btn_uno" . $uno . "'  class='btn btn-space btn-success btn-xs mdi mdi-check' title='elegir' style='border-radius:25px;' onclick='verEstudio(this);'
+  //                       data-id='" . $value['n_manifiesto'] . "'
+  //                       data-id2='" . $value['placa_manifiesto'] . "'
+  //                       data-id3='" . $value['nombre'] . ' ' . $value['apellido1'] . ' ' . $value['apellido2'] . "'
+  //                       data-id4='" . $value['numero_documento'] . "'
+  //                       data-id5='" . $value['clase'] . "'
+  //                       data-id6='" . $value['n_manifiesto'] . "'
+  //                       data-id7='" . $value['origen_final'] . "'
+  //                       data-id8='" . $value['destino_final'] . "'
+  //                       data-id9='" . $value['origen_viaje'] . "'
+  //                       data-id10='" . $value['destino_viaje'] . "'
+  //                       data-id11='" . $value['placatrailer'] . "'
+  //                       data-id12='" . $value['celular'] . "'
+  //                       data-id13='" . $value['celular2'] . "'>
+  //                   </button>
+  //               </td>
+  //           </tr>";
+	// 	}
+
+	// 	if (is_array(isset($array3['result1']))) {
+	// 		foreach ($array3['result1']["rowsData"] as $keys => $values) {
+	// 			$uno++;
+	// 			if ($values['tipo_manifiesto'] == 1) {
+	// 				$manifiesto = "General";
+	// 			} elseif ($values['tipo_manifiesto'] == 2) {
+	// 				$manifiesto = "Multiparada";
+	// 			} elseif ($values['tipo_manifiesto'] == 3) {
+	// 				$manifiesto = "Viaje Vacío";
+	// 			} elseif ($values['tipo_manifiesto'] == 4) {
+	// 				$manifiesto = "Varios viajes en el Dia";
+	// 			} elseif ($values['tipo_manifiesto'] == 8) {
+	// 				$manifiesto = "Viaje de Ida y Regreso";
+	// 			}
+
+	// 			if ($values['manifiesto_itr'] == 'SI') {
+	// 				$itr = '<span class="badge badge-success float-right">SI</span>';
+	// 			} else {
+	// 				$itr = '<span class="badge badge-danger float-right">No</span>';
+	// 			}
+
+	// 			$table_estudios .= "
+	// 						<tr>
+	// 								<td class='cell-detail'>
+	// 										<span>{$values['n_manifiesto']}</span>
+	// 								</td>
+	// 								<td class='cell-detail'>
+	// 										<span>{$manifiesto}</span>
+	// 								</td>
+	// 								<td class='cell-detail'>
+	// 										<span>{$itr}</span>
+	// 								</td>
+	// 								<td class='cell-detail'>
+	// 										<span>{$values['origen_final']}</span>
+	// 								</td>
+	// 								<td class='cell-detail'>
+	// 										<span>{$values['destino_final']}</span>
+	// 								</td>
+	// 								<td class='cell-detail'>
+	// 										<span>{$values['placa_manifiesto']}</span>
+	// 								</td>
+	// 								<td class='cell-detail'>
+	// 										<span>{$values['fecha_expedicion']}-{$values['hora_expedicion']}</span>
+	// 								</td>
+	// 								<td>
+	// 										<button id='btn_uno" . $uno . "'  class='btn btn-space btn-success btn-xs mdi mdi-check' title='elegir' style='border-radius:25px;' onclick='verEstudio(this);'
+	// 												data-id='" . $values['n_manifiesto'] . "'
+	// 												data-id2='" . $values['placa_manifiesto'] . "'
+	// 												data-id3='" . $values['nombre'] . ' ' . $values['apellido1'] . ' ' . $values['apellido2'] . "'
+	// 												data-id4='" . $values['numero_documento'] . "'
+	// 												data-id5='" . $values['clase'] . "'
+	// 												data-id6='" . $values['n_manifiesto'] . "'
+	// 												data-id7='" . $values['origen_final'] . "'
+	// 												data-id8='" . $values['destino_final'] . "'
+	// 												data-id9='" . $values['origen_viaje'] . "'
+	// 												data-id10='" . $values['destino_viaje'] . "'
+	// 												data-id11='" . $values['placatrailer'] . "'
+	// 												data-id12='" . $values['celular'] . "'
+	// 												data-id13='" . $values['celular2'] . "'>
+	// 										</button>
+	// 								</td>
+	// 						</tr>";
+	// 		}
+	// 	}
+	// }
+
+	$table_estudios .= "</tbody>
+			</table>
+		</div>
+	</div>
+</div>";
+	if ($ssn_id_perfil == 9 || $ssn_id_perfil == 8) {
+		$vista .= '
+			<div class="nexos-content">
+				<div class="row" style="margin:-25px -39px -10px -39px;">
+					<div class="tab-container">
+						<ul class="nav nav-tabs" role="tablist">
+							<li class="nav-item"><a class="nav-link" href="#profile" data-toggle="tab" role="tab"><b><i
+											class="far fa-file-pdf"></i> Consultar pla de ruta</b></a>
+							</li>
+						</ul>
+						<div class="tab-content">
+							<div class="tab-pane active" id="profile" role="tabpanel">
+								%content3%
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		';
+	} else {
+		$vista .= '
+			<div class="nexos-content">
+				<div class="row" style="margin:-25px -39px -10px -39px;">
+					<div class="tab-container">
+						<ul class="nav nav-tabs" role="tablist">
+							<li class="nav-item"><a class="nav-link active" href="#home" data-toggle="tab" role="tab"><b>
+										<i class="fas fa-table"></i> Tabla Manifiestos</b></a>
+							</li>
+
+							<li class="nav-item"><a class="nav-link" href="#profile" data-toggle="tab" role="tab"><b>
+										<i class="far fa-file-pdf"></i> Consultar pla de ruta</b></a>
+							</li>
+						</ul>
+						<div class="tab-content">
+							<div class="tab-pane active" id="home" role="tabpanel">
+								<div class="nexos-messages"></div>
+								<div class="nexos-content">
+									%content%
+								</div>
+							</div>
+							<div class="tab-pane" id="profile" role="tabpanel">
+								%content3%
+							</div>
+							<div class="tab-pane" id="messages" role="tabpanel">
+								<p>Consectetur adipisicing elit. Ipsam ut praesentium, voluptate quidem necessitatibus quam nam officia soluta
+									aperiam, recusandae.</p>
+								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos facilis laboriosam, vitae ipsum tenetur
+									atque
+									vel repellendus culpa reiciendis velit quas, unde soluta quidem voluptas ipsam, rerum fuga placeat rem error
+									voluptate eligendi modi. Delectus, iure sit impedit? Facere provident expedita itaque, magni, quas assumenda
+									numquam eum! Sequi deserunt, rerum.</p><a href="#">Read more </a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		';
+	}
+
+	$table_content2 .= "
+    <div class='row'>
+    <div class='col-md-4 col-sm-4'>
+        <label>Filtrar planes de ruta</label>
+        <select id='filtro' class='form-control input-xs'>
+            <option value=''>Seleccione</option>
+            <option value='1'>N° Manifiesto</option>
+            <option value='2'>Fechas</option>
+        </select>
+    </div>
+    <div class='col-md-4 col-sm-4 col-lg-4 mnf'>
+        <label>N° manifiesto</label>
+        <input type='number' id='num_mnf' class='form-control input-xs'>
+    </div>
+    <div class='col-md-3 col-sm-3 fec'>
+        <label>Fecha Inicial</label>
+        <input type='date' id='fechaini' class='form-control input-xs' value='" . date(' Y-m-d') . "'  >
+    </div>
+    <div class='col-md-3 col-sm-3 fec'>
+        <label>Fecha Final</label>
+        <input type='date' id='fechafinal' class='form-control input-xs' value='" . date('Y-m-d') . "'>
+    </div>
+    <div class='col-md-2 col-sm-2 butnn'>
+        <br>
+        <button id='buscar_inicio'  class='btn btn-sm btn btn-primary'>Buscar</button>
+    </div>
+    </div>
+         ";
+
+	$table_content2 .= '
+		<div id="esconder">
+		<div class="row">
+			<div class="col-sm-12" style="margin-top:15px;">
+				<div class="table-responsive noSwipe">
+					<table id="table1" class="table table-striped table-hover table-fw-widget">
+						<thead style="background-color:#332D2D;color:#fff;text-align:center;">
+							<tr>
+								<th>#</th>
+								<th>Código</th>
+								<th>manifiesto</th>
+								<th>Placa</th>
+								<th>Conductor</th>
+								<th>Acción</th>
+							</tr>
+						</thead>
+						<tbody id="body_esconder">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>';
+
+	$table_content .= '' . $table_estudios . '';
+
+	$form_asignacion .= "	<div class='row' id='asignar-planruta' style='display: none;margin-top:-60px;'>
+
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>N° manifiesto(*)</label>
+			<input type='text' id='n_manifies' min='0' class='form-control input-xs' disabled='disabled' style='background-color:#000;color:#fff;font-weight:bold;'>
+		</div>
+
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Cédula(*)</label>
+			<input type='number' id='cedula' min='0' class='form-control input-xs' readonly='readonly'>
+		</div>
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Nombre Conductor</label>
+			<input type='text' id='nom_condu'class='form-control input-xs' readonly='readonly'>
+		</div>
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Celular conductor 1</label>
+			<input type='text' id='tel1' class='form-control input-xs' readonly=''>
+		</div>
+
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Celular conductor 2</label>
+			<input type='text' id='tel2' class='form-control input-xs' readonly=''>
+		</div>
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Placa Vehículo(*)</label>
+			<input type='text' id='placa'class='form-control input-xs' readonly='readonly'>
+		</div>
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Clase Vehículo</label>
+			<input type='text' id='tcarro'class='form-control input-xs' readonly='readonly'>
+		</div><div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Placa Trailer</label>
+			<input type='text' id='ttrailer'class='form-control input-xs' readonly='readonly'>
+		</div>
+		<div class='form-group col-xs-6 col-sm-6 col-md-6 col-lg-6'>
+			<label style='font-weight:800;'>Origen Ruta</label>
+			<select  class='form-control input-xs' id='Punto'>
+			</select>
+		</div>
+		<div class='form-group col-xs-6 col-sm-6 col-md-6 col-lg-6'>
+			<label style='font-weight:800;'>Destino Ruta</label>
+			<select  class='form-control input-xs' id='Destino'>
+			</select>
+		</div>
+		<div class='form-group col-xs-12 col-sm-12 col-md-12 col-lg-12'>
+			<label style='font-weight:800;'>Rutas creadas con ese origen y destino(*)</label>
+			<select  class='form-control input-sm select2' id='Plan'>
+				<option value='' readonly='readonly'>Seleccione</option>
+			</select>
+		</div>
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Fecha sálida</label>
+			<input type='date' id='fechasalida' class='form-control input-xs' value='" . date('Y-m-d') . "'>
+		</div>
+		<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'>
+			<label style='font-weight:800;'>Hora sálida</label>
+			<input type='time' id='horasalida' class='form-control input-xs' step='3600' value='" . date('H:i:s') . "'>
+		</div>
+		<div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'>
+			<label style='font-weight:800;'>Observación</label>
+			<textarea id='obse' class='form-control input-xs' rows='1' ></textarea>
+		</div>
+		<div class='col-xs-12 col-sm-4 col-md-4 col-lg-4'>
+			<!-- <label style='font-weight:800;'>Clave tarjeta</label> -->
+			<input type='hidden' id='clavetj' class='form-control input-sm'>
+		</div>
+		<div class='col-1'>
+			<input type='hidden' id='id_estudio'>
+		</div>
+
+		<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
+			<label style='font-weight:800;'>Remesas Asociadas</label>
+			<table class='table table-striped table-hover table-condensed'>
+							<thead style='background-color:#332D2D;color:#fff;text-align:center;'>
+								<th>Remesa</th>
+								<th>Orden cargue</th>
+								<th>Remitente</th>
+								<th>Destinatario</th>
+								<th>Mercancia</th>
+								<th>Peso</th>
+								<th>Fecha</th>
+							</thead>
+							 <tbody id='tabla_remesa'>
+							 </tbody>
+				</table>
+		</div>
+		<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
+			<label style='font-weight:800;'>Solicitudes de servicio (Destinatarios)</label>
+			<table class='table table-striped table-hover table-condensed' id='tabla_solicitud'>
+							<thead style='background-color:#332D2D;color:#fff;text-align:center;'>
+									<tr></tr>
+							</thead>
+							 <tbody>
+							 </tbody>
+				</table>
+		</div>
+		<div>
+			<input type='hidden' id='cab' value='1'>
+			<input type='hidden' id='pun' value='2'>
+		</div>
+			<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right'>
+				<button id='btn_cancelar_asignacion' type='button' data-dismiss='modal' class='btn btn-danger btn-xs'>Cancelar</button>
+				<button id='guarda_inicio' type='button' class='btn btn-success btn-xs' onclick=''>Guardar</button>
+			</div>
+		</div>
+		<br>";
+
+	$vista .= '
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			%content1%
+		</div>
+		';
+
+	//codigo de inicio
+	$cuente = 0;
+	$cod_inicia .= "
+<input type='number' id='num_i' class='form-control input-sm text-center' readonly='readonly' style='font-size:14pt; font-weight:700;'";
+	$array2 = $this->inicia_ruta->n_inicio();
+	if ($array2) {
+		foreach ($array2["rowsData"] as $key => $value) {
+			$cuente++;
+			if ($value['nco'] == '' || $value['nco'] == (null)) {
+				$cod_inicia .= 'value="' . $cuente . '"';
+			}
+			if ($value['nco'] != ' ' || $value['nco'] != (null)) {
+				$cod_inicia .= 'value="' . $value['nco'] . '"';
+			}
+		}
+	}
+	$cod_inicia .= ">";
+}
+?>
+
+<script type="text/javascript">
+	//abrir el segundo modal
+	$(document).on('click', '#buscar_estudio', function() {
+		$('#ver_estudio').modal('show');
+	});
+	$(document).on('click', '#cierre_estudio', function() {
+		$('#ver_estudio').modal('hide');
+	});
+</script>
+
+
+<div id="crear_inicio" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+	<div class=".modal-dialog-modal-lg.modal-dialog ">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="editar_title">
+					<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Crear Plan de ruta</label>
+				</h3>
+			</div>
+			<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+				<div id="msg_crear"></div>
+				<div id="content_editar">
+					<!--ESTUDIOS DE SEGURIDAD APROBADOS-->
+					<div class="row">
+						<div id="ver_estudio" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+							<div class="modal-dialog custom-width">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" aria-hidden="true" id="cierre_estudio" class="close md-close"><span class="mdi mdi-close"></span></button>
+										<h3 class="modal-title" id="editar_title">
+											<label id="titulo" style="font-size:16pt; color:white; font-weight:500;">Manifiesto</label>
+										</h3>
+									</div>
+									<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+										<div id="msg_modalplanilla"></div><!-- id para manejar los mensajes de errordel popup -->
+										<div id="content_editar">
+											<!-- <?php //echo $table_estudios; 
+														?> -->
+										</div><!--conten fin -->
+										<div class="row"></div><!-- separar contenido entre el body y el footer-->
+									</div>
+									<div class="modal-footer">
+										<button type="button" id="cierre_estudio" class="btn btn-default md-close">Cancelar</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6 ">
+							<label style="font-weight:800; margin-top:20px;">Seleccionar el manifiesto</label>
+							<button class="btn btn-md btn-primary" id="buscar_estudio">Manifiesto</button>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<!-- <button id="guarda_inicio" type="button" class="btn btn-success md-close" onclick="">Guardar</button>
+			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button> -->
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--puntos control-->
+<div id="pcontrol" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="editar_title">
+					<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Consultar Puntos de control</label>
+				</h3>
+			</div>
+			<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+				<div id="msg_edicion"></div>
+				<div id="content_editar">
+					<div class="row">
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label style="font-weight:800; margin-top:20px; ">Origen</label>
+							<input type="text" id="origen_c" readonly="readonly" class="form-control input-sm text-center" style="font-size:12pt;">
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+							<label style="font-weight:800; margin-top:20px; ">Destino</label>
+							<input type="text" id="destino_c" readonly="readonly" class="form-control input-sm text-center" style="font-size:12pt;">
+						</div>
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<label style="font-weight:800; margin-top:20px; ">Nombre de Plan</label>
+							<input type="text" id="plan_c" readonly="readonly" class="form-control input-sm text-center" style="font-size:12pt;">
+						</div>
+					</div><br>
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<div class="panel panel-default panel-table">
+								<div class="panel-heading">Puntos Asociados a este plan
+									<div class="tools"><span class="icon mdi mdi-download"></span><span class="icon mdi mdi-more-vert"></span></div>
+								</div>
+								<div class="panel-body">
+									<table class="table">
+										<thead>
+											<tr>
+												<th style="width:22%;">Ciudad</th>
+												<th style="width:22%;">Nombre Punto</th>
+												<th style="width:11%;">Tiempo Estimado</th>
+												<th style="width:30%;">Descripción</th>
+												<th style="width:20%;">Observación</th>
+											</tr>
+										</thead>
+										<tbody id="body_puntos">
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--puntos entrega-->
+<div id="p_entrega" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="editar_title">
+					<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Consultar Plan de ruta</label>
+				</h3>
+			</div>
+			<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+				<div id="msg_edicion"></div>
+				<div id="content_editar">
+
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<h3>Datos plan de ruta</h3>
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>Estudio seguridad</label>
+							<input type="text" id="vplanilla" class="form-control input-sm" disabled="disabled">
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>N° manifiesto</label>
+							<input type="text" id="vmani" class="form-control input-sm limpia" disabled="disabled">
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>Conductor</label>
+							<input type="text" id="vcondu" class="form-control input-sm limpia" disabled="disabled">
+						</div>
+						<div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+							<label>Placa</label>
+							<input type="text" id="vplaca" class="form-control input-sm limpia" disabled="disabled">
+						</div>
+						<div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+							<label>Observación</label>
+							<input type="text" id="vobser" class="form-control input-sm limpia" disabled="disabled">
+						</div>
+					</div><br>
+
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<div class="panel panel-default">
+								<div class="panel-heading"></div>
+								<div class="tab-container">
+									<ul class="nav nav-tabs nav-tabs-success">
+										<li class="active"><a href="#home1" data-toggle="tab">Detalle de ruta</a></li>
+										<li><a href="#profile1" data-toggle="tab">Remesas</a></li>
+										<li><a href="#messages1" data-toggle="tab">Solicitud y puntos de entrega</a></li>
+									</ul>
+									<div class="tab-content">
+										<div id="home1" class="tab-pane active cont">
+											<div class="row">
+												<div class="panel-heading">
+													<label id="name_plan"></label>
+													<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+														<label>Código detalle de ruta</label>
+														<input type="text" id="codigop" readonly="readonly" class="form-control input-xs text-center" style="font-size:12pt;">
+													</div>
+												</div>
+												<br><br><br><br>
+
+												<ul id="panel_principal"></ul>
+											</div>
+										</div>
+										<div id="profile1" class="tab-pane cont">
+											<div class="row">
+												<div class="panel-heading">
+													Remesas
+												</div>
+												<div class="panel-body">
+													<section id="panel_remesaa"></section>
+												</div>
+											</div>
+										</div>
+										<div id="messages1" class="tab-pane">
+											<div class="row">
+												<div class="panel-heading">
+													Puntos de entrega
+												</div>
+												<div class="panel-body">
+													<section id="panel_entrega"></section>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--status-->
+<div id="status" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="editar_title">
+					<label id="titulo" style="font-size:20pt; color:white; text-align:center;">Consultar Estados</label>
+				</h3>
+			</div>
+			<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+				<div id="msg_edicion"></div>
+				<div id="content_editar">
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<label style="font-weight:800; margin-top:20px; ">Código de Inicio de Ruta</label>
+							<input type="text" id="codi" readonly="readonly" class="form-control input-sm text-center" style="font-size:12pt;">
+						</div>
+					</div><br>
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<div class="panel panel-default panel-table">
+								<div class="panel-heading">
+									<div class="tools"><span class="icon mdi mdi-download"></span><span class="icon mdi mdi-more-vert"></span></div>
+								</div>
+								<div class="panel-body">
+									<table class="table">
+										<thead>
+											<tr>
+												<th style="width:22%;">Estado</th>
+												<th style="width:22%;">Fecha</th>
+												<th style="width:11%;">Hora</th>
+												<th style="width:30%;">Usuario</th>
+											</tr>
+										</thead>
+										<tbody id="body_status">
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php
+$vista .= '
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+			<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/inicioruta_ajax.js" type="text/javascript"></script>
+			<script src="%root_file%js/main.js" type="text/javascript"></script>
+			<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+			<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+			<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+			<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+
+			<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+			<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+			<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+			<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+			<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+			<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+			<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+			<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+			<script type="text/javascript">
+				$.fn.niftyModal(\'setDefaults\',{
+					overlaySelector: \'.modal-overlay\',
+					closeSelector: \'.modal-close\',
+					classAddAfterOpen: \'modal-show\',
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+					App.dataTables();
+				});
+				$(document).ready(function(){
+					//initialize the javascript
+					App.init();
+					App.wizard();
+				});
+			</script>
+';
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista);
+$vista = str_replace("%content1%", $form_asignacion, $vista);
+$vista = str_replace("%content3%", $table_content2, $vista);
+echo $vista;
+?>
+
+<script type="text/javascript">
+	function verEstudio(element) {
+		//alert('hola');
+		document.getElementById("tabla-manifiestos").style.display = "none";
+		document.getElementById("asignar-planruta").style.display = "block";
+		var elemento = $(element);
+		var id = elemento.data("id");
+		var placa = elemento.data("id2");
+		var nomcondu = elemento.data("id3");
+		var docconductor = elemento.data("id4");
+		var clase_car = elemento.data("id5");
+		var nmanifi = elemento.data("id6");
+		var ori_letra = elemento.data("id7");
+		var des_letra = elemento.data("id8");
+		var ori_num = elemento.data("id9");
+		var des_num = elemento.data("id10");
+		var pktrailer = elemento.data("id11");
+		var cel1 = elemento.data("id12");
+		var cel2 = elemento.data("id13");
+		$("#id_estudio").val(id); //Numero planilla
+		$("#placa").val(placa);
+		$("#cedula").val(docconductor);
+		$("#nom_condu").val(nomcondu);
+		$("#tcarro").val(clase_car);
+		$("#n_manifies").val(nmanifi);
+		$("#ttrailer").val(pktrailer);
+		$("#tel1").val(cel1);
+		$("#tel2").val(cel2);
+		$("#Punto").html('<option value="' + ori_num + '">' + ori_letra + '</option>');
+		$("#Destino").html('<option value="' + des_num + '">' + des_letra + '</option>');
+		//traer planes
+		var url = $("#id_url_ajax").val() + "libs/trafico_ajax.php";
+		var consulta = {
+			origen_ruta: ori_num,
+			destino_ruta: des_num,
+			action: 'tplan'
+		};
+		$("#Plan").html('');
+		$.ajax({
+			url: url,
+			type: 'POST',
+			data: consulta,
+			dataType: 'json',
+			success: function(data) {
+				if (data.result == null) {
+					var msg_erro;
+					msg_erro += "<p>No existe una ruta, debe crearla. Por favor dirijase al submenu rutas y detalle de ruta para crearlo.</p>";
+					$("#msg_modalplanilla").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_erro + '</div></div>');
+					$("#ver_estudio").animate({
+						scrollTop: 0
+					}, 600);
+					$("#msg_crear").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_erro + '</div></div>');
+					$("#crear_inicio").animate({
+						scrollTop: 0
+					}, 600);
+
+				}
+				if (data.result != null) {
+					$("#msg_crear").html('');
+					$("#msg_modalplanilla").html('');
+					data.result.forEach(function(element, index) {
+						$("#Plan").append('<option class="text-center" value="' + element.cod_plan + '">' + element.cod_plan + ' - ' + element.nombre_plan + ' - ' + element.observacion + ' - ' + element.km_tot_ruta + ' Km</option>');
+					});
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log('no trajo plan');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
+		//traer solicitudes y puntos de entrega
+		var puntos = {
+			manifiesto: id,
+			action: 'consultar_puntosentrega'
+		};
+		$("#tabla_solicitud").html('');
+		$.ajax({
+			url: url,
+			type: 'POST',
+			data: puntos,
+			dataType: 'json',
+			success: function(data) {
+				if (data) {
+					data.result.forEach(function(element, index) {
+						$("#tabla_solicitud").append('<tr>' +
+							'<td>' + element.nundoc_solicitud + '</td>' +
+							'<td>' + element.municipio + ' - ' + element.depto + '</td>' +
+							'<td>' + element.nombre + '</td>' +
+							'<td>' + element.direccion_entrega + '</td>' +
+							'<td>' + element.fecha_estimada_entrega + '</td>' +
+							'<td>' + element.hora_estimada + '</td>' +
+							'<td>' + element.observacion + '</td>' +
+							'</tr>');
+					});
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$("#tabla_solicitud").html('');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
+
+		//traer remesas
+		var pla = {
+			manifiesto: id,
+			action: 'consultar_remesas'
+		}
+		$("#tabla_remesa").html('');
+		$.ajax({
+			url: url,
+			type: 'POST',
+			data: pla,
+			dataType: 'json',
+			success: function(data) {
+				if (data.result != null) {
+					data.result.forEach(function(element, index) {
+						$("#tabla_remesa").append('<tr>' +
+							'<td>' + element.id + '</td>' +
+							'<td>' + element.id_orden_cargue + '</td>' +
+							'<td>' + element.remitente + '</td>' +
+							'<td>' + element.destinatario + '</td>' +
+							'<td>' + element.tipo_mercancia + '</td>' +
+							'<td>' + element.cantidad_real_cargada + '</td>' +
+							'<td>' + element.fecha_creacion + '</td>' +
+							'</tr>');
+					});
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert('no encontró planilla');
+				$("#tabla_remesa").html('');
+				console.log('no trajo puntos');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
+		//alert('Seleccionado');
+		$('#ver_estudio').modal('hide');
+	}
+</script>

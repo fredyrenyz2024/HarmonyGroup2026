@@ -1,0 +1,252 @@
+<?php
+	$_dbTable = "centro_costo"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	/********* FIN POPUPS *********/
+
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if(isset($this->centro_costo) /* && count($this->centro_costo) */){
+
+		/*** SE CREA TABLA DE CONTENIDO ***/
+		$table_centro_costo = '
+			<div class="row">
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:10%;">#</th>
+									<th>Centro de Costo</th>
+									<th style="min-width:10%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+		$arrayTarifa = $this->centro_costo->getTabla($ssn_id_cliente);
+		// echo print_r($arrayTarifa);
+		if ($arrayTarifa) {
+			foreach ($arrayTarifa as $key => $value) {
+
+				/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+				switch ($value["estado"]) {
+					case '0':
+						// se asigna contenido de la columna de estado
+						$col_stasus = '
+							<td class="nexos-txt-danger">
+								<span class="mdi mdi-dot-circle icon"></span>
+								<div style="display:none;">' . $value["estado"] . '</div>
+							</td>
+						';
+
+						$_popupHabilita = $alert->_alert_modal_mod_success( $value['id'] , "Realmente desea habilitar este elemento?" , $_dbTable );
+						$vista.= $_popupHabilita[0];
+						$_jsScripts.=$_popupHabilita[1];
+
+						// se asigna contenudo de la columna de acciones
+						$col_action = '
+							<td class="actions">
+								<span id="#habilita_' . $value['id'] . '" data-toggle="modal" data-target="#habilita_' . $value['id'] . '" class="icon mdi mdi-check-circle"></span>
+							</td>
+						';
+						break;
+					
+					case '1':
+						// se asigna contenido de la columna de estado
+						$col_stasus = '
+							<td class="nexos-txt-success">
+								<span class="mdi mdi-dot-circle icon"></span>
+								<div style="display:none;">' . $value["estado"] . '</div>
+							</td>
+						';
+
+						// se genera el formulario de edicion del registro
+						$form_edit_table = '
+							<input type="hidden" name="id" placeholder="Cliente" class="form-control" value="' . $value['id'] . '">
+							<input type="hidden" name="id_cliente" placeholder="Cliente" class="form-control" value="' . $ssn_id_cliente . '">
+							<div class="form-group col-xs-12">
+								<label>Nombre:</label>
+								<input type="text" name="nombre" value="' . $value["nombre"] . '" placeholder="Centro de Costo" class="form-control">
+							</div>
+							<div class="form-group col-xs-12">
+								<label>Descripción:</label>
+								<textarea name="descripcion" placeholder="Descripción" class="form-control">' . $value["descripcion"] . '</textarea>
+							</div>
+							<div class="row"></div>
+						';
+
+
+						$_popupEdita = $form_edita->_form_modal_update($value['id'], "Editar Servicio Especial - " . $value['id_cliente'] , $form_edit_table, $_dbTable);
+						$vista.= $_popupEdita[0];
+						$_jsScripts.=$_popupEdita[1];
+
+
+						$_popupElimina = $alert->_alert_modal_mod_danger($value['id'], "Realmente desea eliminar este elemento?",$_dbTable);
+						$vista.= $_popupElimina[0];
+						$_jsScripts.=$_popupElimina[1];
+						// se asigna contenudo de la columna de acciones
+						$col_action = '
+							<td class="actions">
+								<span id="edita_' . $value['id'] . '" data-toggle="modal" data-target="#edita_' . $value['id'] . '" class="icon mdi mdi-edit"></span>
+								<span id="elimina_' . $value['id'] . '"data-toggle="modal" data-target="#elimina_' . $value['id'] . '" class="icon mdi mdi-close-circle"></span>
+							</td>
+						';
+
+						break;
+				}
+				/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+
+				// Se maqueta contenido de la tabla 
+				$table_centro_costo.= '<tr>';
+				$table_centro_costo.= $col_stasus;
+				$table_centro_costo.= '
+					<td class="cell-detail">
+						<span>' . $value["nombre"] . '</span>
+						<span class="cell-detail-description">' . $value["descripcion"] . '</span>
+					</td>
+				';
+
+				// se asigna la columna de acciones
+				$table_centro_costo.=$col_action;
+				
+				$table_centro_costo.= '</tr>';
+			}
+
+			$table_centro_costo.= '
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			';
+		}else{
+			echo '<p>no hay registros en esta tabla...</p>';
+		}
+	}else{
+		echo '<p>no hay registros en esta tabla...</p>';
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Centros de Costo
+				<div class="tools">
+					<a href="#" data-toggle="modal" data-target="#crea_' . $_dbTable . '" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+				</div>
+				<span class="panel-subtitle">Establece los centros de costo a la cual podría pertenecer la actividad de un proyecto.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+
+  	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+
+
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+	    </script>
+	';
+
+
+	/****** CREACION CONTENIDO DE POPUPS ******/
+
+	// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+	$forms = '
+		<input type="hidden" name="id_cliente" placeholder="Cliente" class="form-control" value="' . $ssn_id_cliente . '">
+		<div class="form-group col-xs-12">
+			<label>Nombre:</label>
+			<input type="text" name="nombre" placeholder="Centro de Costo" class="form-control">
+		</div>
+		<div class="form-group col-xs-12">
+			<label>Descripción:</label>
+			<textarea name="descripcion" placeholder="Descripción" class="form-control"></textarea>
+		</div>
+		<div class="row"></div>
+	';
+
+	$_popupCrea = $form_crea->_form_modal_simple_insert("crea_" . $_dbTable ,"Crear Centro de Costo" , $forms , $_dbTable );
+	$vista.= $_popupCrea[0];
+	$_jsScripts.=$_popupCrea[1];
+
+
+	/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_centro_costo , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>

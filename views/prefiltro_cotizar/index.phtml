@@ -1,0 +1,2483 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content = '';
+// $array = $this->prefiltro_coti->getcotizaciones();
+$tabla_solicitudes = '';
+
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-body">
+				<div class="nexos-messages"></div>
+				<div class="nexos-content">
+					%content%
+				</div>
+				<div class="row">
+				<div class="col-sm-12"></div>
+				</div>
+			</div>
+		</div>
+	';
+
+$table_content .= "
+<div class='col-xs-12 col-sm-12 col-md-12'>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label>Seleccione el Documento</label>
+	<select  class='form-control input-xs' id='cotice'>
+		<option value='Solicitud'>Solicitud Servicio</option>
+	</select>
+</div>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label>Fecha Inicial</label>
+	<input type='date' id='fecha_inicial' date-format='yyyy/mm/dd' class='form-control input-xs' value='" . date('Y-m-d') . "' >
+</div>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<label>Fecha Final</label>
+    <input type='date' id='fecha_final' date-format='yyyy/mm/dd' class='form-control input-xs' value='" . date('Y-m-d') . "' >
+</div>
+<div class='form-group col-xs-6 col-sm-6 col-md-3'>
+	<button style='margin-top:30px;' class='btn btn-info btn-sm' id='consulte'  onclick='cotizacion_aprobada();'><i class='fas fa-search'></i> Consultar Solicitudes de servicio</button>
+</div>
+</div>";
+
+$tabla_solicitudes .= '
+<div id="esconder" style="">
+<!--<div class="row text-center"><h5>Numero de solicitudes de servicio: <span class="label label-primary" id="bdge_ss"></span></h5></div>-->
+<div class="text-center">
+<h4><span class="label label-primary"><b>Numero de solicitudes de servicio:</b> <span class="badge" id="bdge_ss"></span></span></h4>
+</div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="table-responsive noSwipe">
+        <table id="table" class="table table-striped table-hover table-condensed">
+          <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+            <tr>
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Solicitud</th>
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Cotización</th>
+              <!--<th class="text-center" style="color: white;width: auto; white-space: nowrap;">Id pareja</th>-->
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Cliente</th>
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Mercancia</th>
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Peso</th>
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Servicio</th>
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;" title="Estado Operaciones">
+              Estado</th>
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Fecha</th>
+              <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="body_esconder">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>';
+
+$vista .= '
+%content1%
+';
+?>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="exampleModalLabel"><strong>Solicitud de Servicio</strong></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+          <div class="e_titulogeneral col-md-12">
+            <strong>Datos Cotización</strong>
+            <hr / style="border: 0; height: 12px; box-shadow: inset 0 12px 12px -12px blue;">
+          </div>
+          <div class="col-sm-4 col-xs-4 col-md-4">
+            <label style="font-weight:800; margin-top:20px; ">N° Cotización</label>
+            <input type="text" id="ncotizar" class="form-control input-sm" readonly="readonly" value="">
+          </div>
+          <div class="col-sm-4 col-xs-4 col-md-4">
+            <label style="font-weight:800; margin-top:20px; ">Fecha</label>
+            <input type="text" id="fecha_sistem" class="form-control input-sm" readonly="readonly" value="">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4">
+            <label style="font-weight:800; margin-top:20px; ">Hora</label>
+            <input type="text" id="hora_sistem" class="form-control input-sm" readonly="readonly" value="">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4">
+            <label style="font-weight:800; margin-top:20px; ">Usuario</label>
+            <input type="text" id="user" class="form-control input-sm" readonly="readonly" value='<?php echo $ssn_nombre; ?>'>
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4">
+            <label style="font-weight:800; margin-top:20px; ">Id Pareja Origen-Destino</label>
+            <input type="text" id="pareja" class="form-control input-sm" readonly="readonly">
+          </div>
+          <div class="e_titulogeneral col-md-12">
+            <strong>Datos Solicitud</strong>
+            <hr / style="border: 0; height: 12px; box-shadow: inset 0 12px 12px -12px orange;">
+          </div>
+          <div class="col-sm-12 col-md-12 col-xs-12">
+            <label style="font-weight:800; margin-top:20px; ">Nombre Cliente</label>
+            <input type="text" id="cliente" class="form-control input-sm text-center" readonly="readonly">
+          </div>
+          <div class="col-sm-6 col-md-6 col-xs-6">
+            <label style="font-weight:800; margin-top:20px; ">Origen:</label>
+            <p id="orisoli" class="text-primary"></p>
+          </div>
+          <div class="col-sm-6 col-md-6 col-xs-6">
+            <label style="font-weight:800; margin-top:20px; ">Destino:</label>
+            <p id="destisoli" class="text-primary"></p>
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4">
+            <label style="font-weight:800; margin-top:20px;">Origen</label>
+            <input type="text" id="origen" class="form-control input-sm" readonly="readonly">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4">
+            <label style="font-weight:800; margin-top:20px; ">Destino</label>
+            <input type="text" id="destino" class="form-control input-sm" readonly="readonly">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4">
+            <label style="font-weight:800; margin-top:20px; ">Peso (Kg)</label>
+            <input type="text" id="peso" class="form-control input-sm" readonly="readonly">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4">
+            <label style="font-weight:800; margin-top:20px; ">Tipo Vehículo</label>
+            <input type="text" id="tipo_vehiculov" class="form-control input-sm" readonly="readonly">
+            <input type="hidden" id="tipo_vehiculo" class="form-control input-sm" readonly="readonly">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4">
+            <label style="font-weight:800; margin-top:20px; ">Flete</label>
+            <input type="text" id="flete" min="0" class="form-control input-sm" disabled="disabled">
+          </div>
+          <div class="col-sm-6 col-md-6 col-xs-6">
+            <label style="font-weight:800; margin-top:20px; ">Agencia&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="agencia" class="form-control input-sm">
+              <option value="">Seleccione</option>
+            </select>
+          </div>
+          <div class="col-sm-12 col-md-12 col-xs-12">
+            <label style="font-weight:800; margin-top:20px; ">Observaciones</label>
+            <textarea type="text" id="observacion" min="0" class="form-control input-sm"></textarea>
+          </div>
+
+          <!-- <div class="col-sm-6 col-md-6 col-xs-6 col-lg-6">
+            <label>Tipo carga</label>
+            <input type="text" id="cont_carga" class="form-control input-sm" readonly="readonly">
+          </div> -->
+          <div class="col-sm-6 col-md-6 col-xs-6 col-lg-6">
+            <label>Tipo transporte</label>
+            <input type="text" id="cont_transporte" class="form-control input-sm" readonly="readonly">
+          </div>
+
+          <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4">
+            <label style="font-weight:800; margin-top:20px; ">Devolución cnt</label>
+            <select id="cnt_opcion" class="form-control input-sm">
+              <option value="">Elija</option>
+              <option value="1">Si</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4">
+            <label style="font-weight:800; margin-top:20px; ">Tipo Contenedor</label>
+            <select id="cnt_tipocon" class="form-control input-sm">
+            </select>
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4">
+            <label style="font-weight:800; margin-top:20px; ">Núm. contenedor</label>
+            <input type="number" id="cnt_num" class="form-control input-sm" min="0" placeholder="# Contenedor">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4">
+            <label style="font-weight:800; margin-top:20px; ">Fecha de vencimiento</label>
+            <input type="date" id="cnt_dias" class="form-control  input-sm">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4">
+            <label style="font-weight:800; margin-top:20px; ">Mun devolución</label>
+            <select id="cnt_municipio" class="form-control input-sm">
+              <option value=''>Seleccione</option>
+            </select>
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4">
+            <label style="font-weight:800; margin-top:20px; ">Dirección devolución</label>
+            <input type="text" id="cnt_direccion" class="form-control input-sm">
+          </div>
+          <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4">
+            <label style="font-weight:800; margin-top:20px; ">Fecha comodato</label>
+            <input type="date" id="cnt_fcomodato" class="form-control input-sm">
+          </div>
+
+          <div class="col-sm-12 col-xs-12 col-md-12">
+            <label></label>
+            <button id="boton_pedir_carro" class="form-control input-sm btn btn-success mdi mdi-check" onclick="solicitud_vehiculo();">solicitar</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="status" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #fff;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="exampleModalLabel"><strong><i class="fas fa-business-time"></i>
+            Trazabilidad</strong></h4>
+      </div>
+      <div class="modal-body">
+        <!-- <div class="form-group col-md-12 col-sm-12 col-xs-12">
+          <div class="e_titulogeneral col-md-12"> </div>
+        </div> -->
+        <!--COTIZACIONES-->
+        <!-- <h3 class="text-center" id="tbtres">
+              <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Cotización</p> id="tbc"
+            </h3> -->
+        <div class="row">
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Cotización</h6>
+            </div>
+            <div class="panel-body" style=" padding: 5px 5px 5px;">
+              <table id="table" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">#</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">N° cotización</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Item</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Mercancia</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Estado</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Fecha</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Hora</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Usuario responsables</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;"> Proceso</th>
+                  </tr>
+                </thead>
+                <tbody id="movimientos_cotizacion"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <!--SOLICITUDES SERVICVIO-->
+        <div class="row">
+          <!-- <h3 class="text-center" id="tbtres">
+            <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Solicitud servicio</p>
+          </h3> -->
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos del Cliente</h6>
+            </div>
+            <div class="panel-body" style=" padding: 5px 5px 5px;">
+              <table id="table" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Solicitud</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">N° cotización</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Item</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Mercancia</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Fecha</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Hora</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Usuario</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Proceso</th>
+                  </tr>
+                </thead>
+                <tbody id="movimientos_status"> </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRAZABILIDAD POR SOLICITUD -->
+        <div class="row">
+          <!-- <h3 class="text-center" id="tbtres">
+            <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Solicitud servicio</p>
+          </h3> -->
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Traza de la solicitud servicio</h6>
+            </div>
+            <div class="panel-body" style=" padding: 5px 5px 5px;">
+              <table id="table" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Solicitud</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Prefiltro</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Estudio</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Vehículo Ganador</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Orden cargue</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Remesa</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Manifiesto</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Cita</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Plan ruta</th>
+                  </tr>
+                </thead>
+                <tbody id="trazabilidad_solicitud"> </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="vercotizacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #fff;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="exampleModalLabel"><strong><i class="fas fa-clipboard-list"></i> Consultar Cotización</strong></h4>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;">
+        <div id="content_ver">
+          <div id="titlu"></div>
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos del Cliente</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Nombre Cliente</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Nit</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Dirección</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Teléfono</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Procedencia</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo_cliente"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos de la Mercancía</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">#</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tipo Servicio</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tipo Vehículo</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tipo carga</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tipo transporte</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Peso Bruto</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Peso neto(Kg)</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Peso Neto(Tn)</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tipo Empaque</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Cantidad</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo_mer1"></tbody>
+              </table>
+
+              <div class="col-md-2 col-xs-12 col-sm-6 col-lg-6" style="margin-top: 10px;">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                  <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                    <tr>
+                      <th class="text-center" style="color: white;width: auto; white-space: nowrap;">#</th>
+                      <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Origen</th>
+                    </tr>
+                  </thead>
+                  <tbody id="muniorigen"></tbody>
+                </table>
+              </div>
+
+              <div class="col-md-2 col-xs-12 col-sm-6 col-lg-6" style="margin-top: 10px;">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                  <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                    <tr>
+                      <th class="text-center" style="color: white;width: auto; white-space: nowrap;">#</th>
+                      <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Destino</th>
+                    </tr>
+                  </thead>
+                  <tbody id="munidestino"></tbody>
+                </table>
+              </div>
+
+              <table cellpadding="0" cellspacing="0" width="100%" border="0" style="margin-top: 10px;">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;"></th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Alto</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Largo</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Ancho</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Volumen total</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Costo Flete</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Utilidad</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tarifa Total</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Rentabilidad</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo_mer2"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos Servicios especiales</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;"></th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tipo Servicio</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Cantidad</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Costo Unitario</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Total Servicio</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tarifa</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Utilidad</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Rentabilidad</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo_especial"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos Costo del Servicio</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Valor Total Tarifa </th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Costo flete</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">utilidad</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">rentabilidad</th>
+                  </tr>
+                </thead>
+                <tbody id="costos"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- <strong style="color: #33B5E5;">Costo Servicio especial</strong> -->
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Costo Servicio especial</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Valor Total Tarifa </th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Costo</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">utilidad</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">rentabilidad</th>
+                  </tr>
+                </thead>
+                <tbody id="costos1"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Total cotizacion</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="total" class="text-center"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Datos Adicionales</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Observaciones</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Elaborado Por</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Autorizado Por</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo_adicional"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="Mensaje_update"></div>
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Solicitud de Servicio</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">N° Solicitud</th>
+                    <th class="text-center" style="color: white;width: 10px; white-space: nowrap;">Punto</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Remitente</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Fecha</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Hora</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Usuario</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Agencia</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Proceso</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo_servicio"></tbody>
+              </table>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">N° Solicitud</th>
+                    <th class="text-center" style="color: white;width: 10px; white-space: nowrap;">Punto</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Destinatario</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Fecha</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Hora</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Usuario</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Agencia</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Proceso</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo_servicio2"></tbody>
+              </table>
+            </div>
+            <!-- Cambio de agencias y de tupo de servicio -->
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">actualizar Agencia o Tipo de servicio</h6>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                  <tr>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Agencias</th>
+                    <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Tipo Servicio</th>
+                    <!-- <th class="text-center" style="color: white;width: auto; white-space: nowrap;">Acción</th> -->
+                  </tr>
+                </thead>
+                <tbody id="cuerpo_agencia_servicio">
+                  <t>
+                    <td>
+                      <select id="servicio_agencia" style="width: 100%;" class="ts">
+                        <option value="" selected>Seleccione</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select id="servicio_cliente" style="width: 100%;" class="ts">
+                        <option value="" selected>Seleccione</option>
+                        <option value="Expreso">Expreso - Viaje</option>
+                        <option value="Consolidado">Consolidado - Tonelada</option>
+                      </select>
+                    </td>
+                    <input type="hidden" name="numero_cotizacion" id="numero_cotizacion">
+                    <!-- <td class="text-center">
+                      <button type="button" class="btn btn-success btn-xs" onclick="actualizar_agencia_servicio()">Actualizar</button>
+                    </td> -->
+                    </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Numero de contenedor para solicitud de servicio -->
+          <div class="panel panel-default">
+            <div style="background-color:#14A44D;color:#fff;text-align:center;height: 20px;margin: 1px 1px 1px;">
+              <h6 style="margin-top: 0px; font-weight: 500;color: #fff;padding: 3px 2px 2px 10px;">Contenedor</h6>
+            </div>
+
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;">
+                <thead>
+                  <tr>
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Numero Contenedor:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="numero_contenedor" name="numero_contenedor" style="width: 100%;height: 24px;" oninput="this.value = this.value.toUpperCase();">
+                    </td>
+
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Agrupable:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="checkbox" id="agrupable" name="agrupable" style="width: 100%;transform: scale(1.5);">
+                    </td>
+                    <td style="border: 1px solid #ddd;padding: 1px;">
+                      <button type="button" class="btn btn-success btn-xs" id="btn_save_contenedor" style="width: 100%;"><i class="fas fa-toolbox"></i> Guardar</button>
+                    </td>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            <div class="panel-body" style=" padding: 1px 1px 1px;">
+              <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;">
+                <thead>
+                  <tr>
+                    <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Referencia:</th>
+                    <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                      <input type="text" id="referencia_operacion" name="referencia_operacion" style="width: 100%;height: 24px;" oninput="this.value = this.value.toUpperCase();">
+                    </td>
+                    <td style="border: 1px solid #ddd;padding: 1px;">
+                      <button type="button" class="btn btn-success btn-xs" id="btn_save_referencia" style="width: 100%;"><i class="fas fa-save"></i> Guardar</button>
+                    </td>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+
+        </div><!--conten fin -->
+        <div class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="guarda_solicitud" class="btn btn-success btn-xs">Guardar</button>
+        <button type="button" class="btn btn-secondary btn-xs" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="consulta_sub" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="exampleModalLabel"><strong>Verificar Tarifa (subasta)</strong></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="msg_tarifa_subasta"></div>
+        <div id="content_ver">
+          <div id="titlu"></div>
+          <input type="hidden" id="ssidflete">
+          <input type="hidden" id="idpareja_origen_destino">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 msg"></div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Subasta</label>
+            <input type="text" id="ssubnum" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Nombre cliente</label>
+            <input type="text" id="sscliente" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">num seguridad</label>
+            <input type="text" id="ssseguridad" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Solicitud de servicio</label>
+            <input type="text" id="ssservicio" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Placa</label>
+            <input type="text" id="ssplaca" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Flete sugerido</label>
+            <input type="text" id="ssfsugerido" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700; color:orange;">Flete propuesto</label>
+            <input type="text" id="ssfpropuesto" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Acepta Flete:</label>
+            <select id="respuesta_flete_s" class="form-control input-xs">
+              <option value="">Seleccione</option>
+              <option value="1">Si</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <button id="repuesta_flete" class="btn btn-sm btn-primary">Guardar</button>
+          </div>
+
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <hr>
+            </hr>
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Tarifa venta</label>
+            <input type="text" id="sstarifasold" class="form-control input-xs" onchange="cambia_tarifa()">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Utilidad</label>
+            <input type="text" id="ss_utilidad" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Rentabilidad</label>
+            <input type="text" id="ss_rentabilidad" class="form-control input-xs" readonly="readonly">
+          </div>
+          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Ajuste de tarifa</label>
+            <select id="ssaprobar" class="form-control input-xs">
+              <option value="">Seleccione</option>
+            </select>
+          </div>
+          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <label class="control-label" style="font-weight: 700">Estado Flete</label>
+            <input type="text" id="estado_flete" class="form-control input-sm" readonly="readonly">
+          </div>
+        </div><!--conten fin -->
+        <div class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnaprobar_tarifa" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--Cancelacion solicitud de servicio -->
+<div id="cancela_solicitud" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title" id="editar_title">
+          <label id="titulo" style="font-size:20pt; color:white; text-align:center;">Cancelar solicitud de servicio</label>
+        </h3>
+      </div>
+      <div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+        <div id="msg_agregar"></div>
+        <div id="content">
+          <div class="row">
+            <input type="hidden" id="c_numsolicitud">
+          </div>
+          <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="espacio_cancelacion">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn_cancela_solicitud" type="button" class="btn btn-success md-close" onclick="">Cancelar solicitud</button>
+          <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cerrar ventana</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mensajes para los usuarios de la plataforma -->
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<?php $vista .= '
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+		<script src="%root_file%assets/js/app-tables-datatables.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+		<script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+		</script>
+
+
+	';
+
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/ //7.1   NO TOCARRRRRRRRR NUNCA
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor
+$vista = str_replace("%content1%", $tabla_solicitudes, $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor
+echo $vista;
+?>
+
+<script type="text/javascript">
+  // $("#esconder").hide();
+  $("#cnt_opcion").change(function() {
+    var opcion = $("#cnt_opcion").val();
+    if (opcion == '0') {
+      $("#cnt_tipocon").attr('disabled', true);
+      $("#cnt_num").attr('disabled', true);
+      $("#cnt_dias").prop('disabled', true);
+      $("#cnt_municipio").prop('disabled', true);
+      $("#cnt_direccion").prop('disabled', true);
+      $("#cnt_fcomodato").prop('disabled', true);
+    }
+    if (opcion == '1') {
+      $("#cnt_tipocon").attr('disabled', false);
+      $("#cnt_num").attr('disabled', false);
+      $("#cnt_dias").prop('disabled', false);
+      $("#cnt_municipio").prop('disabled', false);
+      $("#cnt_direccion").prop('disabled', false);
+      $("#cnt_fcomodato").prop('disabled', false);
+    }
+  });
+
+  document.addEventListener('click', async (e) => {
+    // if (e.target.matches("#btn_edit_cargue") || e.target.matches("#btn_edit_cargue *")) {
+    //   let fecha = document.getElementById("fecha_cargue_edit");
+    //   let hora = document.getElementById("hora_cargue_edit");
+    //   fecha.disabled = false;
+    //   hora.disabled = false;
+    //   document.getElementById("btn_save_cargue").style.display = "block";
+    //   document.getElementById("btn_edit_cargue").style.display = "none";
+    // }
+
+    // if (e.target.matches("#btn_save_cargue") || e.target.matches("#btn_save_cargue *")) {
+    //   if (window.confirm("¿Esta seguro que queire actuazliar la fecha de cargue de la solicitud de servicio?")) {
+    //     let fecha = document.getElementById("fecha_cargue_edit");
+    //     let hora = document.getElementById("hora_cargue_edit");
+    //     var btn = document.getElementById("btn_save_cargue");
+    //     var num_sol = btn.getAttribute("data-sol");
+    //     let datos = new FormData();
+    //     datos.append("solicitud", num_sol);
+    //     datos.append("fecha_cargue", fecha.value);
+    //     datos.append("hora_cargue", hora.value);
+    //     try {
+    //       const response = await fetch($("#id_url_ajax").val() + "solicitudes/update_cargue", {
+    //         method: "POST",
+    //         body: datos,
+    //         cache: "no-cache",
+    //       });
+    //       const data = await response.json();
+    //       // console.log("Primera solicitud completada:", data);
+    //       // return data;
+    //       if (data.numero === 200) {
+    //         document.getElementById("Mensaje_update").innerHTML = `
+    //         <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //           <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+    //           <div class="message">
+    //             <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //             <strong>Mensaje!</strong> ${data.mensaje}
+    //           </div>
+    //           </div>`;
+    //       } else {
+    //         document.getElementById("Mensaje_update").innerHTML = `
+    //         <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //           <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //           <div class="message">
+    //             <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //             <strong>Mensaje!</strong> ${data.mensaje}
+    //           </div>
+    //         </div>`;
+    //       }
+
+    //     } catch (error) {
+    //       console.error("Error en la primera solicitud:", error);
+    //       throw error;
+    //     } finally {
+    //       document.getElementById("fecha_cargue_edit").disabled = true;
+    //       document.getElementById("hora_cargue_edit").disabled = true;
+    //       document.getElementById("btn_save_cargue").style.display = "none";
+    //       document.getElementById("btn_edit_cargue").style.display = "block";
+    //     }
+    //   }
+    // }
+
+    // if (e.target.matches("#btn_edit_descargue") || e.target.matches("#btn_edit_descargue *")) {
+    //   let fecha = document.getElementById("fecha_descargue_edit");
+    //   let hora = document.getElementById("hora_descargue_edit");
+    //   fecha.disabled = false;
+    //   hora.disabled = false;
+    //   document.getElementById("btn_save_descargue").style.display = "block";
+    //   document.getElementById("btn_edit_descargue").style.display = "none";
+    // }
+
+    // if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
+    //   if (window.confirm("¿Esta seguro que quiere actualizar las fechas de la solicitud de servicio?")) {
+    //     //let fechacargue= document.getElementById(fecha_cargue_edit);
+    //     let msg_error = '';
+    //     let fechacargue = $("#fecha_cargue_edit").val();
+    //     let horacargue = $("#hora_cargue_edit").val();
+    //     let fechadescargue = $("#fecha_descargue_edit").val();
+    //     let horadescargue = $("#hora_descargue_edit").val();
+    //     let num_sol = $("#mer_idservicio").val();
+    //     let punto_rem = $("#punto_rem").val();
+    //     let punto_des = $("#punto_des").val();
+    //     var fc = (fechacargue + ' ' + horacargue);
+    //     var fd = (fechadescargue + ' ' + horadescargue);
+
+    //     /* Validar que actualizacion se va a realizar */
+    //     let agencia = document.getElementById("servicio_agencia").value.trim();
+    //     let tipo_servicio = document.getElementById("servicio_cliente").value.trim();
+
+    //     if (agencia === "" && tipo_servicio === "") {
+    //       if (fc > fd) {
+    //         msg_error += "La Fecha - Hora de cargue no puede ser mayor a la Fecha Descargue";
+    //         alert(msg_error);
+    //       } else {
+    //         let datos = new FormData();
+    //         datos.append("fecha_cargue", fechacargue);
+    //         datos.append("hora_cargue", horacargue);
+    //         datos.append("fecha_descargue", fechadescargue);
+    //         datos.append("hora_descargue", horadescargue);
+    //         datos.append("solicitud", num_sol);
+    //         datos.append("punto_rem", punto_rem);
+    //         datos.append("punto_des", punto_des);
+    //         try {
+    //           const response = await fetch($("#id_url_ajax").val() + "solicitudes/update_cargue", {
+    //             method: "POST",
+    //             body: datos,
+    //             cache: "no-cache",
+    //           });
+    //           const data = await response.json();
+    //           if (data.numero === 200) {
+    //             document.getElementById("Mensaje_update").innerHTML = `
+    //               <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                 <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+    //                 <div class="message">
+    //                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                   <strong>Mensaje!</strong> ${data.mensaje}
+    //                 </div>
+    //                 </div>`;
+    //             window.location.reload();
+    //           } else {
+    //             document.getElementById("Mensaje_update").innerHTML = `
+    //                 <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                   <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                   <div class="message">
+    //                     <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                     <strong>Mensaje!</strong> ${data.mensaje}
+    //                   </div>
+    //                 </div>`;
+    //           }
+    //         } catch (error) {
+    //           console.error("Error en la primera solicitud:", error);
+    //           throw error;
+    //         } finally {
+    //           document.getElementById("fecha_cargue_edit").disabled = true;
+    //           document.getElementById("hora_cargue_edit").disabled = true;
+    //           document.getElementById("btn_edit_cargue").style.display = "block";
+    //           document.getElementById("fecha_descargue_edit").disabled = true;
+    //           document.getElementById("hora_descargue_edit").disabled = true;
+    //           document.getElementById("btn_edit_descargue").style.display = "block";
+    //         }
+    //       }
+    //     } else {
+    //       let datos = new FormData();
+    //       datos.append("agencia", agencia);
+    //       datos.append("tipo_servicio", tipo_servicio);
+    //       datos.append("solicitud", num_sol);
+    //       datos.append("numero_cotizacion", document.getElementById("numero_cotizacion").value);
+    //       try {
+    //         const response = await fetch($("#id_url_ajax").val() + "serviciocliente/update_solicitud", {
+    //           method: "POST",
+    //           body: datos,
+    //           cache: "no-cache",
+    //         });
+    //         const data = await response.json();
+    //         if (data.status === 200) {
+    //           document.getElementById("Mensaje_update").innerHTML = `
+    //           <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //             <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+    //             <div class="message">
+    //               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //               <strong>Mensaje!</strong> ${data.message}
+    //             </div>
+    //           </div>`;
+    //           window.location.reload();
+    //         } else {
+    //           document.getElementById("Mensaje_update").innerHTML = `
+    //           <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //             <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //             <div class="message">
+    //               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //               <strong>Mensaje!</strong> ${data.message}
+    //             </div>
+    //           </div>`;
+    //         }
+
+    //       } catch (error) {
+    //         console.error("Error en la primera solicitud:", error);
+    //         throw error;
+    //       } finally {
+
+    //       }
+    //     }
+    //   }
+    // }
+
+    // /* Boton para gaurar el contenedor en las solicitudes */
+    // if (e.target.matches("#btn_save_contenedor") || e.target.matches("#btn_save_contenedor *")) {
+    //   Swal.fire({
+    //     title: 'Mnesaje',
+    //     text: '¿Está seguro de continuar?',
+    //     icon: 'question',
+    //     showCancelButton: true,
+    //     cancelButtonColor: '#9FA6B2',
+    //     confirmButtonColor: '#14A44D',
+    //     confirmButtonText: 'Si',
+    //     cancelButtonText: 'No',
+    //     customClass: {
+    //       popup: 'swal2-custom-font',
+    //     },
+    //   }).then(async result => {
+    //     if (result.isConfirmed) {
+    //       $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
+    //       /* Definir las variables para los filtros */
+    //       let formdata = new FormData();
+    //       formdata.append('numero_contenedor', document.getElementById('numero_contenedor').value);
+    //       formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
+
+    //       // Obtén el elemento por su id (sin el #)
+    //       var checkbox = document.getElementById("agrupable");
+    //       // Verifica si está marcado
+    //       if (checkbox.checked) {
+    //         formdata.append('agrupado', "SI");
+    //       } else {
+    //         formdata.append('agrupado', "NO");
+    //       }
+
+    //       try {
+    //         const response = await fetch($('#id_url_ajax').val() + 'serviciocliente/GuardarContenedor', {
+    //           method: 'POST',
+    //           body: formdata,
+    //           cache: 'no-cache',
+    //         });
+
+    //         const data = await response.json();
+    //         if (data.status === 400) {
+    //           Swal.fire({
+    //             title: 'Información',
+    //             text: data.message,
+    //             icon: 'info',
+    //             customClass: {
+    //               popup: 'swal2-custom-font',
+    //             },
+    //           });
+    //         } else {
+    //           Swal.fire({
+    //             title: 'Mensaje',
+    //             text: data.message,
+    //             icon: 'success',
+    //             customClass: {
+    //               popup: 'swal2-custom-font',
+    //             },
+    //           });
+    //         }
+    //       } catch (error) {
+    //         console.error('Error en la primera solicitud:', error);
+    //         throw error;
+    //       } finally {
+    //         $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+    //       }
+    //     }
+    //   });
+    // }
+
+    // /* Boton para actualizar las referencias de los despachos */
+    // if (e.target.matches("#btn_save_referencia") || e.target.matches("#btn_save_referencia *")) {
+    //   Swal.fire({
+    //     title: 'Mnesaje',
+    //     text: '¿Está seguro de continuar?',
+    //     icon: 'question',
+    //     showCancelButton: true,
+    //     cancelButtonColor: '#9FA6B2',
+    //     confirmButtonColor: '#14A44D',
+    //     confirmButtonText: 'Si',
+    //     cancelButtonText: 'No',
+    //     customClass: {
+    //       popup: 'swal2-custom-font',
+    //     },
+    //   }).then(async result => {
+    //     if (result.isConfirmed) {
+    //       $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
+    //       /* Definir las variables para los filtros */
+    //       let formdata = new FormData();
+    //       formdata.append('referencia_operacion', document.getElementById('referencia_operacion').value);
+    //       formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
+
+    //       try {
+    //         const response = await fetch($('#id_url_ajax').val() + 'serviciocliente/ActualizarReferencia', {
+    //           method: 'POST',
+    //           body: formdata,
+    //           cache: 'no-cache',
+    //         });
+
+    //         const data = await response.json();
+    //         if (data.status === 400) {
+    //           Swal.fire({
+    //             title: 'Información',
+    //             text: data.message,
+    //             icon: 'info',
+    //             customClass: {
+    //               popup: 'swal2-custom-font',
+    //             },
+    //           });
+    //         } else {
+    //           Swal.fire({
+    //             title: 'Mensaje',
+    //             text: data.message,
+    //             icon: 'success',
+    //             customClass: {
+    //               popup: 'swal2-custom-font',
+    //             },
+    //           });
+    //         }
+    //       } catch (error) {
+    //         console.error('Error en la primera solicitud:', error);
+    //         throw error;
+    //       } finally {
+    //         $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+    //       }
+    //     }
+    //   });
+    // }
+
+  });
+
+
+  var contenedor = {
+    action: 'tipo_cont'
+  };
+  //cnt_tipocon
+  $("#cnt_tipocon").html('<option value="">Seleccione</option>');
+  $.ajax({
+    url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+    type: 'POST',
+    data: contenedor,
+    dataType: 'json',
+    success: function(data) {
+      if (data.result) {
+        data.result.forEach(function(element, index) {
+          $("#cnt_tipocon").append('<option value="' + element.id + '">' + element.nombre + '</option>');
+        });
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.log('no trajo agencia');
+      console.log(jqXHR);
+      console.log(textStatus);
+      console.log(errorThrown);
+    }
+  });
+
+  var agencia = {
+    action: 'traer_agencia'
+  };
+  $("#agencia").html('');
+  $.ajax({
+    url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+    type: 'POST',
+    data: agencia,
+    dataType: 'json',
+    success: function(data) {
+      if (data.result) {
+        data.result.forEach(function(element, index) {
+          $("#agencia").append('<option value="' + element.id + '" >' + element.nombre + '</option>');
+        });
+      }
+
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.log('no trajo agencia');
+      console.log(jqXHR);
+      console.log(textStatus);
+      console.log(errorThrown);
+    }
+  });
+
+  var municipio = {
+    action: 'cont_muncipio'
+  };
+
+  $("#cnt_municipio").html('<option value="">Seleccione</option>');
+  $.ajax({
+    url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+    type: 'POST',
+    data: municipio,
+    dataType: 'json',
+    success: function(data) {
+      if (data.result) {
+        console.log(data);
+        data.result.forEach(function(element, index) {
+          $("#cnt_municipio").append('<option value="' + element.id + '">' + element.municipio + '-' + element.depto + '</option>');
+        });
+      }
+
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.log('no trajo municipio');
+      console.log(jqXHR);
+      console.log(textStatus);
+      console.log(errorThrown);
+    }
+  });
+
+  function cotizacion_aprobada() {
+    // alert('hi');
+    // $("#esconder").show();
+    var doc = $("#cotice").val();
+    var fecha_i = $("#fecha_inicial").val();
+    var fecha_f = $("#fecha_final").val();
+    var datos = {
+      doc: doc,
+      fecha_inicia: fecha_i,
+      fecha_final: fecha_f,
+      action: 'consulte_aprobacion'
+    };
+    $("#body_esconder").html('');
+    $.ajax({
+      url: $('#id_url_ajax').val() + "serviciocliente/Consultar_Aprobacion",
+      // url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+      type: 'POST',
+      data: datos,
+      dataType: 'json',
+      success: function(data) {
+        // console.log(data);
+        contador_solicitud(fecha_i, fecha_f);
+        cuente = 0;
+        cont = 0;
+        data.forEach(function(element, index) {
+          cuente++;
+          cont++;
+          // console.log(element);
+          var idsolicitud = element.soliid;
+          var id_solicitudservicio, fecha_servicio;
+          if (element.soliid != null) {
+            id_solicitudservicio = element.soliid;
+          } else {
+            id_solicitudservicio = '';
+          }
+          if (element.fecha != null) {
+            fecha_servicio = element.fecha + ' - ' + element.hora;
+          } else {
+            fecha_servicio = '';
+          }
+
+          var num = element.n_cotizacion;
+          var origen = element.origen;
+          var destino = element.destino;
+          var peso = element.peso_neto_kg;
+          var veh = element.tipo_vehiculo;
+          var cliente = element.nombre_cliente;
+          var flete = element.flete;
+          var parejita = element.parejaod;
+          var carga = element.tipo_carga;
+          var trans = element.tipo_transporte;
+          var estado_soli = element.idpareja_origen_destino;
+          var palabra = '';
+          var color = '';
+          if (estado_soli == null) {
+            palabra = 'Pendiente';
+            color = 'primary';
+            // document.getElementById("palabra").style.color="red";
+          } else {
+            if (element.estado == 'Cancelada') {
+              palabra = 'Cancelada';
+              color = 'danger';
+            } else {
+              palabra = 'Realizada';
+              color = 'success';
+            }
+            // document.getElementById("palabra").style.color="blue";
+          }
+
+          estado_dos = '';
+          if (element.estado_secundario != null) {
+            estado_dos = '(' + element.estado_secundario + ')';
+          }
+
+          var boton_ver = '';
+          var btn_cancelar = '';
+          var btn_edita_tarifa = ''; //EDICION POR LA SUBASTA
+          boton_ver = '<button type="button" class="btn btn-info btn-sm" id="btn_ver' + cont + '"  data-toggle="modal" data-target="#vercotizacion"  data-placement="top"  title="Ver cotización" data-id="' + num + '" data-id2="' + idsolicitud + '"  ><i class="far fa-eye"></i></button>';
+
+          if (element.estado == 'En_subasta' && element.estado_secundario == 'pendiente_aprobacion_sac' || element.estado_secundario == 'aprueba_flete_sac' || element.estado_secundario == 'no_aprueba_ge') {
+            btn_edita_tarifa = '<button type="button" class="btn btn-warning btn-xs" id="btn_etarifa' + cont + '"  data-toggle="modal" data-target="#consulta_sub"  data-placement="top"  title="Verificación de la tarifa" data-id="' + num + '" data-id2="' + idsolicitud + '"  ><i class="fas fa-money-bill-wave"></i></button>';
+          }
+          if (element.estado == 'Pendiente' && element.estado !== 'Cancelada') {
+            btn_cancelar = '<button type="button"  class="btn btn-danger btn-sm" id="btn_cancela' + cont + '" data-toggle="modal" data-target="#cancela_solicitud"  data-id="' + idsolicitud + '" data-id2="' + parejita + '"   data-placement="top" title="Cancelar solicitud" ><i class="fas fa-window-close"></i></button>';
+          }
+          var boton = '';
+          if (estado_soli == null) {
+            boton = '';
+            //pendiente
+            /*boton='<button type="button"  class="btn btn-secondary btn btn-sm mdi mdi-plus" id="btn_modal'+cont+'" data-toggle="modal"data-target="#exampleModal"  data-id="'+num+'" data-id2="'+origen+'" data-id3="'+destino+'" data-id4="'+peso+'" data-id5="'+veh+'" data-id6="'+cliente+'"  data-id7="'+flete+'" data-id9="'+carga+'" data-id10="'+trans+'"  data-placement="top" title="Solicitud pendiente" > </button>';*/
+          } else {
+            //realizada
+            boton = '<button type="button"  class="btn btn-warning btn-xs" id="btn_nuevo' + cont + '" data-toggle="modal"data-target="#status"  data-id="' + num + '" data-id2="' + parejita + '"  data-id3="' + idsolicitud + '" data-placement="top" title="Solicitud realizada" ><i class="fas fa-university"></i></button>';
+          }
+
+          $("#body_esconder").append(
+            '<tr>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + id_solicitudservicio + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.n_cotizacion + '-' + element.item + '</td>' +
+            // '<td class="text-center" style="font-size: 10px;white-space: nowrap;">'+element.parejaod+'</td>'+
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre_cliente + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.tipo_mercancia + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.peso_neto_kg + 'Kg</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.tipo_servicio_mer + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><strong>' + element.estado + ' ' + estado_dos + '</strong></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + fecha_servicio + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-xs" role="group" aria-label="..."> ' + boton + boton_ver + btn_cancelar + btn_edita_tarifa + '</div></td>' +
+            '</tr>');
+
+          //TRAER ORIGENES Y DESTINOS
+          $("#btn_modal" + cont + "").click(function() {
+            //alert('solicitar');
+            var idcotizar = $(this).attr('data-id');
+            var origen = $(this).attr('data-id2');
+            var destino = $(this).attr('data-id3');
+            var peso = $(this).attr('data-id4');
+            var veh = $(this).attr('data-id5');
+            var cliente = $(this).attr('data-id6');
+            var flete = $(this).attr('data-id7');
+            var carga = $(this).attr('data-id9');
+            var trans = $(this).attr('data-id10');
+            var fecha = moment().format('YYYY-MM-DD');
+            var hora = moment().format('HH:mm:ss');
+
+            //TRAER E ORIGEN Y DESTINO EN LETRA PARA ESTA
+            //SOLICITUD CON SU NUMERO DE COTIZACION
+            var municipiostable = {
+              origes: origen,
+              destinos: destino,
+              cotizar: idcotizar,
+              action: 'municipiostable'
+            };
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: municipiostable,
+              dataType: 'json',
+              success: function(data) {
+
+                data.result.forEach(function(element, index) {
+                  $("#orisoli").html(element.origi);
+                });
+
+                data.result1.forEach(function(element, index) {
+                  $("#destisoli").html(element.desti);
+                });
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                // console.log('no trajomunis');
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+
+            var vehiculo = {
+              veh: veh,
+              action: 'vehiculo_solservi'
+            };
+
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: vehiculo,
+              dataType: 'json',
+              success: function(data) {
+
+
+                $("#tipo_vehiculov").val(data.result[0].nombre);
+
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                // console.log('no trajomunis');
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+
+
+            $("#ncotizar").val(idcotizar);
+            $("#fecha_sistem").val(fecha);
+            $("#hora_sistem").val(hora);
+            $("#origen").val(origen);
+            $("#destino").val(destino);
+            $("#peso").val(peso);
+            $("#tipo_vehiculo").val(veh);
+
+            $("#cliente").val(cliente);
+            $("#flete").val(flete);
+            $("#pareja").val(parejita);
+            $("#cont_carga").val(carga);
+            $("#cont_transporte").val(trans);
+
+            if (trans == 'Importacion') {
+              //alert('habilitar');
+              $("#cnt_opcion").html('<option value="1">Si</option>');
+              $("#cnt_opcion").attr('disabled', false);
+              $("#cnt_tipocon").attr('disabled', false);
+              $("#cnt_num").attr('disabled', false);
+              $("#cnt_dias").attr('disabled', false);
+              $("#cnt_municipio").prop('disabled', false);
+              $("#cnt_direccion").prop('disabled', false);
+              $("#cnt_fcomodato").prop('disabled', false);
+            } else {
+              //alert('deshabilitar');
+              $("#cnt_opcion").html('<option value="0">No</option>');
+              $("#cnt_opcion").attr('disabled', true);
+              $("#cnt_tipocon").attr('disabled', true);
+              $("#cnt_num").attr('disabled', true);
+              $("#cnt_dias").prop('disabled', true);
+              $("#cnt_municipio").prop('disabled', true);
+              $("#cnt_direccion").prop('disabled', true);
+              $("#cnt_fcomodato").prop('disabled', true);
+            }
+
+          });
+
+          $("#btn_nuevo" + cont + "").click(function() {
+            // alert('status'+cont);
+            var idcotizar = $(this).attr('data-id');
+            var parejita = $(this).attr('data-id2');
+            var idsolicitud = $(this).attr('data-id3');
+            //movimientos de cotizacion
+            var dato = {
+              ncotizar: idcotizar,
+              action: 'historico_cotizacion'
+            };
+            $("#movimientos_cotizacion").html('');
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: dato,
+              dataType: 'json',
+              success: function(data) {
+                console.log('trajo historico');
+                if (data) {
+                  data.result.forEach(function(element, index) {
+                    var nomenclatura = element.estado;
+                    if (nomenclatura == 'F1') {
+                      var estado = 'F1-Realizada';
+                      var status = '<td class="text-default">' +
+                        '<center>' +
+                        '<span class="mdi mdi-dot-circle icon"  data-toggle="tooltip" title="Realizada" ></span>' +
+                        '</center>' +
+                        '</td>';
+                    }
+                    if (nomenclatura == 'F2') {
+                      var estado = 'F2-Entregada';
+                      var status = '<td class="text-success">' +
+                        '<center>' +
+                        '<span class="mdi mdi-dot-circle icon"  data-toggle="tooltip" title="Entregada"></span>' +
+                        '</center>' +
+                        '</td>';
+                    }
+                    if (nomenclatura == 'F3') {
+                      var estado = 'F3-Ganada';
+                      var status = '<td class="text-warning">' +
+                        '<center>' +
+                        '<span class="mdi mdi-dot-circle icon"  data-toggle="tooltip" title="Ganada"></span>' +
+                        '</center>' +
+                        '</td>';
+                    }
+                    if (nomenclatura == 'F4') {
+                      var estado = 'F4-Perdida';
+                      var status = '<td class="text-danger">' +
+                        '<center>' +
+                        '<span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="Pérdida"  ></span>' +
+                        '</center>' +
+                        '</td>';
+                    }
+                    if (nomenclatura == 'F5') {
+                      var estado = 'F5-Cancelada';
+                      var status = '<td class="text-primary">' +
+                        '<center>' +
+                        '<span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="Cancelada" ></span>' +
+                        '</center>' +
+                        '</td>';
+                    }
+                    $("#movimientos_cotizacion").append('<tr>' +
+                      status +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.n_cotizacion + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.item + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.pareja + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + estado + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.fecha + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.hora + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.user_log + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+                      '</tr>');
+                  });
+                }
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                console.log('no traho historico');
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+
+            //movimientos de solicitudes de servicio
+            var status = {
+              idcotizar: idcotizar,
+              idpareja: parejita,
+              idsolicitud: idsolicitud,
+              action: 'consulte_movimientos'
+            };
+            $("#movimientos_status").html('');
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: status,
+              dataType: 'json',
+              success: function(data) {
+                // alert('hay datico');
+                // console.log(data);
+                if (data) {
+                  data.result.forEach(function(element, index) {
+                    $("#movimientos_status").append('<tr><td class="text-center" style="font-size: 10px;white-space: nowrap;">' + idsolicitud + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.n_cotizacion + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.item + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.pareja + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.fecha + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.hora + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+                      '</tr>');
+                  });
+
+                  if (data.result2) {
+                    // movimientos de operaciones
+                    data.result2.forEach(function(element, index) {
+                      $("#movimientos_status").append('<tr><td class="text-center" style="font-size: 10px;white-space: nowrap;">Operaciones</td>' +
+                        '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.fecha + '</td>' +
+                        '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.hora + '</td>' +
+                        '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
+                        '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.estado + '</td>' +
+                        '</tr>');
+                    });
+                  }
+                }
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+
+            //trzabailidad de la solicitud de servicio
+            var traza = {
+              idcotizar: idcotizar,
+              idpareja: parejita,
+              idsolicitud: idsolicitud,
+              action: 'traza_solicitud'
+            };
+            $("#trazabilidad_solicitud").html('');
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: traza,
+              dataType: 'json',
+              success: function(data) {
+                // alert('hay datico');
+                // console.log(data);
+                if (data) {
+
+                  data.result.forEach(function(element, index) {
+                    let solicitud, preestudio, estudio, placa, orden, remesa, manifiesto, cita, plan;
+                    if (element.servicio != null) {
+                      solicitud = element.servicio;
+                    } else {
+                      solicitud = 'No registra';
+                    }
+                    if (element.id_solicitudpreestudio != null) {
+                      preestudio = element.id_solicitudpreestudio + '<br>' + element.fec_prefiltro;
+                    } else {
+                      preestudio = 'No registra';
+                    }
+                    if (element.id_estudio != null) {
+                      estudio = element.id_estudio + '<br>' + element.fec_estudio;
+                    } else {
+                      estudio = 'No registra';
+                    }
+                    if (element.placa != null) {
+                      placa = element.placa;
+                    } else {
+                      placa = 'No registra';
+                    }
+
+                    if (element.numero_orden != null) {
+                      orden = element.numero_orden + '<br>' + element.fec_orden;
+                    } else {
+                      orden = 'No registra';
+                    }
+                    if (element.numero_remesa != null) {
+                      remesa = element.numero_remesa + '<br>' + element.fec_remesa;
+                    } else {
+                      remesa = 'No registra';
+                    }
+                    if (element.numero_manifiesto != null) {
+                      manifiesto = element.numero_manifiesto + '<br>' + element.fec_manifiesto;
+                    } else {
+                      manifiesto = 'No registra';
+                    }
+                    if (element.numero_cita != null) {
+                      cita = element.numero_cita;
+                    } else {
+                      cita = 'No registra';
+                    }
+                    if (element.cod_plan != null) {
+                      plan = element.cod_plan;
+                    } else {
+                      plan = 'No registra';
+                    }
+
+                    $("#trazabilidad_solicitud").append('<tr><td class="text-center" style="font-size: 10px;white-space: nowrap;">' + solicitud + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + preestudio + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + estudio + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + placa + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + orden + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + remesa + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + manifiesto + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + cita + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + plan + '</td>' +
+                      '</tr>');
+                  });
+
+                }
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+
+          }); //cierre del boton
+
+
+          $("#btn_etarifa" + cont + "").click(function() {
+            var idcotizar = $(this).attr('data-id');
+            var solicitud = $(this).attr('data-id2');
+            var datos = {
+              n_servicio: solicitud,
+              action: 'consulta_datos_subasta'
+            };
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: datos,
+              dataType: 'json',
+              success: function(data) {
+                if (data.result != null) {
+
+                  if (data.result[0].acepta_flete == 'null') {
+                    document.getElementById("sstarifasold").disabled = true;
+                    document.getElementById("ssaprobar").disabled = true;
+                    $('#btnaprobar_tarifa').attr('disabled', true);
+                    document.getElementById("respuesta_flete_s").disabled = false;
+                    document.getElementById("repuesta_flete").disabled = false;
+                  }
+                  if (data.result[0].acepta_flete == 'Aceptado') {
+                    document.getElementById("sstarifasold").disabled = false;
+                    document.getElementById("ssaprobar").disabled = false;
+                    $('#btnaprobar_tarifa').attr('disabled', false);
+                    document.getElementById("respuesta_flete_s").disabled = true;
+                    document.getElementById("repuesta_flete").disabled = true;
+                  }
+
+                  $(".msg").html('');
+                  $("#estado_flete").val(data.result[0].acepta_flete);
+                  $("#ssidflete").val(data.result[0].idflete);
+                  $("#ssubnum").val(data.result[0].id_suba);
+                  $("#sscliente").val(data.result[0].nombre_cliente);
+                  $("#ssseguridad").val(data.result[0].num_estudioseguridad);
+                  $("#ssservicio").val(data.result[0].numer_solservicio);
+                  $("#ssplaca").val(data.result[0].placa);
+                  $("#ssfsugerido").val(data.result[0].flete_sugerido);
+                  $("#ssfpropuesto").val(data.result[0].flete_propuesto);
+                  $("#sstarifasold").val(data.result[0].tarifa_promedio);
+                  $("#idpareja_origen_destino").val(data.result[0].parejaorigen);
+                  //calcular utilidad + rentabilidad
+                  let a = (data.result[0].tarifa_promedio).replace(/,/g, "");
+                  let b = (data.result[0].flete_propuesto).replace(/,/g, "");
+                  let rent = (parseFloat(a) - parseFloat(b));
+                  $("#ss_rentabilidad").val(rent);
+                  let calculo = (parseFloat(rent) / parseFloat(a));
+                  let res = (parseFloat(calculo) * 100);
+                  let util = res.toFixed(2);
+                  $("#ss_utilidad").val(util);
+                  $("#ss_rentabilidad").val(parseFloat($("#ss_rentabilidad").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#ssfpropuesto").val(parseFloat($("#ssfpropuesto").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  //  $("#sstarifasold").val(parseFloat($("#sstarifasold").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  if (parseFloat(util) >= parseFloat(15)) {
+                    $("#ssaprobar").html('<option value="aprobado_sac">Ajustar</option>');
+                  } else {
+                    $("#ssaprobar").html('<option value="no_aprobado_sac">No ajustar</option>');
+                  }
+                } else {
+                  var msg_error = "";
+                  msg_error += "<p>No hay tarifas registradas para esta solicitud.</p>";
+                  $(".msg").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+                  $("#consulta_sub").animate({
+                    scrollTop: 0
+                  }, 600);
+                }
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                // console.log('no trajomunis');
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+          });
+
+
+          $("#btn_ver" + cont + "").click(function() {
+            // alert('btn ver');
+            var id = $(this).attr('data-id');
+            var soli_servi = $(this).attr('data-id2');
+            // alert(id);
+            var dato = {
+              ncotizar: id,
+              action: 'ver'
+            };
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: dato,
+              dataType: 'json',
+              success: function(data) {
+                if (data.result) {
+                  document.getElementById("numero_cotizacion").value = data.result[0].n_cotizacion;
+                  $("#titlu").html('<h3 class="text-center"><strong>Número de Cotizacion:' + data.result[0].n_cotizacion + '</strong></h3>');
+                  $("#linea").val(data.result[0].linea_negocio);
+                  $("#cuerpo_cliente").html('<tr>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + data.result[0].nombre_cliente + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + data.result[0].nit + '-' + data.result[0].digito + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + data.result[0].direccion + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + data.result[0].telefono + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + data.result[0].procedencia_cotizacion + '</td>' +
+                    '</tr>');
+                  $("#costos").html('<tr>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="tariv" class="form-control input-xs" value="' + data.result[0].total_transporte + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="fletev" class="form-control input-xs" value="' + data.result[0].tmer_flete + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="utilv" class="form-control input-xs" value="' + data.result[0].tmer_utili + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="rentv" class="form-control input-xs" value="' + data.result[0].tmer_rent + '" readonly="readonly"></td>' +
+                    '</tr>');
+
+                  $("#costos1").html('<tr>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="tariespe" class="form-control input-xs" value="' + data.result[0].tes_tarifa + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="fleteespe" class="form-control input-xs" value="' + data.result[0].tes_flete + '" readonly="readonly"> </td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="utilespe" class="form-control input-xs" value="' + data.result[0].tes_util + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="rentaespe" class="form-control input-xs" value="' + data.result[0].tes_renta + '" readonly="readonly"> </td>' +
+                    '</tr>');
+                  $("#total").html('<tr>' +
+                    '<td class="text-center" style="font-size: 16px;font-weigth:bold; white-space: nowrap;"><input type="text" id="totalcot" class="form-control input-xs text-center" value="' + element.total_cotizacion + '" readonly="readonly"></td>' +
+                    '</tr>');
+                  $("#cuerpo_adicional").html('<tr>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + data.result[0].observaciones + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + data.result[0].elaborado_por + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + data.result[0].autorizado_por + '</td>' +
+                    '</tr>');
+                }
+                //formatear números
+                $("#tariv").val(parseFloat($("#tariv").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $("#fletev").val(parseFloat($("#fletev").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $("#utilv").val(parseFloat($("#utilv").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $("#rentv").val(parseFloat($("#rentv").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $("#tariespe").val(parseFloat($("#tariespe").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $("#fleteespe").val(parseFloat($("#fleteespe").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $("#utilespe").val(parseFloat($("#utilespe").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $("#rentaespe").val(parseFloat($("#rentaespe").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $("#totalcot").val(parseFloat($("#totalcot").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                // console.log(data.result);
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+
+            var dato1 = {
+              ncotizar1: id,
+              action: 'ver_mer'
+            };
+            $("#cuerpo_mer1").html('');
+            $("#cuerpo_mer2").html('');
+            $("#muniorigen").html('');
+            $("#munidestino").html('');
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: dato1,
+              dataType: 'json',
+              success: function(data) {
+                var c = 0;
+                carga = '';
+                data.result.forEach(function(element, index) {
+                  c++;
+                  if (element.tipo_carga == 'G') {
+                    carga = 'General';
+                  }
+                  if (element.tipo_carga == 'P') {
+                    carga = 'Paqueteo';
+                  }
+                  if (element.tipo_carga == 'C') {
+                    carga = 'Contenedor Cargado';
+                  }
+                  $("#cuerpo_mer1").append('<tr>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;" class="text-primary">' + element.n_cotizacion + '-' + element.item + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.tipo_servicio_mer + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + carga + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.tipo_transporte + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="brtukg' + c + '" class="form-control input-xs text-center" value="' + element.peso_bruto_kg + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="netokg' + c + '" class="form-control input-xs text-center" value="' + element.peso_neto_kg + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id=netotn' + c + '"" class="form-control input-xs text-center text-dark bg-light" value="' + element.peso_neto_tn + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.empaque + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="cant' + c + '" class="form-control input-xs text-center" value="' + element.cantidad_empaque + '" readonly="readonly"></td>' +
+                    '</tr>');
+
+                  $("#cuerpo_mer2").append('<tr>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.n_cotizacion + '-' + element.item + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="valto' + c + '" class="form-control input-xs" value="' + element.alto + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="vlargo' + c + '" class="form-control input-xs" value="' + element.largo + '" readonly="readonly"> </td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="vancho' + c + '" class="form-control input-xs" value="' + element.ancho + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="vvolumen' + c + '" class="form-control input-xs" value="' + element.volumen_total + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="flete' + c + '" class="form-control input-xs" value="' + element.flete + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="util' + c + '" class="form-control input-xs" value="' + element.utilidad + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="tottari' + c + '" class="form-control input-xs" value="' + element.total_tarifa + '" readonly="readonly"></td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="rent' + c + '" class="form-control input-xs" value="' + element.rentabilidad + '" readonly="readonly"></td>' +
+                    '</tr>');
+                  $("#muniorigen").append('<tr>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.n_cotizacion + '-' + element.item + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.orig + '</td>' +
+                    '</tr>');
+                  $("#munidestino").append('<tr>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.n_cotizacion + '-' + element.item + '</td>' +
+                    '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.dest + '</td>' +
+                    '</tr>');
+                  //formatear números
+                  $("#valto" + c).val(parseFloat($("#valto" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#vlargo" + c).val(parseFloat($("#vlargo" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#vancho" + c).val(parseFloat($("#vancho" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#vvolumen" + c).val(parseFloat($("#vvolumen" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#flete" + c).val(parseFloat($("#flete" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#util" + c).val(parseFloat($("#util" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#tottari" + c).val(parseFloat($("#tottari" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#rent" + c).val(parseFloat($("#rent" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#brtukg" + c).val(parseFloat($("#brtukg" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#netokg" + c).val(parseFloat($("#netokg" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#netotn" + c).val(parseFloat($("#netotn" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  $("#cant" + c).val(parseFloat($("#cant" + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                });
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                console.log('error');
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+
+            var dato2 = {
+              ncotizar2: id,
+              action: 'ver_espe'
+            };
+            $("#cuerpo_especial").html('');
+            $.ajax({
+              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: dato2,
+              dataType: 'json',
+              success: function(data) {
+                var ce = 0;
+                if (data.result) {
+                  data.result.forEach(function(element, index) {
+                    ce++;
+                    $("#cuerpo_especial").append('<tr>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.n_cotizacion + '-<span class="text-primary">' + element.item_mercancia + '</span>' + '-' + element.item_especial + ' </td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.tipo_servicio + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.cantidad + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="vunies' + ce + '" class="" value="' + element.valor_unitario + '" readonly="readonly"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="tservi' + ce + '" class="form-control input-xs" value="' + element.total_servicio + '" readonly="readonly"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="ttarifa' + ce + '" class="form-control input-xs" value="' + element.tarifa + '" readonly="readonly"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="tutil' + ce + '" class="form-control input-xs" value="' + element.utilidad + '" readonly="readonly"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.rentabilidad + '</td>' +
+                      '</tr>');
+                    //formatear
+                    $("#vunies" + ce).val(parseFloat($("#vunies" + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                    $("#tservi" + ce).val(parseFloat($("#tservi" + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                    $("#ttarifa" + ce).val(parseFloat($("#ttarifa" + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                    $("#tutil" + ce).val(parseFloat($("#tutil" + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                  });
+                } else {
+                  $("#cuerpo_especial").append(`<tr><td class="text-center" colspan="8">Sin servicios especiales</td></tr>`);
+                }
+
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                console.log('error');
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+            if (soli_servi.length > 0) {
+              var soli = {
+                soli_servi: soli_servi,
+                action: 'solicitud_servicio'
+              };
+              $("#cuerpo_servicio").html('');
+              $("#cuerpo_servicio2").html('');
+              $.ajax({
+                url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+                type: 'POST',
+                data: soli,
+                dataType: 'json',
+                success: function(data) {
+                  document.getElementById("referencia_operacion").value = data.result[0].observacion;
+                  //numero_contenedor
+                  if (data.result[0].numero_contenedor === null) {
+                    document.getElementById("numero_contenedor").value = "";
+                    document.getElementById("numero_contenedor").disabled = false;
+                    document.getElementById("btn_save_contenedor").disabled = false;
+                    document.getElementById("agrupable").checked = false;
+                    document.getElementById("agrupable").disabled = false;
+                  } else {
+                    if (data.result[0].agrupable === null || data.result[0].agrupable === 'NO') {
+                      document.getElementById("numero_contenedor").value = data.result[0].numero_contenedor;
+                      document.getElementById("numero_contenedor").disabled = true;
+                      document.getElementById("btn_save_contenedor").disabled = true;
+                      document.getElementById("agrupable").checked = false;
+                      document.getElementById("agrupable").disabled = false;
+                    } else {
+                      document.getElementById("numero_contenedor").value = data.result[0].numero_contenedor;
+                      document.getElementById("numero_contenedor").disabled = true;
+                      document.getElementById("btn_save_contenedor").disabled = true;
+                      document.getElementById("agrupable").checked = true;
+                      document.getElementById("agrupable").disabled = true;
+                    }
+
+                  }
+                  data.result.forEach(function(element, index) {
+                    $("#cuerpo_servicio").append('<tr>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="mer_idservicio" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="punto_rem" disabled style="width:100%;height24px;" value="' + element.punto_rem + '"></td>' +
+                      '<td class="text-center style="font-size: 10px;white-space: nowrap;"><input type="text" id="remitente_edit" disabled style="width:100%;height24px;" value="' + element.remitente + '"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="date" id="fecha_cargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_cargue + '"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="time" id="hora_cargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_cargue + '"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-xs" role="group" aria-label="Extra-small button group">' +
+                      '<button type="button" class="btn btn-warning btn-xs" id="btn_edit_cargue"><i class="fas fa-pencil-alt"></i></button>' +
+                      ' </div></td>' +
+                      '</tr>');
+
+                    $("#cuerpo_servicio2").append('<tr>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input type="text" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input type="text" id="punto_des" disabled style="width:100%;height24px;" value="' + element.punto_des + '"></td>' +
+                      '<td class="text-center style="font-size: 10px;white-space: nowrap;"> <input type="text" id="destinatario_edit" disabled style="width:100%;height24px;" value="' + element.destinatario + '"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="date" id="fecha_descargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_descargue + '"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="time" id="hora_descargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_descargue + '"></td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+                      '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-xs" role="group" aria-label="Extra-small button group">' +
+                      '<button type="button" class="btn btn-warning btn-xs" id="btn_edit_descargue"><i class="fas fa-pencil-alt"></i></button>' +
+                      ' </div></td>' +
+                      '</tr>');
+
+                  });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                  console.log('error');
+                  console.log(jqXHR);
+                  console.log(textStatus);
+                  console.log(errorThrown);
+                }
+              });
+
+              /* Consultar las agencias y lostipos de servicio para actualizar */
+              fetch($('#id_url_ajax').val() + "serviciocliente/ListarAgenciasTipoServicios", {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                })
+                .then(response => response.json())
+                .then(data => {
+                  $("#servicio_agencia").html('');
+                  $("#servicio_agencia").append('<option value="" selected>Seleccione...</option>');
+                  data.forEach(element => {
+                    $("#servicio_agencia").append('<option value="' + element.id + '">' + element.nombre + '</option>');
+                  });
+                })
+                .catch(error => {
+                  console.log('error');
+                  console.log(error);
+                });
+
+            } else {
+              $("#cuerpo_servicio").html('');
+              $("#cuerpo_servicio2").html('');
+            }
+          }); //cierre del boton ver
+
+
+          //cancelación de la solicitud de servicio
+          $("#btn_cancela" + cont + "").click(function() {
+            var idsolicitud = $(this).attr('data-id');
+            $("#c_numsolicitud").val(idsolicitud);
+            //buscar si la solicitud ya tiene prefiltro asociado
+            var buscar = {
+              idsolicitud: idsolicitud,
+              action: 'requiere_cancelacion'
+            };
+            $("#espacio_cancelacion").html('');
+            $.ajax({
+              url: $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php",
+              type: 'POST',
+              data: buscar,
+              dataType: 'json',
+              success: function(data) {
+                if (data.result == null) {
+                  //No la han pedido operaciones, si se puede cancelar
+                  $("#espacio_cancelacion").html('<div class="panel panel-border-color panel-border-color-warning">' +
+                    '<div class="panel-heading"><strong>Atención!!</strong></strong</div>' +
+                    '<div class="panel-body">' +
+                    '<h4><strong>Señor usuario:</strong></h4>' +
+                    '<p><strong>Por favor proceda a hacer la cancelacion de la solicitud N° ' + idsolicitud + '. </strong></p>' +
+                    '</div>' + '</div>');
+
+                  $("#btn_cancela_solicitud").prop('disabled', false);
+                }
+                if (data.result != null) {
+                  //Si la han solicitado operaciones, no se puede cancelar
+                  $("#espacio_cancelacion").html(' <div class="panel panel-border-color panel-border-color-warning">' +
+                    '<div class="panel-heading"><strong>Atención!!</strong></strong</div>' +
+                    '<div class="panel-body">' +
+                    '<h4><strong>Señor usuario:</strong></h4>' +
+                    '<p><strong>Su solicitud de servicio ya fue asociada a una solicitud de estudio, por esta razón no puede realizar proceso de cancelación para la solicitud N° ' + idsolicitud + '</strong></p>' + '</div>' + '</div>');
+                  $("#btn_cancela_solicitud").prop('disabled', true);
+                }
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                console.log('error');
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              }
+            });
+          });
+        });
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('error');
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      }
+    });
+
+    //formatear flete
+    var separador = document.getElementById('flete');
+    separador.addEventListener('keyup', (e) => {
+      var entrada = e.target.value.split('.').join('');
+      entrada = entrada.split('').reverse();
+      // console.log(entrada);
+      var salida = [];
+      var aux = '';
+      var paginador = Math.ceil(entrada.length / 3);
+      for (let i = 0; i < paginador; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (entrada[j + (i * 3)] != undefined) {
+            aux += entrada[j + (i * 3)];
+          }
+        }
+        salida.push(aux);
+        // console.log(aux);
+        aux = '';
+        // e.target.value = salida.join('.').split("").reverse().join('');
+        e.target.value = salida.join('.').split("").reverse().join('');
+      }
+      // console.log(paginador);
+    }, false);
+    //
+    $("#boton_pedir_carro").click(function() {
+      // alert('entro a crear solicitud');
+      var n = $("#ncotizar").val();
+      var fi = $("#fecha_sistem").val();
+      var ff = $("#hora_sistem").val();
+      var es = 'Pendiente';
+      var usuario = $("#user").val();
+      var ori = $("#origen").val();
+      var dest = $("#destino").val();
+      var peso = $("#peso").val();
+      var tipo_veh = $("#tipo_vehiculo").val();
+      var flete = $("#flete").val();
+
+      var cliente = $("#cliente").val();
+      var pareja = $("#pareja").val();
+      var observacion = $("#observacion").val();
+      var agencia = $("#agencia").val();
+      var cont_opcion = $("#cnt_opcion").val();
+      var cont_dias = $("#cnt_dias").val();
+      var cont_municipio = $("#cnt_municipio").val();
+      var cont_direccion = $("#cnt_direccion").val();
+      var cont_tipo = $("#cnt_tipocon").val();
+      var cont_num = $("#cnt_num").val();
+      var cont_comodato = $("#cnt_fcomodato").val();
+
+      var datos_solicitud = {
+        numero: n,
+        inicial: fi,
+        hora: ff,
+        estado: es,
+        usuario: usuario,
+        ori: ori,
+        dest: dest,
+        peso: peso,
+        tipo_veh: tipo_veh,
+        flete: flete,
+        cliente: cliente,
+        pareja: pareja,
+        observacion: observacion,
+        agencia: agencia,
+        cont_opcion: cont_opcion,
+        cont_dias: cont_dias,
+        cont_municipio: cont_municipio,
+        cont_direccion: cont_direccion,
+        cont_tipo: cont_tipo,
+        cont_num: cont_num,
+        cont_comodato: cont_comodato,
+        action: 'solicitud_vehiculo'
+      };
+
+
+      if (cont_opcion == '1') {
+        if (cont_dias == '') {
+          alert('Días del contenedor esta vacío');
+        }
+
+        if (cont_municipio == '') {
+          alert('Municipio esta vacío');
+        } else if (cont_direccion == '') {
+          alert('Direccion esta vacío');
+        } else if (cont_tipo == '') {
+          alert('tipo de contenedor esta vacío');
+        } else if (cont_num == '') {
+          alert('Número de contenedor esta vacío');
+        } else if (cont_comodato == '') {
+          alert('Comodato esta vacío');
+        } else {
+
+          $.ajax({
+            url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+            type: 'POST',
+            data: datos_solicitud,
+            dataType: 'json',
+            success: function(data) {
+              // console.log('ok shdjhsjd');
+              alert('Se Registro Exitosamente!!!');
+              $("html, body").animate({
+                scrollTop: 0
+              }, 600);
+              setTimeout(function() {
+                location.reload(false);
+              }, 800);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              console.log('error error');
+              console.log(jqXHR);
+              console.log(textStatus);
+              console.log(errorThrown);
+            }
+          });
+
+        }
+      }
+
+      if (cont_opcion == '0') {
+        $.ajax({
+          url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+          type: 'POST',
+          data: datos_solicitud,
+          dataType: 'json',
+          success: function(data) {
+            // console.log('ok shdjhsjd');
+            alert('Se Registro Exitosamente!!!');
+            $("html, body").animate({
+              scrollTop: 0
+            }, 600);
+            setTimeout(function() {
+              location.reload(false);
+            }, 800);
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.log('error error');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+          }
+        });
+      }
+    });
+
+  } //cierre de la funcion total
+
+  $("#btn_cancela_solicitud").click(function() {
+    var n_servicio = $("#c_numsolicitud").val();
+    var update = {
+      n_servicio: n_servicio,
+      action: 'Cancelar_Solicitud'
+    };
+    $.ajax({
+      url: $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php",
+      type: 'POST',
+      data: update,
+      dataType: 'json',
+      success: function(data) {
+        // console.log('ok shdjhsjd');
+        alert('Se Registro Exitosamente!!!');
+        $("html, body").animate({
+          scrollTop: 0
+        }, 600);
+        setTimeout(function() {
+          location.reload(false);
+        }, 800);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('error error');
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      }
+    });
+  });
+
+  $("#btnaprobar_tarifa").click(function() {
+    //traer datos
+    var msg_error = "";
+    if (!$("#sstarifasold").val()) {
+      msg_error += "<p>Debe diligenciar el campo <strong>Tarifa venta</strong> para poder registrar.</p>";
+    }
+    if (!$("#ssaprobar").val()) {
+      msg_error += "<p>Debe seleccionar el campo <strong>Ajuste de tarifa</strong> para poder registrar.</p>";
+    }
+    if (!msg_error) {
+      Aprobar_Tarifa();
+    } else {
+      $("#msg_tarifa_subasta").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+      $("#consulta_sub").animate({
+        scrollTop: 0
+      }, 600);
+    }
+  });
+
+  function Aprobar_Tarifa() {
+    var sidflete = $("#ssidflete").val();
+    var subasta = $("#ssubnum").val();
+    var cliente = $("#sscliente").val();
+    var tarifa = $("#sstarifasold").val().replace(/,/g, "");
+    var estado = $("#ssaprobar").val();
+    var idpareja = $("#idpareja_origen_destino").val();
+    //update en el campo nuevo de estado estado_sac
+    //insert en el campo nuevo de detalle de mercancia
+    // tarifa_subasta  responsable
+    var dato = {
+      sidflete: sidflete,
+      subasta: subasta,
+      tarifa: tarifa,
+      estado: estado,
+      idpareja: idpareja,
+      action: 'Aprueba_Sac'
+    };
+    $.ajax({
+      url: $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php",
+      type: 'POST',
+      data: dato,
+      dataType: 'json',
+      success: function(data) {
+        alert('Se Registro Exitosamente!!!');
+        $("html, body").animate({
+          scrollTop: 0
+        }, 600);
+        setTimeout(function() {
+          location.reload(false);
+        }, 800);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('error error');
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      }
+    });
+  }
+
+  function cambia_tarifa() {
+    tarifa = $("#sstarifasold").val().replace(/,/g, "");
+    flete = $("#ssfpropuesto").val().replace(/,/g, "");
+    //se calcula rentabilidad para pasar a gerencia
+    let rent = (parseFloat(tarifa) - parseFloat(flete));
+    $("#ss_rentabilidad").val(rent);
+    let calculo = (parseFloat(rent) / parseFloat(tarifa));
+    let res = (parseFloat(calculo) * 100);
+    let util = res.toFixed(2);
+    $("#ss_utilidad").val(util);
+    $("#ss_rentabilidad").val(parseFloat($("#ss_rentabilidad").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+    $("#sstarifasold").val(parseFloat($("#sstarifasold").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+    if (parseFloat(util) >= parseFloat(15)) {
+      $("#ssaprobar").html('<option value="aprobado_sac">Ajustar</option>');
+    } else {
+      $("#ssaprobar").html('<option value="no_aprobado_sac">No ajustar</option>');
+    }
+  }
+
+  $("#repuesta_flete").click(function() {
+    flete_propu = $("#ssfpropuesto").val();
+    tarifa_pro = $("#sstarifasold").val();
+    utilidad = $("#ss_utilidad").val();
+    rentabili = $("#ss_rentabilidad").val();
+    subasta = $("#ssubnum").val();
+    rta = $("#respuesta_flete_s").val();
+    var sidflete = $("#ssidflete").val();
+    ss = $("#ssservicio").val();
+    var rta_flete = {
+      sidflete: sidflete,
+      flete_propu: flete_propu,
+      tarifa_pro: tarifa_pro,
+      utilidad: utilidad,
+      rentabili: rentabili,
+      subasta: subasta,
+      estado: rta,
+      nservicio: ss,
+      action: 'respuesta_flete'
+    };
+    $.ajax({
+      url: $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php",
+      type: 'POST',
+      data: rta_flete,
+      dataType: 'json',
+      success: function(data) {
+        if (rta == 1) {
+          //activar boton y ajuste tarifa
+          alert('Se Registro Exitosamente!!!');
+          document.getElementById("sstarifasold").disabled = false;
+          document.getElementById("ssaprobar").disabled = false;
+          $('#btnaprobar_tarifa').attr('disabled', false);
+        } else {
+          alert('Se Registro Exitosamente!!!');
+          $("html, body").animate({
+            scrollTop: 0
+          }, 600);
+          setTimeout(function() {
+            location.reload(false);
+          }, 800);
+        }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('error error');
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      }
+    });
+  });
+
+  function contador_solicitud(fecha_i, fecha_f) {
+    var dato_conteo = {
+      fecha_inicia: fecha_i,
+      fecha_final: fecha_f,
+      // action: 'cantidad_solicitud'
+    };
+    $.ajax({
+      url: $('#id_url_ajax').val() + "serviciocliente/Cantidad_Solicitudes",
+      // url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+      type: 'POST',
+      data: dato_conteo,
+      dataType: 'json',
+      success: function(data) {
+        $("#bdge_ss").html(0);
+        if (data) {
+          $("#bdge_ss").html(data.cantidad);
+        } else {
+          $("#bdge_ss").html(0);
+        }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('');
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      }
+    });
+  }
+</script>

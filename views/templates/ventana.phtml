@@ -1,0 +1,23 @@
+<?php
+// 1. Obtener las variables de sesión
+// session_start();
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+// 2. Lógica para obtener el contenido dinámico
+$contenidoDinamico = '';
+
+// Aquí puedes agregar la lógica para generar el contenido dinámico
+$contenidoDinamico .= '<h1>HOLA MUNDO</h1>';
+$contenidoDinamico .= '<p>Este es un contenido dinámico cargado desde otro archivo.</p>';
+
+// 3. Cargar la plantilla base
+$template = file_get_contents('./views/layout/layout.php');
+
+// 4. Reemplazar la etiqueta {{contenido_html}} con el contenido dinámico
+$template = str_replace('{{contenido_html}}', $contenidoDinamico, $template);
+
+// 5. Mostrar el resultado final
+echo $template;

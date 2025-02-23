@@ -1,0 +1,183 @@
+<?php
+// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_cliente = $_SESSION["usuario"]["nombre_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+
+	$vista='';
+	//se realiza el metodo para la consulta 
+		$array = $this->lanzador->getLanzador($ssn_id_perfil);
+		
+	echo $vista='<div class="container" style="background-color:#eceff1;height:700px;border-radius:30px;margin-top:20px;">
+			<div class="row" style="background-color:#eceff1;margin:50px;padding:10px;width:90%;border-radius:20px;padding-top:30px; ">';
+
+
+	if($array){
+	
+		foreach($array["rowsData"] as $key => $value) {
+				$n=0;
+
+				 if($value['nombre']=='Transporte Nacional'){
+				 	$n="icon mdi mdi-truck";
+				 	$id_n=$value['id'];
+				 }
+
+				 if($value['nombre']=='Parámetros'){
+				 	$n="icon mdi mdi-view-toc";
+				 	$id_p=$value['id'];
+				 }
+
+				 if($value['nombre']=='Transporte Internacional'){
+				 	$n="icon mdi mdi-airplane";
+				 	$id_i=$value['id'];
+				 }
+
+				 if($value['nombre']=='Servicio al cliente'){
+				 	$n="icon mdi mdi-walk";
+				 	$id_sc=$value['id'];
+				 }
+
+				 if($value['nombre']=='Cumplimiento'){
+				 	$n="icon mdi mdi-assignment-check";
+				 	$id_cu=$value['id'];
+				 }
+
+				 if($value['nombre']=='Seguridad'){
+				 	$n="icon mdi mdi-lock";
+				 	$id_se=$value['id'];
+				 }
+
+				  if($value['nombre']=='Tráfico'){
+				 	$n="icon mdi mdi-traffic";
+				 	$id_t=$value['id'];
+				 }
+
+				  if($value['nombre']=='Almacenamiento'){
+				 	$n="icon mdi mdi-aspect-ratio-alt";
+				 	$id_a=$value['id'];
+				 }
+
+				  if($value['nombre']=='Gerencia'){
+				 	$n="icon mdi mdi-seat";
+				 	$id_g=$value['id'];
+				 }
+
+				  if($value['nombre']=='Clientes'){
+				 	$n="icon mdi mdi-mall";
+				 	$id_cl=$value['id'];
+				 }
+
+
+						 echo	$vista='
+						 <div style="bottom:0px;">
+						 <a href="#" class="lanzadorn" data-id="'.$value['id'].'"  >
+						                   <div class="col-sm-2 " style="background-color:#37474F;
+						                		border: 0px solid yellow;border-radius:20px;padding:10px;height:150px;margin-left:60px; margin-top:10px; ">
+				      	                 		<p class="text-center" 
+				      	                 		style="color:white;font-size:12pt;">'.$value['nombre'].'</p>
+				      	                		<p class="text-center">
+				      	                			<i class="'.$n.'" style="font-size:24pt; color:yellow;"><hr style="width:30%;margin-top:0px;background-color:white;height:2px"></i>
+				      	                	   	</p>
+				      	                 </div>
+				      	                 </a>
+				      	                 <input type="hidden" id="'.$value['id'].'" name="" >
+				      	                 </div>
+				      	                 ';
+			
+		}
+
+	}
+
+	$vista= '
+		     </div>';
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.='
+		<!-- INICIO JS DEL BEAGLE -->
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+		</script>
+		<!-- FIN JS DEL BEAGLE -->
+	';   
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista= str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	echo $vista;
+?>
+<script type="text/javascript">
+	// $(document).ready(function(){
+	// 	$(".lanzador").click(function(){
+	// 		window.location = `${$("#id_url_ajax").val()}index/index1`;
+	// 	});
+	// });
+
+
+	$(document).ready(function(){
+		$(".lanzadorn").click(function(){
+			//alert('hola nacional');
+			var ruta=($(this).data("id"));
+			// if(ruta=='1'){
+			// 	var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+			// }
+				var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta; 
+				window.location = (url);
+			// }
+			// if(ruta=='2'){
+			// 	var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+			// }
+			// if(ruta=='3'){
+			// 	 var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	  window.location = (url);
+			// }
+			// if(ruta=='4'){
+			// 	var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+	
+			// }
+			// if(ruta=='5'){
+			// 	var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+	
+			// }
+			// if(ruta=='6'){
+			// 	var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+	
+			// }
+			// if(ruta=='7'){
+			// 	var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+	
+			// }
+			// if(ruta=='8'){
+			// 	 var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+	
+			// }
+			// if(ruta=='9'){
+			// 	var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+	
+			// }
+			// if(ruta=='10'){
+			// 	 var url='http://localhost/mvcLuisMiguel/index/index1/?idmenu='+ruta;
+			// 	 window.location = (url);
+			// }
+
+		});
+	});
+
+
+</script>
+

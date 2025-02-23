@@ -1,0 +1,204 @@
+<?php
+	$_dbTable = "agrupacion_anticipo"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	/********* FIN POPUPS *********/
+
+	/*** SE CREA TABLA DE CONTENIDO ***/
+	$table_view = '';
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if(isset($this->solicitudes) /* && count($this->solicitudes) */){
+		$table_view = '
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-10">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover" data-page-length="50">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="min-width:5%;"></th>
+									<th style="min-width:5%;"></th>
+									<th>Manifiesto</th>
+									<th>Conductor</th>
+									<th>Flete</th>
+									<th>Anticipo</th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+		$anticipos = $this->solicitudes->getAnticiposExcel("");
+		// print_r("<pre>");
+		// print_r($anticipos);
+		// print_r("</pre>");
+
+		if ($anticipos) {
+			foreach ($anticipos['rowsData'] as $key => $value) {
+
+				$_status_descarga = 'warning';
+				$_data_hint = 'Sin descargar';
+				if ( $value["descargado"] == 1 ) {
+					$_status_descarga = 'success';
+					$_data_hint = 'Descargado';
+				}
+
+				// Se maqueta contenido de la tabla 
+				$table_view.= '<tr>';
+				$table_view.= '
+					<td class="nexos-txt-' . $_status_descarga . '">
+						<center>
+							<a class="hint--top-right" data-hint="' . $_data_hint . '">
+								<span class="mdi mdi-dot-circle icon"></span>
+							</a>
+						</center>
+					</td>
+					<td class="cell-detail text-center">
+						<span> 
+							<div class="be-checkbox ">
+								<input name="' . $value["ID_AGRUPACION"] . '" class="check_anticipos anticipos_' . $value["ID_AGRUPACION"] . '" value="' . $value["ID_AGRUPACION"] . '" id="num_anticipos_' . $value["ID_AGRUPACION"] . '" type="checkbox">
+								<label for="num_anticipos_' . $value["ID_AGRUPACION"] . '"></label>
+							</div>
+						</span>
+					</td>
+					<td class="cell-detail">
+						<span>' . $value["numero_manifiesto"] . '</span>
+					</td>
+					<td class="cell-detail">
+						<span>' . $value["nombre"] . '</span>
+						<span class="cell-detail-description">' . $value["numero_documento"] . '</span>
+					</td>
+					<td class="cell-detail text-right">
+						<span>$' . number_format($value["flete"], 2, ",", ".") . '</span>
+					</td>
+					<td class="cell-detail text-right">
+						<span>$' . number_format($value["anticipo"], 2, ",", ".") . '</span>
+					</td>
+				';
+				$table_view.= '</tr>';
+			}
+		}
+
+		$table_view.= '
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		';
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Listado de Anticipos 
+				<div class="tools">
+					<a href="' . BASE_URL . 'solicitudes/anticipos_excel/" class="hint--top" data-hint="Volver">
+						<span class="icon mdi mdi-long-arrow-return"></span>
+					</a>
+					<a id="generarExcelHelisa" target="_blank" class="hint--top-left" data-hint="Crear archivo de anticipos">
+						<span class="icon mdi mdi-grid"></span>
+					</a>
+				</div>
+				<span class="panel-subtitle">Listado de lso anticipos ya generados, y generación de archivo Excel para integración con sistema Helisa.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+	';
+
+
+  	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+	    </script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_view , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		buscarAnticiposChecked();
+
+		$(".check_anticipos").click(function(){
+			buscarAnticiposChecked();
+		});
+
+		$("#generarExcelHelisa").click(function(){
+			setTimeout(function() { location.reload(false);  }, 800);
+		});
+	});
+
+	function buscarAnticiposChecked(){
+		// console.log("Entro en funcion buscarAnticiposChecked");
+		$("#generarExcelHelisa").css("display", "none");
+
+		var url = "#";
+		var id_anticipos_checked = "";
+
+		$(".check_anticipos").each(function(){
+			if ( $(this).prop("checked") ) {
+				id_anticipos_checked+= $(this).val() + ",";
+			}
+		});
+
+		if ( id_anticipos_checked ) {
+			$("#generarExcelHelisa").css("display", "block");
+			url = $("#id_url_ajax").val() + 'libs/helisa_ajax.php?action=descargaExcelAnticipos&id_agrupacion=' + id_anticipos_checked;
+			$("#generarExcelHelisa").attr("href",url);
+		}
+	}
+</script>

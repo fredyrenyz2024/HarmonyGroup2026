@@ -1,0 +1,509 @@
+<?php
+	$Conect = new Consultas;
+	$_dbTable = "ingresos"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+	$_jsAjax = "";
+
+	// se definen las variables de session
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+	$r = new Request();
+	// print_r($r->getArgs());
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	/********* FIN POPUPS *********/
+
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+	if(isset($this->bodegas) && count($this->bodegas)){
+
+		/*** SE CREA TABLA DE CONTENIDO ***/
+		$table_novedades = '
+			<div class="row">
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8">
+					<div class="table-responsive noSwipe">
+						<table id="table1" class="table table-striped table-hover">
+							<thead>
+								<tr class="nexos-encabezado">
+									<th style="width:5%;"></th>
+									<th>Material</th>
+									<th>Estiba</th>
+									<th style="width:15%;">Disponibles</th>
+									<th style="width:5%;"></th>
+								</tr>
+							</thead>
+							<tbody>
+		';
+
+		$arrayNovedadIngreso = $this->bodegas->getNovedadIngreso($r->getArgs()[0]);
+		// print_r("<pre>");
+		// print_r($arrayNovedadIngreso);
+		// print_r("</pre>");
+
+		if ($arrayNovedadIngreso['rowsData']) {
+			foreach ($arrayNovedadIngreso['rowsData'] as $key => $value) {
+
+				/****** CREACION CONTENIDO DE POPUPS ******/
+				// CONTENIDO DEL POPUP DE FORMULARIO DE GENERACION DE NOVEDADES DE ESTIBA COMPLETA
+
+				// Se crea el select de novedades
+				$slct_causa_novedad = $this->bodegas->getHtmlSelectCausaNovedad( "causa_novedad" , $value[0]);
+
+				$forms = '
+					<form id="form_asigna_' . $value[0] . '">
+						<input type="hidden" name="tipo_embalaje" id="tipo_embalaje' . $value[0] . '" value="embalaje" class="form-control">
+						<input type="hidden" name="id_embalaje" id="id_embalaje' . $value[0] . '" value="' . $value[0] . '" class="form-control">
+						<input type="hidden" name="id_usuario" value="' . $ssn_id_usuario . '" class="form-control">
+
+						<div class="panel panel-border panel-contrast">
+							<div class="panel-heading panel-heading-contrast">
+								Generar Novedad de Ingreso en Embalajes 
+								<div class="tools">
+									<a href="#" class="icon hint--top-left" data-hint="Generar Novedad"><span class="icon mdi mdi-check-circle" id="asigna_' . $value[0] . '" data-dismiss="modal"></span></a>
+								</div>
+							</div>
+						</div>
+						<div class="form-group col-xs-6">
+							<label>*Cantidad de embalaje:</label>
+							<input type="number"name="cantidad" id="cantidad_' . $value[0] . '" min="1" max="' . ($value["DISPONIBLES"] - 1) . '" class="form-control">
+							<label id="error_cantidad_' . $value[0] . '"></label>
+						</div>
+						<div class="form-group col-xs-6">
+							<label>*Causa Novedad:</label>
+							' . $slct_causa_novedad . '
+							<label id="error_slct_tipo_novedad_' . $value[0] . '"></label>
+						</div>
+						<div class="form-group col-xs-12">
+							<label>*Detalle de la Novedad:</label>
+							<textarea name="detalle" id="detalle_' . $value[0] . '" placeholder="Detalle de la Novedad" class="form-control"></textarea>
+							<label id="error_detalle_' . $value[0] . '"></label>
+						</div>
+						<div class="row"></div>
+					</form>
+				';
+
+				// Validacion JS de seleccion de materiales 
+				$urlGenerarNovedad = BASE_URL . 'libs/generar_novedad.php';
+				// Validacion de contenido del formulario de creacion
+				$_jsScripts.='
+					<script type="text/javascript">
+						var validar_cantidad_' . $value[0] . ' = "";
+						var validar_slct_tipo_novedad_' . $value[0] . ' = "";
+						var validar_detalle' . $value[0] . ' = "";
+
+						$("#slct_tipo_novedad_' . $value[0] . '").focus(function (){
+							$("#slct_tipo_novedad_' . $value[0] . '").keypress(function() {
+								validarkeypress("#error_slct_tipo_novedad_' . $value[0] . '", "#slct_tipo_novedad_' . $value[0] . '");
+							});
+						});
+						$("#slct_tipo_novedad_' . $value[0] . '").focusin(function (){
+							removerClaseserror("#error_slct_tipo_novedad_' . $value[0] . '", "#slct_tipo_novedad_' . $value[0] . '");
+						});
+						$("#slct_tipo_novedad_' . $value[0] . '").focusout(function (){
+							validar_slct_tipo_novedad_' . $value[0] . ' = validaciones("vacio" , $("#slct_tipo_novedad_' . $value[0] . '").val() , "Bodega");
+							if(validar_slct_tipo_novedad_' . $value[0] . ' != true){
+								agregarClaseserror("#error_slct_tipo_novedad_' . $value[0] . '", "#slct_tipo_novedad_' . $value[0] . '", validar_slct_tipo_novedad_' . $value[0] . ');
+							}
+							else{
+								removerClaseserror("#error_slct_tipo_novedad_' . $value[0] . '", "#slct_tipo_novedad_' . $value[0] . '");
+							}
+						});
+
+						$("#cantidad_' . $value[0] . '").focus(function (){
+							$("#cantidad_' . $value[0] . '").keypress(function() {
+								validarkeypress("#error_cantidad_' . $value[0] . '", "#cantidad_' . $value[0] . '");
+							});
+						});
+						$("#cantidad_' . $value[0] . '").focusin(function (){
+							removerClaseserror("#error_cantidad_' . $value[0] . '", "#cantidad_' . $value[0] . '");
+						});
+						$("#cantidad_' . $value[0] . '").focusout(function (){
+							validar_cantidad_' . $value[0] . ' = validaciones("vacio" , $("#cantidad_' . $value[0] . '").val() , "Cantidad de embalaje");
+							if(validar_cantidad_' . $value[0] . ' != true){
+								agregarClaseserror("#error_cantidad_' . $value[0] . '", "#cantidad_' . $value[0] . '", validar_cantidad_' . $value[0] . ');
+							}
+							else{
+								removerClaseserror("#error_cantidad_' . $value[0] . '", "#cantidad_' . $value[0] . '");
+							}
+						});
+
+						$("#detalle_' . $value[0] . '").focus(function (){
+							$("#detalle_' . $value[0] . '").keypress(function() {
+								validarkeypress("#error_detalle_' . $value[0] . '", "#detalle_' . $value[0] . '");
+							});
+						});
+						$("#detalle_' . $value[0] . '").focusin(function (){
+							removerClaseserror("#error_detalle_' . $value[0] . '", "#detalle_' . $value[0] . '");
+						});
+						$("#detalle_' . $value[0] . '").focusout(function (){
+							validar_detalle_' . $value[0] . ' = validaciones("vacio" , $("#detalle_' . $value[0] . '").val() , "Detalle de la Novedad");
+							if(validar_detalle_' . $value[0] . ' != true){
+								agregarClaseserror("#error_detalle_' . $value[0] . '", "#detalle_' . $value[0] . '", validar_detalle_' . $value[0] . ');
+							}
+							else{
+								removerClaseserror("#error_detalle_' . $value[0] . '", "#detalle_' . $value[0] . '");
+							}
+						});
+
+						var flagError = "";
+						if ( validar_slct_tipo_novedad_' . $value[0] . ' != true || validar_detalle_' . $value[0] . ' != true || validar_cantidad_' . $value[0] . ' != true ) {
+							flagError = false;
+						} else {
+							flagError = true;
+						}
+
+						$(\'#asigna_' . $value[0] . '\').click(function () {
+							var msgError = "";
+
+							var tipo_novedad =  $(\'#slct_tipo_novedad_' . $value[0] . '\').val();
+							var detalle = $(\'#detalle_' . $value[0] . '\').val();
+							var cantidad = $(\'#cantidad_' . $value[0] . '\').val();
+
+							if (!cantidad) {
+								msgError+= "<p>Para generar la novedad debe diligenciar el campo <strong>Cantidad de embalaje</strong>.</p>";
+							}else if(cantidad < 1 || cantidad >= ' . $value["DISPONIBLES"] . '){
+								msgError+= "<p>Para generar la novedad debe diligenciar el campo <strong>Cantidad de embalaje</strong> con valores inferiores a la cantidad de embalajes de la estiba entre <strong>1</strong> y <strong>' . ($value["DISPONIBLES"] - 1 ) . '</strong>.</p>";
+							}
+
+							if (!tipo_novedad) {
+								msgError+= "<p>Para generar la novedad debe seleccionar una <strong>Causa de la Novedad</strong>.</p>";
+							}
+							if (detalle == "") {
+								msgError+= "<p>Para generar la novedad debe diligenciar el campo <strong>Detalle de la Novedad</strong>.</p>";
+							}
+
+							if (!msgError) {
+								$.ajax({
+									type		: 	"POST",
+									cache		: 	false,
+									url			: 	"' . $urlGenerarNovedad . '",
+									data		: 	$("#form_asigna_' . $value[0] . '").serialize(),
+									beforeSend	: 	function(jqXHR, settings){
+														console.log("Entra en la funcion pasar actividades ajax...");
+														$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos</h4></div></div>\');
+													},
+									error: 			function(){
+														console.log("error1...");
+													},
+									success		: 	function(data) {
+														console.log(data);
+														$(".nexos-messages").hide();
+														$(".nexos-messages").html(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se han generado la orden con éxito.</div></div>\');
+														$("#table1").hide();
+														setTimeout(function() { location.reload(false);  }, 2000);
+													}
+								});
+							} else {
+								$(".nexos-messages").html(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close-circle-o"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong> \' + msgError + \'</div></div>\');
+							}
+						});
+					</script>
+				';
+				$_popupCrea = $form_crea->_message_title_modal("novedades_" . $value[0] , "Novedades de Ingreso en Esmbalaje de Estiba de Material" , $forms );
+				$vista.= $_popupCrea;
+				/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+				// Se maqueta contenido de la tabla 
+				$table_novedades.= '<tr>';
+				// Columna de check box
+				$table_novedades.= '
+					<td class="be-checkbox">
+						<input type="checkbox" class="checkbox" name="checkbox" value="' . $value[0] . '" id="check_' . $value[0] . '" >
+						<label for="check_' . $value[0] . '"></label>
+					</td>
+				';
+				// Columna Material
+				$table_novedades.= '
+					<td class="cell-detail">
+						<span>' . $value["descripcion"] . '</span>
+						<span class="cell-detail-description">' . $value["codigo"] . '</span>
+					</td>
+				';
+				// Columna Lote Estiba
+				$table_novedades.= '
+					<td class="cell-detail">
+						<span>' . $value["ESTIBA"] . '</span>
+					</td>
+				';
+				// Columna de Cantidad de embalajes disponibles 
+				$_porcentaje = 0;
+				if ($value["DISPONIBLES"] > 0) {
+					$_porcentaje = ceil(($value["DISPONIBLES"] * 100) / $value["CANTIDAD"]);
+				}
+				$table_novedades.= '
+					<td class="milestone">
+						<span class="version">' . $value["DISPONIBLES"] . ' / ' . $value["CANTIDAD"] . '</span>
+						<div class="progress">
+							<div style="width: ' . $_porcentaje . '%" class="progress-bar progress-bar-primary"></div>
+						</div>
+					</td>
+				';
+				// se asigna la columna de acciones
+				$_btn_novedad_embalaje = '';
+				if ($value["DISPONIBLES"] > 1) {
+					$_btn_novedad_embalaje = '
+						<a href="#" data-toggle="modal" data-target="#edita_novedades_' . $value[0] . '" class="cell-detail  hint--top-left"  data-hint="Generar Novedad en Embalajes de la Estiba"><span class="icon mdi mdi-alert-triangle"></span></a> 
+					';
+				}
+				$table_novedades.='
+					<td class="actions">
+						' . $_btn_novedad_embalaje . '
+					</td>
+				';
+				
+				$table_novedades.= '</tr>';
+			}
+
+			$table_novedades.= '
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			';
+
+			// Validacion de asignacion de elemnentos del delivery
+			$_jsScripts.='
+				<script type="text/javascript">
+					$(".checkbox").click(function (){
+						var estibas_content = "";
+						$("input:checkbox[name=checkbox]:checked").each(function (){
+							estibas_content+= $(this).val() + ","
+						});
+						$("#estibas_group").val(estibas_content);
+					});
+				</script>
+			';
+		}
+	}
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Devolución Material de Ingreso - ' . $r->getArgs()[0] . '  
+				<div class="tools">
+
+					<a href="' . BASE_URL . 'bodegas/pre_entradas" class="cell-detail  hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>
+					<a href="#" data-toggle="modal" data-target="#edita_novedades_" class="cell-detail  hint--top-left"  data-hint="Novedades de Estibas"><span class="icon mdi mdi-alert-triangle"></span></a> 
+				</div>
+				<span class="panel-subtitle">En este módulo puede generar la devolución de material, ya sea una estiba completa o embalajes de una estiba.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			%js-ajax%
+	    </script>
+	';
+
+	/****** CREACION CONTENIDO DE POPUPS ******/
+	// CONTENIDO DEL POPUP DE FORMULARIO DE GENERACION DE NOVEDADES DE ESTIBA COMPLETA
+
+	// Se crea el select de bodegas
+	$slct_causa_novedad = $this->bodegas->getHtmlSelectCausaNovedad( "causa_novedad" , "");
+
+	$forms = '
+		<form id="form_asigna">
+			<input type="hidden" name="tipo_embalaje" id="tipo_embalaje" value="estiba_completa" class="form-control">
+			<input type="hidden" name="estibas_group" id="estibas_group" value="" class="form-control">
+			<input type="hidden" name="id_usuario" value="' . $ssn_id_usuario . '" class="form-control">
+
+			<div class="panel panel-border panel-contrast">
+				<div class="panel-heading panel-heading-contrast">
+					Generar Novedad de Ingreso en Estiba 
+					<div class="tools">
+						<a href="#" class="icon hint--top-left" data-hint="Generar Novedad"><span class="icon mdi mdi-check-circle" id="asigna" data-dismiss="modal"></span></a>
+					</div>
+				</div>
+			</div>
+			<div class="form-group col-xs-12">
+				<label>*Causa Novedad:</label>
+				' . $slct_causa_novedad . '
+				<label id="error_slct_tipo_novedad_"></label>
+			</div>
+			<div class="form-group col-xs-12">
+				<label>*Detalle de la Novedad:</label>
+				<textarea name="detalle" id="detalle" placeholder="Detalle de la Novedad" class="form-control"></textarea>
+			</div>
+			<div class="row"></div>
+		</form>
+	';
+
+	// Validacion JS de seleccion de materiales 
+	$urlGenerarNovedad = BASE_URL . 'libs/generar_novedad.php';
+	// Validacion de contenido del formulario de creacion
+	$_jsScripts.='
+		<script type="text/javascript">
+			var validar_slct_tipo_novedad_ = "";
+			var validar_detalle = "";
+
+			$("#slct_tipo_novedad_").focus(function (){
+				$("#slct_tipo_novedad_").keypress(function() {
+					validarkeypress("#error_slct_tipo_novedad_", "#slct_tipo_novedad_");
+				});
+			});
+			$("#slct_tipo_novedad_").focusin(function (){
+				removerClaseserror("#error_slct_tipo_novedad_", "#slct_tipo_novedad_");
+			});
+			$("#slct_tipo_novedad_").focusout(function (){
+				validar_slct_tipo_novedad_ = validaciones("vacio" , $("#slct_tipo_novedad_").val() , "Bodega");
+				if(validar_slct_tipo_novedad_ != true){
+					agregarClaseserror("#error_slct_tipo_novedad_", "#slct_tipo_novedad_", validar_slct_tipo_novedad_);
+				}
+				else{
+					removerClaseserror("#error_slct_tipo_novedad_", "#slct_tipo_novedad_");
+				}
+			});
+
+			$("#detalle").focus(function (){
+				$("#detalle").keypress(function() {
+					validarkeypress("#error_detalle", "#detalle");
+				});
+			});
+			$("#detalle").focusin(function (){
+				removerClaseserror("#error_detalle", "#detalle");
+			});
+			$("#detalle").focusout(function (){
+				validar_detalle = validaciones("vacio" , $("#detalle").val() , "Bodega");
+				if(validar_detalle != true){
+					agregarClaseserror("#error_detalle", "#detalle", validar_detalle);
+				}
+				else{
+					removerClaseserror("#error_detalle", "#detalle");
+				}
+			});
+
+
+			var flagError = "";
+			if ( validar_slct_tipo_novedad_ != true || validar_slct_tipo_novedad_ != true || validar_detalle != true ) {
+				flagError = false;
+			} else {
+				flagError = true;
+			}
+
+			$(\'#asigna\').click(function () {
+				var msgError = "";
+
+				var estiba =  $(\'#estibas_group\').val();
+				if(estiba){
+					var tipo_novedad =  $(\'#slct_tipo_novedad_\').val();
+					var detalle = $(\'#detalle\').val();
+
+					if (!tipo_novedad) {
+						msgError+= "<p>Para generar la novedad debe seleccionar una <strong>Causa de la Novedad</strong>.</p>";
+					}
+					if (detalle == "") {
+						msgError+= "<p>Para generar la novedad debe diligenciar el campo <strong>Detalle de la Novedad</strong>.</p>";
+					}
+				}else{
+					msgError+= "<p>Debe seleccionar primero las estibas afectadas para poder generar la novedad del ingreso</strong>.</p>";
+				}
+				if (!msgError) {
+					$.ajax({
+						type		: 	"POST",
+						cache		: 	false,
+						url			: 	"' . $urlGenerarNovedad . '",
+						data		: 	$("#form_asigna").serialize(),
+						beforeSend	: 	function(jqXHR, settings){
+											console.log("Entra en la funcion pasar actividades ajax...");
+											$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos</h4></div></div>\');
+										},
+						error: 			function(){
+											console.log("error1...");
+										},
+						success		: 	function(data) {
+											console.log(data);
+											$(".nexos-messages").hide();
+											$(".nexos-messages").html(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se han generado la orden con éxito.</div></div>\');
+											$("#table1").hide();
+											setTimeout(function() { location.reload(false);  }, 2000);
+
+										}
+					});
+				} else {
+					$(".nexos-messages").html(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close-circle-o"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong> \' + msgError + \'</div></div>\');
+				}
+			});
+		</script>
+	';
+	$_popupCrea = $form_crea->_message_title_modal("novedades_" , "Novedades de Ingreso de Estiba de Material" , $forms );
+	$vista.= $_popupCrea;
+	/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%js-ajax%" , $_jsAjax , $vista);
+	$vista = str_replace("%content%" , $table_novedades , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>

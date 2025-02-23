@@ -1,0 +1,167 @@
+
+<div class="container">
+<div class="row">
+<div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+<div class="panel panel-default">
+<div class="panel-body">
+  <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+<div class="row">
+<section>
+  <H3 class="text-center"><strong>Tiempos Logísticos de descargue</strong></H2>
+    <div class="panel-heading panel-heading-contrast">
+      <span class="panel-subtitle">
+       Los tiempos logísticos de descargue son el mecanismo de rastreo y control que se encarga de registrar y validar los tiempos que transcurren desde que inicia el proceso de descargue, hasta cuando se termina el proceso de descargue, estos tiempos se transmiten a la plataforma del RNDC en el momento de registro, y se deben enviar en tiempo real o en el cumplido del viaje.
+      </span> 
+     </div> 
+</section>
+</div>
+<div class="row">
+<!--Acordeones -->
+<div class="col-sm-12">
+    <div id="accordion1" class="panel-group accordion">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne"><i class="icon mdi mdi-chevron-down"></i><strong>Datos informativos</strong></a></h4>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in">
+          <div class="panel-body">
+           
+           <div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+               <label><strong>Selecciona Manifiesto-Placa</strong></label>
+               <select id="manifiestos" class="form-control input-sm">
+                 <option value="">Seleccione</option>
+               </select>
+             </div>
+           </div><hr>
+            <!--Datos básicos del manifiesto --> 
+           <div class="row">
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <label><strong>Datos informativos</strong></label>
+              </div>
+             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+               <label><strong>Manifiesto</strong></label>
+               <input type="text" id="d_numnf" class="form-control input-sm" readonly="readonly">
+             </div>
+             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+               <label><strong>Placa</strong></label>
+               <input type="text" id="d_placa" class="form-control input-sm" readonly="readonly">
+             </div>
+             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+               <label><strong>Marca</strong></label>
+               <input type="text" id="d_marca" class="form-control input-sm" readonly="readonly">
+             </div>
+             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+               <label><strong>Color</strong></label>
+               <input type="text" id="d_color" class="form-control input-sm" readonly="readonly">
+             </div>
+             <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+               <label><strong>Modelo</strong></label>
+               <input type="text" id="d_modelo" class="form-control input-sm" readonly="readonly">
+             </div>
+             <div class="col-xs-5 col-md-5 col-sm-5 col-lg-5">
+               <label><strong>Conductor</strong></label>
+               <input type="text" id="d_nomconductor" class="form-control input-sm" readonly="readonly">
+             </div>
+             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+               <label><strong>Documento</strong></label>
+               <input type="text" id="d_docconductor" class="form-control input-sm" readonly="readonly"> 
+             </div>
+             <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+               <label><strong>Teléfono</strong></label>
+               <input type="text" id="d_telefono" class="form-control input-sm" readonly="readonly">
+             </div>
+             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+               <label><strong>Propietario</strong></label>
+               <input type="text" id="d_propietario" class="form-control input-sm" readonly="readonly"> 
+             </div>
+             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+              <label><strong>Documento</strong></label> 
+              <input type="text" id="d_docpropi" class="form-control input-sm" readonly="readonly">
+             </div>
+             <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <label><strong>Id tiempo</strong></label> 
+                <input type="text" id="idprincipal" class="form-control input-sm" readonly="readonly">
+             </div>
+
+
+           </div>
+
+           <!--Ordenes y remesas -->
+           <div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+               <label><strong>Seleccionar Remesas a las que se les va a aplicar los tiempos logísticos, estas remesas deben tener fecha de llegada</strong></label>
+               <div class="panel-body">
+                  <table class="table table-condensed table-hover table-bordered table-striped">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Remesa</th>
+                        <th>Orden</th>
+                        <th>Remitente</th>
+                        <th>Destinatario</th>
+                        <th>Mercancía</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabla_remesas">
+                    </tbody>
+                  </table>
+                </div>
+             </div>
+           </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo" class="collapsed"><i class="icon mdi mdi-chevron-down"></i><strong>Tiempos Logísticos</strong></a></h4>
+        </div>
+        <div id="collapseTwo" class="panel-collapse collapse">
+          <div class="panel-body">
+           <div class="row">
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+              <label><strong>Fecha de entrada al descargue(*)</strong></label>
+              <input type="date" id="firdescargar" class="form-control input-sm">
+              <input type="time" id="hirdescargar" class="form-control input-sm">
+              <textarea id="firobservades" class="form-control input-sm" placeholder="Observación de descargue"></textarea>
+            </div> 
+
+           </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+</div>
+<!--fin acordeones -->
+</div>
+<div class="row text-center">
+<button id="registrartiempo" class="btn-sm btn-success mdi mdi-check offset-10"> Guardar</button>
+<!--<button id="" class="btn-sm btn-secondary offset-10">Borrar</button>
+-->
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+     <script src=<?php echo BASE_URL;?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/js/main.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+     <script src=<?php echo BASE_URL;?>views/tiempo_logistico_descargue/js/tiempodescargue_ajax.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+      <script src=<?php echo BASE_URL;?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+//initialize the javascript
+  App.init();
+  //App.wizard();
+});
+</script>
+<!--Final del control de los submenús-->

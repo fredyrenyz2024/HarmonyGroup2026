@@ -1,0 +1,520 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12 mt-0">
+      <div class="widget widget-tile" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 15px;box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);border-color: #ffffff;">
+        <div class="data-info">
+          <div class="row align-items-center">
+            <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <div class="markdown text-muted">
+                <div class="row">
+                  <div class="col-xs-12 col-sm-2 col-md-3 col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <div class="input-group">
+                        <div class="input-group-addon" style="font-weight: bold;font-size: 13px;"><i class="fas fa-filter"></i></div>
+                        <select class="form-control input-xs" name="filtro" id="filtro">
+                          <option value="">Seleccionar filtro</option>
+                          <option value="Fecha">Filtro Fecha</option>
+                          <option value="Mes">Filtro Mes</option>
+                          <!--  <option value="Cliente">Filtrar Cliente</option>
+                          <option value="fecha_cliente">Filtrar Cliente & Fecha</option> -->
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="filtro_fechas" style="display: none;">
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Fecha Inicial</div>
+                          <input type="date" name="fecha_inicial" id="fecha_inicial" class="form-control input-xs fecha_inicial">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Fecha Final</div>
+                          <input type="date" name="fecha_final" id="fecha_final" class="form-control input-xs fecha_final">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="filtro_cliente" style="display: none;">
+                    <div class="col-xs-12 col-sm-4 col-md-10 col-lg-10">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;"><i class="fa-solid fa-users"></i></div>
+                          <input type="text" name="clientes" id="clientes" class="form-control input-xs" placeholder="Buscar cliente" autofocus autocomplete="off">
+                          <input type="hidden" name="cliente_id" id="cliente_id">
+                          <!-- <select class="form-control input-xs select2" name="clientes" id="clientes">
+                            <option value="">Seleccionar cliente</option>
+                          </select> -->
+                        </div>
+                        <!-- Contenedor para los resultados de búsqueda -->
+                        <ul id="searchResults2" style="list-style-type: none; padding: 0;text-align: left;">
+                          <!-- Los resultados de búsqueda se agregarán aquí -->
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="filtro_fecha_cliente" style="display: none;">
+                    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Fecha Inicial</div>
+                          <input type="date" name="fecha_inicial" id="fecha_inicial_fc" class="form-control input-xs fecha_inicial">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Fecha Final</div>
+                          <input type="date" name="fecha_final" id="fecha_final_fc" class="form-control input-xs fecha_final">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;"><i class="fa-solid fa-users"></i></div>
+                          <input type="text" name="clientes" id="clientes_fc" class="form-control input-xs" placeholder="Buscar cliente" autofocus autocomplete="off">
+                          <input type="hidden" name="fecha_cliente_id" id="fecha_cliente_id">
+                        </div>
+                        <!-- Contenedor para los resultados de búsqueda -->
+                        <ul id="searchResults_fc" style="list-style-type: none; padding: 0;text-align: left;">
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="filtro_mes" style="display: none;">
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;"><i class="fas fa-calendar-alt"></i></div>
+                          <select class="form-control input-xs" name="mes_filtro" id="mes_filtro">
+                            <option value="">Seleccionar Mes</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Fecha Inicial</div>
+                          <input type="date" name="fecha_inicial" id="fecha_inicial_mes" class="form-control input-xs fecha_inicial" disabled>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                      <div class="form-group form-group-sm">
+                        <div class="input-group">
+                          <div class="input-group-addon" style="font-weight: bold;font-size: 13px;">Fecha Final</div>
+                          <input type="date" name="fecha_final" id="fecha_final_mes" class="form-control input-xs fecha_final" disabled>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top: 3px;padding: 5px 5px 5px 10px;text-align: center;">
+                    <button type="button" class="btn btn-success btn-sm" style="width: auto;" id="filtrar">
+                      <i class="fa-solid fa-magnifying-glass"></i> Filtrar
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjetas de kas metas para el mes en especifico -->
+    <!-- <div class="col-4 col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="widget widget-tile" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 15px;box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);border-color: #ffffff;">
+        <div class="col-4 col-xs-12 col-sm-4 col-md-4 col-lg-4">
+          <h1>HOLA DESDE EL 1</h1>
+        </div>
+        <div class="col-4 col-xs-12 col-sm-4 col-md-4 col-lg-4">
+          <h1>HOLA DESDE EL 2</h1>
+        </div>
+        <div class="col-4 col-xs-12 col-sm-4 col-md-4 col-lg-4">
+          <h1>HOLA DESDE EL 3</h1>
+        </div>
+      </div>
+    </div> -->
+    <!-- Fin tarjetas de kas metas para el mes en especifico -->
+
+    <!-- <div class="row"> </div> -->
+    <div class="col-4 col-xs-12 col-sm-12 col-md-4 col-lg-4">
+      <a href="#" id="btn_list_remesas">
+        <div class="widget widget-tile" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 15px;box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);border-color: #ffffff;">
+          <div class="data-info">
+            <div class="text-left"> <span style="font-size: 18px;font-weight: 900; color:#3B71CA !important;">Remesas</span></div>
+            <div class="desc">
+              <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <div class="value text-left">
+                  <span class="indicator indicator-equal mdi mdi-chevron-right"></span><!-- <span style="font-size: 14px;font-weight: 700;">Numero remesas:</span> -->
+                  <span id="cantidad_remesas" style="font-size: 19px;font-weight: 700;">0</span>
+                  <input type="hidden" id="remesa_meta">
+                </div>
+              </div>
+              <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;color: #332D2D;font-weight: bold;" id="cantidad_progreso">
+                    0%
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6 text-left">
+              <span class="indicator indicator-equal mdi mdi-chevron-right"></span>
+              <span class="value"><span class="number" data-toggle="counter" id="total_remesas" style="font-weight: 700;">$0.00</span></span>
+              <input type="hidden" id="total_remesa_meta">
+            </div>
+            <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;color: #332D2D;font-weight: bold;" id="total_progreso">
+                  0%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-4 col-xs-12 col-sm-12 col-md-4 col-lg-4">
+      <a href="#" id="btn_list_manifiestos">
+        <div class="widget widget-tile" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 15px;box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);border-color: #ffffff;">
+          <div class="data-info">
+            <div class="text-left"> <span style="font-size: 18px;font-weight: 900; color:#3B71CA !important;">Manifiestos</span></div>
+            <div class="desc">
+              <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <div class="value text-left">
+                  <span class="indicator indicator-equal mdi mdi-chevron-right"></span><!-- <span style="font-size: 18px;font-weight: 700;">Numero manifiestos:</span> -->
+                  <span id="cantidad_manifiestos" style="font-size: 18px;font-weight: 700;">0</span>
+                  <input type="hidden" id="manifiesto_meta">
+                </div>
+              </div>
+              <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;color: #332D2D;font-weight: bold;" id="cantidad_manifiesto_progreso">
+                    0%
+                  </div>
+                </div>
+              </div>
+              <!-- <span style="font-size: 18px;font-weight: 900; color:#3B71CA !important;">Total Manifiestos</span> -->
+            </div>
+            <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6 text-left">
+              <span class="indicator indicator-equal mdi mdi-chevron-right"></span>
+              <span class="value"><span class="number" data-toggle="counter" id="total_manifiestos" style="font-weight: 700;">$0.00</span></span>
+              <input type="hidden" id="total_manifiesto_meta">
+            </div>
+            <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;color: #332D2D;font-weight: bold;" id="total_manifiesto_progreso">
+                  0%
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-4 col-xs-12 col-sm-12 col-md-4 col-lg-4">
+      <a href="#" id="btn_list_anticipos">
+        <div class="widget widget-tile" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 15px;box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);border-color: #ffffff;">
+          <!-- <div class="chart sparkline" id="spark3"><canvas width="85" height="35" style="display: inline-block; width: 85px; height: 35px; vertical-align: top;"></canvas></div> -->
+          <div class="data-info">
+            <div class="text-left"> <span style="font-size: 18px;font-weight: 900; color:#3B71CA !important;">Anticipos</span></div>
+
+            <div class="desc">
+              <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <div class="value text-left">
+                  <span class="indicator indicator-equal mdi mdi-chevron-right"></span>
+                  <span id="cantidad_anticipos" style="font-size: 18px;font-weight: 700;">0</span>
+                </div>
+              </div>
+
+              <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;color: #332D2D;font-weight: bold;" id="cantidad_anticipos_progreso">
+                    0%
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6 text-left">
+              <span class="indicator indicator-equal mdi mdi-chevron-right"></span>
+              <span class="value"><span class="number" data-toggle="counter" id="total_anticipos" style="font-weight: 700;">$0.00</span></span>
+            </div>
+
+            <div class="col-6 col-xs-12 col-sm-12 col-md-6 col-lg-6">
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;color: #332D2D;font-weight: bold;" id="total_anticipos_progreso">
+                  0%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!--     <div class="col-3 col-xs-12 col-sm-12 col-md-3 col-lg-3">
+      <div class="widget widget-tile" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 15px;box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);border-color: #ffffff;">
+        <div class="chart sparkline" id="spark4"><canvas width="85" height="35" style="display: inline-block; width: 85px; height: 35px; vertical-align: top;"></canvas></div>
+        <div class="data-info">
+          <div class="desc">Total Viajes</div>
+          <div class="value"><span class="indicator indicator-negative mdi mdi-chevron-down"></span><span class="number" data-toggle="counter" data-end="113">113</span>
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+
+  <div class="row">
+    <div class="col-3 col-xs-12 col-sm-12 col-md-3 col-lg-12">
+      <div class="widget widget-title" style="background: #ffffff; color: #1f1f1f; border-radius: 10px; padding: 15px;box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.2);border-color: #ffffff;">
+        <div class="card-body table-responsive" id="tbl_remesas_general" style="display: none;">
+          <div class="col-md-12 col-sm-12 text-right" style="padding: 1px 1px 1px;">
+            <div class="col-md-6 col-sm-12 text-left">
+              <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 5px;" id="title_inicial">Listado de clientes</h3>
+              <h4 style="font-size: 20px; font-weight: 600; margin-bottom: 5px;display: none;" id="titulo_cliente_seleccionado">Listado de remesas del cliente: <span id="cliente_list_remesas" style="font-size: 18px; font-weight: 400; margin-bottom: 5px;"></span></h4>
+            </div>
+
+            <div class="form-inline">
+              <div class="input-group input-xs">
+                <span class="input-group-addon" style="font-weight: bold; font-size: 13px;height: 1px;padding: 1px 5px 1px 5px;">
+                  <i class="fas fa-filter"></i>
+                </span>
+                <select name="filtro_clientes" id="filtro_clientes" class="form-control input-xs" style="width: 100%;">
+                  <option value="">Filtrar por cliente</option>
+                </select>
+                <span class="input-group-addon" style="font-weight: bold; font-size: 13px;height: 1px;padding: 1px 5px 1px 5px;" id="btn-limpiar">
+                  <button class="btn btn-danger btn-sm" id="btn-limpiar-filtros" style="display: none;"><i class="fas fa-undo-alt"></i> Limpiar</button>
+                </span>
+              </div>
+
+              <!-- <div class="input-group input-xs">
+                  <span class="input-group-addon" style="font-weight: bold; font-size: 13px;height: 1px;padding: 1px 5px 1px 5px;">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <input type="text" name="buscar" id="buscar" class="form-control input-xs" placeholder="Buscar">
+                </div> -->
+
+              <!-- <button id="exportar_excel" class="btn btn-success btn-xs" style="margin-bottom: 5px;">
+                  <i class="fas fa-file-excel"></i> Exportar a Excel
+                </button>
+
+                <button id="imprimir" class="btn btn-primary btn-xs" style="margin-bottom: 5px;">
+                  <i class="fas fa-print"></i> Imprimir
+                </button> -->
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 text-right" style="padding: 1px 1px 1px;" id="tbl-remesas-lista">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;" id="btn-principal">
+              <thead>
+                <tr>
+                  <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="7">
+                    <a href="JavaScript:void(0);" id="exportar_excel_remesas" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+            <table class="table table-striped table-borderless" id="miTabla" width="100">
+              <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                <tr>
+                  <th style="width:40%;">Cliente</th>
+                  <th class="text-center" style="width:10%;">Remesa</th>
+                  <th class="text-center" style="width:10%;">Total Remesas</th>
+                  <th class="actions" style="width:5%;"></th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbody_cliente_remesas"></tbody>
+            </table>
+          </div>
+
+          <div id="list_remesas_cliente" style="display: none;">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;" id="btn-detalle-remesa-cliente">
+              <thead>
+                <tr>
+                  <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="7">
+                    <a href="JavaScript:void(0);" id="exportar_excel_remesas_cliente" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+            <table class="table table-striped table-borderless" id="miTabla1">
+              <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                <tr>
+                  <th style="width:10%;">Remesa</th>
+                  <th class="text-center" style="width:10%;">Fecha</th>
+                  <th class="text-center" style="width:20%;">Conductor</th>
+                  <th class="text-center" style="width:10%;">Placa</th>
+                  <th class="text-center" style="width:20%;">Mercancia</th>
+                  <th class="text-center" style="width:10%;">Cantidad Cargada</th>
+                  <th class="text-center" style="width:10%;">Total Remesa</th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbody_remesas_cliente"></tbody>
+              <tfoot class="no-border-x" id="tfoot_remesas_cliente"></tfoot>
+            </table>
+            <div id="paginacion"></div>
+          </div>
+
+          <!-- Tabla general de manifiestos por fecha -->
+          <div class="col-md-12 col-sm-12 text-right" style="padding: 1px 1px 1px;" id="tbl-manifiestos-lista">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;" id="btn-principal-manifiesto">
+              <thead>
+                <tr>
+                  <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="7">
+                    <a href="JavaScript:void(0);" id="exportar_excel_manifiesto" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+            <table class="table table-striped table-borderless" id="miTablaManifiestos" width="100">
+              <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                <tr>
+                  <th style="width:40%;">Cliente</th>
+                  <th class="text-center" style="width:10%;">Manifiestos</th>
+                  <th class="text-center" style="width:10%;">Total Manifiestos</th>
+                  <th class="actions" style="width:5%;"></th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbody_cliente_manifiestos"></tbody>
+            </table>
+          </div>
+
+          <div id="list_manifiestos_cliente" style="display: none;">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;" id="btn-detalle-manifiesto-cliente">
+              <thead>
+                <tr>
+                  <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="7">
+                    <a href="JavaScript:void(0);" id="exportar_excel_manifiestos_cliente" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+            <table class="table table-striped table-borderless" id="miTablaDetalleManifiesto">
+              <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                <tr>
+                  <th style="width:10%;">Manifiesto</th>
+                  <th class="text-center" style="width:10%;">Fecha Expedición</th>
+                  <th class="text-center" style="width:20%;">Conductor</th>
+                  <th class="text-center" style="width:10%;">Placa</th>
+                  <th class="text-center" style="width:20%;">Origen</th>
+                  <th class="text-center" style="width:10%;">Destino</th>
+                  <th class="text-center" style="width:10%;">Tarifa Manifiesto</th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbody_manifiestos_cliente"></tbody>
+              <tfoot class="no-border-x" id="tfoot_manifiestos_cliente"></tfoot>
+            </table>
+            <div id="paginacion"></div>
+          </div>
+
+          <!-- Tablas para los anticipos -->
+          <div class="col-md-12 col-sm-12 text-right" style="padding: 1px 1px 1px;" id="tbl-anticipos-lista">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;" id="btn-principal-anticipo">
+              <thead>
+                <tr>
+                  <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="7">
+                    <a href="JavaScript:void(0);" id="exportar_excel_anticipo" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+            <table class="table table-striped table-borderless" id="miTablaAnticipos" width="100">
+              <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                <tr>
+                  <th style="width:40%;">Cliente</th>
+                  <th class="text-center" style="width:10%;">Anticipos</th>
+                  <th class="text-center" style="width:10%;">Total Anticipos</th>
+                  <th class="actions" style="width:5%;"></th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbody_cliente_anticipos"></tbody>
+            </table>
+          </div>
+
+          <div id="list_anticipos_cliente" style="display: none;">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;" id="btn-detalle-anticipo-cliente">
+              <thead>
+                <tr>
+                  <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="7">
+                    <a href="JavaScript:void(0);" id="exportar_excel_anticipos_cliente" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+            <table class="table table-striped table-borderless" id="miTablaDetalleAnticipos">
+              <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                <tr>
+                  <th style="width:10%;">Anticipo</th>
+                  <th class="text-center" style="width:10%;">Fecha Expedición</th>
+                  <th class="text-center" style="width:20%;">Conductor</th>
+                  <th class="text-center" style="width:10%;">Placa</th>
+                  <th class="text-center" style="width:20%;">Origen</th>
+                  <th class="text-center" style="width:10%;">Destino</th>
+                  <th class="text-center" style="width:10%;">Tarifa Anticipo</th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbody_anticipos_cliente"></tbody>
+              <tfoot class="no-border-x" id="tfoot_anticipos_cliente"></tfoot>
+            </table>
+            <div id="paginacion"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mensajes para los usuarios de la plataforma -->
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/informe/js/informe_gerencial.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<!--<script src="https://cdnjs.com/libraries/Chart.js"></script>-->
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

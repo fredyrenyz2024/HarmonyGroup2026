@@ -1,0 +1,1272 @@
+<?php
+$_dbTable = "actividades_carga_oc"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+$_jsAjax = "";
+$flag_inicia_proyecto = true;
+
+// se definen las variables de session
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$r = new Request();
+
+$vista = '
+		<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+	';
+
+/********* POPUPS *********/
+/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+// POPUP DE MUESTRA DE INFORMACION
+$info = new Popup();
+// POPUP DE ALERTA DE CONFIRMACION
+$alert = new Popup();
+// POPUP DE FORMULARIO DE EDICION 
+$form_edita = new Popup();
+// POPUP DE FORMULARIO DE CREACION 
+$form_crea = new Popup();
+
+/********* FIN POPUPS *********/
+
+/*** CREACION DE CONTENIDO ***/
+if (isset($this->orden_compra) /* && count($this->orden_compra) */) {
+
+	/***** SE CREA OBJETOS HTML A USAR EN EL MODULO ******/
+	// genero el select de las monedas 
+	$slct_moneda = $this->monedas->getHtmlSelect("moneda", "");
+
+	// genero el select de usuarios
+	$slct_responsable = $this->usuarios->getHtmlSelect("responsable", "", $ssn_id_cliente);
+
+	/***** FIN SE CREA OBJETOS HTML A USAR EN EL MODULO ******/
+
+
+	/*** CREACION DE TABLA DE ENCABEZADO ***/
+	// VALIDO SI TIENE GVARIOS GRUPOS
+	$_valida_grupo = "";
+	if (isset($r->getArgs()[1])) {
+		$_valida_grupo = $r->getArgs()[1];
+	}
+
+
+	$arrayOrden_compra = $this->orden_compra->getCargas($r->getArgs()[0], $_valida_grupo);
+	if ($arrayOrden_compra) {
+		$flag_encabezado = true;
+		$info_lista_materiales = '
+				<table class="table">
+					<tbody>
+						<tr>
+							<td class="cell-detail">
+								<div class="row">
+			';
+		$id_materiales = "";
+		foreach ($arrayOrden_compra as $key => $value) {
+			if ($flag_encabezado) {
+				$flag_encabezado = false;
+				// MAQUETA DE LA PANTALLA PRINCIPAL
+				$encabezado = '
+						<span><strong>Información de la Carga</strong></span>
+						<table class="table">
+							<tbody>
+								<tr>
+									<td class="cell-detail">
+										<div class="row">
+											<div class="col-sm-2">
+												<span>Orden de compra:</span>
+												<span class="cell-detail-description">' . $value["cs_num_de_orden"] . ' - ' . $value["cs_tipo_de_orden"] . '</span>
+												<span class="cell-detail-description">Generado: ' . $value["cs_fecha_generacion_oc"] . '</span>
+											</div>
+											<div class="col-sm-2">
+												<span>Requisición:</span>
+												<span class="cell-detail-description">' . $value["cs_num_requisicion"] . ' - ' . $value["cs_tipo_requisicion"] . '</span>
+												<span class="cell-detail-description">Recibido: ' . $value["fecha_recibido_en_cs"] . '</span>
+											</div>
+											<div class="col-sm-2">
+												<span>Importado / Nacional:</span>
+												<span class="cell-detail-description">' . $value["cs_importado_nacional"] . '</span>
+												<span class="cell-detail-description">Incoterm - ' . $value["cs_incoterm"] . '</span>
+											</div>
+											<div class="col-sm-3">
+												<span>Usuario: ' . $value["cs_usuario"] . '</span>
+												<span class="cell-detail-description">' . $value["cs_comprador"] . '</span>
+												<span class="cell-detail-description">Yk - ' . $value["cs_yk"] . '</span>
+											</div>
+											<div class="col-sm-3">
+												<span>Términos de pago:</span>
+												<span class="cell-detail-description">' . $value["cs_termino_pago"] . '</span>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td class="cell-detail">
+										<div class="row">
+											<div class="col-sm-3">
+												<span>Origen:</span>
+												<span class="cell-detail-description">' . $value["cs_proveedor"] . '</span>
+												<span class="cell-detail-description">Enviado: ' . $value["cs_fecha_envio_a_proveedor"] . '</span>
+											</div>
+											<div class="col-sm-3">
+												<span>Destino:</span>
+												<span class="cell-detail-description"></span>
+												<span class="cell-detail-description">Llegada al almacén - ' . $value["cs_llegada_prometida_a_almacen"] . '</span>
+											</div>
+											<div class="col-sm-6">
+												<span>Observacion General:</span>
+												<span class="cell-detail-description">' . $value["cs_observacion_general"] . '</span>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr><td></td></tr>
+							</tbody>
+						</table>
+					';
+			}
+
+			$id_materiales .= $value["id"] . ",";
+
+			$info_lista_materiales .= '
+					<div class="col-sm-6">
+						<a href="' . BASE_URL . 'proyecto/actividades_/' . $value["cs_num_de_orden"] . '/' . $value["id"] . '"><span>' . $value["cs_descripcion1"] . '</span></a>
+						<span class="cell-detail-description">Código: <strong>' . $value["cs_codigo"] . '</strong> - Cantidad: <strong>' . $value["cs_cantidad_solicitada"] . '</strong></span>
+						<span class="cell-detail-description">' . $value["cs_descripcion2"] . '</span>
+						<br />
+					</div>
+				';
+		}
+		// echo "<p>Id materiales - " . $id_materiales . "<p>";
+		$info_lista_materiales .= '
+								</div>		
+							</td>
+						</tr>
+						<tr><td></td></tr>
+					</tbody>
+				</table>
+			';
+		$vista .= $info->_bootstrap_modal_dialog("info_materiales", "Materiales del proyecto", $info_lista_materiales);
+		/**** FIN POPUP INFORMACION DEL PROYECTO ****/
+	}
+
+	/*** SE FILTRA LA CANTIDAD DE GRUPOS DE ACTIVIDADES TIENE LA CARGA ***/
+	$arrayCuenta_grupos = $this->orden_compra->getGrupoCargas($r->getArgs()[0]);
+	$table_cargas = '';
+	$grupo = 1;
+
+	$validaArgumento = false;
+	if (isset($r->getArgs()[1])) {
+		$validaArgumento = true;
+		$grupo = $r->getArgs()[1];
+	}
+
+	$btn_ver_materiales = '';
+	if ($arrayCuenta_grupos['rowCount'] == 1 || $validaArgumento) {
+
+		// Se crea el boton de muestra de materiales
+		$btn_ver_materiales = '<a href="#" data-toggle="modal" data-target="#info_materiales" class="cell-detail md-trigger hint--top" data-hint="Ver Materiales del Proyecto"><span class="icon mdi mdi-shape"></span></a>';
+
+		/*** SE CREA TABLA DE CONTENIDO CUANDO SOLO HAY UN GRUPO DE ACTIVIDADES ***/
+		$table_cargas .= '
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="table-responsive noSwipe">
+							<table id="table1" class="table table-striped table-hover">
+								<thead>
+									<tr class="nexos-encabezado">
+										<th style="width:5%;"></th>
+										<th style="width:22%;">Actividades</th>
+										<th>Fechas</th>
+										<th style="width:8%;">Entregables</th>
+										<th style="width:2%;">Tiempo</th>
+										<th style="width:2%;">Costo</th>
+										<th>Responsable</th>
+										<th style="width:6%;"></th>
+									</tr>
+								</thead>
+								<tbody>
+			';
+
+		$arrayOrden_compra = $this->orden_compra->getActividades($r->getArgs()[0], $grupo);
+
+		if ($arrayOrden_compra['data']) {
+			foreach ($arrayOrden_compra['data'] as $key => $value) {
+				// print_r("<pre>");
+				// print_r($value["tiempo_aprobado"]);
+				// print_r("<pre>");
+				// Se calcula el tiempo de plazo de la siguiente actividad
+				$fecha_plazo = strtotime('+' . $value["tiempo_aprobado"] . ' minute', strtotime($value["FECHA_HORA_INICIAL"]));
+				$fecha_plazo = date("Y-m-d H:i:s", $fecha_plazo);
+
+				/***** Se saca el listado de ids de las activiades agrupadas *****/
+				$array_id_actividades = $this->orden_compra->getIdActividades($r->getArgs()[0], $value["orden"], $grupo);
+
+				$id_actividad = '';
+				foreach ($array_id_actividades as $key1 => $value1) {
+					$id_actividad .= $value1['id'] . ",";
+				}
+
+				// echo "<p>Id actividades - " . $id_actividad . "<p>";
+				/***** FIN Se saca el listado de ids de las activiades agrpadas *****/
+
+
+				/******* SE CREAN FORMULARIOS INTERNOS DE LA TABLA PRINCIPAL ********/
+				// se genera el formulario de gestion de actividades
+				$form_edit_table = '
+						<input type="hidden" name="id" id="id" placeholder="actividades" value="' . $id_actividad . '">
+						<input type="hidden" name="id_carga" placeholder="materiales" value="' . $id_materiales . '">
+						<input type="hidden" name="orden" placeholder="orden" value="' . $value["orden"] . '">
+						<input type="hidden" name="fecha_hora_inicio" placeholder="fecha_hora_inicio" value="' . $value["fecha_hora_inicio"] . '">
+						<input type="hidden" name="num_orden" placeholder="num_orden" value="' . $r->getArgs()[0] . '">
+
+						<input type="hidden" name="estado" placeholder="Estado siguiente" value="1">
+						<div class="form-group col-xs-6">
+							<label>Costo ejecutado <strong>(' . $value["codigo"] . ')</strong>:</label>
+							<input type="number" min="0" name="costo_real" placeholder="Costo Real de la Actividad" class="form-control text-right" required="">
+						</div>
+						<label class="col-sm-6 control-label">Subir Entregable</label>
+						<div class="col-sm-6">
+							<input type="file" name="url_entregable" id="url_entregable" class="inputfile">
+							<label for="url_entregable" class="btn-success"> <i class="mdi mdi-upload"></i><span>Busque Archivo...</span></label>
+						</div>
+
+						<div class="form-group col-xs-12">
+							<label class="control-label">Respuesta de la actividad:</label>
+							<textarea name="respuesta" class="form-control"></textarea>
+						</div>
+						<div class="row"></div>
+					';
+
+
+				// se genera el formulario de aplazamiento de actividades
+				// genero el select de justificaciones 
+				$slct_justificaciones = $this->justificaciones->getHtmlSelect("id_justificacion", "");
+				$form_edit_table_1 = '
+						<input type="hidden" name="id_actividad" placeholder="actividades" value="' . $id_actividad . '">
+						<div class="form-group col-xs-12">
+							<span>Fecha - Hora Inicial de la Actividad:</span>
+							<span class="panel-subtitle">' . $value["fecha_hora_inicio"] . '</span>
+						</div>
+						<div class="form-group col-xs-6">
+							<label class="control-label">Fecha - Hora Aplazamiento de Actividad:</label>
+							<div class="col-md-12 col-xs-7">
+								<div data-start-view="1" data-date="' . $fecha_plazo . '" data-date-format="yyyy-mm-dd hh:ii" data-link-field="dtp_input1" class="input-group date datetimepicker">
+									<input size="16" type="text" value="' . $fecha_plazo . '" name="fecha_hora_aplazamiento" class="form-control" readonly=”readonly”><span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group col-xs-6">
+							<label class="col-sm-6 control-label">Subir Entregable</label>
+							<div class="col-sm-6">
+								<input type="file" name="url_entregable_aplazamiento" id="url_entregable_aplazamiento" class="inputfile">
+								<label for="url_entregable_aplazamiento" class="btn-success"> <i class="mdi mdi-upload"></i><span>Busque Archivo...</span></label>
+							</div>
+						</div>
+						<div class="form-group col-xs-12">
+							<label class="control-label">Causa Aplazamiento:</label>
+							' . $slct_justificaciones . '
+						</div>
+						<div class="form-group col-xs-12">
+							<label class="control-label">Descripción Causa:</label>
+							<textarea name="causa" class="form-control"></textarea>
+						</div>
+						<div class="row"></div>
+					';
+
+
+				// genero el select de las monedas 
+				$slct_moneda = $this->monedas->getHtmlSelect("moneda", $value["ID_MONEDA"]);
+				// genero el select de usuarios
+				$slct_responsable = $this->usuarios->getHtmlSelect("responsable", $value["responsable"], $ssn_id_cliente);
+				// genero el select de centro de costo
+				$slct_centro_costo = $this->centro_costo->getHtmlSelect("id_centro_costo", $value["id_centro_costo"], $ssn_id_cliente);
+
+
+
+				// Creo el select de actividades del proyecto especifico
+				$slct_actividades_carga = $this->orden_compra->getHtmlSelectMultiple("actividad_previa", $r->getArgs()[0], $value["orden"], 3);
+
+				// Busco las Actividad Previa de la actividad
+				$array_actividades_previas = $this->orden_compra->getActividadesPrevias($r->getArgs()[0], $value["orden"], $grupo);
+
+				if ($array_actividades_previas[0]['ACTIVIDAD_PREVIA']) {
+					$actividad_previa = '
+							<label>Actividad Previa Actual:</label>
+							<label class="cell-detail-description">' . $array_actividades_previas[0]['ACTIVIDAD_PREVIA'] . '</label>
+						';
+				} else {
+					$actividad_previa = '
+							<label>Esta es la primera actividad de la plantilla</label>
+						';
+				}
+
+				// se genera el formulario de ordenamiento de actividades
+				$form_edit_table_3 = '
+						<table class="table">
+							<tbody>
+								<tr>
+									<td class="cell-detail">
+										<div class="row">
+											<div class="form-group col-xs-6">
+												<label>Actividad Actual:</label>
+												<label class="cell-detail-description">' . $value["nombre"] . '</label>
+											</div>
+											<div class="form-group col-xs-6">
+												' . $actividad_previa . '
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr><td></td></tr>
+							</tbody>
+						</table>
+
+						<input type="hidden" name="orden" id="orden_' . $r->getArgs()[0] . $value["orden"] . '" placeholder="orden de la actividad" value="' . $value["orden"] . '">
+						<input type="hidden" name="id_carga" placeholder="materiales" value="' . $id_materiales . '">
+						<div class="form-group col-xs-12">
+							<label>Actividad Previa Deseada:</label>
+							' . $slct_actividades_carga . '
+						</div>
+						<div class="row"></div>
+					';
+
+				/******* FIN DE SE CREAN FORMULARIOS INTERNOS DE LA TABLA PRINCIPAL ********/
+
+
+				/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+				$col_action = '';
+				switch ($value["estado"]) {
+					case '0': // ACTIVIDAD ESTA INACTIVA
+
+						// Filtro del vista del las fechas de ejecucion del modulo
+						$celda_fechas = '
+								<td data-toggle="modal" data-target="#info_tiempo_' . $value['id'] . '" class="cell-detail md-trigger">
+									<span>Creado</span>
+									<span class="cell-detail-description">' . $value["fecha_creacion"] . '</span>
+								</td>
+							';
+
+						// se asigna contenido de la columna de estado
+						$col_stasus = '<td class="nexos-txt-danger"><div style="display: none;">' . $value["orden"] . '</div><span class="mdi mdi-dot-circle icon"></span></td>';
+
+						break;
+
+					case '1': // ACTIVIDAD FINALIZADA
+
+						// Filtro del vista del las fechas de ejecucion del modulo
+						$celda_fechas = '
+								<td data-toggle="modal" data-target="#info_tiempo_' . $value['id'] . '" class="cell-detail md-trigger">
+									<span>Creado</span>
+									<span class="cell-detail-description">' . $value["fecha_creacion"] . '</span>
+									<span>Inicio</span>
+									<span class="cell-detail-description">' . $value["FECHA_HORA_INICIAL"] . '</span>
+									<span>Finalizado</span>
+									<span class="cell-detail-description">' . $value["fecha_hora_finalizacion"] . '</span>
+								</td>
+							';
+
+						// se asigna contenido de la columna de estado
+						$col_stasus = '<td class="nexos-txt-success"><div style="display: none;">' . $value["orden"] . '</div><span class="mdi mdi-dot-circle icon"></span></td>';
+
+
+						// Se verifica si la actividad tiene entregables disponibles 
+						$array_entregables = $this->orden_compra->getEntregableActividad($r->getArgs()[0], $value["orden"], $grupo);
+						// print_r("<pre>");
+						// print_r($array_entregables);
+						// print_r("</pre>");
+
+						// Si la actividad tiene entregables se genera el link de descarga
+						if ($array_entregables["rowsNum"] > 0) {
+							$col_action = '
+									<a href="' . BASE_URL . 'public/files/ordenes_compra_oc/entregables/' . $array_entregables["rowsData"][0]["id_actividad"] . '/' . $array_entregables["rowsData"][0]["url"] . '" target="_blank" class="icon hint--top-left" data-hint="Descargar Entregable"><span class="mdi mdi-download"></span></a>
+								';
+						}
+
+						break;
+
+					case '2': // ACTIVIDAD ACTIVA EN EJECUCION
+
+						// Filtro del vista del las fechas de ejecucion del modulo
+						$celda_fechas = '
+								<td data-toggle="modal" data-target="#info_tiempo_' . $value['id'] . '" class="cell-detail md-trigger">
+									<span>Creado</span>
+									<span class="cell-detail-description">' . $value["fecha_creacion"] . '</span>
+									<span>Inicio</span>
+									<span class="cell-detail-description">' . $value["FECHA_HORA_INICIAL"] . '</span>
+									<span>Plazo</span>
+									<span class="cell-detail-description">' . $fecha_plazo . '</span>
+								</td>
+							';
+
+						// se asigna contenido de la columna de estado
+						if (date("Y-m-d H:i:s", time()) > $fecha_plazo) {
+							$col_stasus = '<td class="nexos-txt-danger"><div style="display: none;">' . $value["orden"] . '</div><span class="mdi mdi-dot-circle icon"></span></td>';
+						} else {
+							$col_stasus = '<td class="nexos-txt-warning"><div style="display: none;">' . $value["orden"] . '</div><span class="mdi mdi-dot-circle icon"></span></td>';
+						}
+
+						$_popupEdita = $form_edita->_form_modal_actividades("gestion_" . $value['id'], "Gestionar Actividad - " . $value["nombre"], $form_edit_table, $_dbTable, "ordenes_compra_oc");
+						$vista .= $_popupEdita[0];
+						$_jsScripts .= $_popupEdita[1];
+
+						$_popupCrea = $form_crea->_form_modal_multiple_insert("aplaza_" . $value['id'], "Aplazar Actividad - " . $value["nombre"], $form_edit_table_1, "aplazamiento_oc", "id_actividad", "aplazamiento_oc", "aplazamientos", "url_entregable_aplazamiento", "ordenes_compra_oc");
+						$vista .= $_popupCrea[0];
+						$_jsScripts .= $_popupCrea[1];
+
+						$col_action = '
+								<a href="#" class="icon hint--top-left" data-toggle="modal" data-target="#gestion_' . $value['id'] . '" data-hint="Gestionar Actividad"><span id="edita_' . $value['id'] . '" class="mdi mdi-assignment-check"></span></a>
+								<a href="#" class="icon hint--top-left" data-toggle="modal" data-target="#aplaza_' . $value['id'] . '" data-hint="Aplazar Actividad"><span id="edita_' . $value['id'] . '" class="mdi mdi-time-restore"></span></a>
+							';
+
+						break;
+
+					case '3': // ACTIVIDAD NO INICIADA
+
+						// Filtro del vista del las fechas de ejecucion del modulo
+						$celda_fechas = '
+								<td data-toggle="modal" data-target="#info_tiempo_' . $value['id'] . '" class="cell-detail md-trigger">
+									<span>Creado</span>
+									<span class="cell-detail-description">' . $value["fecha_creacion"] . '</span>
+								</td>
+							';
+
+						// se asigna contenido de la columna de estado
+						$col_stasus = '<td class="actions-nexos"><div style="display: none;">' . $value["orden"] . '</div><span class="mdi mdi-dot-circle icon"></span></td>';
+
+						// se genera el formulario de ajuste de actividad - tiempo y costo
+						$form_edit_table_2 = '
+								<input type="hidden" name="id" placeholder="actividades" value="' . $id_actividad . '">
+								<div class="form-group col-xs-6">
+									<label>Responsable:</label>
+									' . $slct_responsable . '
+								</div>
+								<div class="form-group col-xs-3">
+									<label>Tiempo estimado:</label>
+									<input type="number" min="0" id="tiempo_' . $value['id'] . '" value="" placeholder="Tiempo aprobado" class="form-control">
+								</div>
+								<div class="form-group col-xs-3">
+									<label>Medida de Tiempo:</label>
+									<select id="slc_medida_tiempo_' . $value['id'] . '" class="form-control">
+										<option value="" disabled="disabled" selected="selected">Seleccione</option>
+										<option value="1">Minutos</option>
+										<option value="2">Horas</option>
+										<option value="3">Días</option>
+									</select>
+									<input type="hidden" name="tiempo_aprobado" id="tiempo_aprobado_' . $value['id'] . '" value="' . $value["tiempo_aprobado"] . '" placeholder="Tiempo Aprobado" class="form-control">
+								</div>
+								<div class="row"></div>
+								<div class="form-group col-xs-6">
+									<label>Costo estimado:</label>
+									<input type="number" min="0" name="costo_aprobado" value="' . $value["costo_aprobado"] . '" placeholder="Costo Estimado" class="form-control text-right" required="">
+								</div>
+								<div class="form-group col-xs-6">
+									<label>Moneda del Costo:</label>
+									' . $slct_moneda . '
+								</div>
+								<div class="row"></div>
+								<div class="form-group col-xs-6">
+									<label>Centro de Costo:</label>
+									' . $slct_centro_costo . '
+								</div>
+								<div class="row"></div>
+							';
+
+						// JS de validacion de tiempos de actividades
+						$_jsScripts .= '
+								<script type="text/javascript">
+
+									$(\'#slc_medida_tiempo_' . $value['id'] . '\').change(function () {
+										console.log("Entro en funcion de cambio del select");
+										var tiempo = $("#tiempo_' . $value['id'] . '").val();
+										var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value['id'] . ']").val();
+
+										$("#tiempo_aprobado_' . $value['id'] . '").val(\'\');
+										$("#tiempo_aprobado_' . $value['id'] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+									});
+
+									$(\'#tiempo_' . $value['id'] . '\').blur(function () {
+										console.log("Entro en funcion de blur del campo");
+										var tiempo = $("#tiempo_' . $value['id'] . '").val();
+										var unidad_tiempo = $("select[id=slc_medida_tiempo_' . $value['id'] . ']").val();
+
+										$("#tiempo_aprobado_' . $value['id'] . '").val(\'\');
+										$("#tiempo_aprobado_' . $value['id'] . '").val(calculaMinutos(tiempo , unidad_tiempo));
+									});
+
+									var minutes = $("#tiempo_aprobado_' . $value['id'] . '").val();
+
+									var numdays = Math.floor(minutes / 1440);
+									var numhours = Math.floor((minutes % 1440) / 60);
+									var numminutes = Math.floor(((minutes % 1440) % 60) % 60); 
+									textominutos="";textodias="";textohoras="";
+
+									if (numminutes == 1) {
+										textominutos = numminutes + " minuto" ;  
+									}
+									else if(numminutes > 1){
+										textominutos =  numminutes + " minutos" ;   
+									}
+									if (numhours == 1) {
+										textohoras = numhours + " hora" ;  
+									}
+									else if(numhours > 1){
+										textohoras =  numhours + " horas" ;   
+									}
+
+									if (numdays == 1) {
+										textodias = numdays + " dia" ;  
+									}
+									else if(numdays > 1){
+										textodias =  numdays + " dias" ;   
+									}
+									if (numdays > 0 && numhours > 0 && numminutes > 0 ){
+										var respuesta = textodias + ", " + textohoras + " y " + textominutos;
+									}
+									else if (numdays > 0 && numhours == 0 && numminutes > 0 ){
+										var respuesta = textodias + " y " + textominutos;
+									}
+									else if (numdays > 0 && numhours > 0 && numminutes == 0 ){
+										var respuesta = textodias + " y " + textohoras;
+									}
+									else if (numdays == 0 && numhours > 0 && numminutes > 0 ){
+										var respuesta = textohoras + " y " + textominutos;
+									}
+									else if (numdays > 0 && numhours == 0 && numminutes == 0 ){
+										var respuesta = textodias;
+									}
+									else if (numdays == 0 && numhours > 0 && numminutes == 0 ){
+										var respuesta = textohoras;
+									}
+									else if (numdays == 0 && numhours == 0 && numminutes > 0 ){
+										var respuesta = textominutos;
+									}
+
+									var arrayMinutos = respuesta.split(" " , 2);
+									// filtro lo que debe mostrar el campo del tiempo
+									switch (arrayMinutos[1]) {
+										case "minuto":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(1);
+											break;
+
+										case "minutos":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(1);
+											break;
+
+										case "hora":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(2);
+											break;
+
+										case "horas":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(2);
+											break;
+
+										case "dia":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(3);
+											break;
+
+										case "dias":
+											$("#tiempo_' . $value['id'] . '").val(\'\');
+											$("#tiempo_' . $value['id'] . '").val(arrayMinutos[0]);
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(\'\');
+											$("#slc_medida_tiempo_' . $value['id'] . '").val(3);
+											break;
+									}
+								</script>
+							';
+
+						// Formulario de cambios de los parametros de la actividad 
+						$_popupEdita = $form_edita->_form_modal_update("ajuste_" . $value['id'], "Cambiar Actividad - " . $value["nombre"], $form_edit_table_2, $_dbTable);
+						$vista .= $_popupEdita[0];
+						$_jsScripts .= $_popupEdita[1];
+
+						// Formulario de ordenamiento de actividades
+						$_popupCrea = $form_crea->_form_modal_multiple_insert_orden("ordena_actividades_carga_oc_" . $value['id'], "Ordenamiento de la Actividad - " . $value["nombre"], $form_edit_table_3, $_dbTable, "id_carga", "modificar", $r->getArgs()[0],  $value["orden"]);
+						$vista .= $_popupCrea[0];
+						$_jsScripts .= $_popupCrea[1];
+
+						// Formulario de elimiancion de la actividad
+						$_popupElimina = $alert->_alert_modal_actividad_danger($value['id'], $id_actividad, "Realmente desea inhabilitar esta actividad?", $_dbTable, "inactivar", $id_materiales, $value["orden"]);
+						$vista .= $_popupElimina[0];
+						$_jsScripts .= $_popupElimina[1];
+
+						// SE FILTRA BOTONES DE LOS BOTONES QUE VIENEN EN BLOQUE
+						$_btn_ordenar = '';
+						$_btn_eliminar = '';
+						if ($value["bloque"] == 0 || $value["bloque"] == 1) {
+							$_btn_ordenar = '
+									<a href="#" data-toggle="modal" data-target="#ordena_actividades_carga_oc_' . $value['id'] . '" class="cell-detail md-trigger hint--top" data-hint="Ordenar"><span class="icon mdi mdi-swap-vertical"></span></a>
+								';
+							$_btn_eliminar = '
+									<a href="#" data-toggle="modal" data-target="#elimina_' . $value['id'] . '" class="cell-detail md-trigger"><span class="icon mdi mdi-close-circle"></span></a> 
+								';
+						}
+
+						$col_action = '
+								' . $_btn_ordenar . '
+								<a href="#" class="icon" data-toggle="modal" data-target="#edita_ajuste_' . $value['id'] . '" ><span id="edita_' . $value['id'] . '" class="mdi mdi-edit"></span></a>
+								' . $_btn_eliminar . '
+							';
+
+						break;
+				}
+				/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
+
+				/****** SE FILTRA LA COLUMNA DE ACCIONES POR CENTRO DE COSTO ******/
+				$btn_asigna_centro_costo = '';
+				if ($value["id_centro_costo"] == 0) {
+					$flag_inicia_proyecto = false;
+
+					/*** POPUP DE ASIGNACION DE CENTRO DE COSTO ***/
+					$form_edit_table = '
+							<input type="hidden" name="id" value="' . $id_actividad . '" class="form-control">
+							<div class="form-group col-xs-12">
+								<label>Centro de Costo:</label>
+								' . $slct_centro_costo . '
+							</div>
+							<div class="row"></div>
+						';
+
+					$_popupEdita = $form_edita->_form_modal_update("centro_costo_" . $value['id'], "Asignar Centro de Costo", $form_edit_table, $_dbTable);
+					$vista .= $_popupEdita[0];
+					$_jsScripts .= $_popupEdita[1];
+					/*** FIN POPUP DE ASIGNACION DE RESPONSABLES ***/
+
+					$btn_asigna_centro_costo = '
+							<a href="#" class="icon"><span id="#edita_centro_costo_' . $value['id'] . '"  data-toggle="modal" data-target="#edita_centro_costo_' . $value['id'] . '"  class="mdi mdi-money-box"></span></a>
+						';
+				}
+				/****** FIN SE FILTRA LA COLUMNA DE ACCIONES POR CENTRO DE COSTO ******/
+
+				/****** SE FILTRA LA COLUMNA DE ACCIONES POR RESPONSABLE ******/
+				$btn_asigna_responsable = '';
+				if ($value["responsable"]) {
+					$col_responsble = '
+							<td class="user-avatar cell-detail user-info">
+								<img src="' . BASE_URL . 'public/img/users/' . $value["avatar"] . '" alt="' . $value["nom_usuario"] . '">
+								<span>' . $value["nom_usuario"] . '</span>
+								<span class="cell-detail-description">' . $value["nom_perfil"] . '</span>
+							</td>
+						';
+				} else {
+					$flag_inicia_proyecto = false;
+
+					$col_responsble = '
+							<td class="user-avatar cell-detail user-info">
+								<span>No se ha asignado responsable</span>
+							</td>
+						';
+
+
+					/*** POPUP DE ASIGNACION DE RESPONSABLES ***/
+					$form_edit_table = '
+							<input type="hidden" name="id" value="' . $id_actividad . '" class="form-control">
+							<div class="form-group col-xs-12">
+								<label>Responsable:</label>
+								%slct_usuarios%
+							</div>
+							<div class="row"></div>
+						';
+
+					// genero el select de usuarios
+					$form_edit_table = str_replace("%slct_usuarios%", $this->usuarios->getHtmlSelect("responsable", $value["id"], $ssn_id_cliente), $form_edit_table);
+
+					$_popupEdita = $form_edita->_form_modal_update($value['id'], "Asignar Responsables", $form_edit_table, $_dbTable);
+					$vista .= $_popupEdita[0];
+					$_jsScripts .= $_popupEdita[1];
+					/*** FIN POPUP DE ASIGNACION DE RESPONSABLES ***/
+
+					$btn_asigna_responsable = '
+							<a href="#" class="icon"><span id="#edita_' . $value['id'] . '"  data-toggle="modal" data-target="#edita_' . $value['id'] . '"  class="mdi mdi-assignment-account"></span></a>
+						';
+				}
+				/****** FIN SE FILTRA LA COLUMNA DE ACCIONES POR RESPONSABLE ******/
+
+				// Se asigna resultado de las validaciones del responsable y el centro de costo
+				if ($btn_asigna_centro_costo != "" or $btn_asigna_responsable != "") {
+					$col_action = $btn_asigna_centro_costo . $btn_asigna_responsable;
+				}
+				// Se maqueta contenido de la tabla 
+				$table_cargas .= '<tr>';
+
+				// Columna Estado 
+				$table_cargas .= $col_stasus;
+				// Columna Actividad
+				$table_cargas .= '
+						<td class="cell-detail">
+							<span>' . $value["nombre"] . '</span>
+							<span class="cell-detail-description">' . $value["descripcion"] . '</span>
+						</td>
+					';
+
+				// Columna Fechas
+				// POPUP DE INFORMACIÓN DE LOS TIEMPOS DE LA ACTIVIDAD
+				$arrayAplazamientos = $this->orden_compra->getAplazamientos($value['id']);
+				// print_r("<pre>");
+				// print_r($arrayAplazamientos);
+				// print_r("</pre>");
+
+				$tabla_aplazamientos = '';
+				if ($arrayAplazamientos) {
+					$tabla_aplazamientos .= '
+							<strong>Aplazamientos</strong>
+							<table class="table">
+								<tbody>
+						';
+					foreach ($arrayAplazamientos as $keyAplazamiento => $valueAplazamiento) {
+						$_url_file = '';
+						if ($valueAplazamiento["URL_FILE"]) {
+							$_url_file = '
+									<a href="' . BASE_URL . '/' . $valueAplazamiento["URL_FILE"] . '" target="_blank" class="icon hint--top-left" data-hint="Descargar Entregable"><span class="mdi mdi-download"></span></a>
+								';
+						}
+						$tabla_aplazamientos .= '
+								<tr>
+									<td class="cell-detail">
+										<span>Fecha aplazamiento:</span>
+										<span class="cell-detail-description">' . $valueAplazamiento["fecha_hora_aplazamiento"] . '</span>
+									</td>
+									<td class="cell-detail">
+										<span>' . $valueAplazamiento["nombre"] . '</span>
+										<span class="cell-detail-description">' . $valueAplazamiento["causa"] . '</span>
+									</td>
+									<td class="actions">
+										' . $_url_file . '
+									</td>
+								</tr>
+							';
+					}
+					$tabla_aplazamientos .= '
+									<tr><td></td><td></td><td></td></tr>
+								</tbody>
+							</table>
+						';
+				}
+
+				$info_contenido_1 = '
+						<div class="panel panel-border panel-contrast">
+							<div class="panel-heading panel-heading-contrast">
+								' . $value["nombre"] . ' 
+								<span class="panel-subtitle">Orden de Compra - ' . $r->getArgs()[0] . '</span>
+							</div>
+						</div>
+						<table class="table">
+							<tbody>
+								<tr>
+									<td class="cell-detail">
+										<div class="row">
+											<div class="col-sm-4">
+												<span>Fecha de creación:</span>
+												<span class="cell-detail-description">' . $value["fecha_creacion"] . '</span>
+											</div>
+											<div class="col-sm-4">
+												<span>Plazo:</span>
+												<span class="cell-detail-description">' . $value["FECHA_HORA_INICIAL"] . '</span>
+											</div>
+											<div class="col-sm-4">
+												<span>Finalizado:</span>
+												<span class="cell-detail-description">' . $value["fecha_hora_finalizacion"] . '</span>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr><td></td></tr>
+							</tbody>
+						</table>
+						' . $tabla_aplazamientos . '
+					';
+				$vista .= $info->_bootstrap_modal_dialog("info_tiempo_" . $value['id'], "Información de Tiempos de la Actividad", $info_contenido_1);
+
+				$table_cargas .= $celda_fechas;
+				// Columna Entregables
+				$table_cargas .= '
+						<td class="cell-detail">
+							<span>' . $value["documentos"] . '</span>
+						</td>
+					';
+
+				// Columna de tiempo
+				$color_barra = "success";
+				if ($value["tiempo_aprobado"] > 0) {
+					$tiempo = round(($value["tiempo_real"] * 100) / $value["tiempo_aprobado"]);
+					if ($value["tiempo_real"] > $value["tiempo_aprobado"]) {
+						$color_barra = "danger";
+					}
+				} else {
+					$tiempo = 0;
+				}
+				$col_tiempo = '
+						<td class="milestone">
+							<span class="version">' . $value["tiempo_real"] . ' / ' . $value["tiempo_aprobado"] . '</span>
+							<div class="progress">
+								<div style="width: ' . $tiempo . '%" class="progress-bar progress-bar-' . $color_barra . '"></div>
+							</div>
+							<span class="version">minutos</span>
+						</td>
+					';
+				$table_cargas .= $col_tiempo;
+
+				// Columna de Costo
+				if ($value["id_centro_costo"] > 0) {
+					$color_barra = "success";
+					if ($value["costo_aprobado"] > 0) {
+						$costo = round(($value["costo_real"] * 100) / $value["costo_aprobado"]);
+						if ($value["costo_real"] > $value["costo_aprobado"]) {
+							$color_barra = "danger";
+						}
+					} else {
+						$costo = 0;
+						if ($value["costo_real"] > 0) {
+							$costo = 100;
+							$color_barra = "danger";
+						}
+					}
+
+					$col_costo = '
+							<td class="milestone">
+								<span class="version">' . $value["costo_real"] . ' / ' . $value["costo_aprobado"] . '</span>
+								<div class="progress">
+									<div style="width: ' . $costo . '%" class="progress-bar progress-bar-' . $color_barra . '"></div>
+								</div>
+								<span class="version">' . $value["codigo"] . '</span>
+							</td>
+						';
+				} else {
+					$col_costo = '
+							<td class="cell-detail">
+								<span>No se ha asignado Centro de Costo</span>
+							</td>
+						';
+				}
+
+				$table_cargas .= $col_costo;
+
+				// Columna de resonsable
+				$table_cargas .= $col_responsble;
+
+				// se asigna la columna de acciones
+				$table_cargas .= '
+							<td class="actions">
+								' . $col_action . '
+							</td>
+					';
+
+				$table_cargas .= '</tr>';
+			}
+		}
+
+		$table_cargas .= '
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			';
+	} else {
+		/**** SE CREA LOS CAJONES DE GRUPOS DE ACTIVIDADES ****/
+		$info_grupo_materiales = '';
+		foreach ($arrayCuenta_grupos['data'] as $key => $value) {
+			$_border_color_style = 'panel-border-color';
+
+			$arrayGrupo_materiales = $this->orden_compra->getCargas($r->getArgs()[0], $value["grupo"]);
+			// print_r("<pre>");
+			// print_r($arrayGrupo_materiales);
+			// print_r("</pre>");
+
+			$arrayActividad_activa = $this->orden_compra->getActividadActiva($r->getArgs()[0], $value["grupo"]);
+			// print_r("<pre>");
+			// print_r($arrayActividad_activa);
+			// print_r("</pre>");
+
+			// Cuento las actividades terminadas
+			$arrayActividades_terminadas = $this->orden_compra->getActividadesTerminadas($r->getArgs()[0], $value["grupo"]);
+			// print_r("<pre>");
+			// print_r($arrayActividades_terminadas);
+			// print_r("</pre>");
+
+			// Cuento el total de actividades
+			$arrayActividades = $this->orden_compra->getActividades($r->getArgs()[0], $value["grupo"]);
+			// print_r("<pre>");
+			// print_r($arrayActividades);
+			// print_r("</pre>");
+
+			if ($arrayActividad_activa) {
+				// Se verifica si la actividad activa tiene aplazamientos 
+				$arrayAplazamientos = $this->orden_compra->getAplazamientos($arrayActividad_activa[0]['id']);
+				// print_r("<pre>");
+				// print_r($arrayAplazamientos);
+				// print_r("</pre>");
+
+				$vencimiento_actividad = $arrayActividad_activa[0]["fecha_hora_inicio"];
+				if ($arrayAplazamientos) {
+					$vencimiento_actividad = $arrayAplazamientos[0]["fecha_hora_aplazamiento"];
+				}
+
+				// Se calcula el tiempo de plazo de la siguiente actividad
+				$fecha_plazo = strtotime('+' . $arrayActividad_activa[0]["tiempo_aprobado"] . ' minute', strtotime($vencimiento_actividad));
+				$fecha_plazo = date("Y-m-d H:i:s", $fecha_plazo);
+
+				// se define el color del borde de acuerdo si esta retrasada el desarrollo de la actividad
+				if (date("Y-m-d H:i:s", time()) > $fecha_plazo) {
+					$_border_color_style = 'panel-border-color panel-border-color-danger';
+				} else {
+					$_border_color_style = 'panel-border-color panel-border-color-warning';
+				}
+			} else if ($arrayActividades["rowCount"] == $arrayActividades_terminadas[0]["TERMINADAS"]) {
+				$_border_color_style = 'panel-border-color panel-border-color-success';
+			}
+
+
+			$info_grupo_materiales .= '
+					<div class="panel panel-default ' . $_border_color_style . '">
+						<div class="panel-heading ">
+							<div class="tools">
+								<a href="' . BASE_URL . 'proyecto/cargas_/' . $r->getArgs()[0] . '/' . $value["grupo"] . '"><span class="icon mdi mdi-eye"></span></a>
+							</div>
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion1" href="#collapse' . $value["grupo"] . '" aria-expanded="false" class="collapsed">
+									<i class="icon mdi mdi-chevron-down"></i> Grupo de Materiales ' . $value["grupo"] . '
+									<span class="panel-subtitle">Fecha de creación: <strong>' . $arrayGrupo_materiales[0]["fecha_creacion"] . '</strong></span>
+									<span class="panel-subtitle">Cantidad de materiales: <strong>' . $arrayGrupo_materiales[0]["count"] . '</strong>.</span>
+								</a>
+							</h4>
+						</div>
+						<div id="collapse' . $value["grupo"] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+							<div class="panel-body">
+								<table class="table">
+									<tbody>
+										<tr>
+											<td class="cell-detail">
+												<div class="row">
+				';
+
+			$_control_fila = 0;
+			foreach ($arrayGrupo_materiales as $key1 => $value1) {
+				$_control_fila++;
+				$info_grupo_materiales .= '
+						<div class="col-sm-4">
+							<span>' . $value1["cs_descripcion1"] . '</span>
+							<span class="cell-detail-description">Código: <strong>' . $value1["cs_codigo"] . '</strong> - Cantidad: <strong>' . $value1["cs_cantidad_solicitada"] . '</strong></span>
+							<span class="cell-detail-description">' . $value1["cs_descripcion2"] . '</span>
+							<br />
+						</div>
+					';
+				if ($_control_fila == 3) {
+					$info_grupo_materiales .= '<div class="row"></div>';
+					$_control_fila = 0;
+				}
+			}
+
+			$info_grupo_materiales .= '
+												</div>		
+											</td>
+										</tr>
+										<tr><td></td></tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				';
+		}
+		$table_cargas .= '
+				<div id="accordion1" class="panel-group accordion">
+					' . $info_grupo_materiales . '
+				</div>
+			';
+		/**** FIN DE CREACION DE LOS CAJONES DE GRUPOS DE ACTIVIDADES ****/
+	}
+}
+/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+/*** VALIDACION DE QUE TODAS LAS ACTIVIDADES TENGAN SU RESPONSABLE ***/
+/*** PERMITE ACTIVAR DEL PROYECTO PARA SU EJECUCION ***/
+$btn_inicia_proyecto = '';
+if ($flag_inicia_proyecto) {
+
+	$arrayMateriales = $this->orden_compra->getOrdenActividades($r->getArgs()[0], $grupo);
+	$id_actividades = '';
+	$flag_actividades = true;
+	if ($arrayMateriales) {
+		foreach ($arrayMateriales as $key1 => $value1) {
+			foreach ($value1 as $key2 => $value2) {
+				if ($value1["estado"] != 0) {
+					if ($value1["estado"] == 3) {
+						if ($value1["id_centro_costo"] > 0) {
+							if ($value1["orden"] == 1 and $key2 === "orden") {
+								$id_actividades .= $value1["id"] . ',';
+							}
+						} else {
+							$flag_actividades = false;
+							$id_actividades = '';
+							break;
+						}
+					} else {
+						$flag_actividades = false;
+						$id_actividades = '';
+						break;
+					}
+				}
+			}
+			if (!$flag_actividades) {
+				break;
+			}
+		}
+	}
+
+	if ($flag_actividades) {
+		$forms = '
+				<input type="hidden" name="id" placeholder="orden compra" value="' . $id_actividades . '" class="form-control">
+				<input type="hidden" name="estado" placeholder="orden compra" value="2" class="form-control">
+
+				<div class="panel panel-border panel-contrast">
+					<div class="panel-heading panel-heading-contrast">
+						<span>Atención:</span> 
+						<span class="panel-subtitle">Para activar el proyecto por favor seleccione la fecha y hora de inicio de la primer actividad, luego de click en el botón <strong>"Guardar"</strong></span>
+					</div>
+				</div>
+				<div class="form-group col-xs-12">
+					<label class="control-label">Fecha - Hora Inicio de Primera Actividad:</label>
+					<div class="col-md-12 col-xs-7">
+						<div data-start-view="1" data-date="' . date("Y-m-d H:i", time()) . '" data-date-format="yyyy-mm-dd hh:ii" data-link-field="dtp_input1" class="input-group date datetimepicker">
+							<input size="16" type="text" value="' . date("Y-m-d H:i", time()) . '"  name="fecha_hora_inicio" class="form-control" readonly=”readonly”><span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
+						</div>
+					</div>
+				</div>
+				<div class="row"></div>
+			';
+
+		$_popupEdita = $form_edita->_form_modal_update("activar_proyecto", "Activar Proyecto", $forms, $_dbTable);
+		$vista .= $_popupEdita[0];
+		$_jsScripts .= $_popupEdita[1];
+		$btn_inicia_proyecto = '
+				<a href="#" data-toggle="modal" data-target="#edita_activar_proyecto" class="cell-detail md-trigger hint--top" data-hint="Iniciar Proyecto"><span class="icon mdi mdi-assignment-check"></span></a> 
+			';
+	}
+}
+/*** FIN VALIDACION DE QUE TODAS LAS ACTIVIDADES TENGAN SU RESPONSABLE ***/
+
+
+/*** VALIDACION PARA DETERMINAR SI SE PUEDE AGREGAR NUEVAS ACTIVIDADES ***/
+/*** 
+		- Se tiene en cuenta que tenga actividades pendientes
+		- Se tiene en cuenta que solo sea un grupo de actividades
+		- En caso que sean variaos, Se tiene en cuenta que tenga seleccionado un grupo de materiales
+ ***/
+$arrayActividades_incompletas = $this->orden_compra->getActividadesIncompletas($r->getArgs()[0], $grupo);
+
+$btn_asignar_tareas = '';
+if ($validaArgumento || $arrayCuenta_grupos["rowCount"] == 1) {
+	if ($arrayActividades_incompletas[0]['INVACIVAS'] > 0) {
+		$btn_asignar_tareas = '<a href="#" data-toggle="modal" data-target="#crea_actividades_carga_oc" class="cell-detail hint--top"  data-hint="Agregar Actividad"><span class="icon mdi mdi-plus"></span></a>';
+	}
+}
+/*** FIN VALIDACION DE QUE TODAS LAS ACTIVIDADES TENGAN SU RESPONSABLE ***/
+
+/*** VALIDACIóN DEL BOTON DE RETORNO ***/
+$btn_retornar = '<a href="' . BASE_URL . 'proyecto/proyectos_/" class="hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>';
+if (isset($r->getArgs()[1])) {
+	$btn_retornar = '<a href="' . BASE_URL . 'proyecto/cargas_/' . $r->getArgs()[0] . '"class="hint--top" data-hint="Volver"><span class="icon mdi mdi-long-arrow-return"></span></a>';
+}
+
+$btn_asignar_tareas = '';
+if ($validaArgumento || $arrayCuenta_grupos["rowCount"] == 1) {
+	if ($arrayActividades_incompletas[0]['INVACIVAS'] > 0) {
+		$btn_asignar_tareas = '<a href="#" data-toggle="modal" data-target="#crea_actividades_carga_oc" class="cell-detail hint--top"  data-hint="Agregar Actividad"><span class="icon mdi mdi-plus"></span></a>';
+	}
+}
+/*** FIN VALIDACIóN DEL BOTON DE RETORNO ***/
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Cargas 
+				<div class="tools">
+					' . $btn_retornar . '
+					' . $btn_ver_materiales . '
+					' . $btn_asignar_tareas . ' 
+					' . $btn_inicia_proyecto . ' 
+				</div>
+				<span class="panel-subtitle">Muestra los materiales que serán transportados en el proyecto.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%encabezado%
+				%content%
+			</div>
+		</div>
+	';
+
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.formElements();
+			});
+			%js-ajax%
+		</script>
+	';
+
+
+/**** FORMULARIO DE CREACION DE ACTIVIDADES ****/
+// genero el select de las monedas 
+$slct_moneda = $this->monedas->getHtmlSelect("moneda", "");
+
+// Creo el select de actividades del proyecto
+$slct_actividades = $this->orden_compra->getHtmlSelectMultiple("actividad_previa", $r->getArgs()[0], "", 3);
+
+// genero el select de usuarios
+$slct_responsable = $this->usuarios->getHtmlSelect("responsable", "", $ssn_id_cliente);
+
+// genero el select de centro de costo
+$slct_centro_costo = $this->centro_costo->getHtmlSelect("id_centro_costo", "", $ssn_id_cliente);
+
+
+// Formulario de creacion de tareas
+$forms = '
+		<input type="hidden" name="orden" id="orden_' . $r->getArgs()[0] . '_" placeholder="orden de la actividad" value="">
+		<input type="hidden" name="grupo" placeholder="grupo de actividad" value="' . $grupo . '">
+		<input type="hidden" name="id_carga" placeholder="materiales" value="' . $id_materiales . '">
+		<div class="form-group col-xs-12">
+			<label>Actividad Previa:</label>
+			' . $slct_actividades . '
+		</div>
+		<div class="form-group col-xs-12">
+			<label>Nombre:</label>
+			<input type="text" name="nombre" value="" placeholder="Nombre de la Actividad" class="form-control" required="">
+		</div>
+		<div class="form-group col-xs-12">
+			<label>Descripción:</label>
+			<textarea name="descripcion" placeholder="descripcion" class="form-control" required=""></textarea>
+		</div>
+		<div class="form-group col-xs-6">
+			<label>Documento de entrega:</label>
+			<input type="text" name="documentos" value="" placeholder="Documento de entrega" class="form-control" required="">
+		</div>
+		<div class="form-group col-xs-3">
+			<label>Tiempo estimado:</label>
+			<input type="number" min="0" id="tiempo" value="" placeholder="Tiempo estimado" class="form-control">
+		</div>
+		<div class="form-group col-xs-3">
+			<label>Medida de Tiempo:</label>
+			<select id="slc_medida_tiempo" class="form-control">
+				<option value="" disabled="disabled" selected="selected">Seleccione</option>
+				<option value="1">Minutos</option>
+				<option value="2">Horas</option>
+				<option value="3">Días</option>
+			</select>
+			<input type="hidden" name="tiempo_aprobado" id="tiempo_aprobado" value="" placeholder="Tiempo aprobado" class="form-control">
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-4">
+			<label>Costo estimado:</label>
+			<input type="number" min="0" name="costo_aprobado" value="" placeholder="Costo Estimado" class="form-control text-right" required="">
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Moneda del Costo:</label>
+			' . $slct_moneda . '
+		</div>
+		<div class="form-group col-xs-4">
+			<label>Centro de Costo:</label>
+			' . $slct_centro_costo . '
+		</div>
+		<div class="row"></div>
+		<div class="form-group col-xs-6">
+			<label>Responable:</label>
+			' . $slct_responsable . '
+		</div>
+		<div class="row"></div>
+	';
+
+// JS de validacion de tiempos de actividades
+$_jsScripts .= '
+		<script type="text/javascript">
+			$(\'#slc_medida_tiempo\').change(function () {
+				var tiempo = $("#tiempo").val();
+				var unidad_tiempo = $("select[id=slc_medida_tiempo]").val();
+				$("#tiempo_aprobado").val(\'\');
+				$("#tiempo_aprobado").val(calculaMinutos(tiempo , unidad_tiempo));
+			});
+
+			$(\'#tiempo\').blur(function () {
+				var tiempo = $("#tiempo").val();
+				var unidad_tiempo = $("select[id=slc_medida_tiempo]").val();
+				$("#tiempo_aprobado").val(\'\');
+				$("#tiempo_aprobado").val(calculaMinutos(tiempo , unidad_tiempo));
+			});
+		</script>
+	';
+
+$_popupCrea = $form_crea->_form_modal_multiple_insert_orden("crea_actividades_carga_oc", "Crear Actividad", $forms, $_dbTable, "id_carga", "adicionar", $r->getArgs()[0], "");
+$vista .= $_popupCrea[0];
+$_jsScripts .= $_popupCrea[1];
+/**** FIN FORMULARIO DE CREACION DE ACTIVIDADES ****/
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%js-ajax%", $_jsAjax, $vista);
+$vista = str_replace("%encabezado%", $encabezado, $vista);
+$vista = str_replace("%content%", $table_cargas, $vista);
+
+// // Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;

@@ -1,0 +1,1291 @@
+<?php
+	$vista = '';
+
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	$info_contenido = '
+		<h4>S 8</h4>
+		<p>Este tipo de vehiculo sirve para transportar...</p>
+	';
+	$vista.= $info->_nifty_modal_colored_warning("colored-warning" , "Tipo de vehículo" , $info_contenido );
+
+
+  	// POPUP DE ALERTA DE CONFIRMACION
+	$alert_1 = new Popup();
+	$vista.= $alert_1->_alert_modal_mod_danger("elimina_1", "Realmente desea eliminar este elemento?");
+
+	$alert_2 = new Popup();
+	$vista.= $alert_2->_alert_modal_mod_danger("elimina_2", "Realmente desea eliminar este elemento?");
+
+	$alert_3 = new Popup();
+	$vista.= $alert_3->_alert_modal_mod_danger("elimina_3", "Realmente desea eliminar este elemento?");
+
+	// POPUP DE FORMULARIO DE LA PRIMERA PESTA;A
+	$form_1 = '
+		<form action="#">
+			<div class="form-group">
+				<label>Tipo Vehículo:</label>
+				<select class="select2">
+					<option value="" selected disabled>Seleccione</option>
+					<option value="1">KILOS</option>
+					<option value="1">S 1.5</option>
+					<option value="1">S 3.5</option>
+					<option value="1">S 4.5</option>
+					<option value="1">NIES</option>
+					<option value="1">S 8</option>
+					<option value="1">S 12</option>
+					<option value="1">S 17</option>
+					<option value="1">S 20</option>
+					<option value="1">S 22</option>
+					<option value="1">S 25</option>
+					<option value="1">S 32</option>
+					<option value="1">S 34</option>
+					<option value="1">S 35</option>
+					<option value="1">C 20 8</option>
+					<option value="1">C 20 12</option>
+					<option value="1">C 20 17</option>
+					<option value="1">C 20 20</option>
+					<option value="1">C 20 22</option>
+					<option value="1">C 20 25</option>
+					<option value="1">C 40 8</option>
+					<option value="1">C 40 12</option>
+					<option value="1">C 40 17</option>
+					<option value="1">C 40 20</option>
+					<option value="1">C 40 22</option>
+					<option value="1">C 40 25</option>
+					<option value="1">C 40 32</option>
+					<option value="1">C 40 34</option>
+					<option value="1">C 40 35</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label>Tipo Carrocería:</label>
+				<select class="select2">
+					<option value="" selected disabled>Seleccione</option>
+					<option value="1">ESTACAS</option>
+					<option value="1">PLANCHA</option>
+					<option value="1">CARROCERIA</option>
+					<option value="1">FURGON LAMINA</option>
+					<option value="1">FURGON REFRIGERADO SIN TERMO</option>
+					<option value="1">FURGON REFRIGERADO CON TERMO</option>
+					<option value="1">GRUA</option>
+					<option value="1">ELEVADOR</option>
+					<option value="1">TANQUE</option>
+					<option value="1">JAULA GRANEL</option>
+					<option value="1">JAULA GANADERA</option>
+					<option value="1">JAULA PARA CILINDROS</option>
+					<option value="1">JAULA CON CORTINA</option>
+					<option value="1">TOLVA</option>
+					<option value="1">VOLQUETA</option>
+					<option value="1">TRAILER ESTACAS</option>
+					<option value="1">TRAILER PLANCHA</option>
+					<option value="1">TRAILER CARROCERIA</option>
+					<option value="1">TRAILER PORTACONTENEDOR</option>
+					<option value="1">TRAILER CAMA BAJA</option>
+					<option value="1">TRAILER FURGON LAMINA</option>
+					<option value="1">TRAILER FURGON REFRIGERADO SIN TERMO</option>
+					<option value="1">TRAILER FURGON REFRIGERADO CON TERMO</option>
+					<option value="1">TRAILER CON GRUA</option>
+					<option value="1">TRAILER CON ELEVADOR</option>
+					<option value="1">TRAILER CON TANQUE</option>
+					<option value="1">TRAILER JAULA GRANEL</option>
+					<option value="1">TRAILER JAULA GANADERA</option>
+					<option value="1">TRAILER JAULA PARA CILINDROS</option>
+					<option value="1">TRAILER JAULA CON CORTINA</option>
+					<option value="1">TRAILER TOLVA</option>
+					<option value="1">TRAILER VOLQUETA</option>
+				</select>
+			</div>
+		</form>
+	';
+	$form_edita_1 = new Popup();
+	$vista.= $form_edita_1->_form_modal("edita_1", "Editar Automotor" , $form_1);
+
+	$form_crea_1 = new Popup();
+	$vista.= $form_crea_1->_form_modal("crea_1", "Crear Automotor" , $form_1);
+
+	// POPUP DE FORMULARIO DE LA SEGUNDA PESTA;A
+	$form_2 = '
+		<form action="#">
+			<div class="form-group col-xs-12">
+				<label>Tipo de Vehículo:</label>
+				<input type="text" placeholder="Tipo de Vehículo" class="form-control">
+			</div>
+		</form>
+	';
+	$form_edita_2 = new Popup();
+	$vista.= $form_edita_2->_form_modal("edita_2", "Editar Tipo de Vehículo" , $form_2);
+
+	$form_crea_2 = new Popup();
+	$vista.= $form_crea_2->_form_modal("crea_2", "Crear Tipo de Vehículo" , $form_2);
+
+	// POPUP DE FORMULARIO DE LA TERCER PESTA;A
+	$form_3 = '
+		<form action="#">
+			<div class="form-group col-xs-12">
+				<label>Tipo de Carrocería:</label>
+				<input type="text" placeholder="Tipo de Carrocería" class="form-control">
+			</div>
+		</form>
+	';
+	$form_edita_3 = new Popup();
+	$vista.= $form_edita_3->_form_modal("edita_3", "Editar Tipo de Carrocería" , $form_3);
+
+	$form_crea_3 = new Popup();
+	$vista.= $form_crea_3->_form_modal("crea_3", "Crear Tipo de Carrocería" , $form_3);
+
+
+	/**** SE GENERA LAS PESTA;AS DEL MODULO ****/
+	$_panel_tab ='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Parque Automotor
+				<span class="panel-subtitle">Establece el conjunto de vehículos de acuerdo su capacidad y carrocería.</span>
+			</div>
+			<div class="panel-body xs-mt-12">
+				<div class="tab-container">
+					<ul class="nav nav-tabs nav-tabs-warning">
+					<li class="active"><a href="#panel_1" data-toggle="tab" aria-expanded="true">Automotores</a></li>
+					<li class=""><a href="#panel_2" data-toggle="tab" aria-expanded="false">Tipo de vehículo</a></li>
+					<li class=""><a href="#panel_3" data-toggle="tab" aria-expanded="false">Tipo de carrocería</a></li>
+					</ul>
+					<div class="tab-content">
+						%tab_content%
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	$_tab = "";
+
+	/**** CONTENIDO DE LA PRIMER PESTA;A ****/
+	$_panel_1 ='
+		<div id="panel_1" class="tab-pane active cont">
+			%contenido%
+		</div>
+	';
+
+	$_tabla_1 = '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Automotores
+				<div class="tools">
+					<a href="#" data-toggle="modal" data-target="#crea_1" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+				</div>
+				<span class="panel-subtitle">Establece los vehículos dependiento el tipo de vehiculo y la tipo de carrocería.</span>
+			</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="table-responsive noSwipe">
+							<table id="table1" class="table table-striped table-hover">
+								<thead>
+									<tr class="nexos-encabezado">
+										<th style="width:10%;">#</th>
+										<th>Tipo de vehículo</th>
+										<th>Tipo Carrocería</th>
+										<th style="min-width:5%;"></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 20</span>
+										</td>
+										<td class="cell-detail">
+											<span>JAULA PARA CILINDROS</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 17 </span>
+										</td>
+										<td class="cell-detail">
+											<span>GRUA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 8</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER CON GRUA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 35</span>
+										</td>
+										<td class="cell-detail">
+											<span>TANQUE</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>NIES</span>
+										</td>
+										<td class="cell-detail">
+											<span>FURGON LAMINA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>KILOS</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER CAMA BAJA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 22</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER ESTACAS</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 8</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER JAULA CON CORTINA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 4.5</span>
+										</td>
+										<td class="cell-detail">
+											<span>JAULA GRANEL</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 35</span>
+										</td>
+										<td class="cell-detail">
+											<span>VOLQUETA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 20</span>
+										</td>
+										<td class="cell-detail">
+											<span>ELEVADOR</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 34</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER CON ELEVADOR</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 20</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER CAMA BAJA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 32</span>
+										</td>
+										<td class="cell-detail">
+											<span>PLANCHA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 32</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER VOLQUETA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 22</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER FURGON LAMINA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 17</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER FURGON REFRIGERADO SIN TERMO</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 1.5</span>
+										</td>
+										<td class="cell-detail">
+											<span>ESTACAS</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>NIES</span>
+										</td>
+										<td class="cell-detail">
+											<span>JAULA GANADERA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 32</span>
+										</td>
+										<td class="cell-detail">
+											<span>TRAILER JAULA CON CORTINA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 25</span>
+										</td>
+										<td class="cell-detail">
+											<span>TOLVA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 32</span>
+										</td>
+										<td class="cell-detail">
+											<span>TANQUE</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 4.5</span>
+										</td>
+										<td class="cell-detail">
+											<span>JAULA PARA CILINDROS</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 20</span>
+										</td>
+										<td class="cell-detail">
+											<span>JAULA GRANEL</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_1" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_1" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+	$_panel_1 = str_replace("%contenido%", $_tabla_1, $_panel_1);
+	$_tab.= $_panel_1;
+	/**** FIN CONTENIDO DE LA PRIMER PESTA;A ****/
+
+
+	/**** CONTENIDO DE LA SEGUNDA PESTA;A ****/
+	$_panel_2 ='
+		<div id="panel_2" class="tab-pane cont">
+			%contenido%
+		</div>
+	';
+
+	$_tabla_2 = '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Tipo de Vehículo
+				<div class="tools">
+					<a href="#" data-toggle="modal" data-target="#crea_2" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+				</div>
+				<span class="panel-subtitle">Establece la capacidad de un vehículo.</span>
+			</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6">
+						<div class="table-responsive noSwipe">
+							<table id="table1" class="table table-striped table-hover">
+								<thead>
+									<tr class="nexos-encabezado">
+										<th style="width:10%;">#</th>
+										<th>Tipo de vehículo</th>
+										<th style="min-width:5%;"></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>KILOS </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 1.5 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 3.5 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 4.5 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>NIES</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 8 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 12 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 17 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 20 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 22 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 25 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 32 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 34 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>S 35 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 8 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 12 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 17 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 20 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 22 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 20 25 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 8 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 12 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 17 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 20 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 22 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 25 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 32 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 34 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>C 40 35 </span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+			</div>
+		</div>
+	';
+
+	$_panel_2 = str_replace("%contenido%", $_tabla_2, $_panel_2);
+	$_tab.= $_panel_2;
+	/**** FIN CONTENIDO DE LA SEGUNDA PESTA;A ****/
+
+
+	/**** CONTENIDO DE LA TERCER PESTA;A ****/
+	$_panel_3 ='
+		<div id="panel_3" class="tab-pane cont">
+			%contenido%
+		</div>
+	';
+
+	$_tabla_3 = '
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Tipo de Carrocería
+				<div class="tools">
+					<a href="#" data-toggle="modal" data-target="#crea_3" class="cell-detail  hint--top"  data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a> 
+				</div>
+				<span class="panel-subtitle">Establece los tipo de carrocería que posee un vehículo.</span>
+			</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6">
+						<div class="table-responsive noSwipe">
+							<table id="table1" class="table table-striped table-hover">
+								<thead>
+									<tr class="nexos-encabezado">
+										<th style="width:10%;">#</th>
+										<th>Tipo de carrocería</th>
+										<th style="min-width:5%;"></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>ESTACAS</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>PLANCHA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>CARROCERIA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>FURGON LAMINA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>FURGON REFRIGERADO SIN TERMO</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>FURGON REFRIGERADO CON TERMO</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>GRUA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>ELEVADOR</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TANQUE</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>JAULA GRANEL</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>JAULA GANADERA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>JAULA PARA CILINDROS</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>JAULA CON CORTINA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TOLVA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>VOLQUETA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER ESTACAS</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER PLANCHA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER CARROCERIA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER PORTACONTENEDOR</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER CAMA BAJA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER FURGON LAMINA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER FURGON REFRIGERADO SIN TERMO</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER FURGON REFRIGERADO CON TERMO</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER CON GRUA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER CON ELEVADOR</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER CON TANQUE</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER JAULA GRANEL</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER JAULA GANADERA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER JAULA PARA CILINDROS</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER JAULA CON CORTINA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER TOLVA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+									<tr>
+										<td class="nexos-txt-success"><span class="mdi mdi-dot-circle icon"></span></td>
+										<td class="cell-detail">
+											<span>TRAILER VOLQUETA</span>
+										</td>
+										<td class="actions">
+											<span data-toggle="modal" data-target="#edita_2" class="icon mdi mdi-edit"></span>
+											<span data-toggle="modal" data-target="#elimina_2" class="icon mdi mdi-close-circle"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+			</div>
+		</div>
+	';
+
+	$_panel_3 = str_replace("%contenido%", $_tabla_3, $_panel_3);
+	$_tab.= $_panel_3;
+	/**** FIN CONTENIDO DE LA TERCER PESTA;A ****/
+
+	/**** SE AGREGA CONTENIDO AL PANEL TAB ****/
+	$_panel_tab = str_replace("%tab_content%", $_tab, $_panel_tab);
+	$vista.=$_panel_tab;
+	/**** FIN CONTENIDO DE LA CAJA DE PESTA;AS ****/
+
+
+
+  	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+	    <script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+	    <script type="text/javascript">
+			$.fn.niftyModal(\'setDefaults\',{
+				overlaySelector: \'.modal-overlay\',
+				closeSelector: \'.modal-close\',
+				classAddAfterOpen: \'modal-show\',
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.wizard();
+			});
+	    </script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+
+	echo $vista;
+?>
+
+<!-- 
+<div class="be-wrapper be-error be-error-404">
+	<div class="error-container">
+		<div class="error-number">404</div>
+		<div class="error-description">Página en construcción.</div>
+		<div class="error-goback-text">Este módulo estará próximamente disponible.</div>
+	</div>
+</div>
+ -->
+
+
+
+

@@ -1,0 +1,1490 @@
+<?php
+//include "../models/Solicitudes.php";
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+$_GET["sw"] = "";
+$_GET["placa"] = "";
+$_POST["tipo"] = "";
+//$_POST["placat"]="";
+
+//$_POST["placat"]="";
+$_dbTable = "solicitudes"; // SIN EL PREFIJO cmx_
+$_jsScripts = "";
+
+$vista = '';
+
+/********* POPUPS *********/
+/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+// POPUP DE MUESTRA DE INFORMACION
+$info = new Popup();
+// POPUP DE ALERTA DE CONFIRMACION
+$alert = new Popup();
+// POPUP DE FORMULARIO DE EDICION
+$form_edita = new Popup();
+// POPUP DE FORMULARIO DE CREACION
+$form_crea = new Popup();
+/********* FIN POPUPS *********/
+
+$model = new vehiculosModel();
+
+$vista .= '
+		<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+		<style>
+			.twitter-typeahead{
+				width: 100%;
+			}
+			.tt-menu {
+				background: white;
+				border-radius: 4px;
+				border: 1px solid gray;
+				width: 100%;
+				max-height: 100px;
+				overflow-y: auto;
+				width: 100%;
+				text-align: left;
+			}
+			.tt-suggestion{
+				padding:5px 10px;
+			}
+			.tt-suggestion.tt-cursor{
+				color: white;
+				background: #0097cf;
+			}
+		</style>
+	';
+
+$tabla_vehiculos = '';
+/*** CREACION DE TABLA DE CONTENIDO ***/
+$tabla_vehiculos .= "
+	<form method='POST' action=''>
+	<div class='row'>
+		<!--<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+			<label>Tipo</label>
+			<select id='tipo' name='tipo' class='form-control input-sm'>
+				<option value='placa'>Placa</option>
+				<option value='configu'>Configuracion</option>
+				<!--<option value='Todos'>Todos</option>
+				<option value='Referencia'>Referencia</option> 
+			</select>
+		</div>
+		<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+			<label>Carácter Búsqueda</label>
+			<input type='text' id='placat' name='placat' class='form-control input-sm' onblur='mayuscula(this);' placeholder='Letras o números Placa ó Configuración' oninput='this.value = this.value.toUpperCase();'>
+		</div>
+		<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+			<br><button class='btn btn-success btn-md' id='busqueda' name='busqueda'>Buscar</button>
+		</div>
+	</form>
+	</div><br><div class='row'></div>-->";
+
+/*** SE CREA TABLA DE CONTENIDO ***/
+$tabla_vehiculos .= "
+		<div class='row' >
+			<div class='col-sm-12'>
+				<div  class='table-responsive noSwipe'>
+					<!--<table id='table1' class='table table-striped table-hover tablavehicular' data-page-length='100'>-->
+					<table cellpadding='0' cellspacing='0' width='100%' border='0'>
+						<thead style='background-color:#332D2D;color:#fff;text-align:center;'>
+							<tr>
+								<th class='text-center' style='width:3%;'>#</th>
+								<th class='text-center' style='width:10%;'>Placa</th>
+								<th class='text-center' style='width:25%;'>Propietario</th>
+								<th class='text-center' style='width:25%;'>Tenedor</th>
+								<th class='text-center' style='width:25%;'>Conductor</th>
+								<th class='text-center' style='width:25%;'>Acciones</th>
+							</tr>
+						</thead>
+						<tbody>";
+//traer los datos
+
+//$bton=$_GET["busqueda"];
+
+if ($_GET["sw"]) {
+  $sw1 = '';
+  $sw1 = $_GET["sw"];
+  if ($sw1 == '1') {
+    //echo 'oki doki';
+    $tipo = 'placa';
+    $placa = $_GET["placa"];
+    //echo "<script> alert ('".$placa."');</script>";
+  }
+} else {
+  $sw1 = 0;
+  $tipo = $_POST["tipo"];
+  $placa = 0;
+  if (empty($_POST['placat'])) {
+    //El id no existe
+    $placa = '';
+  } else if ($_POST['placat'] == 0) {
+    // Ingresa a un menu
+    $placa = $_POST['placat'];
+  } else {
+    // El id ya fue utilizado
+    $placa = $_POST['placat'];
+  }
+  // $placa = $_POST["placat"];
+}
+
+$model->listarVehiculos($tipo, $placa);
+
+$respuesta = $model->respuesta;
+if ($respuesta == "GOOD") {
+  $datos_vehiculos = $model->listado;
+  if (count($datos_vehiculos) > 0) {
+    $tabla_vehiculos .= "";
+    foreach ($datos_vehiculos as $vehiculo) {
+
+      if ($vehiculo["estado"] == 'Activo') {
+        $tabla_vehiculos .= "
+							<tr>
+								<td class='nexos-txt-success' style='font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;'>
+									<center><span class='mdi mdi-dot-circle icon'></span></center>
+								</td>
+						";
+      } else if ($vehiculo["estado"] == 'Inactivo') {
+        $tabla_vehiculos .= "
+						<tr>
+							<td class='nexos-txt-danger' style='font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;'>
+								<center><span class='mdi mdi-dot-circle icon'></span></center>
+							</td>
+					";
+      }
+
+      $btn_edicion = "";
+      $btn_accion = "";
+      if ($ssn_id_perfil == 8 || $ssn_id_perfil == 9 && $vehiculo['cant_estudio'] == 0) {
+        // $btn_edicion = "<a href='javascript:' onclick='editardatosvehiculonew($vehiculo[id])' class='cell-detail  hint--top-left' data-hint='Editar vehiculo' '><span class='icon mdi mdi-edit'  data-toggle='modal' data-target='#editar_vehiculos'></span></a>";
+        $url = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        // Obtener solo la parte de la consulta de la URL
+        $queryString = parse_url($url, PHP_URL_QUERY);
+        // Parsear la cadena de consulta y convertirla en un array asociativo
+        parse_str($queryString, $queryParams);
+        // Obtener el valor del parámetro 'idmenu'
+        $idmenu = isset($queryParams['idmenu']) ? $queryParams['idmenu'] : null;
+        $btn_edicion = "<a href='" . BASE_URL . "solicitudes/editar_vehiculo/?num_vehiculo=" . base64_encode($vehiculo['numdoc_vehiculo']) . "&idmenu=" . $idmenu . "' class='btn btn-warning' data-toggle='tooltip' data-placement='bottom' title='Editar vehiculo'><span class='icon mdi mdi-edit'></span></a>";
+      } else if ($ssn_id_perfil != 8 && $ssn_id_perfil != 9) {
+        // $btn_edicion = "<a href='javascript:' onclick='editardatosvehiculonew($vehiculo[id])' class='cell-detail  hint--top-left' data-hint='Editar vehiculo' '><span class='icon mdi mdi-edit'  data-toggle='modal' data-target='#editar_vehiculos'></span></a>";
+        $url = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        // Obtener solo la parte de la consulta de la URL
+        $queryString = parse_url($url, PHP_URL_QUERY);
+        // Parsear la cadena de consulta y convertirla en un array asociativo
+        parse_str($queryString, $queryParams);
+        // Obtener el valor del parámetro 'idmenu'
+        $idmenu = isset($queryParams['idmenu']) ? $queryParams['idmenu'] : null;
+        $btn_edicion = "<a href='" . BASE_URL . "solicitudes/editar_vehiculo/?num_vehiculo=" . base64_encode($vehiculo['numdoc_vehiculo']) . "&idmenu=" . $idmenu . "' class='btn btn-warning' data-toggle='tooltip' data-placement='bottom' title='Editar vehiculo'><span class='icon mdi mdi-edit'></span></a>";
+      }
+
+      if ($vehiculo['estado'] == 'Activo') {
+        $btn_accion .= "<a href='javascript:' onclick='datosinactivarvehiculo($vehiculo[id])' class='btn btn-danger' data-toggle='tooltip' data-placement='bottom' title='Inactivar vehiculo'> <i class='far fa-times-circle' data-toggle='modal' data-target='#inactivar_vehiculo'></i></a>";
+      } else if ($vehiculo['estado'] == 'Inactivo') {
+        $btn_accion .= "<a href='javascript:' onclick='datosactivarvehiculo($vehiculo[id])'  class='btn btn-danger' data-toggle='tooltip' data-placement='bottom' title='Activar vehiculo'><i class='far fa-times-circle' data-toggle='modal' data-target='#activar_vehiculo'></i></a>";
+      }
+
+      $tabla_vehiculos .= "
+					<td class='cell-detail' style='font-size:12px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;'>
+						<span>$vehiculo[placa]</span>
+					</td>
+					<td class='cell-detail' style='font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;'>
+						<span>$vehiculo[nombre_propietario]</span>
+						<span class='cell-detail-description' style='font-weight: bold;'>$vehiculo[documento_propietario]</span>
+					</td>
+					<td class='cell-detail' style='font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;'>
+						<span>$vehiculo[nombre_tenedor]</span>
+						<span class='cell-detail-description' style='font-weight: bold;'>$vehiculo[documento_tenedor]</span>
+					</td>
+					<td class='cell-detail' style='font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;'>
+						<span>$vehiculo[nombre_conductor]</span>
+						<span class='cell-detail-description' style='font-weight: bold;'>$vehiculo[documento_conductor]</span>
+					</td>
+					<td class='actions' style='font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;'>
+          <div class='btn-group btn-group-xs' role='group' aria-label='Extra-small button group' style='width: 100%;'> 
+            <button type='button' class='btn btn-primary' data-toggle='tooltip' data-placement='bottom' onclick='verVehiculo($vehiculo[numdoc_vehiculo])' title='Ver vehiculo'><i class='far fa-eye' data-toggle='modal' data-target='#ver_vehiculos'></i></button> 
+            " . $btn_edicion . "
+            <button type='button' class='btn btn-success' data-toggle='tooltip' data-placement='bottom' onclick='historialconductores($vehiculo[id]);' title='Historial conductores del vehículo' data-toggle='modal' data-target='#historico_conductores'><i class='fas fa-table' data-toggle='modal' data-target='#historico_conductores'></i></button> 
+            <!--<button type='button' class='btn btn-default'>Right</button>-->
+            " . $btn_accion . "
+           </div>
+						<!--<a href='javascript:'  onclick='verVehiculo($vehiculo[numdoc_vehiculo])'  class='btn btn-primary btn-xs  hint--top-left' data-hint='Ver vehiculo' ><span class='icon mdi mdi-eye' data-toggle='modal' data-target='#ver_vehiculos'></span></a>-->
+            <!--" . $btn_edicion . "-->
+						<!--<a href='javascript:' onclick='historialconductores($vehiculo[id]);' class='cell-detail  hint--top-left' data-hint='Historial conductores del vehículo' '><span class='icon mdi mdi-account-box' data-toggle='modal' data-target='#historico_conductores'></span></a>-->
+					  <!--<a href='javascript:' onclick='editartrailer($vehiculo[id]);' class='cell-detail  hint--top-left' data-hint='Trailer del Vehículo'><span class='icon mdi mdi-tumblr'  data-toggle='modal' data-target='#editartrailer'></span></a> -->
+				";
+
+      // if ($vehiculo["estado"] == 'Activo') {
+      //   $tabla_vehiculos .= "<a href='javascript:' onclick='datosinactivarvehiculo($vehiculo[id])' class='cell-detail  hint--top-left' data-hint='Inactivar vehiculo' ><span class='icon mdi mdi-close-circle'  data-toggle='modal' data-target='#inactivar_vehiculo'></span></a>";
+      // } else if ($vehiculo["estado"] == 'Inactivo') {
+      //   $tabla_vehiculos .= "<a href='javascript:' onclick='datosactivarvehiculo($vehiculo[id])'  class='cell-detail  hint--top-left' data-hint='Activar vehiculo'><span class='icon mdi mdi-check-circle' data-toggle='modal' data-target='#activar_vehiculo'></span></a>";
+      // }
+      $tabla_vehiculos .= "</td> </tr>";
+    }
+  }
+}
+
+$tabla_vehiculos .= '
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	';
+/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+$vista .= '
+      <div class="nexos-content">
+        <div class="row" style="margin:-25px -25px -25px -25px;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2 text-left" style="margin:25px;"><b>Vehículo</b></td>
+                <td class="celda_titulo2 text-right" style="margin:25px;">
+                  <button type="button" class="btn btn-info btn-xs" data-toggle="tooltip" data-placement="top" title="Agregar Vehiculo" onclick="crear_vehiculo()"><i class="fas fa-truck-moving"></i> Agregar Vehículo</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <form method="POST" action="">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="background-color: #F5F5F5;font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left">Tipo:</th>
+                  <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+                    <select id="tipo" name="tipo" style="width: 100%;height: 23px;">
+                      <option value="placa">Placa</option>
+                      <option value="configu">Configuracion</option>
+                      <!--<option value="Todos">Todos</option>
+                      <option value="Referencia">Referencia</option> -->
+                    </select>
+                  </td>
+                  <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left"> Carácter Búsqueda:</th>
+                  <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+                    <input type="text" id="placat" name="placat" onblur="mayuscula(this);" placeholder="Letras o números Placa ó Configuración" style="width: 100%;" oninput="this.value = this.value.toUpperCase();">
+                  </td>
+                  <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;" class="text-left"> Acción:</th>
+                  <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+                    <button class="btn btn-success btn-xs" id="busqueda" name="busqueda" style="width: 100%;height: 23px;"><i class="fas fa-search"></i> Buscar</button>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+          </form>
+        %content%
+      </div>
+    </div>
+	';
+
+/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+$vista .= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/typeahead.bundle.js" type="text/javascript" ></script>
+		<script src="%root_file%lib/vehiculos_ajax.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/daterangepicker/js/daterangepicker.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+		<script src="%root_file%lib/moment.js/min/moment.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+				App.formElements();
+			});
+
+			$(document).ready(function(){
+			});
+		</script>
+	';
+
+/****** CREACION CONTENIDO DE POPUPS ******/
+// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+?>
+<!-- SCRIPT PARA ABRIR EL MODAL del trailer-->
+<script type="text/javascript">
+  //abrir crear vehculos
+  $(document).on('click', '#btn_crea', function() {
+    //abrir el modal principal
+    $('#crea_vehiculos').modal('show');
+    $(".datos_val").show();
+    $("#informacion").hide();
+    $("#acciones").hide();
+    $("#placa_val").val('');
+    $("#token_val").val('');
+  });
+  $(document).on('click', '#btn_trailer', function() {
+    $('#exampleModalLong').modal('show');
+  });
+  //cierre de botones del segundo modal
+  $(document).on('click', '#cierre', function() {
+    $('#exampleModalLong').modal('hide');
+  });
+  //EDITAR TRAILER
+  // $(document).on('click', '#e_btn_trailer', function() {
+  //   		 $('#editartrailer').modal('show');
+  // });
+  $(document).on('click', '#e_cierre', function() {
+    $('#editartrailer').modal('hide');
+  });
+</script>
+
+<!--VER VEHÍCULO -->
+<div id="ver_vehiculos" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close" style="color: #FFFFFF;"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title" id="titulo_ver" style="color: #fff;font-weight: 700;"></h3>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;">
+        <!-- <div class="row">
+          <div class="form-group col-xs-4">
+            <label>Placa:</label>
+            <input type="text" id="v_placa" placeholder="Placa" class="form-control">
+            <label id="error_v_placa"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Configuración:</label>
+            <input type="text" id="v_config" placeholder="Configuración" class="form-control">
+            <label id="error_v_config"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Color vehículo:</label>
+            <input type="text" id="v_color" placeholder="Color" class="form-control">
+            <label id="error_v_color"></label>
+          </div>
+        </div> -->
+
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+          <tbody>
+            <tr>
+              <td class="celda_titulo2 text-center" style="margin:25px;">
+                <b>Información del vehiculo en NexosApp</b>
+              </td>
+            </tr>
+            <tr>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- <div class="col-md-2" id="fotos_vehiculo"></div>
+          <div class="col-md-10">          </div> -->
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Placa:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;margin: 0;" id="v_placa"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Color vehículo:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_color"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Configuración:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;margin: 0;" id="v_config"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Marca:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_marca"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Línea:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_linea"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Modelo:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_modelo"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Peso Vacío:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_peso"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Capacidad carga(Kg):</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_capacidad"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Peso bruto(Kg):</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_bruto"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Tipo Combustible:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_combustible"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Clase de vehiculo:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_clase_vehiculo"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Tipo Carroceria:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_tipo_carroceria"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Número SOAT:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_soat"></td>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Vencimiento SOAT:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_vencesoat"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Aseguradora:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_asegura">Activo</td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Web satelital:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_web_satelital"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Usuario satelital:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_usuario_satelital"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Clave satelital:</th>
+              <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="v_clave_satelital"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Tipo Vinculación:</th>
+              <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="v_vinculacion"></td>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Fecha Mantenimiento GPS:</th>
+              <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="v_mantenimiento"></td>
+              <!-- <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Clave satelital:</th>
+              <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="v_clave_satelital"></td> -->
+            </tr>
+          </thead>
+        </table>
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+          <tbody>
+            <tr>
+              <td class="celda_titulo2 text-center" style="margin:25px;">
+                <b>Datos de terceros del vehiculo en NexosApp</b>
+              </td>
+            </tr>
+            <tr>
+            </tr>
+          </tbody>
+        </table>
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Nombre propietario:</th>
+              <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;margin: 0;" id="v_nombre_propietario"></td>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Documento propietario:</th>
+              <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;margin: 0;" id="v_cedula_propietario"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Nombre tenedor:</th>
+              <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_nombre_tenedor"></td>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Documento tenedor:</th>
+              <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_cedula_tenedor"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Nombre conductor:</th>
+              <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_nombre_conductor"></td>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Documento conductor:</th>
+              <td style="border: 1px solid #ddd; padding: 1px 1px 1px; width: auto; white-space: nowrap;" id="v_cedula_conductor"></td>
+            </tr>
+          </thead>
+        </table>
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+          <tbody>
+            <tr>
+              <td class="celda_titulo2 text-center" style="margin:25px;">
+                <b>Fotos y documentos del vehiculo en NexosApp</b>
+              </td>
+            </tr>
+            <tr>
+            </tr>
+          </tbody>
+        </table>
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Foto Frontal del vehículo:</th>
+              <td class="text-center" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;" id="vf"></td>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Foto Derecha del vehículo:</th>
+              <td class="text-center" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;" id="vd"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Foto Izquierda del vehículo:</th>
+              <td class="text-center" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;" id="vi"></td>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Foto Trasera del vehículo:</th>
+              <td class="text-center" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;" id="vt"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Documento Soat:</th>
+              <td class="text-center" style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="vso"></td>
+              <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">Documento tecnomecánica:</th>
+              <td class="text-center" style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="vte"></td>
+            </tr>
+          </thead>
+        </table>
+
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000;border-top: 1px #fff solid;">
+          <tbody>
+            <tr>
+              <td class="text-center" style="margin:25px;">
+                <b>Consultar estados recurso</b>
+              </td>
+            </tr>
+            <tr>
+            </tr>
+          </tbody>
+        </table>
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">
+                RNDC:</th>
+              <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="vpanel_rndc"></td>
+            </tr>
+            <tr>
+              <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; width: auto; white-space: nowrap;">
+                Oet:</th>
+              <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;" id="vpanel_oet"></td>
+            </tr>
+          </thead>
+        </table>
+
+
+        <!-- 
+        <div class="row">
+          <div class="form-group col-xs-3">
+            <label>Marca:</label>
+            <input type="text" id="v_marca" placeholder="Marca" class="form-control">
+            <label id="error_v_marca"></label>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Línea:</label>
+            <input type="text" id="v_linea" placeholder="Linea" class="form-control">
+            <label id="error_v_linea"></label>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Modelo:</label>
+            <input type="text" id="v_modelo" placeholder="Modelo" class="form-control">
+            <label id="error_v_modelo"></label>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Peso Vacío:</label>
+            <input type="text" id="v_peso" placeholder="Peso" class="form-control">
+            <label id="error_v_peso"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Tipo Combustible:</label>
+            <input type="text" id="v_combustible" placeholder="Tipo Combustible" class="form-control">
+            <label id="error_v_combustible"></label>
+          </div>
+        </div> -->
+
+        <!-- <div class="row">
+          <div class="form-group col-xs-4">
+            <label>Número SOAT:</label>
+            <input type="text" id="v_soat" placeholder="Soat" class="form-control">
+            <label id="error_v_soat"></label>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Vencimiento SOAT:</label>
+            <input type="text" id="v_vencesoat" placeholder="Soat" class="form-control">
+            <label id="error_v_vencesoat"></label>
+          </div>
+          <div class="form-group col-xs-5">
+            <label>Aseguradora:</label>
+            <input type="text" id="v_asegura" placeholder="aseguradora" class="form-control">
+            <label id="error_v_asegura"></label>
+          </div>
+        </div> -->
+
+        <!-- <div class="row">
+          <div class="form-group col-xs-6">
+            <label>Clase de vehiculo:</label>
+            <div id="v_caja_tipo_vehiculo">
+              <input type="text" class="form-control" placeholder="Tipo de vehiculo" id="v_clase_vehiculo">
+            </div>
+            <input type="hidden" id="v_id_tipo_vehiculo">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Tipo Carroceria:</label>
+            <input type="text" id="v_tipo_carroceria" placeholder="Tipo Carroceria" class="form-control">
+            <label id="error_v_usuario_satelital"></label>
+          </div>
+        </div> -->
+
+        <!--
+        <div class="row">
+          <div class="form-group col-xs-4">
+            <label>Web satelital:</label>
+            <input type="text" id="v_web_satelital" placeholder="Web satelital" class="form-control">
+            <label id="error_v_web_satelital"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Usuario satelital:</label>
+            <input type="text" id="v_usuario_satelital" placeholder="Usuario satelital" class="form-control">
+            <label id="error_v_usuario_satelital"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Clave satelital:</label>
+            <input type="text" id="v_clave_satelital" placeholder="Clave satelital" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Empresa GPS</label>
+            <input type="text" id="vempresa_gps" class="form-control" placeholder="Empresa GPS">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group col-xs-4">
+            <label>Número Motor:</label>
+            <input type="text" id="v_num_motor" placeholder="v_num_motor" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Número Chasis:</label>
+            <input type="text" id="v_num_chasis" placeholder="v_num_chasis" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Póliza Responsabilidad Civil:</label>
+            <input type="text" id="v_poliza" placeholder="v_poliza" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group col-xs-4">
+            <label>Vence Póliza:</label>
+            <input type="text" id="v_vencepoliza" placeholder="vence poliza" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Repotenciado:</label>
+            <input type="text" id="v_repotenciado" placeholder="v_repotenciado" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Tipo Vinculación:</label>
+            <input type="text" id="v_vinculacion" placeholder="v_vinculación" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Fecha Mantenimiento GPS:</label>
+            <input type="text" id="v_mantenimiento" placeholder="v_mantenimiento" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div> -->
+        <!-- <div class="form-group col-xs-4">
+            <label>Capacidad carga(Kg):</label>
+            <input type="text" id="v_capacidad" placeholder="v_capacidad" class="form-control">
+            <label id="error_v_clave_satelital"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Peso bruto(Kg):</label>
+            <input type="text" id="v_bruto" class="form-control">
+          </div> -->
+        <!--
+        </div>
+        <div class="row">
+          <div class="form-group col-xs-4">
+            <label>Tecnomecánica:</label>
+            <input type="text" id="v_tecno" placeholder="Tecnomecanica" class="form-control">
+            <label id="error_v_tecno"></label>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Fecha de expedición tecnomecánica:</label>
+            <input type="text" id="v_etecno" placeholder="Fecha Expedición" class="form-control">
+            <label id="error_v_etecno"></label>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Fecha de vigencia tecnomecánica:</label>
+            <input type="text" id="v_vitecno" placeholder="Fecha Vigencia" class="form-control">
+            <label id="error_v_vitecno"></label>
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Trailer:</label>
+            <input type="text" id="v_trailer" placeholder="Trailer" class="form-control">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-xs-6">
+            <label>Documento propietario:</label>
+            <div id="v_caja_propietario">
+              <input type="text" class="typeahead form-control" placeholder="Documento propietario" id="v_cedula_propietario">
+            </div>
+            <input type="hidden" id="v_id_propietario">
+            <label id="v_error_cedula_propietario"></label>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Nombre propietario:</label>
+            <input type="text" id="v_nombre_propietario" placeholder="Nombre propietario" disabled class="form-control">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-xs-6">
+            <label>Documento tenedor:</label>
+            <div id="v_caja_tenedor">
+              <input type="text" class="typeahead form-control" placeholder="Documento tenedor" id="v_cedula_tenedor">
+            </div>
+            <input type="hidden" id="v_id_tenedor">
+            <label id="v_error_cedula_tenedor"></label>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Nombre tenedor:</label>
+            <input type="text" id="v_nombre_tenedor" placeholder="Nombre tenedor" disabled class="form-control">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-xs-6">
+            <label>Documento conductor:</label>
+            <div id="v_caja_conductor">
+              <input type="text" class="typeahead form-control" placeholder="Documento conductor" id="v_cedula_conductor">
+            </div>
+            <input type="hidden" id="v_id_conductor">
+            <label id="v_error_cedula_conductor"></label>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Nombre conductor:</label>
+            <input type="text" id="v_nombre_conductor" placeholder="Nombre conductor" disabled class="form-control">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h5>Documentos</h5>
+          </div>
+
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label>Foto Frontal del vehículo</label>
+            <label id="vf">f</label>
+          </div>
+
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label>Foto Derecha del vehículo</label>
+            <label id="vd">d</label>
+          </div>
+
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label>Foto Izquierda del vehículo</label>
+            <label id="vi">i</label>
+          </div>
+
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label>Foto Trasera del vehículo</label>
+            <label id="vt">t</label>
+          </div>
+
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label>Documento Soat</label>
+            <label id="vso">t</label>
+          </div>
+
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label>Documento Tecnomecánica</label>
+            <label id="vte">t</label>
+          </div>
+        </div>
+      -->
+
+
+
+        <!--
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-border-color panel-border-color-success">
+              <div class="panel-heading"><strong>Consulta Rndc</strong></div>
+              <div class="panel-body" id="vpanel_rndc">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-border-color panel-border-color-success">
+              <div class="panel-heading"><strong>Consulta Oet</strong></div>
+              <div class="panel-body" id="vpanel_oet">
+              </div>
+            </div>
+          </div>
+        </div>
+      -->
+
+        <div class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--INACTIVAR VEHÍCULO -->
+<div id="inactivar_vehiculo" tabindex="-1" role="dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+
+          <div class="text-danger"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+          <h3 id="i_num_vehiculo"></h3>
+          <br>
+          <div class="xs-mt-1">
+            <div class="row">
+
+            </div>
+            <input type="hidden" id="i_id_vehiculo">
+            <button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+            <button id="btn_inactivar_vehiculo" type="button" class="btn btn-space btn-danger">Aceptar</button>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<div id="activar_vehiculo" tabindex="-1" role="dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+
+          <div class="text-success"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+          <h3 id="a_num_vehiculo"></h3>
+          <br>
+          <div class="xs-mt-1">
+            <div class="row">
+
+            </div>
+            <input type="hidden" id="a_id_vehiculo">
+            <button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+            <button id="btn_activar_vehiculo" type="button" class="btn btn-space btn-success">Aceptar</button>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+<div id="historico_conductores" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title" id="">Historial de Conductores</h3>
+      </div>
+      <div class="modal-body">
+        <!-- inicio de la tabla-->
+        <h4 class="text-center">Conductores que ha tenido el Vehículo</h4>
+        <div class='row'>
+          <div class='col-sm-12'>
+            <div class='table-responsive noSwipe'>
+              <table id='table1' class='table table-striped table-hover' data-page-length='100'>
+                <thead>
+                  <tr class='nexos-encabezado'>
+                    <th>#</th>
+                    <th>Cod conductor</th>
+                    <th>Fecha Anterior</th>
+                    <th>Fecha Actual</th>
+                  </tr>
+                </thead>
+                <tbody id="tbproveedor">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- fin tabla -->
+        <div class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--MODAL CREAR DEL TRAILER -->
+<div class="modal fade class-info" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class=".modal-dialog-centered.modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title text-center" id="exampleModalLongTitle"><strong>Crear un trailer/remolque</strong></h3>
+        <button type="button" class="close" id="cierre" aria-label="Close"><span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="row  " style="border:1px solid silver;">
+      </div>
+      <div class="modal-body">
+        <div class="nexos_messages_popup"></div>
+        <!--cuerpo inicio -->
+        <h5 class="text-center text-primary"><strong>
+            <p>HOJA DE VIDA DEL TRAILER</p>
+          </strong></h5>
+        <div class="row">
+
+          <div class="form-group col-xs-6">
+            <label>Placa trailer:</label>
+            <input type="text" id="placa_trailer" placeholder="Placa Trailer" class="form-control input-sm">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Marca Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="T_marca" class="form-control input-sm" cargar_marca();>
+            </select>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Peso Vacío(Tn) Trailer:</label>
+            <input type="number" min="0" class="form-control input-sm" id="T_peso">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Alto(m) Trailer:</label>
+            <input type="number" min="0" class="form-control input-sm" id="T_alto">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Volumen Trailer:</label>
+            <input type="number" min="0" class="form-control input-sm" id="T_volumen">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Tipo trámite Trailer:</label>
+            <select class="form-control input-sm" id="T_tramite">
+            </select>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Serie Chasis Trailer:</label>
+            <input type="number" min="0" class="form-control input-sm" id="T_chasis">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Configuración Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="T_configuracion" class="form-control input-sm">
+            </select>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Modelo Trailer:</label>
+            <input type="number" class="form-control input-sm" min="0" id="T_modelo">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Ancho Trailer:</label>
+            <input type="number" class="form-control input-sm" min="0" id="T_ancho">
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Largo Trailer:</label>
+            <input type="number" class="form-control input-sm" min="0" id="T_largo">
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Capacidad Trailer:</label>
+            <input type="number" class="form-control input-sm" min="0" id="T_capacidad">
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Tipo Carroceria Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="T_carroceria" class="form-control input-sm">
+
+            </select>
+          </div>
+          <div class="form-group col-xs-12">
+            <label>Características Trailer:</label>
+            <textarea type="text" id="T_caracteristicas" placeholder="Características" class="form-control input-sm"></textarea>
+          </div>
+
+          <div class="form-group col-xs-12">
+            <label>propietario:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="T_propietario" class="form-control input-sm">
+            </select>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Fotos del trailer</label><br>
+            <input type="file" name="file-2" id="foto_trailer" data-multiple-caption="{count} archivos seleccionados" multiple class="inputfile form-control input-lg">
+            <label for="foto_trailer" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+          </div>
+        </div>
+        <div class="row">
+          <h4 class="text-danger"><strong>
+              <p>Seguro</p>
+            </strong></h4>
+          <div class="form-group col-xs-4">
+            <label>N° Responsabilidad Civil:</label>
+            <input type="number" class="form-control input-sm" min="0" id="T_civil">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Aseguradora Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="T_aseguradora" class="form-control input-sm">
+            </select>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Fecha Vencimiento</label>
+            <div data-min-view="2" data-start-view="4" data-date-format="yyyy/mm/dd" data-link-field="dtp_input1" class="input-group date datetimepicker">
+              <input size="16" type="text" value="" id="T_fechavence" class="form-control input-sm" readonly=”readonly”>
+              <span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!--cuerpo inicio -->
+      </div>
+      <div class="row  " style="border:1px solid silver;"></div>
+      <div class="modal-footer">
+        <button id="cierre" class="btn btn-secondary">Cerrar</button>
+        <button id="btn_crear_trailer" class="btn btn-success">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--FIN MODAL CREAR TRAILER -->
+<!--INICIO MODAL EDITAR TRAILER -->
+<div class="modal fade class-info" id="editartrailer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class=".modal-dialog-centered.modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title text-center" id="exampleModalLongTitle"><strong>ACTUALIZAR DATOS DEL TRAILER</strong>
+        </h3>
+        <button type="button" class="close" id="cierre" aria-label="Close"><span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="row  " style="border:1px solid silver;">
+      </div>
+      <div class="modal-body">
+        <!--cuerpo inicio -->
+        <h5 class="text-center text-primary"><strong>
+            <p>HOJA DE VIDA DEL TRAILER</p>
+          </strong></h5>
+        <div class="row">
+
+          <div class="form-group col-xs-6">
+            <label>Placa trailer:</label>
+            <input type="text" id="e_placa_trailer" placeholder="Placa Trailer" class="form-control input-sm">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Marca Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="eT_marca" class="form-control input-sm" cargar_marca();>
+            </select>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Peso Vacío(Tn) Trailer:</label>
+            <input type="number" min="0" class="form-control input-sm" id="eT_peso">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Alto(m) Trailer:</label>
+            <input type="number" min="0" class="form-control input-sm" id="eT_alto">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Volumen Trailer:</label>
+            <input type="number" min="0" class="form-control input-sm" id="eT_volumen">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Tipo trámite Trailer:</label>
+            <select class="form-control input-sm" id="eT_tramite">
+            </select>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Serie Chasis Trailer:</label>
+            <input type="number" min="0" class="form-control input-sm" id="eT_chasis">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Configuración Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="eT_configuracion" class="form-control input-sm">
+            </select>
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Modelo Trailer:</label>
+            <input type="number" class="form-control input-sm" min="0" id="eT_modelo">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Ancho Trailer:</label>
+            <input type="number" class="form-control input-sm" min="0" id="eT_ancho">
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Largo Trailer:</label>
+            <input type="number" class="form-control input-sm" min="0" id="eT_largo">
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Capacidad Trailer:</label>
+            <input type="number" class="form-control input-sm" min="0" id="eT_capacidad">
+          </div>
+          <div class="form-group col-xs-4">
+            <label>Tipo Carroceria Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="eT_carroceria" class="form-control input-sm">
+
+            </select>
+          </div>
+          <div class="form-group col-xs-12">
+            <label>Características Trailer:</label>
+            <textarea type="text" id="eT_caracteristicas" placeholder="Características" class="form-control input-sm"></textarea>
+          </div>
+          <div class="form-group col-xs-12">
+            <label>propietario:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="eT_propietario" class="form-control input-sm">
+            </select>
+          </div>
+          <div class="col-xs-6 col-md-6  col-sm-12">
+            <label>Foto Trailer</label>
+            <input type="hidden" id="e_ruta_trailer">
+            <div id="e_caja_trailer"></div>
+            <label id="e_error_trailer"></label>
+
+            <input type="file" name="file-2" id="e_foto_trailer" data-multiple-caption="{count} archivos seleccionados" multiple class="inputfile form-control input-lg">
+            <label for="e_foto_trailer" class="btn-primary"> <i class="icon mdi mdi-file"></i><span>Soporte</span></label>
+
+          </div>
+        </div>
+        <div class="row">
+          <h4 class="text-danger"><strong>
+              <p>Seguro</p>
+            </strong></h4>
+          <div class="form-group col-xs-4">
+            <label>N° Responsabilidad Civil:</label>
+            <input type="number" class="form-control input-sm" min="0" id="eT_civil">
+          </div>
+          <div class="form-group col-xs-6">
+            <label>Aseguradora Trailer:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+            <select id="eT_aseguradora" class="form-control input-sm">
+            </select>
+          </div>
+          <div class="form-group col-xs-3">
+            <label>Fecha Vencimiento</label>
+            <div data-min-view="2" data-start-view="4" data-date-format="yyyy/mm/dd" data-link-field="dtp_input1" class="input-group date datetimepicker">
+              <input size="16" type="text" value="" id="eT_fechavence" class="form-control input-sm" readonly=”readonly”>
+              <span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
+            </div>
+          </div>
+          <div>
+            <input type="hidden" id="idtrailer" class="form-control input-sm" readonly="readonly">
+          </div>
+        </div>
+
+        <!--cuerpo inicio -->
+      </div>
+      <div class="row  " style="border:1px solid silver;"></div>
+      <div class="modal-footer">
+        <button id="e_cierre" class="btn btn-secondary">Cerrar</button>
+        <button id="editareltrailer" class="btn btn-success">Actualizar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--FIN MODAL CREAR TRAILER -->
+
+<?php
+/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $tabla_vehiculos, $vista);
+
+// Se asiga codigo JS generado de la tabla de contenido
+$vista .= $_jsScripts;
+
+// SE PINTA CONTENIDO EN PANTALLA
+echo $vista;
+?>
+<script type="text/javascript">
+  function mayuscula(elemento) {
+    let texto = elemento.value;
+    elemento.value = texto.toUpperCase();
+  }
+  //
+  //$(".tablavehicular").html('');
+
+
+
+  //edicion
+
+  function docutransit(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#newtransi").val('');
+    } else {
+      $("#newtransi").val(fic[fic.length - 1]);
+    }
+  }
+
+  function docusoat(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#newso").val('');
+    } else {
+      $("#newso").val(fic[fic.length - 1]);
+    }
+  }
+
+  function docuteno(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#newte").val('');
+    } else {
+      $("#newte").val(fic[fic.length - 1]);
+    }
+  }
+
+  function docufronta(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#newavf").val('');
+    } else {
+      $("#newavf").val(fic[fic.length - 1]);
+    }
+  }
+
+  function docuderec(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#newavd").val('');
+    } else {
+      $("#newavd").val(fic[fic.length - 1]);
+    }
+  }
+
+  function docuizqui(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#newavi").val('');
+    } else {
+      $("#newavi").val(fic[fic.length - 1]);
+    }
+  }
+
+  function docuatras(fic) {
+    fic = fic.split('\\');
+    if (fic == '' || fic == null) {
+      $("#newava").val('');
+    } else {
+      $("#newava").val(fic[fic.length - 1]);
+    }
+  }
+
+
+  //creacion
+  function vtransito(fic) {
+    var input = document.getElementById('foto_transi'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `
+            <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+                <div class="icon"><i class="fas fa-info"></i></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}
+                </div>
+            </div>`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 600);
+        document.getElementById("historicos").innerHTML = mensaje;
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_transi").val('');
+        } else {
+          $("#name_transi").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vtecno(fic) {
+    var input = document.getElementById('foto_tecno'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `
+            <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+                <div class="icon"><i class="fas fa-info"></i></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}
+                </div>
+            </div>`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 600);
+        document.getElementById("historicos").innerHTML = mensaje;
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_tecno").val('');
+        } else {
+          $("#name_tecno").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+
+  function vsoat(fic) {
+    var input = document.getElementById('foto_soat'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `
+            <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+                <div class="icon"><i class="fas fa-info"></i></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}
+                </div>
+            </div>`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 600);
+        document.getElementById("historicos").innerHTML = mensaje;
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_soat").val('');
+        } else {
+          $("#name_soat").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vfrente(fic) {
+    var input = document.getElementById('foto_vehiculo'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `
+            <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+                <div class="icon"><i class="fas fa-info"></i></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}
+                </div>
+            </div>`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 600);
+        document.getElementById("historicos").innerHTML = mensaje;
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_frontal").val('');
+        } else {
+          $("#name_frontal").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vderecha(fic) {
+    var input = document.getElementById('foto_vehiculod'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `
+            <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+                <div class="icon"><i class="fas fa-info"></i></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}
+                </div>
+            </div>`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 600);
+        document.getElementById("historicos").innerHTML = mensaje;
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_derecha").val('');
+        } else {
+          $("#name_derecha").val(fic[fic.length - 1]);
+        }
+      }
+    }
+
+  }
+
+  function vizquierda(fic) {
+    var input = document.getElementById('foto_vehiculoi'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `
+            <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+                <div class="icon"><i class="fas fa-info"></i></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}
+                </div>
+            </div>`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 600);
+        document.getElementById("historicos").innerHTML = mensaje;
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_izquierda").val('');
+        } else {
+          $("#name_izquierda").val(fic[fic.length - 1]);
+        }
+      }
+    }
+  }
+
+  function vatras(fic) {
+    var input = document.getElementById('foto_vehiculoa'); // Reemplaza 'tuInputFile' con el ID de tu input file
+    var archivo = input.files[0];
+    if (archivo) {
+      var nombreArchivo = archivo.name;
+      var extension = nombreArchivo.split(".").pop().toLowerCase();
+      var extensionesPermitidas = ["pdf", "jpg", "png", "webp"]; // Lista de extensiones permitidas
+      if (extensionesPermitidas.indexOf(extension) === -1) {
+        let mensaje = `
+            <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+                <div class="icon"><i class="fas fa-info"></i></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> Extensión de archivo no permitida. Por favor, selecciona un archivo con una de las siguientes extensiones: ${extensionesPermitidas.join(", ")}
+                </div>
+            </div>`;
+        $("#crea_vehiculos").animate({
+          scrollTop: 0
+        }, 600);
+        document.getElementById("historicos").innerHTML = mensaje;
+        input.value = ""; // Limpia el campo de entrada
+      } else {
+        fic = fic.split('\\');
+        if (fic == '' || fic == null) {
+          $("#name_atras").val('');
+        } else {
+          $("#name_atras").val(fic[fic.length - 1]);
+        }
+      }
+    }
+
+  }
+</script>

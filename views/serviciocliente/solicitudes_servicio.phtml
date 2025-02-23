@@ -1,0 +1,440 @@
+<div class="container mt-5">
+  <h2 class="mb-4">Datos del Cliente</h2>
+  <form>
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input type="text" class="form-control" id="nombre">
+      </div>
+      <div class="col-md-4">
+        <label for="ubicacion" class="form-label">Ubicación</label>
+        <input type="text" class="form-control" id="ubicacion">
+      </div>
+      <div class="col-md-4">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <input type="text" class="form-control" id="telefono">
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="correo" class="form-label">Correo</label>
+        <input type="email" class="form-control" id="correo">
+      </div>
+      <div class="col-md-4">
+        <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+        <select class="form-select" id="tipoDocumento">
+          <option selected>Seleccione...</option>
+          <option value="1">Cédula</option>
+          <option value="2">Pasaporte</option>
+          <option value="3">Otro</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="ordenCotizacion" class="form-label">Orden de Cotización</label>
+        <input type="text" class="form-control" id="ordenCotizacion">
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="nivel" class="form-label">Ociso 1. Nivel</label>
+        <input type="text" class="form-control" id="nivel">
+      </div>
+      <div class="col-md-4">
+        <label for="fechaVerdad" class="form-label">Fecha Verdad</label>
+        <input type="date" class="form-control" id="fechaVerdad">
+      </div>
+      <div class="col-md-4">
+        <label for="pertenencia" class="form-label">Pertenencia/Como 2%</label>
+        <input type="text" class="form-control" id="pertenencia">
+      </div>
+    </div>
+
+    <h2 class="mt-5 mb-4">Servicios Especiales</h2>
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label for="tipoServicio" class="form-label">Tipo Servicio</label>
+        <select class="form-select" id="tipoServicio">
+          <option selected>Seleccione una opción</option>
+          <option value="1">Opción 1</option>
+          <option value="2">Opción 2</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="cantidad" class="form-label">Cantidad</label>
+        <input type="number" class="form-control" id="cantidad">
+      </div>
+      <div class="col-md-2">
+        <label for="costoUnitario" class="form-label">Costo Unitario</label>
+        <input type="text" class="form-control" id="costoUnitario">
+      </div>
+      <div class="col-md-2">
+        <label for="tarifaUnitaria" class="form-label">Tarifa Unitaria</label>
+        <input type="text" class="form-control" id="tarifaUnitaria">
+      </div>
+      <div class="col-md-2">
+        <label for="utilidad" class="form-label">Utilidad</label>
+        <input type="text" class="form-control" id="utilidad">
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label for="calculoCosto" class="form-label">Calculo Costo</label>
+        <input type="text" class="form-control" id="calculoCosto">
+      </div>
+      <div class="col-md-3">
+        <label for="calculoTarifa" class="form-label">Calculo Tarifa</label>
+        <input type="text" class="form-control" id="calculoTarifa">
+      </div>
+      <div class="col-md-3">
+        <label for="costoRentabilidad" class="form-label">Costo Rentabilidad%</label>
+        <input type="text" class="form-control" id="costoRentabilidad">
+      </div>
+    </div>
+
+    <h2 class="mt-5 mb-4">Costo del Servicio</h2>
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label for="valorFlete" class="form-label">Valor Total Costo Flete</label>
+        <input type="text" class="form-control" id="valorFlete">
+      </div>
+      <div class="col-md-3">
+        <label for="valorTarifa" class="form-label">Valor Total Tarifa Venta</label>
+        <input type="text" class="form-control" id="valorTarifa">
+      </div>
+      <div class="col-md-3">
+        <label for="rentabilidad" class="form-label">Valor Total Rentabilidad %</label>
+        <input type="text" class="form-control" id="rentabilidad">
+      </div>
+      <div class="col-md-3">
+        <label for="utilidadTotal" class="form-label">Valor Total Utilidad</label>
+        <input type="text" class="form-control" id="utilidadTotal">
+      </div>
+    </div>
+
+    <h2 class="mt-5 mb-4">Servicios Especiales</h2>
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label for="valorCosto" class="form-label">Valor Total Costo</label>
+        <input type="text" class="form-control" id="valorCosto">
+      </div>
+      <div class="col-md-3">
+        <label for="valorTarifaEspecial" class="form-label">Valor Total Tarifa</label>
+        <input type="text" class="form-control" id="valorTarifaEspecial">
+      </div>
+      <div class="col-md-3">
+        <label for="rentabilidadEspecial" class="form-label">Valor Total Rentabilidad %</label>
+        <input type="text" class="form-control" id="rentabilidadEspecial">
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="valorCotizacion" class="form-label">Valor Total Cotización</label>
+        <input type="text" class="form-control" id="valorCotizacion" value="0,00" readonly>
+      </div>
+      <div class="col-md-6">
+        <label for="datosAdicionales" class="form-label">Datos Adicionales</label>
+        <textarea class="form-control" id="datosAdicionales" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="elaboradoPor" class="form-label">Elaborado por</label>
+        <input type="text" class="form-control" id="elaboradoPor" value="Lucas" readonly>
+      </div>
+      <div class="col-md-6">
+        <label for="autorizadoPor" class="form-label">Autorizado por</label>
+        <input type="text" class="form-control" id="autorizadoPor">
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enviar Cotización</button>
+  </form>
+</div>
+
+
+<div class="col-12 col-sm-6 col-xl-4">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Hora Envio email</h5><a class="fw-bold fs-9" href="#!">Add new
+        category</a>
+    </div>
+    <select class="form-select mb-3 select2" aria-label="category" style="width:100%;" id="houremail" name"houremail[]"
+      multiple="multiple"></select>
+  </div>
+</div>
+
+<div class="col-12 col-sm-6 col-xl-4">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Grupo&nbsp;<span style="color:red;"><i>(*)</i></h5><a
+        class="fw-bold fs-9" href="#!">Add new
+        category</a>
+    </div>
+    <select class="form-select mb-3 select2" aria-label="category" style="width:100%;" id="group" name="group[]"
+      multiple="multiple"></select>
+  </div>
+</div>
+<div class="col-12 col-sm-6 col-xl-12">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Observaciones</h5>
+    </div>
+    <textarea type="text" id="observacion" min="0" class="form-control input-sm"></textarea>
+  </div>
+</div>
+
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 border-5 border-top">
+  <span style="font-weight:500; margin-top:20px;"><strong>Datos de Contenedor</strong></span>
+  <span class="cell-detail-description" style="font-size:10px;"> (El registro de contenedor se activa cuando
+    el tipo de carga es Contenedor Cargado o Contenedor Vacío).</span>
+</div>
+
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Devuelve Contenedor</h5>
+    </div>
+    <select id="cnt_opcion" class="form-control form-control-sm">
+      <option value="">Elija</option>
+      <option value="1">Si</option>
+      <option value="0">No</option>
+    </select>
+  </div>
+</div>
+
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Tipo Contenedor</h5>
+    </div>
+    <select id="cnt_tipocon" class="form-control form-control-sm"></select>
+  </div>
+</div>
+
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Núm. contenedor</h5>
+    </div>
+    <input type="text" id="cnt_num" class="form-control form-control-sm" min="0" placeholder="# Contenedor">
+  </div>
+</div>
+
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Fecha de vencimiento</h5>
+    </div>
+    <input type="date" id="cnt_dias" class="form-control form-control-sm">
+  </div>
+</div>
+
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Mun devolución</h5>
+    </div>
+    <select id="cnt_municipio" class="form-select form-select-sm" disabled>
+      <option value=''>Seleccione</option>
+    </select>
+  </div>
+</div>
+
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Dirección devolución</h5>
+    </div>
+    <input type="text" id="cnt_direccion" class="form-control input-sm">
+  </div>
+</div>
+
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Fecha comodato</h5>
+    </div>
+    <input type="date" id="cnt_fcomodato" class="form-control input-sm">
+  </div>
+</div>
+
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+  <div class="mb-4">
+    <div class="d-flex flex-wrap mb-2">
+      <h5 class="mb-0 text-body-highlight me-2">Peso Vacío (Kg)</h5>
+    </div>
+    <input type="numer" id="cnt_peso" class="form-control input-sm" placeholder="sin puntos">
+  </div>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <input type="hidden" class="form-control input-xs" id="tip_transport">
+</div>
+
+<!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+  <hr>
+
+</div> -->
+
+
+
+<div class="row">
+  <div class="col-12 col-sm-6 col-xl-4">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Agencia&nbsp;<span style="color:red;"><i>(*)</i></h5>
+      </div>
+      <select id="agencia" class="form-select form-select-sm mb-3">
+        <option value="">Seleccione</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-4">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Grupo&nbsp;<span style="color:red;"><i>(*)</i></h5><a
+          class="fw-bold fs-9" href="#!">Add new
+          category</a>
+      </div>
+      <select class="form-select form-select-sm mb-3 select2" aria-label="category" style="width:100%;" id="group"
+        name="group[]" multiple="multiple"></select>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-4">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Hora Envio email</h5><a class="fw-bold fs-9" href="#!">Add new
+          category</a>
+      </div>
+      <select class="form-select form-select-sm mb-3 select2" aria-label="category" style="width:100%;" id="houremail"
+        name"houremail[]" multiple="multiple"></select>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-12">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Observaciones</h5>
+      </div>
+      <textarea type="text" id="observacion" min="0" class="form-control input-sm"></textarea>
+    </div>
+  </div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 border-1 border-top">
+    <span style="font-weight:500; margin-top:20px;"><strong>Datos de Contenedor</strong></span>
+    <span class="cell-detail-description" style="font-size:10px;"> (El registro de contenedor se activa cuando
+      el tipo de carga es Contenedor Cargado o Contenedor Vacío).</span>
+  </div>
+
+  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Devuelve Contenedor</h5>
+      </div>
+      <select id="cnt_opcion" class="form-control form-control-sm">
+        <option value="">Elija</option>
+        <option value="1">Si</option>
+        <option value="0">No</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Tipo Contenedor</h5>
+      </div>
+      <select id="cnt_tipocon" class="form-control form-control-sm"></select>
+    </div>
+  </div>
+
+  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Núm. contenedor</h5>
+      </div>
+      <input type="text" id="cnt_num" class="form-control form-control-sm" min="0" placeholder="# Contenedor">
+    </div>
+  </div>
+
+  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Fecha de vencimiento</h5>
+      </div>
+      <input type="date" id="cnt_dias" class="form-control form-control-sm">
+    </div>
+  </div>
+
+  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Mun devolución</h5>
+      </div>
+      <select id="cnt_municipio" class="form-select form-select-sm" disabled>
+        <option value="">Seleccione</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Dirección devolución</h5>
+      </div>
+      <input type="text" id="cnt_direccion" class="form-control input-sm">
+    </div>
+  </div>
+
+  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Fecha comodato</h5>
+      </div>
+      <input type="date" id="cnt_fcomodato" class="form-control input-sm">
+    </div>
+  </div>
+
+  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div class="mb-4">
+      <div class="d-flex flex-wrap mb-2">
+        <h5 class="mb-0 text-body-highlight me-2">Peso Vacío (Kg)</h5>
+      </div>
+      <input type="numer" id="cnt_peso" class="form-control input-sm" placeholder="sin puntos">
+    </div>
+  </div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <input type="hidden" class="form-control input-xs" id="tip_transport">
+  </div>
+
+</div>
+
+
+
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+  <h2>Datos de Remitentes</h2>
+</div>
+
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
+  <input type="number" id="maximo_entregab" class="form-control form-control-sm text-center" style="text-align:center;">
+</div>
+
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+  <button class="btn btn-primary btn-sm me-1 mb-1" data-toggle="tooltip" data-placement="top" title="Agregar punto"
+    id="agregar_fila_entrega2" style="text-align:center;">
+    <span class="text-danger" data-feather="plus-circle"></span>
+  </button>
+</div>
+
+<div>
+  <input type="hidden" id="cabw" value="1">
+  <input type="hidden" id="pun" value="2">
+</div>

@@ -1,0 +1,288 @@
+<?php
+if (isset($_SESSION['usuario']['id_usuario'])) {
+
+   // echo '<script>window.location="' . BASE_URL . 'index/index1";</script>';
+     echo '<script>window.location="' . BASE_URL . 'index/lanzador";</script>';
+}//valida si el usuario esta logueado, y si no entra aquí y si , sí esta logueado entra a dashboard 
+
+//se crean las variables a usar
+
+$vista = '';
+//
+/**** Vista de indicadores rapidos ****/
+$vista .= '';
+$url = BASE_URL . 'libs/myajax.php';//variable esta en config y es para la ruta de archivos 
+//se maqueta eldiseño del formulario 
+$vista .= '
+
+<input type="hidden" id="id_url_ajax" value="'.BASE_URL.'">
+
+<div class="container-fluid" style="height:100%">
+		<div class = "row">
+    			<div class="col-lg-9" style="height:100vh;background-color:white;margin:0;padding:0" >
+        		   <div id="myCarousel" class="carousel slide" data-ride="carousel">
+        		      <!-- Indicators -->
+					  <ol class="carousel-indicators">
+					    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+					    <li data-target="#myCarousel" data-slide-to="1"></li>
+					    <li data-target="#myCarousel" data-slide-to="2"></li>
+					    <li data-target="#myCarousel" data-slide-to="3"></li>
+					  </ol>
+
+					  <!-- Wrapper for slides -->
+					  <div class="carousel-inner">
+						    <div class="item active">
+						      <div class="carousel-caption d-none d-md-block" style="background-color:black;opacity:0.6">
+							    <h1 style="font-weight: 500; color:#fafafa">Nexos Group App</h1>
+							    <h4 style="font-weight: 400; color:#fafafa">Compañia de Transporte - Logística - Almacenamiento</h4>
+							 </div>
+						     <img src="' . BASE_URL . 'views\layout\assets\img\logis14.jpg" style="height:100vh; width:100vw">
+						   
+						    </div>
+
+						    <div class="item">
+						      <img src="' . BASE_URL . 'views\layout\assets\img\logis18.jpg" style="height:100vh; width:100vw">
+
+							     <div class="carousel-caption d-none d-md-block" style="background-color:black;opacity:0.6">
+								    <h2 style="font-weight: 500; color:#fafafa">Transporte Internacional Multimodal</h2>
+								    <h4 style="font-weight: 500; color:#fafafa">Servicios Integrales Origen - Destino </h4>
+								 </div>
+						    </div>
+
+						    <div class="item">
+						      <img src="' . BASE_URL . 'views\layout\assets\img\logis15.jpg" style="height:100vh; width:100vw">
+						       <div class="carousel-caption d-none d-md-block" style="background-color:black;opacity:0.6">
+								    <h2 style="font-weight: 500; color:#fafafa">Seguridad - Control de Tráfico</h2>
+								    <h4 style="font-weight: 500; color:#fafafa">Herramientas Tecnologicas Centralizadas</h4>
+								 </div>
+						    </div>
+						    <div class="item">
+						      <img src="' . BASE_URL . 'views\layout\assets\img\logis16.jpg" style="height:100vh; width:100vw">
+						       <div class="carousel-caption d-none d-md-block" style="background-color:black;opacity:0.6"> 
+								    <h2 style="font-weight: 500; color:white">Almacenamiento - Logística</h2>
+								    <h4 style="font-weight: 500; color:white">Centros de Distribución - Entrega</h4>
+								 </div>
+						    </div>
+					   </div>
+
+						  <!-- Left and right controls -->
+						  <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+						    <span class="glyphicon glyphicon-chevron-left"></span>
+						    <span class="sr-only">Previous</span>
+						  </a>
+						  <a class="right carousel-control" href="#myCarousel" data-slide="next">
+						    <span class="glyphicon glyphicon-chevron-right"></span>
+						    <span class="sr-only">Next</span>
+						  </a>
+					</div>
+		   		</div>
+    	<div class="col-lg-3" style="height: 100vh;background-color:#eceff1;margin:0; border-left:1px yellow solid;padding:0">
+
+    		<div class="panel panel-default" style="height:100vh;margin:0px;border:0;background-color:#cfd8dc">
+				<div class="panel-heading text-center style="margin-top:50px">
+				   <br>
+				   <span><img src="' . BASE_URL . 'views\layout\assets\img\logo.png" alt="logo" style="width: 43%" class="logo-img"></span>
+				</div>
+				<hr style="width:70%;background-color:#263238;height:2px">
+				<div class="panel-body" id="panel-login">
+					<span class="splash-description"><h4 style="font-weight:600;font-size:12pt">Inicia sesión en NexosApp.</h4></span>
+					<div class="nexos-messages" id="incorrectos"></div>
+					<form id="form-login" method="post">
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<label>Usuario:</label>
+							<input type="text" placeholder="Numero de documento" id="user_log" name="user_log" class="form-control input-sm">
+							<label id="error_user_log"></label>
+						</div>
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<label>Contraseña:</label>
+							<input type="password" placeholder="Contraseña" id="pass" name="pass" class="form-control input-sm">
+							<label id="error_pass"></label>
+						</div>
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<a href="javascript:" id="recuperar_clave" >¿Olvidaste tu Contraseña?</a>
+							<p class="text-right"><button id="btn-login" class="btn btn btn-success"  ">Login</button></p>
+						</div>
+					</form>
+				</div>
+				<div class="panel-body" id="panel-recuperar" style="display:none">
+					<span class="splash-description"><h4>¿Olvidaste tu Contraseña?</h4></span>
+					<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+						<div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
+						<div class="message">
+							<strong>Atencón!</strong>
+							<p>Por favor diligencia el email registrado en el sistema, recibirás un correo electrónico con un código de verificación para que puedas restablecer la contraseña.</p>
+						</div>
+					</div>
+					<div class="nexos-messages" id="info_correos"></div>
+					<form  id="form-recuperar">
+						<div class="form-group col-xs-12 col-sm-12 col-md-12">
+							<label>Ingrese el correo electrónico registrado en el sistema</label>
+							<input type="email" placeholder="Correo electrónico" id="correo" class="form-control input-sm">
+							<label id="error_correo"></label>
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 text-left">
+							<input type="button" id ="btn_atras" class="btn btn-space btn" style="font-size:15px;" value="Atras">
+						</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 text-right">
+							<button id ="btn_recuperar" class="btn text-right btn-space btn-success" style="font-size:15px;">Enviar</button>
+						</div>
+					</form>
+				</div>
+			</div>
+        </div> 
+ 	</div>
+</div>
+   
+
+
+
+';
+
+/***** CARGA DE ARCHIVOS JS DE LA VISTA  para hacer funcional los menus y demás elementos *****/
+$vista .= '
+	<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	<script src="%root_file%js/main.js" type="text/javascript"></script>
+	<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>            
+	<script type="text/javascript">
+		$(document).ready(function(){
+			//initialize the javascript
+			App.init();
+		});
+';
+// scripts para dar diferentes funcionalidades al formulario y ajax, se envia al myajax 
+$vista .= ' 
+$(function(){
+	$("#recuperar_clave").click(function(){
+		$("#panel-recuperar").css("display", "block");
+		$("#panel-login").css("display", "none");
+		removerClaseserror("#error_user_log", "#user_log");
+		removerClaseserror("#error_pass", "#pass");
+		removerClaseserror("#error_correo", "#correo");
+	});
+
+	$("#btn_atras").click(function(){
+		$("#panel-recuperar").css("display", "none");
+		$("#panel-login").css("display", "block");
+		removerClaseserror("#error_user_log", "#user_log");
+		removerClaseserror("#error_pass", "#pass");
+		removerClaseserror("#error_correo", "#correo");
+		return false;
+	});
+	
+	$("#user_log").focusin(function (){
+		removerClaseserror("#error_user_log", "#user_log");
+	});
+	$("#user_log").focus(function (){
+		$("#user_log").keypress(function() {
+			validarkeypress("#error_user_log", "#user_log");
+		});
+	});
+
+	$("#pass").focus(function (){
+		$("#pass").keypress(function() {
+			validarkeypress("#error_pass", "#pass");
+		}); 
+	});
+
+	$("#correo").focus(function (){
+		$("#correo").keypress(function() {
+			validarkeypress("#error_correo", "#correo");
+		});
+	});
+	$("#pass").focusin(function (){
+		removerClaseserror("#error_pass", "#pass");
+	});
+
+	$("#correo").focusin(function (){
+		removerClaseserror("#error_correo", "#correo");
+	});
+
+	$("#btn_recuperar").click(function(){
+		correo = $("#correo").val();
+		valid_correo = validaciones("email", correo, "Correo");
+		if (valid_correo != true){
+			agregarClaseserror("#error_correo", "#correo", valid_correo);
+		}
+		else{
+			removerClaseserror("#error_correo", "#correo");
+			// $.ajaxSetup({async: false});
+			$.ajax({
+				type:       "POST", //TIPO DE PETICION PUEDE SER GET
+				dataType:   "json", //EL TIPO DE DATO QUE DEVUELVE PUEDE SER JSON/TEXT/HTML/XML
+				url:        "' . $url . '", //DIRECCION DONDE SE ENCUENTRA LA OPERACION A REALIZAR
+				data:{      
+					email : correo, 
+					Op : "recuperar"
+				}, //DATOS ENVIADOS PUEDE SER TEXT A TRAVEZ DE LA URL O PUEDE SER UN OBJETO
+				beforeSend: function(){//ACCION QUE SUCEDE ANTES DE HACER EL SUBMIT
+					$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="\' + $("#id_url_ajax").val() + \'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+				},
+				success: function(response){
+					$(".nexos-messages").empty();
+					if (response.respuesta == "GOOD"){//MANDAMOS EL MENSAJE QUE NOS DEVUELVE EL RESPONSE
+						$("#info_correos").html(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Atención:</strong> <p>Se ha enviado un código de recuperación a tu bandeja de correo.</p></div></div>\');
+						setTimeout(function(){ window.location.href = response.contenido; }, 3000);
+					} else {
+						$("#info_correos").html(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong></strong> Este correo no se encuentra registrado en la lista de usuarios o no se encuentra activo.</div></div>\');
+					}
+				},
+				error: function(){//SI OCURRE UN ERROR 
+					// alert("El servicio no esta disponible intentelo mas tarde"); //MENSAJE EN CASO DE ERROR
+				}
+			});
+			// $.ajaxSetup({async: true});
+		}
+		return false;
+	});
+
+	$("#btn-login").click(function(){
+		user_log = $("#user_log").val();
+		pass = $("#pass").val();
+		valid_user_log = validaciones("alfanumericos", user_log, "Numero de documento");
+		valid_pass = validaciones("password", pass, "contraseña");
+		if (valid_user_log != true || valid_pass != true){
+			if (valid_user_log != true){
+				agregarClaseserror("#error_user_log", "#user_log", valid_user_log);
+			}
+			if (valid_pass != true){
+				agregarClaseserror("#error_pass", "#pass", valid_pass);
+			}
+		} else {
+			removerClaseserror("#error_user_log", "#user_log");
+			removerClaseserror("#error_pass", "#pass");
+			$.ajax({
+				type:       "POST", //TIPO DE PETICION PUEDE SER GET
+				dataType:   "json", //EL TIPO DE DATO QUE DEVUELVE PUEDE SER JSON/TEXT/HTML/XML
+				url:        "' . $url . '", //DIRECCION DONDE SE ENCUENTRA LA OPERACION A REALIZAR
+				data:{		user_log:user_log,
+							pass:pass,
+							Op:"login"
+				}, //DATOS ENVIADOS PUEDE SER TEXT A TRAVEZ DE LA URL O PUEDE SER UN OBJETO
+				beforeSend: function(){//ACCION QUE SUCEDE ANTES DE HACER EL SUBMIT
+					$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="\' + $("#id_url_ajax").val() + \'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+				},
+				success: function(response){//ACCION QUE SUCEDE DESPUES DE REALIZAR CORRECTAMENTE LA PETCION EL CUAL NOS TRAE UNA RESPUESTA
+					$(".nexos-messages").empty();
+					if (response.respuesta == "GOOD"){//MANDAMOS EL MENSAJE QUE NOS DEVUELVE EL RESPONSE
+						window.location = "' . BASE_URL . 'index/lanzador";
+					} else{
+						$("#incorrectos").html(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error de autenticacion!</strong> <p>Usuario y/o contraseña incorrectos o la contraseña actual ya ha superado la vigencia de <strong>' . VIGENCIA_CLAVES . '</strong> días.</p><p>Puedes reestablecer la contraseña haciendo click en el link "<strong>¿Olvidaste tu Contraseña?</strong>".</p></div></div>\');
+						}
+					},
+					error: function(){//SI OCURRE UN ERROR 
+						//alert("El servicio no esta disponible intentelo mas tarde"); //MENSAJE EN CASO DE ERROR
+					}
+				});
+			}
+			return false;
+		});
+	});
+';
+$vista .= '</script>';
+
+/***** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  *****/
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+
+echo $vista;
+?>

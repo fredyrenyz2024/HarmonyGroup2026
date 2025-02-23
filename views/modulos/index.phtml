@@ -1,0 +1,465 @@
+<?php
+	// se definen las variables de session de usuario
+	$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+	$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+	$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+	//se rean las variables a usar
+	$vista = '';
+	$table_content = "";
+	//si trae modelo modulos
+	if( isset($this->modulos) ){
+		// Se verifican los permisos del pefil de usuario
+		$arrayPermisos = $this->modulos->permisosPerfil( $ssn_id_perfil , 76);
+		$_permisos = $arrayPermisos["rowsData"][0];
+		// print_r("<pre>");
+		// print_r($_permisos);
+		// print_r("</pre>");
+		//guarda los resultados de la consulta de toda la tabla  en una variable
+		$arraymodulos = $this->modulos->getTabla();
+		// print_r("<pre>");
+		// print_r($arraymodulos);
+		// print_r("</pre>");
+		//se maqueta la tabla
+		$table_content ='
+			<div class="table-responsive noSwipe col-xs-12 col-sm-12 col-md-12">
+				<table id="table1" class="table table-striped table-hover table-fw-widget" data-page-length="50">
+					<thead>
+						<tr class="nexos-encabezado">
+							<th class="col-xs-1 col-sm-1 col-md-1"></th>
+							<th>Módulo</th>
+							<th class="col-xs-1 col-sm-1 col-md-1"></th>
+						</tr>
+					</thead>
+						<tbody>
+		';
+		//si la consulta del modelo gettabla trae datos 
+		if ( $arraymodulos["rowsData"] ) {
+			foreach ($arraymodulos["rowsData"] as $key => $value) {
+				// Se filtra la vista según el  estado 
+				$btn_cambiar_estado = '';
+				switch ($value["estado"]) {
+					//si el modulo esta activo puede inactivarlo.
+					case 'Activo':
+						$_col_status = '
+							<td class="nexos-txt-success">
+								<center>
+									<div style="display: none;">' . $value["estado"] . '</div>
+									<span class="icon mdi mdi-dot-circle"></span>
+								</center>
+							</td>
+						';
+						//si tiene elpermiso de eliminar actualiza el estado 
+						if ($_permisos["eliminar"]) {
+							$btn_cambiar_estado = '
+								<a href="javascript:" onclick="formCambiarEstado(' . $value[0] . ', \'Inactivo\')" class="cell-detail hint--top-left" data-hint="Inactivar Módulo">
+									<span class="icon mdi mdi-close-circle" data-toggle="modal" data-target="#cambia_estado"></span>
+								</a>';
+						}
+						break;
+						//si el módulo esta inactivo se puede activar 
+						//icono
+					case 'Inactivo':
+						$_col_status = '
+							<td class="nexos-txt-danger">
+								<center>
+									<div style="display: none;">' . $value["estado"] . '</div>
+									<span class="icon mdi mdi-dot-circle"></span>
+								</center>
+							</td>
+						';
+						//activar el módulo 
+						if ($_permisos["eliminar"]) {
+							$btn_cambiar_estado = '
+								<a href="javascript:" onclick="formCambiarEstado(' . $value[0] . ', \'Activo\')" class="cell-detail hint--top-left" data-hint="Activar Módulo">
+									<span class="icon mdi mdi-check-circle" data-toggle="modal" data-target="#cambia_estado"></span>
+								</a>';
+						}
+						break;
+
+					default:
+						$_col_status = '
+							<td class="actions-nexos">
+								<center>
+									<div style="display: none;">' . $value["estado"] . '</div>
+									<span class="icon mdi mdi-dot-circle"></span>
+								</center>
+							</td>
+						';
+						$btn_cambiar_estado = '';
+						break;
+				}
+
+				// Se valida si el usuario tiene permisos para editar el módulo
+				$btn_editar = '';
+				if ($_permisos["editar"]) {
+					$btn_editar = '
+						<a href="javascript:" onclick="formEditar(' . $value[0] . ',\'' . $value["nombre"] . '\', \'' . $value["descripcion"] . '\')" class="cell-detail hint--top-left" data-hint="Registrar Documentos">
+							<span class="icon mdi mdi-edit" data-toggle="modal" data-target="#editar"></span>
+						</a>';
+				}
+				//se realiza lo datos y botones que va a contener la tabla
+				$table_content.='
+					<tr>
+						' . $_col_status . '
+						<td class="cell-detail">
+							<span>' . $value["nombre"] . '</span>
+							<span class="cell-detail-description">' . $value["descripcion"] . '</span>
+						</td>
+						<td class="actions">
+							' . $btn_editar . '
+							' . $btn_cambiar_estado . '
+						</td>
+					</tr>
+				';
+			}
+		}
+
+		$table_content.='
+					</tbody>
+				</table>
+			</div>
+		';
+	}
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$btn_crear = '';
+	//si el usuario tiene permisos para adicionar un modulo se crea el boton
+	if ($_permisos["adicionar"]) {
+		$btn_crear = '<a href="#" data-toggle="modal" data-target="#crear" class="cell-detail crear hint--top-left" data-hint="Agregar"><span class="icon mdi mdi-plus"></span></a>';
+	}
+
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Administrar Módulos
+				<div class="tools">
+					' . $btn_crear . '
+				</div>
+				<span class="panel-subtitle">Listado de los módulos diponibles de Nexos Group.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+			</div>
+		</div>
+
+		<!-- Popup para crear el módulo -->
+		<div id="crear" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title">Crear Módulo</h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_crear"></div>
+						<div class="form-group col-xs-12">
+							<label>Nombre:</label>
+							<input type="text" name="nombre" id="nombre" placeholder="Nombre del Módulo" class="form-control input-sm requerido">
+						</div>
+						<div class="form-group col-xs-12">
+							<label>Descripción:</label>
+							<textarea name="descripcion" id="descripcion" placeholder="Descripción" class="form-control input-sm requerido"></textarea>
+						</div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						<button id="btn_crear" type="button" class="btn btn-success md-close">Guardar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Popup para editar el módulo -->
+		<div id="editar" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+			<div class="modal-dialog custom-width">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+						<h3 class="modal-title" id="editar_title"></h3>
+					</div>
+					<div class="modal-body">
+						<div id="nexos_messages_editar"></div>
+						<input type="hidden" id="id_editar">
+						<div id="editar_content"></div>
+						<div class="row"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+						<button id="btn_editar" type="button" class="btn btn-success md-close">Guardar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Popup para cambiar el estado el módulo -->
+		<div id="cambia_estado" tabindex="-1" role="dialog" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" data-dismiss="modal" aria-hidden="true" class="close"><span class="mdi mdi-close"></span></button>
+					</div>
+					<div class="modal-body">
+						<div id="msg_error_cambia_estado"></div>
+						<div class="text-center">
+							<form id="form_cambiar_estado"></form>
+						</div>
+					</div>
+					<div class="modal-footer"></div>
+				</div>
+			</div>
+		</div>
+	';
+
+	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/main.js" type="text/javascript"></script>
+		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+			});
+		</script>
+	';
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $table_content , $vista);
+
+	echo $vista;
+?>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#btn_crear").click(function(){
+			$("#nexos_messages_crear").empty();
+			let msg_error = '';
+
+			// Se valida el contenido del formulario
+			let campos = $(this).parents("#crear").find(".requerido");
+			campos.each(function(){
+				if (!$(this).val()) {
+					msg_error+= `<p>Debe diligenciar el campo <strong>${$(this).attr("placeholder")}</strong> para poder crear el módulo</p>`;
+				}
+			});
+
+			$.ajaxSetup({async: false});
+			if (!msg_error) {
+				var params = {
+					action: "crear_modulo",
+					nombre: $("#nombre").val(),
+					descripcion: $("#descripcion").val()
+				};
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").empty();
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").empty();
+						// console.log(data);
+						if (data.error) { msg_error+= data.error; }
+					}
+				});
+			}
+			if (!msg_error) {
+				funct_msg_success("#nexos_messages_crear");
+				$("#crear").animate({ scrollTop: 0 }, 600);
+				setTimeout(function() { location.reload(false); }, 800);
+			}
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_crear", msg_error); 
+				$("#crear").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+
+		$("#btn_editar").click(function(){
+			$("#nexos_messages_editar").empty();
+			let msg_error = '';
+
+			// Se valida el contenido del formulario
+			let campos = $(this).parents(".modal-content").find(".requerido");
+			campos.each(function(){
+				if (!$(this).val()) {
+					msg_error+= `<p>Debe diligenciar el campo <strong>${$(this).attr("placeholder")}</strong> para poder editar el módulo</p>`;
+				}
+			});
+
+			$.ajaxSetup({async: false});
+			if (!msg_error) {
+				var params = {
+					action: "editar_modulo",
+					id: $("#id_editar").val(),
+					nombre: $("#e_nombre").val(),
+					descripcion: $("#e_descripcion").val()
+				};
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").empty();
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").empty();
+						// console.log(data);
+						if (data.error) { msg_error+= data.error; }
+					}
+				});
+			}
+			if (!msg_error) {
+				funct_msg_success("#nexos_messages_editar", `<p>Se ha editado el registro con éxito</p>`);
+				$("#editar").animate({ scrollTop: 0 }, 600);
+				setTimeout(function() { location.reload(false); }, 800);
+			}
+			if (msg_error) {
+				funct_msg_error("#nexos_messages_editar", msg_error); 
+				$("#editar").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+	});
+
+	function formEditar(id, nombre, descripcion){
+		if (id != $("#id_editar").val() ) {
+			$("#id_editar").val(id);
+			$("#nexos_messages_editar").empty();
+			$("#editar_content").empty();
+
+			$("#editar_title").text(`Editar Módulo - ${nombre}`);
+
+			$("#editar_content").html(`
+				<div class="form-group col-xs-12">
+					<label>Nombre:</label>
+					<input type="text" name="nombre" id="e_nombre" placeholder="Nombre del Módulo" class="form-control input-sm requerido" value="${nombre}">
+				</div>
+				<div class="form-group col-xs-12">
+					<label>Descripción:</label>
+					<textarea name="descripcion" id="e_descripcion" placeholder="Descripción" class="form-control input-sm requerido">${descripcion}</textarea>
+				</div>
+			`);
+		}
+	}
+	//
+	function formCambiarEstado(id, estado){
+		let form_cambiar_estado = '';
+		switch(estado){
+			case 'Activo':
+				form_cambiar_estado+= `
+					<div class="text-success"><span class="modal-main-icon mdi mdi-check-circle"></span></div>
+					<h3>Alerta!</h3>
+					<p>Realmente desea habilitar este elemento?</p>
+					<div class="xs-mt-50">
+						<button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+						<button id="btn_cambiar_estado" type="button" class="btn btn-space btn-success btn_cambiar_estado" data-id="${id}" data-estado="${estado}">Activar</button>
+					</div>
+				`;
+				break;
+
+			case 'Inactivo':
+				form_cambiar_estado+= `
+					<div class="text-danger"><span class="modal-main-icon mdi mdi-close-circle"></span></div>
+					<h3>Alerta!</h3>
+					<p>Realmente desea eliminar este elemento?</p>
+					<div class="xs-mt-50">
+						<button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
+						<button id="btn_cambiar_estado" type="button" class="btn btn-space btn-danger btn_cambiar_estado" data-id="${id}" data-estado="${estado}">Inactivar</button>
+					</div>
+				`;
+				break;
+		}
+		$("#form_cambiar_estado").html(form_cambiar_estado);
+
+		$(".btn_cambiar_estado").click(function(){
+			$("#msg_error_cambia_estado").empty();
+			let msg_error = '';
+
+			$.ajaxSetup({async: false});
+			if (!msg_error) {
+				var params = {
+					action: "cambiar_estado_modulo",
+					id: $(this).data("id"),
+					estado: $(this).data("estado"),
+				};
+				$.ajax({
+					url: $("#id_url_ajax").val() + "libs/modulos_ajax.php",
+					type: 'POST',
+					data: params,
+					cache: false,
+					dataType: 'json',
+					beforeSend	: function(jqXHR, settings){
+						funct_msg_loading(".nexos-messages");
+					},
+					error: function (jqXHR, textStatus, errorThrown){
+						$(".nexos-messages").empty();
+						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+					success: function (data, textStatus, jqXHR){
+						$(".nexos-messages").empty();
+						// console.log(data);
+						if (data.error) { msg_error+= data.error; }
+					}
+				});
+			}
+			if (!msg_error) {
+				funct_msg_success("#msg_error_cambia_estado", `<p>Se ha editado el registro con éxito</p>`);
+				$("#cambia_estado").animate({ scrollTop: 0 }, 600);
+				setTimeout(function() { location.reload(false); }, 800);
+			}
+			if (msg_error) {
+				funct_msg_error("#msg_error_cambia_estado", msg_error); 
+				$("#cambia_estado").animate({ scrollTop: 0 }, 600);
+			}
+			$.ajaxSetup({async: true});
+		});
+	}
+
+</script>

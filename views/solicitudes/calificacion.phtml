@@ -1,0 +1,359 @@
+<?php
+//include "../models/Solicitudes.php";
+	$_dbTable = "solicitudes"; // SIN EL PREFIJO cmx_
+	$_jsScripts = "";
+
+	$vista = '';
+
+	/********* POPUPS *********/
+	/***** SE INTANCIAN LOS POPUPS DEL MODULO *****/
+  	// POPUP DE MUESTRA DE INFORMACION
+	$info = new Popup();
+	// POPUP DE ALERTA DE CONFIRMACION
+	$alert = new Popup();
+	// POPUP DE FORMULARIO DE EDICION 
+	$form_edita = new Popup();
+	// POPUP DE FORMULARIO DE CREACION 
+	$form_crea = new Popup();
+
+	$vista.='		<link rel="stylesheet" type="text/css" href="%root_file%lib/datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+	<style>
+		.twitter-typeahead{
+			width: 100%;
+		}
+		.tt-menu {
+			background: white;
+			border-radius: 4px;
+			border: 1px solid gray;
+			width: 100%;
+			max-height: 100px;
+			overflow-y: auto;
+			width: 100%;
+			text-align: left;
+		}
+		.tt-suggestion{
+			padding:5px 10px;
+		}
+		.tt-suggestion.tt-cursor{
+			color: white;
+			background: #0097cf;
+		}
+	</style>';
+
+	/********* FIN POPUPS *********/
+
+
+	/*** CREACION DE TABLA DE CONTENIDO ***/
+
+
+		/*** SE CREA TABLA DE CONTENIDO ***/
+		$tabla_vehiculos = "
+
+			<div class='row' >
+				<div class='col-sm-1'></div>
+				<div class='col-sm-10'>
+					<div  class='table-responsive noSwipe'>
+						<table id='table1' class='table table-striped table-hover'>
+							<thead>
+								<tr class='nexos-encabezado'>
+									<th style='width:10%;'>#</th>
+									<th>Placa</th>
+									<th>Placa Trailer</th>
+									<th>Tipo vehículo</th>
+                                    <th>Propietario</th>
+                                    <th>Tenedor</th>
+                                    <th>Conductor</th>
+                                    <th>Calificación</th>
+									<th style='width:10%;min-width: 10%;'</th>
+								</tr>
+							</thead>
+							<tbody >
+
+		";
+		$model = new Calificacion();
+			$model->listarVehiculos();
+			$respuesta= $model->respuesta;
+			if ($respuesta == "GOOD") {
+		        $datos_vehiculos = $model->listado;
+		        if(count($datos_vehiculos)>0){
+		            $tabla_vehiculos.= "";
+		            foreach ($datos_vehiculos as $vehiculo) {
+						if ($vehiculo["estado"]== 'Activo'){
+		            		$tabla_vehiculos.= "
+		            						<tr>
+							            		<td class='nexos-txt-success'>
+													<span class='mdi mdi-dot-circle icon'></span>
+												</td>";
+		            	}
+		            	else if ($vehiculo["estado"]== 'Inactivo'){
+		            		$tabla_vehiculos.= "
+		            						<tr>
+							            		<td class='nexos-txt-danger'>
+													<span class='mdi mdi-dot-circle icon'></span>
+												</td>";
+		            	}
+		            	
+
+
+						$tabla_vehiculos.="   <td class='cell-detail' ><span >$vehiculo[placa]</span></td>
+			            						<td class='cell-detail' ><span >$vehiculo[placa_trailer]</span></td>
+			            						<td class='cell-detail' ><span >$vehiculo[tipo_vehiculo]</span></td>
+			            						<td class='cell-detail' ><span >$vehiculo[nombre_propietario]</span></td>
+			            						<td class='cell-detail' ><span >$vehiculo[nombre_tenedor]</span></td>
+			            						<td class='cell-detail' ><span >$vehiculo[nombre_conductor]</span></td>
+			            						<td class='cell-detail' ><span >$vehiculo[calificacion]</span></td>
+			            						<td class='actions'>
+													<a href='javascript:'  onclick='verVehiculo($vehiculo[id])'  class='cell-detail  hint--top-left' data-hint='Ver vehiculo' ><span class='icon mdi mdi-eye'  data-toggle='modal' data-target='#ver_vehiculos'></span></a>
+													
+			            						";
+
+							$tabla_vehiculos.="<a href='javascript:' onclick='verlistaCalificacion($vehiculo[id],\"".$vehiculo['placa']."\")'  class='cell-detail  hint--top-left' data-hint='Calificar vehículo' ><span class='icon mdi mdi-check-circle '  data-toggle='modal' data-target='#calificar_vehiculo'></span></a>";
+						
+						$tabla_vehiculos.="</td> </tr>";			
+						
+		            }
+
+		        }
+		    }
+		    	
+
+			$tabla_vehiculos.= '
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			';
+		
+	
+	/*** FIN CREACION DE TABLA DE CONTENIDO ***/
+
+
+	/**** CONTENIDO DEL MODULO EN PANTALLA ****/
+	$vista.='
+		<div class="panel panel-border panel-contrast">
+			<div class="panel-heading panel-heading-contrast">
+				Vehículos
+				<span class="panel-subtitle">Módulo para la administración de vehículos para calificación según servicios prestados.</span>
+			</div>
+			<div class="panel-body xs-mt-15">
+				<div class="nexos-messages"></div>
+				%content%
+				<div class="row">
+					<div class="col-sm-12">
+					</div>
+				</div>
+			</div>
+		</div>
+	';
+
+
+  	/**** CARGA DE ARCHIVOS JS DE LA VISTA ****/
+	$vista.= '
+
+		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/typeahead.bundle.js" type="text/javascript" ></script>
+		 <script src="%root_file%lib/calificacion_ajax.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+	    <script src="%root_file%js/main.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+
+		<!-- js para creacion de data-tables -->
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+		<!-- js para creacion de formularios dinamicos -->
+	    <script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+        <script src="%root_file%lib/daterangepicker/js/daterangepicker.js" type="text/javascript"></script>
+	    <script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+    	<script src="%root_file%lib/moment.js/min/moment.min.js" type="text/javascript"></script>
+
+	    <script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+	   
+		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+
+
+	    <!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+	    <script type="text/javascript">
+			$(document).ready(function(){
+				//initialize the javascript
+				App.init();
+				App.dataTables();
+
+
+			});
+			$(document).ready(function(){
+				//initialize the javascript
+				App.wizard();
+				App.formElements();
+
+			});
+	    </script>
+	';
+
+
+	/****** CREACION CONTENIDO DE POPUPS ******/
+
+	// CONTENIDO DEL POPUP DE FORMULARIO DE CREACION
+?>
+
+<div id="ver_vehiculos" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="titulo_ver"></h3>
+			</div>
+			<div class="modal-body">
+				<div class="row"  >
+					<div class="form-group col-xs-6">
+						<label>Placa:</label>
+						<input type="text" id="v_placa" placeholder="Placa" class="form-control">
+						<label id="error_v_placa"></label>
+					</div>
+					<div class="form-group col-xs-6">
+						<label>Placa trailer:</label>
+						<input type="text" id="v_placa_trailer" placeholder="Placa Trailer" class="form-control">
+						<label id="error_v_placa_trailer"></label>
+					</div>
+				</div>	
+				<div class="row" >
+					<div class="form-group col-xs-6">
+						<label>Documento propietario:</label>
+						<div id="v_caja_propietario">
+							<input type="text" class="typeahead form-control" placeholder="Documento propietario" id="v_cedula_propietario">
+						</div>
+						<input type="hidden" id="v_id_propietario">
+						<label id="v_error_cedula_propietario"></label>
+					</div>
+					<div class="form-group col-xs-6">
+						<label>Nombre propietario:</label>
+						<input type="text" id="v_nombre_propietario" placeholder="Nombre propietario" disabled class="form-control">
+					</div>
+				</div>
+				<div class="row" >
+					<div class="form-group col-xs-6">
+						<label>Documento tenedor:</label>
+						<div id="v_caja_tenedor">
+							<input type="text" class="typeahead form-control" placeholder="Documento tenedor" id="v_cedula_tenedor">
+						</div>
+						<input type="hidden" id="v_id_tenedor">
+						<label id="v_error_cedula_tenedor"></label>
+					</div>
+					<div class="form-group col-xs-6">
+						<label>Nombre tenedor:</label>
+						<input type="text" id="v_nombre_tenedor" placeholder="Nombre tenedor" disabled class="form-control">
+					</div>
+				</div>
+				<div class="row" >
+					<div class="form-group col-xs-6">
+						<label>Documento conductor:</label>
+						<div id="v_caja_conductor">
+							<input type="text" class="typeahead form-control" placeholder="Documento conductor" id="v_cedula_conductor">
+						</div>
+						<input type="hidden" id="v_id_conductor">
+						<label id="v_error_cedula_conductor"></label>
+					</div>
+					<div class="form-group col-xs-6">
+						<label>Nombre conductor:</label>
+						<input type="text" id="v_nombre_conductor" placeholder="Nombre conductor" disabled class="form-control">
+					</div>
+				</div>
+				<div class="row" >
+					<div class="form-group col-xs-6">
+						<label>Tipo vehículo:</label>
+						<input type="text" id="v_tipo_vehiculo" placeholder="Tipo vehículo" class="form-control">
+						<label id="error_v_tipo_vehiculo"></label>
+					</div>
+					<div class="form-group col-xs-6">
+						<label>Tipo Carrocería:</label>
+						<input type="text" id="v_tipo_carroceria" placeholder="Tipo Carrocería" class="form-control">
+						<label id="error_v_usuario_satelital"></label>
+					</div>
+				</div>	
+				<div class="row" >
+					<div class="form-group col-xs-4">
+						<label>Web satelital:</label>
+						<input type="text" id="v_web_satelital" placeholder="Web satelital" class="form-control">
+						<label id="error_v_web_satelital"></label>
+					</div>
+					<div class="form-group col-xs-4">
+						<label>Usuario satelital:</label>
+						<input type="text" id="v_usuario_satelital" placeholder="Usuario satelital" class="form-control">
+						<label id="error_v_usuario_satelital"></label>
+					</div>
+					<div class="form-group col-xs-4">
+						<label>Clave satelital:</label>
+						<input type="text" id="v_clave_satelital" placeholder="Clave satelital" class="form-control">
+						<label id="error_v_clave_satelital"></label>
+					</div>
+				</div>
+				<div class="row"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="calificar_vehiculo" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+    <div class="modal-dialog custom-width">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+                <h3 class="modal-title" id ="titulo_calificar"></h3>
+            </div>
+            <div class="modal-body" id="contenidoasignacion">
+				<div class="panel panel-border panel-contrast " style="padding-bottom: 20px;">
+                    <div class="panel-heading panel-heading-contrast">
+                    	<span class="panel-subtitle"></span>
+                    </div>
+                    <div class="row" style="padding: 20px 20px 0 20px;" id ="contenido_asignaciones">
+                    </div>
+                </div>
+                <div class="row"></div>
+            </div>
+            <div class="modal-footer">
+            	<input type="hidden" id= "id_asignacion_agrupamiento">
+                <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+				
+<?php
+	// Valifdacion de contenido del formulario de creacion
+
+	//$_popupCrea = $form_crea->_form_modal_simple_insert("crea_" . $_dbTable ,"Crear Moneda" , $forms , $_dbTable );
+	//$vista.= $_popupCrea[0];
+	//$_jsScripts.=$_popupCrea[1];
+
+
+	/****** FIN CREACION CONTENIDO DE POPUPS ******/
+
+	/**** SE ASIGNAN LOS ELEMENTOS DE LA PAGINA  ****/
+	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
+	$vista = str_replace("%content%" , $tabla_vehiculos , $vista);
+
+	// Se asiga codigo JS generado de la tabla de contenido
+	$vista.= $_jsScripts;
+
+	// SE PINTA CONTENIDO EN PANTALLA
+	echo $vista;
+
+?>

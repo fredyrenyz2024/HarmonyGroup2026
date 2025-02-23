@@ -1,0 +1,112 @@
+<!-- <div class="row">
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 10px;">
+    <div id="mensaje"></div>
+    <div class="bs-example" data-example-id="simple-table">
+      <table class="table table-condensed table-hover">
+        <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+          <tr>
+            <th>Cliente</th>
+            <th>Referencia</th>
+            <th>Observación</th>
+            <th width>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="clientes" style="width: 280px;"></td>
+            <td id="referencia"></td>
+            <td id="observacion"></td>
+            <td id="acciones"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <h4 class="text-center" style="font-weight: bold;">Progreso Pedido</h4>
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;width: 0;"></div>
+    </div>
+  </div>
+</div> -->
+<input type="hidden" name="tipo_perfil" id="tipo_perfil" value="<?php echo  $_SESSION['usuario']['id_perfil']; ?>">
+
+<!-- Tabla de actividades a agestionar -->
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="tabla_gestion_actividades">
+  <h4 class="text-center" style="font-weight: bold;">Listado de actividades</h4>
+  <div class="bs-example" data-example-id="simple-table">
+    <table class="table table-condensed" style="border-left: 1px solid #c7c7ce;border-bottom: 1px solid #c7c7ce;border-right: 1px solid #c7c7ce;">
+      <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+        <tr>
+          <th>#</th>
+          <th>Parametro</th>
+          <th>Actividad</th>
+          <th>Responsable</th>
+          <th>Vencimiento</th>
+          <th>Estado</th>
+          <th width="130px">Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tbody_actividades_compartidas"></tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+  <div class="modal-dialog" role="document" style="width: 450px;">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff;"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Cambiar Responsable</h4>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;">
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+            <div class="form-group">
+              <label for="" style="font-weight: bold;">Responsable actual </label>
+              <select id="responsable_actual" class="form-control input-xs">
+                <option value="" selected>Seleccionar Responsable Actual</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="" style="font-weight: bold;">Nuevo responsable</label>
+              <select id="nuevo_responsable" class="form-control input-xs">
+                <option value="" selected>Seleccionar Nuevo Responsable</option>
+              </select>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+        <button type="button" class="btn btn-primary btn-xs" id="btn_guardar_actualizacion"><i class="far fa-save"></i> Guardar Actualización</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>views/pedidos/js/detalle_compartidos.js type="text/javascript"></script>
+
+<!-- js para creacion de formularios dinamicos -->
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

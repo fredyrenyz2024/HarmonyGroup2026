@@ -1,0 +1,57 @@
+<div class="container">
+<div class="row">
+<div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+<div class="panel panel-default">
+<div class="panel-body">
+  <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+	<div class="row">
+		<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4 fi">
+			<label>Fecha Inicial</label>
+			<input type="date" id="fechainicio" class="form-control input-xs">
+		</div>
+		<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4 ff">
+			<label>Fecha Final</label>
+			<input type="date" id="fechafin" class="form-control input-xs">
+		</div>
+		<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4 btn">
+			<br><button id="buscar" class="btn-primary">Buscar</button>
+		</div>
+	</div>
+	<div class="row">
+		<br><br><div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<table class="table">
+                <thead>
+                      <tr>
+                        <th>DO</th>
+                        <th>Proveedor</th>
+                        <th>Cotización</th>
+                        <th>Factura</th>
+                        <th>Oferta</th>
+                        <th>Factura venta</th>
+                      </tr>
+                </thead>
+               	<tbody id="body_general">
+                </tbody>
+            </table>
+		</div>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<script src=<?php echo BASE_URL;?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript"></script> 
+<!--Control de los submenus-->
+<script src=<?php echo BASE_URL;?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL;?>/views/informe_internacional/js/sobrecostoajax.js type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+//initialize the javascript
+  App.init();
+  App.wizard();
+});
+</script>
