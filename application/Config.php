@@ -73,15 +73,19 @@ define('VIGENCIA_CLAVES', 180);
 /***** Se define los parámteros de uso del Web Service del Ministerio de Transporte *****/
 // define('MINTRANS_URL', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
 define('MINTRANS_URL', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
-// define('MINTRANS_URL', "http://rndcws2.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2024
-define('MINTRANS_URL_2', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
-// define('MINTRANS_URL2', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
+define('MINTRANS_URL2', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
 define('MINTRANS_USER', "NEXOSCAR@1622"); //PRUEBAS
 define('MINTRANS_PASS', "12345678"); //PRUEBAS
-// define('MINTRANS_USER', "NEXOSCAR@1622"); //PRODUCCION
-// define('MINTRANS_PASS', "NexosSAS2024"); // PRODUCCION
 define('MINTRANS_NIT', 9000625968); // PRUEBAS
 define('MINTRANS_SIMULACION', "S"); // "S" Para el entono de simulación | "R" Para el entono de producción
+
+// Ambiente de Produccion
+// define('MINTRANS_USER', "NEXOSCAR@1622"); //PRODUCCION
+// define('MINTRANS_PASS', "NexosSAS2024"); // PRODUCCION
+// define('MINTRANS_NIT', 9000625968); // PRODUCCION
+// define('MINTRANS_URL', "http://rndcws.mintransporte.gov.co:8080/ws/svr008w.dll/wsdl/IBPMServices");
+// define('MINTRANS_URL_2', "http://rndcws2.mintransporte.gov.co:8080/ws/svr008w.dll/wsdl/IBPMServices"); // URL de simulación 2024
+// define('MINTRANS_SIMULACION', "R"); // "S" Para el entono de simulación | "R" Para el entono de producción
 
 //rndc@mintransporte.gov.co
 //https://rndc.mintransporte.gov.co/wstest/defaultp.aspx

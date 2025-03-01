@@ -8,39 +8,34 @@ window.docutene = document.querySelector('#docutene');
 window.nomcondu = document.querySelector('#nomcondu');
 window.docucondu = document.querySelector('#docucondu');
 window.VENTANA = null;
+$(document).ready(function () {
+  let datosnuevos = {
+    web: '',
+    user_satelite: '',
+    clave: '',
+    // nompro: '',
+    docupro: '',
+    // nomtene: '',
+    docutene: '',
+    // nomcondu: '',
+    docucondu: '',
+  };
 
-window.initScript = function (id) {
-  window.VENTANA = id; // Asigna el ID de la ventana a la variable global
+  let numero = 0;
+  window.initScript = function (id) {
+    window.VENTANA = id; // Asigna el ID recibido a la variable global
+    const hoy = new Date(); // Obtener la fecha actual
+    const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
 
-  // document.addEventListener('DOMContentLoaded', async e => {
-  $(document).ready(function () {
-    // e.preventDefault();
-    // $('.select2').select2();
-    // const SELECTFILTRO = document.querySelector('#filtro_estado');
-    // const BTN_FILTRAR = document.querySelector('#btn-filtrar');
     const SELECTFILTRO = "todos";
-    Filtro();
+    var fecha_inicial = fechaHoy;
+    var fecha_final = fechaHoy;
+    var estado = "Pendiente";
+    var cliente = "";
+    Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
 
-    let datosnuevos = {
-      web: '',
-      user_satelite: '',
-      clave: '',
-      // nompro: '',
-      docupro: '',
-      // nomtene: '',
-      docutene: '',
-      // nomcondu: '',
-      docucondu: '',
-    };
+    if (window.VENTANA == 13) {
 
-    let numero = 0;
-    // document.getElementById("#buscar").addEventListener('click', Filtro);
-    // SELECTFILTRO.addEventListener("change", Filtro);
-    $(`#campo-${window.VENTANA}-buscar`).click(async function () {
-      Filtro();
-    });
-
-    if (window.VENTANA === '8') {
       $(".uno").hide();
       $(".dos").hide();
       $("#agregue_tb").hide();
@@ -1523,39 +1518,26 @@ window.initScript = function (id) {
         alert('ssjdh');
       }
 
-      /* Validaciones de los filtros a mostrar */
+
+
       $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
         let valorSeleccionado = $(this).val();
-
-        // Verifica si los elementos existen antes de manipularlos
-        let $clientes = $(`#campo-${window.VENTANA}-clientes`);
-        let $empresas = $(`#campo-${window.VENTANA}-empresas`);
-
-        if (valorSeleccionado === "Clientes") {
-          // Si Empresas está visible, la ocultamos
-          if ($empresas.is(":visible")) {
-            $empresas.hide().val(""); // Ocultar y resetear selección
-          }
-
-          if ($clientes.is(":visible")) {
-            $clientes.hide().val(""); // Ocultar y resetear selección
-          }
-          // Mostramos el select de Clientes
-          $clientes.show();
-
-          // Cargar clientes por AJAX
+        if (valorSeleccionado.trim().toLowerCase() === "clientes") {
+          document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "block";
           $.ajax({
             url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
             type: "POST",
             dataType: "json",
             success: function (data) {
-              $clientes.empty().append('<option value="">Seleccione</option>');
+              let select = $(`#campo-${window.VENTANA}-clientes`);
+              select.empty().append('<option value="">Seleccione</option>');
+
               $.each(data, function (index, item) {
-                $clientes.append(`<option value="${item.id}">${item.nombre}</option>`);
+                select.append(`<option value="${item.id}">${item.nombre}</option>`);
               });
 
               // Inicializa Select2 en el select de clientes
-              $clientes.select2({
+              select.select2({
                 placeholder: 'Seleccione una opción',
                 allowClear: true,
               });
@@ -1565,2085 +1547,688 @@ window.initScript = function (id) {
               alert("Error al cargar los datos.");
             }
           });
-
-        } else if (valorSeleccionado === "Empresas") {
-          // Si Clientes está visible, lo ocultamos
-          if ($clientes.is(":visible")) {
-            $clientes.hide().val(""); // Ocultar y resetear selección
-          }
-
-
-          if ($empresas.is(":visible")) {
-            $empresas.hide().val(""); // Ocultar y resetear selección
-          }
-          // Mostramos el select de Empresas
-          $empresas.show();
-
-          // Cargar empresas por AJAX
-          $.ajax({
-            url: $('#base_url').val() + 'serviciocliente/Listar_Empresas',
-            type: "POST",
-            dataType: "json",
-            success: function (data) {
-              $empresas.empty().append('<option value="">Seleccione</option>');
-              $.each(data, function (index, item) {
-                $empresas.append(`<option value="${item.id}">${item.nombre_empresa}</option>`);
-              });
-
-              // Inicializa Select2 en el select de empresas
-              $empresas.select2({
-                placeholder: 'Seleccione una opción',
-                allowClear: true,
-              });
-            },
-            error: function (xhr, status, error) {
-              console.error("Error en AJAX:", status, error);
-              alert("Error al cargar los datos.");
-            }
-          });
+        } else if (valorSeleccionado.length == 0) {
+          document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "none";
         }
       });
 
-    } else {
-      //Colcoar otra ventana
-    }
 
-    async function Filtro() {
-      if (SELECTFILTRO !== '') {
-        $('#loading-overlay-nexosapp ').css('display', 'flex'); // Mostrar mensaje de carga
-        try {
-          let data = new FormData();
-          data.append('filtro', SELECTFILTRO);
-          data.append('fecha_inicial', document.getElementById(`campo-${window.VENTANA}-fecha_inicial`).value);
-          data.append('fecha_final', document.getElementById(`campo-${window.VENTANA}-fecha_final`).value);
-          data.append('estado', "Todas");
-          data.append('cliente', "");
-          // await fetch($('#base_url').val() + 'prefiltro_nacional/Consultar_Solicitudes', {
-          await fetch($('#base_url').val() + 'prefiltro_nacional/Consultar_Solicitudes', {
-            method: 'POST',
-            body: data,
+      $(`#campo-${window.VENTANA}-clientes`).off("change").on("change", function () {
+        let valorSeleccionado = $(this).val();
+        // console.log("Cambio en el filtro detectado. Mostrando clientes... " + valorSeleccionado); // Depuración
+        Filtro(SELECTFILTRO, fecha_inicial, fecha_final, "Pendiente", valorSeleccionado);
+      });
+    }
+  };
+  async function Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente) {
+    if (SELECTFILTRO !== '') {
+      $('#loading-overlay-nexosapp ').css('display', 'flex'); // Mostrar mensaje de carga
+      try {
+        let data = new FormData();
+        data.append('filtro', SELECTFILTRO);
+        data.append('fecha_inicial', fecha_inicial);
+        data.append('fecha_final', fecha_final);
+        data.append('estado', estado);
+        data.append('cliente', cliente);
+        await fetch($('#base_url').val() + 'prefiltro_nacional/Consultar_Solicitudes', {
+          method: 'POST',
+          body: data,
+        })
+          .then(response => {
+            if (!response.ok) throw new Error(response.statusText);
+            return response.json();
           })
-            .then(response => {
-              if (!response.ok) throw new Error(response.statusText);
-              return response.json();
-            })
-            .then(function (data) {
-              let tbody = document.getElementById('tbl-solicitudes');
-              let clase_btn = '';
-              let estado = '';
-              let template = '';
-              let toltip = '';
-              let estadobtn = '';
-              let itr = '';
-              if (data) {
-                // console.log(data);
-                template.innerHTML = '';
-                data.forEach(element => {
-                  if (element.esoli === 'Realizada') {
-                    clase_btn = 'success';
-                    estado = 'Realizada';
-                    toltip = 'Realizada';
-                    estadobtn = 'disabled';
-                  } else if (element.esoli === 'En_subasta') {
-                    clase_btn = 'info';
-                    estado = 'Subasta';
-                    toltip = 'Subasta';
-                    estadobtn = '';
-                  } else if (element.esoli === 'Pendiente') {
-                    // Se usar el estado pendiente porque este proviene de la tabla de solicitudes de servicio.
-                    // } else if (element.esoli === null) {
-                    clase_btn = 'warning';
-                    estado = 'Pendiente';
-                    toltip = 'Pendiente';
-                    estadobtn = '';
-                  } else if (element.esoli === 'asignada') {
-                    clase_btn = 'warning';
-                    estado = 'Asignada';
-                    toltip = 'Asignada Solicitud Prefiltro';
-                    estadobtn = '';
-                  } else if (element.esoli === 'en_tramite') {
-                    clase_btn = 'warning';
-                    estado = 'En tramite';
-                    toltip = 'En tramite solicitud prefiltro';
-                    estadobtn = '';
-                  } else if (element.esoli === 'aprobado_prefiltro') {
-                    clase_btn = 'success';
-                    estado = 'Aprobado prefiltro';
-                    toltip = 'Aprobado prefiltro';
-                    estadobtn = '';
-                  }
-                  if (element.itr === 'Si') {
-                    // itr = '<span class="badge badge-success float-right">SI</span>';
-                    itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">SI</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>';
-                  } else {
-                    // itr = '<span class="badge badge-primary float-right">NO</span>';
-                    itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">NO</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>';
-                  }
+          .then(function (data) {
+            let tbody = document.getElementById('tbl-solicitudes-pendientes');
+            let clase_btn = '';
+            let estado = '';
+            let template = '';
+            let toltip = '';
+            let estadobtn = '';
+            let itr = '';
+            if (data.length > 0) {
+              // console.log(data);
+              template.innerHTML = '';
+              data.forEach(element => {
+                if (element.esoli === 'Realizada') {
+                  clase_btn = 'success';
+                  estado = 'Realizada';
+                  toltip = 'Realizada';
+                  estadobtn = 'disabled';
+                } else if (element.esoli === 'En_subasta') {
+                  clase_btn = 'info';
+                  estado = 'Subasta';
+                  toltip = 'Subasta';
+                  estadobtn = '';
+                } else if (element.esoli === 'Pendiente') {
+                  // Se usar el estado pendiente porque este proviene de la tabla de solicitudes de servicio.
+                  // } else if (element.esoli === null) {
+                  clase_btn = 'warning';
+                  estado = 'Pendiente';
+                  toltip = 'Pendiente';
+                  estadobtn = '';
+                } else if (element.esoli === 'asignada') {
+                  clase_btn = 'warning';
+                  estado = 'Asignada';
+                  toltip = 'Asignada Solicitud Prefiltro';
+                  estadobtn = '';
+                } else if (element.esoli === 'en_tramite') {
+                  clase_btn = 'warning';
+                  estado = 'En tramite';
+                  toltip = 'En tramite solicitud prefiltro';
+                  estadobtn = '';
+                } else if (element.esoli === 'aprobado_prefiltro') {
+                  clase_btn = 'success';
+                  estado = 'Aprobado prefiltro';
+                  toltip = 'Aprobado prefiltro';
+                  estadobtn = '';
+                }
+                if (element.itr === 'Si') {
+                  // itr = '<span class="badge badge-success float-right">SI</span>';
+                  itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">SI</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>';
+                } else {
+                  // itr = '<span class="badge badge-primary float-right">NO</span>';
+                  itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">NO</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>';
+                }
+
+                if (element.numero_placas === 0) {
                   template += `
-              <tr>
-                <!--<td class='text-${clase_btn}'>
-                   <center>
-                    <span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="${element.esoli !== null ? element.esoli : 'Pendiente'}"></span>
-                   </center> data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop"
-                </td>-->
+                      <tr>        
+                        <td  class="cell-detail">
+                          <a href="#" class="text-decoration-none fw-bold"  onclick="preestudio(this);" data-id="${element.n_cotizacion}" 
+                            data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item}" data-id5="${element.tipo_mercancia}"
+                            data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer}"  data-id9="${element.total_tarifa}"
+                            data-id10=""${element.origen_rndc}"  data-id11="${element.itr}" onclick="reiniciar_contador();" ${estadobtn}>N°${element.elid}</a> 
+                        </td>
+                        <td  class="cell-detail">
+                          <span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer}</span>   
+                        </td>
+            
+                        <td class="cell-detail">
+                          <span>${itr}</span>
+                        </td>
+            
+                        <td class="cell-detail">
+                            <span> ${element.nombre_cliente} ${element.nit}</span>
+                        </td>
+            
+                        <td class="cell-detail" style="text-align: left;vertical-align: middle;font-size: 9px;" >
+                            <span>${element.tipo_mercancia}</span>
+                        </td>
+            
+                        <td class="cell-detail" >
+                            <span>${element.nombre}</span>
+                        </td>
+            
+                        <td class="cell-detail" style="text-align: left;vertical-align: middle;font-size: 9px;width: 10px;">
+                          <span title="Peso Neto kg">${formatNum(element.peso_kg)} kg</span>
+                        </td>
+            
+                        <td class="cell-detail" style="font-size: 9px;width:100px;" >
+                          <span><b>Origén:</b> ${element.origen_solicitud} <br> <b>Destino:</b> ${element.destino_solicitud}</span>
+                        </td>
+            
+                        <td class="cell-detail text-center"
+                          <span>${element.fecha}<br>${element.hora_creacion} </span>
+                        </td>
+                      
+                        <td class="cell-detail">
+                              <span class="badge badge-phoenix badge-phoenix-${clase_btn}" title="${toltip}">Sin asignar</span>
+                        </td>
+                    </tr>`;
+                }
+                tbody.innerHTML = template;
+              });
+            } else {
+              tbody.innerHTML = '<tr><td class="cell-detail fw-bold" colspan="10"><span class="uil uil-list-ui-alt"></span> Sin resultados </td></tr>';
+            }
+          })
+          .catch(error => {
+            alert(error);
+          });
+      } catch (error) {
+        alert('Error de trucaht' + error);
+      } finally {
+        $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+  }
 
-                <td  class="cell-detail">
-                      <a href="#" class="text-decoration-none fw-bold"  onclick="preestudio(this);" data-id="${element.n_cotizacion}" 
-                        data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item}" data-id5="${element.tipo_mercancia}"
-                        data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer}"  data-id9="${element.total_tarifa}"
-                        data-id10=""${element.origen_rndc}"  data-id11="${element.itr}" onclick="reiniciar_contador();" ${estadobtn}>N°${element.elid}</a> 
-                          <!--COT-SS-BN
-                    <span>${element.n_cotizacion} - ${element.elid} - ${element.item} </span>
-                    <span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer}</span>-->
-                </td>
-                <td  class="cell-detail">
-                  <span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer}</span>   
-                </td>
+  async function Filtro_Prioritarias(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente) {
+    if (SELECTFILTRO !== '') {
+      $('#loading-overlay-nexosapp ').css('display', 'flex'); // Mostrar mensaje de carga
+      try {
+        let data = new FormData();
+        data.append('filtro', SELECTFILTRO);
+        data.append('fecha_inicial', fecha_inicial);
+        data.append('fecha_final', fecha_final);
+        data.append('estado', estado);
+        data.append('cliente', cliente);
+        await fetch($('#base_url').val() + 'prefiltro_nacional/Consultar_Solicitudes', {
+          method: 'POST',
+          body: data,
+        })
+          .then(response => {
+            if (!response.ok) throw new Error(response.statusText);
+            return response.json();
+          })
+          .then(function (data) {
+            let tbody = document.getElementById('tbl-solicitudes-prioritarias');
+            let clase_btn = '';
+            let estado = '';
+            let template = '';
+            let toltip = '';
+            let estadobtn = '';
+            let itr = '';
+            if (data.length > 0) {
+              // console.log(data);
+              template.innerHTML = '';
+              data.forEach(element => {
+                if (element.esoli === 'Realizada') {
+                  clase_btn = 'success';
+                  estado = 'Realizada';
+                  toltip = 'Realizada';
+                  estadobtn = 'disabled';
+                } else if (element.esoli === 'En_subasta') {
+                  clase_btn = 'info';
+                  estado = 'Subasta';
+                  toltip = 'Subasta';
+                  estadobtn = '';
+                } else if (element.esoli === 'Pendiente') {
+                  // Se usar el estado pendiente porque este proviene de la tabla de solicitudes de servicio.
+                  // } else if (element.esoli === null) {
+                  clase_btn = 'warning';
+                  estado = 'Pendiente';
+                  toltip = 'Pendiente';
+                  estadobtn = '';
+                } else if (element.esoli === 'asignada') {
+                  clase_btn = 'warning';
+                  estado = 'Asignada';
+                  toltip = 'Asignada Solicitud Prefiltro';
+                  estadobtn = '';
+                } else if (element.esoli === 'en_tramite') {
+                  clase_btn = 'warning';
+                  estado = 'En tramite';
+                  toltip = 'En tramite solicitud prefiltro';
+                  estadobtn = '';
+                } else if (element.esoli === 'aprobado_prefiltro') {
+                  clase_btn = 'success';
+                  estado = 'Aprobado prefiltro';
+                  toltip = 'Aprobado prefiltro';
+                  estadobtn = '';
+                }
+                if (element.itr === 'Si') {
+                  // itr = '<span class="badge badge-success float-right">SI</span>';
+                  itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">SI</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>';
+                } else {
+                  // itr = '<span class="badge badge-primary float-right">NO</span>';
+                  itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">NO</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>';
+                }
+                template += `
+                    <tr>
+                      <td class="cell-detail">
+                        <a href="#" class="text-decoration-none fw-bold"  onclick="preestudio(this);" data-id="${element.n_cotizacion}" 
+                          data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item}" data-id5="${element.tipo_mercancia}"
+                          data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer}"  data-id9="${element.total_tarifa}"
+                          data-id10=""${element.origen_rndc}"  data-id11="${element.itr}" onclick="reiniciar_contador();" ${estadobtn}>N°${element.elid}</a> 
+                      </td>
+                      <td  class="cell-detail">
+                        <span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer}</span>   
+                      </td>
+  
+                      <td class="cell-detail">
+                        <span>${itr}</span>
+                      </td>
+  
+                      <td class="cell-detail">
+                          <span> ${element.nombre_cliente} ${element.nit}</span>
+                      </td>
+  
+                      <td class="cell-detail" style="text-align: left;vertical-align: middle;font-size: 9px;" >
+                          <span>${element.tipo_mercancia}</span>
+                      </td>
+  
+                      <td class="cell-detail" >
+                          <span>${element.nombre}</span>
+                      </td>
+  
+                      <td class="cell-detail" style="text-align: left;vertical-align: middle;font-size: 9px;width: 10px;">
+                        <span title="Peso Neto kg">${formatNum(element.peso_kg)} kg</span>
+                      </td>
+  
+                      <td class="cell-detail" style="font-size: 9px;width:100px;" >
+                        <span><b>Origén:</b> ${element.origen_solicitud} <br> <b>Destino:</b> ${element.destino_solicitud}</span>
+                      </td>
+  
+                      <td class="cell-detail text-center"
+                        <span>${element.fecha}<br>${element.hora_creacion} </span>
+                      </td>
+                    
+                      <td class="cell-detail">
+                          ${element.numero_placas > 0 ? '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Placas asignadas</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>' : '<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Sin asignar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>'}
+                      </td>
+                  </tr>`;
+                tbody.innerHTML = template;
+              });
+            } else {
+              tbody.innerHTML = '<tr><td class="cell-detail fw-bold" colspan="10"><span class="uil uil-list-ui-alt"></span> Sin resultados </td></tr>';
+            }
+          })
+          .catch(error => {
+            alert(error);
+          });
+      } catch (error) {
+        alert('Error de trucaht' + error);
+      } finally {
+        $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+  }
 
-                <td class="cell-detail">
-                  <span>${itr}</span>
-                </td>
+  /* Checked de tipo de estudio de seguridad */
+  document.addEventListener('change', async e => {
+    if (e.target.matches('#update') || e.target.matches('#update *')) {
+      op = '';
+      accordion1desbloqueado(op);
+      referencias_ah_des();
+      datossolicitudes_des();
+      //documentos_ah_des();
+      campos_ah_bloc();
+      consultar_hojadevida();
+      readonly_campos();
+      flete_desbloquear();
+      campos_ah_des();
+      $('#inexistente_propietario').hide();
+      $('#inexistente_poseedor').hide();
+      $('#inexistente_conductor').hide();
+      $('#inexistente_vehiculo').hide();
+      $('#inexistente_trailer').hide();
+      $('#inexistente_actividades').hide();
+      /* Acciones para elegir el tipo de operación */
+      let checkboxes = document.querySelectorAll('.recursos_checbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            const valorSeleccionado = checkbox.value;
+            if (valorSeleccionado === 'nuevo_recurso') {
+              document.getElementById('creacion_nuevo_recuro').style.display = 'block';
+              document.getElementById('inexistente_actividades').style.display = 'block';
+            } else if (valorSeleccionado === 'datos_dinamicos') {
+              document.getElementById('datos_dinamicos').style.display = 'block';
+            }
+          } else if (!checkbox.checked) {
+            const valorunchecked = checkbox.value;
+            if (valorunchecked === 'nuevo_recurso') {
+              document.getElementById('creacion_nuevo_recuro').style.display = 'none';
+              document.getElementById('inexistente_actividades').style.display = 'none';
+            } else if (valorunchecked === 'datos_dinamicos') {
+              document.getElementById('datos_dinamicos').style.display = 'none';
+            }
+          }
+        });
+      });
 
-                <td class="cell-detail">
-                    <span> ${element.nombre_cliente} ${element.nit}</span>
-                </td>
-
-                <td class="cell-detail" style="text-align: left;vertical-align: middle;font-size: 9px;" >
-                    <span>${element.tipo_mercancia}</span>
-                </td>
-
-                <td class="cell-detail" >
-                    <span>${element.nombre}</span>
-                </td>
-
-                <td class="cell-detail" style="text-align: left;vertical-align: middle;font-size: 9px;width: 10px;">
-                  <span title="Peso Neto kg">${formatNum(element.peso_kg)} kg</span>
-                </td>
-
-                <td class="cell-detail" style="font-size: 9px;width:100px;" >
-                  <span><b>Origén:</b> ${element.origen_solicitud} <br> <b>Destino:</b> ${element.destino_solicitud}</span>
-                </td>
-
-                <td class="cell-detail text-center"
-                  <span>${element.fecha}<br>${element.hora_creacion} </span>
-                </td>
-              
-                <td class="cell-detail">
-                     <!--<span class="badge badge-phoenix badge-phoenix-${clase_btn}" title="${toltip}">${element.numero_placas > 0 ? 'Placas asignadas' : 'Sin asignar'}</span>-->
-                     ${element.numero_placas > 0 ? '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Placas asignadas</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>' : '<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Sin asignar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>'}
-                </td>
-
-                <!--<td  class="cell-detail"  style="text-align: center;vertical-align: middle;width: auto;white-space: nowrap;">
-                    <div class="btn-group btn-group-sm">
-                      <button class="btn btn-success" type="button" onclick="preestudio(this);" data-id="${element.n_cotizacion}" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop"
-                        data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item}" data-id5="${element.tipo_mercancia}"
-                        data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer}"  data-id9="${element.total_tarifa}"
-                        data-id10=""${element.origen_rndc}"  data-id11="${element.itr}" onclick="reiniciar_contador();" ${estadobtn}>
-                        <span class="text-white uil uil-plus-square"></span>
-                      </button>
-
-                     <button class="btn btn-info" type="button" onclick="consulta_coti(this)"; data-hint="" data-id="${element.n_cotizacion}"  data-id2="${element.nundoc_solicitud}"  
-                      data-id3="${element.idnegocio}" data-id4="${element.cant_vehiculo}" data-id5="${element.cant_disponible}">
-                        <span class="icon mdi mdi-eye input-md" data-toggle="modal"data-target="#consulta_solicitud" title="Consultar solicitud de servicio"></span>
-                     </button>
-
-                     <button type="button" class="btn btn-warning mdi mdi-edit" data-placement="top" onclick="status(this)"; data-hint="" data-id="${element.n_cotizacion}"  data-id2="${element.nundoc_solicitud}">
-                        <span class="icon mdi mdi-balance input-md"data-toggle="modal" data-target="#status" title="status"></span>
-                    </button>
-                    </div>
-                </td>-->
-            </tr>`;
-                  tbody.innerHTML = template;
-                });
-              } else {
-                tbody.innerHTML = '';
-              }
-            })
-            .catch(error => {
-              alert(error);
-            });
-        } catch (error) {
-          alert('Error de trucaht' + error);
-        } finally {
-          $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      /* Elegir el tipo de de recurso que se queire crear */
+      let checkboxes_recursos = document.querySelectorAll('.chebox_recurso');
+      checkboxes_recursos.forEach(checkbox_recurso => {
+        checkbox_recurso.addEventListener('change', () => {
+          if (checkbox_recurso.checked) {
+            const Recurso = checkbox_recurso.value;
+            if (Recurso === 'Propietario') {
+              document.getElementById('inexistente_propietario').style.display = 'block';
+            } else if (Recurso === 'Poseedor') {
+              document.getElementById('inexistente_poseedor').style.display = 'block';
+            } else if (Recurso === 'Conductor') {
+              document.getElementById('inexistente_conductor').style.display = 'block';
+            } else if (Recurso === 'Trailer') {
+              document.getElementById('inexistente_trailer').style.display = 'block';
+            } else if (Recurso === 'Vehículo') {
+              document.getElementById('inexistente_vehiculo').style.display = 'block';
+            }
+          } else if (!checkbox_recurso.checked) {
+            const Recursounchecked = checkbox_recurso.value;
+            if (Recursounchecked === 'Propietario') {
+              document.getElementById('inexistente_propietario').style.display = 'none';
+            } else if (Recursounchecked === 'Poseedor') {
+              document.getElementById('inexistente_poseedor').style.display = 'none';
+            } else if (Recursounchecked === 'Conductor') {
+              document.getElementById('inexistente_conductor').style.display = 'none';
+            } else if (Recursounchecked === 'Trailer') {
+              document.getElementById('inexistente_trailer').style.display = 'none';
+            } else if (Recursounchecked === 'Vehículo') {
+              document.getElementById('inexistente_vehiculo').style.display = 'none';
+            }
+          }
+        });
+      });
+    }
+    // Validar si el propietario ya esta registardo en la base de datos
+    if (e.target.matches('#docupro') || e.target.matches('#docupro *')) {
+      let documento = document.getElementById('docupro').value;
+      let dato = new FormData();
+      dato.append('documento', documento);
+      try {
+        const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Propietario', {
+          method: 'POST',
+          body: dato,
+          cache: 'no-cache',
+        });
+        const data = await response.json();
+        if (data) {
+          // document.getElementById('docupro').disabled = true;
+          document.getElementById('nompro').value = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
+          // document.getElementById('nompro').disabled = true;
+          document.getElementById('mensaje_propietario_existe').innerHTML = `
+              <p class="bg-success text-center" style='color:#FFF'>Este Propietario ya esta registrado en el sistema.</p>
+            `;
+        } else {
+          document.getElementById('docupro').disabled = false;
+          document.getElementById('nompro').disabled = false;
         }
+      } catch (error) {
+        console.error('Error en la segunda solicitud:', error);
+        throw error;
+      } finally {
+        $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+    // Validar si el poseedor existe en la base de datos
+    if (e.target.matches('#docutene') || e.target.matches('#docutene *')) {
+      let documento = document.getElementById('docutene').value;
+      let dato = new FormData();
+      dato.append('documento', documento);
+      try {
+        const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Poseedor', {
+          method: 'POST',
+          body: dato,
+          cache: 'no-cache',
+        });
+        const data = await response.json();
+        if (data) {
+          // document.getElementById('docutene').disabled = true;
+          document.getElementById('nomtene').value = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
+          // document.getElementById('nomtene').value = data.Nombre;
+          // document.getElementById('nomtene').disabled = true;
+          document.getElementById('mensaje_poseedor_existe').innerHTML = `
+              <p class="bg-success text-center" style='color:#FFF'>Este Poseedor ya esta registrado en el sistema.</p>
+            `;
+        } else {
+          document.getElementById('docutene').disabled = false;
+          document.getElementById('nomtene').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error en la segunda solicitud:', error);
+        throw error;
+      } finally {
+        $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+    // Validar si el conductor existe en la base de datos
+    if (e.target.matches('#docucondu') || e.target.matches('#docucondu *')) {
+      let documento = document.getElementById('docucondu').value;
+      let dato = new FormData();
+      dato.append('documento', documento);
+      try {
+        const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Conductor', {
+          method: 'POST',
+          body: dato,
+          cache: 'no-cache',
+        });
+        const data = await response.json();
+        if (data) {
+          // document.getElementById('docucondu').disabled = true;
+          document.getElementById('nomcondu').value = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
+          // document.getElementById('nomcondu').value = data.Nombre;
+          // document.getElementById('nomcondu').disabled = true;
+          document.getElementById('mensaje_conductor_existe').innerHTML = `
+              <p class="bg-success text-center" style='color:#FFF'>Este Conductor ya esta registrado en el sistema.</p>
+            `;
+        } else {
+          document.getElementById('docucondu').disabled = false;
+          document.getElementById('nomcondu').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error en la segunda solicitud:', error);
+        throw error;
+      } finally {
+        $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
       }
     }
 
-    /* Checked de tipo de estudio de seguridad */
-    document.addEventListener('change', async e => {
-      if (e.target.matches('#update') || e.target.matches('#update *')) {
-        op = '';
-        accordion1desbloqueado(op);
-        referencias_ah_des();
-        datossolicitudes_des();
-        //documentos_ah_des();
-        campos_ah_bloc();
-        consultar_hojadevida();
-        readonly_campos();
-        flete_desbloquear();
-        campos_ah_des();
-        $('#inexistente_propietario').hide();
-        $('#inexistente_poseedor').hide();
-        $('#inexistente_conductor').hide();
-        $('#inexistente_vehiculo').hide();
-        $('#inexistente_trailer').hide();
-        $('#inexistente_actividades').hide();
-        /* Acciones para elegir el tipo de operación */
-        let checkboxes = document.querySelectorAll('.recursos_checbox');
-        checkboxes.forEach(checkbox => {
-          checkbox.addEventListener('change', () => {
-            if (checkbox.checked) {
-              const valorSeleccionado = checkbox.value;
-              if (valorSeleccionado === 'nuevo_recurso') {
-                document.getElementById('creacion_nuevo_recuro').style.display = 'block';
-                document.getElementById('inexistente_actividades').style.display = 'block';
-              } else if (valorSeleccionado === 'datos_dinamicos') {
-                document.getElementById('datos_dinamicos').style.display = 'block';
-              }
-            } else if (!checkbox.checked) {
-              const valorunchecked = checkbox.value;
-              if (valorunchecked === 'nuevo_recurso') {
-                document.getElementById('creacion_nuevo_recuro').style.display = 'none';
-                document.getElementById('inexistente_actividades').style.display = 'none';
-              } else if (valorunchecked === 'datos_dinamicos') {
-                document.getElementById('datos_dinamicos').style.display = 'none';
-              }
-            }
-          });
+    // Validar si la placa del trailer esta cread y asosiada a un vehiculo
+    if (e.target.matches('#placat') || e.target.matches('#placat *')) {
+      let placa = document.getElementById('placat').value;
+      let dato = new FormData();
+      dato.append('placa_trailer', placa);
+      try {
+        const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Trailer', {
+          method: 'POST',
+          body: dato,
+          cache: 'no-cache',
         });
-
-        /* Elegir el tipo de de recurso que se queire crear */
-        let checkboxes_recursos = document.querySelectorAll('.chebox_recurso');
-        checkboxes_recursos.forEach(checkbox_recurso => {
-          checkbox_recurso.addEventListener('change', () => {
-            if (checkbox_recurso.checked) {
-              const Recurso = checkbox_recurso.value;
-              if (Recurso === 'Propietario') {
-                document.getElementById('inexistente_propietario').style.display = 'block';
-              } else if (Recurso === 'Poseedor') {
-                document.getElementById('inexistente_poseedor').style.display = 'block';
-              } else if (Recurso === 'Conductor') {
-                document.getElementById('inexistente_conductor').style.display = 'block';
-              } else if (Recurso === 'Trailer') {
-                document.getElementById('inexistente_trailer').style.display = 'block';
-              } else if (Recurso === 'Vehículo') {
-                document.getElementById('inexistente_vehiculo').style.display = 'block';
-              }
-            } else if (!checkbox_recurso.checked) {
-              const Recursounchecked = checkbox_recurso.value;
-              if (Recursounchecked === 'Propietario') {
-                document.getElementById('inexistente_propietario').style.display = 'none';
-              } else if (Recursounchecked === 'Poseedor') {
-                document.getElementById('inexistente_poseedor').style.display = 'none';
-              } else if (Recursounchecked === 'Conductor') {
-                document.getElementById('inexistente_conductor').style.display = 'none';
-              } else if (Recursounchecked === 'Trailer') {
-                document.getElementById('inexistente_trailer').style.display = 'none';
-              } else if (Recursounchecked === 'Vehículo') {
-                document.getElementById('inexistente_vehiculo').style.display = 'none';
-              }
-            }
-          });
-        });
-      }
-      // Validar si el propietario ya esta registardo en la base de datos
-      if (e.target.matches('#docupro') || e.target.matches('#docupro *')) {
-        let documento = document.getElementById('docupro').value;
-        let dato = new FormData();
-        dato.append('documento', documento);
-        try {
-          const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Propietario', {
-            method: 'POST',
-            body: dato,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data) {
-            // document.getElementById('docupro').disabled = true;
-            document.getElementById('nompro').value = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
-            // document.getElementById('nompro').disabled = true;
-            document.getElementById('mensaje_propietario_existe').innerHTML = `
-                <p class="bg-success text-center" style='color:#FFF'>Este Propietario ya esta registrado en el sistema.</p>
-              `;
-          } else {
-            document.getElementById('docupro').disabled = false;
-            document.getElementById('nompro').disabled = false;
-          }
-        } catch (error) {
-          console.error('Error en la segunda solicitud:', error);
-          throw error;
-        } finally {
-          $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-        }
-      }
-      // Validar si el poseedor existe en la base de datos
-      if (e.target.matches('#docutene') || e.target.matches('#docutene *')) {
-        let documento = document.getElementById('docutene').value;
-        let dato = new FormData();
-        dato.append('documento', documento);
-        try {
-          const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Poseedor', {
-            method: 'POST',
-            body: dato,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data) {
-            // document.getElementById('docutene').disabled = true;
-            document.getElementById('nomtene').value = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
-            // document.getElementById('nomtene').value = data.Nombre;
-            // document.getElementById('nomtene').disabled = true;
-            document.getElementById('mensaje_poseedor_existe').innerHTML = `
-                <p class="bg-success text-center" style='color:#FFF'>Este Poseedor ya esta registrado en el sistema.</p>
-              `;
-          } else {
-            document.getElementById('docutene').disabled = false;
-            document.getElementById('nomtene').disabled = false;
-          }
-        } catch (error) {
-          console.error('Error en la segunda solicitud:', error);
-          throw error;
-        } finally {
-          $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-        }
-      }
-      // Validar si el conductor existe en la base de datos
-      if (e.target.matches('#docucondu') || e.target.matches('#docucondu *')) {
-        let documento = document.getElementById('docucondu').value;
-        let dato = new FormData();
-        dato.append('documento', documento);
-        try {
-          const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Conductor', {
-            method: 'POST',
-            body: dato,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data) {
-            // document.getElementById('docucondu').disabled = true;
-            document.getElementById('nomcondu').value = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
-            // document.getElementById('nomcondu').value = data.Nombre;
-            // document.getElementById('nomcondu').disabled = true;
-            document.getElementById('mensaje_conductor_existe').innerHTML = `
-                <p class="bg-success text-center" style='color:#FFF'>Este Conductor ya esta registrado en el sistema.</p>
-              `;
-          } else {
-            document.getElementById('docucondu').disabled = false;
-            document.getElementById('nomcondu').disabled = false;
-          }
-        } catch (error) {
-          console.error('Error en la segunda solicitud:', error);
-          throw error;
-        } finally {
-          $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-        }
-      }
-
-      // Validar si la placa del trailer esta cread y asosiada a un vehiculo
-      if (e.target.matches('#placat') || e.target.matches('#placat *')) {
-        let placa = document.getElementById('placat').value;
-        let dato = new FormData();
-        dato.append('placa_trailer', placa);
-        try {
-          const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Trailer', {
-            method: 'POST',
-            body: dato,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data) {
-            document.getElementById('placat').disabled = true;
-            document.getElementById('docproptrailer').value = data.numero_documento;
-            document.getElementById('nomproptrailer').value = data.Nombre_propietario;
-            // document.getElementById('docproptrailer').disabled = true;
-            // document.getElementById('nomproptrailer').disabled = true;
-            document.getElementById('mensaje_trailer_existe').innerHTML = `
-            <p class="bg-success text-center" style='color:#FFF'>Este Trailer ya esta registrado en el sistema, con el vehiculo de placa: ${data.placa_vehiculo}</p>
-          `;
-          } else {
-            document.getElementById('placat').disabled = false;
-            document.getElementById('docproptrailer').disabled = false;
-            document.getElementById('nomproptrailer').disabled = false;
-          }
-        } catch (error) {
-          console.error('Error en la segunda solicitud:', error);
-          throw error;
-        } finally {
-          $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-        }
-      }
-
-      /* Validar los numeros de documentos de los recursos nuevos para verificar y notificar al usaurio por que caminio es. */
-      if (e.target.matches('#number_propietario') || e.target.matches('#number_propietario *')) {
-        let documento = document.getElementById('number_propietario').value;
-        let dato = new FormData();
-        dato.append('documento', documento);
-        try {
-          const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Propietario', {
-            method: 'POST',
-            body: dato,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data) {
-            // document.getElementById('number_propietario').disabled = true;
-            $('#crea_vehiculopreestudio').modal('hide');
-            $('#mensaje_notificacion').html('<b>Advertencia!</b>');
-            const name_propietario = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
-            let actividad = 'Propietario';
-            $('#texto_notificacion').html(
-              `Este <b>${actividad}</b> ya esta registrado en NexosApp como: <b>${name_propietario}</b> la actualizacion de campos diferentes a documentos y placas debe ser por datos dinamicos`,
-            );
-            $('#mod-warning').modal('toggle');
-          } else {
-            document.getElementById('number_propietario').disabled = false;
-            document.getElementById('name_propietario').disabled = false;
-          }
-        } catch (error) {
-          console.error('Error en la segunda solicitud:', error);
-          throw error;
-        } finally {
-          $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-        }
-      }
-
-      if (e.target.matches('#number_poseedor') || e.target.matches('#number_poseedor *')) {
-        let documento = document.getElementById('number_poseedor').value;
-        let dato = new FormData();
-        dato.append('documento', documento);
-        try {
-          const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Poseedor', {
-            method: 'POST',
-            body: dato,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data) {
-            // document.getElementById('number_propietario').disabled = true;
-            $('#crea_vehiculopreestudio').modal('hide');
-            $('#mensaje_notificacion').html('<b>Advertencia!</b>');
-            const name_pOSEEDOR = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
-            let actividad = 'Poseedor';
-            $('#texto_notificacion').html(
-              `Este <b>${actividad}</b> ya esta registrado en NexosApp como: <b>${name_pOSEEDOR}</b> la actualizacion de campos diferentes a documentos y placas debe ser por datos dinamicos`,
-            );
-            $('#mod-warning').modal('toggle');
-          } else {
-            document.getElementById('number_poseedor').disabled = false;
-            document.getElementById('name_propietario').disabled = false;
-          }
-        } catch (error) {
-          console.error('Error en la segunda solicitud:', error);
-          throw error;
-        } finally {
-          $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-        }
-      }
-
-      if (e.target.matches('#number_conductor') || e.target.matches('#number_conductor *')) {
-        let documento = document.getElementById('number_conductor').value;
-        let dato = new FormData();
-        dato.append('documento', documento);
-        try {
-          const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Conductor', {
-            method: 'POST',
-            body: dato,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data) {
-            // document.getElementById('number_propietario').disabled = true;
-            $('#crea_vehiculopreestudio').modal('hide');
-            $('#mensaje_notificacion').html('<b>Advertencia!</b>');
-            const name_pOSEEDOR = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
-            let actividad = 'Conductor';
-            $('#texto_notificacion').html(
-              `Este <b>${actividad}</b> ya esta registrado en NexosApp como: <b>${name_pOSEEDOR}</b> la actualizacion de campos diferentes a documentos y placas debe ser por datos dinamicos`,
-            );
-            $('#mod-warning').modal('toggle');
-          } else {
-            document.getElementById('number_conductor').disabled = false;
-            document.getElementById('name_propietario').disabled = false;
-          }
-        } catch (error) {
-          console.error('Error en la segunda solicitud:', error);
-          throw error;
-        } finally {
-          $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-        }
-      }
-
-      if (e.target.matches('#propidocu_trailer') || e.target.matches('#propidocu_trailer *')) {
-        let documento = document.getElementById('propidocu_trailer').value;
-        let dato = new FormData();
-        dato.append('documento', documento);
-        try {
-          const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Conductor', {
-            method: 'POST',
-            body: dato,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data) {
-            // document.getElementById('number_propietario').disabled = true;
-            $('#crea_vehiculopreestudio').modal('hide');
-            $('#mensaje_notificacion').html('<b>Advertencia!</b>');
-            const name_pOSEEDOR = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
-            let actividad = 'Conductor';
-            $('#texto_notificacion').html(
-              `Este <b>${actividad}</b> ya esta registrado en NexosApp como: <b>${name_pOSEEDOR}</b> la actualizacion de campos diferentes a documentos y placas debe ser por datos dinamicos`,
-            );
-            $('#mod-warning').modal('toggle');
-          } else {
-            document.getElementById('propidocu_trailer').disabled = false;
-            document.getElementById('name_propietario').disabled = false;
-          }
-        } catch (error) {
-          console.error('Error en la segunda solicitud:', error);
-          throw error;
-        } finally {
-          $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-        }
-      }
-    });
-
-    let datos_validado = 0;
-    document.addEventListener('click', async e => {
-      //Validar propietario para ITR
-      if (e.target.matches('#si_propietario') || e.target.matches('#si_propietario *')) {
-        document.getElementById('accion_propietario').innerHTML = 'Validado';
-        document.getElementById('accion_propietario').style.backgroundColor = '#14A44D';
-        document.getElementById('accion_propietario').style.color = '#FFFFFF';
-        datos_validado++;
-      } else if (e.target.matches('#no_propietario') || e.target.matches('#no_propietario *')) {
-        actualizar_itr();
-      }
-
-      // Validar poseedor de ITR
-      if (e.target.matches('#si_poseedor') || e.target.matches('#si_poseedor *')) {
-        document.getElementById('accion_poseedor').innerHTML = 'Validado';
-        document.getElementById('accion_poseedor').style.backgroundColor = '#14A44D';
-        document.getElementById('accion_poseedor').style.color = '#FFFFFF';
-        datos_validado++;
-      } else if (e.target.matches('#no_poseedor') || e.target.matches('#no_poseedor *')) {
-        actualizar_itr();
-      }
-
-      // Validar conductor de ITR
-      if (e.target.matches('#si_conductor') || e.target.matches('#si_conductor *')) {
-        document.getElementById('accion_conductor').innerHTML = 'Validado';
-        document.getElementById('accion_conductor').style.backgroundColor = '#14A44D';
-        document.getElementById('accion_conductor').style.color = '#FFFFFF';
-        datos_validado++;
-      } else if (e.target.matches('#no_conductor') || e.target.matches('#no_conductor *')) {
-        actualizar_itr();
-      }
-
-      // Validar propietario del tráiler para ITR
-      if (e.target.matches('#si_propietario_trailer') || e.target.matches('#si_propietario_trailer *')) {
-        document.getElementById('accion_propietario_trailer').innerHTML = 'Validado';
-        document.getElementById('accion_propietario_trailer').style.backgroundColor = '#14A44D';
-        document.getElementById('accion_propietario_trailer').style.color = '#FFFFFF';
-        datos_validado++;
-      } else if (e.target.matches('#no_propietario_trailer') || e.target.matches('#no_propietario_trailer *')) {
-        actualizar_itr();
-      }
-
-      /* Validar los click antes de precionar el boton de guarfar prefiltro para mostrar el boton */
-      if (document.getElementById('proceso_itr') === 'Si') {
-      } else {
-      }
-
-      // if (document.getElementById('accion_propietario_trailer').textContent === 'No Aplica') {
-      //   if (datos_validado >= 3) {
-      //     $('#crear_preestudio').show();
-      //   } else {
-      //   }
-      // } else {
-      //   if (datos_validado >= 4) {
-      //     $('#crear_preestudio').show();
-      //   } else {
-      //   }
-      // }
-
-      /* Guardar registros de prefiltro */
-      if (e.target.matches('#crear_preestudio') || e.target.matches('#crear_preestudio *')) {
-        // alert('boton guardar');
-        let proceso_itr = document.getElementById('proceso_itr').value;
-        if (proceso_itr === 'Si') {
-          if (datos_validado === 0) {
-            // Primer viaje
-            if (document.getElementById('placa').value !== '') {
-              // $("#crear_preestudio").hide();
-              if (window.confirm('¿Estas seguro de realizar la operación de solicitud de vehiculo?')) {
-                // Código a ejecutar si el usuario hace clic en "Aceptar"
-                var msg_error = '';
-                if ($('#papeles').is(':checked')) {
-                  var p;
-                  for (p = 1; p == b; p++) {
-                    //var papeles = document.getElementById('documento'+i+'').files;
-                    if (!$('#tipohoja' + p + '').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para poder crear el prefiltro.</p>';
-                    }
-                    if (!$('#ruta' + p + '').val()) {
-                      msg_error += '<p>Debe seleccionar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para que aparezca una ruta y poder crear el prefiltro.</p>';
-                    }
-                    if (!$('#namearchivo' + p + '').val()) {
-                      msg_error += '<p>Debe seleccionar un  <strong>(1) Archivo  en la fila ' + p + ' </strong> para poder crear el prefiltro.</p>';
-                    }
-                  }
-                }
-                if (!$('#placag').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Placa</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#placag');
-                } else {
-                  `<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
-                    <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
-                    <p class="mb-0 flex-1">${msg_error}</br></p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>`
-                }
-                if (!$('#web').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Web satélital</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#web');
-                } else {
-                  RemueveFoco('#web');
-                }
-                if (!$('#user_satelite').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>usuario</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#user_satelite');
-                } else {
-                  RemueveFoco('#user_satelite');
-                }
-                if (!$('#clave').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Clave</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#clave');
-                } else {
-                  RemueveFoco('#clave');
-                }
-                if (!$('#nompro').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Propietario</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#nompro');
-                } else {
-                  RemueveFoco('#nompro');
-                }
-                if (!$('#docupro').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Documento de Propietario</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#docupro');
-                } else {
-                  RemueveFoco('#docupro');
-                }
-                if (!$('#nomtene').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Tenedor</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#nomtene');
-                } else {
-                  RemueveFoco('#nomtene');
-                }
-                if (!$('#docutene').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Documento de Tenedor</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#docutene');
-                } else {
-                  RemueveFoco('#docutene');
-                }
-                if (!$('#nomcondu').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Conductor</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#nomcondu');
-                } else {
-                  RemueveFoco('#nomcondu');
-                }
-                if (!$('#docucondu').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Documento de Conductor</strong> para poder crear el vehículo.</p>';
-                  AplicaFoco('#docucondu');
-                } else {
-                  RemueveFoco('#docucondu');
-                }
-                if (!$('#su_propuesto').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Flete propuesto </strong>en datos de la subasta para poder crear el vehículo.</p>';
-                  AplicaFoco('#su_propuesto');
-                } else {
-                  RemueveFoco('#su_propuesto');
-                }
-                if (!$('#responsable_vehiculo').val()) {
-                  //campos dinamicos
-                  msg_error += '<p>Debe seleccionar un <strong>Responsable </strong> del vehículo para poder crear la solicitudocument.</p>';
-                  AplicaFoco('#responsable_vehiculo');
-                } else {
-                  RemueveFoco('#responsable_vehiculo');
-                }
-                if (!$('input[name=gender]').is(':checked')) {
-                  msg_error += '<p>Debe diligenciar el <strong>Tipo de operación</strong> para poder crear el vehículo.</p>';
-                }
-
-                if (!$('#total_pesos').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Total Peso(Kg) </strong>en datos de la solicitud para poder crear el vehículo.</p>';
-                  AplicaFoco('#total_pesos');
-                } else {
-                  RemueveFoco('#total_pesos');
-                }
-
-                if (!$('#capa_carga_vh').val()) {
-                  msg_error += '<p>Debe diligenciar el campo <strong>Capacidad carga(Kg)</strong>en datos de la solicitud para poder crear el vehículo.</p>';
-                  AplicaFoco('#capa_carga_vh');
-                } else {
-                  if ($('#capa_carga_vh').val().length > 5) {
-                    msg_error += '<p>El campo <strong>Capacidad carga(Kg)</strong> debe tener máximo 5 dígitos.</p>';
-                  } else {
-                    RemueveFoco('#capa_carga_vh');
-                  }
-                }
-                if ($('#total_pesos').val() != '' && $('#capa_carga_vh').val() != '') {
-                  var tpeso = $('#total_pesos').val().replace(/,/g, '');
-                  var capacidad = $('#capa_carga_vh').val().replace(/,/g, '');
-                  if (parseFloat(tpeso) > parseFloat(capacidad)) {
-                    msg_error += '<p>El <strong>Total sumatoria Peso(Kg) </strong> debe ser menor o igual a la <strong>Capacidad de carga vehículo(Kg)</strong></p>';
-                    AplicaFoco('#total_pesos');
-                    AplicaFoco('#capa_carga_vh');
-                  } else {
-                    RemueveFoco('#total_pesos');
-                    RemueveFoco('#capa_carga_vh');
-                  }
-                }
-                if ($('#estado_prefiltron').val() == '') {
-                  if (document.getElementById('nuevo').checked) {
-                    if (contador_global1 < 3) {
-                      msg_error += '<p>Debe diligenciar mínimo <strong>tres referencias laborales</strong> para poder crear la referencia.</p>';
-                    }
-                    var m;
-                    for (m = 1; m <= contador_global1; m++) {
-                      if (!$('#empresa_crear' + m + '').val()) {
-                        msg_error += '<p>Debe diligenciar el campo <strong>Empresa ' + m + ' </strong> para poder crear la referencia.</p>';
-                        AplicaFoco('#empresa_crear' + m + '');
-                      } else {
-                        RemueveFoco('#empresa_crear' + m + '');
-                      }
-
-                      if (!$('#numero_crear' + m + '').val()) {
-                        msg_error += '<p>Debe diligenciar el campo <strong>Teléfono ' + m + ' </strong> para poder crear la referencia.</p>';
-                        AplicaFoco('#numero_crear' + m + '');
-                      } else {
-                        if ($('#numero_crear' + m + '').val().length !== 10) {
-                          msg_error += '<p>El campo <strong>Teléfono ' + m + ' </strong> debe tener 10 dígitos.</p>';
-                        } else {
-                          RemueveFoco('#numero_crear' + m + '');
-                        }
-                      }
-                    }
-                  }
-
-                  /* Validar si esta checkd el campo de trailers */
-                  if (document.getElementById('propietario_obligatorio').checked) {
-                    if (document.getElementById('placat').value === '') {
-                      // console.log('campos obligatorios');
-                      $('#placat + p').remove();
-                      const ERROR = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                      $('#placat').after(ERROR);
-                      AplicaFoco('#placat');
-                      msg_error += '<p>Debe diligenciar <strong>placa</strong> del trailer para poder crear la solicitudocument.</p>';
-                    } else {
-                      $('#placat + p').remove();
-                      RemueveFoco('#placat');
-                    }
-
-                    if (document.getElementById('docproptrailer').value === '') {
-                      $('#docproptrailer + p').remove();
-                      const ERROR2 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                      $('#docproptrailer').after(ERROR2);
-                      AplicaFoco('#docproptrailer');
-                      msg_error += '<p>Debe diligenciar <strong>Documento Propietario trailer</strong> para poder crear la solicitudocument.</p>';
-                    } else {
-                      $('#docproptrailer + p').remove();
-                      RemueveFoco('#docproptrailer');
-                    }
-
-                    if (document.getElementById('nomproptrailer').value === '') {
-                      $('#nomproptrailer + p').remove();
-                      const ERROR3 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                      $('#nomproptrailer').after(ERROR3);
-                      AplicaFoco('#nomproptrailer');
-                      msg_error += '<p>Debe diligenciar <strong>Nombre Propietario Trailer</strong> para poder crear la solicitudocument.</p>';
-                    } else {
-                      $('#nomproptrailer + p').remove();
-                      RemueveFoco('#nomproptrailer');
-                    }
-                  } else {
-                    // console.log('campos no obligatorios');
-                    $('#placat + p').remove();
-                    $('#docproptrailer + p').remove();
-                    $('#nomproptrailer + p').remove();
-                    RemueveFoco('#placat');
-                    RemueveFoco('#docproptrailer');
-                    RemueveFoco('#nomproptrailer');
-                  }
-
-                  if (document.getElementById('habil').checked || document.getElementById('update').checked) {
-                    if (!$('#referencias_empresariales1').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Referencias laboral 1</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#celular_ref1').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Celular laboral 1</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#referencias_empresariales2').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Referencias laboral 2</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#celular_ref2').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Celular laboral 2</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#referencias_empresariales3').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Referencias laboral 3</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#celular_ref3').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Celular laboral 3</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    //personales
-                    if (!$('#referencias_personales1').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Nombre persona 1</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#parenp1').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Parentezco 1</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#telefonop1').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Teléfono 1</strong> en ref. personal para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#referencias_personales2').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Nombre persona 2</strong> en ref. personal para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#parenp2').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Parentezco 2</strong> para poder crear la solicitudocument.</p>';
-                    }
-                    if (!$('#telefonop2').val()) {
-                      msg_error += '<p>Debe diligenciar <strong>Teléfono 2</strong> para poder crear la solicitudocument.</p>';
-                    }
-
-                    if (document.getElementById('update').checked) {
-                      if (!document.getElementById('cbox1').checked && !document.getElementById('cbox2').checked) {
-                        msg_error += '<p>Debe seleccionar <strong>una opción de recurso</strong> para poder crear la solicitud (Actualiza seguridad).</p>';
-                      } else {
-                        if (document.getElementById('cbox1').checked) {
-                          //registrar campos nuevos
-                          if (
-                            !document.getElementById('cbpre1').checked &&
-                            !document.getElementById('cbpre2').checked &&
-                            !document.getElementById('cbpre3').checked &&
-                            !document.getElementById('cbpre4').checked &&
-                            !document.getElementById('cbpre5').checked
-                          ) {
-                            msg_error += '<p>Por favor seleccione el recurso a crear , opción seleccionada <strong>Recursos inexistentes</strong>.</p>';
-                          } else {
-                            if (document.getElementById('cbpre1').checked) {
-                              //propietario
-                              if (!$('#name_propietario').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Nombre Propietario</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#number_propietario').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Documento Propietario</strong> para poder crear la solicitudocument.</p>';
-                              }
-                            }
-
-                            if (document.getElementById('cbpre2').checked) {
-                              //poseedor
-                              if (!$('#name_poseedor').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Nombre Poseedor</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#number_poseedor').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Documento Poseedor</strong> para poder crear la solicitudocument.</p>';
-                              }
-                            }
-
-                            if (document.getElementById('cbpre3').checked) {
-                              //conductor
-                              if (!$('#name_conductor').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Nombre Conductor</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#number_conductor').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Documento Conductor</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#referencias_empresariales1pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Nombre referencia 1</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#contacto_ref1pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Persona contacto 1</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#celular_ref1pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Celular empresa 1</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#referencias_empresariales2pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Nombre referencia 2</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#contacto_ref2pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Persona contacto 2</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#celular_ref2pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Celular empresa 2</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#referencias_empresariales3pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Nombre referencia 3</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#contacto_ref3pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Persona contacto 3</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#celular_ref3pre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Celular empresa 3</strong> para poder crear la solicitudocument.</p>';
-                              }
-                            }
-
-                            if (document.getElementById('cbpre4').checked) {
-                              //trailer
-                              if (!$('#placa_trailerpre').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Placa tráiler</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#propi_trailer').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Nombre propietario tráiler</strong> para poder crear la solicitudocument.</p>';
-                              }
-                              if (!$('#propidocu_trailer').val()) {
-                                msg_error += '<p>Debe diligenciar <strong>Documento propietario tráiler</strong> para poder crear la solicitudocument.</p>';
-                              }
-                            }
-                          }
-                        }
-                        if (document.getElementById('cbox2').checked) {
-                          //campos dinamicos
-                          var idfila = $('#cuerpo_actu tr').length; //cantidad de filas de la tabla
-                          if (idfila == 0) {
-                            msg_error += '<p>Debe ingresar <strong>Mínimo 1 dato </strong> en bloque actualizar seguridad para poder crear la solicitudocument.</p>';
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                if (!msg_error && $('#estado_prefiltron').val() == '') {
-                  if (comprobar() === false) {
-                    if (document.getElementById('nuevo').checked) {
-                      let data = new FormData();
-                      var operacion;
-                      if ($('#update').is(':checked')) {
-                        operacion = 'Actualizar';
-                      }
-
-                      if ($('#nuevo').is(':checked')) {
-                        operacion = 'Nuevo';
-                      }
-                      if ($('#habil').is(':checked')) {
-                        operacion = 'Habilitar';
-                      }
-                      let fletef = $('#su_propuesto').val().split(',').join('');
-                      let tarifaf = $('#su_tarifacot').val().split(',').join('');
-                      data.append('placa', document.getElementById('placag').value);
-                      // Datos del propietario del vehiculo
-                      data.append('trailer', document.getElementById('placat').value);
-                      data.append('documento_propietario_trailer', document.getElementById('docproptrailer').value);
-                      data.append('propietario_trailer', document.getElementById('nomproptrailer').value);
-                      data.append('propietario', document.getElementById('nompro').value);
-                      data.append('documento_pro', document.getElementById('docupro').value);
-                      data.append('tenedor', document.getElementById('nomtene').value);
-                      data.append('documento_tene', document.getElementById('docutene').value);
-                      data.append('conductor', document.getElementById('nomcondu').value);
-                      data.append('documento_condu', document.getElementById('docucondu').value);
-                      data.append('web', document.getElementById('web').value);
-                      data.append('user_satelite', document.getElementById('user_satelite').value);
-                      data.append('clave', document.getElementById('clave').value);
-                      data.append('tipologianuevo', $('#nuevo').val());
-                      data.append('tipologiahabilte', $('#habilite').val());
-                      data.append('tipologiaactualice', $('#actualice').val());
-                      data.append('tipo_operacion', operacion);
-                      data.append('fecha', $('#fpree').val());
-                      data.append('hora', $('#hpree').val());
-                      data.append('usuario', $('#userpree').val());
-                      data.append('observacion', $('#obserpree').val());
-                      data.append('su_sumatorianeto', $('#su_sumatorianeto').val());
-                      data.append('total_peso', $('#total_peso').val());
-                      data.append('flete_subasta', fletef);
-                      data.append('tarifa_subasta', tarifaf);
-                      data.append('propietario_obligatorio', $('#propietario_obligatorio').is(':checked'));
-                      data.append('proceso_itr', proceso_itr);
-                      /* Responsable de vehiculo */
-                      data.append('responsable_vehiculo', $('#responsable_vehiculo').val());
-
-                      // Obtener los valores de los inputs de tipo array
-                      var empresa = document.getElementsByName('empresa_crear[]');
-                      for (var i = 0; i < empresa.length; i++) {
-                        data.append('empresa_crear[]', empresa[i].value);
-                      }
-                      var ingreso = document.getElementsByName('fingreso_crear[]');
-                      for (var i = 0; i < ingreso.length; i++) {
-                        data.append('fingreso_crear[]', ingreso[i].value);
-                      }
-                      var retiro = document.getElementsByName('fretiro_crear[]');
-                      for (var i = 0; i < retiro.length; i++) {
-                        data.append('fretiro_crear[]', retiro[i].value);
-                      }
-                      var persona = document.getElementsByName('contacto_crear[]');
-                      for (var i = 0; i < persona.length; i++) {
-                        data.append('contacto_crear[]', persona[i].value);
-                      }
-                      var num = document.getElementsByName('numero_crear[]');
-                      for (var i = 0; i < num.length; i++) {
-                        data.append('numero_crear[]', num[i].value);
-                      }
-                      var cargo = document.getElementsByName('cargo_crear[]');
-                      for (var i = 0; i < cargo.length; i++) {
-                        data.append('cargo_crear[]', cargo[i].value);
-                      }
-                      var anti = document.getElementsByName('antiguedad_crear[]');
-                      for (var i = 0; i < anti.length; i++) {
-                        data.append('antiguedad_crear[]', anti[i].value);
-                      }
-                      // Solicitudes de servicio
-                      var solicitudes = document.getElementsByName('fserva[]');
-                      for (var i = 0; i < solicitudes.length; i++) {
-                        data.append('fserva[]', solicitudes[i].value);
-                      }
-
-                      //se construye el objeto que almacena los datos
-                      let datos = {
-                        tipohoja: [],
-                        clase: [],
-                        ruta: [],
-                        documento: [],
-                        namearchivo: [],
-                        papeles: [],
-                      };
-
-                      //Archivos
-                      var cantp = $('#cont_papel').val();
-                      if (cantp > 0) {
-                        var tipohj = document.getElementsByName('tipohoja[]');
-                        for (var i = 0; i < tipohj.length; i++) {
-                          var tipo = tipohj[i].value;
-                          datos.tipohoja[i] = tipo;
-                        }
-                        var clase = document.getElementsByName('clase[]');
-                        for (var i = 0; i < clase.length; i++) {
-                          var clas = clase[i].value;
-                          datos.clase[i] = clas;
-                        }
-
-                        var ruta = document.getElementsByName('ruta[]');
-                        for (var i = 0; i < ruta.length; i++) {
-                          var rut = ruta[i].value;
-                          datos.ruta[i] = rut;
-                        }
-
-                        var documento = document.getElementsByName('documento[]');
-                        for (var i = 0; i < documento.length; i++) {
-                          var doc = documento[i].value;
-                          datos.documento[i] = doc;
-                        }
-
-                        var namearchivo = document.getElementsByName('namearchivo[]');
-                        for (var i = 0; i < namearchivo.length; i++) {
-                          var name = namearchivo[i].value;
-                          datos.namearchivo[i] = name;
-                        }
-
-                        var u;
-                        for (u = 1; u <= cantp; u++) {
-                          data.append('Papel', $('#papeles').is(':checked'));
-                          var papeles = document.getElementById('documento' + u + '').files;
-                          if (papeles.length > 0) {
-                            for (var a = 0; a < papeles.length; a++) {
-                              data.append('papeles[]', papeles[a]);
-                              // var doc = documento[a].value;
-                              // datos.papeles[a] = papeles[a];
-                            }
-                          } else {
-                            data.append('papeles', 'sin_datos');
-                          }
-                        }
-                        // Nuevo Array completo
-                        var nota = datos;
-                        nota = JSON.stringify(nota);
-                        data.append('notas', nota);
-                      }
-                      await fetch($('#base_url').val() + 'validacionparametros/Insertar_preestudio_nuevo', {
-                        method: 'POST',
-                        body: data,
-                        cache: 'no-cache',
-                      })
-                        .then(response => {
-                          if (!response.ok) throw new Error(response.statusText);
-                          return response.json();
-                        })
-                        .then(function (datas) {
-                          console.log(datas);
-                          if (datas) {
-                            alert(datas);
-                            $('#crea_vehiculopreestudio').modal('hide');
-                            Filtro();
-                            Limpiarmodal();
-                            Ocultarbloque();
-                            $('#crear_preestudio').show();
-                          } else {
-                            alert('error');
-                            $('#crear_preestudio').show();
-                          }
-                        })
-                        .catch(error => {
-                          alert(error);
-                          $('#crear_preestudio').show();
-                        });
-                    }
-                  }
-
-                  if (document.getElementById('habil').checked || document.getElementById('update').checked) {
-                    let data = new FormData();
-                    var operacion;
-                    if ($('#update').is(':checked')) {
-                      operacion = 'Actualizar';
-                    }
-                    if ($('#habil').is(':checked')) {
-                      operacion = 'Habilitar';
-                    }
-                    let fletef = $('#su_propuesto').val().split(',').join('');
-                    let tarifaf = $('#su_tarifacot').val().split(',').join('');
-                    data.append('tipo_operacion', operacion);
-                    data.append('placa', document.getElementById('placag').value);
-                    data.append('flete_subasta', fletef);
-                    data.append('tarifa_subasta', tarifaf);
-                    data.append('fecha', $('#fpree').val());
-                    data.append('hora', $('#hpree').val());
-                    data.append('usuario', $('#userpree').val());
-                    data.append('papeles', 'sin_datos');
-                    data.append('observacion', $('#obserpree').val());
-                    data.append('responsable_vehiculo', $('#responsable_vehiculo').val());
-                    // Solicitudes de servicio
-                    var solicitudes = document.getElementsByName('fserva[]');
-                    for (var i = 0; i < solicitudes.length; i++) {
-                      data.append('fserva[]', solicitudes[i].value);
-                    }
-
-                    //se construye el objeto que almacena los datos
-                    let element = {
-                      tipohojahv: [],
-                      campos: [],
-                      datos: [],
-                      namearchivo: [],
-                    };
-
-                    if ($('#update').is(':checked')) {
-                      //insercion de datos dinamicos
-                      if (document.getElementById('cbox2').checked) {
-                        data.append('dinamicos', 'si');
-                        var cantp = $('#valortb').val();
-                        if (cantp > 0) {
-                          var e, n;
-                          for (e = 1; e <= cantp; e++) {
-                            if (typeof $('#sa' + e).val() !== 'undefined') {
-                              var tipohv = $('#fila' + e).find('td').eq(1).find('a').text();
-                              var campo = $('#fila' + e + '').find('td').eq(2).html();
-                              var dato = $('#fila' + e + '').find('td').eq(3).html();
-                              var namea = $('#nam' + e + '').val();
-                              var papeles = document.getElementById('arc' + e + '').files[0];
-                              if (papeles.length > 0) {
-                                for (var a = 0; a < papeles.length; a++) {
-                                  data.append('papeles[]', papeles[a]);
-                                }
-                              } else {
-                                data.append('papeles', 'Sin_datos');
-                              }
-                              element.tipohojahv.push(tipohv);
-                              element.campos.push(campo);
-                              element.namearchivo.push(namea);
-                              element.datos.push(dato);
-                              // Nuevo Array completo
-                              var nota = element;
-                              nota = JSON.stringify(nota);
-                              data.append('notas', nota);
-                            }
-                          }
-                        }
-                      } else {
-                        data.append('dinamicos', 'no');
-                      }
-
-                      //inserción de recursos inexistentes es decir, nuevos
-                      if (document.getElementById('cbox1').checked) {
-                        data.append('nuevos_recursos', 'si');
-                        if (document.getElementById('cbpre1').checked) {
-                          //propietario
-                          tipologia = 'propietario';
-                          var name_propie = $('#name_propietario').val();
-                          var tipohv = 'Propietario';
-                          var docu_propi = $('#number_propietario').val();
-                          data.append('propietario_check', $('#cbpre1').is(':checked'));
-                          data.append('tipo_propi', tipologia);
-                          data.append('nombre_propietario', name_propie);
-                          data.append('docu_propi', docu_propi);
-                        } else {
-                          data.append('propietario_check', $('#cbpre1').is(':checked'));
-                        }
-                        if (document.getElementById('cbpre2').checked) {
-                          //poseedor
-                          tipologia = 'tenedor';
-                          campo = 'Nombre';
-                          name_posee = $('#name_poseedor').val();
-                          data.append('poseedor_check', $('#cbpre2').is(':checked'));
-                          docu_posee = $('#number_poseedor').val();
-                          data.append('tipo_posee', tipologia);
-                          data.append('nombre_poseedor', name_posee);
-                          data.append('docu_posee', docu_posee);
-                        } else {
-                          data.append('poseedor_check', $('#cbpre2').is(':checked'));
-                        }
-                        if (document.getElementById('cbpre3').checked) {
-                          //conductor
-                          tipologia = 'conductor';
-                          campo = 'Nombre';
-                          cedula = $('#number_conductor').val();
-                          nombre = $('#name_conductor').val();
-                          ref1 = $('#referencias_empresariales1pre').val();
-                          per1 = $('#contacto_ref1pre').val();
-                          cel1 = $('#celular_ref1pre').val();
-                          cargo1 = $('#cargo_ref1pre').val();
-                          fec1 = $('#fingresoa1pre').val();
-                          fec11 = $('#fretiroa3pre').val();
-                          anti = $('#anti_ref1pre').val();
-                          //
-                          ref2 = $('#referencias_empresariales2pre').val();
-                          per2 = $('#contacto_ref2pre').val();
-                          cel2 = $('#celular_ref2pre').val();
-                          cargo2 = $('#cargo_ref2pre').val();
-                          fec2 = $('#fingresob1pre').val();
-                          fec22 = $('#fretirob3pre').val();
-                          anti2 = $('#anti_ref2pre').val();
-                          //
-                          ref3 = $('#referencias_empresariales3pre').val();
-                          per3 = $('#contacto_ref3pre').val();
-                          cel3 = $('#celular_ref3pre').val();
-                          cargo3 = $('#cargo_ref3pre').val();
-                          fec3 = $('#fingresoc1pre').val();
-                          fec33 = $('#fretiroc3pre').val();
-                          anti3 = $('#anti_ref3pre').val();
-
-                          data.append('conductor_check', $('#cbpre3').is(':checked'));
-                          data.append('tipo_condu', tipologia);
-                          data.append('nombre_conductor', nombre);
-                          data.append('docu_condu', cedula);
-                          data.append('refe1', ref1);
-                          data.append('contacto1', per1);
-                          data.append('celular1', cel1);
-                          data.append('cargo1', cargo1);
-                          data.append('fechaa1', $('#fingresoa1pre').val());
-                          data.append('fechaa2', fec11);
-                          data.append('anti1', anti);
-                          data.append('refe2', ref2);
-                          data.append('contacto2', per2);
-                          data.append('celular2', cel2);
-                          data.append('cargo2', cargo2);
-                          data.append('fechab1', fec2);
-                          data.append('fechab2', fec22);
-                          data.append('anti2', anti2);
-                          data.append('refe3', ref3);
-                          data.append('contacto3', per3);
-                          data.append('celular3', cel3);
-                          data.append('cargo3', cargo3);
-                          data.append('fechac1', fec3);
-                          data.append('fechac2', $('#fretiroc3pre').val());
-                          data.append('anti3', anti3);
-                        } else {
-                          data.append('conductor_check', $('#cbpre3').is(':checked'));
-                        }
-
-                        if (document.getElementById('cbpre4').checked) {
-                          //trailer
-                          tipologia = 'trailer';
-                          campo = 'Nombre';
-                          placa = $('#placa_trailerpre').val();
-                          propi = $('#propi_trailer').val();
-                          docupropit = $('#propidocu_trailer').val();
-                          data.append('trailer_check', $('#cbpre4').is(':checked'));
-                          data.append('tipo_trai', tipologia);
-                          data.append('placa_trailer', placa);
-                          data.append('propi_trailer', propi);
-                          data.append('propidoc_trailer', docupropit);
-                        } else {
-                          data.append('trailer_check', $('#cbpre4').is(':checked'));
-                        }
-                      }
-                    }
-                    await fetch($('#base_url').val() + 'validacionparametros/Insert_estudio_itr', {
-                      method: 'POST',
-                      body: data,
-                      cache: 'no-cache',
-                    })
-                      .then(response => {
-                        if (!response.ok) throw new Error(response.statusText);
-                        return response.json();
-                      })
-                      .then(function (data) {
-                        if (data.numero === 200) {
-                          mensaje = `<div class="alert alert-outline-success d-flex align-items-center" role="alert">
-                          <span class="fas fa-check-circle text-success fs-5 me-3"></span>
-                          <p class="mb-0 flex-1"> ${data.mensaje}</p>
-                          <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>`;
-                          $('#crea_vehiculopreestudio').modal('hide');
-                          Filtro();
-                          Limpiarmodal();
-                          Ocultarbloque();
-                        } else {
-                          mensaje = `
-                          <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-                              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                              <div class="message">
-                                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                                <strong>Mensaje!</strong> ${data.mensaje}
-                              </div>
-                          </div>`;
-                          $('#crear_preestudio').show();
-                        }
-                        document.getElementById('historicos').innerHTML = mensaje;
-                      })
-                      .catch(error => {
-                        alert(error);
-                        $('#crear_preestudio').show();
-                      });
-                  }
-                } else {
-                  $('#nexos_messages_popup').html(`<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
-                    <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
-                    <p class="mb-0 flex-1">${msg_error}</br></p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>`);
-                  // $('#nexos_messages_popup').html(
-                  //   '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-                  //   msg_error +
-                  //   '</div></div>',
-                  // );
-                  $('#crea_vehiculopreestudio').animate({ scrollTop: 0 }, 600);
-                  $('#crear_preestudio').show();
-                }
-              } else {
-                // Código a ejecutar si el usuario hace clic en "Cancelar"
-                $('#crear_preestudio').show();
-              }
-            } else {
-              mensaje = `
-              <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
-                  <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                  <div class="message">
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                    <strong>Mensaje!</strong> Debes diligenciar la placa para la solicitud de servicio
-                  </div>
-              </div>`;
-              document.getElementById('historicos').innerHTML = mensaje;
-              // alert("debe diligenciar la placa para la solicitud");
-              $('#crear_preestudio').show();
-            }
-          } else {
-            /* Seundo viaje en adelante */
-            if (document.getElementById('accion_propietario_trailer').textContent === 'No Aplica') {
-              if (datos_validado >= 3) {
-                var radio = document.getElementById('habil');
-                radio.checked = true; // Marcar como seleccionado
-                if (document.getElementById('placa').value !== '') {
-                  if (window.confirm('¿Estas seguro de realizar la operación de solicitud de vehiculo?')) {
-                    // Código a ejecutar si el usuario hace clic en "Aceptar"
-                    var msg_error = '';
-                    if ($('#papeles').is(':checked')) {
-                      var p;
-                      for (p = 1; p == b; p++) {
-                        //var papeles = document.getElementById('documento'+i+'').files;
-                        if (!$('#tipohoja' + p + '').val()) {
-                          msg_error += '<p>Debe diligenciar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para poder crear el prefiltro.</p>';
-                        }
-                        if (!$('#ruta' + p + '').val()) {
-                          msg_error += '<p>Debe seleccionar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para que aparezca una ruta y poder crear el prefiltro.</p>';
-                        }
-                        if (!$('#namearchivo' + p + '').val()) {
-                          msg_error += '<p>Debe seleccionar un  <strong>(1) Archivo  en la fila ' + p + ' </strong> para poder crear el prefiltro.</p>';
-                        }
-                      }
-                    }
-                    if (!$('#placag').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Placa</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#placag');
-                    } else {
-                      `<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
-                    <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
-                    <p class="mb-0 flex-1">${msg_error}</br></p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>`
-                    }
-                    if (!$('#web').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Web satélital</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#web');
-                    } else {
-                      RemueveFoco('#web');
-                    }
-                    if (!$('#user_satelite').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>usuario</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#user_satelite');
-                    } else {
-                      RemueveFoco('#user_satelite');
-                    }
-                    if (!$('#clave').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Clave</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#clave');
-                    } else {
-                      RemueveFoco('#clave');
-                    }
-                    if (!$('#nompro').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Propietario</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#nompro');
-                    } else {
-                      RemueveFoco('#nompro');
-                    }
-                    if (!$('#docupro').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Documento de Propietario</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#docupro');
-                    } else {
-                      RemueveFoco('#docupro');
-                    }
-                    if (!$('#nomtene').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Tenedor</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#nomtene');
-                    } else {
-                      RemueveFoco('#nomtene');
-                    }
-                    if (!$('#docutene').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Documento de Tenedor</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#docutene');
-                    } else {
-                      RemueveFoco('#docutene');
-                    }
-                    if (!$('#nomcondu').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Conductor</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#nomcondu');
-                    } else {
-                      RemueveFoco('#nomcondu');
-                    }
-                    if (!$('#docucondu').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Documento de Conductor</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#docucondu');
-                    } else {
-                      RemueveFoco('#docucondu');
-                    }
-                    if (!$('#su_propuesto').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Flete propuesto </strong>en datos de la subasta para poder crear el vehículo.</p>';
-                      AplicaFoco('#su_propuesto');
-                    } else {
-                      RemueveFoco('#su_propuesto');
-                    }
-                    if (!$('#responsable_vehiculo').val()) {
-                      //campos dinamicos
-                      msg_error += '<p>Debe seleccionar un <strong>Responsable </strong> del vehículo para poder crear la solicitudocument.</p>';
-                      AplicaFoco('#responsable_vehiculo');
-                    } else {
-                      RemueveFoco('#responsable_vehiculo');
-                    }
-                    if (!$('input[name=gender]').is(':checked')) {
-                      msg_error += '<p>Debe diligenciar el <strong>Tipo de operación</strong> para poder crear el vehículo.</p>';
-                    }
-
-                    if (!$('#total_pesos').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Total Peso(Kg) </strong>en datos de la solicitud para poder crear el vehículo.</p>';
-                      AplicaFoco('#total_pesos');
-                    } else {
-                      RemueveFoco('#total_pesos');
-                    }
-
-                    if (!$('#capa_carga_vh').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Capacidad carga(Kg)</strong>en datos de la solicitud para poder crear el vehículo.</p>';
-                      AplicaFoco('#capa_carga_vh');
-                    } else {
-                      if ($('#capa_carga_vh').val().length > 5) {
-                        msg_error += '<p>El campo <strong>Capacidad carga(Kg)</strong> debe tener máximo 5 dígitos.</p>';
-                      } else {
-                        RemueveFoco('#capa_carga_vh');
-                      }
-                    }
-                    if ($('#total_pesos').val() != '' && $('#capa_carga_vh').val() != '') {
-                      var tpeso = $('#total_pesos').val().replace(/,/g, '');
-                      var capacidad = $('#capa_carga_vh').val().replace(/,/g, '');
-                      if (parseFloat(tpeso) > parseFloat(capacidad)) {
-                        msg_error += '<p>El <strong>Total sumatoria Peso(Kg) </strong> debe ser menor o igual a la <strong>Capacidad de carga vehículo(Kg)</strong></p>';
-                        AplicaFoco('#total_pesos');
-                        AplicaFoco('#capa_carga_vh');
-                      } else {
-                        RemueveFoco('#total_pesos');
-                        RemueveFoco('#capa_carga_vh');
-                      }
-                    }
-                    if ($('#estado_prefiltron').val() == '') {
-                      if (document.getElementById('nuevo').checked) {
-                        if (contador_global1 < 3) {
-                          msg_error += '<p>Debe diligenciar mínimo <strong>tres referencias laborales</strong> para poder crear la referencia.</p>';
-                        }
-                        var m;
-                        for (m = 1; m <= contador_global1; m++) {
-                          if (!$('#empresa_crear' + m + '').val()) {
-                            msg_error += '<p>Debe diligenciar el campo <strong>Empresa ' + m + ' </strong> para poder crear la referencia.</p>';
-                            AplicaFoco('#empresa_crear' + m + '');
-                          } else {
-                            RemueveFoco('#empresa_crear' + m + '');
-                          }
-
-                          if (!$('#numero_crear' + m + '').val()) {
-                            msg_error += '<p>Debe diligenciar el campo <strong>Teléfono ' + m + ' </strong> para poder crear la referencia.</p>';
-                            AplicaFoco('#numero_crear' + m + '');
-                          } else {
-                            if ($('#numero_crear' + m + '').val().length !== 10) {
-                              msg_error += '<p>El campo <strong>Teléfono ' + m + ' </strong> debe tener 10 dígitos.</p>';
-                            } else {
-                              RemueveFoco('#numero_crear' + m + '');
-                            }
-                          }
-                        }
-                      }
-
-                      /* Validar si esta checkd el campo de trailers */
-                      if (document.getElementById('propietario_obligatorio').checked) {
-                        if (document.getElementById('placat').value === '') {
-                          // console.log('campos obligatorios');
-                          $('#placat + p').remove();
-                          const ERROR = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                          $('#placat').after(ERROR);
-                          AplicaFoco('#placat');
-                          msg_error += '<p>Debe diligenciar <strong>placa</strong> del trailer para poder crear la solicitudocument.</p>';
-                        } else {
-                          $('#placat + p').remove();
-                          RemueveFoco('#placat');
-                        }
-
-                        if (document.getElementById('docproptrailer').value === '') {
-                          $('#docproptrailer + p').remove();
-                          const ERROR2 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                          $('#docproptrailer').after(ERROR2);
-                          AplicaFoco('#docproptrailer');
-                          msg_error += '<p>Debe diligenciar <strong>Documento Propietario trailer</strong> para poder crear la solicitudocument.</p>';
-                        } else {
-                          $('#docproptrailer + p').remove();
-                          RemueveFoco('#docproptrailer');
-                        }
-
-                        if (document.getElementById('nomproptrailer').value === '') {
-                          $('#nomproptrailer + p').remove();
-                          const ERROR3 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                          $('#nomproptrailer').after(ERROR3);
-                          AplicaFoco('#nomproptrailer');
-                          msg_error += '<p>Debe diligenciar <strong>Nombre Propietario Trailer</strong> para poder crear la solicitudocument.</p>';
-                        } else {
-                          $('#nomproptrailer + p').remove();
-                          RemueveFoco('#nomproptrailer');
-                        }
-                      } else {
-                        // console.log('campos no obligatorios');
-                        $('#placat + p').remove();
-                        $('#docproptrailer + p').remove();
-                        $('#nomproptrailer + p').remove();
-                        RemueveFoco('#placat');
-                        RemueveFoco('#docproptrailer');
-                        RemueveFoco('#nomproptrailer');
-                      }
-
-                      if (document.getElementById('habil').checked) {
-                        if (!$('#referencias_empresariales1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Referencias laboral 1</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#celular_ref1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Celular laboral 1</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#referencias_empresariales2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Referencias laboral 2</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#celular_ref2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Celular laboral 2</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#referencias_empresariales3').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Referencias laboral 3</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#celular_ref3').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Celular laboral 3</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        //personales
-                        if (!$('#referencias_personales1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Nombre persona 1</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#parenp1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Parentezco 1</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#telefonop1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Teléfono 1</strong> en ref. personal para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#referencias_personales2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Nombre persona 2</strong> en ref. personal para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#parenp2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Parentezco 2</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#telefonop2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Teléfono 2</strong> para poder crear la solicitudocument.</p>';
-                        }
-                      }
-                    }
-                    if (!msg_error && $('#estado_prefiltron').val() == '') {
-                      if (document.getElementById('habil').checked) {
-                        let data = new FormData();
-                        var operacion;
-                        if ($('#update').is(':checked')) {
-                          operacion = 'Actualizar';
-                        }
-                        if ($('#habil').is(':checked')) {
-                          operacion = 'Habilitar';
-                        }
-                        let fletef = $('#su_propuesto').val().split(',').join('');
-                        let tarifaf = $('#su_tarifacot').val().split(',').join('');
-                        data.append('tipo_operacion', operacion);
-                        data.append('placa', document.getElementById('placag').value);
-                        data.append('flete_subasta', fletef);
-                        data.append('tarifa_subasta', tarifaf);
-                        data.append('fecha', $('#fpree').val());
-                        data.append('hora', $('#hpree').val());
-                        data.append('usuario', $('#userpree').val());
-                        data.append('papeles', 'sin_datos');
-                        data.append('solicitud', document.getElementById('servicio_base').value);
-                        // Solicitudes de servicio
-                        var solicitudes = document.getElementsByName('fserva[]');
-                        for (var i = 0; i < solicitudes.length; i++) {
-                          data.append('fserva[]', solicitudes[i].value);
-                        }
-
-                        //se construye el objeto que almacena los datos
-                        let element = {
-                          tipohojahv: [],
-                          campos: [],
-                          datos: [],
-                          namearchivo: [],
-                        };
-
-                        await fetch($('#base_url').val() + 'validacionparametros/Insert_estudio_itr_subasta', {
-                          method: 'POST',
-                          body: data,
-                          cache: 'no-cache',
-                        })
-                          .then(response => {
-                            if (!response.ok) throw new Error(response.statusText);
-                            return response.json();
-                          })
-                          .then(function (data) {
-                            if (data.numero === 200) {
-                              mensaje = `<div class="alert alert-outline-success d-flex align-items-center" role="alert">
-                              <span class="fas fa-check-circle text-success fs-5 me-3"></span>
-                              <p class="mb-0 flex-1"> ${data.mensaje}</p>
-                              <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`;
-                              $('#crea_vehiculopreestudio').modal('hide');
-                              Filtro();
-                              Limpiarmodal();
-                              Ocultarbloque();
-                            } else {
-                              mensaje = `
-                              <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-                                  <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                                  <div class="message">
-                                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    <strong>Mensaje!</strong> ${data.mensaje}
-                                  </div>
-                              </div>`;
-                              $('#crear_preestudio').show();
-                            }
-                            document.getElementById('historicos').innerHTML = mensaje;
-                          })
-                          .catch(error => {
-                            alert(error);
-                            $('#crear_preestudio').show();
-                          });
-                      }
-                    } else {
-                      $('#nexos_messages_popup').html(`<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
-                    <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
-                    <p class="mb-0 flex-1">${msg_error}</br></p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>`,
-                      );
-                      $('#crea_vehiculopreestudio').animate({ scrollTop: 0 }, 600);
-                      $('#crear_preestudio').show();
-                    }
-                  } else {
-                    // Código a ejecutar si el usuario hace clic en "Cancelar"
-                    $('#crear_preestudio').show();
-                  }
-                } else {
-                  mensaje = `
-                  <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
-                      <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                      <div class="message">
-                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                        <strong>Mensaje!</strong> Debes diligenciar la placa para la solicitud de servicio
-                      </div>
-                  </div>`;
-                  document.getElementById('historicos').innerHTML = mensaje;
-                  // alert("debe diligenciar la placa para la solicitud");
-                  $('#crear_preestudio').show();
-                }
-              } else {
-                // console.log('debe diligenciar la validacion de parametros');
-                document.getElementById('mensaje_itr').innerHTML = `
-              <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
-                <div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
-                <div class="message">
-                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Advertencia!</strong> Debe verificar los datos para poder generar la orden de cargue nuevamente.
-                </div>
-              </div>`;
-              }
-            } else {
-              if (datos_validado >= 4) {
-                var radio = document.getElementById('habil');
-                radio.checked = true; // Marcar como seleccionado
-                if (document.getElementById('placa').value !== '') {
-                  if (window.confirm('¿Estas seguro de realizar la operación de solicitud de vehiculo?')) {
-                    // Código a ejecutar si el usuario hace clic en "Aceptar"
-                    var msg_error = '';
-                    if ($('#papeles').is(':checked')) {
-                      var p;
-                      for (p = 1; p == b; p++) {
-                        if (!$('#tipohoja' + p + '').val()) {
-                          msg_error += '<p>Debe diligenciar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para poder crear el prefiltro.</p>';
-                        }
-                        if (!$('#ruta' + p + '').val()) {
-                          msg_error += '<p>Debe seleccionar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para que aparezca una ruta y poder crear el prefiltro.</p>';
-                        }
-                        if (!$('#namearchivo' + p + '').val()) {
-                          msg_error += '<p>Debe seleccionar un  <strong>(1) Archivo  en la fila ' + p + ' </strong> para poder crear el prefiltro.</p>';
-                        }
-                      }
-                    }
-                    if (!$('#placag').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Placa</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#placag');
-                    } else {
-                      `<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
-                    <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
-                    <p class="mb-0 flex-1">${msg_error}</br></p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>`
-                    }
-                    if (!$('#web').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Web satélital</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#web');
-                    } else {
-                      RemueveFoco('#web');
-                    }
-                    if (!$('#user_satelite').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>usuario</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#user_satelite');
-                    } else {
-                      RemueveFoco('#user_satelite');
-                    }
-                    if (!$('#clave').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Clave</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#clave');
-                    } else {
-                      RemueveFoco('#clave');
-                    }
-                    if (!$('#nompro').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Propietario</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#nompro');
-                    } else {
-                      RemueveFoco('#nompro');
-                    }
-                    if (!$('#docupro').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Documento de Propietario</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#docupro');
-                    } else {
-                      RemueveFoco('#docupro');
-                    }
-                    if (!$('#nomtene').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Tenedor</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#nomtene');
-                    } else {
-                      RemueveFoco('#nomtene');
-                    }
-                    if (!$('#docutene').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Documento de Tenedor</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#docutene');
-                    } else {
-                      RemueveFoco('#docutene');
-                    }
-                    if (!$('#nomcondu').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Conductor</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#nomcondu');
-                    } else {
-                      RemueveFoco('#nomcondu');
-                    }
-                    if (!$('#docucondu').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Documento de Conductor</strong> para poder crear el vehículo.</p>';
-                      AplicaFoco('#docucondu');
-                    } else {
-                      RemueveFoco('#docucondu');
-                    }
-                    if (!$('#su_propuesto').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Flete propuesto </strong>en datos de la subasta para poder crear el vehículo.</p>';
-                      AplicaFoco('#su_propuesto');
-                    } else {
-                      RemueveFoco('#su_propuesto');
-                    }
-                    if (!$('#responsable_vehiculo').val()) {
-                      //campos dinamicos
-                      msg_error += '<p>Debe seleccionar un <strong>Responsable </strong> del vehículo para poder crear la solicitudocument.</p>';
-                      AplicaFoco('#responsable_vehiculo');
-                    } else {
-                      RemueveFoco('#responsable_vehiculo');
-                    }
-                    if (!$('input[name=gender]').is(':checked')) {
-                      msg_error += '<p>Debe diligenciar el <strong>Tipo de operación</strong> para poder crear el vehículo.</p>';
-                    }
-
-                    if (!$('#total_pesos').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Total Peso(Kg) </strong>en datos de la solicitud para poder crear el vehículo.</p>';
-                      AplicaFoco('#total_pesos');
-                    } else {
-                      RemueveFoco('#total_pesos');
-                    }
-
-                    if (!$('#capa_carga_vh').val()) {
-                      msg_error += '<p>Debe diligenciar el campo <strong>Capacidad carga(Kg)</strong>en datos de la solicitud para poder crear el vehículo.</p>';
-                      AplicaFoco('#capa_carga_vh');
-                    } else {
-                      if ($('#capa_carga_vh').val().length > 5) {
-                        msg_error += '<p>El campo <strong>Capacidad carga(Kg)</strong> debe tener máximo 5 dígitos.</p>';
-                      } else {
-                        RemueveFoco('#capa_carga_vh');
-                      }
-                    }
-                    if ($('#total_pesos').val() != '' && $('#capa_carga_vh').val() != '') {
-                      var tpeso = $('#total_pesos').val().replace(/,/g, '');
-                      var capacidad = $('#capa_carga_vh').val().replace(/,/g, '');
-                      if (parseFloat(tpeso) > parseFloat(capacidad)) {
-                        msg_error += '<p>El <strong>Total sumatoria Peso(Kg) </strong> debe ser menor o igual a la <strong>Capacidad de carga vehículo(Kg)</strong></p>';
-                        AplicaFoco('#total_pesos');
-                        AplicaFoco('#capa_carga_vh');
-                      } else {
-                        RemueveFoco('#total_pesos');
-                        RemueveFoco('#capa_carga_vh');
-                      }
-                    }
-                    if ($('#estado_prefiltron').val() == '') {
-                      if (document.getElementById('nuevo').checked) {
-                        if (contador_global1 < 3) {
-                          msg_error += '<p>Debe diligenciar mínimo <strong>tres referencias laborales</strong> para poder crear la referencia.</p>';
-                        }
-                        var m;
-                        for (m = 1; m <= contador_global1; m++) {
-                          if (!$('#empresa_crear' + m + '').val()) {
-                            msg_error += '<p>Debe diligenciar el campo <strong>Empresa ' + m + ' </strong> para poder crear la referencia.</p>';
-                            AplicaFoco('#empresa_crear' + m + '');
-                          } else {
-                            RemueveFoco('#empresa_crear' + m + '');
-                          }
-
-                          if (!$('#numero_crear' + m + '').val()) {
-                            msg_error += '<p>Debe diligenciar el campo <strong>Teléfono ' + m + ' </strong> para poder crear la referencia.</p>';
-                            AplicaFoco('#numero_crear' + m + '');
-                          } else {
-                            if ($('#numero_crear' + m + '').val().length !== 10) {
-                              msg_error += '<p>El campo <strong>Teléfono ' + m + ' </strong> debe tener 10 dígitos.</p>';
-                            } else {
-                              RemueveFoco('#numero_crear' + m + '');
-                            }
-                          }
-                        }
-                      }
-
-                      /* Validar si esta checkd el campo de trailers */
-                      if (document.getElementById('propietario_obligatorio').checked) {
-                        if (document.getElementById('placat').value === '') {
-                          // console.log('campos obligatorios');
-                          $('#placat + p').remove();
-                          const ERROR = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                          $('#placat').after(ERROR);
-                          AplicaFoco('#placat');
-                          msg_error += '<p>Debe diligenciar <strong>placa</strong> del trailer para poder crear la solicitudocument.</p>';
-                        } else {
-                          $('#placat + p').remove();
-                          RemueveFoco('#placat');
-                        }
-
-                        if (document.getElementById('docproptrailer').value === '') {
-                          $('#docproptrailer + p').remove();
-                          const ERROR2 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                          $('#docproptrailer').after(ERROR2);
-                          AplicaFoco('#docproptrailer');
-                          msg_error += '<p>Debe diligenciar <strong>Documento Propietario trailer</strong> para poder crear la solicitudocument.</p>';
-                        } else {
-                          $('#docproptrailer + p').remove();
-                          RemueveFoco('#docproptrailer');
-                        }
-
-                        if (document.getElementById('nomproptrailer').value === '') {
-                          $('#nomproptrailer + p').remove();
-                          const ERROR3 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
-                          $('#nomproptrailer').after(ERROR3);
-                          AplicaFoco('#nomproptrailer');
-                          msg_error += '<p>Debe diligenciar <strong>Nombre Propietario Trailer</strong> para poder crear la solicitudocument.</p>';
-                        } else {
-                          $('#nomproptrailer + p').remove();
-                          RemueveFoco('#nomproptrailer');
-                        }
-                      } else {
-                        // console.log('campos no obligatorios');
-                        $('#placat + p').remove();
-                        $('#docproptrailer + p').remove();
-                        $('#nomproptrailer + p').remove();
-                        RemueveFoco('#placat');
-                        RemueveFoco('#docproptrailer');
-                        RemueveFoco('#nomproptrailer');
-                      }
-
-                      if (document.getElementById('habil').checked) {
-                        if (!$('#referencias_empresariales1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Referencias laboral 1</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#celular_ref1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Celular laboral 1</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#referencias_empresariales2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Referencias laboral 2</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#celular_ref2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Celular laboral 2</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#referencias_empresariales3').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Referencias laboral 3</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#celular_ref3').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Celular laboral 3</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        //personales
-                        if (!$('#referencias_personales1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Nombre persona 1</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#parenp1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Parentezco 1</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#telefonop1').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Teléfono 1</strong> en ref. personal para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#referencias_personales2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Nombre persona 2</strong> en ref. personal para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#parenp2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Parentezco 2</strong> para poder crear la solicitudocument.</p>';
-                        }
-                        if (!$('#telefonop2').val()) {
-                          msg_error += '<p>Debe diligenciar <strong>Teléfono 2</strong> para poder crear la solicitudocument.</p>';
-                        }
-                      }
-                    }
-                    if (!msg_error && $('#estado_prefiltron').val() == '') {
-                      if (document.getElementById('habil').checked) {
-                        let data = new FormData();
-                        var operacion;
-                        if ($('#update').is(':checked')) {
-                          operacion = 'Actualizar';
-                        }
-                        if ($('#habil').is(':checked')) {
-                          operacion = 'Habilitar';
-                        }
-                        let fletef = $('#su_propuesto').val().split(',').join('');
-                        let tarifaf = $('#su_tarifacot').val().split(',').join('');
-                        data.append('tipo_operacion', operacion);
-                        data.append('placa', document.getElementById('placag').value);
-                        data.append('flete_subasta', fletef);
-                        data.append('tarifa_subasta', tarifaf);
-                        data.append('fecha', $('#fpree').val());
-                        data.append('hora', $('#hpree').val());
-                        data.append('usuario', $('#userpree').val());
-                        data.append('papeles', 'sin_datos');
-                        data.append('solicitud', document.getElementById('servicio_base').value);
-                        // Solicitudes de servicio
-                        var solicitudes = document.getElementsByName('fserva[]');
-                        for (var i = 0; i < solicitudes.length; i++) {
-                          data.append('fserva[]', solicitudes[i].value);
-                        }
-                        //se construye el objeto que almacena los datos
-                        let element = {
-                          tipohojahv: [],
-                          campos: [],
-                          datos: [],
-                          namearchivo: [],
-                        };
-
-                        await fetch($('#base_url').val() + 'validacionparametros/Insert_estudio_itr_subasta', {
-                          method: 'POST',
-                          body: data,
-                          cache: 'no-cache',
-                        })
-                          .then(response => {
-                            if (!response.ok) throw new Error(response.statusText);
-                            return response.json();
-                          })
-                          .then(function (data) {
-                            if (data.numero === 200) {
-                              mensaje = `<div class="alert alert-outline-success d-flex align-items-center" role="alert">
-                          <span class="fas fa-check-circle text-success fs-5 me-3"></span>
-                          <p class="mb-0 flex-1"> ${data.mensaje}</p>
-                          <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>`;
-                              $('#crea_vehiculopreestudio').modal('hide');
-                              Filtro();
-                              Limpiarmodal();
-                              Ocultarbloque();
-                            } else {
-                              mensaje = `
-                              <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-                                  <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                                  <div class="message">
-                                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    <strong>Mensaje!</strong> ${data.mensaje}
-                                  </div>
-                              </div>`;
-                              $('#crear_preestudio').show();
-                            }
-                            document.getElementById('historicos').innerHTML = mensaje;
-                          })
-                          .catch(error => {
-                            alert(error);
-                            $('#crear_preestudio').show();
-                          });
-                      }
-                    } else {
-                      $('#nexos_messages_popup').html(`<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
-                    <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
-                    <p class="mb-0 flex-1">${msg_error}</br></p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>`,
-                      );
-                      $('#crea_vehiculopreestudio').animate({ scrollTop: 0 }, 600);
-                      $('#crear_preestudio').show();
-                    }
-                  } else {
-                    // Código a ejecutar si el usuario hace clic en "Cancelar"
-                    $('#crear_preestudio').show();
-                  }
-                } else {
-                  mensaje = `
-                  <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
-                      <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                      <div class="message">
-                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                        <strong>Mensaje!</strong> Debes diligenciar la placa para la solicitud de servicio
-                      </div>
-                  </div>`;
-                  document.getElementById('historicos').innerHTML = mensaje;
-                  // alert("debe diligenciar la placa para la solicitud");
-                  $('#crear_preestudio').show();
-                }
-              } else {
-                // console.log('debe diligenciar la validacion de parametros');
-                document.getElementById('mensaje_itr').innerHTML = `
-              <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
-                <div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
-                <div class="message">
-                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Advertencia!</strong> Debe verificar los datos para poder generar la orden de cargue nuevamente.
-                </div>
-              </div>`;
-              }
-            }
-          }
+        const data = await response.json();
+        if (data) {
+          document.getElementById('placat').disabled = true;
+          document.getElementById('docproptrailer').value = data.numero_documento;
+          document.getElementById('nomproptrailer').value = data.Nombre_propietario;
+          // document.getElementById('docproptrailer').disabled = true;
+          // document.getElementById('nomproptrailer').disabled = true;
+          document.getElementById('mensaje_trailer_existe').innerHTML = `
+          <p class="bg-success text-center" style='color:#FFF'>Este Trailer ya esta registrado en el sistema, con el vehiculo de placa: ${data.placa_vehiculo}</p>
+        `;
         } else {
+          document.getElementById('placat').disabled = false;
+          document.getElementById('docproptrailer').disabled = false;
+          document.getElementById('nomproptrailer').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error en la segunda solicitud:', error);
+        throw error;
+      } finally {
+        $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+
+    /* Validar los numeros de documentos de los recursos nuevos para verificar y notificar al usaurio por que caminio es. */
+    if (e.target.matches('#number_propietario') || e.target.matches('#number_propietario *')) {
+      let documento = document.getElementById('number_propietario').value;
+      let dato = new FormData();
+      dato.append('documento', documento);
+      try {
+        const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Propietario', {
+          method: 'POST',
+          body: dato,
+          cache: 'no-cache',
+        });
+        const data = await response.json();
+        if (data) {
+          // document.getElementById('number_propietario').disabled = true;
+          $('#crea_vehiculopreestudio').modal('hide');
+          $('#mensaje_notificacion').html('<b>Advertencia!</b>');
+          const name_propietario = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
+          let actividad = 'Propietario';
+          $('#texto_notificacion').html(
+            `Este <b>${actividad}</b> ya esta registrado en NexosApp como: <b>${name_propietario}</b> la actualizacion de campos diferentes a documentos y placas debe ser por datos dinamicos`,
+          );
+          $('#mod-warning').modal('toggle');
+        } else {
+          document.getElementById('number_propietario').disabled = false;
+          document.getElementById('name_propietario').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error en la segunda solicitud:', error);
+        throw error;
+      } finally {
+        $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+
+    if (e.target.matches('#number_poseedor') || e.target.matches('#number_poseedor *')) {
+      let documento = document.getElementById('number_poseedor').value;
+      let dato = new FormData();
+      dato.append('documento', documento);
+      try {
+        const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Poseedor', {
+          method: 'POST',
+          body: dato,
+          cache: 'no-cache',
+        });
+        const data = await response.json();
+        if (data) {
+          // document.getElementById('number_propietario').disabled = true;
+          $('#crea_vehiculopreestudio').modal('hide');
+          $('#mensaje_notificacion').html('<b>Advertencia!</b>');
+          const name_pOSEEDOR = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
+          let actividad = 'Poseedor';
+          $('#texto_notificacion').html(
+            `Este <b>${actividad}</b> ya esta registrado en NexosApp como: <b>${name_pOSEEDOR}</b> la actualizacion de campos diferentes a documentos y placas debe ser por datos dinamicos`,
+          );
+          $('#mod-warning').modal('toggle');
+        } else {
+          document.getElementById('number_poseedor').disabled = false;
+          document.getElementById('name_propietario').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error en la segunda solicitud:', error);
+        throw error;
+      } finally {
+        $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+
+    if (e.target.matches('#number_conductor') || e.target.matches('#number_conductor *')) {
+      let documento = document.getElementById('number_conductor').value;
+      let dato = new FormData();
+      dato.append('documento', documento);
+      try {
+        const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Conductor', {
+          method: 'POST',
+          body: dato,
+          cache: 'no-cache',
+        });
+        const data = await response.json();
+        if (data) {
+          // document.getElementById('number_propietario').disabled = true;
+          $('#crea_vehiculopreestudio').modal('hide');
+          $('#mensaje_notificacion').html('<b>Advertencia!</b>');
+          const name_pOSEEDOR = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
+          let actividad = 'Conductor';
+          $('#texto_notificacion').html(
+            `Este <b>${actividad}</b> ya esta registrado en NexosApp como: <b>${name_pOSEEDOR}</b> la actualizacion de campos diferentes a documentos y placas debe ser por datos dinamicos`,
+          );
+          $('#mod-warning').modal('toggle');
+        } else {
+          document.getElementById('number_conductor').disabled = false;
+          document.getElementById('name_propietario').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error en la segunda solicitud:', error);
+        throw error;
+      } finally {
+        $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+
+    if (e.target.matches('#propidocu_trailer') || e.target.matches('#propidocu_trailer *')) {
+      let documento = document.getElementById('propidocu_trailer').value;
+      let dato = new FormData();
+      dato.append('documento', documento);
+      try {
+        const response = await fetch($('#base_url').val() + 'validacionparametros/Validar_Conductor', {
+          method: 'POST',
+          body: dato,
+          cache: 'no-cache',
+        });
+        const data = await response.json();
+        if (data) {
+          // document.getElementById('number_propietario').disabled = true;
+          $('#crea_vehiculopreestudio').modal('hide');
+          $('#mensaje_notificacion').html('<b>Advertencia!</b>');
+          const name_pOSEEDOR = data.nombre + ' ' + (data.apellido1 !== null ? data.apellido1 : '') + ' ' + (data.apellido2 !== null ? data.apellido2 : '');
+          let actividad = 'Conductor';
+          $('#texto_notificacion').html(
+            `Este <b>${actividad}</b> ya esta registrado en NexosApp como: <b>${name_pOSEEDOR}</b> la actualizacion de campos diferentes a documentos y placas debe ser por datos dinamicos`,
+          );
+          $('#mod-warning').modal('toggle');
+        } else {
+          document.getElementById('propidocu_trailer').disabled = false;
+          document.getElementById('name_propietario').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error en la segunda solicitud:', error);
+        throw error;
+      } finally {
+        $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
+    }
+  });
+
+  let datos_validado = 0;
+  document.addEventListener('click', async e => {
+    //Validar propietario para ITR
+    if (e.target.matches('#si_propietario') || e.target.matches('#si_propietario *')) {
+      document.getElementById('accion_propietario').innerHTML = 'Validado';
+      document.getElementById('accion_propietario').style.backgroundColor = '#14A44D';
+      document.getElementById('accion_propietario').style.color = '#FFFFFF';
+      datos_validado++;
+    } else if (e.target.matches('#no_propietario') || e.target.matches('#no_propietario *')) {
+      actualizar_itr();
+    }
+
+    // Validar poseedor de ITR
+    if (e.target.matches('#si_poseedor') || e.target.matches('#si_poseedor *')) {
+      document.getElementById('accion_poseedor').innerHTML = 'Validado';
+      document.getElementById('accion_poseedor').style.backgroundColor = '#14A44D';
+      document.getElementById('accion_poseedor').style.color = '#FFFFFF';
+      datos_validado++;
+    } else if (e.target.matches('#no_poseedor') || e.target.matches('#no_poseedor *')) {
+      actualizar_itr();
+    }
+
+    // Validar conductor de ITR
+    if (e.target.matches('#si_conductor') || e.target.matches('#si_conductor *')) {
+      document.getElementById('accion_conductor').innerHTML = 'Validado';
+      document.getElementById('accion_conductor').style.backgroundColor = '#14A44D';
+      document.getElementById('accion_conductor').style.color = '#FFFFFF';
+      datos_validado++;
+    } else if (e.target.matches('#no_conductor') || e.target.matches('#no_conductor *')) {
+      actualizar_itr();
+    }
+
+    // Validar propietario del tráiler para ITR
+    if (e.target.matches('#si_propietario_trailer') || e.target.matches('#si_propietario_trailer *')) {
+      document.getElementById('accion_propietario_trailer').innerHTML = 'Validado';
+      document.getElementById('accion_propietario_trailer').style.backgroundColor = '#14A44D';
+      document.getElementById('accion_propietario_trailer').style.color = '#FFFFFF';
+      datos_validado++;
+    } else if (e.target.matches('#no_propietario_trailer') || e.target.matches('#no_propietario_trailer *')) {
+      actualizar_itr();
+    }
+
+    /* Validar los click antes de precionar el boton de guarfar prefiltro para mostrar el boton */
+    if (document.getElementById('proceso_itr') === 'Si') {
+    } else {
+    }
+
+    // if (document.getElementById('accion_propietario_trailer').textContent === 'No Aplica') {
+    //   if (datos_validado >= 3) {
+    //     $('#crear_preestudio').show();
+    //   } else {
+    //   }
+    // } else {
+    //   if (datos_validado >= 4) {
+    //     $('#crear_preestudio').show();
+    //   } else {
+    //   }
+    // }
+
+    /* Guardar registros de prefiltro */
+    if (e.target.matches('#crear_preestudio') || e.target.matches('#crear_preestudio *')) {
+      // alert('boton guardar');
+      let proceso_itr = document.getElementById('proceso_itr').value;
+      if (proceso_itr === 'Si') {
+        if (datos_validado === 0) {
+          // Primer viaje
           if (document.getElementById('placa').value !== '') {
             // $("#crear_preestudio").hide();
             if (window.confirm('¿Estas seguro de realizar la operación de solicitud de vehiculo?')) {
@@ -3669,10 +2254,10 @@ window.initScript = function (id) {
                 AplicaFoco('#placag');
               } else {
                 `<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
-                    <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
-                    <p class="mb-0 flex-1">${msg_error}</br></p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>`
+                  <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
+                  <p class="mb-0 flex-1">${msg_error}</br></p>
+                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
               }
               if (!$('#web').val()) {
                 msg_error += '<p>Debe diligenciar el campo <strong>Web satélital</strong> para poder crear el vehículo.</p>';
@@ -3884,6 +2469,7 @@ window.initScript = function (id) {
                   if (!$('#telefonop2').val()) {
                     msg_error += '<p>Debe diligenciar <strong>Teléfono 2</strong> para poder crear la solicitudocument.</p>';
                   }
+
                   if (document.getElementById('update').checked) {
                     if (!document.getElementById('cbox1').checked && !document.getElementById('cbox2').checked) {
                       msg_error += '<p>Debe seleccionar <strong>una opción de recurso</strong> para poder crear la solicitud (Actualiza seguridad).</p>';
@@ -3968,22 +2554,6 @@ window.initScript = function (id) {
                               msg_error += '<p>Debe diligenciar <strong>Documento propietario tráiler</strong> para poder crear la solicitudocument.</p>';
                             }
                           }
-
-                          // if (document.getElementById("cbpre5").checked) {
-                          //   //vehiculo
-                          //   if (!$("#placa_vehiculosat").val()) {
-                          //     msg_error += "<p>Debe diligenciar <strong>Placa vehículo</strong> para poder crear la solicitudocument.</p>";
-                          //   }
-                          //   if (!$("#url_sat").val()) {
-                          //     msg_error += "<p>Debe diligenciar <strong>URL satélital</strong> para poder crear la solicitudocument.</p>";
-                          //   }
-                          //   if (!$("#user_sat").val()) {
-                          //     msg_error += "<p>Debe diligenciar <strong>Usuario satélital</strong> para poder crear la solicitudocument.</p>";
-                          //   }
-                          //   if (!$("#pass_sat").val()) {
-                          //     msg_error += "<p>Debe diligenciar <strong>Clave satélital</strong> para poder crear la solicitudocument.</p>";
-                          //   }
-                          // }
                         }
                       }
                       if (document.getElementById('cbox2').checked) {
@@ -4041,7 +2611,8 @@ window.initScript = function (id) {
                     data.append('flete_subasta', fletef);
                     data.append('tarifa_subasta', tarifaf);
                     data.append('propietario_obligatorio', $('#propietario_obligatorio').is(':checked'));
-                    /* Responsable vehiculo */
+                    data.append('proceso_itr', proceso_itr);
+                    /* Responsable de vehiculo */
                     data.append('responsable_vehiculo', $('#responsable_vehiculo').val());
 
                     // Obtener los valores de los inputs de tipo array
@@ -4152,9 +2723,22 @@ window.initScript = function (id) {
                       .then(function (datas) {
                         console.log(datas);
                         if (datas) {
-                          alert(datas);
-                          $('#crea_vehiculopreestudio').modal('hide');
-                          Filtro();
+                          // alert(datas);
+                          // $('#crea_vehiculopreestudio').modal('hide');
+                          Swal.fire({
+                            title: "¡Éxito!",
+                            html: data, // Usa el mensaje recibido en `data`
+                            icon: "success",
+                            confirmButtonText: "Aceptar",
+                            showCloseButton: true
+                          });
+                          let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('staticBackdrop'));
+                          if (offcanvas) {
+                            offcanvas.hide();
+                            document.getElementById('placa').value = "";
+                            document.getElementById('placa').diabled = false;
+                          }
+                          Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
                           Limpiarmodal();
                           Ocultarbloque();
                           $('#crear_preestudio').show();
@@ -4190,7 +2774,6 @@ window.initScript = function (id) {
                   data.append('usuario', $('#userpree').val());
                   data.append('papeles', 'sin_datos');
                   data.append('observacion', $('#obserpree').val());
-                  /* Responsable vehiculo */
                   data.append('responsable_vehiculo', $('#responsable_vehiculo').val());
                   // Solicitudes de servicio
                   var solicitudes = document.getElementsByName('fserva[]');
@@ -4219,7 +2802,7 @@ window.initScript = function (id) {
                             var campo = $('#fila' + e + '').find('td').eq(2).html();
                             var dato = $('#fila' + e + '').find('td').eq(3).html();
                             var namea = $('#nam' + e + '').val();
-                            var papeles = document.getElementById('arc' + e + '').files;
+                            var papeles = document.getElementById('arc' + e + '').files[0];
                             if (papeles.length > 0) {
                               for (var a = 0; a < papeles.length; a++) {
                                 data.append('papeles[]', papeles[a]);
@@ -4347,8 +2930,7 @@ window.initScript = function (id) {
                       }
                     }
                   }
-
-                  await fetch($('#base_url').val() + 'validacionparametros/Insert_estudio', {
+                  await fetch($('#base_url').val() + 'validacionparametros/Insert_estudio_itr', {
                     method: 'POST',
                     body: data,
                     cache: 'no-cache',
@@ -4359,6 +2941,12 @@ window.initScript = function (id) {
                     })
                     .then(function (data) {
                       if (data.numero === 200) {
+                        //   mensaje = `<div class="alert alert-outline-success d-flex align-items-center" role="alert">
+                        //   <span class="fas fa-check-circle text-success fs-5 me-3"></span>
+                        //   <p class="mb-0 flex-1"> ${data.mensaje}</p>
+                        //   <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                        // </div>`;
+                        //   $('#crea_vehiculopreestudio').modal('hide');
                         Swal.fire({
                           title: "¡Éxito!",
                           text: data.mensaje, // Usa el mensaje recibido en `data`
@@ -4372,7 +2960,7 @@ window.initScript = function (id) {
                           document.getElementById('placa').value = "";
                           document.getElementById('placa').diabled = false;
                         }
-                        Filtro();
+                        Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
                         Limpiarmodal();
                         Ocultarbloque();
                       } else {
@@ -4395,10 +2983,15 @@ window.initScript = function (id) {
                 }
               } else {
                 $('#nexos_messages_popup').html(`<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
-                    <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
-                    <p class="mb-0 flex-1">${msg_error}</br></p>
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>`);
+                  <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
+                  <p class="mb-0 flex-1">${msg_error}</br></p>
+                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`);
+                // $('#nexos_messages_popup').html(
+                //   '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
+                //   msg_error +
+                //   '</div></div>',
+                // );
                 $('#crea_vehiculopreestudio').animate({ scrollTop: 0 }, 600);
                 $('#crear_preestudio').show();
               }
@@ -4419,117 +3012,1646 @@ window.initScript = function (id) {
             // alert("debe diligenciar la placa para la solicitud");
             $('#crear_preestudio').show();
           }
-        }
-      }
-
-      //boton agregar referencias para nuevo
-
-      if (e.target.matches('#agregar_fila') || e.target.matches('#agregar_fila *')) {
-        // agregar();
-        numero++;
-        if (numero <= 3) {
-          agregar();
         } else {
-          alert('Señor usuario ha superado el máximo de referencias laborales!!');
+          /* Seundo viaje en adelante */
+          if (document.getElementById('accion_propietario_trailer').textContent === 'No Aplica') {
+            if (datos_validado >= 3) {
+              var radio = document.getElementById('habil');
+              radio.checked = true; // Marcar como seleccionado
+              if (document.getElementById('placa').value !== '') {
+                if (window.confirm('¿Estas seguro de realizar la operación de solicitud de vehiculo?')) {
+                  // Código a ejecutar si el usuario hace clic en "Aceptar"
+                  var msg_error = '';
+                  if ($('#papeles').is(':checked')) {
+                    var p;
+                    for (p = 1; p == b; p++) {
+                      //var papeles = document.getElementById('documento'+i+'').files;
+                      if (!$('#tipohoja' + p + '').val()) {
+                        msg_error += '<p>Debe diligenciar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para poder crear el prefiltro.</p>';
+                      }
+                      if (!$('#ruta' + p + '').val()) {
+                        msg_error += '<p>Debe seleccionar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para que aparezca una ruta y poder crear el prefiltro.</p>';
+                      }
+                      if (!$('#namearchivo' + p + '').val()) {
+                        msg_error += '<p>Debe seleccionar un  <strong>(1) Archivo  en la fila ' + p + ' </strong> para poder crear el prefiltro.</p>';
+                      }
+                    }
+                  }
+                  if (!$('#placag').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Placa</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#placag');
+                  } else {
+                    `<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
+                  <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
+                  <p class="mb-0 flex-1">${msg_error}</br></p>
+                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+                  }
+                  if (!$('#web').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Web satélital</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#web');
+                  } else {
+                    RemueveFoco('#web');
+                  }
+                  if (!$('#user_satelite').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>usuario</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#user_satelite');
+                  } else {
+                    RemueveFoco('#user_satelite');
+                  }
+                  if (!$('#clave').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Clave</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#clave');
+                  } else {
+                    RemueveFoco('#clave');
+                  }
+                  if (!$('#nompro').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Propietario</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#nompro');
+                  } else {
+                    RemueveFoco('#nompro');
+                  }
+                  if (!$('#docupro').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Documento de Propietario</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#docupro');
+                  } else {
+                    RemueveFoco('#docupro');
+                  }
+                  if (!$('#nomtene').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Tenedor</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#nomtene');
+                  } else {
+                    RemueveFoco('#nomtene');
+                  }
+                  if (!$('#docutene').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Documento de Tenedor</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#docutene');
+                  } else {
+                    RemueveFoco('#docutene');
+                  }
+                  if (!$('#nomcondu').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Conductor</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#nomcondu');
+                  } else {
+                    RemueveFoco('#nomcondu');
+                  }
+                  if (!$('#docucondu').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Documento de Conductor</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#docucondu');
+                  } else {
+                    RemueveFoco('#docucondu');
+                  }
+                  if (!$('#su_propuesto').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Flete propuesto </strong>en datos de la subasta para poder crear el vehículo.</p>';
+                    AplicaFoco('#su_propuesto');
+                  } else {
+                    RemueveFoco('#su_propuesto');
+                  }
+                  if (!$('#responsable_vehiculo').val()) {
+                    //campos dinamicos
+                    msg_error += '<p>Debe seleccionar un <strong>Responsable </strong> del vehículo para poder crear la solicitudocument.</p>';
+                    AplicaFoco('#responsable_vehiculo');
+                  } else {
+                    RemueveFoco('#responsable_vehiculo');
+                  }
+                  if (!$('input[name=gender]').is(':checked')) {
+                    msg_error += '<p>Debe diligenciar el <strong>Tipo de operación</strong> para poder crear el vehículo.</p>';
+                  }
+
+                  if (!$('#total_pesos').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Total Peso(Kg) </strong>en datos de la solicitud para poder crear el vehículo.</p>';
+                    AplicaFoco('#total_pesos');
+                  } else {
+                    RemueveFoco('#total_pesos');
+                  }
+
+                  if (!$('#capa_carga_vh').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Capacidad carga(Kg)</strong>en datos de la solicitud para poder crear el vehículo.</p>';
+                    AplicaFoco('#capa_carga_vh');
+                  } else {
+                    if ($('#capa_carga_vh').val().length > 5) {
+                      msg_error += '<p>El campo <strong>Capacidad carga(Kg)</strong> debe tener máximo 5 dígitos.</p>';
+                    } else {
+                      RemueveFoco('#capa_carga_vh');
+                    }
+                  }
+                  if ($('#total_pesos').val() != '' && $('#capa_carga_vh').val() != '') {
+                    var tpeso = $('#total_pesos').val().replace(/,/g, '');
+                    var capacidad = $('#capa_carga_vh').val().replace(/,/g, '');
+                    if (parseFloat(tpeso) > parseFloat(capacidad)) {
+                      msg_error += '<p>El <strong>Total sumatoria Peso(Kg) </strong> debe ser menor o igual a la <strong>Capacidad de carga vehículo(Kg)</strong></p>';
+                      AplicaFoco('#total_pesos');
+                      AplicaFoco('#capa_carga_vh');
+                    } else {
+                      RemueveFoco('#total_pesos');
+                      RemueveFoco('#capa_carga_vh');
+                    }
+                  }
+                  if ($('#estado_prefiltron').val() == '') {
+                    if (document.getElementById('nuevo').checked) {
+                      if (contador_global1 < 3) {
+                        msg_error += '<p>Debe diligenciar mínimo <strong>tres referencias laborales</strong> para poder crear la referencia.</p>';
+                      }
+                      var m;
+                      for (m = 1; m <= contador_global1; m++) {
+                        if (!$('#empresa_crear' + m + '').val()) {
+                          msg_error += '<p>Debe diligenciar el campo <strong>Empresa ' + m + ' </strong> para poder crear la referencia.</p>';
+                          AplicaFoco('#empresa_crear' + m + '');
+                        } else {
+                          RemueveFoco('#empresa_crear' + m + '');
+                        }
+
+                        if (!$('#numero_crear' + m + '').val()) {
+                          msg_error += '<p>Debe diligenciar el campo <strong>Teléfono ' + m + ' </strong> para poder crear la referencia.</p>';
+                          AplicaFoco('#numero_crear' + m + '');
+                        } else {
+                          if ($('#numero_crear' + m + '').val().length !== 10) {
+                            msg_error += '<p>El campo <strong>Teléfono ' + m + ' </strong> debe tener 10 dígitos.</p>';
+                          } else {
+                            RemueveFoco('#numero_crear' + m + '');
+                          }
+                        }
+                      }
+                    }
+
+                    /* Validar si esta checkd el campo de trailers */
+                    if (document.getElementById('propietario_obligatorio').checked) {
+                      if (document.getElementById('placat').value === '') {
+                        // console.log('campos obligatorios');
+                        $('#placat + p').remove();
+                        const ERROR = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                        $('#placat').after(ERROR);
+                        AplicaFoco('#placat');
+                        msg_error += '<p>Debe diligenciar <strong>placa</strong> del trailer para poder crear la solicitudocument.</p>';
+                      } else {
+                        $('#placat + p').remove();
+                        RemueveFoco('#placat');
+                      }
+
+                      if (document.getElementById('docproptrailer').value === '') {
+                        $('#docproptrailer + p').remove();
+                        const ERROR2 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                        $('#docproptrailer').after(ERROR2);
+                        AplicaFoco('#docproptrailer');
+                        msg_error += '<p>Debe diligenciar <strong>Documento Propietario trailer</strong> para poder crear la solicitudocument.</p>';
+                      } else {
+                        $('#docproptrailer + p').remove();
+                        RemueveFoco('#docproptrailer');
+                      }
+
+                      if (document.getElementById('nomproptrailer').value === '') {
+                        $('#nomproptrailer + p').remove();
+                        const ERROR3 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                        $('#nomproptrailer').after(ERROR3);
+                        AplicaFoco('#nomproptrailer');
+                        msg_error += '<p>Debe diligenciar <strong>Nombre Propietario Trailer</strong> para poder crear la solicitudocument.</p>';
+                      } else {
+                        $('#nomproptrailer + p').remove();
+                        RemueveFoco('#nomproptrailer');
+                      }
+                    } else {
+                      // console.log('campos no obligatorios');
+                      $('#placat + p').remove();
+                      $('#docproptrailer + p').remove();
+                      $('#nomproptrailer + p').remove();
+                      RemueveFoco('#placat');
+                      RemueveFoco('#docproptrailer');
+                      RemueveFoco('#nomproptrailer');
+                    }
+
+                    if (document.getElementById('habil').checked) {
+                      if (!$('#referencias_empresariales1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Referencias laboral 1</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#celular_ref1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Celular laboral 1</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#referencias_empresariales2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Referencias laboral 2</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#celular_ref2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Celular laboral 2</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#referencias_empresariales3').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Referencias laboral 3</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#celular_ref3').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Celular laboral 3</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      //personales
+                      if (!$('#referencias_personales1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Nombre persona 1</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#parenp1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Parentezco 1</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#telefonop1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Teléfono 1</strong> en ref. personal para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#referencias_personales2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Nombre persona 2</strong> en ref. personal para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#parenp2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Parentezco 2</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#telefonop2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Teléfono 2</strong> para poder crear la solicitudocument.</p>';
+                      }
+                    }
+                  }
+                  if (!msg_error && $('#estado_prefiltron').val() == '') {
+                    if (document.getElementById('habil').checked) {
+                      let data = new FormData();
+                      var operacion;
+                      if ($('#update').is(':checked')) {
+                        operacion = 'Actualizar';
+                      }
+                      if ($('#habil').is(':checked')) {
+                        operacion = 'Habilitar';
+                      }
+                      let fletef = $('#su_propuesto').val().split(',').join('');
+                      let tarifaf = $('#su_tarifacot').val().split(',').join('');
+                      data.append('tipo_operacion', operacion);
+                      data.append('placa', document.getElementById('placag').value);
+                      data.append('flete_subasta', fletef);
+                      data.append('tarifa_subasta', tarifaf);
+                      data.append('fecha', $('#fpree').val());
+                      data.append('hora', $('#hpree').val());
+                      data.append('usuario', $('#userpree').val());
+                      data.append('papeles', 'sin_datos');
+                      data.append('solicitud', document.getElementById('servicio_base').value);
+                      // Solicitudes de servicio
+                      var solicitudes = document.getElementsByName('fserva[]');
+                      for (var i = 0; i < solicitudes.length; i++) {
+                        data.append('fserva[]', solicitudes[i].value);
+                      }
+
+                      //se construye el objeto que almacena los datos
+                      let element = {
+                        tipohojahv: [],
+                        campos: [],
+                        datos: [],
+                        namearchivo: [],
+                      };
+
+                      await fetch($('#base_url').val() + 'validacionparametros/Insert_estudio_itr_subasta', {
+                        method: 'POST',
+                        body: data,
+                        cache: 'no-cache',
+                      })
+                        .then(response => {
+                          if (!response.ok) throw new Error(response.statusText);
+                          return response.json();
+                        })
+                        .then(function (data) {
+                          if (data.numero === 200) {
+                            //   mensaje = `<div class="alert alert-outline-success d-flex align-items-center" role="alert">
+                            //   <span class="fas fa-check-circle text-success fs-5 me-3"></span>
+                            //   <p class="mb-0 flex-1"> ${data.mensaje}</p>
+                            //   <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                            // </div>`;
+                            //   $('#crea_vehiculopreestudio').modal('hide');
+                            Swal.fire({
+                              title: "¡Éxito!",
+                              text: data.mensaje, // Usa el mensaje recibido en `data`
+                              icon: "success",
+                              confirmButtonText: "Aceptar",
+                              showCloseButton: true
+                            });
+                            let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('staticBackdrop'));
+                            if (offcanvas) {
+                              offcanvas.hide();
+                              document.getElementById('placa').value = "";
+                              document.getElementById('placa').diabled = false;
+                            }
+                            Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
+                            Limpiarmodal();
+                            Ocultarbloque();
+                          } else {
+                            mensaje = `
+                            <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+                                <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                                <div class="message">
+                                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                                  <strong>Mensaje!</strong> ${data.mensaje}
+                                </div>
+                            </div>`;
+                            $('#crear_preestudio').show();
+                          }
+                          document.getElementById('historicos').innerHTML = mensaje;
+                        })
+                        .catch(error => {
+                          alert(error);
+                          $('#crear_preestudio').show();
+                        });
+                    }
+                  } else {
+                    $('#nexos_messages_popup').html(`<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
+                  <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
+                  <p class="mb-0 flex-1">${msg_error}</br></p>
+                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`,
+                    );
+                    $('#crea_vehiculopreestudio').animate({ scrollTop: 0 }, 600);
+                    $('#crear_preestudio').show();
+                  }
+                } else {
+                  // Código a ejecutar si el usuario hace clic en "Cancelar"
+                  $('#crear_preestudio').show();
+                }
+              } else {
+                mensaje = `
+                <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
+                    <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                    <div class="message">
+                      <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                      <strong>Mensaje!</strong> Debes diligenciar la placa para la solicitud de servicio
+                    </div>
+                </div>`;
+                document.getElementById('historicos').innerHTML = mensaje;
+                // alert("debe diligenciar la placa para la solicitud");
+                $('#crear_preestudio').show();
+              }
+            } else {
+              // console.log('debe diligenciar la validacion de parametros');
+              document.getElementById('mensaje_itr').innerHTML = `
+            <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
+              <div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
+              <div class="message">
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Advertencia!</strong> Debe verificar los datos para poder generar la orden de cargue nuevamente.
+              </div>
+            </div>`;
+            }
+          } else {
+            if (datos_validado >= 4) {
+              var radio = document.getElementById('habil');
+              radio.checked = true; // Marcar como seleccionado
+              if (document.getElementById('placa').value !== '') {
+                if (window.confirm('¿Estas seguro de realizar la operación de solicitud de vehiculo?')) {
+                  // Código a ejecutar si el usuario hace clic en "Aceptar"
+                  var msg_error = '';
+                  if ($('#papeles').is(':checked')) {
+                    var p;
+                    for (p = 1; p == b; p++) {
+                      if (!$('#tipohoja' + p + '').val()) {
+                        msg_error += '<p>Debe diligenciar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para poder crear el prefiltro.</p>';
+                      }
+                      if (!$('#ruta' + p + '').val()) {
+                        msg_error += '<p>Debe seleccionar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para que aparezca una ruta y poder crear el prefiltro.</p>';
+                      }
+                      if (!$('#namearchivo' + p + '').val()) {
+                        msg_error += '<p>Debe seleccionar un  <strong>(1) Archivo  en la fila ' + p + ' </strong> para poder crear el prefiltro.</p>';
+                      }
+                    }
+                  }
+                  if (!$('#placag').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Placa</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#placag');
+                  } else {
+                    `<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
+                  <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
+                  <p class="mb-0 flex-1">${msg_error}</br></p>
+                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+                  }
+                  if (!$('#web').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Web satélital</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#web');
+                  } else {
+                    RemueveFoco('#web');
+                  }
+                  if (!$('#user_satelite').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>usuario</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#user_satelite');
+                  } else {
+                    RemueveFoco('#user_satelite');
+                  }
+                  if (!$('#clave').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Clave</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#clave');
+                  } else {
+                    RemueveFoco('#clave');
+                  }
+                  if (!$('#nompro').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Propietario</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#nompro');
+                  } else {
+                    RemueveFoco('#nompro');
+                  }
+                  if (!$('#docupro').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Documento de Propietario</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#docupro');
+                  } else {
+                    RemueveFoco('#docupro');
+                  }
+                  if (!$('#nomtene').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Tenedor</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#nomtene');
+                  } else {
+                    RemueveFoco('#nomtene');
+                  }
+                  if (!$('#docutene').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Documento de Tenedor</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#docutene');
+                  } else {
+                    RemueveFoco('#docutene');
+                  }
+                  if (!$('#nomcondu').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Conductor</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#nomcondu');
+                  } else {
+                    RemueveFoco('#nomcondu');
+                  }
+                  if (!$('#docucondu').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Documento de Conductor</strong> para poder crear el vehículo.</p>';
+                    AplicaFoco('#docucondu');
+                  } else {
+                    RemueveFoco('#docucondu');
+                  }
+                  if (!$('#su_propuesto').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Flete propuesto </strong>en datos de la subasta para poder crear el vehículo.</p>';
+                    AplicaFoco('#su_propuesto');
+                  } else {
+                    RemueveFoco('#su_propuesto');
+                  }
+                  if (!$('#responsable_vehiculo').val()) {
+                    //campos dinamicos
+                    msg_error += '<p>Debe seleccionar un <strong>Responsable </strong> del vehículo para poder crear la solicitudocument.</p>';
+                    AplicaFoco('#responsable_vehiculo');
+                  } else {
+                    RemueveFoco('#responsable_vehiculo');
+                  }
+                  if (!$('input[name=gender]').is(':checked')) {
+                    msg_error += '<p>Debe diligenciar el <strong>Tipo de operación</strong> para poder crear el vehículo.</p>';
+                  }
+
+                  if (!$('#total_pesos').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Total Peso(Kg) </strong>en datos de la solicitud para poder crear el vehículo.</p>';
+                    AplicaFoco('#total_pesos');
+                  } else {
+                    RemueveFoco('#total_pesos');
+                  }
+
+                  if (!$('#capa_carga_vh').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Capacidad carga(Kg)</strong>en datos de la solicitud para poder crear el vehículo.</p>';
+                    AplicaFoco('#capa_carga_vh');
+                  } else {
+                    if ($('#capa_carga_vh').val().length > 5) {
+                      msg_error += '<p>El campo <strong>Capacidad carga(Kg)</strong> debe tener máximo 5 dígitos.</p>';
+                    } else {
+                      RemueveFoco('#capa_carga_vh');
+                    }
+                  }
+                  if ($('#total_pesos').val() != '' && $('#capa_carga_vh').val() != '') {
+                    var tpeso = $('#total_pesos').val().replace(/,/g, '');
+                    var capacidad = $('#capa_carga_vh').val().replace(/,/g, '');
+                    if (parseFloat(tpeso) > parseFloat(capacidad)) {
+                      msg_error += '<p>El <strong>Total sumatoria Peso(Kg) </strong> debe ser menor o igual a la <strong>Capacidad de carga vehículo(Kg)</strong></p>';
+                      AplicaFoco('#total_pesos');
+                      AplicaFoco('#capa_carga_vh');
+                    } else {
+                      RemueveFoco('#total_pesos');
+                      RemueveFoco('#capa_carga_vh');
+                    }
+                  }
+                  if ($('#estado_prefiltron').val() == '') {
+                    if (document.getElementById('nuevo').checked) {
+                      if (contador_global1 < 3) {
+                        msg_error += '<p>Debe diligenciar mínimo <strong>tres referencias laborales</strong> para poder crear la referencia.</p>';
+                      }
+                      var m;
+                      for (m = 1; m <= contador_global1; m++) {
+                        if (!$('#empresa_crear' + m + '').val()) {
+                          msg_error += '<p>Debe diligenciar el campo <strong>Empresa ' + m + ' </strong> para poder crear la referencia.</p>';
+                          AplicaFoco('#empresa_crear' + m + '');
+                        } else {
+                          RemueveFoco('#empresa_crear' + m + '');
+                        }
+
+                        if (!$('#numero_crear' + m + '').val()) {
+                          msg_error += '<p>Debe diligenciar el campo <strong>Teléfono ' + m + ' </strong> para poder crear la referencia.</p>';
+                          AplicaFoco('#numero_crear' + m + '');
+                        } else {
+                          if ($('#numero_crear' + m + '').val().length !== 10) {
+                            msg_error += '<p>El campo <strong>Teléfono ' + m + ' </strong> debe tener 10 dígitos.</p>';
+                          } else {
+                            RemueveFoco('#numero_crear' + m + '');
+                          }
+                        }
+                      }
+                    }
+
+                    /* Validar si esta checkd el campo de trailers */
+                    if (document.getElementById('propietario_obligatorio').checked) {
+                      if (document.getElementById('placat').value === '') {
+                        // console.log('campos obligatorios');
+                        $('#placat + p').remove();
+                        const ERROR = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                        $('#placat').after(ERROR);
+                        AplicaFoco('#placat');
+                        msg_error += '<p>Debe diligenciar <strong>placa</strong> del trailer para poder crear la solicitudocument.</p>';
+                      } else {
+                        $('#placat + p').remove();
+                        RemueveFoco('#placat');
+                      }
+
+                      if (document.getElementById('docproptrailer').value === '') {
+                        $('#docproptrailer + p').remove();
+                        const ERROR2 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                        $('#docproptrailer').after(ERROR2);
+                        AplicaFoco('#docproptrailer');
+                        msg_error += '<p>Debe diligenciar <strong>Documento Propietario trailer</strong> para poder crear la solicitudocument.</p>';
+                      } else {
+                        $('#docproptrailer + p').remove();
+                        RemueveFoco('#docproptrailer');
+                      }
+
+                      if (document.getElementById('nomproptrailer').value === '') {
+                        $('#nomproptrailer + p').remove();
+                        const ERROR3 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                        $('#nomproptrailer').after(ERROR3);
+                        AplicaFoco('#nomproptrailer');
+                        msg_error += '<p>Debe diligenciar <strong>Nombre Propietario Trailer</strong> para poder crear la solicitudocument.</p>';
+                      } else {
+                        $('#nomproptrailer + p').remove();
+                        RemueveFoco('#nomproptrailer');
+                      }
+                    } else {
+                      // console.log('campos no obligatorios');
+                      $('#placat + p').remove();
+                      $('#docproptrailer + p').remove();
+                      $('#nomproptrailer + p').remove();
+                      RemueveFoco('#placat');
+                      RemueveFoco('#docproptrailer');
+                      RemueveFoco('#nomproptrailer');
+                    }
+
+                    if (document.getElementById('habil').checked) {
+                      if (!$('#referencias_empresariales1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Referencias laboral 1</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#celular_ref1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Celular laboral 1</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#referencias_empresariales2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Referencias laboral 2</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#celular_ref2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Celular laboral 2</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#referencias_empresariales3').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Referencias laboral 3</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#celular_ref3').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Celular laboral 3</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      //personales
+                      if (!$('#referencias_personales1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Nombre persona 1</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#parenp1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Parentezco 1</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#telefonop1').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Teléfono 1</strong> en ref. personal para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#referencias_personales2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Nombre persona 2</strong> en ref. personal para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#parenp2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Parentezco 2</strong> para poder crear la solicitudocument.</p>';
+                      }
+                      if (!$('#telefonop2').val()) {
+                        msg_error += '<p>Debe diligenciar <strong>Teléfono 2</strong> para poder crear la solicitudocument.</p>';
+                      }
+                    }
+                  }
+                  if (!msg_error && $('#estado_prefiltron').val() == '') {
+                    if (document.getElementById('habil').checked) {
+                      let data = new FormData();
+                      var operacion;
+                      if ($('#update').is(':checked')) {
+                        operacion = 'Actualizar';
+                      }
+                      if ($('#habil').is(':checked')) {
+                        operacion = 'Habilitar';
+                      }
+                      let fletef = $('#su_propuesto').val().split(',').join('');
+                      let tarifaf = $('#su_tarifacot').val().split(',').join('');
+                      data.append('tipo_operacion', operacion);
+                      data.append('placa', document.getElementById('placag').value);
+                      data.append('flete_subasta', fletef);
+                      data.append('tarifa_subasta', tarifaf);
+                      data.append('fecha', $('#fpree').val());
+                      data.append('hora', $('#hpree').val());
+                      data.append('usuario', $('#userpree').val());
+                      data.append('papeles', 'sin_datos');
+                      data.append('solicitud', document.getElementById('servicio_base').value);
+                      // Solicitudes de servicio
+                      var solicitudes = document.getElementsByName('fserva[]');
+                      for (var i = 0; i < solicitudes.length; i++) {
+                        data.append('fserva[]', solicitudes[i].value);
+                      }
+                      //se construye el objeto que almacena los datos
+                      let element = {
+                        tipohojahv: [],
+                        campos: [],
+                        datos: [],
+                        namearchivo: [],
+                      };
+
+                      await fetch($('#base_url').val() + 'validacionparametros/Insert_estudio_itr_subasta', {
+                        method: 'POST',
+                        body: data,
+                        cache: 'no-cache',
+                      })
+                        .then(response => {
+                          if (!response.ok) throw new Error(response.statusText);
+                          return response.json();
+                        })
+                        .then(function (data) {
+                          if (data.numero === 200) {
+                            //       mensaje = `<div class="alert alert-outline-success d-flex align-items-center" role="alert">
+                            //   <span class="fas fa-check-circle text-success fs-5 me-3"></span>
+                            //   <p class="mb-0 flex-1"> ${data.mensaje}</p>
+                            //   <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                            // </div>`;
+                            //       $('#crea_vehiculopreestudio').modal('hide');
+                            Swal.fire({
+                              title: "¡Éxito!",
+                              text: data.mensaje, // Usa el mensaje recibido en `data`
+                              icon: "success",
+                              confirmButtonText: "Aceptar",
+                              showCloseButton: true
+                            });
+                            let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('staticBackdrop'));
+                            if (offcanvas) {
+                              offcanvas.hide();
+                              document.getElementById('placa').value = "";
+                              document.getElementById('placa').diabled = false;
+                            }
+                            Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
+                            Limpiarmodal();
+                            Ocultarbloque();
+                          } else {
+                            mensaje = `
+                            <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+                                <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                                <div class="message">
+                                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                                  <strong>Mensaje!</strong> ${data.mensaje}
+                                </div>
+                            </div>`;
+                            $('#crear_preestudio').show();
+                          }
+                          document.getElementById('historicos').innerHTML = mensaje;
+                        })
+                        .catch(error => {
+                          alert(error);
+                          $('#crear_preestudio').show();
+                        });
+                    }
+                  } else {
+                    $('#nexos_messages_popup').html(`<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
+                  <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
+                  <p class="mb-0 flex-1">${msg_error}</br></p>
+                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`,
+                    );
+                    $('#crea_vehiculopreestudio').animate({ scrollTop: 0 }, 600);
+                    $('#crear_preestudio').show();
+                  }
+                } else {
+                  // Código a ejecutar si el usuario hace clic en "Cancelar"
+                  $('#crear_preestudio').show();
+                }
+              } else {
+                mensaje = `
+                <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
+                    <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                    <div class="message">
+                      <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                      <strong>Mensaje!</strong> Debes diligenciar la placa para la solicitud de servicio
+                    </div>
+                </div>`;
+                document.getElementById('historicos').innerHTML = mensaje;
+                // alert("debe diligenciar la placa para la solicitud");
+                $('#crear_preestudio').show();
+              }
+            } else {
+              // console.log('debe diligenciar la validacion de parametros');
+              document.getElementById('mensaje_itr').innerHTML = `
+            <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
+              <div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
+              <div class="message">
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Advertencia!</strong> Debe verificar los datos para poder generar la orden de cargue nuevamente.
+              </div>
+            </div>`;
+            }
+          }
         }
-      }
-
-      if (e.target.matches('#btn_cerrar') || e.target.matches('#btn_cerrar')) {
-        $('#placa').prop('disabled', false);
-      }
-
-      if (e.target.matches('#btn_cerrar_notificaciones')) {
-        $('#mod-warning').modal('hide');
-        $('#crea_vehiculopreestudio').modal('toggle');
-        document.getElementById('number_propietario').value = '';
-        document.getElementById('number_poseedor').value = '';
-        document.getElementById('number_conductor').value = '';
-        document.getElementById('propidocu_trailer').value = '';
-      }
-
-      // Verificar si el evento fue en el checkbox o en un hijo del checkbox
-      if (e.target.matches('#propietario_obligatorio') || e.target.matches('#propietario_obligatorio *')) {
-        // Obtener el checkbox, en caso de que el evento venga de un hijo
-        const checkbox = document.getElementById('propietario_obligatorio');
-        // Verificar si está marcado
-        if (checkbox.checked) {
-          // console.log('El checkbox está marcado');
-          // document.getElementById('placat').style.readonly = false;
-          $('#placat').prop('disabled', false);
-          $('#docproptrailer').prop('disabled', false);
-          $('#nomproptrailer').prop('disabled', false);
-          document.getElementById('mensaje_trailer_obligatorio').innerHTML = `
-        <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
-          <div class="icon"><span class="mdi mdi-notifications"></span></div>
-          <div class="message">
-            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Información!</strong> Los campos del trailer son obligatorios.
-          </div>
-        </div>
-        `;
-          document.getElementById('etiqueta_placa_trailer').innerHTML = `Placa Trailer&nbsp;<span style="color:red;"><i>(*)</i></span>`;
-          document.getElementById('etiqueta_documento_trailer').innerHTML = `Documento Propietario Trailer&nbsp;<span style="color:red;"><i>(*)</i></span>`;
-          document.getElementById('estiqueta_propietario_trailer').innerHTML = `Nombre Propietario Trailer&nbsp;<span style="color:red;"><i>(*)</i></span>`;
-        } else {
-          $('#placat').prop('disabled', true);
-          $('#docproptrailer').prop('disabled', true);
-          $('#nomproptrailer').prop('disabled', true);
-          document.getElementById('mensaje_trailer_obligatorio').innerHTML = `
-        <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
-          <div class="icon"><span class="mdi mdi-notifications"></span></div>
-          <div class="message">
-            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Información!</strong> Los campos del trailer no requeridos.
-          </div>
-        </div>
-        `;
-          document.getElementById('etiqueta_placa_trailer').innerHTML = `Placa Trailer`;
-          document.getElementById('etiqueta_documento_trailer').innerHTML = `Documento Propietario Trailer`;
-          document.getElementById('estiqueta_propietario_trailer').innerHTML = `Nombre Propietario Trailer`;
-        }
-      }
-    });
-
-    // Selecciona los elementos por su ID y asigna el evento 'blur'
-    $('#web, #user_satelite, #clave, #docupro, #docutene, #docucondu').on('blur', validar_formulario);
-
-    function validar_formulario(e) {
-      if (e.target.value.trim() === '') {
-        MostrarMensaje(`El campo es obligatorio`, e.target.parentElement);
-        datosnuevos[e.target.name] = '';
-        comprobar();
-        return;
-      }
-      limpiaralerta(e.target.parentElement);
-      //Asignar valores
-      datosnuevos[e.target.name] = e.target.value.trim().toLowerCase();
-      comprobar();
-    }
-
-    function MostrarMensaje(mensaje, referencia) {
-      limpiaralerta(referencia);
-      const ERROR = document.createElement('P');
-      ERROR.textContent = mensaje;
-      ERROR.classList.add('bg-danger', "style='color:#FFF'", 'text-center', 'w-100');
-      ERROR.style.fontSize = '12px';
-      referencia.appendChild(ERROR);
-    }
-
-    function limpiaralerta(referencia) {
-      const ALERTA = referencia.querySelector('.bg-danger');
-      if (ALERTA) {
-        ALERTA.remove();
-      }
-    }
-
-    function comprobar() {
-      console.log(Object.values(datosnuevos).includes(''));
-      if (Object.values(datosnuevos).includes('')) {
-        return true;
       } else {
-        return false;
+        if (document.getElementById('placa').value !== '') {
+          // $("#crear_preestudio").hide();
+          if (window.confirm('¿Estas seguro de realizar la operación de solicitud de vehiculo?')) {
+            // Código a ejecutar si el usuario hace clic en "Aceptar"
+            var msg_error = '';
+            if ($('#papeles').is(':checked')) {
+              var p;
+              for (p = 1; p == b; p++) {
+                //var papeles = document.getElementById('documento'+i+'').files;
+                if (!$('#tipohoja' + p + '').val()) {
+                  msg_error += '<p>Debe diligenciar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para poder crear el prefiltro.</p>';
+                }
+                if (!$('#ruta' + p + '').val()) {
+                  msg_error += '<p>Debe seleccionar el campo <strong>Tipo hoja de vida  en la fila ' + p + '</strong> para que aparezca una ruta y poder crear el prefiltro.</p>';
+                }
+                if (!$('#namearchivo' + p + '').val()) {
+                  msg_error += '<p>Debe seleccionar un  <strong>(1) Archivo  en la fila ' + p + ' </strong> para poder crear el prefiltro.</p>';
+                }
+              }
+            }
+            if (!$('#placag').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Placa</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#placag');
+            } else {
+              `<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
+                  <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
+                  <p class="mb-0 flex-1">${msg_error}</br></p>
+                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+            }
+            if (!$('#web').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Web satélital</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#web');
+            } else {
+              RemueveFoco('#web');
+            }
+            if (!$('#user_satelite').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>usuario</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#user_satelite');
+            } else {
+              RemueveFoco('#user_satelite');
+            }
+            if (!$('#clave').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Clave</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#clave');
+            } else {
+              RemueveFoco('#clave');
+            }
+            if (!$('#nompro').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Propietario</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#nompro');
+            } else {
+              RemueveFoco('#nompro');
+            }
+            if (!$('#docupro').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Documento de Propietario</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#docupro');
+            } else {
+              RemueveFoco('#docupro');
+            }
+            if (!$('#nomtene').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Tenedor</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#nomtene');
+            } else {
+              RemueveFoco('#nomtene');
+            }
+            if (!$('#docutene').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Documento de Tenedor</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#docutene');
+            } else {
+              RemueveFoco('#docutene');
+            }
+            if (!$('#nomcondu').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Nombre de Conductor</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#nomcondu');
+            } else {
+              RemueveFoco('#nomcondu');
+            }
+            if (!$('#docucondu').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Documento de Conductor</strong> para poder crear el vehículo.</p>';
+              AplicaFoco('#docucondu');
+            } else {
+              RemueveFoco('#docucondu');
+            }
+            if (!$('#su_propuesto').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Flete propuesto </strong>en datos de la subasta para poder crear el vehículo.</p>';
+              AplicaFoco('#su_propuesto');
+            } else {
+              RemueveFoco('#su_propuesto');
+            }
+            if (!$('#responsable_vehiculo').val()) {
+              //campos dinamicos
+              msg_error += '<p>Debe seleccionar un <strong>Responsable </strong> del vehículo para poder crear la solicitudocument.</p>';
+              AplicaFoco('#responsable_vehiculo');
+            } else {
+              RemueveFoco('#responsable_vehiculo');
+            }
+            if (!$('input[name=gender]').is(':checked')) {
+              msg_error += '<p>Debe diligenciar el <strong>Tipo de operación</strong> para poder crear el vehículo.</p>';
+            }
+
+            if (!$('#total_pesos').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Total Peso(Kg) </strong>en datos de la solicitud para poder crear el vehículo.</p>';
+              AplicaFoco('#total_pesos');
+            } else {
+              RemueveFoco('#total_pesos');
+            }
+
+            if (!$('#capa_carga_vh').val()) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Capacidad carga(Kg)</strong>en datos de la solicitud para poder crear el vehículo.</p>';
+              AplicaFoco('#capa_carga_vh');
+            } else {
+              if ($('#capa_carga_vh').val().length > 5) {
+                msg_error += '<p>El campo <strong>Capacidad carga(Kg)</strong> debe tener máximo 5 dígitos.</p>';
+              } else {
+                RemueveFoco('#capa_carga_vh');
+              }
+            }
+            if ($('#total_pesos').val() != '' && $('#capa_carga_vh').val() != '') {
+              var tpeso = $('#total_pesos').val().replace(/,/g, '');
+              var capacidad = $('#capa_carga_vh').val().replace(/,/g, '');
+              if (parseFloat(tpeso) > parseFloat(capacidad)) {
+                msg_error += '<p>El <strong>Total sumatoria Peso(Kg) </strong> debe ser menor o igual a la <strong>Capacidad de carga vehículo(Kg)</strong></p>';
+                AplicaFoco('#total_pesos');
+                AplicaFoco('#capa_carga_vh');
+              } else {
+                RemueveFoco('#total_pesos');
+                RemueveFoco('#capa_carga_vh');
+              }
+            }
+            if ($('#estado_prefiltron').val() == '') {
+              if (document.getElementById('nuevo').checked) {
+                if (contador_global1 < 3) {
+                  msg_error += '<p>Debe diligenciar mínimo <strong>tres referencias laborales</strong> para poder crear la referencia.</p>';
+                }
+                var m;
+                for (m = 1; m <= contador_global1; m++) {
+                  if (!$('#empresa_crear' + m + '').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Empresa ' + m + ' </strong> para poder crear la referencia.</p>';
+                    AplicaFoco('#empresa_crear' + m + '');
+                  } else {
+                    RemueveFoco('#empresa_crear' + m + '');
+                  }
+
+                  if (!$('#numero_crear' + m + '').val()) {
+                    msg_error += '<p>Debe diligenciar el campo <strong>Teléfono ' + m + ' </strong> para poder crear la referencia.</p>';
+                    AplicaFoco('#numero_crear' + m + '');
+                  } else {
+                    if ($('#numero_crear' + m + '').val().length !== 10) {
+                      msg_error += '<p>El campo <strong>Teléfono ' + m + ' </strong> debe tener 10 dígitos.</p>';
+                    } else {
+                      RemueveFoco('#numero_crear' + m + '');
+                    }
+                  }
+                }
+              }
+
+              /* Validar si esta checkd el campo de trailers */
+              if (document.getElementById('propietario_obligatorio').checked) {
+                if (document.getElementById('placat').value === '') {
+                  // console.log('campos obligatorios');
+                  $('#placat + p').remove();
+                  const ERROR = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                  $('#placat').after(ERROR);
+                  AplicaFoco('#placat');
+                  msg_error += '<p>Debe diligenciar <strong>placa</strong> del trailer para poder crear la solicitudocument.</p>';
+                } else {
+                  $('#placat + p').remove();
+                  RemueveFoco('#placat');
+                }
+
+                if (document.getElementById('docproptrailer').value === '') {
+                  $('#docproptrailer + p').remove();
+                  const ERROR2 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                  $('#docproptrailer').after(ERROR2);
+                  AplicaFoco('#docproptrailer');
+                  msg_error += '<p>Debe diligenciar <strong>Documento Propietario trailer</strong> para poder crear la solicitudocument.</p>';
+                } else {
+                  $('#docproptrailer + p').remove();
+                  RemueveFoco('#docproptrailer');
+                }
+
+                if (document.getElementById('nomproptrailer').value === '') {
+                  $('#nomproptrailer + p').remove();
+                  const ERROR3 = $('<p></p>').text('El campo es obligatorio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
+                  $('#nomproptrailer').after(ERROR3);
+                  AplicaFoco('#nomproptrailer');
+                  msg_error += '<p>Debe diligenciar <strong>Nombre Propietario Trailer</strong> para poder crear la solicitudocument.</p>';
+                } else {
+                  $('#nomproptrailer + p').remove();
+                  RemueveFoco('#nomproptrailer');
+                }
+              } else {
+                // console.log('campos no obligatorios');
+                $('#placat + p').remove();
+                $('#docproptrailer + p').remove();
+                $('#nomproptrailer + p').remove();
+                RemueveFoco('#placat');
+                RemueveFoco('#docproptrailer');
+                RemueveFoco('#nomproptrailer');
+              }
+
+              if (document.getElementById('habil').checked || document.getElementById('update').checked) {
+                if (!$('#referencias_empresariales1').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Referencias laboral 1</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#celular_ref1').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Celular laboral 1</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#referencias_empresariales2').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Referencias laboral 2</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#celular_ref2').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Celular laboral 2</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#referencias_empresariales3').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Referencias laboral 3</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#celular_ref3').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Celular laboral 3</strong> para poder crear la solicitudocument.</p>';
+                }
+                //personales
+                if (!$('#referencias_personales1').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Nombre persona 1</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#parenp1').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Parentezco 1</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#telefonop1').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Teléfono 1</strong> en ref. personal para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#referencias_personales2').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Nombre persona 2</strong> en ref. personal para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#parenp2').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Parentezco 2</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (!$('#telefonop2').val()) {
+                  msg_error += '<p>Debe diligenciar <strong>Teléfono 2</strong> para poder crear la solicitudocument.</p>';
+                }
+                if (document.getElementById('update').checked) {
+                  if (!document.getElementById('cbox1').checked && !document.getElementById('cbox2').checked) {
+                    msg_error += '<p>Debe seleccionar <strong>una opción de recurso</strong> para poder crear la solicitud (Actualiza seguridad).</p>';
+                  } else {
+                    if (document.getElementById('cbox1').checked) {
+                      //registrar campos nuevos
+                      if (
+                        !document.getElementById('cbpre1').checked &&
+                        !document.getElementById('cbpre2').checked &&
+                        !document.getElementById('cbpre3').checked &&
+                        !document.getElementById('cbpre4').checked &&
+                        !document.getElementById('cbpre5').checked
+                      ) {
+                        msg_error += '<p>Por favor seleccione el recurso a crear , opción seleccionada <strong>Recursos inexistentes</strong>.</p>';
+                      } else {
+                        if (document.getElementById('cbpre1').checked) {
+                          //propietario
+                          if (!$('#name_propietario').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Nombre Propietario</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#number_propietario').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Documento Propietario</strong> para poder crear la solicitudocument.</p>';
+                          }
+                        }
+
+                        if (document.getElementById('cbpre2').checked) {
+                          //poseedor
+                          if (!$('#name_poseedor').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Nombre Poseedor</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#number_poseedor').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Documento Poseedor</strong> para poder crear la solicitudocument.</p>';
+                          }
+                        }
+
+                        if (document.getElementById('cbpre3').checked) {
+                          //conductor
+                          if (!$('#name_conductor').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Nombre Conductor</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#number_conductor').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Documento Conductor</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#referencias_empresariales1pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Nombre referencia 1</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#contacto_ref1pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Persona contacto 1</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#celular_ref1pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Celular empresa 1</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#referencias_empresariales2pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Nombre referencia 2</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#contacto_ref2pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Persona contacto 2</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#celular_ref2pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Celular empresa 2</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#referencias_empresariales3pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Nombre referencia 3</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#contacto_ref3pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Persona contacto 3</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#celular_ref3pre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Celular empresa 3</strong> para poder crear la solicitudocument.</p>';
+                          }
+                        }
+
+                        if (document.getElementById('cbpre4').checked) {
+                          //trailer
+                          if (!$('#placa_trailerpre').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Placa tráiler</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#propi_trailer').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Nombre propietario tráiler</strong> para poder crear la solicitudocument.</p>';
+                          }
+                          if (!$('#propidocu_trailer').val()) {
+                            msg_error += '<p>Debe diligenciar <strong>Documento propietario tráiler</strong> para poder crear la solicitudocument.</p>';
+                          }
+                        }
+
+                        // if (document.getElementById("cbpre5").checked) {
+                        //   //vehiculo
+                        //   if (!$("#placa_vehiculosat").val()) {
+                        //     msg_error += "<p>Debe diligenciar <strong>Placa vehículo</strong> para poder crear la solicitudocument.</p>";
+                        //   }
+                        //   if (!$("#url_sat").val()) {
+                        //     msg_error += "<p>Debe diligenciar <strong>URL satélital</strong> para poder crear la solicitudocument.</p>";
+                        //   }
+                        //   if (!$("#user_sat").val()) {
+                        //     msg_error += "<p>Debe diligenciar <strong>Usuario satélital</strong> para poder crear la solicitudocument.</p>";
+                        //   }
+                        //   if (!$("#pass_sat").val()) {
+                        //     msg_error += "<p>Debe diligenciar <strong>Clave satélital</strong> para poder crear la solicitudocument.</p>";
+                        //   }
+                        // }
+                      }
+                    }
+                    if (document.getElementById('cbox2').checked) {
+                      //campos dinamicos
+                      var idfila = $('#cuerpo_actu tr').length; //cantidad de filas de la tabla
+                      if (idfila == 0) {
+                        msg_error += '<p>Debe ingresar <strong>Mínimo 1 dato </strong> en bloque actualizar seguridad para poder crear la solicitudocument.</p>';
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            if (!msg_error && $('#estado_prefiltron').val() == '') {
+              if (comprobar() === false) {
+                if (document.getElementById('nuevo').checked) {
+                  let data = new FormData();
+                  var operacion;
+                  if ($('#update').is(':checked')) {
+                    operacion = 'Actualizar';
+                  }
+
+                  if ($('#nuevo').is(':checked')) {
+                    operacion = 'Nuevo';
+                  }
+                  if ($('#habil').is(':checked')) {
+                    operacion = 'Habilitar';
+                  }
+                  let fletef = $('#su_propuesto').val().split(',').join('');
+                  let tarifaf = $('#su_tarifacot').val().split(',').join('');
+                  data.append('placa', document.getElementById('placag').value);
+                  // Datos del propietario del vehiculo
+                  data.append('trailer', document.getElementById('placat').value);
+                  data.append('documento_propietario_trailer', document.getElementById('docproptrailer').value);
+                  data.append('propietario_trailer', document.getElementById('nomproptrailer').value);
+                  data.append('propietario', document.getElementById('nompro').value);
+                  data.append('documento_pro', document.getElementById('docupro').value);
+                  data.append('tenedor', document.getElementById('nomtene').value);
+                  data.append('documento_tene', document.getElementById('docutene').value);
+                  data.append('conductor', document.getElementById('nomcondu').value);
+                  data.append('documento_condu', document.getElementById('docucondu').value);
+                  data.append('web', document.getElementById('web').value);
+                  data.append('user_satelite', document.getElementById('user_satelite').value);
+                  data.append('clave', document.getElementById('clave').value);
+                  data.append('tipologianuevo', $('#nuevo').val());
+                  data.append('tipologiahabilte', $('#habilite').val());
+                  data.append('tipologiaactualice', $('#actualice').val());
+                  data.append('tipo_operacion', operacion);
+                  data.append('fecha', $('#fpree').val());
+                  data.append('hora', $('#hpree').val());
+                  data.append('usuario', $('#userpree').val());
+                  data.append('observacion', $('#obserpree').val());
+                  data.append('su_sumatorianeto', $('#su_sumatorianeto').val());
+                  data.append('total_peso', $('#total_peso').val());
+                  data.append('flete_subasta', fletef);
+                  data.append('tarifa_subasta', tarifaf);
+                  data.append('propietario_obligatorio', $('#propietario_obligatorio').is(':checked'));
+                  /* Responsable vehiculo */
+                  data.append('responsable_vehiculo', $('#responsable_vehiculo').val());
+
+                  // Obtener los valores de los inputs de tipo array
+                  var empresa = document.getElementsByName('empresa_crear[]');
+                  for (var i = 0; i < empresa.length; i++) {
+                    data.append('empresa_crear[]', empresa[i].value);
+                  }
+                  var ingreso = document.getElementsByName('fingreso_crear[]');
+                  for (var i = 0; i < ingreso.length; i++) {
+                    data.append('fingreso_crear[]', ingreso[i].value);
+                  }
+                  var retiro = document.getElementsByName('fretiro_crear[]');
+                  for (var i = 0; i < retiro.length; i++) {
+                    data.append('fretiro_crear[]', retiro[i].value);
+                  }
+                  var persona = document.getElementsByName('contacto_crear[]');
+                  for (var i = 0; i < persona.length; i++) {
+                    data.append('contacto_crear[]', persona[i].value);
+                  }
+                  var num = document.getElementsByName('numero_crear[]');
+                  for (var i = 0; i < num.length; i++) {
+                    data.append('numero_crear[]', num[i].value);
+                  }
+                  var cargo = document.getElementsByName('cargo_crear[]');
+                  for (var i = 0; i < cargo.length; i++) {
+                    data.append('cargo_crear[]', cargo[i].value);
+                  }
+                  var anti = document.getElementsByName('antiguedad_crear[]');
+                  for (var i = 0; i < anti.length; i++) {
+                    data.append('antiguedad_crear[]', anti[i].value);
+                  }
+                  // Solicitudes de servicio
+                  var solicitudes = document.getElementsByName('fserva[]');
+                  for (var i = 0; i < solicitudes.length; i++) {
+                    data.append('fserva[]', solicitudes[i].value);
+                  }
+
+                  //se construye el objeto que almacena los datos
+                  let datos = {
+                    tipohoja: [],
+                    clase: [],
+                    ruta: [],
+                    documento: [],
+                    namearchivo: [],
+                    papeles: [],
+                  };
+
+                  //Archivos
+                  var cantp = $('#cont_papel').val();
+                  if (cantp > 0) {
+                    var tipohj = document.getElementsByName('tipohoja[]');
+                    for (var i = 0; i < tipohj.length; i++) {
+                      var tipo = tipohj[i].value;
+                      datos.tipohoja[i] = tipo;
+                    }
+                    var clase = document.getElementsByName('clase[]');
+                    for (var i = 0; i < clase.length; i++) {
+                      var clas = clase[i].value;
+                      datos.clase[i] = clas;
+                    }
+
+                    var ruta = document.getElementsByName('ruta[]');
+                    for (var i = 0; i < ruta.length; i++) {
+                      var rut = ruta[i].value;
+                      datos.ruta[i] = rut;
+                    }
+
+                    var documento = document.getElementsByName('documento[]');
+                    for (var i = 0; i < documento.length; i++) {
+                      var doc = documento[i].value;
+                      datos.documento[i] = doc;
+                    }
+
+                    var namearchivo = document.getElementsByName('namearchivo[]');
+                    for (var i = 0; i < namearchivo.length; i++) {
+                      var name = namearchivo[i].value;
+                      datos.namearchivo[i] = name;
+                    }
+
+                    var u;
+                    for (u = 1; u <= cantp; u++) {
+                      data.append('Papel', $('#papeles').is(':checked'));
+                      var papeles = document.getElementById('documento' + u + '').files;
+                      if (papeles.length > 0) {
+                        for (var a = 0; a < papeles.length; a++) {
+                          data.append('papeles[]', papeles[a]);
+                          // var doc = documento[a].value;
+                          // datos.papeles[a] = papeles[a];
+                        }
+                      } else {
+                        data.append('papeles', 'sin_datos');
+                      }
+                    }
+                    // Nuevo Array completo
+                    var nota = datos;
+                    nota = JSON.stringify(nota);
+                    data.append('notas', nota);
+                  }
+                  await fetch($('#base_url').val() + 'validacionparametros/Insertar_preestudio_nuevo', {
+                    method: 'POST',
+                    body: data,
+                    cache: 'no-cache',
+                  })
+                    .then(response => {
+                      if (!response.ok) throw new Error(response.statusText);
+                      return response.json();
+                    })
+                    .then(function (datas) {
+                      console.log(datas);
+                      if (datas) {
+                        // alert(datas);
+                        // $('#crea_vehiculopreestudio').modal('hide');
+                        Swal.fire({
+                          title: "¡Éxito!",
+                          html: data, // Usa el mensaje recibido en `data`
+                          icon: "success",
+                          confirmButtonText: "Aceptar",
+                          showCloseButton: true
+                        });
+                        let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('staticBackdrop'));
+                        if (offcanvas) {
+                          offcanvas.hide();
+                          document.getElementById('placa').value = "";
+                          document.getElementById('placa').diabled = false;
+                        }
+                        Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
+                        Limpiarmodal();
+                        Ocultarbloque();
+                        $('#crear_preestudio').show();
+                      } else {
+                        alert('error');
+                        $('#crear_preestudio').show();
+                      }
+                    })
+                    .catch(error => {
+                      alert(error);
+                      $('#crear_preestudio').show();
+                    });
+                }
+              }
+
+              if (document.getElementById('habil').checked || document.getElementById('update').checked) {
+                let data = new FormData();
+                var operacion;
+                if ($('#update').is(':checked')) {
+                  operacion = 'Actualizar';
+                }
+                if ($('#habil').is(':checked')) {
+                  operacion = 'Habilitar';
+                }
+                let fletef = $('#su_propuesto').val().split(',').join('');
+                let tarifaf = $('#su_tarifacot').val().split(',').join('');
+                data.append('tipo_operacion', operacion);
+                data.append('placa', document.getElementById('placag').value);
+                data.append('flete_subasta', fletef);
+                data.append('tarifa_subasta', tarifaf);
+                data.append('fecha', $('#fpree').val());
+                data.append('hora', $('#hpree').val());
+                data.append('usuario', $('#userpree').val());
+                data.append('papeles', 'sin_datos');
+                data.append('observacion', $('#obserpree').val());
+                /* Responsable vehiculo */
+                data.append('responsable_vehiculo', $('#responsable_vehiculo').val());
+                // Solicitudes de servicio
+                var solicitudes = document.getElementsByName('fserva[]');
+                for (var i = 0; i < solicitudes.length; i++) {
+                  data.append('fserva[]', solicitudes[i].value);
+                }
+
+                //se construye el objeto que almacena los datos
+                let element = {
+                  tipohojahv: [],
+                  campos: [],
+                  datos: [],
+                  namearchivo: [],
+                };
+
+                if ($('#update').is(':checked')) {
+                  //insercion de datos dinamicos
+                  if (document.getElementById('cbox2').checked) {
+                    data.append('dinamicos', 'si');
+                    var cantp = $('#valortb').val();
+                    if (cantp > 0) {
+                      var e, n;
+                      for (e = 1; e <= cantp; e++) {
+                        if (typeof $('#sa' + e).val() !== 'undefined') {
+                          var tipohv = $('#fila' + e).find('td').eq(1).find('a').text();
+                          var campo = $('#fila' + e + '').find('td').eq(2).html();
+                          var dato = $('#fila' + e + '').find('td').eq(3).html();
+                          var namea = $('#nam' + e + '').val();
+                          var papeles = document.getElementById('arc' + e + '').files;
+                          if (papeles.length > 0) {
+                            for (var a = 0; a < papeles.length; a++) {
+                              data.append('papeles[]', papeles[a]);
+                            }
+                          } else {
+                            data.append('papeles', 'Sin_datos');
+                          }
+                          element.tipohojahv.push(tipohv);
+                          element.campos.push(campo);
+                          element.namearchivo.push(namea);
+                          element.datos.push(dato);
+                          // Nuevo Array completo
+                          var nota = element;
+                          nota = JSON.stringify(nota);
+                          data.append('notas', nota);
+                        }
+                      }
+                    }
+                  } else {
+                    data.append('dinamicos', 'no');
+                  }
+
+                  //inserción de recursos inexistentes es decir, nuevos
+                  if (document.getElementById('cbox1').checked) {
+                    data.append('nuevos_recursos', 'si');
+                    if (document.getElementById('cbpre1').checked) {
+                      //propietario
+                      tipologia = 'propietario';
+                      var name_propie = $('#name_propietario').val();
+                      var tipohv = 'Propietario';
+                      var docu_propi = $('#number_propietario').val();
+                      data.append('propietario_check', $('#cbpre1').is(':checked'));
+                      data.append('tipo_propi', tipologia);
+                      data.append('nombre_propietario', name_propie);
+                      data.append('docu_propi', docu_propi);
+                    } else {
+                      data.append('propietario_check', $('#cbpre1').is(':checked'));
+                    }
+                    if (document.getElementById('cbpre2').checked) {
+                      //poseedor
+                      tipologia = 'tenedor';
+                      campo = 'Nombre';
+                      name_posee = $('#name_poseedor').val();
+                      data.append('poseedor_check', $('#cbpre2').is(':checked'));
+                      docu_posee = $('#number_poseedor').val();
+                      data.append('tipo_posee', tipologia);
+                      data.append('nombre_poseedor', name_posee);
+                      data.append('docu_posee', docu_posee);
+                    } else {
+                      data.append('poseedor_check', $('#cbpre2').is(':checked'));
+                    }
+                    if (document.getElementById('cbpre3').checked) {
+                      //conductor
+                      tipologia = 'conductor';
+                      campo = 'Nombre';
+                      cedula = $('#number_conductor').val();
+                      nombre = $('#name_conductor').val();
+                      ref1 = $('#referencias_empresariales1pre').val();
+                      per1 = $('#contacto_ref1pre').val();
+                      cel1 = $('#celular_ref1pre').val();
+                      cargo1 = $('#cargo_ref1pre').val();
+                      fec1 = $('#fingresoa1pre').val();
+                      fec11 = $('#fretiroa3pre').val();
+                      anti = $('#anti_ref1pre').val();
+                      //
+                      ref2 = $('#referencias_empresariales2pre').val();
+                      per2 = $('#contacto_ref2pre').val();
+                      cel2 = $('#celular_ref2pre').val();
+                      cargo2 = $('#cargo_ref2pre').val();
+                      fec2 = $('#fingresob1pre').val();
+                      fec22 = $('#fretirob3pre').val();
+                      anti2 = $('#anti_ref2pre').val();
+                      //
+                      ref3 = $('#referencias_empresariales3pre').val();
+                      per3 = $('#contacto_ref3pre').val();
+                      cel3 = $('#celular_ref3pre').val();
+                      cargo3 = $('#cargo_ref3pre').val();
+                      fec3 = $('#fingresoc1pre').val();
+                      fec33 = $('#fretiroc3pre').val();
+                      anti3 = $('#anti_ref3pre').val();
+
+                      data.append('conductor_check', $('#cbpre3').is(':checked'));
+                      data.append('tipo_condu', tipologia);
+                      data.append('nombre_conductor', nombre);
+                      data.append('docu_condu', cedula);
+                      data.append('refe1', ref1);
+                      data.append('contacto1', per1);
+                      data.append('celular1', cel1);
+                      data.append('cargo1', cargo1);
+                      data.append('fechaa1', $('#fingresoa1pre').val());
+                      data.append('fechaa2', fec11);
+                      data.append('anti1', anti);
+                      data.append('refe2', ref2);
+                      data.append('contacto2', per2);
+                      data.append('celular2', cel2);
+                      data.append('cargo2', cargo2);
+                      data.append('fechab1', fec2);
+                      data.append('fechab2', fec22);
+                      data.append('anti2', anti2);
+                      data.append('refe3', ref3);
+                      data.append('contacto3', per3);
+                      data.append('celular3', cel3);
+                      data.append('cargo3', cargo3);
+                      data.append('fechac1', fec3);
+                      data.append('fechac2', $('#fretiroc3pre').val());
+                      data.append('anti3', anti3);
+                    } else {
+                      data.append('conductor_check', $('#cbpre3').is(':checked'));
+                    }
+
+                    if (document.getElementById('cbpre4').checked) {
+                      //trailer
+                      tipologia = 'trailer';
+                      campo = 'Nombre';
+                      placa = $('#placa_trailerpre').val();
+                      propi = $('#propi_trailer').val();
+                      docupropit = $('#propidocu_trailer').val();
+                      data.append('trailer_check', $('#cbpre4').is(':checked'));
+                      data.append('tipo_trai', tipologia);
+                      data.append('placa_trailer', placa);
+                      data.append('propi_trailer', propi);
+                      data.append('propidoc_trailer', docupropit);
+                    } else {
+                      data.append('trailer_check', $('#cbpre4').is(':checked'));
+                    }
+                  }
+                }
+
+                await fetch($('#base_url').val() + 'validacionparametros/Insert_estudio', {
+                  method: 'POST',
+                  body: data,
+                  cache: 'no-cache',
+                })
+                  .then(response => {
+                    if (!response.ok) throw new Error(response.statusText);
+                    return response.json();
+                  })
+                  .then(function (data) {
+                    if (data.numero === 200) {
+                      Swal.fire({
+                        title: "¡Éxito!",
+                        text: data.mensaje, // Usa el mensaje recibido en `data`
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                        showCloseButton: true
+                      });
+                      let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('staticBackdrop'));
+                      if (offcanvas) {
+                        offcanvas.hide();
+                        document.getElementById('placa').value = "";
+                        document.getElementById('placa').diabled = false;
+                      }
+                      Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
+                      Limpiarmodal();
+                      Ocultarbloque();
+                    } else {
+                      mensaje = `
+                      <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+                          <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                          <div class="message">
+                            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <strong>Mensaje!</strong> ${data.mensaje}
+                          </div>
+                      </div>`;
+                      $('#crear_preestudio').show();
+                    }
+                    document.getElementById('historicos').innerHTML = mensaje;
+                  })
+                  .catch(error => {
+                    alert(error);
+                    $('#crear_preestudio').show();
+                  });
+              }
+            } else {
+              $('#nexos_messages_popup').html(`<div class="alert alert-outline-danger d-flex align-items-center" role="alert">
+                  <span class="fas fa-times-circle text-danger fs-5 me-3"></span>
+                  <p class="mb-0 flex-1">${msg_error}</br></p>
+                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`);
+              $('#crea_vehiculopreestudio').animate({ scrollTop: 0 }, 600);
+              $('#crear_preestudio').show();
+            }
+          } else {
+            // Código a ejecutar si el usuario hace clic en "Cancelar"
+            $('#crear_preestudio').show();
+          }
+        } else {
+          mensaje = `
+          <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
+              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+              <div class="message">
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                <strong>Mensaje!</strong> Debes diligenciar la placa para la solicitud de servicio
+              </div>
+          </div>`;
+          document.getElementById('historicos').innerHTML = mensaje;
+          // alert("debe diligenciar la placa para la solicitud");
+          $('#crear_preestudio').show();
+        }
+      }
+    }
+
+    //boton agregar referencias para nuevo
+
+    if (e.target.matches('#agregar_fila') || e.target.matches('#agregar_fila *')) {
+      // agregar();
+      numero++;
+      if (numero <= 3) {
+        agregar();
+      } else {
+        alert('Señor usuario ha superado el máximo de referencias laborales!!');
+      }
+    }
+
+    if (e.target.matches('#btn_cerrar') || e.target.matches('#btn_cerrar')) {
+      $('#placa').prop('disabled', false);
+    }
+
+    if (e.target.matches('#btn_cerrar_notificaciones')) {
+      $('#mod-warning').modal('hide');
+      $('#crea_vehiculopreestudio').modal('toggle');
+      document.getElementById('number_propietario').value = '';
+      document.getElementById('number_poseedor').value = '';
+      document.getElementById('number_conductor').value = '';
+      document.getElementById('propidocu_trailer').value = '';
+    }
+
+    // Verificar si el evento fue en el checkbox o en un hijo del checkbox
+    if (e.target.matches('#propietario_obligatorio') || e.target.matches('#propietario_obligatorio *')) {
+      // Obtener el checkbox, en caso de que el evento venga de un hijo
+      const checkbox = document.getElementById('propietario_obligatorio');
+      // Verificar si está marcado
+      if (checkbox.checked) {
+        // console.log('El checkbox está marcado');
+        // document.getElementById('placat').style.readonly = false;
+        $('#placat').prop('disabled', false);
+        $('#docproptrailer').prop('disabled', false);
+        $('#nomproptrailer').prop('disabled', false);
+        document.getElementById('mensaje_trailer_obligatorio').innerHTML = `
+      <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+        <div class="icon"><span class="mdi mdi-notifications"></span></div>
+        <div class="message">
+          <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Información!</strong> Los campos del trailer son obligatorios.
+        </div>
+      </div>
+      `;
+        document.getElementById('etiqueta_placa_trailer').innerHTML = `Placa Trailer&nbsp;<span style="color:red;"><i>(*)</i></span>`;
+        document.getElementById('etiqueta_documento_trailer').innerHTML = `Documento Propietario Trailer&nbsp;<span style="color:red;"><i>(*)</i></span>`;
+        document.getElementById('estiqueta_propietario_trailer').innerHTML = `Nombre Propietario Trailer&nbsp;<span style="color:red;"><i>(*)</i></span>`;
+      } else {
+        $('#placat').prop('disabled', true);
+        $('#docproptrailer').prop('disabled', true);
+        $('#nomproptrailer').prop('disabled', true);
+        document.getElementById('mensaje_trailer_obligatorio').innerHTML = `
+      <div class="alert alert-primary alert-icon alert-icon-border alert-dismissible" role="alert">
+        <div class="icon"><span class="mdi mdi-notifications"></span></div>
+        <div class="message">
+          <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Información!</strong> Los campos del trailer no requeridos.
+        </div>
+      </div>
+      `;
+        document.getElementById('etiqueta_placa_trailer').innerHTML = `Placa Trailer`;
+        document.getElementById('etiqueta_documento_trailer').innerHTML = `Documento Propietario Trailer`;
+        document.getElementById('estiqueta_propietario_trailer').innerHTML = `Nombre Propietario Trailer`;
       }
     }
   });
-}
+
+  // Selecciona los elementos por su ID y asigna el evento 'blur'
+  $('#web, #user_satelite, #clave, #docupro, #docutene, #docucondu').on('blur', validar_formulario);
+
+  function validar_formulario(e) {
+    if (e.target.value.trim() === '') {
+      MostrarMensaje(`El campo es obligatorio`, e.target.parentElement);
+      datosnuevos[e.target.name] = '';
+      comprobar();
+      return;
+    }
+    limpiaralerta(e.target.parentElement);
+    //Asignar valores
+    datosnuevos[e.target.name] = e.target.value.trim().toLowerCase();
+    comprobar();
+  }
+
+  function MostrarMensaje(mensaje, referencia) {
+    limpiaralerta(referencia);
+    const ERROR = document.createElement('P');
+    ERROR.textContent = mensaje;
+    ERROR.classList.add('bg-danger', "style='color:#FFF'", 'text-center', 'w-100');
+    ERROR.style.fontSize = '12px';
+    referencia.appendChild(ERROR);
+  }
+
+  function limpiaralerta(referencia) {
+    const ALERTA = referencia.querySelector('.bg-danger');
+    if (ALERTA) {
+      ALERTA.remove();
+    }
+  }
+
+  function comprobar() {
+    console.log(Object.values(datosnuevos).includes(''));
+    if (Object.values(datosnuevos).includes('')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+});
+
+
 
 //funcion para poner el nombre de los archivos Actualiza seguridad (hojas de vida)
 function name_fontal(value, id) {
@@ -7093,4 +7215,4 @@ function AplicaFoco(idelemento) {
 
 function RemueveFoco(idelemento) {
   $(idelemento).blur().css("background-color", "white");
-}
+} 

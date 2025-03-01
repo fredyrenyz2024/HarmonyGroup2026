@@ -309,43 +309,212 @@ class servicioclienteiModel extends Model
         return $response;
     }
 
-    public function getPrueba($tipo, $fi, $ff, $estado)
+    public function getPrueba($tipo, $fi, $ff, $estado, $cliente, $empresa)
     {
         $response = [];
 
-
         if ($tipo == '2') {
             if ($estado == "Todas") {
+
+                // try {
+                //     $sql = $this->_db3->prepare("SELECT ss.nundoc_solicitud, coti.nombre_cliente, m.itr, coti.estado AS estado_autorizacion, m.tipo_servicio_mer, m.peso_neto_kg, CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
+                //     ss.estado, coti.id, coti.n_cotizacion, m.tipo_transporte, m.tipo_mercancia,coti.estado_autorizado,ss.prioritaria,emp.nombre_empresa,
+                //     CASE 
+                //         WHEN ec.estado IS NOT NULL THEN ec.estado 
+                //         WHEN ses.estado IS NOT NULL THEN ses.estado 
+                //         ELSE 'Sin Estado'
+                //     END AS estado_estudio
+                //     FROM cmx_cotizaciones_serviciocliente coti
+                //     INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
+                //     INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
+                //     INNER JOIN cmx_clientes cl ON coti.id_cliente=cl.id
+                //     INNER JOIN cmx_empresas emp ON cl.empresa=emp.id
+                //     LEFT JOIN cmx_preestudio_solicitudes_servicio se ON ss.nundoc_solicitud = se.id_servicio_cliente
+                //     LEFT JOIN cmx_estudiov_completo ec ON se.id_solicitudpreestudio = ec.id_estudio AND ec.estado_actu = 1
+                //     LEFT JOIN cmx_solicitudes_estados ses ON se.id_solicitudpreestudio = ses.id_solicitud AND ses.estado_actual = 1
+                //     WHERE coti.fecha_creacion BETWEEN :fi AND :ff
+                //     GROUP BY coti.n_cotizacion ORDER BY coti.id DESC");
+                //     $sql->execute([
+                //         ':fi' => $fi,
+                //         ':ff' => $ff
+                //     ]);
+                //     $result_cotizaciones = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+                //     $sql_cantidad = $this->_db3->prepare("SELECT COUNT(id) AS total_cotizaciones FROM cmx_cotizaciones_serviciocliente WHERE fecha_creacion BETWEEN :fi AND :ff");
+                //     $sql_cantidad->execute([
+                //         ':fi' => $fi,
+                //         ':ff' => $ff
+                //     ]);
+                //     $result_cantidad_cotizaciones = $sql_cantidad->fetch(PDO::FETCH_ASSOC);
+
+                //     $response = [
+                //         'resultado' => $result_cotizaciones,
+                //         'resultado_cantidad' => $result_cantidad_cotizaciones,
+                //     ];
+                //     return $response;
+                // } catch (PDOException $e) {
+                //     // Manejar el error
+                //     error_log("Error en la consulta SQL: " . $e->getMessage());
+                //     return [
+                //         'error' => 'Ocurrió un error al ejecutar la consulta.',
+                //         'detalles' => $e->getMessage()
+                //     ];
+                // }
+
+                // try {
+                //     $query = "SELECT ss.nundoc_solicitud, coti.nombre_cliente, m.itr, coti.estado AS estado_autorizacion, 
+                //         m.tipo_servicio_mer, m.peso_neto_kg, CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
+                //         ss.estado, coti.id, coti.n_cotizacion, m.tipo_transporte, m.tipo_mercancia, coti.estado_autorizado,
+                //         ss.prioritaria, emp.nombre_empresa,
+                //         CASE 
+                //             WHEN ec.estado IS NOT NULL THEN ec.estado 
+                //             WHEN ses.estado IS NOT NULL THEN ses.estado 
+                //             ELSE 'Sin Estado'
+                //         END AS estado_estudio
+                //     FROM cmx_cotizaciones_serviciocliente coti
+                //     INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
+                //     INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
+                //     INNER JOIN cmx_clientes cl ON coti.id_cliente = cl.id
+                //     INNER JOIN cmx_empresas emp ON cl.empresa = emp.id
+                //     LEFT JOIN cmx_preestudio_solicitudes_servicio se ON ss.nundoc_solicitud = se.id_servicio_cliente
+                //     LEFT JOIN cmx_estudiov_completo ec ON se.id_solicitudpreestudio = ec.id_estudio AND ec.estado_actu = 1
+                //     LEFT JOIN cmx_solicitudes_estados ses ON se.id_solicitudpreestudio = ses.id_solicitud AND ses.estado_actual = 1
+                //     WHERE coti.fecha_creacion BETWEEN :fi AND :ff";
+
+                //     // Filtros opcionales
+                //     if (!empty($cliente)) {
+                //         $query .= " AND coti.id_cliente = :cliente";
+                //     }
+                //     if (!empty($empresa)) {
+                //         $query .= " AND emp.id = :empresa";
+                //     }
+
+                //     $query .= " GROUP BY coti.n_cotizacion ORDER BY coti.id DESC";
+
+                //     // Preparar y ejecutar consulta
+                //     $sql = $this->_db3->prepare($query);
+                //     $params = [':fi' => $fi, ':ff' => $ff];
+
+                //     if (!empty($cliente)) {
+                //         $params[':cliente'] = $cliente;
+                //     }
+                //     if (!empty($empresa)) {
+                //         $params[':empresa'] = $empresa;
+                //     }
+
+                //     $sql->execute($params);
+                //     $result_cotizaciones = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+                //     // Contar total de cotizaciones con los mismos filtros
+                //     $query_cantidad = "SELECT COUNT(coti.id) AS total_cotizaciones 
+                //         FROM cmx_cotizaciones_serviciocliente coti
+                //          INNER JOIN cmx_clientes cl ON coti.id_cliente = cl.id
+                //     INNER JOIN cmx_empresas emp ON cl.empresa = emp.id
+                //         WHERE fecha_creacion BETWEEN :fi AND :ff";
+
+                //     if (!empty($cliente)) {
+                //         $query_cantidad .= " AND coti.id_cliente = :cliente";
+                //     }
+                //     if (!empty($empresa)) {
+                //         $query_cantidad .= " AND emp.id = :empresa";
+                //     }
+
+                //     $sql_cantidad = $this->_db3->prepare($query_cantidad);
+                //     $sql_cantidad->execute($params);
+                //     $result_cantidad_cotizaciones = $sql_cantidad->fetch(PDO::FETCH_ASSOC);
+
+                //     return [
+                //         'resultado' => $result_cotizaciones,
+                //         'resultado_cantidad' => $result_cantidad_cotizaciones,
+                //     ];
+
+                // } catch (PDOException $e) {
+                //     error_log("Error en la consulta SQL: " . $e->getMessage());
+                //     return [
+                //         'error' => 'Ocurrió un error al ejecutar la consulta.',
+                //         'detalles' => $e->getMessage()
+                //     ];
+                // }
+
                 try {
-                    $sql = $this->_db3->prepare("SELECT ss.nundoc_solicitud, coti.nombre_cliente, m.itr, coti.estado AS estado_autorizacion, m.tipo_servicio_mer, m.peso_neto_kg, CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
-                    ss.estado, coti.id, coti.n_cotizacion, m.tipo_transporte, m.tipo_mercancia,coti.estado_autorizado,ss.prioritaria,emp.nombre_empresa
-                    FROM cmx_cotizaciones_serviciocliente coti
-                    INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
-                    INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
-                    INNER JOIN cmx_clientes cl ON coti.id_cliente=cl.id
-	                INNER JOIN cmx_empresas emp ON cl.empresa=emp.id
-                    WHERE coti.fecha_creacion BETWEEN :fi AND :ff
-                    GROUP BY coti.n_cotizacion ORDER BY coti.id DESC");
-                    $sql->execute([
-                        ':fi' => $fi,
-                        ':ff' => $ff
-                    ]);
+                    $query = "SELECT ss.nundoc_solicitud, coti.nombre_cliente, m.itr, coti.estado AS estado_autorizacion, 
+                            m.tipo_servicio_mer, m.peso_neto_kg, CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
+                            ss.estado, coti.id, coti.n_cotizacion, m.tipo_transporte, m.tipo_mercancia, coti.estado_autorizado,
+                            ss.prioritaria, emp.nombre_empresa,
+                            CASE 
+                                WHEN ec.estado IS NOT NULL THEN ec.estado 
+                                WHEN ses.estado IS NOT NULL THEN ses.estado 
+                                ELSE 'Sin Estado'
+                            END AS estado_estudio
+                        FROM cmx_cotizaciones_serviciocliente coti
+                        INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
+                        INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
+                        INNER JOIN cmx_clientes cl ON coti.id_cliente = cl.id
+                        INNER JOIN cmx_empresas emp ON cl.empresa = emp.id
+                        LEFT JOIN cmx_preestudio_solicitudes_servicio se ON ss.nundoc_solicitud = se.id_servicio_cliente
+                        LEFT JOIN cmx_estudiov_completo ec ON se.id_solicitudpreestudio = ec.id_estudio AND ec.estado_actu = 1
+                        LEFT JOIN cmx_solicitudes_estados ses ON se.id_solicitudpreestudio = ses.id_solicitud AND ses.estado_actual = 1
+                        WHERE coti.fecha_creacion BETWEEN :fi AND :ff";
+
+                    // Filtros opcionales
+                    if ($cliente !== null) {
+                        $query .= " AND coti.id_cliente = :cliente";
+                    }
+
+                    if ($empresa !== null) {
+                        $query .= " AND emp.id = :empresa";
+                    }
+
+                    // $query .= " GROUP BY coti.n_cotizacion ORDER BY coti.id DESC";
+                    $query .= " GROUP BY coti.n_cotizacion ORDER BY coti.id DESC";
+
+                    // Preparar y ejecutar consulta principal
+                    $sql = $this->_db3->prepare($query);
+                    $params_main = [':fi' => $fi, ':ff' => $ff];
+                    if (!empty($cliente)) {
+                        $params_main[':cliente'] = $cliente;
+                    }
+                    if (!empty($empresa)) {
+                        $params_main[':empresa'] = $empresa;
+                    }
+
+                    // print_r($sql);
+                    // exit();
+                    $sql->execute($params_main);
+
+
                     $result_cotizaciones = $sql->fetchAll(PDO::FETCH_ASSOC);
 
-                    $sql_cantidad = $this->_db3->prepare("SELECT COUNT(id) AS total_cotizaciones FROM cmx_cotizaciones_serviciocliente WHERE fecha_creacion BETWEEN :fi AND :ff");
-                    $sql_cantidad->execute([
-                        ':fi' => $fi,
-                        ':ff' => $ff
-                    ]);
+                    // Consulta de conteo
+                    $query_cantidad = "SELECT COUNT(coti.id) AS total_cotizaciones 
+                        FROM cmx_cotizaciones_serviciocliente coti
+                        LEFT JOIN cmx_clientes cl ON coti.id_cliente = cl.id
+                        LEFT JOIN cmx_empresas emp ON cl.empresa = emp.id
+                        WHERE fecha_creacion BETWEEN :fi AND :ff";
+
+                    if (!empty($cliente)) {
+                        $query_cantidad .= " AND coti.id_cliente = :cliente";
+                    }
+                    if (!empty($empresa)) {
+                        $query_cantidad .= " AND emp.id = :empresa";
+                    }
+
+                    $sql_cantidad = $this->_db3->prepare($query_cantidad);
+                    $params_count = [':fi' => $fi, ':ff' => $ff];
+                    if (!empty($cliente)) {
+                        $params_count[':cliente'] = $cliente;
+                    }
+                    if (!empty($empresa)) {
+                        $params_count[':empresa'] = $empresa;
+                    }
+                    $sql_cantidad->execute($params_count);
                     $result_cantidad_cotizaciones = $sql_cantidad->fetch(PDO::FETCH_ASSOC);
 
-                    $response = [
+                    return [
                         'resultado' => $result_cotizaciones,
                         'resultado_cantidad' => $result_cantidad_cotizaciones,
                     ];
-                    return $response;
                 } catch (PDOException $e) {
-                    // Manejar el error
                     error_log("Error en la consulta SQL: " . $e->getMessage());
                     return [
                         'error' => 'Ocurrió un error al ejecutar la consulta.',
@@ -354,33 +523,45 @@ class servicioclienteiModel extends Model
                 }
             } else if ($estado == "Pendiente") {
                 try {
-                    $sql = $this->_db3->prepare("SELECT ss.nundoc_solicitud, coti.nombre_cliente, m.itr, coti.estado AS estado_autorizacion, m.tipo_servicio_mer, m.peso_neto_kg, CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
-                    ss.estado, coti.id, coti.n_cotizacion, m.tipo_transporte, m.tipo_mercancia,coti.estado_autorizado,emp.nombre_empresa
-                    FROM cmx_cotizaciones_serviciocliente coti
-                    INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
-                    INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
-                    INNER JOIN cmx_clientes cl ON coti.id_cliente=cl.id
-	                INNER JOIN cmx_empresas emp ON cl.empresa=emp.id
-                    WHERE coti.fecha_creacion >='2025-01-01' AND ss.estado=:estado
-                    GROUP BY coti.n_cotizacion ORDER BY coti.id DESC");
-                    // -- WHERE coti.fecha_creacion BETWEEN :fi AND :ff AND ss.estado=:estado
-                    $sql->execute([
-                        // ':fi' => $fi,
-                        // ':ff' => $ff,
-                        ':estado' => $estado
-                    ]);
+                    // Construir la consulta en una variable de tipo string
+                    $query = "SELECT ss.nundoc_solicitud, coti.nombre_cliente, m.itr, coti.estado AS estado_autorizacion, 
+                                     m.tipo_servicio_mer, m.peso_neto_kg, CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
+                                     ss.estado, coti.id, coti.n_cotizacion, m.tipo_transporte, m.tipo_mercancia, coti.estado_autorizado, emp.nombre_empresa,
+                                     CASE 
+                                         WHEN ec.estado IS NOT NULL THEN ec.estado 
+                                         WHEN ses.estado IS NOT NULL THEN ses.estado 
+                                         ELSE 'Sin Estado'
+                                     END AS estado_estudio
+                              FROM cmx_cotizaciones_serviciocliente coti
+                              INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
+                              INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
+                              INNER JOIN cmx_clientes cl ON coti.id_cliente = cl.id
+                              INNER JOIN cmx_empresas emp ON cl.empresa = emp.id
+                              LEFT JOIN cmx_preestudio_solicitudes_servicio se ON ss.nundoc_solicitud = se.id_servicio_cliente
+                              LEFT JOIN cmx_estudiov_completo ec ON se.id_solicitudpreestudio = ec.id_estudio AND ec.estado_actu = 1
+                              LEFT JOIN cmx_solicitudes_estados ses ON se.id_solicitudpreestudio = ses.id_solicitud AND ses.estado_actual = 1
+                              WHERE coti.fecha_creacion >= '2025-01-01' AND ss.estado = 'Pendiente'";
+
+                    // Parámetros para la consulta
+                    $params = [];
+
+                    // Agregar filtro por cliente si está definido
+                    if ($cliente !== null) {
+                        $query .= " AND coti.id_cliente = :cliente";
+                        $params[':cliente'] = $cliente;
+                    }
+
+                    $query .= " GROUP BY coti.n_cotizacion ORDER BY coti.id DESC";
+
+                    // Preparar la consulta usando la cadena construida
+                    $sql = $this->_db3->prepare($query);
+
+                    // Ejecutar la consulta con los parámetros
+                    $sql->execute($params);
                     $result_cotizaciones = $sql->fetchAll(PDO::FETCH_ASSOC);
 
-                    // $sql_cantidad = $this->_db3->prepare("SELECT COUNT(id) AS total_cotizaciones FROM cmx_cotizaciones_serviciocliente WHERE fecha_creacion BETWEEN :fi AND :ff");
-                    // $sql_cantidad->execute([
-                    //     ':fi' => $fi,
-                    //     ':ff' => $ff
-                    // ]);
-                    // $result_cantidad_cotizaciones = $sql_cantidad->fetch(PDO::FETCH_ASSOC);
-
                     $response = [
-                        'resultado' => $result_cotizaciones,
-                        // 'resultado_cantidad' => $result_cantidad_cotizaciones,
+                        'resultado' => $result_cotizaciones
                     ];
                     return $response;
                 } catch (PDOException $e) {
@@ -391,35 +572,136 @@ class servicioclienteiModel extends Model
                         'detalles' => $e->getMessage()
                     ];
                 }
-            } else if ($estado = "Prioritarias") { // Prioritarias
+            } else if ($estado == "Prioritarias") { // Prioritarias
                 try {
-                    $sql = $this->_db3->prepare("SELECT ss.nundoc_solicitud, coti.nombre_cliente, m.itr, coti.estado AS estado_autorizacion, m.tipo_servicio_mer, m.peso_neto_kg, CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
-                    ss.estado, coti.id, coti.n_cotizacion, m.tipo_transporte, m.tipo_mercancia,coti.estado_autorizado,ss.prioritaria,emp.nombre_empresa
-                    FROM cmx_cotizaciones_serviciocliente coti
-                    INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
-                    INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
-                    INNER JOIN cmx_clientes cl ON coti.id_cliente=cl.id
-	                INNER JOIN cmx_empresas emp ON cl.empresa=emp.id
-                    WHERE coti.fecha_creacion >='2025-01-01' AND ss.prioritaria='Propuesta' OR ss.prioritaria='Aprobada'
-                    GROUP BY coti.n_cotizacion ORDER BY coti.id DESC");
-                    // -- WHERE coti.fecha_creacion BETWEEN :fi AND :ff AND ss.estado=:estado
-                    $sql->execute();
+                    // Construcción dinámica de la consulta
+                    $sqlBase = "SELECT ss.nundoc_solicitud, coti.nombre_cliente, m.itr, coti.estado AS estado_autorizacion, 
+                                m.tipo_servicio_mer, m.peso_neto_kg, CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
+                                ss.estado, coti.id, coti.n_cotizacion, m.tipo_transporte, m.tipo_mercancia, 
+                                coti.estado_autorizado, ss.prioritaria, emp.nombre_empresa,
+                                    CASE 
+                                        WHEN ec.estado IS NOT NULL THEN ec.estado 
+                                        WHEN ses.estado IS NOT NULL THEN ses.estado 
+                                        ELSE 'Sin Estado'
+                                    END AS estado_estudio
+                                FROM cmx_cotizaciones_serviciocliente coti
+                                INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
+                                INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
+                                INNER JOIN cmx_clientes cl ON coti.id_cliente = cl.id
+                                INNER JOIN cmx_empresas emp ON cl.empresa = emp.id
+                                LEFT JOIN cmx_preestudio_solicitudes_servicio se ON ss.nundoc_solicitud = se.id_servicio_cliente
+                                LEFT JOIN cmx_estudiov_completo ec ON se.id_solicitudpreestudio = ec.id_estudio AND ec.estado_actu = 1
+                                LEFT JOIN cmx_solicitudes_estados ses ON se.id_solicitudpreestudio = ses.id_solicitud AND ses.estado_actual = 1
+                                WHERE coti.fecha_creacion >= '2025-01-01'
+                                AND (ss.prioritaria = 'Propuesta' OR ss.prioritaria = 'Aprobada')";
+
+                    // Parámetros para la consulta
+                    $params = [];
+
+                    // Agregar filtro por cliente si está definido
+                    if (!empty($cliente)) {
+                        $sqlBase .= " AND coti.id_cliente = :cliente";
+                        $params[':cliente'] = $cliente;
+                    }
+
+                    $sqlBase .= " GROUP BY coti.n_cotizacion ORDER BY coti.id DESC";
+
+                    // Preparar la consulta
+                    $sql = $this->_db3->prepare($sqlBase);
+
+                    // Ejecutar la consulta con los parámetros
+                    $sql->execute($params);
                     $result_cotizaciones = $sql->fetchAll(PDO::FETCH_ASSOC);
 
-                    // $sql_cantidad = $this->_db3->prepare("SELECT COUNT(id) AS total_cotizaciones FROM cmx_cotizaciones_serviciocliente WHERE fecha_creacion BETWEEN :fi AND :ff");
-                    // $sql_cantidad->execute([
-                    //     ':fi' => $fi,
-                    //     ':ff' => $ff
-                    // ]);
-                    // $result_cantidad_cotizaciones = $sql_cantidad->fetch(PDO::FETCH_ASSOC);
-
                     $response = [
-                        'resultado' => $result_cotizaciones,
-                        // 'resultado_cantidad' => $result_cantidad_cotizaciones,
+                        'resultado' => $result_cotizaciones
                     ];
                     return $response;
                 } catch (PDOException $e) {
-                    // Manejar el error
+                    error_log("Error en la consulta SQL: " . $e->getMessage());
+                    return [
+                        'error' => 'Ocurrió un error al ejecutar la consulta.',
+                        'detalles' => $e->getMessage()
+                    ];
+                }
+            } else if ($estado == "En_Curso") {
+                try {
+                    // Base de la consulta
+                    $sqlBase = "SELECT 
+                                    ss.nundoc_solicitud, 
+                                    coti.nombre_cliente, 
+                                    m.itr, 
+                                    coti.estado AS estado_autorizacion, 
+                                    m.tipo_servicio_mer, 
+                                    m.peso_neto_kg, 
+                                    CONCAT(ss.fecha, '-', ss.hora) AS fecha_solicitud_servicio,
+                                    ss.estado, 
+                                    coti.id, 
+                                    coti.n_cotizacion, 
+                                    m.tipo_transporte, 
+                                    m.tipo_mercancia,
+                                    coti.estado_autorizado,
+                                    ss.prioritaria,
+                                    emp.nombre_empresa,
+                                    CASE 
+                                        WHEN ec.estado IS NOT NULL THEN ec.estado 
+                                        WHEN ses.estado IS NOT NULL THEN ses.estado 
+                                        ELSE 'Sin Estado'
+                                    END AS estado_estudio
+                                FROM cmx_cotizaciones_serviciocliente coti
+                                INNER JOIN cmx_detalle_mercancia2 m ON coti.n_cotizacion = m.n_cotizacion
+                                INNER JOIN cmx_solicitud_vehiculo2 ss ON coti.n_cotizacion = ss.n_cotizacion
+                                INNER JOIN cmx_clientes cl ON coti.id_cliente = cl.id
+                                INNER JOIN cmx_empresas emp ON cl.empresa = emp.id
+                                INNER JOIN cmx_preestudio_solicitudes_servicio se ON ss.nundoc_solicitud = se.id_servicio_cliente
+                                LEFT JOIN cmx_estudiov_completo ec ON se.id_solicitudpreestudio = ec.id_estudio AND ec.estado_actu = 1
+                                LEFT JOIN cmx_solicitudes_estados ses ON se.id_solicitudpreestudio = ses.id_solicitud AND ses.estado_actual = 1
+                                WHERE  coti.fecha_creacion >= :fecha_creacion";
+
+                    // Array de parámetros
+                    $params = [
+                        ':fecha_creacion' => '2025-01-01',
+                        // ':fecha_inicial' => date('Y-m-d'),
+                        // ':fecha_final' => date('Y-m-d')
+                    ];
+
+                    // Agregar filtro por cliente si está definido
+                    if (!empty($cliente)) {
+                        $sqlBase .= " AND coti.id_cliente = :cliente";
+                        $params[':cliente'] = $cliente;
+                    }
+
+                    // Agregar GROUP BY y ORDER BY
+                    $sqlBase .= " GROUP BY 
+                                        coti.n_cotizacion,
+                                        ss.nundoc_solicitud,
+                                        coti.nombre_cliente,
+                                        m.itr,
+                                        coti.estado,
+                                        m.tipo_servicio_mer,
+                                        m.peso_neto_kg,
+                                        ss.fecha,
+                                        ss.hora,
+                                        ss.estado,
+                                        coti.id,
+                                        m.tipo_transporte,
+                                        m.tipo_mercancia,
+                                        coti.estado_autorizado,
+                                        ss.prioritaria,
+                                        emp.nombre_empresa
+                                ORDER BY coti.id DESC";
+
+                    // Preparar y ejecutar la consulta
+                    $sql = $this->_db3->prepare($sqlBase);
+                    $sql->execute($params);
+
+                    $result_cotizaciones = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+                    $response = [
+                        'resultado' => $result_cotizaciones,
+                    ];
+                    return $response;
+                } catch (PDOException $e) {
                     error_log("Error en la consulta SQL: " . $e->getMessage());
                     return [
                         'error' => 'Ocurrió un error al ejecutar la consulta.',
@@ -489,26 +771,6 @@ class servicioclienteiModel extends Model
         $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
         return $resultado;
     }
-
-    // public function Visualizar_solictud($numdoc_solictud)
-    // {
-    //     $sql = $this->_db3->prepare("SELECT ccs.nombre_cliente,ccs.nit,ccs.direccion,ccs.telefono,ccs.procedencia_cotizacion,tv.nombre, CONCAT(C1.municipio,'-',C1.depto) AS orig, CONCAT(C2.municipio,'-',C2.depto) AS dest, 
-    //         e.empaque,cdm.tipo_carga,cdm.tipo_servicio_mer,cdm.tipo_transporte,cdm.peso_bruto_kg,cdm.peso_neto_kg,cdm.peso_neto_tn,cdm.flete,cdm.total_tarifa,cdm.rentabilidad,cdm.utilidad
-    //         FROM cmx_cotizaciones_serviciocliente ccs 
-    //         INNER JOIN cmx_solicitud_vehiculo2 ss ON ccs.n_cotizacion = ss.n_cotizacion
-    //         -- Mercancias
-    //         INNER JOIN cmx_detalle_mercancia2 cdm ON ccs.n_cotizacion=cdm.n_cotizacion
-    //         INNER JOIN cmx_para_tipo_vehiculo tv ON cdm.tipo_vehiculo=tv.id
-    //         INNER JOIN cmx_municipios C1 ON cdm.origen=C1.rndc_codigo_ciudad
-    //         INNER JOIN cmx_municipios C2 ON cdm.destino=C2.rndc_codigo_ciudad
-    //         INNER JOIN cmx_para_tipo_empaque e ON cdm.tipo_empaque=e.id
-    //         LEFT JOIN cmx_detalle_servespecial2 se ON ccs.n_cotizacion=se.n_cotizacion
-    //         WHERE ss.nundoc_solicitud=:ss");
-    //     $sql->bindParam(':ss', $numdoc_solictud);
-    //     $sql->execute();
-    //     $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
-    //     return $resultado;
-    // }
 
     public function Historico_Cotizaciones($id)
     {
@@ -760,7 +1022,7 @@ class servicioclienteiModel extends Model
             $this->actualizarEstadoNegocio($datos['pareja']);
             $this->insertarGrupoClientes($datos["grupo"], $numdoc_cabecera);
             $this->insertarHorasClientes($datos["horacliente"], $datos, $numdoc_cabecera);
-            $this->insertarPuntosEntrega($datos, $datos["maximo"], $numdoc_cabecera);
+            $this->insertarPuntosEntrega($datos, $datos["maximo"], $datos["insertremit"], $numdoc_cabecera);
             $this->Insertar_Destinatarios($datos, $datos["nFilas"], $datos['insertdesti'], $numdoc_cabecera);
 
             // Confirmar la transacción
@@ -887,37 +1149,38 @@ class servicioclienteiModel extends Model
     }
 
 
-    private function insertarPuntosEntrega($datos, $maximo, $numdoc_cabecera)
+    private function insertarPuntosEntrega($datos, $maximo, $insertremit, $numdoc_cabecera)
     {
+        $hora = date('H:i:s');
+        $fecha = date('Y-m-d');
         $sql = "INSERT INTO cmx_ruta_puntosentrega (id, cod_ini_ruta, municipio_entrega, direccion_entrega, cliente, fecha_estimada_entrega, observacion, fecha, hora, usuario, hora_estimada, tipo, orden, telefono, peso, lugar, id_punto)
                 VALUES (null, :solicitud_servicio1, :mentrega, :dire, :cliente, :fentrega, :obs, :fecha, :hora, :user, :hora_estimada, :tipo, :orden, :telefono, :peso, :sitio, :id_punto)";
 
-        $stmt = $this->_db3->prepare($sql);
         $i = 0;
-        for ($i = 1; $i <= $maximo; $i++) {
+        for ($i = 0; $i < $maximo; $i++) {
+            $stmt = $this->_db3->prepare($sql);
             // Bind the parameters
             $stmt->bindParam(':solicitud_servicio1', $numdoc_cabecera, PDO::PARAM_INT);
-            $stmt->bindParam(':mentrega', $datos['mentrega'], PDO::PARAM_STR);
-            $stmt->bindParam(':dire', $datos['dire'], PDO::PARAM_STR);
-            $stmt->bindParam(':cliente', $datos['cliente'], PDO::PARAM_STR);
-            $stmt->bindParam(':fentrega', $datos['fentrega'], PDO::PARAM_STR);
-            $stmt->bindParam(':obs', $datos['obs'], PDO::PARAM_STR);
-            $stmt->bindParam(':fecha', $datos['fecha'], PDO::PARAM_STR);
-            $stmt->bindParam(':hora', $datos['hora'], PDO::PARAM_STR);
-            $stmt->bindParam(':user', $datos['user'], PDO::PARAM_STR);
-            $stmt->bindParam(':hora_estimada', $datos['hora_estimada'], PDO::PARAM_STR);
-            $stmt->bindParam(':tipo', $datos['tipo'], PDO::PARAM_STR);
-            $stmt->bindParam(':orden', $datos['orden'], PDO::PARAM_INT);
-            $stmt->bindParam(':telefono', $datos['telefono'], PDO::PARAM_STR);
-            $stmt->bindParam(':peso', $datos['peso'], PDO::PARAM_STR);
-            $stmt->bindParam(':sitio', $datos['sitio'], PDO::PARAM_STR);
-            $stmt->bindParam(':id_punto', $datos['id_punto'], PDO::PARAM_INT);
+            $stmt->bindParam(':mentrega', $insertremit->mentrega[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':dire', $insertremit->dire[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':cliente', $insertremit->clientea[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':fentrega', $insertremit->fentrega[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':obs', $insertremit->obs[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':fecha', $fecha, PDO::PARAM_STR);
+            $stmt->bindParam(':hora', $hora, PDO::PARAM_STR);
+            $stmt->bindParam(':user', $datos['user'], type: PDO::PARAM_STR);
+            $stmt->bindParam(':hora_estimada', $insertremit->hora[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':tipo', $insertremit->tipo[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':orden', $insertremit->orden[$i], PDO::PARAM_INT);
+            $stmt->bindParam(':telefono', $insertremit->telefono[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':peso', $insertremit->pesorem[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':sitio', $insertremit->place[$i], PDO::PARAM_STR);
+            $stmt->bindParam(':id_punto', $insertremit->idpuntrem[$i], PDO::PARAM_INT);
 
             // Execute the statement
             $stmt->execute();
         }
     }
-
 
     private function Insertar_Destinatarios($datos, $nFilas, $insertdesti, $numero_solicita)
     {
@@ -1004,12 +1267,13 @@ class servicioclienteiModel extends Model
         return $response;
     }
 
-    public function Actualizar_referencia($referencia_operacion, $mer_idservicio)
+    public function Actualizar_referencia($referencia_operacion, $mer_idservicio, $puntoId)
     {
         $response = [];
-        $sql = $this->_db3->prepare("UPDATE cmx_destinatarios_ss SET observacion=:referencia_operacion WHERE solicitud_servicio=:nundoc_solicitud");
+        $sql = $this->_db3->prepare("UPDATE cmx_destinatarios_ss SET observacion=:referencia_operacion WHERE solicitud_servicio=:nundoc_solicitud AND id=:puntoId");
         $sql->bindParam(':referencia_operacion', $referencia_operacion, PDO::PARAM_STR);
         $sql->bindParam(':nundoc_solicitud', $mer_idservicio, PDO::PARAM_STR);
+        $sql->bindParam(':puntoId', $puntoId, PDO::PARAM_STR);
         $sql->execute();
         if (! $sql->rowCount()) {
             $response = [
@@ -1174,9 +1438,6 @@ class servicioclienteiModel extends Model
     public function Update_Solicitud_Prioridad($estado, $numdoc_solicitud)
     {
         $response = [];
-
-        // var_dump($estado);
-
         // Asegúrate de que $estado sea 'Propuesta' o 'Aprobada'
         if (!in_array($estado, ['Propuesta', 'Aprobada'])) {
             $response = [
@@ -1189,15 +1450,14 @@ class servicioclienteiModel extends Model
         $sql = $this->_db3->prepare("UPDATE cmx_solicitud_vehiculo2 SET prioritaria = :prioritaria WHERE nundoc_solicitud = :nundoc_solicitud");
         $sql->bindParam(':prioritaria', $estado, PDO::PARAM_STR);
         $sql->bindParam(':nundoc_solicitud', $numdoc_solicitud, PDO::PARAM_STR);
-
         $sql->execute();
-
         if (!$sql->rowCount()) {
             $response = [
                 'status' => 400,
                 'message' => 'No se pudo actualizar la solicitud.',
             ];
         } else {
+            $sql_historico = "INSERT INTO cmx_movimientos_sistema (tipo_movimiento, modulo, objeto, objeto_anterior, referencia, descripcion, usuario, fecha, hora, empresa_id)"; // preprando insersion del historico
             $response = [
                 'status' => 200,
                 'message' => 'Solicitud actualizada correctamente.',
@@ -1239,5 +1499,62 @@ class servicioclienteiModel extends Model
             ];
         }
         return $response;
+    }
+
+    public function ListarClientes()
+    {
+        $sql = 'SELECT * FROM cmx_clientes';
+        $query = $this->_db3->prepare($sql);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function ListarEmpresas()
+    {
+        $sql = "SELECT * FROM cmx_empresas WHERE estado_empresa='ACTIVA'";
+        $query = $this->_db3->prepare($sql);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function ListarRemitentes($soli_servi)
+    {
+        $sql = "SELECT s.*, a.nombre, pe.fecha_estimada_entrega AS fecha_cargue, pe.hora_estimada AS hora_cargue,
+        rm.nombre AS remitente, pe.id_punto AS punto_rem, s.numero_contenedor, s.agrupable, ds.observacion, s.escenario_id,pe.id AS punto_entrega_id,s.prioritaria AS Solicitud_Prioritaria
+        FROM cmx_solicitud_vehiculo2 s
+        INNER JOIN cmx_agencias a ON s.agencia = a.id
+        INNER JOIN cmx_ruta_puntosentrega pe ON s.nundoc_solicitud = pe.cod_ini_ruta
+        INNER JOIN cmx_remitente_destinatario rm ON pe.cliente = rm.id
+        LEFT JOIN cmx_destinatarios_ss ds ON pe.cod_ini_ruta = ds.solicitud_servicio
+        LEFT JOIN cmx_remitente_destinatario des ON ds.cliente = des.id
+        WHERE s.nundoc_solicitud=:soli_servi GROUP BY pe.id_punto";
+
+        $query = $this->_db3->prepare($sql);  // Prepara la consulta
+
+        $query->bindParam(':soli_servi', $soli_servi, PDO::PARAM_INT); // Asigna el valor de forma segura
+        $query->execute();  // Ejecuta la consulta
+
+        return $query->fetchAll(PDO::FETCH_ASSOC); // Retorna el resultado en un array asociativo
+
+    }
+    public function ListarDestinatarios($soli_servi)
+    {
+        $sql = "SELECT s.*, a.nombre, des.nombre AS destinatario, ds.fecha_estimada_entrega AS fecha_descargue,
+        ds.hora_estimada AS hora_descargue, ds.id_punto AS punto_des,
+        s.numero_contenedor, s.agrupable, ds.observacion, s.escenario_id,ds.id AS punto_destinatario_id
+        FROM cmx_solicitud_vehiculo2 s
+        INNER JOIN cmx_agencias a ON s.agencia = a.id
+        INNER JOIN cmx_ruta_puntosentrega pe ON s.nundoc_solicitud = pe.cod_ini_ruta
+        INNER JOIN cmx_remitente_destinatario rm ON pe.cliente = rm.id
+        LEFT JOIN cmx_destinatarios_ss ds ON pe.cod_ini_ruta = ds.solicitud_servicio
+        LEFT JOIN cmx_remitente_destinatario des ON ds.cliente = des.id
+        WHERE s.nundoc_solicitud=:soli_servi GROUP BY ds.id_punto ORDER BY ds.id_punto ASC";
+
+        $query = $this->_db3->prepare($sql);  // Prepara la consulta
+
+        $query->bindParam(':soli_servi', $soli_servi, PDO::PARAM_INT); // Asigna el valor de forma segura
+        $query->execute();  // Ejecuta la consulta
+
+        return $query->fetchAll(PDO::FETCH_ASSOC); // Retorna el resultado en un array asociativo
+
     }
 }

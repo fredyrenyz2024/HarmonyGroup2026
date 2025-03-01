@@ -37,7 +37,18 @@ class prefiltro_nacionalController extends Controller
 		// $this->_view->renderizar('lista_solicitudes', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
 		$this->_view->renderizar_ventana('solicitudes_prioritarias', 'prefiltro_nacional'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
 	}
-
+	public function pendientes()
+	{
+		$this->_view->titulo = 'Solicitar estudios Pendientes';
+		// $this->_view->renderizar('lista_solicitudes', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+		$this->_view->renderizar_ventana('solicitudes_pendientes', 'prefiltro_nacional'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+	}
+	public function en_curso()
+	{
+		$this->_view->titulo = 'Solicitar estudios en Curso';
+		// $this->_view->renderizar('lista_solicitudes', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+		$this->_view->renderizar_ventana('solicitudes_en_curso', 'prefiltro_nacional'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+	}
 
 	public function estudio_todosvehiculos()
 	{
@@ -53,8 +64,10 @@ class prefiltro_nacionalController extends Controller
 		$filtro = $_POST["filtro"];
 		$fecha_inicial = $_POST["fecha_inicial"];
 		$fecha_final = $_POST["fecha_final"];
+		$estado = $_POST["estado"];
+		$cliente = $_POST["cliente"];
 		$id_usuario = $_SESSION["usuario"]["id_usuario"];
-		$this->solicitudes = $this->pedir_vehiculo->getasignarvehiculo($id_usuario, $filtro, $fecha_inicial, $fecha_final);
+		$this->solicitudes = $this->pedir_vehiculo->getasignarvehiculo($id_usuario, $filtro, $fecha_inicial, $fecha_final, $estado, $cliente);
 		echo json_encode($this->solicitudes);
 	}
 

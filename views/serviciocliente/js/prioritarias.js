@@ -1,470 +1,432 @@
-$(document).ready(function () {
-  var tipo = 2;
-  var fecha_inicial = $('#fecha_inicial').val();
-  var fecha_final = $('#fecha_final').val();
+window.VENTANA = null; // Variable global para almacenar el ID
+window.initScript = function (id) {
+  $(document).ready(function () {
+    // Definir la función initScript globalmente
+    window.VENTANA = id; // Asigna el ID recibido a la variable global
+    let tipo = 2;
+    let cliente = "";
+    let fecha_inicial = $('#fecha_inicial').val();
+    let fecha_final = $('#fecha_final').val();
 
-  listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final);
+    listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, cliente);
 
-  document.addEventListener("click", async e => {
-    if (e.target.matches("#buscar") || e.target.matches("#buscar *")) {
-      var tipo = 2;
-      var fecha_inicial = $('#fecha_inicial').val();
-      var fecha_final = $('#fecha_final').val();
-      listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final);
-    }
+    // Si la ventana es la 2, activar el evento de cambio en #filtro
+    if (window.VENTANA == 2) {
+      $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
+        document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "block";
 
-    if (e.target.matches("#btn_ver_solicitud") || e.target.matches("#btn_ver_solicitud *")) {
-      let padre = e.target.parentElement.parentElement;
-      // Obtener el enlace (el elemento con el data-id)
-      let enlace = e.target.closest('#btn_ver_solicitud');
-      // Obtener el valor del atributo data-id
-      let dataId = enlace.getAttribute('data-id');
-      let dataId2 = enlace.getAttribute('data-id2');
-      Visualizar(dataId, dataId2);
-    }
+        $.ajax({
+          url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
+          type: "POST",
+          dataType: "json",
+          success: function (data) {
+            let select = $(`#campo-${window.VENTANA}-clientes`);
+            select.empty().append('<option value="">Seleccione</option>');
 
-    if (e.target.matches("#btn_edit_cargue") || e.target.matches("#btn_edit_cargue *")) {
-      let fecha = document.getElementById("fecha_cargue_edit");
-      let hora = document.getElementById("hora_cargue_edit");
-      fecha.disabled = false;
-      hora.disabled = false;
-      document.getElementById("btn_save_cargue").style.display = "block";
-      document.getElementById("btn_edit_cargue").style.display = "none";
-    }
+            $.each(data, function (index, item) {
+              select.append(`<option value="${item.id}">${item.nombre}</option>`);
+            });
 
-    if (e.target.matches("#btn_save_cargue") || e.target.matches("#btn_save_cargue *")) {
-      if (window.confirm("¿Esta seguro que queire actuazliar la fecha de cargue de la solicitud de servicio?")) {
-        let fecha = document.getElementById("fecha_cargue_edit");
-        let hora = document.getElementById("hora_cargue_edit");
-        var btn = document.getElementById("btn_save_cargue");
-        var num_sol = btn.getAttribute("data-sol");
-        let datos = new FormData();
-        datos.append("solicitud", num_sol);
-        datos.append("fecha_cargue", fecha.value);
-        datos.append("hora_cargue", hora.value);
-        try {
-          const response = await fetch($("#id_url_ajax").val() + "solicitudes/update_cargue", {
-            method: "POST",
-            body: datos,
-            cache: "no-cache",
+            // Inicializa Select2 en el select de clientes
+            select.select2({
+              placeholder: 'Seleccione una opción',
+              allowClear: true,
+            });
+          },
+          error: function (xhr, status, error) {
+            console.error("Error en AJAX:", status, error);
+            alert("Error al cargar los datos.");
+          }
+        });
+      });
+
+
+      $(`#campo-${window.VENTANA}-clientes`).off("change").on("change", function () {
+        let valorSeleccionado = $(this).val();
+        // console.log("Cambio en el filtro detectado. Mostrando clientes... " + valorSeleccionado); // Depuración
+        listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, valorSeleccionado);
+      });
+
+      document.addEventListener('click', async function (e) {  // 🔹 Escuchamos eventos de clic en toda la página
+        if (e.target.matches("#btn_aprobar_solicitud") || e.target.closest("#btn_aprobar_solicitud")) {
+          let enlace = e.target.closest('#btn_aprobar_solicitud');
+          let dataId = enlace.getAttribute('data-id');
+
+          const result = await Swal.fire({
+            title: 'Seguro',
+            text: '¿Desea aprobar la solicitud?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3B71CA',
+            cancelButtonColor: '#9FA6B2',
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+              popup: 'swal2-custom-font',
+            },
           });
-          const data = await response.json();
-          // console.log("Primera solicitud completada:", data);
-          // return data;
-          if (data.numero === 200) {
-            document.getElementById("Mensaje_update").innerHTML = `
-            <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-              <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-              </div>`;
-          } else {
-            document.getElementById("Mensaje_update").innerHTML = `
-            <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-            </div>`;
-          }
 
-        } catch (error) {
-          console.error("Error en la primera solicitud:", error);
-          throw error;
-        } finally {
-          document.getElementById("fecha_cargue_edit").disabled = true;
-          document.getElementById("hora_cargue_edit").disabled = true;
-          document.getElementById("btn_save_cargue").style.display = "none";
-          document.getElementById("btn_edit_cargue").style.display = "block";
-        }
-      }
-    }
+          if (result.isConfirmed) {
+            var datos = new FormData();
+            datos.append('solicitud', dataId);
+            datos.append('estado', "Aprobada");
 
-    if (e.target.matches("#btn_edit_descargue") || e.target.matches("#btn_edit_descargue *")) {
-      let fecha = document.getElementById("fecha_descargue_edit");
-      let hora = document.getElementById("hora_descargue_edit");
-      fecha.disabled = false;
-      hora.disabled = false;
-      document.getElementById("btn_save_descargue").style.display = "block";
-      document.getElementById("btn_edit_descargue").style.display = "none";
-    }
-
-    /* Boton para gaurar el contenedor en las solicitudes */
-    if (e.target.matches("#btn_save_contenedor") || e.target.matches("#btn_save_contenedor *")) {
-      Swal.fire({
-        title: 'Mnesaje',
-        text: '¿Está seguro de continuar?',
-        icon: 'question',
-        showCancelButton: true,
-        cancelButtonColor: '#9FA6B2',
-        confirmButtonColor: '#14A44D',
-        confirmButtonText: 'Si',
-        cancelButtonText: 'No',
-        customClass: {
-          popup: 'swal2-custom-font',
-        },
-      }).then(async result => {
-        if (result.isConfirmed) {
-          $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
-          /* Definir las variables para los filtros */
-          let formdata = new FormData();
-          formdata.append('numero_contenedor', document.getElementById('numero_contenedor').value);
-          formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
-
-          // Obtén el elemento por su id (sin el #)
-          var checkbox = document.getElementById("agrupable");
-          // Verifica si está marcado
-          if (checkbox.checked) {
-            formdata.append('agrupado', "SI");
-          } else {
-            formdata.append('agrupado', "NO");
-          }
-
-          try {
-            const response = await fetch($('#id_url_ajax').val() + 'serviciocliente/GuardarContenedor', {
-              method: 'POST',
-              body: formdata,
-              cache: 'no-cache',
-            });
-
-            const data = await response.json();
-            if (data.status === 400) {
-              Swal.fire({
-                title: 'Información',
-                text: data.message,
-                icon: 'info',
-                customClass: {
-                  popup: 'swal2-custom-font',
-                },
-              });
-            } else {
-              Swal.fire({
-                title: 'Mensaje',
-                text: data.message,
-                icon: 'success',
-                customClass: {
-                  popup: 'swal2-custom-font',
-                },
-              });
-            }
-          } catch (error) {
-            console.error('Error en la primera solicitud:', error);
-            throw error;
-          } finally {
-            $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-          }
-        }
-      });
-    }
-
-    /* Boton para actualizar las referencias de los despachos */
-    if (e.target.matches("#btn_save_referencia") || e.target.matches("#btn_save_referencia *")) {
-      Swal.fire({
-        title: 'Mnesaje',
-        text: '¿Está seguro de continuar?',
-        icon: 'question',
-        showCancelButton: true,
-        cancelButtonColor: '#9FA6B2',
-        confirmButtonColor: '#14A44D',
-        confirmButtonText: 'Si',
-        cancelButtonText: 'No',
-        customClass: {
-          popup: 'swal2-custom-font',
-        },
-      }).then(async result => {
-        if (result.isConfirmed) {
-          $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
-          /* Definir las variables para los filtros */
-          let formdata = new FormData();
-          formdata.append('referencia_operacion', document.getElementById('referencia_operacion').value);
-          formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
-
-          try {
-            const response = await fetch($('#id_url_ajax').val() + 'serviciocliente/ActualizarReferencia', {
-              method: 'POST',
-              body: formdata,
-              cache: 'no-cache',
-            });
-
-            const data = await response.json();
-            if (data.status === 400) {
-              Swal.fire({
-                title: 'Información',
-                text: data.message,
-                icon: 'info',
-                customClass: {
-                  popup: 'swal2-custom-font',
-                },
-              });
-            } else {
-              Swal.fire({
-                title: 'Mensaje',
-                text: data.message,
-                icon: 'success',
-                customClass: {
-                  popup: 'swal2-custom-font',
-                },
-              });
-            }
-          } catch (error) {
-            console.error('Error en la primera solicitud:', error);
-            throw error;
-          } finally {
-            $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-          }
-        }
-      });
-    }
-
-    if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
-      if (window.confirm("¿Esta seguro que quiere actualizar las fechas de la solicitud de servicio?")) {
-        //let fechacargue= document.getElementById(fecha_cargue_edit);
-        let msg_error = '';
-        let fechacargue = $("#fecha_cargue_edit").val();
-        let horacargue = $("#hora_cargue_edit").val();
-        let fechadescargue = $("#fecha_descargue_edit").val();
-        let horadescargue = $("#hora_descargue_edit").val();
-        let num_sol = $("#mer_idservicio").val();
-        let punto_rem = $("#punto_rem").val();
-        let punto_des = $("#punto_des").val();
-        var fc = (fechacargue + ' ' + horacargue);
-        var fd = (fechadescargue + ' ' + horadescargue);
-
-        /* Validar que actualizacion se va a realizar */
-        let agencia = document.getElementById("servicio_agencia").value.trim();
-        let tipo_servicio = document.getElementById("servicio_cliente").value.trim();
-
-        if (agencia === "" && tipo_servicio === "") {
-          if (fc > fd) {
-            msg_error += "La Fecha - Hora de cargue no puede ser mayor a la Fecha Descargue";
-            alert(msg_error);
-          } else {
-            let datos = new FormData();
-            datos.append("fecha_cargue", fechacargue);
-            datos.append("hora_cargue", horacargue);
-            datos.append("fecha_descargue", fechadescargue);
-            datos.append("hora_descargue", horadescargue);
-            datos.append("solicitud", num_sol);
-            datos.append("punto_rem", punto_rem);
-            datos.append("punto_des", punto_des);
             try {
-              const response = await fetch($("#id_url_ajax").val() + "solicitudes/update_cargue", {
+              const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
+                method: 'POST',
+                body: datos,
+                cache: 'no-cache',
+              });
+              const data = await response.json();
+
+              Swal.fire({
+                title: "Mensaje!",
+                text: data.message,
+                icon: data.status === 200 ? "success" : "error",
+                draggable: true
+              });
+              listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, cliente);
+
+              if (data.ststus === 200) resetAll();
+            } catch (error) {
+              console.error('Error en la solicitud:', error);
+            }
+          }
+        }
+
+        if (e.target.matches("#btn_ver_solicitud") || e.target.matches("#btn_ver_solicitud *")) {
+          let padre = e.target.parentElement.parentElement;
+          // Obtener el enlace (el elemento con el data-id)
+          let enlace = e.target.closest('#btn_ver_solicitud');
+          // Obtener el valor del atributo data-id
+          let dataId = enlace.getAttribute('data-id');
+          let dataId2 = enlace.getAttribute('data-id2');
+          Visualizar(dataId, dataId2);
+        }
+
+        if (e.target.matches("#btn_edit_cargue") || e.target.matches("#btn_edit_cargue *")) {
+          let fecha = document.getElementById("fecha_cargue_edit");
+          let hora = document.getElementById("hora_cargue_edit");
+          fecha.disabled = false;
+          hora.disabled = false;
+          document.getElementById("btn_save_cargue").style.display = "block";
+          document.getElementById("btn_edit_cargue").style.display = "none";
+        }
+
+        if (e.target.matches("#btn_save_cargue") || e.target.matches("#btn_save_cargue *")) {
+          if (window.confirm("¿Esta seguro que queire actuazliar la fecha de cargue de la solicitud de servicio?")) {
+            let fecha = document.getElementById("fecha_cargue_edit");
+            let hora = document.getElementById("hora_cargue_edit");
+            var btn = document.getElementById("btn_save_cargue");
+            var num_sol = btn.getAttribute("data-sol");
+            let datos = new FormData();
+            datos.append("solicitud", num_sol);
+            datos.append("fecha_cargue", fecha.value);
+            datos.append("hora_cargue", hora.value);
+            try {
+              const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
                 method: "POST",
                 body: datos,
                 cache: "no-cache",
               });
               const data = await response.json();
+              // console.log("Primera solicitud completada:", data);
+              // return data;
               if (data.numero === 200) {
                 document.getElementById("Mensaje_update").innerHTML = `
-                  <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-                    <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-                    <div class="message">
-                      <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                      <strong>Mensaje!</strong> ${data.mensaje}
-                    </div>
-                    </div>`;
-                window.location.reload();
+                <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> ${data.mensaje}
+                </div>
+                </div > `;
               } else {
                 document.getElementById("Mensaje_update").innerHTML = `
-                    <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-                      <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                      <div class="message">
-                        <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                        <strong>Mensaje!</strong> ${data.mensaje}
-                      </div>
-                    </div>`;
+                <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                <div class="message">
+                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                  <strong>Mensaje!</strong> ${data.mensaje}
+                </div>
+              </div > `;
               }
+
             } catch (error) {
               console.error("Error en la primera solicitud:", error);
               throw error;
             } finally {
               document.getElementById("fecha_cargue_edit").disabled = true;
               document.getElementById("hora_cargue_edit").disabled = true;
+              document.getElementById("btn_save_cargue").style.display = "none";
               document.getElementById("btn_edit_cargue").style.display = "block";
-              document.getElementById("fecha_descargue_edit").disabled = true;
-              document.getElementById("hora_descargue_edit").disabled = true;
-              document.getElementById("btn_edit_descargue").style.display = "block";
             }
-          }
-        } else {
-          let datos = new FormData();
-          datos.append("agencia", agencia);
-          datos.append("tipo_servicio", tipo_servicio);
-          datos.append("solicitud", num_sol);
-          datos.append("numero_cotizacion", document.getElementById("numero_cotizacion").value);
-          try {
-            const response = await fetch($("#id_url_ajax").val() + "serviciocliente/update_solicitud", {
-              method: "POST",
-              body: datos,
-              cache: "no-cache",
-            });
-            const data = await response.json();
-            if (data.status === 200) {
-              document.getElementById("Mensaje_update").innerHTML = `
-              <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-                <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-                <div class="message">
-                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                  <strong>Mensaje!</strong> ${data.message}
-                </div>
-              </div>`;
-              window.location.reload();
-            } else {
-              document.getElementById("Mensaje_update").innerHTML = `
-              <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-                <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                <div class="message">
-                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                  <strong>Mensaje!</strong> ${data.message}
-                </div>
-              </div>`;
-            }
-
-          } catch (error) {
-            console.error("Error en la primera solicitud:", error);
-            throw error;
-          } finally {
-
           }
         }
-      }
-    }
 
-    if (e.target.matches("#btn_aprobar_solicitud") || e.target.matches("#btn_aprobar_solicitud *")) {
-      let padre = e.target.parentElement.parentElement;
-      // console.log(padre); 
-      // Obtener el enlace (el elemento con el data-id)
-      let enlace = e.target.closest('#btn_aprobar_solicitud');
-      // Obtener el valor del atributo data-id
-      let dataId = enlace.getAttribute('data-id');
-      Swal.fire({
-        title: 'Seguro',
-        text: '¿Desea aprobar la solicitud?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3B71CA',
-        cancelButtonColor: '#9FA6B2',
-        confirmButtonText: 'Aceptar',
-        cancelButtonText: 'Cancelar',
-        customClass: {
-          popup: 'swal2-custom-font',
-        },
-      }).then(async result => {
-        if (result.isConfirmed) {
-          // $('#loading-overlay-nexosapp ').css('display', 'flex'); // Mostrar mensaje de carga
-          var datos = null;
-          datos = new FormData();
-          datos.append('solicitud', dataId);
-          datos.append('estado', "Aprobada");
-
-          try {
-            const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
-              method: 'POST',
-              body: datos,
-              cache: 'no-cache',
-            });
-            const data = await response.json();
-            if (data.success === 200) {
-              Swal.fire({
-                title: "Mensaje!",
-                text: data.message,
-                icon: "success",
-                draggable: true
-              });
-              resetAll();
-            } else {
-              Swal.fire({
-                title: "Mensaje!",
-                text: data.message,
-                icon: "error",
-                draggable: true
-              });
-            }
-
-          } catch (error) {
-            console.error('Error en la primera solicitud:', error);
-            throw error;
-          } finally {
-            // $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-          }
+        if (e.target.matches("#btn_edit_descargue") || e.target.matches("#btn_edit_descargue *")) {
+          let fecha = document.getElementById("fecha_descargue_edit");
+          let hora = document.getElementById("hora_descargue_edit");
+          fecha.disabled = false;
+          hora.disabled = false;
+          document.getElementById("btn_save_descargue").style.display = "block";
+          document.getElementById("btn_edit_descargue").style.display = "none";
         }
-      });
 
-    }
+        /* Boton para gaurar el contenedor en las solicitudes */
+        if (e.target.matches("#btn_save_contenedor") || e.target.matches("#btn_save_contenedor *")) {
+          Swal.fire({
+            title: 'Mnesaje',
+            text: '¿Está seguro de continuar?',
+            icon: 'question',
+            showCancelButton: true,
+            cancelButtonColor: '#9FA6B2',
+            confirmButtonColor: '#14A44D',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'No',
+            customClass: {
+              popup: 'swal2-custom-font',
+            },
+          }).then(async result => {
+            if (result.isConfirmed) {
+              $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
+              /* Definir las variables para los filtros */
+              let formdata = new FormData();
+              formdata.append('numero_contenedor', document.getElementById('numero_contenedor').value);
+              formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
 
-  });
+              // Obtén el elemento por su id (sin el #)
+              var checkbox = document.getElementById("agrupable");
+              // Verifica si está marcado
+              if (checkbox.checked) {
+                formdata.append('agrupado', "SI");
+              } else {
+                formdata.append('agrupado', "NO");
+              }
 
-  // Seleccionar el checkbox por su id
-  const checkbox = document.getElementById('flexSwitchCheckChecked');
+              try {
+                const response = await fetch($('#base_url').val() + 'serviciocliente/GuardarContenedor', {
+                  method: 'POST',
+                  body: formdata,
+                  cache: 'no-cache',
+                });
 
-  checkbox.addEventListener('change', async function (e) {
-    e.preventDefault(); // Evita que el checkbox cambie directamente
-
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¿Quieres cambiar el estado?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, cambiar',
-      cancelButtonText: 'Cancelar'
-    });
-
-    if (result.isConfirmed) {
-      // checkbox.checked = !checkbox.checked; // Aplica el cambio solo si se confirma
-      if (checkbox.checked) {
-        datos = new FormData();
-        datos.append('estado', "Propuesta");
-        datos.append('numdoc_solicitud', document.getElementById("numero_solicitud").value);
-
-        try {
-          const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
-            method: 'POST',
-            body: datos,
-            cache: 'no-cache',
+                const data = await response.json();
+                if (data.status === 400) {
+                  Swal.fire({
+                    title: 'Información',
+                    text: data.message,
+                    icon: 'info',
+                    customClass: {
+                      popup: 'swal2-custom-font',
+                    },
+                  });
+                } else {
+                  Swal.fire({
+                    title: 'Mensaje',
+                    text: data.message,
+                    icon: 'success',
+                    customClass: {
+                      popup: 'swal2-custom-font',
+                    },
+                  });
+                }
+              } catch (error) {
+                console.error('Error en la primera solicitud:', error);
+                throw error;
+              } finally {
+                $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+              }
+            }
           });
-          const data = await response.json();
-
-          if (data.status === 200) {
-            Swal.fire({
-              title: "Mensaje!",
-              text: data.message,
-              icon: "success",
-              draggable: true
-            });
-            resetAll();
-          } else {
-            Swal.fire({
-              title: "Mensaje!",
-              text: data.message,
-              icon: "error",
-              draggable: true
-            });
-          }
-
-        } catch (error) {
-          console.error('Error en la primera solicitud:', error);
         }
-      } else {
-        console.log('El checkbox no está marcado (unchecked)');
-        // Acciones si no está marcado
-      }
-    } else {
-      checkbox.checked = !checkbox.checked; // Revierte el cambio si se cancela
+
+        /* Boton para actualizar las referencias de los despachos */
+        if (e.target.matches("#btn_save_referencia") || e.target.matches("#btn_save_referencia *")) {
+          Swal.fire({
+            title: 'Mnesaje',
+            text: '¿Está seguro de continuar?',
+            icon: 'question',
+            showCancelButton: true,
+            cancelButtonColor: '#9FA6B2',
+            confirmButtonColor: '#14A44D',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'No',
+            customClass: {
+              popup: 'swal2-custom-font',
+            },
+          }).then(async result => {
+            if (result.isConfirmed) {
+              $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
+              /* Definir las variables para los filtros */
+              let formdata = new FormData();
+              formdata.append('referencia_operacion', document.getElementById('referencia_operacion').value);
+              formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
+
+              try {
+                const response = await fetch($('#base_url').val() + 'serviciocliente/ActualizarReferencia', {
+                  method: 'POST',
+                  body: formdata,
+                  cache: 'no-cache',
+                });
+
+                const data = await response.json();
+                if (data.status === 400) {
+                  Swal.fire({
+                    title: 'Información',
+                    text: data.message,
+                    icon: 'info',
+                    customClass: {
+                      popup: 'swal2-custom-font',
+                    },
+                  });
+                } else {
+                  Swal.fire({
+                    title: 'Mensaje',
+                    text: data.message,
+                    icon: 'success',
+                    customClass: {
+                      popup: 'swal2-custom-font',
+                    },
+                  });
+                }
+              } catch (error) {
+                console.error('Error en la primera solicitud:', error);
+                throw error;
+              } finally {
+                $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+              }
+            }
+          });
+        }
+
+        if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
+          if (window.confirm("¿Esta seguro que quiere actualizar las fechas de la solicitud de servicio?")) {
+            //let fechacargue= document.getElementById(fecha_cargue_edit);
+            let msg_error = '';
+            let fechacargue = $("#fecha_cargue_edit").val();
+            let horacargue = $("#hora_cargue_edit").val();
+            let fechadescargue = $("#fecha_descargue_edit").val();
+            let horadescargue = $("#hora_descargue_edit").val();
+            let num_sol = $("#mer_idservicio").val();
+            let punto_rem = $("#punto_rem").val();
+            let punto_des = $("#punto_des").val();
+            var fc = (fechacargue + ' ' + horacargue);
+            var fd = (fechadescargue + ' ' + horadescargue);
+
+            /* Validar que actualizacion se va a realizar */
+            let agencia = document.getElementById("servicio_agencia").value.trim();
+            let tipo_servicio = document.getElementById("servicio_cliente").value.trim();
+
+            if (agencia === "" && tipo_servicio === "") {
+              if (fc > fd) {
+                msg_error += "La Fecha - Hora de cargue no puede ser mayor a la Fecha Descargue";
+                alert(msg_error);
+              } else {
+                let datos = new FormData();
+                datos.append("fecha_cargue", fechacargue);
+                datos.append("hora_cargue", horacargue);
+                datos.append("fecha_descargue", fechadescargue);
+                datos.append("hora_descargue", horadescargue);
+                datos.append("solicitud", num_sol);
+                datos.append("punto_rem", punto_rem);
+                datos.append("punto_des", punto_des);
+                try {
+                  const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
+                    method: "POST",
+                    body: datos,
+                    cache: "no-cache",
+                  });
+                  const data = await response.json();
+                  if (data.numero === 200) {
+                    document.getElementById("Mensaje_update").innerHTML = `
+                    <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                      <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+                      <div class="message">
+                        <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                        <strong>Mensaje!</strong> ${data.mensaje}
+                      </div>
+                      </div > `;
+                    window.location.reload();
+                  } else {
+                    document.getElementById("Mensaje_update").innerHTML = `
+                    <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                        <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                        <div class="message">
+                          <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                          <strong>Mensaje!</strong> ${data.mensaje}
+                        </div>
+                      </div > `;
+                  }
+                } catch (error) {
+                  console.error("Error en la primera solicitud:", error);
+                  throw error;
+                } finally {
+                  document.getElementById("fecha_cargue_edit").disabled = true;
+                  document.getElementById("hora_cargue_edit").disabled = true;
+                  document.getElementById("btn_edit_cargue").style.display = "block";
+                  document.getElementById("fecha_descargue_edit").disabled = true;
+                  document.getElementById("hora_descargue_edit").disabled = true;
+                  document.getElementById("btn_edit_descargue").style.display = "block";
+                }
+              }
+            } else {
+              let datos = new FormData();
+              datos.append("agencia", agencia);
+              datos.append("tipo_servicio", tipo_servicio);
+              datos.append("solicitud", num_sol);
+              datos.append("numero_cotizacion", document.getElementById("numero_cotizacion").value);
+              try {
+                const response = await fetch($("#base_url").val() + "serviciocliente/update_solicitud", {
+                  method: "POST",
+                  body: datos,
+                  cache: "no-cache",
+                });
+                const data = await response.json();
+                if (data.status === 200) {
+                  document.getElementById("Mensaje_update").innerHTML = `
+                <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                  <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+                  <div class="message">
+                    <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                    <strong>Mensaje!</strong> ${data.message}
+                  </div>
+                </div > `;
+                  window.location.reload();
+                } else {
+                  document.getElementById("Mensaje_update").innerHTML = `
+                <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                  <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                  <div class="message">
+                    <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                    <strong>Mensaje!</strong> ${data.message}
+                  </div>
+                </div > `;
+                }
+
+              } catch (error) {
+                console.error("Error en la primera solicitud:", error);
+                throw error;
+              } finally {
+
+              }
+            }
+          }
+        }
+
+      });
     }
   });
+};
 
-});
-
-async function listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final) {
+async function listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, cliente) {
   /* Funcion para enviar los datos */
   let dato = new FormData();
   dato.append('tipo', tipo);
   dato.append('fecha_inicial', fecha_inicial);
   dato.append('fecha_final', fecha_final);
   dato.append('estado', "Prioritarias");
+  dato.append('cliente', cliente);
   try {
     const response = await fetch($('#base_url').val() + 'serviciocliente/consultar_cotizaciones', {
       method: 'POST',
@@ -473,7 +435,7 @@ async function listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final) {
     });
     const data = await response.json();
     if (data) {
-      let tbody = document.getElementById('tblSolicitudesPendientes');
+      let tbody = document.getElementById('tblSolicitudesPrioritarias');
       tbody.innerHTML = '';
       let esatdo_autorizado = '';
       let col_estatus = '';
@@ -489,12 +451,28 @@ async function listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final) {
       data.resultado.forEach(element => {
 
         const fila = document.createElement('tr');
-        if (element.estado === 'Pendiente') {
-          col_estatus = `<span  data-toggle="tooltip" style="color:purple;">${element.estado}</span>`;
-        } else if (element.estado === 'por autorizar') {
-          col_estatus = `<span  data-toggle="tooltip" style="color:red;">${element.estado}</span>`;
+        if (element.estado_estudio === 'Sin Estado') {
+          if (element.estado === 'Pendiente') {
+            col_estatus = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">sin gestionar</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado === 'por autorizar') {
+            col_estatus = `<span  data-toggle="tooltip" style="color:#ec1f00;">${element.estado}</span>`;
+          } else {
+            col_estatus = `<td class="text"></td>`;
+          }
         } else {
-          col_estatus = `<td class="text"></td>`;
+          if (element.estado_estudio === 'pendiente_iniciar') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Estudio Pendiente Iniciar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'iniciado') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">Estudio Iniciado</span><span class="ms-1" data-feather="info" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'Pendiente') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Estudio Pendiente</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'Rechazado') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Rechazado</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'Aprobado') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Estudio Aprobado</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else {
+            col_estatus = `<td class="text"></td>`;
+          }
         }
         // if (element.estado_autorizado === 'autorizado') {
         //   col_estatus = `<span  data-toggle="tooltip" style="color:purple;">${element.estado_autorizado}</span>`;
@@ -545,9 +523,7 @@ async function listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final) {
         const columnaItr = document.createElement('td');
         columnaItr.innerHTML = cot_itr;
         const columnaNum_Cotizacion = document.createElement('td');
-        columnaNum_Cotizacion.innerHTML = `<a href="#" id="btn_ver_solicitud" data-id="${element.n_cotizacion}"  data-id2="${element.nundoc_solicitud}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" class="text-decoration-none" aria-disabled="true">N°${element.nundoc_solicitud}</a>`;
-        // columnaNum_Cotizacion.innerHTML = `<a href="${$('#base_url').val()}serviciocliente/ver_solicitud?numdoc_solicitud=${element.nundoc_solicitud}" id="" target="_blank" class="text-decoration-none" aria-disabled="true">N°${element.nundoc_solicitud}</a>`;
-        // columnaNum_Cotizacion.innerHTML = `<a href="#" id="" onclick="Ver_solicitud('${$('#base_url').val()}${intermedio}/ver_solicitud', '${element.nundoc_solicitud}');" class="text-decoration-none" aria-disabled="true">N°${element.nundoc_solicitud}</a>`;
+        columnaNum_Cotizacion.innerHTML = `<a href="#" id="btn_ver_solicitud" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" class="text-decoration-none" aria-disabled="true" > N°${element.nundoc_solicitud}</a> `;
         const columnaCliente = document.createElement('td');
         columnaCliente.innerHTML = element.nombre_cliente;
         const columnaMercancia = document.createElement('td');
@@ -642,9 +618,6 @@ function Visualizar(cotizacion, solicitud_servicio) {
     // action: 'ver',
   };
 
-  $('#panel_principal').html('');
-  $('#panel_secundario').html('');
-
   $.ajax({
     url: $('#base_url').val() + 'serviciocliente/Ver_cotizacion',
     type: 'POST',
@@ -652,8 +625,10 @@ function Visualizar(cotizacion, solicitud_servicio) {
     dataType: 'json',
     success: function (data) {
       if (data) {
-        $('#titlu').html('<h3 class="text-center"><strong>Cotizacion Número: ' + data.n_cotizacion + '</strong></h3>');
+        // $('#titlu').html('<h3 class="text-center"><strong>Cotizacion Número: ' + data.n_cotizacion + '</strong></h3>');
         $('#linea').val('');
+
+        $('#cuerpo_cotizacion').html("");
 
         $('#cuerpo_cliente').html(
           '<tr>' +
@@ -677,6 +652,7 @@ function Visualizar(cotizacion, solicitud_servicio) {
           '</tr>',
         );
 
+        $('#costos').html("");
         $('#costos').html(
           '<tr>' +
           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="tottari" class="form-control input-xs text-center" readonly="readonly" value="' +
@@ -694,6 +670,7 @@ function Visualizar(cotizacion, solicitud_servicio) {
           '</tr>',
         );
 
+        $('#costos1').html("");
         $('#costos1').html(
           '<tr>' +
           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="flees" class="form-control input-xs text-center" value="' +
@@ -710,6 +687,7 @@ function Visualizar(cotizacion, solicitud_servicio) {
           '" readonly="readonly"  style="background-color:white;"></td></tr>',
         );
 
+        $('#costos2').html("");
         $('#totcotiza').html(
           '<tr>' +
           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totalcoti" class="form-control input-xs text-center" value="' +
@@ -717,6 +695,7 @@ function Visualizar(cotizacion, solicitud_servicio) {
           '" readonly="readonly" style="background-color:white;">    </td></tr>',
         );
 
+        $('#cuerpo_adicional').html("");
         $('#cuerpo_adicional').html(
           '<tr>' +
           '<td style="white-space: nowrap;" class="text-center">' +
@@ -776,6 +755,7 @@ function Visualizar(cotizacion, solicitud_servicio) {
       var c = 0;
       var contador = 0;
       var carga = '';
+      $('#panel_principal').html('');
       data.forEach(function (element, index) {
         c++;
         contador = contador + 1;
@@ -939,8 +919,9 @@ function Visualizar(cotizacion, solicitud_servicio) {
     success: function (data) {
       ce = 0;
       htm = '';
+      $('#panel_secundario').html('');
       if (data.length === 0) {
-        htm = "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>Sin servicios especiales</div>";
+        htm = "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 d-flex justify-content-center fw-bold my-3'>Sin servicios especiales</div>";
       } else {
         data.forEach(function (element, index) {
           ce++;
@@ -1016,9 +997,6 @@ function Visualizar(cotizacion, solicitud_servicio) {
     },
   });
 
-
-  $("#cuerpo_servicio").html('');
-  $("#cuerpo_servicio2").html('');
   var soli = {
     soli_servi: solicitud_servicio,
     action: 'solicitud_servicio'
@@ -1053,36 +1031,143 @@ function Visualizar(cotizacion, solicitud_servicio) {
         }
 
       }
+      $("#cuerpo_servicio").html('');
+      // $("#cuerpo_servicio2").html('');
       data.result.forEach(function (element, index) {
         $("#cuerpo_servicio").append('<tr>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="mer_idservicio" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="punto_rem" disabled style="width:100%;height24px;" value="' + element.punto_rem + '"></td>' +
-          '<td class="text-center style="font-size: 10px;white-space: nowrap;"><input type="text" id="remitente_edit" disabled style="width:100%;height24px;" value="' + element.remitente + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="date" id="fecha_cargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_cargue + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="time" id="hora_cargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_cargue + '"></td>' +
+          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input class="form-control form-control-sm" type="text" id="mer_idservicio" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
+          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input class="form-control form-control-sm" type="text" id="punto_rem" disabled style="width:100%;height24px;" value="' + element.punto_rem + '"></td>' +
+          '<td class="text-center style="font-size: 10px;white-space: nowrap;"><input  class="form-control form-control-sm" type="text" id="remitente_edit" disabled style="width:100%;height24px;" value="' + element.remitente + '"></td>' +
+          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input class="form-control form-control-sm" type="date" id="fecha_cargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_cargue + '"></td>' +
+          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input class="form-control form-control-sm" type="time" id="hora_cargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_cargue + '"></td>' +
           '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
           '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+          // '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
           '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">' +
-          '<button type="button" class="btn btn-warning btn-sm" id="btn_edit_cargue"><i class="fas fa-pencil-alt"></i></button>' +
+          '<button type="button" class="btn btn-sm" id="btn_edit_cargue"><i class="fas fa-pencil-alt"></i></button>' +
           ' </div></td>' +
           '</tr>');
 
-        $("#cuerpo_servicio2").append('<tr>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input type="text" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input type="text" id="punto_des" disabled style="width:100%;height24px;" value="' + element.punto_des + '"></td>' +
-          '<td class="text-center style="font-size: 10px;white-space: nowrap;"> <input type="text" id="destinatario_edit" disabled style="width:100%;height24px;" value="' + element.destinatario + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="date" id="fecha_descargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_descargue + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="time" id="hora_descargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_descargue + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">' +
-          '<button type="button" class="btn btn-warning btn-sm" id="btn_edit_descargue"><i class="fas fa-pencil-alt"></i></button>' +
-          ' </div></td>' +
-          '</tr>');
+        /* Validar el escenario que se esta pintando */
+
+        // if (element.escenario_id === '3' && printer_table == false) {
+        //   $("#cuerpo_servicio2").append('<tr>' +
+        //     '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input type="text" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
+        //     '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input type="text" id="punto_des" disabled style="width:100%;height24px;" value="' + element.punto_des + '"></td>' +
+        //     '<td class="text-center style="font-size: 10px;white-space: nowrap;"> <input type="text" id="destinatario_edit" disabled style="width:100%;height24px;" value="' + element.destinatario + '"></td>' +
+        //     '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="date" id="fecha_descargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_descargue + '"></td>' +
+        //     '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="time" id="hora_descargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_descargue + '"></td>' +
+        //     '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
+        //     '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
+        //     '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+        //     '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">' +
+        //     '<button type="button" class="btn btn-warning btn-sm" id="btn_edit_descargue"><i class="fas fa-pencil-alt"></i></button>' +
+        //     ' </div></td>' +
+        //     '</tr>');
+        //     ptinter_false = true;
+        // } else {
+
+        // }
 
       });
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.log('error');
+      console.log(jqXHR);
+      console.log(textStatus);
+      console.log(errorThrown);
+    }
+
+  });
+
+
+  var soli_destin = {
+    soli_servi: solicitud_servicio,
+    action: 'solicitud_servicio'
+  };
+  $.ajax({
+    url: $('#base_url').val() + "libs/servicio_cliente_ajax.php",
+    type: 'POST',
+    data: soli_destin,
+    dataType: 'json',
+    success: function (data) {
+      document.getElementById("referencia_operacion").value = data.result[0].observacion;
+      //numero_contenedor
+      if (data.result[0].numero_contenedor === null) {
+        document.getElementById("numero_contenedor").value = "";
+        document.getElementById("numero_contenedor").disabled = false;
+        document.getElementById("btn_save_contenedor").disabled = false;
+        document.getElementById("agrupable").checked = false;
+        document.getElementById("agrupable").disabled = false;
+      } else {
+        if (data.result[0].agrupable === null || data.result[0].agrupable === 'NO') {
+          document.getElementById("numero_contenedor").value = data.result[0].numero_contenedor;
+          document.getElementById("numero_contenedor").disabled = true;
+          document.getElementById("btn_save_contenedor").disabled = true;
+          document.getElementById("agrupable").checked = false;
+          document.getElementById("agrupable").disabled = false;
+        } else {
+          document.getElementById("numero_contenedor").value = data.result[0].numero_contenedor;
+          document.getElementById("numero_contenedor").disabled = true;
+          document.getElementById("btn_save_contenedor").disabled = true;
+          document.getElementById("agrupable").checked = true;
+          document.getElementById("agrupable").disabled = true;
+        }
+
+      }
+      // $("#cuerpo_servicio").html('');
+      $("#cuerpo_servicio2").html('');
+      let appended = false;
+
+      for (const element of data.result) {
+
+        // $("#cuerpo_servicio").append('<tr>' +
+        //   '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="mer_idservicio" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
+        //   '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="punto_rem" disabled style="width:100%;height24px;" value="' + element.punto_rem + '"></td>' +
+        //   '<td class="text-center style="font-size: 10px;white-space: nowrap;"><input type="text" id="remitente_edit" disabled style="width:100%;height24px;" value="' + element.remitente + '"></td>' +
+        //   '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="date" id="fecha_cargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_cargue + '"></td>' +
+        //   '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="time" id="hora_cargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_cargue + '"></td>' +
+        //   '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
+        //   '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
+        //   '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+        //   '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">' +
+        //   '<button type="button" class="btn btn-warning btn-sm" id="btn_edit_cargue"><i class="fas fa-pencil-alt"></i></button>' +
+        //   ' </div></td>' +
+        //   '</tr>');
+
+        /* Validar el escenario que se esta pintando */
+
+        if (element.escenario_id === '3' && !appended) {
+          $("#cuerpo_servicio2").append('<tr>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input class="form-control form-control-sm" type="text" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input class="form-control form-control-sm" type="text" id="punto_des" disabled style="width:100%;height24px;" value="' + element.punto_des + '"></td>' +
+            '<td class="text-center style="font-size: 10px;white-space: nowrap;"> <input class="form-control form-control-sm" type="text" id="destinatario_edit" disabled style="width:100%;height24px;" value="' + element.destinatario + '"></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input class="form-control form-control-sm" type="date" id="fecha_descargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_descargue + '"></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input class="form-control form-control-sm" type="time" id="hora_descargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_descargue + '"></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">' +
+            '<button class="form-control form-control-sm" type="button" class="btn btn-warning btn-sm" id="btn_edit_descargue"><i class="fas fa-pencil-alt"></i></button>' +
+            ' </div></td>' +
+            '</tr>');
+          appended = true; // Marcamos como pintado, pero SIN USAR break
+        } else {
+          $("#cuerpo_servicio2").append('<tr>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input class="form-control form-control-sm" type="text" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input class="form-control form-control-sm" type="text" id="punto_des" disabled style="width:100%;height24px;" value="' + element.punto_des + '"></td>' +
+            '<td class="text-center style="font-size: 10px;white-space: nowrap;"> <input class="form-control form-control-sm" type="text" id="destinatario_edit" disabled style="width:100%;height24px;" value="' + element.destinatario + '"></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input class="form-control form-control-sm" type="date" id="fecha_descargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_descargue + '"></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input class="form-control form-control-sm" type="time" id="hora_descargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_descargue + '"></td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
+            '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">' +
+            '<button type="button" class="btn btn-warning btn-sm" id="btn_edit_descargue"><i class="fas fa-pencil-alt"></i></button>' +
+            ' </div></td>' +
+            '</tr>');
+        }
+      }
     },
     error: function (jqXHR, textStatus, errorThrown) {
       console.log('error');
@@ -1113,3 +1198,4 @@ function Visualizar(cotizacion, solicitud_servicio) {
       console.log(error);
     });
 }
+

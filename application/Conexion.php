@@ -276,25 +276,69 @@ class Consultas
      * @param array $arrayData
      * @return boolean
      */
+    // public function updateRegistro($table, $array, $id)
+    // {
+    //     $conex = ConectarDb::getConexion();
+
+    //     $campos = "";
+    //     $valores = [];
+    //     $tipos = "";
+
+    //     foreach ($array as $key => $value) {
+    //         $campos .= "`{$key}` = ?, ";
+    //         $valores[] = $value;
+    //         $tipos .= is_int($value) ? "i" : "s"; // Detecta tipo de dato
+    //     }
+
+    //     $campos = rtrim($campos, ", "); // Elimina la última coma
+
+    //     $sql = "UPDATE `$table` SET $campos WHERE id = ?";
+
+    //     $stmt = $conex->prepare($sql);
+    //     if (!$stmt) {
+    //         return 0; // Error en la preparación
+    //     }
+
+    //     $valores[] = $id; // Agregar ID a los valores
+    //     $tipos .= "i"; // ID siempre es un entero
+
+    //     $stmt->bind_param($tipos, ...$valores);
+
+    //     if ($stmt->execute()) {
+    //         $stmt->close();
+    //         return 1; // Éxito
+    //     } else {
+    //         $stmt->close();
+    //         return 0; // Error en ejecución
+    //     }
+    // }
+
     public function updateRegistro($table, $array, $id)
     {
-        $conex = ConectarDb::getConexion();
+        // $pdo = ConectarDb::getConexion(); // Asumiendo que retorna instancia PDO
+        $pdo = Conexion::conectar2();
 
-        $campos = "";
+        try {
+            // Construir SET clause dinámicamente
+            $set = implode(', ', array_map(fn($k) => "`$k` = ?", array_keys($array)));
 
-        foreach ($array as $key => $value) {
-            $campos .= "`{$key}` = '{$value}',";
-        }
+            // Preparar y ejecutar query
+            $sql = "UPDATE `$table` SET $set WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
 
-        $sql = 'UPDATE `' . $table . '` SET ' . substr($campos, 0, -1) . ' WHERE id = ' . $id;
-        if ($conex->query($sql)):
-            return 1;
-        else:
+            // Unir valores en orden correcto (campos + id)
+            $valores = array_values($array);
+            $valores[] = $id;
+
+            // Ejecutar con parámetros
+            $stmt->execute($valores);
+
+            return $stmt->rowCount() > 0 ? 1 : 0;
+        } catch (PDOException $e) {
+            // Manejo de errores (opcional)
+            error_log("Error en updateRegistro: " . $e->getMessage());
             return 0;
-        endif;
-        return $conex->query($sql) or die(0);
-        /* liberar la serie de resultados */
-        $conex->free(); //actualizar una tabla por el id
+        }
     }
 
     /**
@@ -307,20 +351,17 @@ class Consultas
     {
         $conex = ConectarDb::getConexion();
 
-        if ($conex->query($sql)):
-            return 1;
-        else:
-            return 0;
-        endif;
-
-        return $conex->query($sql) or die(0);
-
-        /* liberar la serie de resultados */
-        $conex->free(); //insertar, actualzar tablas cuando no se tiene el id , sirve para actualizar una tabla con un campo diferente al id
-
-        /* cerrar la conexión */
-        $conex->close(); //solo para insertar
+        // Ejecutar la consulta
+        if ($conex->query($sql) === TRUE) {
+            $conex->close(); // Cierra la conexión después de ejecutar
+            return 1; // Éxito
+        } else {
+            error_log("Error en la consulta: " . $conex->error); // Registra el error en logs
+            $conex->close(); // Cierra la conexión en caso de fallo
+            return 0; // Falla
+        }
     }
+
 
     /****** Funciones de integración con Web Service Min-Transporte ******/
     private function getConectOptions()

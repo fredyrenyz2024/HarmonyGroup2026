@@ -1333,43 +1333,101 @@ class solicitudesModel extends Model
 	}
 	/********** FIN CONSULTAS MÓDULO ENTUNAMIENTOS **********/
 
-	public function Update_Cargue_solicitud_servicio($fecha_cargue, $hora_cargue, $fecha_descargue, $hora_descargue, $solicitud, $puntorem, $puntodes)
-	{
+	// public function Update_Cargue_solicitud_servicio($fecha_cargue, $hora_cargue, $fecha_descargue, $hora_descargue, $solicitud, $puntorem, $puntodes)
+	// public function Update_Cargue_solicitud_servicio($fecha_cargue, $hora_cargue, $solicitud, $punto_rem)
+	// {
 
-		$sql = $this->_db3->prepare("UPDATE cmx_ruta_puntosentrega SET fecha_estimada_entrega=:Fecha_Eentrega, hora_estimada=:Hora_Estimada WHERE cod_ini_ruta=:Solicitud");
-		$sql->bindParam(':Fecha_Eentrega', $fecha_cargue);
-		$sql->bindParam(':Hora_Estimada', $hora_cargue);
-		$sql->bindParam(':Solicitud', $solicitud);
-		$sql->execute();
-		if ($sql) {
-			$sqlb = $this->_db3->prepare("UPDATE cmx_destinatarios_ss SET fecha_estimada_entrega=:Fecha_descargue, 
-			hora_estimada=:Hora_descargue  WHERE solicitud_servicio=:idSolicitud AND id_punto=:puntodes");
-			$sqlb->bindParam(':Fecha_descargue', $fecha_descargue);
-			$sqlb->bindParam(':Hora_descargue', $hora_descargue);
-			$sqlb->bindParam(':idSolicitud', $solicitud);
-			$sqlb->bindParam(':puntodes', $puntodes);
-			$sqlb->execute();
-			if ($sqlb) {
-				$response = array(
+	// 	$sql = $this->_db3->prepare("UPDATE cmx_ruta_puntosentrega SET fecha_estimada_entrega=:Fecha_Eentrega, hora_estimada=:Hora_Estimada WHERE cod_ini_ruta=:Solicitud AND id_punto=:punto_id");
+	// 	$sql->bindParam(':Fecha_Eentrega', $fecha_cargue);
+	// 	$sql->bindParam(':Hora_Estimada', $hora_cargue);
+	// 	$sql->bindParam(':Solicitud', $solicitud);
+	// 	$sql->bindParam(':punto_id', $punto_rem);
+	// 	$success =	$sql->execute();
+
+	// 	if ($success) {
+	// 		$response = [
+	// 			'numero' => 200,
+	// 			'mensaje' => 'Fecha y hora  actualizada exitosamente.',
+	// 		];
+	// 		// Cuando la consulta de actualización del proveedor falla
+	// 		$mensajeError = "Fechas Actualizadas por " . $_SESSION["usuario"]["nom_usuario"] . ' el dia ' . date("Y-m-d h:m:s");
+	// 		// Uso de la función log_info()
+	// 		$this->log_info($mensajeError);
+	// 	} else {
+	// 		$errorInfo = $sql->errorInfo();
+	// 		$response = [
+	// 			'numero' => 400,
+	// 			'mensaje' => 'No se pudo actualizar la fecha y hora de descargue. Detalle: ' . $errorInfo[2]
+	// 		];
+	// 	}
+	// 	return $response;
+	// }
+
+	public function Update_Cargue_solicitud_servicio($fecha_cargue, $hora_cargue, $solicitud, $punto_rem)
+	{
+		try {
+			$sql = $this->_db3->prepare("UPDATE cmx_ruta_puntosentrega SET fecha_estimada_entrega=:Fecha_Eentrega, hora_estimada=:Hora_Estimada WHERE cod_ini_ruta=:Solicitud AND id_punto=:punto_id");
+			$sql->bindParam(':Fecha_Eentrega', $fecha_cargue);
+			$sql->bindParam(':Hora_Estimada', $hora_cargue);
+			$sql->bindParam(':Solicitud', $solicitud);
+			$sql->bindParam(':punto_id', $punto_rem);
+			$success = $sql->execute();
+
+			if ($success) {
+				$response = [
 					'numero' => 200,
-					'mensaje' => 'Fecha y hora  actualizada exitosamente.',
-				);
-				// Cuando la consulta de actualización del proveedor falla
-				$mensajeError = "Fechas Actualizadas por " . $_SESSION["usuario"]["nom_usuario"] . ' el dia ' . date("Y-m-d h:m:s");
-				// Uso de la función log_info()
-				$this->log_info($mensajeError);
-				// Log::info("message");($mensajeError . "\n", 3, "error_log.txt");
+					'mensaje' => 'Fecha y hora actualizadas exitosamente.', // Pluralizado
+				];
+				$nombreUsuario = $_SESSION["usuario"]["nom_usuario"] ?? 'Usuario desconocido'; // Manejo de sesión no iniciada
+				$mensajeLog = "Fechas actualizadas por $nombreUsuario el día " . date("Y-m-d H:i:s"); // Formato corregido
+				$this->log_info($mensajeLog);
 			} else {
-				$response = array(
+				$errorInfo = $sql->errorInfo();
+				$response = [
 					'numero' => 400,
-					'mensaje' => 'No se puedo actualziar la fecha y hora de descargue',
-				);
+					'mensaje' => 'No se pudo actualizar la fecha y hora de cargue. Detalle: ' . $errorInfo[2] // Cambiado "descargue" → "cargue"
+				];
 			}
-		} else {
-			$response = array(
-				'numero' => 400,
-				'mensaje' => 'No se puedo actualziar la fecha y hora de cargue',
-			);
+		} catch (PDOException $e) {
+			$response = [
+				'numero' => 500,
+				'mensaje' => 'Error interno al procesar la actualización.'
+			];
+			$this->log_info("Error en Update_Cargue: " . $e->getMessage());
+		}
+		return $response;
+	}
+
+	public function Update_Descargue_solicitud_servicio($fecha_descargue, $hora_descargue, $solicitud, $punto_desc)
+	{
+		try {
+			$sqlb = $this->_db3->prepare("UPDATE cmx_destinatarios_ss SET fecha_estimada_entrega=:Fecha_descargue, hora_estimada=:Hora_descargue WHERE solicitud_servicio=:idSolicitud AND id=:puntodes");
+			$sqlb->bindParam(':Fecha_descargue', $fecha_descargue);
+			$sqlb->bindParam(':Hora_descargue', $hora_descargue); // Asegúrate que coincida con el placeholder
+			$sqlb->bindParam(':idSolicitud', $solicitud);
+			$sqlb->bindParam(':puntodes', $punto_desc);
+			$success = $sqlb->execute();
+
+			if ($success) {
+				$response = [
+					'numero' => 200,
+					'mensaje' => 'Fecha y hora actualizadas exitosamente.',
+				];
+				$mensajeError = "Fechas actualizadas por " . $_SESSION["usuario"]["nom_usuario"] . ' el día ' . date("Y-m-d H:i:s");
+				$this->log_info($mensajeError);
+			} else {
+				$errorInfo = $sqlb->errorInfo();
+				$response = [
+					'numero' => 400,
+					'mensaje' => 'No se pudo actualizar la fecha y hora de descargue. Detalle: ' . $errorInfo[2]
+				];
+			}
+		} catch (PDOException $e) {
+			$response = [
+				'numero' => 500,
+				'mensaje' => 'Error interno al procesar la solicitud.'
+			];
+			$this->log_info("Error en Update_Descargue: " . $e->getMessage());
 		}
 		return $response;
 	}

@@ -100,22 +100,24 @@ if (!empty($submenu_encrypted)) : ?>
                 </li>
               <?php endforeach; ?>
             </ul>
-            <!-- <div class="d-flex justify-content-center align-content-center">
-              <div class="d-flex flex-wrap align-items-center gap-2 pb-1" id="contenedor-campo" style="margin-top: -25px;"></div>
-            </div> -->
-
           </nav>
         </div>
 
         <div class="mb-9" data-bs-target="#widgets-scrollspy">
           <div class="tab-content bg-success-white" id="myTabContent">
             <?php foreach ($ventanas_filtradas as $ventana) : ?>
-              <div class="tab-pane fade" id="ventana-<?= $ventana['id'] ?>" role="tabpanel" aria-labelledby="ventana-<?= $ventana['id'] ?>-tab">
+              <div class="tab-pane fade mt-3" id="ventana-<?= $ventana['id'] ?>" role="tabpanel" aria-labelledby="ventana-<?= $ventana['id'] ?>-tab">
                 <!-- Contenedor de campos específico para esta ventana -->
-                <div class="d-flex justify-content-center align-content-center">
-                  <div id="contenedor-campo-<?= $ventana['id'] ?>" class="d-flex flex-wrap align-items-center gap-3" style="margin-top: -35px;z-index: 20;position: fixed;"></div>
+                <div class="card border border-body-secondary">
+                  <div class="card-header p-1 bg-body-secondary d-flex justify-content-between align-items-center">
+                    <h6 class="card-title m-0" style="padding-left: 10px;">Pantalla de trabajo SAC <span style="color: #e5780b;"><?= $ventana['nombre'] ?></span></h6>
+                    <div id="contenedor-campo-<?= $ventana['id'] ?>" class="d-flex flex-nowrap gap-2">
+                    </div>
+                  </div>
+                  <div class="card-body p-1">
+                    <div id="contenido_ventana-<?= $ventana['id'] ?>"></div>
+                  </div>
                 </div>
-                <div id="contenido_ventana-<?= $ventana['id'] ?>"></div>
               </div>
             <?php endforeach; ?>
           </div>

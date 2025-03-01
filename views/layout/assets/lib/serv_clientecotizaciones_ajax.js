@@ -1,12 +1,25 @@
-var intermedio = "";
-var contador_global1 = 0;
-// Definir variables globales
-let ID, VEHICULO, REMITENTE, DESTINATARIO, BLOQUE_MERCANCIA, SERVICIO, VENTANA;
-let ORIGEN_ARRAY = [];
-let DESTINO_ARRAY = [];
+// Variables globales accesibles desde cualquier parte
+window.intermedio = "";
+window.contador_global1 = 0;
+
+// Variables sin inicializar pero accesibles globalmente
+window.ID = null;
+window.VEHICULO = null;
+window.REMITENTE = null;
+window.DESTINATARIO = null;
+window.BLOQUE_MERCANCIA = null;
+window.SERVICIO = null;
+window.VENTANA = null;
+
+// Arrays globales
+window.ORIGEN_ARRAY = [];
+window.DESTINO_ARRAY = [];
 //Identificar la ventana que se abre cuando se da click
 window.initScript = function (id) {
+  window.VENTANA = id; // Asigna el ID de la ventana a la variable global
+
   $(document).ready(function () {
+    // console.log("Script inicializado para la ventana:", typeof window.VENTANA);
     let path = window.location.pathname; // Obtiene el path completo
     let partes = path.split('/'); // Divide el path en partes separadas por "/"
     intermedio = partes[2]; // Obtiene el tercer segmento (índice 2)
@@ -16,36 +29,253 @@ window.initScript = function (id) {
       allowClear: true, // Permite limpiar la selección
     });
 
-    if (id === '1') {
+    const hoy = new Date(); // Obtener la fecha actual
+    const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
+
+    if (window.VENTANA === '1') {
       var tipo = 2;
-      var fecha_inicial = $('#fecha_inicial').val();
-      var fecha_final = $('#fecha_final').val();
-      listar_cotizaciones(tipo, fecha_inicial, fecha_final);
-      // let table = new DataTable('#myTable', {
-      //   language: { // Corrección aquí (antes era 'lenguage')
-      //     "processing": "Procesando...",
-      //     "lengthMenu": "Mostrar _MENU_ registros",
-      //     "zeroRecords": "No se encontraron resultados",
-      //     "emptyTable": "Ningún dato disponible en esta tabla",
-      //     "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-      //     "infoFiltered": "(filtrado de un total de _MAX_ registros)",
-      //     "search": "Buscar:",
-      //     "loadingRecords": "Cargando...",
-      //     "paginate": {
-      //       "first": "Primero",
-      //       "last": "Último",
-      //       "next": "Siguiente",
-      //       "previous": "Anterior"
-      //     }
-      //   } // Se eliminó la coma extra antes del `)`
+      var dato = "";
+      var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_inicial`).val();
+      var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_final`).val();
+      var cliente = $(`#campo-${window.VENTANA}-clientes`).length > 0
+        ? $(`#campo-${window.VENTANA}-clientes`).val() || ""
+        : "";
+
+      var empresa = $(`#campo-${window.VENTANA}-empresas`).length > 0
+        ? $(`#campo-${window.VENTANA}-empresas`).val() || ""
+        : "";
+
+      var estado = "Todas";
+      listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa);
+      // Seleccionar el checkbox por su id
+
+      /************************** Funcion para buscar Cotizaciones ******************************/
+      $(`#campo-${window.VENTANA}-buscar`).off("click").on("click", async function () {
+        var tipo = 2;
+        var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val();
+        var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val();
+        var cliente = $(`#campo-${window.VENTANA}-clientes`).val() === "" ? "" : $(`#campo-${window.VENTANA}-clientes`).val();
+        var empresa = $(`#campo-${window.VENTANA}-empresas`).val() === '' ? "" : $(`#campo-${window.VENTANA}-empresas`).val();
+        var estado = "Todas";
+        listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa);
+      });
+
+      const checkbox = document.getElementById('flexSwitchCheckChecked');
+      checkbox.addEventListener('change', async function (e) {
+        e.preventDefault(); // Evita que el checkbox cambie directamente
+
+        const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: '¿Quieres cambiar el estado?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, cambiar',
+          cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+          // checkbox.checked = !checkbox.checked; // Aplica el cambio solo si se confirma
+          if (checkbox.checked) {
+            datos = new FormData();
+            datos.append('estado', "Propuesta");
+            datos.append('numdoc_solicitud', document.getElementById("numero_solicitud").value);
+
+            try {
+              const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
+                method: 'POST',
+                body: datos,
+                cache: 'no-cache',
+              });
+              const data = await response.json();
+
+              if (data.status === 200) {
+                Swal.fire({
+                  title: "Mensaje!",
+                  text: data.message,
+                  icon: "success",
+                  draggable: true
+                });
+                resetAll();
+              } else {
+                Swal.fire({
+                  title: "Mensaje!",
+                  text: data.message,
+                  icon: "error",
+                  draggable: true
+                });
+              }
+
+            } catch (error) {
+              console.error('Error en la primera solicitud:', error);
+            }
+          } else {
+            console.log('El checkbox no está marcado (unchecked)');
+            // Acciones si no está marcado
+          }
+        } else {
+          checkbox.checked = !checkbox.checked; // Revierte el cambio si se cancela
+        }
+      });
+
+      //Filtro para clientes
+      // $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
+      //   let valorSeleccionado = $(this).val();
+      //   if (valorSeleccionado === "Clientes") {
+      //     document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "block";
+      //     document.getElementById(`campo-${window.VENTANA}-empresas`).style.display = "none";
+      //     // document.getElementById(`campo-${window.VENTANA}-fecha_inicial`).style.display = "none";
+      //     // document.getElementById(`campo-${window.VENTANA}-fecha_final`).style.display = "none";
+      //     $.ajax({
+      //       url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
+      //       type: "POST",
+      //       dataType: "json",
+      //       success: function (data) {
+      //         let select = $(`#campo-${window.VENTANA}-clientes`);
+      //         select.empty().append('<option value="">Seleccione</option>');
+
+      //         $.each(data, function (index, item) {
+      //           select.append(`<option value="${item.id}">${item.nombre}</option>`);
+      //         });
+
+      //         // Inicializa Select2 en el select de clientes
+      //         select.select2({
+      //           placeholder: 'Seleccione una opción',
+      //           allowClear: true,
+      //         });
+      //       },
+      //       error: function (xhr, status, error) {
+      //         console.error("Error en AJAX:", status, error);
+      //         alert("Error al cargar los datos.");
+      //       }
+      //     });
+      //   } else if (valorSeleccionado === "Empresa") {
+      //     document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "none";
+      //     document.getElementById(`campo-${window.VENTANA}-empresas`).style.display = "block";
+      //     $.ajax({
+      //       url: $('#base_url').val() + 'serviciocliente/Listar_Empresas',
+      //       type: "POST",
+      //       dataType: "json",
+      //       success: function (data) {
+      //         let select = $(`#campo-${window.VENTANA}-empresas`);
+      //         select.empty().append('<option value="">Seleccione</option>');
+
+      //         $.each(data, function (index, item) {
+      //           select.append(`<option value="${item.id}">${item.nombre_empresa}</option>`);
+      //         });
+
+      //         // Inicializa Select2 en el select de clientes
+      //         select.select2({
+      //           placeholder: 'Seleccione una opción',
+      //           allowClear: true,
+      //         });
+      //       },
+      //       error: function (xhr, status, error) {
+      //         console.error("Error en AJAX:", status, error);
+      //         alert("Error al cargar los datos.");
+      //       }
+      //     });
+      //   }
       // });
-    } else if (id === '2') {
+
+      $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
+        let valorSeleccionado = $(this).val();
+
+        // Verifica si los elementos existen antes de manipularlos
+        let $clientes = $(`#campo-${window.VENTANA}-clientes`);
+        let $empresas = $(`#campo-${window.VENTANA}-empresas`);
+
+        if (valorSeleccionado === "Clientes") {
+          // Si Empresas está visible, la ocultamos
+          if ($empresas.is(":visible")) {
+            $empresas.hide().val(""); // Ocultar y resetear selección
+          }
+
+          if ($clientes.is(":visible")) {
+            $clientes.hide().val(""); // Ocultar y resetear selección
+          }
+          // Mostramos el select de Clientes
+          $clientes.show();
+
+          // Cargar clientes por AJAX
+          $.ajax({
+            url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+              $clientes.empty().append('<option value="">Seleccione</option>');
+              $.each(data, function (index, item) {
+                $clientes.append(`<option value="${item.id}">${item.nombre}</option>`);
+              });
+
+              // Inicializa Select2 en el select de clientes
+              $clientes.select2({
+                placeholder: 'Seleccione una opción',
+                allowClear: true,
+              });
+            },
+            error: function (xhr, status, error) {
+              console.error("Error en AJAX:", status, error);
+              alert("Error al cargar los datos.");
+            }
+          });
+
+        } else if (valorSeleccionado === "Empresa") {
+          // Si Clientes está visible, lo ocultamos
+          if ($clientes.is(":visible")) {
+            $clientes.hide().val(""); // Ocultar y resetear selección
+          }
+
+
+          if ($empresas.is(":visible")) {
+            $empresas.hide().val(""); // Ocultar y resetear selección
+          }
+          // Mostramos el select de Empresas
+          $empresas.show();
+
+          // Cargar empresas por AJAX
+          $.ajax({
+            url: $('#base_url').val() + 'serviciocliente/Listar_Empresas',
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+              $empresas.empty().append('<option value="">Seleccione</option>');
+              $.each(data, function (index, item) {
+                $empresas.append(`<option value="${item.id}">${item.nombre_empresa}</option>`);
+              });
+
+              // Inicializa Select2 en el select de empresas
+              $empresas.select2({
+                placeholder: 'Seleccione una opción',
+                allowClear: true,
+              });
+            },
+            error: function (xhr, status, error) {
+              console.error("Error en AJAX:", status, error);
+              alert("Error al cargar los datos.");
+            }
+          });
+        }
+      });
+
+      // $(`#campo-${window.VENTANA}-clientes`).off("change").on("change", function () {
+      //   let valorSeleccionado = $(this).val();
+      //   // console.log("Cambio en el filtro detectado. Mostrando clientes... " + valorSeleccionado); // Depuración
+      //   listar_cotizaciones(tipo, fecha_inicial, fecha_final, valorSeleccionado);
+      // });
+
+      // $(`#campo-${window.VENTANA}-empresas`).off("change").on("change", function () {
+      //   let valorSeleccionado = $(this).val();
+      //   // console.log("Cambio en el filtro detectado. Mostrando clientes... " + valorSeleccionado); // Depuración
+      //   listar_cotizaciones(tipo, fecha_inicial, fecha_final, valorSeleccionado);
+      // });
+
+    } else if (window.VENTANA === '2') {
       //VENTANA PARA LISTAR LAS CPCIONES DE LAS PRIORITARIAS
-    } else if (id === '7') {
+    } else if (window.VENTANA === '7') {
       //VENTANA PARA LISTAR LAS CPCIONES DE LAS COMPLETADAS
-    } else if (id === '5') {
+    } else if (window.VENTANA === '5') {
       //VENTANA PARA LISTAR LAS CPCIONES DE LAS PENDIENTES
-    } else if (id === '4') {
+    } else if (window.VENTANA === '4') {
       // VENTANA PARA TRABAJAR EN LA CREACION DE LAS NUEVAS SOLICITUDES DE SERVICIO
       let table = new DataTable('#myTable', {
         language: { // Corrección aquí (antes era 'lenguage')
@@ -65,20 +295,9 @@ window.initScript = function (id) {
           }
         } // Se eliminó la coma extra antes del `)`
       });
-      $('#btn_aceptar').click(function (e) {
-        e.preventDefault();
-        location.reload();
-      });
-
-      $('#btn_cancelar').click(function (e) {
-        e.preventDefault();
-        $('#md-fullWidth').modal('show');
-        $('#md-footer-mensaje').modal('hide');
-        $('#tb_solicitud').modal('hide');
-      });
 
       $('#escenarios').html(''); // Limpia el select antes de agregar nuevas opciones
-      $('#escenarios').append(`<option value="" selected>Seleccione</option>`);
+      $('#escenarios').append(`<option value="" selected> Seleccione</option>`);
 
       $.ajax({
         url: $('#base_url').val() + 'serviciocliente/Traer_Escenarios',
@@ -89,16 +308,16 @@ window.initScript = function (id) {
             let options = ''; // Almacena las opciones en una variable para mejor rendimiento
             data.forEach(element => {
               options += `
-              <option value="${element.id}" 
-                  data-nombre="${element.escenario}" 
-                  data-vehiculo="${element.vehiculo}"
-                  data-remitente="${element.remitente}"
-                  data-destinatario="${element.destinatario}"
-                  data-bloque_mercancia="${element.bloque_mercancia}"
-                  data-servicio="${element.servicio}">
-                  ${element.escenario}
+        <option value = "${element.id}"
+      data-nombre="${element.escenario}"
+      data-vehiculo="${element.vehiculo}"
+      data-remitente="${element.remitente}"
+      data-destinatario="${element.destinatario}"
+      data-bloque_mercancia="${element.bloque_mercancia}"
+      data-servicio="${element.servicio}" >
+        ${element.escenario + '-' + element.detalle_texto}
               </option>
-            `;
+        `;
             });
             $('#escenarios').append(options); // Inserta todas las opciones en una sola operación
           }
@@ -152,7 +371,7 @@ window.initScript = function (id) {
         // console.log('Servicio:', SERVICIO);
 
         /* Validaciones para armar los escenarios de solicitud de servicio */
-        if (ID === '1' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') { //Escenario donde todo es uno a uno
+        if (window.ID === '1' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') { //Escenario donde todo es uno a uno
           document.getElementById("agregar_fila").style.display = 'none';
           agregar();
           document.querySelector(".cantvehiculo").value = 1;
@@ -194,6 +413,7 @@ window.initScript = function (id) {
           agregar();
           document.querySelector(".cantvehiculo").value = 1;
           document.querySelector(".cantvehiculo").disabled = true;
+          document.getElementById("#maximo_entregab").disabled = false;
         } else if (ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
           agregar();
           document.querySelector(".cantvehiculo").value = 1;
@@ -223,19 +443,6 @@ window.initScript = function (id) {
         agregar();
       });
 
-      // $('#btn_crea').click(function () {
-      //   $('.titulogeneral').hide();
-      //   $('.formulario').hide();
-      //   $('.datosconductor').hide();
-      //   $('.total_oculto').hide();
-
-      //   // cargarmunicipios();
-      //   $('#cliente2').html('');
-      //   $('#cargar_cliente').val('');
-      //   $('#caja_cliente').html('<input type="text"  placeholder="Cliente" class="typeahead form-control input-sm" id="nombre_cliente">');
-      //   cargar_clientes();
-      // });
-
       $('#btn_agregar_cotizacion').click(function () {
         //validaciones
         var msg_error = '';
@@ -260,7 +467,6 @@ window.initScript = function (id) {
         $('.tmerca').each(function (index) {
           var mercancia = $(this).val();
           if (!mercancia) {
-            //alert(document.getElementsByClassName("tmerca")[0].id);
             msg_error += '<p>Debe diligenciar el campo <strong>Mercancía - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
             $('.tmerca').focus().css('background-color', 'rgb(254,242,181)');
           } else {
@@ -323,13 +529,10 @@ window.initScript = function (id) {
 
                   if ($('#' + operacion + '').val() === 'C') {
                     //contenedor cargado
-                    //alert('operacion'+$("#"+operacion+"").val());
-                    //alert('empaque'+$("#"+empaque+"").val());
                     if ($('#' + empaque + '').val() !== '8' && $('#' + empaque + '').val() !== '9' && $('#' + empaque + '').val() !== '10') {
                       //alert('A si debe salir');
                       msg_error += '<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser Contenedor, Tipo Operación: Contenedor Cargado.</p>';
                     } else {
-                      //alert('B no debe salir nada');
                       //msg_error+= "<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser Contenedor, Tipo Operación: Contenedor Cargado.</p>";
                     }
                     if ($('#' + producto + '').val() == '009990' || $('#' + producto + '').val() == '009880') {
@@ -835,7 +1038,11 @@ window.initScript = function (id) {
           });
 
           //Validar si esta en el escenario mumeor 3 donde los pesos se distribuyen en los remitentes
-          if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
+          if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso' ||
+            ID === '4' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso' ||
+            ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+            ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+            ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
             let total = 0;
             let errores = [];
             // document.querySelectorAll(".re_peso").forEach(function (input) {
@@ -944,6 +1151,37 @@ window.initScript = function (id) {
           }
         });
 
+        //VALIDACION DE LOS COSOTOS EFICINETS DEL SICETAC
+        $('.configuracion_vehiculo_sicetac').each(function (index) {
+          var configuracion_vehiculo_sicetac = $(this).val();
+          if (!configuracion_vehiculo_sicetac) {
+            msg_error += '<p>Por favor seleccionar la <strong>Configuración del Vehículo</strong> para poder registrar solicitud de servicio</p>';
+            $('.configuracion_vehiculo_sicetac').focus().css('background-color', 'rgb(254,242,181)');
+          } else {
+            $('.configuracion_vehiculo_sicetac').focus().css('background-color', '#FFFFFF');
+          }
+        });
+
+        $('.unidad_transporte_sicetac').each(function (index) {
+          var unidad_transporte_sicetac = $(this).val();
+          if (!unidad_transporte_sicetac) {
+            msg_error += '<p>Por favor seleccionar la <strong>Unidad de transporte</strong> para poder registrar solicitud de servicio</p>';
+            $('.unidad_transporte_sicetac').focus().css('background-color', 'rgb(254,242,181)');
+          } else {
+            $('.unidad_transporte_sicetac').focus().css('background-color', '#FFFFFF');
+          }
+        });
+
+        $('.tipo_carga_sicetac').each(function (index) {
+          var tipo_carga_sicetac = $(this).val();
+          if (!tipo_carga_sicetac) {
+            msg_error += '<p>Por favor seleccionar el <strong>Tipo de carga</strong> para poder registrar solicitud de servicio</p>';
+            $('.tipo_carga_sicetac').focus().css('background-color', 'rgb(254,242,181)');
+          } else {
+            $('.tipo_carga_sicetac').focus().css('background-color', '#FFFFFF');
+          }
+        });
+
         if (!msg_error) {
           Swal.fire({
             title: 'Seguro',
@@ -959,7 +1197,7 @@ window.initScript = function (id) {
             },
           }).then(async result => {
             if (result.isConfirmed) {
-              Inserta_Cotizacion();
+              Inserta_Cotizacion(id);
             }
           });
         } else {
@@ -980,7 +1218,6 @@ window.initScript = function (id) {
         }
       });
     }
-
 
     //funcion para mostrar el contenido segun el boton seleccionado
     $('#Nacional').change(function () {
@@ -1012,14 +1249,6 @@ window.initScript = function (id) {
       } else {
         alert('Debe agregar mercancías a la cotización');
       }
-    });
-
-    /************************** Funcion para buscar Cotizaciones ******************************/
-    $('#buscar').click(async function () {
-      var tipo = 2;
-      var fecha_inicial = $('#fecha_inicial').val();
-      var fecha_final = $('#fecha_final').val();
-      listar_cotizaciones(tipo, fecha_inicial, fecha_final);
     });
 
     // Escuchar el evento change del select con clase tmerca
@@ -1189,73 +1418,201 @@ window.initScript = function (id) {
         Visualizar(dataId, dataId2);
       }
 
-      if (e.target.matches("#btn_edit_cargue") || e.target.matches("#btn_edit_cargue *")) {
-        let fecha = document.getElementById("fecha_cargue_edit");
-        let hora = document.getElementById("hora_cargue_edit");
+      // Verificar si el clic fue en un botón cuyo ID empieza con "btn_edit_cargue"
+      // Obtener el botón (incluso si se hace clic en un elemento hijo)
+      const buttonEditarCargue = e.target.closest('[id^="btn_edit_cargue"]');
+      if (buttonEditarCargue) {
+        // Acceder al data-id
+        // const dataId = buttonEditarCargue.getAttribute('data-puntoId');
+        const dataId = buttonEditarCargue.getAttribute('data-puntoId');
+        // También puedes usar dataset (recomendado)
+        // const dataId = button.dataset.id;
+
+        // Resto de tu código...
+        let fecha = document.getElementById("fecha_cargue_edit" + dataId);
+        let hora = document.getElementById("hora_cargue_edit" + dataId);
         fecha.disabled = false;
         hora.disabled = false;
-        document.getElementById("btn_save_cargue").style.display = "block";
-        document.getElementById("btn_edit_cargue").style.display = "none";
+        document.getElementById("btn_save_cargue" + dataId).style.display = "block";
+        document.getElementById("btn_canelar_cargue" + dataId).style.display = "block";
+        document.getElementById("btn_edit_cargue" + dataId).style.display = "none";
       }
 
-      if (e.target.matches("#btn_save_cargue") || e.target.matches("#btn_save_cargue *")) {
-        if (window.confirm("¿Esta seguro que queire actuazliar la fecha de cargue de la solicitud de servicio?")) {
-          let fecha = document.getElementById("fecha_cargue_edit");
-          let hora = document.getElementById("hora_cargue_edit");
-          var btn = document.getElementById("btn_save_cargue");
-          var num_sol = btn.getAttribute("data-sol");
-          let datos = new FormData();
-          datos.append("solicitud", num_sol);
-          datos.append("fecha_cargue", fecha.value);
-          datos.append("hora_cargue", hora.value);
-          try {
-            const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
-              method: "POST",
-              body: datos,
-              cache: "no-cache",
-            });
-            const data = await response.json();
-            // console.log("Primera solicitud completada:", data);
-            // return data;
-            if (data.numero === 200) {
-              document.getElementById("Mensaje_update").innerHTML = `
-            <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-              <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-              </div>`;
-            } else {
-              document.getElementById("Mensaje_update").innerHTML = `
-            <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-            </div>`;
+      const buttonCencelarEdicionCargue = e.target.closest('[id^="btn_canelar_cargue"]');
+      if (buttonCencelarEdicionCargue) {
+        // Obtener el botón (incluso si se hace clic en un elemento hijo)
+        // Acceder al data-id
+        const dataId = buttonCencelarEdicionCargue.getAttribute('data-puntoId');
+        // Resto de tu código...
+        let fecha = document.getElementById("fecha_cargue_edit" + dataId);
+        let hora = document.getElementById("hora_cargue_edit" + dataId);
+        fecha.disabled = true;
+        hora.disabled = true;
+        document.getElementById("btn_save_cargue" + dataId).style.display = "none";
+        document.getElementById("btn_canelar_cargue" + dataId).style.display = "none";
+        document.getElementById("btn_edit_cargue" + dataId).style.display = "block";
+      }
+
+      const buttonGuardarEdicionCargue = e.target.closest('[id^="btn_save_cargue"]');
+      if (buttonGuardarEdicionCargue) {
+        // Acceder al data-id
+        const Remitente = buttonGuardarEdicionCargue.getAttribute("data-Remitente");
+        const dataId = buttonGuardarEdicionCargue.getAttribute('data-puntoId');
+        Swal.fire({
+          title: 'Seguro',
+          text: '¿Desea guardar la actualización del remintente: ' + Remitente + '?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3B71CA',
+          cancelButtonColor: '#9FA6B2',
+          confirmButtonText: 'Aceptar',
+          cancelButtonText: 'Cancelar',
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        }).then(async result => {
+          if (result.isConfirmed) {
+            const num_sol = buttonGuardarEdicionCargue.getAttribute("data-NumDocSol");
+            const Punto = buttonGuardarEdicionCargue.getAttribute("data-Punto");
+            let fecha = document.getElementById("fecha_cargue_edit" + dataId).value;
+            let hora = document.getElementById("hora_cargue_edit" + dataId).value;
+
+            let datos = new FormData();
+            datos.append("solicitud", num_sol);
+            datos.append("fecha_cargue", fecha);
+            datos.append("hora_cargue", hora);
+            datos.append("punto_rem", Punto);
+            try {
+              const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
+                method: "POST",
+                body: datos,
+                cache: "no-cache",
+              });
+              const data = await response.json();
+              if (data.numero === 200) {
+                Swal.fire({
+                  title: "Exito",
+                  text: data.mensaje,
+                  icon: "success"
+                });
+                // Resto de tu código...
+                let fecha = document.getElementById("fecha_cargue_edit" + dataId);
+                let hora = document.getElementById("hora_cargue_edit" + dataId);
+                fecha.disabled = true;
+                hora.disabled = true;
+                document.getElementById("btn_save_cargue" + dataId).style.display = "none";
+                document.getElementById("btn_canelar_cargue" + dataId).style.display = "none";
+                document.getElementById("btn_edit_cargue" + dataId).style.display = "block";
+              } else {
+                Swal.fire({
+                  title: "Exito",
+                  text: data.mensaje,
+                  icon: "error"
+                });
+              }
+
+            } catch (error) {
+              console.error("Error en la primera solicitud:", error);
+              throw error;
+            } finally {
             }
-
-          } catch (error) {
-            console.error("Error en la primera solicitud:", error);
-            throw error;
-          } finally {
-            document.getElementById("fecha_cargue_edit").disabled = true;
-            document.getElementById("hora_cargue_edit").disabled = true;
-            document.getElementById("btn_save_cargue").style.display = "none";
-            document.getElementById("btn_edit_cargue").style.display = "block";
           }
-        }
+        });
       }
 
-      if (e.target.matches("#btn_edit_descargue") || e.target.matches("#btn_edit_descargue *")) {
-        let fecha = document.getElementById("fecha_descargue_edit");
-        let hora = document.getElementById("hora_descargue_edit");
+      // if (e.target.matches("#btn_edit_descargue") || e.target.matches("#btn_edit_descargue *")) {
+      const buttonEditarDescargue = e.target.closest('[id^="btn_edit_descargue"]');
+      if (buttonEditarDescargue) {
+        // const dataId = buttonEditarCargue.getAttribute('data-puntoId');
+        const dataId = buttonEditarDescargue.getAttribute('data-puntoId');
+        let fecha = document.getElementById("fecha_descargue_edit" + dataId);
+        let hora = document.getElementById("hora_descargue_edit" + dataId);
         fecha.disabled = false;
         hora.disabled = false;
-        document.getElementById("btn_save_descargue").style.display = "block";
-        document.getElementById("btn_edit_descargue").style.display = "none";
+        document.getElementById("btn_save_descargue" + dataId).style.display = "block";
+        document.getElementById("btn_canelar_descargue" + dataId).style.display = "block";
+        document.getElementById("btn_edit_descargue" + dataId).style.display = "none";
+      }
+
+      const buttonCencelarEdicionDescargue = e.target.closest('[id^="btn_canelar_descargue"]');
+      if (buttonCencelarEdicionDescargue) {
+        // Obtener el botón (incluso si se hace clic en un elemento hijo)
+        // Acceder al data-id
+        const dataId = buttonCencelarEdicionDescargue.getAttribute('data-puntoId');
+        // Resto de tu código...
+        let fecha = document.getElementById("fecha_descargue_edit" + dataId);
+        let hora = document.getElementById("hora_descargue_edit" + dataId);
+        fecha.disabled = true;
+        hora.disabled = true;
+        document.getElementById("btn_save_descargue" + dataId).style.display = "none";
+        document.getElementById("btn_canelar_descargue" + dataId).style.display = "none";
+        document.getElementById("btn_edit_descargue" + dataId).style.display = "block";
+      }
+
+      const buttonGuardarEdicionDescargue = e.target.closest('[id^="btn_save_descargue"]');
+      if (buttonGuardarEdicionDescargue) {
+        // Acceder al data-id
+        const Destinatario = buttonGuardarEdicionDescargue.getAttribute("data-Destinatario");
+        Swal.fire({
+          title: 'Seguro',
+          text: '¿Desea guardar la actualización del destinatario: ' + Destinatario + '?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3B71CA',
+          cancelButtonColor: '#9FA6B2',
+          confirmButtonText: 'Aceptar',
+          cancelButtonText: 'Cancelar',
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        }).then(async result => {
+          if (result.isConfirmed) {
+            const dataId = buttonGuardarEdicionDescargue.getAttribute('data-puntoId');
+            const num_sol = buttonGuardarEdicionDescargue.getAttribute("data-NumDocSol");
+            const Punto = buttonGuardarEdicionDescargue.getAttribute("data-Punto");
+            let fecha = document.getElementById("fecha_descargue_edit" + dataId).value;
+            let hora = document.getElementById("hora_descargue_edit" + dataId).value;
+
+            let datos = new FormData();
+            datos.append("solicitud", num_sol);
+            datos.append("fecha_descargue", fecha);
+            datos.append("hora_descargue", hora);
+            datos.append("punto_desc", dataId);
+            try {
+              const response = await fetch($("#base_url").val() + "solicitudes/update_descargue", {
+                method: "POST",
+                body: datos,
+                cache: "no-cache",
+              });
+              const data = await response.json();
+              if (data.numero === 200) {
+                Swal.fire({
+                  title: "Exito",
+                  text: data.mensaje,
+                  icon: "success"
+                });
+                // Resto de tu código...
+                let fecha = document.getElementById("fecha_descargue_edit" + dataId);
+                let hora = document.getElementById("hora_descargue_edit" + dataId);
+                fecha.disabled = true;
+                hora.disabled = true;
+                document.getElementById("btn_save_descargue" + dataId).style.display = "none";
+                document.getElementById("btn_canelar_descargue" + dataId).style.display = "none";
+                document.getElementById("btn_edit_descargue" + dataId).style.display = "block";
+              } else {
+                Swal.fire({
+                  title: "Exito",
+                  text: data.mensaje,
+                  icon: "error"
+                });
+              }
+            } catch (error) {
+              console.error("Error en la primera solicitud:", error);
+              throw error;
+            } finally {
+            }
+          }
+        });
       }
 
       /* Boton para gaurar el contenedor en las solicitudes */
@@ -1327,7 +1684,10 @@ window.initScript = function (id) {
       }
 
       /* Boton para actualizar las referencias de los despachos */
-      if (e.target.matches("#btn_save_referencia") || e.target.matches("#btn_save_referencia *")) {
+      const buttonGuardarEdicionReferencia = e.target.closest('[id^="btn_save_referencia"]');
+      if (buttonGuardarEdicionReferencia) {
+        const puntoId = buttonGuardarEdicionReferencia.getAttribute("data-puntoId");
+        const NumDocSol = buttonGuardarEdicionReferencia.getAttribute("data-NumDocSol");
         Swal.fire({
           title: 'Mnesaje',
           text: '¿Está seguro de continuar?',
@@ -1345,8 +1705,9 @@ window.initScript = function (id) {
             $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
             /* Definir las variables para los filtros */
             let formdata = new FormData();
-            formdata.append('referencia_operacion', document.getElementById('referencia_operacion').value);
-            formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
+            formdata.append('referencia_operacion', document.getElementById('referencia_operacion' + puntoId).value);
+            formdata.append('mer_idservicio', NumDocSol);
+            formdata.append('puntoId', puntoId);
 
             try {
               const response = await fetch($('#base_url').val() + 'serviciocliente/ActualizarReferencia', {
@@ -1361,18 +1722,12 @@ window.initScript = function (id) {
                   title: 'Información',
                   text: data.message,
                   icon: 'info',
-                  customClass: {
-                    popup: 'swal2-custom-font',
-                  },
                 });
               } else {
                 Swal.fire({
                   title: 'Mensaje',
                   text: data.message,
                   icon: 'success',
-                  customClass: {
-                    popup: 'swal2-custom-font',
-                  },
                 });
               }
             } catch (error) {
@@ -1383,6 +1738,12 @@ window.initScript = function (id) {
             }
           }
         });
+      }
+
+      /* Actualizar Agencias solicitud servio */
+
+      if (e.target.matches("#btn_update_agencia_solicitud")) {
+        
       }
 
       if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
@@ -1425,23 +1786,23 @@ window.initScript = function (id) {
                 const data = await response.json();
                 if (data.numero === 200) {
                   document.getElementById("Mensaje_update").innerHTML = `
-                  <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-                    <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-                    <div class="message">
-                      <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                      <strong>Mensaje!</strong> ${data.mensaje}
-                    </div>
-                    </div>`;
+                < div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                            <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+                            <div class="message">
+                              <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                              <strong>Mensaje!</strong> ${data.mensaje}
+                            </div>
+                            </div > `;
                   window.location.reload();
                 } else {
                   document.getElementById("Mensaje_update").innerHTML = `
-                    <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-                      <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                      <div class="message">
-                        <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                        <strong>Mensaje!</strong> ${data.mensaje}
-                      </div>
-                    </div>`;
+              < div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                            <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                            <div class="message">
+                              <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                              <strong>Mensaje!</strong> ${data.mensaje}
+                            </div>
+                          </div > `;
                 }
               } catch (error) {
                 console.error("Error en la primera solicitud:", error);
@@ -1470,23 +1831,23 @@ window.initScript = function (id) {
               const data = await response.json();
               if (data.status === 200) {
                 document.getElementById("Mensaje_update").innerHTML = `
-              <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-                <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-                <div class="message">
-                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                  <strong>Mensaje!</strong> ${data.message}
-                </div>
-              </div>`;
+                <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                  <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+                  <div class="message">
+                    <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                    <strong>Mensaje!</strong> ${data.message}
+                  </div>
+                </div > `;
                 window.location.reload();
               } else {
                 document.getElementById("Mensaje_update").innerHTML = `
-              <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-                <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                <div class="message">
-                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                  <strong>Mensaje!</strong> ${data.message}
-                </div>
-              </div>`;
+                <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
+                  <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+                  <div class="message">
+                    <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+                    <strong>Mensaje!</strong> ${data.message}
+                  </div>
+                </div > `;
               }
 
             } catch (error) {
@@ -1558,16 +1919,17 @@ window.initScript = function (id) {
 
     //***********fin del document ready function***
   });
-
 };
 
-async function listar_cotizaciones(tipo, fecha_inicial, fecha_final) {
+async function listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa) {
   /* Funcion para enviar los datos */
   let dato = new FormData();
   dato.append('tipo', tipo);
   dato.append('fecha_inicial', fecha_inicial);
   dato.append('fecha_final', fecha_final);
-  dato.append('estado', "Todas");
+  dato.append('estado', estado);
+  dato.append('cliente', cliente);
+  dato.append('empresa', empresa);
   try {
     const response = await fetch($('#base_url').val() + 'serviciocliente/consultar_cotizaciones', {
       method: 'POST',
@@ -1584,61 +1946,75 @@ async function listar_cotizaciones(tipo, fecha_inicial, fecha_final) {
       let n_cotizacion = '';
       let btn_editar = '';
       let Prioridad = '';
-
+      // let perfil = document.getElementById("perfil_id").value;
       // document.querySelector('.badge').innerHTML = data.resultado_cantidad['total_cotizaciones'];
       // $('.badge').html(data.resultado_cantidad['total_cotizaciones']);
 
       data.resultado.forEach(element => {
-
         const fila = document.createElement('tr');
-        if (element.estado === 'Pendiente') {
-          col_estatus = `<span  data-toggle="tooltip" style="color:#e5780b;">${element.estado}</span>`;
-        } else if (element.estado === 'por autorizar') {
-          col_estatus = `<span  data-toggle="tooltip" style="color:#ec1f00;">${element.estado}</span>`;
+        if (element.estado_estudio === 'Sin Estado') {
+          if (element.estado === 'Pendiente') {
+            col_estatus = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">sin gestionar</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado === 'por autorizar') {
+            col_estatus = `<span  data-toggle="tooltip" style="color:#ec1f00;">${element.estado}</span>`;
+          } else {
+            col_estatus = `<td class="text"></td>`;
+          }
         } else {
-          col_estatus = `<td class="text"></td>`;
+          if (element.estado_estudio === 'pendiente_iniciar') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Estudio Pendiente Iniciar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'iniciado') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">Estudio Iniciado</span><span class="ms-1" data-feather="info" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'Pendiente') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Estudio Pendiente</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'Rechazado') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Rechazado</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'Aprobado') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Estudio Aprobado</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else {
+            col_estatus = `<td class="text"></td>`;
+          }
         }
         // if (element.estado_autorizado === 'autorizado') {
-        //   col_estatus = `<span  data-toggle="tooltip" style="color:purple;">${element.estado_autorizado}</span>`;
+        //   col_estatus = `< span  data - toggle="tooltip" style = "color:purple;" > ${ element.estado_autorizado }</span > `;
         // } else if (element.estado_autorizado === 'por autorizar') {
-        //   col_estatus = `<span  data-toggle="tooltip" style="color:red;">${element.estado_autorizado}</span>`;
+        //   col_estatus = `< span  data - toggle="tooltip" style = "color:red;" > ${ element.estado_autorizado }</span > `;
         // } else {
-        //   col_estatus = `<td class="text"></td>`;
+        //   col_estatus = `< td class="text" ></td > `;
         // }
         /* Consultas de estado de las solicitudes */
         if (element.estado_autorizacion === 'F1') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-default"  data-toggle="tooltip" title="Realizada" ></span>`;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Realizada</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          // esatdo_autorizado = `< span class="mdi mdi-dot-circle icon text-default"  data - toggle="tooltip" title = "Realizada" ></span > `;
+          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary" ><span class="badge-label">Realizada</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span > `;
         } else if (element.estado_autorizacion === 'F2') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-success"  data-toggle="tooltip" title="Entregada"></span>`;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">Entregada</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
+          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-success"  data - toggle="tooltip" title = "Entregada" ></span > `;
+          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary" ><span class="badge-label">Entregada</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span > `;
         } else if (element.estado_autorizacion === 'F4') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-danger" data-toggle="tooltip" title="Pérdida"></span>`;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Pérdida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>`;
+          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-danger" data - toggle="tooltip" title = "Pérdida" ></span > `;
+          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger" ><span class="badge-label">Pérdida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span > `;
         } else if (element.estado_autorizacion === 'F3') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-warning"  data-toggle="tooltip" title="Ganada"></span>`;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Ganada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>`;
+          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-warning"  data - toggle="tooltip" title = "Ganada" ></span > `;
+          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-success" ><span class="badge-label">Ganada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span > `;
         } else if (element.estado_autorizacion === 'F5') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-primary" data-toggle="tooltip" title="Cancelada"></span>`;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Cancelada</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
+          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-primary" data - toggle="tooltip" title = "Cancelada" ></span > `;
+          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger" ><span class="badge-label">Cancelada</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span > `;
         } else if (element.estado_autorizacion === 'F6') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-gray" data-toggle="tooltip" title="Rechazada"></span>`;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Rechazada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>`;
+          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-gray" data - toggle="tooltip" title = "Rechazada" ></span > `;
+          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning" ><span class="badge-label">Rechazada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span > `;
         }
         /* Validar si la solicitud es Itr */
         if (element.itr === 'Si') {
-          cot_itr = `<span class="badge badge-phoenix badge-phoenix-success float-right">SI</span>`;
+          cot_itr = `<span class="badge badge-phoenix badge-phoenix-success float-right" > SI</span > `;
         } else {
-          cot_itr = `<span class="badge badge-phoenix badge-phoenix-primary float-right">NO</span>`;
+          cot_itr = `<span class="badge badge-phoenix badge-phoenix-primary float-right" > NO</span > `;
         }
 
-
         if (element.prioritaria === 'Propuesta') {
-          Prioridad = `<span class="badge badge-phoenix badge-phoenix-warning float-right"><a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span>`;
+          Prioridad = `<span class="badge badge-phoenix badge-phoenix-warning float-right" > <a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span > `;
         } else if (element.prioritaria === null) {
-          Prioridad = `<span class="badge badge-phoenix badge-phoenix-info float-right">No marcada</span>`;
+          Prioridad = `<span class="badge badge-phoenix badge-phoenix-info float-right" > No marcada</span > `;
         } else {
-          Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right">${element.prioritaria}</span>`;
+          Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right" > ${element.prioritaria}</span > `;
         }
 
         const columnaEstado = document.createElement('td');
@@ -1648,7 +2024,7 @@ async function listar_cotizaciones(tipo, fecha_inicial, fecha_final) {
         const columnaItr = document.createElement('td');
         columnaItr.innerHTML = cot_itr;
         const columnaNum_Cotizacion = document.createElement('td');
-        columnaNum_Cotizacion.innerHTML = `<a href="#" id="btn_ver_solicitud" data-id="${element.n_cotizacion}"  data-id2="${element.nundoc_solicitud}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" class="text-decoration-none" aria-disabled="true">N°${element.nundoc_solicitud}</a>`;
+        columnaNum_Cotizacion.innerHTML = `<a href="#" id = "btn_ver_solicitud" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" class="text-decoration-none" aria-disabled="true"> N°${element.nundoc_solicitud}</a > `;
         const columnaCliente = document.createElement('td');
         columnaCliente.innerHTML = element.nombre_cliente;
         const columnaMercancia = document.createElement('td');
@@ -1865,116 +2241,69 @@ function prueba_editar_no(element) {
           carga = 'Contenedor Vacío';
         }
 
-        efila =
-          "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>" +
-          "<a href='#' class='badge badge-primary' title='mercancia'>" +
-          element.item +
-          '</a>' +
-          '</div>' +
-          "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>" +
-          "<span style='font-weight:500; margin-top:20px;'>Pareja origen-destino</span><input type='text' class='form-control input-xs idpareja' value='" +
-          element.idm +
-          "' readonly='readonly' style='background-color:white;'>" +
-          '</div>' +
-          "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>" +
-          "<span style='font-weight:500; margin-top:20px;'>Tipo servicio</span><input type='text' class='form-control input-xs' value='" +
-          element.tipo_servicio_mer +
-          "' readonly='readonly' style='background-color:white;'>" +
-          '</div>' +
-          "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>" +
-          "<span style='font-weight:500; margin-top:20px;'>Tipo Vehículo</span><input type='text' value='" +
-          element.nombre +
-          "' class='form-control input-xs' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Tipo carga</span><input type='text' class='form-control input-xs' value='" +
-          carga +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span>Tipo transporte</span><input type='text' class='form-control input-xs' value='" +
-          element.tipo_transporte +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Peso bruto (kg)</span><input type='text' id='npbruto" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.peso_bruto_kg +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Peso neto (kg)</span><input type='text' id='epesone" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.peso_neto_kg +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Peso Bruto(Tn)</span><input type='text' id='enetotn" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.peso_neto_tn +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Origen</span><input type='text' class='form-control input-xs' value='" +
-          element.o +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Destino</span><input type='text' class='form-control input-xs' value='" +
-          element.d +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Alto</span><input type='text' id='nalto" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.alto +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Largo</span><input type='text' id='nlargo" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.largo +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Ancho</span><input type='text' id='nancho" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.ancho +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Volumen total</span><input type='text' id='nvolu" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.volumen_total +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Costo flete</span><input type='text' id='nflete" +
-          co +
-          "' class='form-control input-xs nfletemer' value='" +
-          element.flete +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Total tarifa</span><input type='text' id='ntarifa" +
-          co +
-          "' class='form-control input-xs ntarifamer' value='" +
-          element.total_tarifa +
-          "' onChange='javascript:nutilidad(this," +
-          co +
-          ")' style='font-weight:800;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>rentabilidad%</span><input type='text' id='nutil" +
-          co +
-          "' class='form-control input-xs nutilidad' value='" +
-          element.utilidad +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>utilidad</span><input type='text' id='nrent" +
-          co +
-          "' class='form-control input-xs nrenta' value='" +
-          element.rentabilidad +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'><span style='font-weight:500; margin-top:20px;'>Tipo Mercancía</span><input type='text' class='form-control input-xs' value='" +
-          element.tipo_mercancia +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'><span style='font-weight:500; margin-top:20px;'>Valor Mercancía</span><input type='text' id='nvalor" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.valor_mercancia +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'><span style='font-weight:500; margin-top:20px;'>Tipo Empaque</span><input type='text' class='form-control input-xs' value='" +
-          element.empaque +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'><span style='font-weight:500; margin-top:20px;'>Cantidad Empaque</span><input type='text' id='ncant" +
-          co +
-          "' class='form-control input-xs' value='" +
-          element.cantidad_empaque +
-          "' readonly='readonly' style='background-color:white;'></div>" +
-          "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>" +
-          "<span style='font-weight:500; margin-top:20px;'>Observación</span>" +
-          "<textarea class='form-control input-xs' readonly='readonly' style='background-color:white;'>" +
-          element.observacion +
-          '</textarea>';
+        efila = `
+        <div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
+          <a href='#' class='badge badge-primary' title='mercancia'>${element.item}</a>
+        </div>
+        <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Pareja origen-destino</span>
+          <input type='text' class='form-control input-xs idpareja' value='${element.idm}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Tipo servicio</span>
+          <input type='text' class='form-control input-xs' value='${element.tipo_servicio_mer}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Tipo Vehículo</span>
+          <input type='text' value='${element.nombre}' class='form-control input-xs' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Tipo carga</span>
+          <input type='text' class='form-control input-xs' value='${carga}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+          <span>Tipo transporte</span>
+          <input type='text' class='form-control input-xs' value='${element.tipo_transporte}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Peso bruto (kg)</span>
+          <input type='text' id='npbruto${co}' class='form-control input-xs' value='${element.peso_bruto_kg}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Peso neto (kg)</span>
+          <input type='text' id='epesone${co}' class='form-control input-xs' value='${element.peso_neto_kg}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Peso Bruto(Tn)</span>
+          <input type='text' id='enetotn${co}' class='form-control input-xs' value='${element.peso_neto_tn}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Origen</span>
+          <input type='text' class='form-control input-xs' value='${element.o}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Destino</span>
+          <input type='text' class='form-control input-xs' value='${element.d}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Alto</span>
+          <input type='text' id='nalto${co}' class='form-control input-xs' value='${element.alto}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Largo</span>
+          <input type='text' id='nlargo${co}' class='form-control input-xs' value='${element.largo}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-6 col-sm-4 col-md-4 col-lg-4'>
+          <span style='font-weight:500; margin-top:20px;'>Ancho</span>
+          <input type='text' id='nancho${co}' class='form-control input-xs' value='${element.ancho}' readonly style='background-color:white;'>
+        </div>
+        <div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
+          <span style='font-weight:500; margin-top:20px;'>Observación</span>
+          <textarea class='form-control input-xs' readonly style='background-color:white;'>${element.observacion}</textarea>
+        </div>
+      `;
+
+
 
         //datos especiales
 
@@ -2049,71 +2378,61 @@ function prueba_editar_no(element) {
         data.forEach(function (element, index) {
           c++;
           //SERVICIO ESPECIAL
-          efila2 =
-            '<div class="panel panel-default">' +
-            '<div class="panel-body">' +
-            "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>" +
-            '<label>Servicio especial/ Mercancia a la que pertenece:</label><br>' +
-            "<a href='#' class='badge badge-success' title='servicio especial'>" +
-            element.item_especial +
-            '</a>' +
-            '/' +
-            "<a href='#' class='badge badge-primary' title='mercancia'>" +
-            element.item_mercancia +
-            '</a>' +
-            '</div>' +
-            '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><h4 class="text-center">Servicios especiales</h4>' +
-            '<td></td>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Tipo servicio</span>' +
-            '<select id="" class="form-control input-sm" readonly="readonly" style="background-color:white;">' +
-            '<option value="' +
-            element.tipo_servicio +
-            '">' +
-            element.tipo_servicio +
-            '</option>' +
-            '<option>Excolta</option>' +
-            '<option>Auxiliar Cargue</option>' +
-            '<option>Auxiliar Descargue</option>' +
-            '<option>Auxiliar Cargue y Descargue</option>' +
-            '<option>Montacargas Cargue</option>' +
-            '<option>Montacargas Descargue</option>' +
-            '<option>Montacargas Cargue y Descargue</option>' +
-            '<option>Estibador Manual</option>' +
-            '</select></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Cantidad</span><input type="number" id="" min="0" class="form-control input-sm" value="' +
-            element.cantidad +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div  class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Costo unitario</span><input type="text" id="nunitarioe' +
-            c +
-            '" min="0" class="form-control input-sm" value="' +
-            element.valor_unitario +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Tarifa unitaria</span><input type="text" id="ntarifae' +
-            c +
-            '" class="form-control input-sm" readonly="readonly" value="' +
-            element.tarifa_unitaria +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Costo servicio</span><input type="text" id="ntotale' +
-            c +
-            '" class="form-control input-sm" readonly="readonly" value="' +
-            element.total_servicio +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span>Calculo tarifa</span><input type="text" id="ntari' +
-            c +
-            '" class="form-control input-sm" readonly="readonly" value="' +
-            element.tarifa +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span>Utilidad</span><input type="text" id="nutili' +
-            c +
-            '" class="form-control input-sm" readonly="readonly" value="' +
-            element.rentabilidad +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span>Rentabilidad</span><input type="text" id="nrentes' +
-            c +
-            '" class="form-control input-sm" readonly="readonly" value="' +
-            element.utilidad +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '</div></div></div>';
+          efila2 = `
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <label>Servicio especial/ Mercancía a la que pertenece:</label><br>
+                <a href="#" class="badge badge-success" title="servicio especial">${element.item_especial}</a> /
+                <a href="#" class="badge badge-primary" title="mercancia">${element.item_mercancia}</a>
+              </div>
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <h4 class="text-center">Servicios especiales</h4>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <span style="font-weight:500; margin-top:20px;">Tipo servicio</span>
+                  <select class="form-control input-sm" readonly="readonly" style="background-color:white;">
+                    <option value="${element.tipo_servicio}">${element.tipo_servicio}</option>
+                    <option>Excolta</option>
+                    <option>Auxiliar Cargue</option>
+                    <option>Auxiliar Descargue</option>
+                    <option>Auxiliar Cargue y Descargue</option>
+                    <option>Montacargas Cargue</option>
+                    <option>Montacargas Descargue</option>
+                    <option>Montacargas Cargue y Descargue</option>
+                    <option>Estibador Manual</option>
+                  </select>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <span style="font-weight:500; margin-top:20px;">Cantidad</span>
+                  <input type="number" min="0" class="form-control input-sm" value="${element.cantidad}" readonly="readonly" style="background-color:white;">
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <span style="font-weight:500; margin-top:20px;">Costo unitario</span>
+                  <input type="text" id="nunitarioe${c}" min="0" class="form-control input-sm" value="${element.valor_unitario}" readonly="readonly" style="background-color:white;">
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <span style="font-weight:500; margin-top:20px;">Tarifa unitaria</span>
+                  <input type="text" id="ntarifae${c}" class="form-control input-sm" readonly="readonly" value="${element.tarifa_unitaria}" style="background-color:white;">
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <span style="font-weight:500; margin-top:20px;">Costo servicio</span>
+                  <input type="text" id="ntotale${c}" class="form-control input-sm" readonly="readonly" value="${element.total_servicio}" style="background-color:white;">
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <span>Calculo tarifa</span>
+                  <input type="text" id="ntari${c}" class="form-control input-sm" readonly="readonly" value="${element.tarifa}" style="background-color:white;">
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <span>Utilidad</span>
+                  <input type="text" id="nutili${c}" class="form-control input-sm" readonly="readonly" value="${element.rentabilidad}" style="background-color:white;">
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <span>Rentabilidad</span>
+                  <input type="text" id="nrentes${c}" class="form-control input-sm" readonly="readonly" value="${element.utilidad}" style="background-color:white;">
+                </div>
+              </div>
+            </div>
+          </div>`;
 
           $('#especialista').append(efila2);
 
@@ -2132,415 +2451,14 @@ function prueba_editar_no(element) {
   });
 }
 
-//funcion para hacer el ver de la cotizacion
-// function Visualizar(element) {
-//   //alert('ver coizacion');
-//   var elemento = $(element);
-//   var id = elemento.data('id');
-//   //CABECERA
-//   var dato = {
-//     ncotizar: id,
-//     // action: 'ver',
-//   };
-
-//   $('#panel_principal').html('');
-//   $('#panel_secundario').html('');
-
-//   $.ajax({
-//     url: $('#base_url').val() + 'serviciocliente/Ver_cotizacion',
-//     type: 'POST',
-//     data: dato,
-//     dataType: 'json',
-//     success: function (data) {
-//       if (data) {
-//         $('#titlu').html('<h3 class="text-center"><strong>Cotizacion Número: ' + data.n_cotizacion + '</strong></h3>');
-//         $('#linea').val('');
-
-//         $('#cuerpo_cliente').html(
-//           '<tr>' +
-//           '<td style="white-space: nowrap;" class="text-center">' +
-//           data.nombre_cliente +
-//           '</td>' +
-//           '<td style="white-space: nowrap;" class="text-center">' +
-//           data.nit +
-//           '-' +
-//           data.digito +
-//           '</td>' +
-//           '<td style="white-space: nowrap;" class="text-center">' +
-//           data.direccion +
-//           '</td>' +
-//           '<td style="white-space: nowrap;" class="text-center">' +
-//           data.telefono +
-//           '</td>' +
-//           '<td style="white-space: nowrap;" class="text-center">' +
-//           data.procedencia_cotizacion +
-//           '</td>' +
-//           '</tr>',
-//         );
-
-//         $('#costos').html(
-//           '<tr>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="tottari" class="form-control input-xs text-center" readonly="readonly" value="' +
-//           data.total_transporte +
-//           '" style="background-color:white;"></td>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totfle" class="form-control input-xs text-center" readonly="readonly" value="' +
-//           data.tmer_flete +
-//           '" style="background-color:white;"></td>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totutil" class="form-control input-xs text-center" readonly="readonly" value="' +
-//           data.tmer_rent +
-//           '" style="background-color:white;"></td>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totren" class="form-control input-xs text-center maqu" value="' +
-//           data.tmer_utili +
-//           '" readonly="readonly" style="background-color:white;"></td>' +
-//           '</tr>',
-//         );
-
-//         $('#costos1').html(
-//           '<tr>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="flees" class="form-control input-xs text-center" value="' +
-//           data.tes_flete +
-//           '" readonly="readonly" style="background-color:white;"></td>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="tarespe" class="form-control input-xs text-center" value="' +
-//           data.tes_tarifa +
-//           '" readonly="readonly" style="background-color:white;">  </td>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totuties" class="form-control input-xs text-center" value="' +
-//           data.tes_renta +
-//           '" readonly="readonly" style="background-color:white;"></td>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totrenes" class="form-control input-xs text-center  bg-white text-dark" value="' +
-//           data.tes_util +
-//           '" readonly="readonly"  style="background-color:white;"></td></tr>',
-//         );
-
-//         $('#totcotiza').html(
-//           '<tr>' +
-//           '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totalcoti" class="form-control input-xs text-center" value="' +
-//           data.total_cotizacion +
-//           '" readonly="readonly" style="background-color:white;">    </td></tr>',
-//         );
-
-//         $('#cuerpo_adicional').html(
-//           '<tr>' +
-//           '<td style="white-space: nowrap;" class="text-center">' +
-//           data.observaciones +
-//           '</td>' +
-//           '<td style="white-space: nowrap;" class="text-center">' +
-//           data.elaborado_por +
-//           '</td>' +
-//           '<td style="white-space: nowrap;" class="text-center">' +
-//           data.autorizado_por +
-//           '</td>' +
-//           '</tr>',
-//         );
-//       }
-
-//       //Formatear números	totales - bloques
-//       $('#totalcoti').val(parseFloat($('#totalcoti').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#totfle').val(parseFloat($('#totfle').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#tottari').val(parseFloat($('#tottari').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#totutil').val(parseFloat($('#totutil').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#totren').val(parseFloat($('#totren').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-
-//       //Formatear números	totales - especiales
-
-//       $('#flees').val(parseFloat($('#flees').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#tarespe').val(parseFloat($('#tarespe').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#totuties').val(parseFloat($('#totuties').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#totrenes').val(parseFloat($('#totrenes').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//     },
-
-//     error: function (jqXHR, textStatus, errorThrown) {
-//       // console.log(data.result);
-//       console.log(jqXHR);
-//       console.log(textStatus);
-//       console.log(errorThrown);
-//     },
-//   });
-
-//   //MERCANCIAS
-//   var dato1 = {
-//     ncotizar1: id,
-//   };
-
-//   $('#cuerpo_mer1').html('');
-//   $('#cuerpo_mer2').html('');
-//   $('#muniorigen').html('');
-//   $('#munidestino').html('');
-//   var htm, fila;
-
-//   $.ajax({
-//     url: $('#base_url').val() + 'serviciocliente/Ver_Merncancia',
-//     type: 'POST',
-//     data: dato1,
-//     dataType: 'json',
-//     success: function (data) {
-//       // console.log(data.result);
-//       var c = 0;
-//       var contador = 0;
-//       var carga = '';
-//       data.forEach(function (element, index) {
-//         c++;
-//         contador = contador + 1;
-//         if (c <= contador) {
-//           if (element.tipo_carga == 'G') {
-//             carga = 'General';
-//           }
-
-//           if (element.tipo_carga == 'P') {
-//             carga = 'Paqueteo';
-//           }
-
-//           if (element.tipo_carga == 'C') {
-//             carga = 'Contenedor Cargado';
-//           }
-
-//           if (element.tipo_carga == 'V') {
-//             carga = 'Contenedor Vacío';
-//           }
-
-//           var idorigen = element.origen;
-
-//           var iddestino = element.destino;
-
-//           fila =
-//             "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>" +
-//             "<a href='#' class='badge badge-primary' title='servicio mercancia'  >" +
-//             c +
-//             '</a>' +
-//             '</div>' +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'>" +
-//             "<span style='font-weight:500; margin-top:20px;'>Pareja origen-destino</span>" +
-//             "<input type='text' class='form-control input-xs' value='" +
-//             element.id +
-//             "' readonly='readonly' style='background-color:white;'>" +
-//             "<span style='font-weight:500; margin-top:20px;'>Tipo servicio</span>" +
-//             "<input type='text' class='form-control input-xs' value='" +
-//             element.tipo_servicio_mer +
-//             "' readonly='readonly'  style='background-color:white;'>" +
-//             "</div><div  class='col-xs-6 col-sm-4 col-md-4 col-lg-4'>" +
-//             "<span style='font-weight:500; margin-top:20px;'>Tipo vehículo</span>" +
-//             "<input type='text' id='' class='form-control input-xs' value='" +
-//             element.nombre +
-//             "' readonly='readonly' style='background-color:white;'>" +
-//             '</div>' +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Tipo carga</span><input type='text' class='form-control input-xs' value='" +
-//             carga +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Tipo transporte</span><input type='text' class='form-control input-xs' value='" +
-//             element.tipo_transporte +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Peso  bruto (kg)</span><input type='text'     id='pbruto" +
-//             c +
-//             "' class='form-control input-xs maq' value='" +
-//             element.peso_bruto_kg +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Peso neto (kg)</span><input type='text' id='pneto" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.peso_neto_kg +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Peso Bruto(Tn)</span><input type='text' id='netotn" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.peso_neto_tn +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Alto</span><input type='text' class='form-control input-xs' id='valto" +
-//             c +
-//             "' value='" +
-//             element.alto +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Largo</span><input type='text' id='vlargo" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.largo +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Ancho</span><input type='text' id='vancho" +
-//             c +
-//             "' class='form-control input-xs maqu' value='" +
-//             element.ancho +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Volumen total</span><input type='text' id='vvolum" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.volumen_total +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Costo flete</span><input type='text' id='vflete" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.flete +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Tarifa venta</span><input type='text' id='vtarifa" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.total_tarifa +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Rentabilidad%</span><input type='text' id='vutil" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.utilidad +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Utilidad</span><input type='text' id='vrent" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.rentabilidad +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Tipo Mercancía</span><input type='text' class='form-control input-xs' value='" +
-//             element.tipo_mercancia +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Valor Mercancía</span><input type='text' id='vmerca" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.valor_mercancia +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'><span style='font-weight:500; margin-top:20px;'>Tipo empaque</span><input type='text' class='form-control input-xs' value='" +
-//             element.empaque +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-4 col-sm-4 col-md-4 col-lg-4'><span style='font-weight:500; margin-top:20px;'>Cantidad Empaque</span><input type='text' id='vcant" +
-//             c +
-//             "' class='form-control input-xs' value='" +
-//             element.cantidad_empaque +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'><span style='font-weight:500; margin-top:20px;'>Origen</span><input type='text' class='form-control input-xs' value='" +
-//             element.orig +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'><span style='font-weight:500; margin-top:20px;'>Destino</span><input type='text' class='form-control input-xs' value='" +
-//             element.dest +
-//             "' readonly='readonly' style='background-color:white;'></div>" +
-//             "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'><span style='font-weight:500; margin-top:20px;'>Observación</span><textarea  class='form-control input-sm' readonly='readonly' style='background-color:white;'>" +
-//             element.observacion +
-//             '</textarea></div>';
-
-//           $('#panel_principal').append(fila);
-
-//           //$(".maq").trigger('change');//formatea números
-
-//           //FORMATEAR NUMEROS
-//           $('#pbruto' + c).val(parseFloat($('#pbruto' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#pneto' + c).val(parseFloat($('#pneto' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#netotn' + c).val(parseFloat($('#netotn' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#valto' + c).val(parseFloat($('#valto' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vlargo' + c).val(parseFloat($('#vlargo' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vancho' + c).val(parseFloat($('#vancho' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vvolum' + c).val(parseFloat($('#vvolum' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vflete' + c).val(parseFloat($('#vflete' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vtarifa' + c).val(parseFloat($('#vtarifa' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vutil' + c).val(parseFloat($('#vutil' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vrent' + c).val(parseFloat($('#vrent' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vmerca' + c).val(parseFloat($('#vmerca' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//           $('#vcant' + c).val(parseFloat($('#vcant' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//         } //cierre del if
-//       });
-//     }, //succes ver
-
-//     error: function (jqXHR, textStatus, errorThrown) {
-//       console.log('error ver');
-//       console.log(jqXHR);
-//       console.log(textStatus);
-//       console.log(errorThrown);
-//     },
-//   });
-
-//   //SERVICIOS ESPECIALES
-//   var dato2 = {
-//     ncotizar2: id,
-//   };
-
-//   fila_espe = '';
-//   $.ajax({
-//     url: $('#base_url').val() + 'serviciocliente/Ver_Servicios_Especiales',
-//     type: 'POST',
-//     data: dato2,
-//     dataType: 'json',
-//     success: function (data) {
-//       ce = 0;
-//       htm = '';
-//       if (data.length === 0) {
-//         htm = "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>Sin servicios especiales</div>";
-//       } else {
-//         data.forEach(function (element, index) {
-//           ce++;
-//           htm +=
-//             '<div class="panel panel-default"><div class="panel-body">' +
-//             "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>" +
-//             '<label>Servicio especial/ Mercancia a la que pertenece:</label><br>' +
-//             "<a href='#' class='badge badge-success' title='servicio especial'   >" +
-//             element.item_especial +
-//             '</a>' +
-//             '/' +
-//             "<a href='#' class='badge badge-primary' title='servicio mercancia'   >" +
-//             element.item_mercancia +
-//             '</a>' +
-//             '<h4>Servicios especiales</h4>' +
-//             '</div>' +
-//             '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">' +
-//             '<span style="font-weight:500; margin-top:20px;">Tipo servicio </span><input type="text" class="form-control input-xs" value="' +
-//             element.tipo_servicio +
-//             '" readonly="readonly" style="background-color:white;"></div>' +
-//             '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Cantidad</span><input type="text"  class="form-control input-xs" value="' +
-//             element.cantidad +
-//             '" readonly="readonly" style="background-color:white;"></div>' +
-//             '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Costo unitario</span><input type="text" id="valores' +
-//             ce +
-//             '" class="form-control input-xs" value="' +
-//             element.valor_unitario +
-//             '" readonly="readonly" style="background-color:white;"></div>' +
-//             '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Tarifa unitaria</span><input type="text" id="taries' +
-//             ce +
-//             '" class="form-control input-xs maqu" value="' +
-//             element.tarifa_unitaria +
-//             '" readonly="readonly" style="background-color:white;"></div>' +
-//             '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Cálculo costo</span><input type="text" id="totes' +
-//             ce +
-//             '" value="' +
-//             element.total_servicio +
-//             '" class="form-control input-xs" readonly="readonly" style="background-color:white;"></div>' +
-//             '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Calculo tarifa</span><input type="text" id="tarifaes' +
-//             ce +
-//             '" class="form-control input-xs" value="' +
-//             element.tarifa +
-//             '" readonly="readonly" style="background-color:white;"></div>' +
-//             '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Utilidad</span><input type="text" id="uties' +
-//             ce +
-//             '" value="' +
-//             element.rentabilidad +
-//             '" class="form-control input-xs" readonly="readonly" style="background-color:white;"></div>' +
-//             '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Rentabilidad%</span><input type="text" id="rentes' +
-//             ce +
-//             '" class="form-control input-xs" value="' +
-//             element.utilidad +
-//             '" readonly="readonly" style="background-color:white;"></div>' +
-//             '</div></div>'; // }
-//         });
-//       }
-
-//       $('#panel_secundario').append(htm);
-
-//       //$(".maqu").trigger('change');//formatea números
-//       $('#valores' + ce).val(parseFloat($('#valores' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#taries' + ce).val(parseFloat($('#taries' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#totes' + ce).val(parseFloat($('#totes' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#tarifaes' + ce).val(parseFloat($('#tarifaes' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#uties' + ce).val(parseFloat($('#uties' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//       $('#rentes' + ce).val(parseFloat($('#rentes' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//     },
-//     error: function (jqXHR, textStatus, errorThrown) {
-//       console.log('error');
-//       console.log(jqXHR);
-//       console.log(textStatus);
-//       console.log(errorThrown);
-//     },
-//   });
-// }
-
 function Visualizar(cotizacion, solicitud_servicio) {
   document.getElementById("numero_cotizacion").value = cotizacion;
+  document.getElementById("numero_solicitud").value = solicitud_servicio;
   //CABECERA
   var dato = {
     ncotizar: cotizacion,
     // action: 'ver',
   };
-
-  $('#panel_principal').html('');
-  $('#panel_secundario').html('');
 
   $.ajax({
     url: $('#base_url').val() + 'serviciocliente/Ver_cotizacion',
@@ -2549,84 +2467,140 @@ function Visualizar(cotizacion, solicitud_servicio) {
     dataType: 'json',
     success: function (data) {
       if (data) {
-        $('#titlu').html('<h3 class="text-center"><strong>Cotizacion Número: ' + data.n_cotizacion + '</strong></h3>');
+        // $('#titlu').html('<h3 class="text-center"><strong>Cotizacion Número: ' + data.n_cotizacion + '</strong></h3>');
         $('#linea').val('');
 
-        $('#cuerpo_cliente').html(
-          '<tr>' +
-          '<td style="white-space: nowrap;" class="text-center">' +
-          data.nombre_cliente +
-          '</td>' +
-          '<td style="white-space: nowrap;" class="text-center">' +
-          data.nit +
-          '-' +
-          data.digito +
-          '</td>' +
-          '<td style="white-space: nowrap;" class="text-center">' +
-          data.direccion +
-          '</td>' +
-          '<td style="white-space: nowrap;" class="text-center">' +
-          data.telefono +
-          '</td>' +
-          '<td style="white-space: nowrap;" class="text-center">' +
-          data.procedencia_cotizacion +
-          '</td>' +
-          '</tr>',
-        );
+        $('#cuerpo_cotizacion').html("");
+        $('#cuerpo_cliente').html(`
+          <div class="row">
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Cliente</label>
+                  <input type="text" id="nombre_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.nombre_cliente}" disabled>
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Numero documento</label>
+                  <input type="text" id="documento_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.nit}-${data.digito}" disabled>
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Dirección</label>
+                  <input type="text" id="direccion_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.direccion}" disabled>
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Telefono</label>
+                  <input type="text" id="telefono_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.telefono}" disabled>
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Procedencia</label>
+                  <input type="text" id="procedencia_pedido_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.procedencia_cotizacion}" disabled>
+                </div>
+              </div>
+          </div>
+        `);
 
-        $('#costos').html(
-          '<tr>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="tottari" class="form-control input-xs text-center" readonly="readonly" value="' +
-          data.total_transporte +
-          '" style="background-color:white;"></td>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totfle" class="form-control input-xs text-center" readonly="readonly" value="' +
-          data.tmer_flete +
-          '" style="background-color:white;"></td>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totutil" class="form-control input-xs text-center" readonly="readonly" value="' +
-          data.tmer_rent +
-          '" style="background-color:white;"></td>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totren" class="form-control input-xs text-center maqu" value="' +
-          data.tmer_utili +
-          '" readonly="readonly" style="background-color:white;"></td>' +
-          '</tr>',
-        );
+        $('#costos').html("");
+        $('#costos').html(`
+            <div class="row"> 
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tarifa venta</label>
+                  <input type="text" id="tottari" class="form-control form-control-sm text-center text-dark fs-10" disabled value="${data.total_transporte}">
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tarifa Flete</label>
+                 <input type="text" id="totfle" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tmer_flete}">
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Utilidad</label>
+                  <input type="text" id="totutil" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tmer_rent}">
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Rentabilidad</label>
+                  <input type="text" id="totren" class="form-control form-control-sm text-center text-dark fs-10 maqu" readonly value="${data.tmer_utili}">
+                </div>
+              </div>
+            </div>
+        `);
 
-        $('#costos1').html(
-          '<tr>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="flees" class="form-control input-xs text-center" value="' +
-          data.tes_flete +
-          '" readonly="readonly" style="background-color:white;"></td>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="tarespe" class="form-control input-xs text-center" value="' +
-          data.tes_tarifa +
-          '" readonly="readonly" style="background-color:white;">  </td>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totuties" class="form-control input-xs text-center" value="' +
-          data.tes_renta +
-          '" readonly="readonly" style="background-color:white;"></td>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totrenes" class="form-control input-xs text-center  bg-white text-dark" value="' +
-          data.tes_util +
-          '" readonly="readonly"  style="background-color:white;"></td></tr>',
-        );
+        $('#costos1').html("");
+        $('#costos1').html(`
+          <div class="row">
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+              <div class="mb-1">
+                <label style="font-size: 12px;">Costo servicio especial</label>
+                <input type="text" id="flees" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tes_flete}">
+              </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+              <div class="mb-1">
+                <label style="font-size: 12px;">Tarifa servicio especial</label>
+               <input type="text" id="tarespe" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tes_tarifa}">
+              </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+              <div class="mb-1">
+                <label style="font-size: 12px;">Utilidad servicio especial</label>
+               <input type="text" id="totuties" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tes_renta}">
+              </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+              <div class="mb-1">
+                <label style="font-size: 12px;">Rentabilidad servicio especial</label>
+                 <input type="text" id="totrenes" class="form-control form-control-sm text-center text-dark fs-10 bg-white text-dark" readonly value="${data.tes_util}">
+              </div>
+            </div>
+          </div>
+        `);
 
-        $('#totcotiza').html(
-          '<tr>' +
-          '<td style="white-space: nowrap;" class="text-center"><input type="text" id="totalcoti" class="form-control input-xs text-center" value="' +
-          data.total_cotizacion +
-          '" readonly="readonly" style="background-color:white;">    </td></tr>',
-        );
+        $('#costos2').html("");
+        $('#totcotiza').html(`
+          <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+              <div class="mb-1">
+                <label style="font-size: 12px;">Total del servicio</label>
+                <input type="text" id="totalcoti" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.total_cotizacion}">
+              </div>
+            </div>
+          </div>
+        `);
 
-        $('#cuerpo_adicional').html(
-          '<tr>' +
-          '<td style="white-space: nowrap;" class="text-center">' +
-          data.observaciones +
-          '</td>' +
-          '<td style="white-space: nowrap;" class="text-center">' +
-          data.elaborado_por +
-          '</td>' +
-          '<td style="white-space: nowrap;" class="text-center">' +
-          data.autorizado_por +
-          '</td>' +
-          '</tr>',
-        );
+        $('#cuerpo_adicional').html("");
+        $('#cuerpo_adicional').html(`
+            <div class="row">
+              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Observación</label>
+                  <input type="text" id="observaciones" class="form-control form-control-sm text-center text-dark fs-10" disabled value="${data.observaciones}">
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Elaborado</label>
+                  <input type="text" id="elaborado_por" class="form-control form-control-sm text-center text-dark fs-10" disabled value="${data.elaborado_por}">
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Autorizado</label>
+                  <input type="text" id="autorizado_por" class="form-control form-control-sm text-center text-dark fs-10" disabled value="${data.autorizado_por}">
+                </div>
+              </div>
+            </div>
+        `);
       }
 
       //Formatear números	totales - bloques
@@ -2673,8 +2647,13 @@ function Visualizar(cotizacion, solicitud_servicio) {
       var c = 0;
       var contador = 0;
       var carga = '';
+
+      $('#detalle_mercancias').html('');
+      $("#bloques_mercancias_menu").html("");
       data.forEach(function (element, index) {
         c++;
+        // Clases para el nav-item (active solo en el primero)
+        const isFirst = index === 0;
         contador = contador + 1;
         if (c <= contador) {
           if (element.tipo_carga == 'G') {
@@ -2692,110 +2671,108 @@ function Visualizar(cotizacion, solicitud_servicio) {
           if (element.tipo_carga == 'V') {
             carga = 'Contenedor Vacío';
           }
-
           var idorigen = element.origen;
-
           var iddestino = element.destino;
 
+
+          var cabeza = `<li class="nav-item"><a class="nav-link ${isFirst ? 'active' : ''}" id="home-tab-${c}" data-bs-toggle="tab" href="#tab-${c}" role="tab" aria-controls="tab-${c}" aria-selected="${isFirst ? 'true' : 'false'}">Bloque de Mercancia ${c}</a></li>`;
+          $("#bloques_mercancias_menu").append(cabeza);
+
           fila = `
-          <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-              <a href="#" class="badge badge-primary" title="servicio mercancia">${c}</a>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Pareja origen-destino</span>
-              <input type="text" class="form-control input-xs" value="${element.id}" readonly="readonly" style="background-color:white;">
-              <span style="font-weight:500; margin-top:20px;">Tipo servicio</span>
-              <input type="text" class="form-control input-xs" value="${element.tipo_servicio_mer}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Tipo vehículo</span>
-              <input type="text" class="form-control input-xs" value="${element.nombre}" readonly="readonly" style="background-color:white;">
-              <span style="font-weight:500; margin-top:20px;">Tipo carga</span>
-              <input type="text" class="form-control input-xs" value="${carga}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Tipo transporte</span>
-                <input type="text" class="form-control input-xs" value="${element.tipo_transporte}" readonly="readonly" style="background-color:white;">
-                <span style="font-weight:500; margin-top:20px;">Peso bruto (kg)</span>
-              <input type="text" id="pbruto${c}" class="form-control input-xs maq" value="${element.peso_bruto_kg}" readonly="readonly" style="background-color:white;">
-            </div>
-            
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Peso neto (kg)</span>
-              <input type="text" id="pneto${c}" class="form-control input-xs" value="${element.peso_neto_kg}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Peso Bruto (Tn)</span>
-              <input type="text" id="netotn${c}" class="form-control input-xs" value="${element.peso_neto_tn}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Alto</span>
-              <input type="text" id="valto${c}" class="form-control input-xs" value="${element.alto}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Largo</span>
-              <input type="text" id="vlargo${c}" class="form-control input-xs" value="${element.largo}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Ancho</span>
-              <input type="text" id="vancho${c}" class="form-control input-xs maqu" value="${element.ancho}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Volumen total</span>
-              <input type="text" id="vvolum${c}" class="form-control input-xs" value="${element.volumen_total}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Costo flete</span>
-              <input type="text" id="vflete${c}" class="form-control input-xs" value="${element.flete}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Tarifa venta</span>
-              <input type="text" id="vtarifa${c}" class="form-control input-xs" value="${element.total_tarifa}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Rentabilidad%</span>
-              <input type="text" id="vutil${c}" class="form-control input-xs" value="${element.utilidad}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Utilidad</span>
-              <input type="text" id="vrent${c}" class="form-control input-xs" value="${element.rentabilidad}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Tipo Mercancía</span>
-              <input type="text" class="form-control input-xs" value="${element.tipo_mercancia}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Valor Mercancía</span>
-              <input type="text" id="vmerca${c}" class="form-control input-xs" value="${element.valor_mercancia}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Tipo empaque</span>
-              <input type="text" class="form-control input-xs" value="${element.empaque}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-              <span style="font-weight:500; margin-top:20px;">Cantidad Empaque</span>
-              <input type="text" id="vcant${c}" class="form-control input-xs" value="${element.cantidad_empaque}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-              <span style="font-weight:500; margin-top:20px;">Origen</span>
-              <input type="text" class="form-control input-xs" value="${element.orig}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-              <span style="font-weight:500; margin-top:20px;">Destino</span>
-              <input type="text" class="form-control input-xs" value="${element.dest}" readonly="readonly" style="background-color:white;">
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-              <span style="font-weight:500; margin-top:20px;">Observación</span>
-              <textarea class="form-control input-sm" readonly="readonly" style="background-color:white;">${element.observacion}</textarea>
-            </div>
+           <div class="tab-pane fade ${isFirst ? 'show active' : ''}" id="tab-${c}" role="tabpanel" aria-labelledby="home-${c}">
+              <div class="row">
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Pareja origen-destino</label>
+                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.id}" disabled>
+                  <label style="font-size:12px;" >Tipo servicio</label>
+                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.tipo_servicio_mer}" disabled>
+                </div>
+                <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Tipo vehículo</label>
+                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.nombre}" disabled>
+                  <label style="font-size:12px;" >Tipo carga</label>
+                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${carga}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Tipo transporte</label>
+                    <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.tipo_transporte}" disabled>
+                    <label style="font-size:12px;" >Peso bruto (kg)</label>
+                  <input type="text" id="pbruto${c}" class="form-control form-control-sm text-dark fs-10 maq" value="${element.peso_bruto_kg}" disabled>
+                </div>
+                
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Peso neto (kg)</label>
+                  <input type="text" id="pneto${c}" class="form-control form-control-sm text-dark fs-10" value="${element.peso_neto_kg}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Peso Bruto (Tn)</label>
+                  <input type="text" id="netotn${c}" class="form-control form-control-sm text-dark fs-10" value="${element.peso_neto_tn}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Alto</label>
+                  <input type="text" id="valto${c}" class="form-control form-control-sm text-dark fs-10" value="${element.alto}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Largo</label>
+                  <input type="text" id="vlargo${c}" class="form-control form-control-sm text-dark fs-10" value="${element.largo}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Ancho</label>
+                  <input type="text" id="vancho${c}" class="form-control form-control-sm text-dark fs-10 maqu" value="${element.ancho}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Volumen total</label>
+                  <input type="text" id="vvolum${c}" class="form-control form-control-sm text-dark fs-10" value="${element.volumen_total}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Costo flete</label>
+                  <input type="text" id="vflete${c}" class="form-control form-control-sm text-dark fs-10" value="${element.flete}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Tarifa venta</label>
+                  <input type="text" id="vtarifa${c}" class="form-control form-control-sm text-dark fs-10" value="${element.total_tarifa}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Rentabilidad%</label>
+                  <input type="text" id="vutil${c}" class="form-control form-control-sm text-dark fs-10" value="${element.utilidad}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Utilidad</label>
+                  <input type="text" id="vrent${c}" class="form-control form-control-sm text-dark fs-10" value="${element.rentabilidad}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Tipo Mercancía</label>
+                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.tipo_mercancia}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Valor Mercancía</label>
+                  <input type="text" id="vmerca${c}" class="form-control form-control-sm text-dark fs-10" value="${element.valor_mercancia}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Tipo empaque</label>
+                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.empaque}" disabled>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                  <label style="font-size:12px;" >Cantidad Empaque</label>
+                  <input type="text" id="vcant${c}" class="form-control form-control-sm text-dark fs-10" value="${element.cantidad_empaque}" disabled>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                  <label style="font-size:12px;" >Origen</label>
+                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.orig}" disabled>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                  <label style="font-size:12px;" >Destino</label>
+                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.dest}" disabled>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                  <label style="font-size:12px;" >Observación</label>
+                  <textarea class="form-control form-control-sm text-dark" disabled rows="1">${element.observacion}</textarea>
+                </div>
+              </div>
           </div>
         `;
 
-          $('#panel_principal').append(fila);
-
-          //$(".maq").trigger('change');//formatea números
-
+          $('#detalle_mercancias').append(fila);
           //FORMATEAR NUMEROS
           $('#pbruto' + c).val(parseFloat($('#pbruto' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
           $('#pneto' + c).val(parseFloat($('#pneto' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
@@ -2836,68 +2813,62 @@ function Visualizar(cotizacion, solicitud_servicio) {
     success: function (data) {
       ce = 0;
       htm = '';
+      $('#detalle_servicios_especiales').html('');
+      $('#bloques_servicios_especiales_menu').html('');
       if (data.length === 0) {
-        htm = "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>Sin servicios especiales</div>";
+        htm = "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 d-flex justify-content-center fw-bold my-3'>Sin servicios especiales</div>";
       } else {
         data.forEach(function (element, index) {
           ce++;
-          htm +=
-            '<div class="panel panel-default"><div class="panel-body">' +
-            "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>" +
-            '<label>Servicio especial/ Mercancia a la que pertenece:</label><br>' +
-            "<a href='#' class='badge badge-success' title='servicio especial'   >" +
-            element.item_especial +
-            '</a>' +
-            '/' +
-            "<a href='#' class='badge badge-primary' title='servicio mercancia'   >" +
-            element.item_mercancia +
-            '</a>' +
-            '<h4>Servicios especiales</h4>' +
-            '</div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">' +
-            '<span style="font-weight:500; margin-top:20px;">Tipo servicio </span><input type="text" class="form-control input-xs" value="' +
-            element.tipo_servicio +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Cantidad</span><input type="text"  class="form-control input-xs" value="' +
-            element.cantidad +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Costo unitario</span><input type="text" id="valores' +
-            ce +
-            '" class="form-control input-xs" value="' +
-            element.valor_unitario +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Tarifa unitaria</span><input type="text" id="taries' +
-            ce +
-            '" class="form-control input-xs maqu" value="' +
-            element.tarifa_unitaria +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Cálculo costo</span><input type="text" id="totes' +
-            ce +
-            '" value="' +
-            element.total_servicio +
-            '" class="form-control input-xs" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Calculo tarifa</span><input type="text" id="tarifaes' +
-            ce +
-            '" class="form-control input-xs" value="' +
-            element.tarifa +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Utilidad</span><input type="text" id="uties' +
-            ce +
-            '" value="' +
-            element.rentabilidad +
-            '" class="form-control input-xs" readonly="readonly" style="background-color:white;"></div>' +
-            '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><span style="font-weight:500; margin-top:20px;">Rentabilidad%</span><input type="text" id="rentes' +
-            ce +
-            '" class="form-control input-xs" value="' +
-            element.utilidad +
-            '" readonly="readonly" style="background-color:white;"></div>' +
-            '</div></div>'; // }
+          var cabeza = `<li class="nav-item"><a class="nav-link" id="home-tab-${c}" data-bs-toggle="tab" href="#tab-${c}" role="tab" aria-controls="tab-${c}" aria-selected="true">Servicio Especial ${c}</a></li>`;
+          $("#bloques_servicios_especiales_menu").append(cabeza);
+          htm += `
+          <div class="tab-pane fade show" id="home-tab-${c}" role="tabpanel" aria-labelledby="home-${c}">
+            <div class="panel-body">
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <label>Servicio especial/ Mercancía a la que pertenece:</label><br>
+                <a href="#" class="badge badge-success" title="Servicio especial">${element.item_especial}</a> /
+                <a href="#" class="badge badge-primary" title="Servicio mercancía">${element.item_mercancia}</a>
+                <h4>Servicios especiales</h4>
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <span style="font-weight:500; margin-top:20px;">Tipo servicio</span>
+                <input type="text" class="form-control input-xs" value="${element.tipo_servicio}" readonly style="background-color:white;">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <span style="font-weight:500; margin-top:20px;">Cantidad</span>
+                <input type="text" class="form-control input-xs" value="${element.cantidad}" readonly style="background-color:white;">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <span style="font-weight:500; margin-top:20px;">Costo unitario</span>
+                <input type="text" id="valores${ce}" class="form-control input-xs" value="${element.valor_unitario}" readonly style="background-color:white;">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <span style="font-weight:500; margin-top:20px;">Tarifa unitaria</span>
+                <input type="text" id="taries${ce}" class="form-control input-xs maqu" value="${element.tarifa_unitaria}" readonly style="background-color:white;">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <span style="font-weight:500; margin-top:20px;">Cálculo costo</span>
+                <input type="text" id="totes${ce}" value="${element.total_servicio}" class="form-control input-xs" readonly style="background-color:white;">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <span style="font-weight:500; margin-top:20px;">Cálculo tarifa</span>
+                <input type="text" id="tarifaes${ce}" class="form-control input-xs" value="${element.tarifa}" readonly style="background-color:white;">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <span style="font-weight:500; margin-top:20px;">Utilidad</span>
+                <input type="text" id="uties${ce}" value="${element.rentabilidad}" class="form-control input-xs" readonly style="background-color:white;">
+              </div>
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <span style="font-weight:500; margin-top:20px;">Rentabilidad%</span>
+                <input type="text" id="rentes${ce}" class="form-control input-xs" value="${element.utilidad}" readonly style="background-color:white;">
+              </div>
+            </div>
+          </div>`;
         });
       }
+      $('#detalle_servicios_especiales').append(htm);
 
-      $('#panel_secundario').append(htm);
-
-      //$(".maqu").trigger('change');//formatea números
       $('#valores' + ce).val(parseFloat($('#valores' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
       $('#taries' + ce).val(parseFloat($('#taries' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
       $('#totes' + ce).val(parseFloat($('#totes' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
@@ -2913,72 +2884,111 @@ function Visualizar(cotizacion, solicitud_servicio) {
     },
   });
 
-
-  $("#cuerpo_servicio").html('');
-  $("#cuerpo_servicio2").html('');
+  /* Remitentes */
   var soli = {
     soli_servi: solicitud_servicio,
-    action: 'solicitud_servicio'
+    // action: 'solicitud_servicio'
   };
+
   $.ajax({
-    url: $('#base_url').val() + "libs/servicio_cliente_ajax.php",
+    url: $('#base_url').val() + 'serviciocliente/solicitar_remitentes',
     type: 'POST',
     data: soli,
     dataType: 'json',
     success: function (data) {
-      document.getElementById("referencia_operacion").value = data.result[0].observacion;
-      //numero_contenedor
-      if (data.result[0].numero_contenedor === null) {
+      // document.getElementById("referencia_operacion").value = data[0].observacion; //verificar segun los escenearios
+      // numero_contenedor
+      if (data[0].numero_contenedor === null) {
         document.getElementById("numero_contenedor").value = "";
         document.getElementById("numero_contenedor").disabled = false;
         document.getElementById("btn_save_contenedor").disabled = false;
         document.getElementById("agrupable").checked = false;
         document.getElementById("agrupable").disabled = false;
       } else {
-        if (data.result[0].agrupable === null || data.result[0].agrupable === 'NO') {
-          document.getElementById("numero_contenedor").value = data.result[0].numero_contenedor;
+        if (data[0].agrupable === null || data[0].agrupable === 'NO') {
+          document.getElementById("numero_contenedor").value = data[0].numero_contenedor;
           document.getElementById("numero_contenedor").disabled = true;
           document.getElementById("btn_save_contenedor").disabled = true;
           document.getElementById("agrupable").checked = false;
           document.getElementById("agrupable").disabled = false;
         } else {
-          document.getElementById("numero_contenedor").value = data.result[0].numero_contenedor;
+          document.getElementById("numero_contenedor").value = data[0].numero_contenedor;
           document.getElementById("numero_contenedor").disabled = true;
           document.getElementById("btn_save_contenedor").disabled = true;
           document.getElementById("agrupable").checked = true;
           document.getElementById("agrupable").disabled = true;
         }
-
       }
-      data.result.forEach(function (element, index) {
-        $("#cuerpo_servicio").append('<tr>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="mer_idservicio" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="text" id="punto_rem" disabled style="width:100%;height24px;" value="' + element.punto_rem + '"></td>' +
-          '<td class="text-center style="font-size: 10px;white-space: nowrap;"><input type="text" id="remitente_edit" disabled style="width:100%;height24px;" value="' + element.remitente + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="date" id="fecha_cargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_cargue + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="time" id="hora_cargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_cargue + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">' +
-          '<button type="button" class="btn btn-warning btn-sm" id="btn_edit_cargue"><i class="fas fa-pencil-alt"></i></button>' +
-          ' </div></td>' +
-          '</tr>');
 
-        $("#cuerpo_servicio2").append('<tr>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input type="text" disabled style="width:100%;height24px;" value="' + element.nundoc_solicitud + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"> <input type="text" id="punto_des" disabled style="width:100%;height24px;" value="' + element.punto_des + '"></td>' +
-          '<td class="text-center style="font-size: 10px;white-space: nowrap;"> <input type="text" id="destinatario_edit" disabled style="width:100%;height24px;" value="' + element.destinatario + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="date" id="fecha_descargue_edit" disabled style="width:100%;height24px;" value="' + element.fecha_descargue + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><input type="time" id="hora_descargue_edit" disabled style="width:100%;height24px;" value="' + element.hora_descargue + '"></td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.usuario_auditor + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.nombre + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;">' + element.proceso + '</td>' +
-          '<td class="text-center" style="font-size: 10px;white-space: nowrap;"><div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">' +
-          '<button type="button" class="btn btn-warning btn-sm" id="btn_edit_descargue"><i class="fas fa-pencil-alt"></i></button>' +
-          ' </div></td>' +
-          '</tr>');
+      /* Validar y marcar la solictud si es prioritaria si esta aprobada */
+      if (data[0].Solicitud_Prioritaria === "Aprobada") {
+        document.getElementById("flexSwitchCheckChecked").checked = true;
+        document.getElementById("flexSwitchCheckChecked").disabled = true;
+      } else {
+        document.getElementById("flexSwitchCheckChecked").checked = false;
+        document.getElementById("flexSwitchCheckChecked").disabled = false;
+      }
 
+      // Limpia los contenedores antes de agregar nuevos elementos
+      $("#bloques_punto_remitente").empty();
+      $("#detalle_puntos_remitentes").empty();
+      var c = 0;
+      // let navItem = '';
+      let tabPane = '';
+      data.forEach(function (element, index) {
+        c++;
+        // Clases para el nav-item (active solo en el primero)
+        const isFirst = index === 0;
+        // Crea el elemento del menú (nav item)
+        var navItem = ` 
+          <li class="nav-item">
+            <a class="nav-link ${isFirst ? 'active' : ''}" id="home-tabs-${c}" data-bs-toggle="tab" href="#tabRemitente-${c}" role="tab" aria-controls="tabRemitente-${c}" aria-selected="${isFirst ? 'true' : 'false'}">
+              Remitente ${element.punto_rem}
+            </a>
+          </li>
+        `;
+
+        tabPane = `
+        <div class="tab-pane fade ${isFirst ? 'show active' : ''}" id="tabRemitente-${c}" role="tabpanel" aria-labelledby="tabRemitente-${c}">
+          <!-- Fila con el botón en la esquina superior derecha -->
+          <div class="row mb-2">
+            <div class="col-12 d-flex justify-content-end align-items-center">
+              <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">
+                <button class="btn btn-subtle-warning btn-sm me-1 px-1 py-0" type="button" id="btn_edit_cargue${element.punto_entrega_id}" style="font-size:12px;" data-puntoId="${element.punto_entrega_id}">
+                  <span class="uil uil-file-edit-alt" data-fa-transform="shrink-3"></span> Editar
+                </button>
+                <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_cargue${element.punto_entrega_id}" style="font-size:12px;display:none;" data-Remitente="${element.remitente}" data-Punto="${element.punto_rem}" data-puntoId="${element.punto_entrega_id}" data-NumDocSol="${element.nundoc_solicitud}">
+                  <span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar
+                </button>
+                <button class="btn btn-subtle-danger btn-sm me-1 px-1 py-0" type="button" id="btn_canelar_cargue${element.punto_entrega_id}" style="font-size:12px;display:none;" data-Remitente="${element.remitente}" data-Punto="${element.punto_rem}" data-puntoId="${element.punto_entrega_id}" data-NumDocSol="${element.nundoc_solicitud}">
+                  <span class="uil uil-cancel" data-fa-transform="shrink-3"></span> Cacelar
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Fila con los campos -->
+          <div class="row g-2">
+            <div class="col-2 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="text" id="mer_idservicio${element.punto_entrega_id}" disabled value="${element.nundoc_solicitud}">
+            </div>
+            <div class="col-4 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="text" id="remitente_edit${element.punto_entrega_id}" disabled value="${element.remitente}">
+            </div>
+            <div class="col-2 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="date" id="fecha_cargue_edit${element.punto_entrega_id}" disabled value="${element.fecha_cargue}">
+            </div>
+            <div class="col-2 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="time" id="hora_cargue_edit${element.punto_entrega_id}" disabled value="${element.hora_cargue}">
+            </div>
+            <div class="col-2 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="text" id="agencia${element.punto_entrega_id}" disabled value="${element.nombre}">
+            </div>
+          </div>
+        </div>
+      `;
+        $("#bloques_punto_remitente").append(navItem);
+        $("#detalle_puntos_remitentes").append(tabPane);
       });
     },
     error: function (jqXHR, textStatus, errorThrown) {
@@ -2987,7 +2997,142 @@ function Visualizar(cotizacion, solicitud_servicio) {
       console.log(textStatus);
       console.log(errorThrown);
     }
+  });
 
+  //Destinatarios
+  $.ajax({
+    url: $('#base_url').val() + 'serviciocliente/solicitar_destinatarios',
+    type: 'POST',
+    data: soli,
+    dataType: 'json',
+    success: function (data) {
+      // document.getElementById("referencia_operacion").value = data[0].observacion; //verificar segun los escenearios
+      // numero_contenedor
+      if (data[0].numero_contenedor === null) {
+        document.getElementById("numero_contenedor").value = "";
+        document.getElementById("numero_contenedor").disabled = false;
+        document.getElementById("btn_save_contenedor").disabled = false;
+        document.getElementById("agrupable").checked = false;
+        document.getElementById("agrupable").disabled = false;
+      } else {
+        if (data[0].agrupable === null || data[0].agrupable === 'NO') {
+          document.getElementById("numero_contenedor").value = data[0].numero_contenedor;
+          document.getElementById("numero_contenedor").disabled = true;
+          document.getElementById("btn_save_contenedor").disabled = true;
+          document.getElementById("agrupable").checked = false;
+          document.getElementById("agrupable").disabled = false;
+        } else {
+          document.getElementById("numero_contenedor").value = data[0].numero_contenedor;
+          document.getElementById("numero_contenedor").disabled = true;
+          document.getElementById("btn_save_contenedor").disabled = true;
+          document.getElementById("agrupable").checked = true;
+          document.getElementById("agrupable").disabled = true;
+        }
+      }
+
+      // Limpia los contenedores antes de agregar nuevos elementos
+      $("#bloques_punto_destinatario").empty();
+      $("#detalle_puntos_destinatarios").empty();
+      /* Refrencias */
+      $("#bloques_referencias_menu").empty();
+      $("#detalle_referencias").empty();
+      var c = 0;
+      let tabPane = '';
+      let tabPaneRef = '';
+      data.forEach(function (element, index) {
+        c++;
+        // Clases para el nav-item (active solo en el primero)
+        const isFirst = index === 0;
+
+        //Llenar las referencais de los destinatarios
+        var navTitleRef = `
+          <li class="nav-item">
+              <a class="nav-link ${isFirst ? 'show active' : ''}" id="home-tabs-${c}" data-bs-toggle="tab" href="#tabRefDestinatario-${c}" role="tab" aria-controls="tabRefDestinatario-${c}" aria-selected="${isFirst ? 'true' : 'false'}">
+                Referencia ${element.punto_des}
+              </a>
+          </li>
+        `;
+        $("#bloques_referencias_menu").append(navTitleRef);
+
+        /* Detalle de las referencias por cada destinatario */
+        tabPaneRef = `
+          <div class="tab-pane fade ${isFirst ? 'show active' : ''}" id="tabRefDestinatario-${c}" role="tabpanel" aria-labelledby="tabRefDestinatario-${c}">
+            <div class="row">
+              <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xxl-10">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Referencia</label>
+                  <input type="text" id="referencia_operacion${element.punto_destinatario_id}" name="referencia_operacion" class="form-control form-control-sm text-dark fs-10" value="${element.observacion}" oninput="this.value = this.value.toUpperCase();">
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2">
+                <div class="mb-1 pt-5 d-flex justify-content-end">
+                  <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_referencia${element.punto_destinatario_id}" data-puntoId="${element.punto_destinatario_id}" data-NumDocSol="${element.nundoc_solicitud}" ><span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar</button>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        $("#detalle_referencias").append(tabPaneRef);
+
+        // Crea el elemento del menú (nav item)
+        var navItem = ` 
+          <li class="nav-item">
+            <a class="nav-link ${isFirst ? 'show active' : ''}" id="home-tabs-${c}" data-bs-toggle="tab" href="#tabDestinatario-${c}" role="tab" aria-controls="tabDestinatario-${c}" aria-selected="${isFirst ? 'true' : 'false'}">
+              Destinatario ${element.punto_des}
+            </a>
+          </li>
+        `;
+        $("#bloques_punto_destinatario").append(navItem);
+
+        // Crea el contenedor de la pestaña (tab pane)
+        tabPane = `
+        <div class="tab-pane fade ${isFirst ? 'show active' : ''}" id="tabDestinatario-${c}" role="tabpanel" aria-labelledby="tabDestinatario-${c}">
+          <!-- Fila con el botón en la esquina superior derecha -->
+          <div class="row mb-2">
+            <div class="col-12 d-flex justify-content-end align-items-center">
+              <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">
+                <button class="btn btn-subtle-warning btn-sm me-1 px-1 py-0" type="button" id="btn_edit_descargue${element.punto_destinatario_id}" style="font-size:12px;" data-puntoId="${element.punto_destinatario_id}">
+                  <span class="uil uil-file-edit-alt" data-fa-transform="shrink-3"></span> Editar
+                </button>
+                <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_descargue${element.punto_destinatario_id}" style="font-size:12px;display:none;" data-Destinatario="${element.remitente}"  data-Punto="${element.punto_des}" data-puntoId="${element.punto_destinatario_id}" data-NumDocSol="${element.nundoc_solicitud}">
+                  <span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar
+                </button>
+                <button class="btn btn-subtle-danger btn-sm me-1 px-1 py-0" type="button" id="btn_canelar_descargue${element.punto_destinatario_id}" style="font-size:12px;display:none;" data-Destinatario="${element.remitente}"  data-Punto="${element.punto_des}" data-puntoId="${element.punto_destinatario_id}" data-NumDocSol="${element.nundoc_solicitud}">
+                  <span class="uil uil-cancel" data-fa-transform="shrink-3"></span> Cacelar
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Fila con los campos -->
+          <div class="row g-2">
+            <div class="col-2 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="text" id="desti_idservicio${element.punto_destinatario_id}" disabled value="${element.nundoc_solicitud}">
+            </div>
+            <div class="col-4 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="text" id="destinatario_edit${element.punto_destinatario_id}" disabled value="${element.destinatario}">
+            </div>
+            <div class="col-2 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="date" id="fecha_descargue_edit${element.punto_destinatario_id}" disabled value="${element.fecha_descargue}">
+            </div>
+            <div class="col-2 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="time" id="hora_descargue_edit${element.punto_destinatario_id}" disabled value="${element.hora_descargue}">
+            </div>
+            <div class="col-2 text-center">
+              <input class="form-control form-control-sm text-dark fs-10" type="text" id="agencia${element.punto_destinatario_id}" disabled value="${element.nombre}">
+            </div>
+          </div>
+        </div>
+      `;
+
+        $("#detalle_puntos_destinatarios").append(tabPane);
+      });
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.log('error');
+      console.log(jqXHR);
+      console.log(textStatus);
+      console.log(errorThrown);
+    }
   });
 
   /* Consultar las agencias y lostipos de servicio para actualizar */
@@ -2996,8 +3141,7 @@ function Visualizar(cotizacion, solicitud_servicio) {
     headers: {
       'Content-Type': 'application/json'
     },
-  })
-    .then(response => response.json())
+  }).then(response => response.json())
     .then(data => {
       $("#servicio_agencia").html('');
       $("#servicio_agencia").append('<option value="" selected>Seleccione...</option>');
@@ -3010,6 +3154,7 @@ function Visualizar(cotizacion, solicitud_servicio) {
       console.log(error);
     });
 }
+
 //CIERRE DE LA FUNCIÓN visualizar
 function historico(element, id) {
   var elemento = $(element);
@@ -4472,9 +4617,14 @@ var contador_global1 = 0;
 function agregar() {
   cont++;
   contador_global1 = contador_global1 + 1;
-  if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' || ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' || ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' || ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' || ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado' || ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
-
+  if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+    ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+    ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+    ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+    ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado' ||
+    ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
     //TRAER LOS DATOS , municipios, tipos vehiculo
+
     /* Tipo Mecancia */
     if (cont !== 1) { btn_elimina = `<a class="fw-bold fs-9 text-decoration-none elimina text-center" id="elimina${cont}" href="#!" tooltip="Eliminar bloque${cont}" onclick="Elimina_Mercancia(this.id,${cont})" style="width: 40%;"><i class="far fa-trash-alt text-black"></i> Eliminar</a>`; linea = ` <hr class="my-1 text-dark"> `; }
 
@@ -4494,6 +4644,7 @@ function agregar() {
       //TABLA MERCANCIA 1
       var origen = "<select id='origen_cliente" + cont + "' class='form-select form-select-sm select2-sm originario' onchange='lugares(" + cont + ");' style='width: 100%;' >" + '<option value="" readonly="readonly">Seleccione</option>' + '</select>';
       var destino = '<select id="destino_cliente' + cont + '" class="form-select form-select-sm destinar select2-sm" onchange="lugares(' + cont + ');"  style="width: 100%;"  >' + '<option value="" readonly="readonly">Seleccione</option>' + '</select>';
+
       // Lógica para generar los selects dinámicos
       var mercancia = `<select id="tipo_mercancia${cont}" class="tmerca form-select form-select-sm select2-sm" style="width: 100%;" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
                         <option value="">Seleccione</option>
@@ -4505,249 +4656,295 @@ function agregar() {
       var linea = '';
       //contador de la fila
       var htmlTags = `
-     <div class="row tr${cont}">
-           <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-             ${linea}
-               <div class="d-flex flex-wrap justify-content-start" style="color:#fff;">
-                 <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xxl-10 d-flex align-items-center">
-                   <h6 class="mb-0 text-body-highlight me-2">Bloque de mercancia N° ${cont}</h6>
-                 </div>
-                 <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 d-flex justify-content-end">
-                   ${btn_elimina}
-                   <input type="hidden" class="form-control input-xs item_merca" readonly="readonly" value="${cont}">
-                 </div>
-               </div>
-             <hr class="my-1 text-dark">
-           </div>
-            <!--<input type="hidden" class="form-control input-xs item_merca" readonly="readonly" value="${cont}">-->
-   
-           <div  class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-             <div class="mb-1">
-               <label style="font-size: 12px;">Servicio ITR&nbsp;<span style="color:blue;"><i>(*)</i></span></label> 
-                 <select id="itr${cont}" style="width: 100%;color:#000;" class="form-select form-select-sm itr" Onchange="Validar_operacion_itr(${cont})">
-                   <option value="" readonly="readonly">Seleccione</option>
-                   <option value="Si">Si</option>
-                   <option value="No" selected>No</option>
-                 </select>
-               </div>
-           </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Mercancía</label> 
-             ${mercancia}
-             <input type="hidden" class="form-control idproducto" id="codmercancia${cont}" readonly="readonly">
-             <input type="hidden" class="form-control rndcproducto" id="rndcmercancia${cont}" readonly="readonly">
-             </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Naturaleza</label> 
-               <select style="width: 100%;" id="natu${cont}" readonly="readonly" class="form-select form-select-sm natumer"></select>
-             </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Valor Declarado</label> 
-              <input type="text" id="valor_mercancia${cont}" style="width: 100%;" class="form-control form-control-sm valor_merca" min="0" onChange="javascript:currencyMask(this)">
-             </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Tipo Servicio</label> 
-             <select id="servicio_cliente${cont}" style="width: 100%;" class="form-select form-select-sm ts">
-               <option value="" readonly="readonly">Seleccione</option>
-               <option value="Expreso">Expreso - Viaje</option>
-               <option value="Consolidado">Consolidado - Tonelada</option>
-             </select>
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Tipo Empaque</label> 
-               ${tipo_empaque}
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Tipo Operación</label> 
-               <select style="width: 100%;" id="tipo${cont}" class="form-select form-select-sm operamer">
-                 <option value="">Seleccione</option>
-                 <option value="G">General</option>
-                 <option value="P">Paqueteo</option>
-                 <option value="C">Contenedor Cargado</option>
-                 <option value="V">Contenedor Vacío</option>
-               </select>
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Tipo Transporte</label> 
-             <select style="width: 100%;" id="tipotr${cont}" class="form-select form-select-sm ttransportemer">
-               <option value="">Seleccione</option>
-               <option value="Importacion">Importación</option>
-               <option value="Exportacion">Exportación</option>
-               <option value="Nacional">Nacional</option>
-               <option value="Urbano">Urbano</option>
-             </select>
-           </div>
-         </div>
-   
-         <!--<div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Cantidad Vehículos</label> 
-             <input type="number" id="cant_carro${cont}" class="form-control form-control-sm cantvehi" min="1" style="width:100%;" value="1"  onchange="cuantitativo(this.value,${cont})" readonly>
-           </div>
-         </div>-->
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Origen</label> 
-             ${origen}
-              <input type="hidden" id="cant_carro${cont}" class="form-control form-control-sm cantvehi" min="1" style="width:100%;" value="1"  onchange="cuantitativo(this.value,${cont})" readonly>
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Destino</label> 
-             ${destino}
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Tipo Vehículo</label> 
-             <select id="vehiculo_cliente${cont}" readonly="readonly" style="width:100%;" class="form-select form-select-sm tipovehiculo" onChange="javascript:obtenerflete(this.value,${cont},${contador_global1});"></select>
-           </div>
-         </div>
-   
-         <!--<div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Tipo Vehículo</label> 
-             <select id="vehiculo_cliente${cont}" readonly="readonly" style="width:100%;" class="form-select form-select-sm tipovehiculo" onChange="javascript:obtenerflete(this.value,${cont},${contador_global1});"></select>
-             <input type="hidden" id="cant_gastada${cont}" class="cantgastamer" min="1" style="width:100%;" readonly="readonly" value="1">
-           </div>
-         </div>-->
-   
-     <!--<div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Cant. actual</label> 
-              <input type="hidden" id="cant_gastada${cont}" class="cantgastamer" min="1" style="width:100%;" readonly="readonly" value="1">
-           </div>
-         </div>-->
-   
-         <!-- Cantidad de vehiculos para la operacióm -->
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Cantidad Vehículo</label> 
-             <input type="number" id="cant_vehiculo${cont}" class="form-control form-control-sm cantvehiculo" min="1" style="width:100%;">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Peso Bruto(Kg)</label> 
-             <input type="text" id="peso_client1${cont}" class="form-control form-control-sm pesobruto" min="0" style="width:100%;"  onChange="javascript:cambio_valor(this,${cont});">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Peso Neto(Kg)</label> 
-             <input type="text" class="form-control form-control-sm p${cont} pnetomer" min="0" style="width:100%;" name="nombre${cont}" id="${cont}" onChange="javascript:CambioNeto(this,${cont});">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Peso Bruto(Tn)</label> 
-             <input type="text" class="form-control form-control-sm pesobrutoton" min="0" style="width:100%;" name="nombre${cont}" id="pesobruto_cliente${cont}" readonly>
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Cantidad(unidades)</label> 
-             <input type="text" id="cantidad${cont}" class="form-control form-control-sm cantidadmer" min="1" style="width:100%;" onChange="javascript:currencyMask(this)">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Alto(cm)</label> 
-             <input type="number" id="alto_cliente${cont}" class="form-control form-control-sm altomer" style="width:100%;" min="0" value="0" onChange="javascript:currencyMask(this)">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Largo(cm)</label> 
-             <input type="text" id="largo_cliente${cont}"  class="form-control form-control-sm largomer" style="width:100%;" min="0" value="0" onChange="javascript:currencyMask(this)">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Ancho(cm)</label> 
-             <input type="text" id="${cont}" name="ancho${cont}"  class="form-control form-control-sm ancho${cont} anchomer" style="width:100%;" min="0" value="0" onChange="volumen_total(this,${cont});">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Volumen (m3)</label> 
-              <input type="text" id="volumen_cliente${cont}" readonly="readonly"  class="form-control form-control-sm volumenmer" style="width:100%;" value="0">
-           </div>
-         </div>
-   
-         <!-- Costo Flete -->
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Costo Flete</label> 
-               <input type="text"  id="flete${cont}" class="form-control form-control-sm fletemer" min="0" value="0"  style="width:100%;" onChange="javascript:utilidad_d(this,${cont},${contador_global1})">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Tarifa venta</label> 
-               <input type="text" id="totaltarifa_cliente${cont}"  class="form-control form-control-sm tarifamer"  min="0" value="0" style="width:100%;" onChange="javascript:utilidad(this,${cont},${contador_global1});" >
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Rentabilidad %</label> 
-               <input type="text" id="${cont}"  class="form-control form-control-sm utilidad${cont} utilmer" min="0" style="width:100%;" readonly="readonly">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Utilidad</label> 
-              <input type="text" id="renta${cont}" class="form-control form-control-sm rentamer" style="width:100%;"  readonly="readonly">
-           </div>
-         </div>
-   
-         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12 tr${cont}">
-           <div class="mb-1">
-             <label style="font-size: 12px;">Observación</label> 
-              <textarea id="observa${cont}" class="form-control form-control-sm observamer" style="width:100%;" rows="1"></textarea> <input type="hidden" class="identi tr${cont}" value="1"  style="width:100%;">
-           </div>
-         </div>
-     </div>`;
+          <div class="row tr${cont}">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                  ${linea}
+                    <div class="d-flex flex-wrap justify-content-start" style="color:#fff;">
+                      <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xxl-10 d-flex align-items-center">
+                        <h6 class="mb-0 text-body-highlight me-2">Bloque de mercancia N° ${cont}</h6>
+                      </div>
+                      <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 d-flex justify-content-end">
+                        ${btn_elimina}
+                        <input type="hidden" class="form-control input-xs item_merca" readonly="readonly" value="${cont}">
+                      </div>
+                    </div>
+                  <hr class="my-1 text-dark">
+                </div>
+        
+                <div  class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                  <div class="mb-1">
+                    <label style="font-size: 12px;">Servicio ITR&nbsp;<span style="color:blue;"><i>(*)</i></span></label> 
+                      <select id="itr${cont}" style="width: 100%;color:#000;" class="form-select form-select-sm itr" Onchange="Validar_operacion_itr(${cont})">
+                        <option value="" readonly="readonly">Seleccione</option>
+                        <option value="Si">Si</option>
+                        <option value="No" selected>No</option>
+                      </select>
+                    </div>
+                </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Mercancía</label> 
+                  ${mercancia}
+                  <input type="hidden" class="form-control idproducto" id="codmercancia${cont}" readonly="readonly">
+                  <input type="hidden" class="form-control rndcproducto" id="rndcmercancia${cont}" readonly="readonly">
+                  </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Naturaleza</label> 
+                    <select style="width: 100%;" id="natu${cont}" readonly="readonly" class="form-select form-select-sm natumer"></select>
+                  </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Valor Declarado</label> 
+                    <input type="text" id="valor_mercancia${cont}" style="width: 100%;" class="form-control form-control-sm valor_merca" min="0" onChange="javascript:currencyMask(this)">
+                  </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tipo Servicio</label> 
+                  <select id="servicio_cliente${cont}" style="width: 100%;" class="form-select form-select-sm ts">
+                    <option value="" readonly="readonly">Seleccione</option>
+                    <option value="Expreso">Expreso - Viaje</option>
+                    <option value="Consolidado">Consolidado - Tonelada</option>
+                  </select>
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tipo Empaque</label> 
+                    ${tipo_empaque}
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tipo Operación</label> 
+                    <select style="width: 100%;" id="tipo${cont}" class="form-select form-select-sm operamer">
+                      <option value="">Seleccione</option>
+                      <option value="G">General</option>
+                      <option value="P">Paqueteo</option>
+                      <option value="C">Contenedor Cargado</option>
+                      <option value="V">Contenedor Vacío</option>
+                    </select>
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tipo Transporte</label> 
+                  <select style="width: 100%;" id="tipotr${cont}" class="form-select form-select-sm ttransportemer">
+                    <option value="">Seleccione</option>
+                    <option value="Importacion">Importación</option>
+                    <option value="Exportacion">Exportación</option>
+                    <option value="Nacional">Nacional</option>
+                    <option value="Urbano">Urbano</option>
+                  </select>
+                </div>
+              </div>
+            
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Origen</label> 
+                  ${origen}
+                    <input type="hidden" id="cant_carro${cont}" class="form-control form-control-sm cantvehi" min="1" style="width:100%;" value="1"  onchange="cuantitativo(this.value,${cont})" readonly>
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Destino</label> 
+                  ${destino}
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tipo Vehículo</label> 
+                  <select id="vehiculo_cliente${cont}" readonly="readonly" style="width:100%;" class="form-select form-select-sm tipovehiculo" onChange="javascript:obtenerflete(this.value,${cont},${contador_global1});"></select>
+                </div>
+              </div>
+            
+              <!-- Cantidad de vehiculos para la operacióm -->
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Cantidad Vehículo</label> 
+                  <input type="number" id="cant_vehiculo${cont}" class="form-control form-control-sm cantvehiculo" min="1" style="width:100%;">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Peso Bruto(Kg)</label> 
+                  <input type="text" id="peso_client1${cont}" class="form-control form-control-sm pesobruto" min="0" style="width:100%;"  onChange="javascript:cambio_valor(this,${cont});">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Peso Neto(Kg)</label> 
+                  <input type="text" class="form-control form-control-sm p${cont} pnetomer" min="0" style="width:100%;" name="nombre${cont}" id="${cont}" onChange="javascript:CambioNeto(this,${cont});">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Peso Bruto(Tn)</label> 
+                  <input type="text" class="form-control form-control-sm pesobrutoton" min="0" style="width:100%;" name="nombre${cont}" id="pesobruto_cliente${cont}" readonly>
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Cantidad(unidades)</label> 
+                  <input type="text" id="cantidad${cont}" class="form-control form-control-sm cantidadmer" min="1" style="width:100%;" onChange="javascript:currencyMask(this)">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Alto(cm)</label> 
+                  <input type="number" id="alto_cliente${cont}" class="form-control form-control-sm altomer" style="width:100%;" min="0" value="0" onChange="javascript:currencyMask(this)">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Largo(cm)</label> 
+                  <input type="text" id="largo_cliente${cont}"  class="form-control form-control-sm largomer" style="width:100%;" min="0" value="0" onChange="javascript:currencyMask(this)">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Ancho(cm)</label> 
+                  <input type="text" id="${cont}" name="ancho${cont}"  class="form-control form-control-sm ancho${cont} anchomer" style="width:100%;" min="0" value="0" onChange="volumen_total(this,${cont});">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Volumen (m3)</label> 
+                    <input type="text" id="volumen_cliente${cont}" readonly="readonly"  class="form-control form-control-sm volumenmer" style="width:100%;" value="0">
+                </div>
+              </div>
+        
+              <!-- Costo Flete -->
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Costo Flete</label> 
+                    <input type="text"  id="flete${cont}" class="form-control form-control-sm fletemer" min="0" value="0"  style="width:100%;" onChange="javascript:utilidad_d(this,${cont},${contador_global1})">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tarifa venta</label> 
+                    <input type="text" id="totaltarifa_cliente${cont}"  class="form-control form-control-sm tarifamer"  min="0" value="0" style="width:100%;" onChange="javascript:utilidad(this,${cont},${contador_global1});" >
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Rentabilidad %</label> 
+                    <input type="text" id="${cont}"  class="form-control form-control-sm utilidad${cont} utilmer" min="0" style="width:100%;" readonly="readonly">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Utilidad</label> 
+                    <input type="text" id="renta${cont}" class="form-control form-control-sm rentamer" style="width:100%;"  readonly="readonly">
+                </div>
+              </div>
+        
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Observación</label> 
+                    <textarea id="observa${cont}" class="form-control form-control-sm observamer" style="width:100%;" rows="1"></textarea> <input type="hidden" class="identi tr${cont}" value="1"  style="width:100%;">
+                </div>
+              </div>
+
+                      <div class="d-flex flex-wrap justify-content-start mt-2">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                  <h6 class="mb-0 text-body-highlight me-2">Costos Eficientes SICE TAC</h6>
+                </div>
+              </div>
+              
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12 tr${cont}">
+                <hr class="my-1 text-dark">
+              </div>
+              
+              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Configuración de su vehículo</label> 
+                  <select name="configuracion_vehiculos" id="configuracion_vehiculos${cont}" class="form-control form-control-sm configuracion_vehiculo_sicetac">
+                    <option selected="selected" value=""> </option>
+                    <option value="2">Camión dos ejes - Sencillo PBV mas de 10500 Kg </option>
+                    <option value="2_7_8">Camion dos ejes - Sencillo PBV 7500-8000 Kg </option>
+                    <option value="2_8_9">Camion dos ejes - Sencillo PBV 8001-9000 Kg </option>
+                    <option value="2_9_105">Camion dos ejes - Sencillo PBV 9001-10500 Kg </option>
+                    <option value="2S2">Tractocamión dos ejes - Patineta - Minimula con semiremolque de dos ejes</option>
+                    <option value="2S3">Tractocamión dos ejes - Patineta - Minimula con semiremolque de tres ejes</option>
+                    <option value="3">Camión tres ejes - Dobletroque </option>
+                    <option value="3S2">Tractocamión tres ejes - Tractomula con semiremolque de dos ejes</option>
+                    <option value="3S3">Tractocamión tres ejes - Tractomula con semiremolque de tres ejes</option>
+                    <option value="V2">Volqueta dos ejes - Sencillo </option>
+                    <option value="V3">Volqueta tres ejes - Dobletroque </option>
+                    <option value="V4">Volqueta cuatro ejes - Cuatromanos </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Unidad de Transporte</label> 
+                  <select name="unidadtransporte" id="unidadtransporte${cont}" class="form-select form-select-sm unidad_transporte_sicetac">
+                    <option selected="selected" value=""> </option>
+                    <option value="1">ESTACAS</option>
+                    <option value="10">ESTIBAS</option>
+                    <option value="1061">TANQUE</option>
+                    <option value="2">FURGON</option>
+                    <option value="231">PORTACONTENEDORES</option>
+                    <option value="36">TRAYLER</option>
+                    <option value="4">VOLCO</option>
+                    <option value="48">PLATAFORMA</option>
+                    <option value="60">FURGON REFRIGERADO</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Tipo de Carga</label> 
+                  <select name="tipocarga" id="tipocarga${cont}" class="form-select form-select-sm tipo_carga_sicetac">
+                    <option selected="selected" value=""> </option>
+                    <option value="1003">Granel líquido</option>
+                    <option value="12">General</option>
+                    <option value="13">Contenedor</option>
+                    <option value="2">Carga Refrigerada</option>
+                    <option value="5">Granel Sólido</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Costo sicetac</label>
+                   <input type="text" class="typeahead form-control form-control-sm costo_sicetac" id="costo_sicetac${cont}" disabled>
+                </div>
+              </div>
+        
+          </div>`;
       $('#table_mercancia').append(htmlTags);
       llenaritem();
     }
-    // cont--; // Resta 1 a cont
-    // contador_global1--; // Resta 1 a contador_global1
   } else {
     /* Tipo Mecancia */
     Mercancias(cont);
@@ -4755,10 +4952,11 @@ function agregar() {
     //TABLA MERCANCIA 1
     var origen = "<select id='origen_cliente" + cont + "' class='form-select form-select-sm select2-sm originario' onchange='lugares(" + cont + ");' style='width: 100%;' >" + '<option value="" readonly="readonly">Seleccione</option>' + '</select>';
     var destino = '<select id="destino_cliente' + cont + '" class="form-select form-select-sm destinar select2-sm" onchange="lugares(' + cont + ');"  style="width: 100%;"  >' + '<option value="" readonly="readonly">Seleccione</option>' + '</select>';
+
     // Lógica para generar los selects dinámicos
     var mercancia = `<select id="tipo_mercancia${cont}" class="tmerca form-select form-select-sm select2-sm" style="width: 100%;" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-  <option value="">Seleccione</option>
-  </select>`;
+                      <option value="">Seleccione</option>
+                    </select>`;
 
     var tipo_empaque = '<select style="width: 100%;" id="tipo_empaque' + cont + '" class="form-select form-select-sm select2-sm empaquemer">' + '<option value="">Seleccione</option>' + '</select>';
     //boton de eliminar
@@ -4781,7 +4979,6 @@ function agregar() {
               </div>
             <hr class="my-1 text-dark">
           </div>
-           <!--<input type="hidden" class="form-control input-xs item_merca" readonly="readonly" value="${cont}">-->
   
           <div  class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
             <div class="mb-1">
@@ -4860,14 +5057,7 @@ function agregar() {
             </select>
           </div>
         </div>
-  
-        <!--<div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-          <div class="mb-1">
-            <label style="font-size: 12px;">Cantidad Vehículos</label> 
-            <input type="number" id="cant_carro${cont}" class="form-control form-control-sm cantvehi" min="1" style="width:100%;" value="1"  onchange="cuantitativo(this.value,${cont})" readonly>
-          </div>
-        </div>-->
-  
+    
         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
           <div class="mb-1">
             <label style="font-size: 12px;">Origen</label> 
@@ -4889,22 +5079,7 @@ function agregar() {
             <select id="vehiculo_cliente${cont}" readonly="readonly" style="width:100%;" class="form-select form-select-sm tipovehiculo" onChange="javascript:obtenerflete(this.value,${cont},${contador_global1});"></select>
           </div>
         </div>
-  
-        <!--<div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-          <div class="mb-1">
-            <label style="font-size: 12px;">Tipo Vehículo</label> 
-            <select id="vehiculo_cliente${cont}" readonly="readonly" style="width:100%;" class="form-select form-select-sm tipovehiculo" onChange="javascript:obtenerflete(this.value,${cont},${contador_global1});"></select>
-            <input type="hidden" id="cant_gastada${cont}" class="cantgastamer" min="1" style="width:100%;" readonly="readonly" value="1">
-          </div>
-        </div>-->
-  
-    <!--<div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
-          <div class="mb-1">
-            <label style="font-size: 12px;">Cant. actual</label> 
-             <input type="hidden" id="cant_gastada${cont}" class="cantgastamer" min="1" style="width:100%;" readonly="readonly" value="1">
-          </div>
-        </div>-->
-  
+    
         <!-- Cantidad de vehiculos para la operacióm -->
         <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
           <div class="mb-1">
@@ -5004,6 +5179,77 @@ function agregar() {
              <textarea id="observa${cont}" class="form-control form-control-sm observamer" style="width:100%;" rows="1"></textarea> <input type="hidden" class="identi tr${cont}" value="1"  style="width:100%;">
           </div>
         </div>
+        
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Costos Eficientes SICE TAC</h6>
+          </div>
+        </div>
+        
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12 tr${cont}">
+          <hr class="my-1 text-dark">
+        </div>
+        
+        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4 tr${cont}">
+          <div class="mb-1">
+            <label style="font-size: 12px;">Configuración de su vehículo &nbsp;<span style="color:red;"><i>(*)</i></label> 
+            <select name="configuracion_vehiculos" id="configuracion_vehiculos${cont}" class="form-control form-control-sm configuracion_vehiculo_sicetac">
+              <option selected="selected" value=""> </option>
+              <option value="2">Camión dos ejes - Sencillo PBV mas de 10500 Kg </option>
+              <option value="2_7_8">Camion dos ejes - Sencillo PBV 7500-8000 Kg </option>
+              <option value="2_8_9">Camion dos ejes - Sencillo PBV 8001-9000 Kg </option>
+              <option value="2_9_105">Camion dos ejes - Sencillo PBV 9001-10500 Kg </option>
+              <option value="2S2">Tractocamión dos ejes - Patineta - Minimula con semiremolque de dos ejes</option>
+              <option value="2S3">Tractocamión dos ejes - Patineta - Minimula con semiremolque de tres ejes</option>
+              <option value="3">Camión tres ejes - Dobletroque </option>
+              <option value="3S2">Tractocamión tres ejes - Tractomula con semiremolque de dos ejes</option>
+              <option value="3S3">Tractocamión tres ejes - Tractomula con semiremolque de tres ejes</option>
+              <option value="V2">Volqueta dos ejes - Sencillo </option>
+              <option value="V3">Volqueta tres ejes - Dobletroque </option>
+              <option value="V4">Volqueta cuatro ejes - Cuatromanos </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+          <div class="mb-1">
+            <label style="font-size: 12px;">Unidad de Transporte &nbsp;<span style="color:red;"><i>(*)</i></label> 
+            <select name="unidadtransporte" id="unidadtransporte${cont}" class="form-select form-select-sm unidad_transporte_sicetac">
+              <option selected="selected" value=""> </option>
+              <option value="ESTACAS">ESTACAS</option>
+              <option value="ESTIBAS">ESTIBAS</option>
+              <option value="TANQUE">TANQUE</option>
+              <option value="FURGON">FURGON</option>
+              <option value="PORTACONTENEDORES">PORTACONTENEDORES</option>
+              <option value="TRAYLER">TRAYLER</option>
+              <option value="VOLCO">VOLCO</option>
+              <option value="PLATAFORMA">PLATAFORMA</option>
+              <option value="FURGON REFRIGERADO">FURGON REFRIGERADO</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+          <div class="mb-1">
+            <label style="font-size: 12px;">Tipo de Carga &nbsp;<span style="color:red;"><i>(*)</i></label> 
+            <select name="tipocarga" id="tipocarga${cont}" class="form-select form-select-sm tipo_carga_sicetac">
+              <option selected="selected" value=""> </option>
+              <option value=">Granel líquido">Granel líquido</option>
+              <option value="General">General</option>
+              <option value="Contenedor">Contenedor</option>
+              <option value="Carga Refrigerada">Carga Refrigerada</option>
+              <option value="Granel Sólido">Granel Sólido</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+          <div class="mb-1">
+            <label style="font-size: 12px;">Costo sicetac</label>
+              <input type="text" class="typeahead form-control form-control-sm costo_sicetac" id="costo_sicetac${cont}" disabled>
+          </div>
+        </div>
+
     </div>`;
 
     $('#table_mercancia').append(htmlTags);
@@ -5082,77 +5328,199 @@ async function tipo_empaque(cont) {
   }
 }
 
+// async function Municipios(cont) {
+//   //datos de los municipios
+//   $('#flete' + cont).html('');
+//   // $('#origen_cliente' + cont + '').html('');
+//   // Limpiar selects antes de agregar opciones
+//   $('#origen_cliente').html('');
+//   $('#destino_cliente').html('');
+
+//   try {
+//     const response = await fetch($('#base_url').val() + 'serviciocliente/Consulta_Municipios', {
+//       method: 'POST',
+//       dataType: 'json',
+//       cache: 'no-cache',
+//     });
+//     const data = await response.json();
+
+//     if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+//       ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+//       ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+//       ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+//       ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado' ||
+//       ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+//       if (ORIGEN_ARRAY.length > 0 && DESTINO_ARRAY.length > 0) {
+//         $('#origen_cliente' + cont + '').append('<option value="' + ORIGEN_ARRAY[0] + '" selected>' + ORIGEN_ARRAY[1] + '-' + '' + ORIGEN_ARRAY[2] + '' + '</option>');
+//         $('#destino_cliente' + cont + '').append('<option value="' + DESTINO_ARRAY[0] + '" selected>' + DESTINO_ARRAY[1] + '-' + '' + DESTINO_ARRAY[2] + '' + '</option>');
+
+//         // Inicializa Select2 en el select de origen
+//         $('#origen_cliente' + cont).select2({
+//           placeholder: 'Seleccione una opción', // Texto del placeholder
+//           allowClear: true, // Permite limpiar la selección
+//         });
+//         // Inicializa Select2 en el select de destino
+//         $('#destino_cliente' + cont).select2({
+//           placeholder: 'Seleccione una opción', // Texto del placeholder
+//           allowClear: true, // Permite limpiar la selección
+//         });
+
+//         // Inicializa Select2 en el select de origen
+//         $('#origen_sicetac' + cont).select2({
+//           placeholder: 'Seleccione una opción', // Texto del placeholder
+//           allowClear: true, // Permite limpiar la selección
+//         });
+
+//         // Inicializa Select2 en el select de destino
+//         $('#destino_sicetac' + cont).select2({
+//           placeholder: 'Seleccione una opción', // Texto del placeholder
+//           allowClear: true, // Permite limpiar la selección
+//         });
+//         // Agregar la cantidad de vehiculos
+//         document.querySelector(".cantvehiculo").value = 1;
+//         document.querySelector(".cantvehiculo").disabled = true;
+//       } else {
+//         data.forEach(function (element, index) {
+//           $('#origen_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + '' + element.depto + '' + '</option>');
+//           $('#destino_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + '' + element.depto + '' + '</option>');
+//         });
+//         // Inicializa Select2 en el select de origen
+//         $('#origen_cliente' + cont).select2({
+//           placeholder: 'Seleccione una opción', // Texto del placeholder
+//           allowClear: true, // Permite limpiar la selección
+//         });
+//         // Inicializa Select2 en el select de destino
+//         $('#destino_cliente' + cont).select2({
+//           placeholder: 'Seleccione una opción', // Texto del placeholder
+//           allowClear: true, // Permite limpiar la selección
+//         });
+
+//         // Inicializa Select2 en el select de origen
+//         $('#origen_sicetac' + cont).select2({
+//           placeholder: 'Seleccione una opción', // Texto del placeholder
+//           allowClear: true, // Permite limpiar la selección
+//         });
+
+//         // Inicializa Select2 en el select de destino
+//         $('#destino_sicetac' + cont).select2({
+//           placeholder: 'Seleccione una opción', // Texto del placeholder
+//           allowClear: true, // Permite limpiar la selección
+//         });
+//       }
+//     } else {
+//       data.forEach(function (element, index) {
+//         $('#origen_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '" >' + element.municipio + '-' + '' + element.depto + '' + '</option>');
+//         $('#destino_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '" >' + element.municipio + '-' + '' + element.depto + '' + '</option>');
+//       });
+
+//       // Inicializa Select2 en el select de origen
+//       $('#origen_cliente' + cont).select2({
+//         placeholder: 'Seleccione una opción', // Texto del placeholder
+//         allowClear: true, // Permite limpiar la selección
+//       });
+
+//       // Inicializa Select2 en el select de destino
+//       $('#destino_cliente' + cont).select2({
+//         placeholder: 'Seleccione una opción', // Texto del placeholder
+//         allowClear: true, // Permite limpiar la selección
+//       });
+
+//       // Inicializa Select2 en el select de origen
+//       $('#origen_sicetac' + cont).select2({
+//         placeholder: 'Seleccione una opción', // Texto del placeholder
+//         allowClear: true, // Permite limpiar la selección
+//       });
+
+//       // Inicializa Select2 en el select de destino
+//       $('#destino_sicetac' + cont).select2({
+//         placeholder: 'Seleccione una opción', // Texto del placeholder
+//         allowClear: true, // Permite limpiar la selección
+//       });
+//     }
+//   } catch (error) {
+//     console.error('Error en la primera solicitud:', error);
+//     throw error;
+//   } finally {
+//   }
+// }
+
 async function Municipios(cont) {
-  //datos de los municipios
-  $('#flete' + cont).html('');
-  // $('#origen_cliente' + cont + '').html('');
-  // Limpiar selects antes de agregar opciones
-  $('#origen_cliente').html('');
-  $('#destino_cliente').html('');
+  // Vaciar el contenido de los selects específicos usando el identificador dinámico
+  $('#origen_cliente').empty();
+  $('#destino_cliente').empty();
 
   try {
     const response = await fetch($('#base_url').val() + 'serviciocliente/Consulta_Municipios', {
       method: 'POST',
       dataType: 'json',
-      cache: 'no-cache',
+      cache: 'no-cache'
     });
     const data = await response.json();
 
-    if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' || ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' || ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' || ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' || ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado' || ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+    // Si se cumple cierta condición, se agregan opciones fijas
+    if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+      ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+      ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+      ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+      ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado' ||
+      ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+
       if (ORIGEN_ARRAY.length > 0 && DESTINO_ARRAY.length > 0) {
-        $('#origen_cliente' + cont + '').append('<option value="' + ORIGEN_ARRAY[0] + '" selected>' + ORIGEN_ARRAY[1] + '-' + '' + ORIGEN_ARRAY[2] + '' + '</option>');
-        $('#destino_cliente' + cont + '').append('<option value="' + DESTINO_ARRAY[0] + '" selected>' + DESTINO_ARRAY[1] + '-' + '' + DESTINO_ARRAY[2] + '' + '</option>');
-        // Inicializa Select2 en el select de origen
+        // Agregar la opción ya seleccionada
+        $('#origen_cliente' + cont).append('<option value="' + ORIGEN_ARRAY[0] + '" selected>' + ORIGEN_ARRAY[1] + '-' + ORIGEN_ARRAY[2] + '</option>');
+        $('#destino_cliente' + cont).append('<option value="' + DESTINO_ARRAY[0] + '" selected>' + DESTINO_ARRAY[1] + '-' + DESTINO_ARRAY[2] + '</option>');
+
+        // Se inicializan otros selects de la misma forma
         $('#origen_cliente' + cont).select2({
-          placeholder: 'Seleccione una opción', // Texto del placeholder
-          allowClear: true, // Permite limpiar la selección
+          placeholder: 'Seleccione una opción',
+          allowClear: true
         });
-        // Inicializa Select2 en el select de destino
         $('#destino_cliente' + cont).select2({
-          placeholder: 'Seleccione una opción', // Texto del placeholder
-          allowClear: true, // Permite limpiar la selección
+          placeholder: 'Seleccione una opción',
+          allowClear: true
         });
-        // Agregar la cantidad de vehiculos
+
+        // Configuración adicional
         document.querySelector(".cantvehiculo").value = 1;
         document.querySelector(".cantvehiculo").disabled = true;
       } else {
-        data.forEach(function (element, index) {
-          $('#origen_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + '' + element.depto + '' + '</option>');
+        // Agregar opciones con los datos obtenidos
+        data.forEach(function (element) {
+          $('#origen_cliente' + cont).append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + element.depto + '</option>');
+          $('#destino_cliente' + cont).append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + element.depto + '</option>');
+        });
 
-          $('#destino_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + '' + element.depto + '' + '</option>');
-        });
-        // Inicializa Select2 en el select de origen
+        // Inicializar los selects con Select2
         $('#origen_cliente' + cont).select2({
-          placeholder: 'Seleccione una opción', // Texto del placeholder
-          allowClear: true, // Permite limpiar la selección
+          placeholder: 'Seleccione una opción',
+          allowClear: true
         });
-        // Inicializa Select2 en el select de destino
         $('#destino_cliente' + cont).select2({
-          placeholder: 'Seleccione una opción', // Texto del placeholder
-          allowClear: true, // Permite limpiar la selección
+          placeholder: 'Seleccione una opción',
+          allowClear: true
         });
       }
     } else {
-      data.forEach(function (element, index) {
-        $('#origen_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '" >' + element.municipio + '-' + '' + element.depto + '' + '</option>');
-
-        $('#destino_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '" >' + element.municipio + '-' + '' + element.depto + '' + '</option>');
-      });
-      // Inicializa Select2 en el select de origen
-      $('#origen_cliente' + cont).select2({
-        placeholder: 'Seleccione una opción', // Texto del placeholder
-        allowClear: true, // Permite limpiar la selección
-      });
-      // Inicializa Select2 en el select de destino
-      $('#destino_cliente' + cont).select2({
-        placeholder: 'Seleccione una opción', // Texto del placeholder
-        allowClear: true, // Permite limpiar la selección
+      // Caso general: llenar los selects con la data obtenida
+      data.forEach(function (element) {
+        $('#origen_cliente' + cont).append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + element.depto + '</option>');
+        $('#destino_cliente' + cont).append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + element.depto + '</option>');
       });
     }
+
+    // Inicializar (o reinicializar) los selects con Select2 para ambos casos
+    $('#origen_cliente' + cont).select2({
+      placeholder: 'Seleccione una opción',
+      allowClear: true
+    });
+    $('#destino_cliente' + cont).select2({
+      placeholder: 'Seleccione una opción',
+      allowClear: true
+    });
+
   } catch (error) {
-    console.error('Error en la primera solicitud:', error);
+    console.error('Error en la solicitud:', error);
     throw error;
-  } finally {
   }
 }
 
@@ -5410,7 +5778,6 @@ function Agrega_Remitente(cliente, origen) {
       }
 
       var esqueleto = `
-        <!--<div class="d-flex mb-5 pt-1" id="TabRemitente${s}">-->
         <div class="tab-pane fade" role="tabpanel" aria-labelledby="TabRemitente${s}" id="TabRemitente${s}">
           <div class="col">
             <table class="table table-sm table-bordered tre${s} text-center" style="font-size:12px;">
@@ -6470,7 +6837,7 @@ function recalcula_cifras() {
   $('#Ttotal_cotizacion').val(parseFloat($('#Ttotal_cotizacion').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
 }
 
-async function Inserta_Cotizacion() {
+async function Inserta_Cotizacion(ventana_id) {
   $('.nexos-messages').html('');
   var estado = 'F3';
   var estado_autorizado = 'autorizado';
@@ -6767,7 +7134,49 @@ async function Inserta_Cotizacion() {
 
   /***************************Puntos de Entrega(Remitentes)***********************************/
   var maximo = $('#maximo_entregab').val();
-  var datos_Remitentes={
+  var peso_remitente = 0;
+  if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso' ||
+    ID === '4' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso' ||
+    ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+    ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+    ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+    let total = 0;
+    let errores = [];
+    document.querySelectorAll(".re_peso").forEach(function (input) {
+      // Convertir valor a número
+      const valor = parseFloat(input.value) || 0;
+
+      // Validaciones individuales (ejemplo)
+      if (input.value === "") {
+        errores.push(`El campo ${input.name} está vacío`);
+      }
+
+      if (valor < 0) {
+        errores.push(`El campo ${input.name} no puede ser negativo`);
+      }
+
+      // Sumar al total
+      total += valor;
+    });
+
+    // Validación del total
+    if (total <= 0) {
+      errores.push("El total debe ser mayor a cero");
+    }
+
+    // Mostrar errores o total
+    if (errores.length > 0) {
+      console.error("Errores:", errores);
+      alert(errores.join("\n"));
+      return false;
+    } else {
+      peso_remitente = total
+    }
+  } else {
+    peso_remitente = $('#peso1').val() || '';
+  }
+
+  var dato_Remitente = {
     idpuntrem: [],
     mentrega: [],
     dire: [],
@@ -6783,25 +7192,41 @@ async function Inserta_Cotizacion() {
     place: [],
   };
 
-  // var solicitud_servicio1 = numero_solicitud;
-
   for (let i = 1; i <= maximo; i++) {
+    // Obtener valores
+    const idpuntrem = $('#id_puntorem' + i).val() || '';
+    const mentrega = $('#p_ciudad' + i).val() || '';
+    const dire = $('#dire' + i).val() || '';
+    const clientea = $('#clientea' + i).val() || '';
+    const fentrega = $('#fecha' + i).val() || '';
+    const obs = $('#observa' + i).val() || '';
+    const hora = $('#hora' + i).val() || '';
+    const tipo = 'punto recogida';  // Valor fijo
+    const orden = $('#id_puntorem' + i).val() || '';
+    const pun = $('#pun').val() || '';  // ¿Debería ser $('#pun' + i)?
+    const telefono = $('#telpunto' + i).val() || '';
+    const pesorem = $('#peso' + i).val() || '';
+    const place = $('#lugar' + i).val() || '';
 
-  var idpuntrem = $('#id_puntorem' + i + '').val() || '';
-  var mentrega = $('#p_ciudad' + i + '').val() || '';
-  var dire = $('#dire' + i + '').val() || '';
-  var clientea = $('#clientea' + i + '').val() || '';
-  var fentrega = $('#fecha' + i + '').val() || '';
-  var obs = $('#observa' + i + '').val() || '';
-  var hora = $('#hora' + i + '').val() || '';
-  var tipo = 'punto recogida';
-  var orden = $('#id_puntorem' + i + '').val() || '';
-  var pun = $('#pun').val() || '';
-  var telefono = $('#telpunto' + i + '').val() || '';
-  var pesorem = $('#peso' + i + '').val() || '';
-  var place = $('#lugar' + i + '').val() || '';
-
+    // Llenar el objeto
+    dato_Remitente.idpuntrem.push(idpuntrem);
+    dato_Remitente.mentrega.push(mentrega);
+    dato_Remitente.dire.push(dire);
+    dato_Remitente.clientea.push(clientea);
+    dato_Remitente.fentrega.push(fentrega);
+    dato_Remitente.obs.push(obs);
+    dato_Remitente.hora.push(hora);
+    dato_Remitente.tipo.push(tipo);
+    dato_Remitente.orden.push(orden);
+    dato_Remitente.pun.push(pun);
+    dato_Remitente.telefono.push(telefono);
+    dato_Remitente.pesorem.push(pesorem);
+    dato_Remitente.place.push(place);
   }
+
+  var datos_remitentes = dato_Remitente;
+  datos_remitentes = JSON.stringify(datos_remitentes);
+
   /******************************Puntos Entrega (Destinatario)*************************************/
   var nFilas = $('.insercion_destina').length;
   // var nFilas = 1;
@@ -6879,7 +7304,7 @@ async function Inserta_Cotizacion() {
     estado: es,
     ori: ori,
     dest: dest,
-    peso: pesorem,
+    peso: peso_remitente,
     tipo_veh: tipo_veh,
     flete: flete,
     cliente: cliente,
@@ -6900,23 +7325,69 @@ async function Inserta_Cotizacion() {
     cant_disponible: cant_disponible,
     // action: 'solicitud_vehiculo',
     // solicitud_servicio1: solicitud_servicio1,
-    idpuntrem: idpuntrem,
-    mentrega: mentrega,
-    dire: dire,
-    clientea: clientea,
-    fentrega: fentrega,
-    obs: obs,
-    hora: hora,
-    tipo: tipo,
-    orden: orden,
-    pun: pun,
-    telefono: telefono,
+    // idpuntrem: idpuntrem,
+    // mentrega: mentrega,
+    // dire: dire,
+    // clientea: clientea,
+    // fentrega: fentrega,
+    // obs: obs,
+    // hora: hora,
+    // tipo: tipo,
+    // orden: orden,
+    // pun: pun,
+    // telefono: telefono,
     peso: peso,
-    sitio: place,
+    // sitio: place,
     maximo: maximo,
     datos_destinatario: datos_destinatario,
+    datos_remitentes: datos_remitentes,
     nFilas: nFilas,
   };
+
+
+  //VALORES PARA VALIDACIONES SICETAC
+  var ArraySicetac = {
+    configuracion_vehiculo: [],
+    unidad_transporte: [],
+    tipo_carga: [],
+    origen_sicetac: [],
+    destino_sicetac: [],
+    costo_sicetac: [],
+  }
+
+  $('.configuracion_vehiculo_sicetac').each(function (index) {
+    var configuracion_vehiculo = $(this).val();
+    ArraySicetac.configuracion_vehiculo[index] = configuracion_vehiculo;
+  });
+
+  $('.unidad_transporte_sicetac').each(function (index) {
+    var unidad_transporte = $(this).val();
+    ArraySicetac.unidad_transporte[index] = unidad_transporte;
+  });
+
+  $('.tipo_carga_sicetac').each(function (index) {
+    var tipo_carga = $(this).val();
+    ArraySicetac.tipo_carga[index] = tipo_carga;
+  });
+
+  $('.originario').each(function (index) {
+    var origen_sicetac = $(this).val();
+    ArraySicetac.origen_sicetac[index] = origen_sicetac;
+  });
+
+  $('.destinar').each(function (index) {
+    var destino_sicetac = $(this).val();
+    ArraySicetac.destino_sicetac[index] = destino_sicetac;
+  });
+
+  $('.costo_sicetac').each(function (index) {
+    var costo_sicetac = $(this).val();
+    ArraySicetac.costo_sicetac[index] = costo_sicetac;
+  });
+
+  var CostosEficientesSicetac = ArraySicetac;
+  CostosEficientesSicetac = JSON.stringify(CostosEficientesSicetac);
+
 
 
   $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
@@ -6947,6 +7418,7 @@ async function Inserta_Cotizacion() {
   formData.append('bloque_datoespecial', especiales);
   formData.append('clienteid', id_cliente);
   formData.append('escenario_id', id_escenario);
+  formData.append('CostosEficientesSicetac', CostosEficientesSicetac);
   //EMPRESA DEL CLIENTE AL QUE SE LE REALIZA LA SOLICITUD DE SERVICIO
   formData.append('empresa_id', id_empresa);
   for (const key in datos_solicitud) {
@@ -6963,7 +7435,6 @@ async function Inserta_Cotizacion() {
     });
     const data = await response.json();
     if (data.numero === 200) {
-      // Mensaje(data.numero, data.mensaje);
       Swal.fire({
         title: "Exito!",
         html: data.mensaje,
@@ -6974,7 +7445,6 @@ async function Inserta_Cotizacion() {
       $('#bloque_formulario').animate({ scrollTop: 0 }, 800);
       Limpiar_formulario();
     } else if (data.numero === 400) {
-      // Mensaje(data.numero, data.mensaje);
       Swal.fire({
         title: "Error!",
         html: data.mensaje,
@@ -7047,6 +7517,10 @@ function Limpiar_formulario() {
   $('#observacion').val('');
   $('#identi').val('');
   $('.observacion_general').val('');
+  $('#documento').val('');
+  $('#nombre_clientes').val('');
+  $('#correo').val('');
+  $('#tipo_documento').val('');
   // $("#table_mercancia").html("");
   // $("#table_especial").html("");
   cont = 0;
@@ -7064,6 +7538,21 @@ function Limpiar_formulario() {
   $('.tipo_documento').empty();
   $('#tbl_mercancia tbody').empty();
   $('#tbl_especiales tbody').empty();
+
+  //Limpiar remitentes y destinatarios
+  $("#remitentes_menu").empty();
+  $("#nav_contenedor").empty();
+  s = 0;
+  $("#destinatarios_menu").empty();
+  $("#accordion_destinatario").empty();
+  d = 0;
+  $("#agencia").val('');
+  $('#group').val('').trigger('change');
+  $('#houremail').val('').trigger('change');
+  $("#table_mercancia").empty();
+  contador_global2 = 0;
+  $("#maximo_entregab").val('');
+  $("#escenarios").val('');
 }
 
 /* Fucion para renderizar el compoenente depues de gaurdar la solicitu de servicio */
@@ -7229,9 +7718,3 @@ function Ver_solicitud(url, numdoc_solicitud) {
     })
     .catch(error => console.log(error));
 }
-
-// function initScript(id) {
-//   // console.log("Ejecutando script con ID:", id);
-//   // Aquí puedes hacer algo específico según el ID
-//   VENTANA = id;
-// }

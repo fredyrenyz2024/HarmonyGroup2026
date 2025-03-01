@@ -20,7 +20,7 @@ d.addEventListener('DOMContentLoaded', async e => {
   // Función para expandir o contraer nodos
   const checkboxes = document.querySelectorAll('.tree input[type="checkbox"]');
   checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
+    checkbox.addEventListener('change', function () {
       const ul = this.parentElement.querySelector('ul');
       if (ul) {
         ul.style.display = this.checked ? 'block' : 'none';
@@ -138,8 +138,399 @@ d.addEventListener('DOMContentLoaded', async e => {
     const secondaryList = d.getElementById('secondaryList');
     const counterElement = d.getElementById('posicion');
 
+    // if (e.target.matches('.chk_detalle') || e.target.matches('.chk_detalle *')) {
+    //   // Asegúrate de que Posiciones.posicion esté inicializado
+    //   if (!Posiciones.posicion) {
+    //     Posiciones.posicion = [];
+    //   }
+    //   let padre = e.target.parentElement.parentElement;
+    //   let checkDetalle = padre.querySelectorAll('.chk_detalle');
+    //   for (let i = 0; i < checkDetalle.length; i++) {
+    //     var checkbox = checkDetalle[i];
+    //     var valor_detalle = checkDetalle[i].value;
+
+    //     var texto = checkDetalle[i].parentElement.textContent;
+    //     let Id = checkbox.getAttribute('data-idvalor');
+    //     const searchInput = d.getElementById('usuario_responsable' + Id);
+    //     const searchResults = d.getElementById('searchResults' + Id);
+
+    //     if (checkbox.checked) {
+    //       contador++;
+    //       checkbox.setAttribute('data-idposicion', contador);
+    //       // Crear un contenedor para el número y el texto
+    //       const listItem = d.createElement('div');
+    //       const puesto = d.createElement('span');
+    //       puesto.textContent = contador;
+    //       puesto.style.fontWeight = 'bold';
+    //       // listItem.setAttribute('id', 'id' + puesto.textContent);
+    //       // listItem.setAttribute('id', +puesto.textContent);
+    //       listItem.setAttribute('id', 'puesto_id' + Id);
+    //       // Agregar el número al contenedor
+    //       listItem.appendChild(puesto);
+
+    //       // Agregar el texto al contenedor
+    //       const textoElement = d.createElement('span');
+    //       textoElement.textContent = texto;
+    //       listItem.appendChild(textoElement);
+    //       // Agrega el elemento div con el título y el número al contenedor principal
+    //       secondaryList.appendChild(listItem);
+    //       // Modificación: Concatena el Id al final del string del ID
+    //       const formId = 'form_asignacion' + Id;
+    //       d.getElementById(formId).style.display = 'block';
+    //       // Agrega la posición al array
+    //       var posicion_array = puesto.parentElement.textContent;
+    //       var dato = posicion_array.split(' ');
+    //       // Actualiza el contador
+    //       updateCounter();
+    //       // Posiciones.posicion.push(parseInt(dato[0]) + '/' + parseInt(valor_detalle));
+    //       Posiciones.valor.push(valor_detalle);
+
+    //       /* Buscar usuario responsable para la actividad */
+    //       searchInput.addEventListener('input', async e => {
+    //         const searchTerm = searchInput.value.trim();
+    //         // Realizar una solicitud AJAX para obtener resultados desde el servidor
+    //         if (searchTerm !== '') {
+    //           // Realizar una solicitud AJAX para obtener resultados desde el servidor
+    //           $.post(
+    //             $('#id_url_ajax').val() + 'pedidos/Buscar_usuario',
+    //             { datos: searchTerm },
+    //             function (data) {
+    //               mostrar_resultados(data);
+    //             },
+    //             'json',
+    //           );
+    //         } else {
+    //           // Limpiar los resultados si el campo de búsqueda está vacío
+    //           limpiar_resultados();
+    //         }
+    //       });
+
+    //       function mostrar_resultados(results) {
+    //         // Limpiar resultados anteriores
+    //         limpiar_resultados();
+    //         // Mostrar los nuevos resultados
+    //         results.forEach(function (result) {
+    //           const li = document.createElement('li');
+    //           li.style.padding = '8px';
+    //           li.style.cursor = 'pointer';
+    //           li.style.transition = 'background-color 0.3s';
+    //           li.textContent = result.nom_usuario + '  ' + result.user_log;
+    //           li.addEventListener('click', function () {
+    //             // Colocar el valor en el input al hacer clic en un resultado
+    //             searchInput.value = result.nom_usuario;
+    //             searchInput.setAttribute('data-idusuario', result.id);
+    //             Posiciones.posicion.push(parseInt(dato[0]) + '/' + parseInt(valor_detalle) + '/' + parseInt(result.id));
+    //             limpiar_resultados();
+    //           });
+    //           searchResults.appendChild(li);
+    //         });
+    //       }
+
+    //       function limpiar_resultados() {
+    //         // Limpiar la lista de resultados
+    //         searchResults.innerHTML = '';
+    //       }
+
+    //       // console.log(Posiciones.posicion);
+    //     } else {
+    //       const formId = 'form_asignacion' + Id;
+    //       d.getElementById(formId).style.display = 'none';
+
+    //       const PuestoId = 'puesto_id' + Id;
+    //       d.getElementById(PuestoId).style.display = 'none';
+
+    //       var posicion_eliminar = checkbox.getAttribute('data-idposicion');
+    //       var indice = Posiciones.posicion.indexOf(parseInt(posicion_eliminar));
+    //       if (indice !== -1) {
+    //         // El elemento existe en el array, ahora puedes eliminarlo usando splice
+    //         // console.log('El elemento existe en el array en el índice: ' + indice);
+    //         Posiciones.posicion.splice(indice, 1);
+    //         contador--;
+    //         updateCounter();
+    //       } else {
+    //         // console.log('El elemento no existe en el array');
+    //         Posiciones.posicion.splice(indice, 1);
+    //         contador--;
+    //         updateCounter();
+    //       }
+    //       // console.log(Posiciones.posicion);
+    //     }
+    //     // console.log('🚀 ~ secondaryList:', secondaryList);
+    //   }
+    // }
+
+    // function updateCounter() {
+    //   counterElement.textContent = `Número de actividades: ${contador}`;
+    // }
+
+    // if (e.target.matches('.chk_detalle') || e.target.matches('.chk_detalle *')) {
+    //   if (!Posiciones.posicion) {
+    //     Posiciones.posicion = [];
+    //     // Posiciones.valor = [];
+    //   }
+
+    //   let padre = e.target.parentElement.parentElement;
+    //   let checkDetalle = padre.querySelectorAll('.chk_detalle');
+    //   let Id = e.target.getAttribute('data-idvalor');
+
+    //   if (e.target.checked) {
+    //     // Crear elemento en la lista
+    //     const listItem = document.createElement('div');
+    //     listItem.setAttribute('id', `puesto_id${Id}`);
+    //     const searchInput = d.getElementById('usuario_responsable' + Id);
+    //     const searchResults = d.getElementById('searchResults' + Id);
+
+    //     // Contenedor de número de posición
+    //     const puesto = document.createElement('span');
+    //     puesto.style.fontWeight = 'bold';
+
+    //     // Texto de la actividad
+    //     const textoElement = document.createElement('span');
+    //     textoElement.textContent = e.target.parentElement.textContent.trim();
+
+    //     listItem.appendChild(puesto);
+    //     listItem.appendChild(textoElement);
+    //     secondaryList.appendChild(listItem);
+
+    //     /* Buscar usuario responsable para la actividad */
+    //     searchInput.addEventListener('input', async e => {
+    //       const searchTerm = searchInput.value.trim();
+    //       // Realizar una solicitud AJAX para obtener resultados desde el servidor
+    //       if (searchTerm !== '') {
+    //         // Realizar una solicitud AJAX para obtener resultados desde el servidor
+    //         $.post(
+    //           $('#id_url_ajax').val() + 'pedidos/Buscar_usuario',
+    //           { datos: searchTerm },
+    //           function (data) {
+    //             mostrar_resultados(data);
+    //           },
+    //           'json',
+    //         );
+    //       } else {
+    //         // Limpiar los resultados si el campo de búsqueda está vacío
+    //         limpiar_resultados();
+    //       }
+    //     });
+
+    //     function mostrar_resultados(results) {
+    //       // Limpiar resultados anteriores
+    //       limpiar_resultados();
+    //       // Mostrar los nuevos resultados
+    //       results.forEach(function (result) {
+    //         const li = document.createElement('li');
+    //         li.style.padding = '8px';
+    //         li.style.cursor = 'pointer';
+    //         li.style.transition = 'background-color 0.3s';
+    //         li.textContent = result.nom_usuario + '  ' + result.user_log;
+    //         li.addEventListener('click', function () {
+    //           // Colocar el valor en el input al hacer clic en un resultado
+    //           searchInput.value = result.nom_usuario;
+    //           searchInput.setAttribute('data-idusuario', result.id);
+    //           Posiciones.posicion.push(parseInt(dato[0]) + '/' + parseInt(valor_detalle) + '/' + parseInt(result.id));
+    //           limpiar_resultados();
+    //         });
+    //         searchResults.appendChild(li);
+    //       });
+    //     }
+
+    //     function limpiar_resultados() {
+    //       // Limpiar la lista de resultados
+    //       searchResults.innerHTML = '';
+    //     }
+
+    //     // Mostrar formulario asociado
+    //     document.getElementById(`form_asignacion${Id}`).style.display = 'block';
+
+    //     // Actualizar números y contador
+    //     actualizarNumeracion();
+    //     rebuildPosiciones();
+
+    //   } else {
+    //     // Eliminar elemento de la lista
+    //     const itemToRemove = document.getElementById(`puesto_id${Id}`);
+    //     if (itemToRemove) itemToRemove.remove();
+
+    //     // Ocultar formulario asociado
+    //     document.getElementById(`form_asignacion${Id}`).style.display = 'none';
+
+    //     // Actualizar números y contador
+    //     actualizarNumeracion();
+    //     rebuildPosiciones();
+    //   }
+
+    //   // Función para actualizar numeración
+    //   function actualizarNumeracion() {
+    //     const items = secondaryList.children;
+    //     Array.from(items).forEach((item, index) => {
+    //       item.querySelector('span:first-child').textContent = index + 1;
+    //     });
+    //     updateCounter();
+    //   }
+
+    //   // Función para reconstruir posiciones
+    //   function rebuildPosiciones() {
+    //     Posiciones.posicion = [];
+    //     Posiciones.valor = [];
+    //     const items = secondaryList.children;
+
+    //     Array.from(items).forEach((item, index) => {
+    //       const currentId = item.id.replace('puesto_id', '');
+    //       const checkbox = document.querySelector(`.chk_detalle[data-idvalor="${currentId}"]`);
+    //       const searchInput = document.getElementById(`usuario_responsable${currentId}`);
+
+    //       if (checkbox && searchInput) {
+    //         const valor_detalle = checkbox.value;
+    //         const userId = searchInput.getAttribute('data-idusuario') || '0';
+
+    //         Posiciones.posicion.push(`${index + 1}/${valor_detalle}/${userId}`);
+    //         Posiciones.valor.push(valor_detalle);
+    //       }
+    //     });
+    //   }
+
+    //   // Actualizar contador
+    //   function updateCounter() {
+    //     const count = secondaryList.children.length;
+    //     counterElement.textContent = `Número de actividades: ${count}`;
+    //   }
+
+    //   // Resto de tu código para manejar usuarios responsables...
+    //   // (Mantén aquí tu lógica existente para la búsqueda de usuarios)
+    // }
+
+    // if (e.target.matches('.chk_detalle') || e.target.matches('.chk_detalle *')) {
+    //   if (!Posiciones.posicion) {
+    //     Posiciones.posicion = [];
+    //     Posiciones.valor = [];
+    //   }
+
+    //   const Id = e.target.getAttribute('data-idvalor');
+    //   const searchInput = document.getElementById(`usuario_responsable${Id}`);
+    //   const searchResults = document.getElementById(`searchResults${Id}`);
+
+    //   if (e.target.checked) {
+    //     // Crear elemento en la lista
+    //     const listItem = document.createElement('div');
+    //     listItem.setAttribute('id', `puesto_id${Id}`);
+
+    //     // Contenedor de número de posición
+    //     const puesto = document.createElement('span');
+    //     puesto.style.fontWeight = 'bold';
+
+    //     // Texto de la actividad
+    //     const textoElement = document.createElement('span');
+    //     textoElement.textContent = e.target.parentElement.textContent.trim();
+
+    //     listItem.appendChild(puesto);
+    //     listItem.appendChild(textoElement);
+    //     secondaryList.appendChild(listItem);
+
+    //     // Mostrar formulario asociado
+    //     document.getElementById(`form_asignacion${Id}`).style.display = 'block';
+
+    //     // Configurar buscador
+    //     searchInput.addEventListener('input', handleSearchInput);
+    //     searchInput.addEventListener('blur', () => setTimeout(() => limpiar_resultados(searchResults), 200));
+
+    //     // Actualizar números y contador
+    //     actualizarNumeracion();
+    //     rebuildPosiciones();
+
+    //   } else {
+    //     // Eliminar elemento de la lista
+    //     const itemToRemove = document.getElementById(`puesto_id${Id}`);
+    //     if (itemToRemove) itemToRemove.remove();
+
+    //     // Ocultar formulario asociado
+    //     document.getElementById(`form_asignacion${Id}`).style.display = 'none';
+
+    //     // Limpiar datos de usuario
+    //     searchInput.value = '';
+    //     searchInput.removeAttribute('data-idusuario');
+    //     limpiar_resultados(searchResults);
+
+    //     // Actualizar números y contador
+    //     actualizarNumeracion();
+    //     rebuildPosiciones();
+    //   }
+
+    //   // Función para manejar la búsqueda
+    //   async function handleSearchInput(e) {
+    //     const searchTerm = e.target.value.trim();
+    //     if (searchTerm !== '') {
+    //       $.post(
+    //         $('#id_url_ajax').val() + 'pedidos/Buscar_usuario',
+    //         { datos: searchTerm },
+    //         (data) => mostrar_resultados(data, searchResults, Id),
+    //         'json'
+    //       );
+    //     } else {
+    //       limpiar_resultados(searchResults);
+    //     }
+    //   }
+
+    //   // Funciones de apoyo
+    //   function actualizarNumeracion() {
+    //     const items = secondaryList.children;
+    //     Array.from(items).forEach((item, index) => {
+    //       item.querySelector('span:first-child').textContent = index + 1;
+    //     });
+    //     updateCounter();
+    //   }
+
+    //   function rebuildPosiciones() {
+    //     Posiciones.posicion = [];
+    //     const items = secondaryList.children;
+
+    //     Array.from(items).forEach((item, index) => {
+    //       const currentId = item.id.replace('puesto_id', '');
+    //       const checkbox = document.querySelector(`.chk_detalle[data-idvalor="${currentId}"]`);
+    //       const searchInput = document.getElementById(`usuario_responsable${currentId}`);
+
+    //       if (checkbox && searchInput) {
+    //         const valor_detalle = checkbox.value;
+    //         const userId = searchInput.getAttribute('data-idusuario') || '0';
+
+    //         Posiciones.posicion.push(`${index + 1}/${valor_detalle}/${userId}`);
+    //       }
+    //     });
+    //   }
+
+    //   // Funciones del buscador
+    //   function mostrar_resultados(results, container, id) {
+    //     limpiar_resultados(container);
+    //     results.forEach((result) => {
+    //       const li = document.createElement('li');
+    //       li.style.padding = '8px';
+    //       li.style.cursor = 'pointer';
+    //       li.style.transition = 'background-color 0.3s';
+    //       li.textContent = `${result.nom_usuario}  ${result.user_log}`;
+
+    //       li.addEventListener('click', () => {
+    //         const searchInput = document.getElementById(`usuario_responsable${id}`);
+    //         searchInput.value = result.nom_usuario;
+    //         searchInput.setAttribute('data-idusuario', result.id);
+    //         limpiar_resultados(container);
+    //         rebuildPosiciones(); // Actualizar posiciones con el nuevo usuario
+    //       });
+
+    //       container.appendChild(li);
+    //     });
+    //   }
+
+    //   function limpiar_resultados(container) {
+    //     container.innerHTML = '';
+    //   }
+
+    //   // Actualizar contador
+    //   function updateCounter() {
+    //     const count = secondaryList.children.length;
+    //     // document.getElementById('contador-actividades').textContent = count;
+    //     counterElement.textContent = `Número de actividades: ${count}`;
+    //   }
+    // }
+
     if (e.target.matches('.chk_detalle') || e.target.matches('.chk_detalle *')) {
-      // Asegúrate de que Posiciones.posicion esté inicializado
       if (!Posiciones.posicion) {
         Posiciones.posicion = [];
       }
@@ -148,78 +539,68 @@ d.addEventListener('DOMContentLoaded', async e => {
       for (let i = 0; i < checkDetalle.length; i++) {
         var checkbox = checkDetalle[i];
         var valor_detalle = checkDetalle[i].value;
-
         var texto = checkDetalle[i].parentElement.textContent;
         let Id = checkbox.getAttribute('data-idvalor');
         const searchInput = d.getElementById('usuario_responsable' + Id);
         const searchResults = d.getElementById('searchResults' + Id);
 
         if (checkbox.checked) {
-          contador++;
-          checkbox.setAttribute('data-idposicion', contador);
-          // Crear un contenedor para el número y el texto
-          const listItem = d.createElement('div');
-          const puesto = d.createElement('span');
-          puesto.textContent = contador;
-          puesto.style.fontWeight = 'bold';
-          // listItem.setAttribute('id', 'id' + puesto.textContent);
-          // listItem.setAttribute('id', +puesto.textContent);
-          listItem.setAttribute('id', 'puesto_id' + Id);
-          // Agregar el número al contenedor
-          listItem.appendChild(puesto);
+          // Lógica para agregar
+          if (!document.getElementById('puesto_id' + Id)) {
+            contador++;
+            checkbox.setAttribute('data-idposicion', contador);
 
-          // Agregar el texto al contenedor
-          const textoElement = d.createElement('span');
-          textoElement.textContent = texto;
-          listItem.appendChild(textoElement);
-          // Agrega el elemento div con el título y el número al contenedor principal
-          secondaryList.appendChild(listItem);
-          // Modificación: Concatena el Id al final del string del ID
-          const formId = 'form_asignacion' + Id;
-          d.getElementById(formId).style.display = 'block';
-          // Agrega la posición al array
-          var posicion_array = puesto.parentElement.textContent;
-          var dato = posicion_array.split(' ');
-          // Actualiza el contador
-          updateCounter();
-          // Posiciones.posicion.push(parseInt(dato[0]) + '/' + parseInt(valor_detalle));
-          Posiciones.valor.push(valor_detalle);
+            const listItem = d.createElement('div');
+            const puesto = d.createElement('span');
+            puesto.textContent = contador;
+            puesto.style.fontWeight = 'bold';
+            listItem.setAttribute('id', 'puesto_id' + Id);
 
-          /* Buscar usuario responsable para la actividad */
+            listItem.appendChild(puesto);
+            const textoElement = d.createElement('span');
+            textoElement.textContent = texto;
+            listItem.appendChild(textoElement);
+
+            secondaryList.appendChild(listItem);
+            updateCounter();
+          }
+
+          d.getElementById('form_asignacion' + Id).style.display = 'block';
+
+          // Lógica original del buscador (sin modificar)
           searchInput.addEventListener('input', async e => {
             const searchTerm = searchInput.value.trim();
-            // Realizar una solicitud AJAX para obtener resultados desde el servidor
             if (searchTerm !== '') {
-              // Realizar una solicitud AJAX para obtener resultados desde el servidor
               $.post(
                 $('#id_url_ajax').val() + 'pedidos/Buscar_usuario',
-                {datos: searchTerm},
-                function(data) {
+                { datos: searchTerm },
+                function (data) {
                   mostrar_resultados(data);
                 },
                 'json',
               );
             } else {
-              // Limpiar los resultados si el campo de búsqueda está vacío
               limpiar_resultados();
             }
           });
 
           function mostrar_resultados(results) {
-            // Limpiar resultados anteriores
             limpiar_resultados();
-            // Mostrar los nuevos resultados
-            results.forEach(function(result) {
+            results.forEach(function (result) {
               const li = document.createElement('li');
               li.style.padding = '8px';
               li.style.cursor = 'pointer';
               li.style.transition = 'background-color 0.3s';
               li.textContent = result.nom_usuario + '  ' + result.user_log;
-              li.addEventListener('click', function() {
-                // Colocar el valor en el input al hacer clic en un resultado
+              li.addEventListener('click', function () {
                 searchInput.value = result.nom_usuario;
                 searchInput.setAttribute('data-idusuario', result.id);
-                Posiciones.posicion.push(parseInt(dato[0]) + '/' + parseInt(valor_detalle) + '/' + parseInt(result.id));
+                // Lógica original de almacenamiento (sin modificar)
+                Posiciones.posicion.push(
+                  parseInt(puesto.textContent) + '/' +
+                  parseInt(valor_detalle) + '/' +
+                  parseInt(result.id)
+                );
                 limpiar_resultados();
               });
               searchResults.appendChild(li);
@@ -227,41 +608,41 @@ d.addEventListener('DOMContentLoaded', async e => {
           }
 
           function limpiar_resultados() {
-            // Limpiar la lista de resultados
             searchResults.innerHTML = '';
           }
 
-          // console.log(Posiciones.posicion);
         } else {
-          const formId = 'form_asignacion' + Id;
-          d.getElementById(formId).style.display = 'none';
+          // Lógica para remover
+          const itemToRemove = d.getElementById('puesto_id' + Id);
+          if (itemToRemove) {
+            secondaryList.removeChild(itemToRemove);
 
-          const PuestoId = 'puesto_id' + Id;
-          d.getElementById(PuestoId).style.display = 'none';
+            // Actualizar numeración de elementos restantes
+            const items = secondaryList.children;
+            Array.from(items).forEach((item, index) => {
+              item.querySelector('span:first-child').textContent = index + 1;
+            });
 
-          var posicion_eliminar = checkbox.getAttribute('data-idposicion');
-          var indice = Posiciones.posicion.indexOf(parseInt(posicion_eliminar));
-          if (indice !== -1) {
-            // El elemento existe en el array, ahora puedes eliminarlo usando splice
-            // console.log('El elemento existe en el array en el índice: ' + indice);
-            Posiciones.posicion.splice(indice, 1);
-            contador--;
-            updateCounter();
-          } else {
-            // console.log('El elemento no existe en el array');
-            Posiciones.posicion.splice(indice, 1);
-            contador--;
+            // Actualizar contador
+            contador = items.length;
             updateCounter();
           }
-          // console.log(Posiciones.posicion);
+
+          d.getElementById('form_asignacion' + Id).style.display = 'none';
+
+          // Limpiar de Posiciones.posicion usando el ID original
+          Posiciones.posicion = Posiciones.posicion.filter(item => {
+            const partes = item.split('/');
+            return partes[1] !== valor_detalle; // Filtrar por valor_detalle asociado
+          });
         }
-        // console.log('🚀 ~ secondaryList:', secondaryList);
       }
     }
 
     function updateCounter() {
-      counterElement.textContent = `Número de actividades: ${contador}`;
+      counterElement.textContent  = secondaryList.children.length;
     }
+
 
     /**** Radio butons para la craecion del pedido segun el que se elija ****/
     if (e.target.matches('.tipo_pedido') || e.target.matches('.tipo_pedido *')) {
@@ -314,7 +695,7 @@ d.addEventListener('DOMContentLoaded', async e => {
 
                 // Iterar sobre las opciones recibidas
                 response.forEach(value => {
-                  let {id, nombre_plantilla, numdoc} = value;
+                  let { id, nombre_plantilla, numdoc } = value;
                   let opt = document.createElement('option');
                   opt.value = numdoc;
                   opt.textContent = nombre_plantilla;
@@ -361,7 +742,7 @@ d.addEventListener('DOMContentLoaded', async e => {
               datos.tipo.push(element.tipo_proceso_id);
               setTimeout(() => {
                 // Recorre los checkboxes y marca aquellos cuyo valor coincida
-                checkboxes.forEach(function(checkbox) {
+                checkboxes.forEach(function (checkbox) {
                   if (checkbox.value === element.tipo_proceso_id.toString()) {
                     checkbox.checked = true;
                     checkbox.disabled = true;
@@ -385,7 +766,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                   datos_detalle.detalle.push(element.detalle_actividad_plantilla);
                   // Posiciones.posicion.push(element.posicion + '/' + element.detalle_actividad_plantilla);
                   setTimeout(() => {
-                    checkboxes1.forEach(function(checkbox1) {
+                    checkboxes1.forEach(function (checkbox1) {
                       let Id = checkbox1.getAttribute('data-idvalor');
                       if (checkbox1.value === element.detalle_actividad_plantilla.toString()) {
                         checkbox1.checked = true;
@@ -402,8 +783,8 @@ d.addEventListener('DOMContentLoaded', async e => {
                             // Realizar una solicitud AJAX para obtener resultados desde el servidor
                             $.post(
                               $('#id_url_ajax').val() + 'pedidos/Buscar_usuario',
-                              {datos: searchTerm},
-                              function(data) {
+                              { datos: searchTerm },
+                              function (data) {
                                 mostrar_resultados(data);
                               },
                               'json',
@@ -417,13 +798,13 @@ d.addEventListener('DOMContentLoaded', async e => {
                           // Limpiar resultados anteriores
                           limpiar_resultados();
                           // Mostrar los nuevos resultados
-                          results.forEach(function(result) {
+                          results.forEach(function (result) {
                             const li = document.createElement('li');
                             li.style.padding = '8px';
                             li.style.cursor = 'pointer';
                             li.style.transition = 'background-color 0.3s';
                             li.textContent = result.nom_usuario + '  ' + result.user_log;
-                            li.addEventListener('click', function() {
+                            li.addEventListener('click', function () {
                               // Colocar el valor en el input al hacer clic en un resultado
                               searchInput.value = result.nom_usuario;
                               searchInput.setAttribute('data-idusuario', result.id);
@@ -653,7 +1034,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                           popup: 'swal2-custom-font',
                         },
                       });
-                      setTimeout(function() {
+                      setTimeout(function () {
                         location.reload(false);
                       }, 1000);
                     } else {
@@ -847,7 +1228,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                           popup: 'swal2-custom-font',
                         },
                       });
-                      setTimeout(function() {
+                      setTimeout(function () {
                         location.reload(false);
                       }, 1000);
                     } else {
@@ -977,7 +1358,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                   }
                 }
 
-                //Agregar los las posiciones en un solo array
+                // Agregar los las posiciones en un solo array
                 // Recorrer con base en la longitud de uno de los arrays
                 for (let m = 0; m < posiciones_detalle.posicion.length; m++) {
                   const posicion = posiciones_detalle.posicion[m];
@@ -1022,7 +1403,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                         popup: 'swal2-custom-font',
                       },
                     });
-                    setTimeout(function() {
+                    setTimeout(function () {
                       location.reload(false);
                     }, 1000);
                   } else {
@@ -1116,7 +1497,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                     popup: 'swal2-custom-font',
                   },
                 }).then(() => {
-                  setTimeout(function() {
+                  setTimeout(function () {
                     location.reload(false);
                   }, 500);
                 });
@@ -1133,7 +1514,6 @@ d.addEventListener('DOMContentLoaded', async e => {
       });
     }
   });
-  console.log('🚀 ~ posiciones:', posiciones);
 });
 
 async function Listar_clientes() {
@@ -1148,7 +1528,7 @@ async function Listar_clientes() {
     .then(response => {
       let CLIENTES = d.getElementById('clientes');
       response.forEach(value => {
-        let {id, documento, nombre} = value;
+        let { id, documento, nombre } = value;
         let opt = document.createElement('option');
         opt.value = id;
         // opt.textContent = documento + " | " + nombre;
@@ -1369,8 +1749,8 @@ function verificarCampo() {
       type: 'POST',
       dataType: 'json',
       // data: data,
-      data: {referencia: valorCampo, cliente: d.getElementById('clientes').value},
-      success: function(response) {
+      data: { referencia: valorCampo, cliente: d.getElementById('clientes').value },
+      success: function (response) {
         if (response) {
           $('#mensaje_referencia').text('¡Esta referencia ya está registrada.!');
         } else {
@@ -1398,6 +1778,9 @@ async function Listar_actividaes_plantilla(id) {
     })
     .then(response => {
       let template_detalle = '';
+      const hoy = new Date(); // Obtener la fecha actual
+      const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
+      const hora = hoy.toTimeString().split(' ')[0]; // HH:MM:SS
       response.forEach(element => {
         template_detalle += `
         <div class="row">
@@ -1432,14 +1815,14 @@ async function Listar_actividaes_plantilla(id) {
                   <div class="form-group">
                     <label for="fecha_vencimiento${element.id}">Fecha vencimineto</label>
                     <input type="date" class="form-control input-xs" name="fecha_vencimiento[]"
-                      id="fecha_vencimiento${element.id}">
+                      id="fecha_vencimiento${element.id}" value="${fechaHoy}">
                   </div>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
                   <div class="form-group">
                     <label for="hora_vencimiento${element.id}">Hora vencimineto</label>
                     <input type="time" class="form-control input-xs" name="hora_vencimiento[]"
-                      id="hora_vencimiento${element.id}">
+                      id="hora_vencimiento${element.id}" value="${hora}">
                   </div>
                 </div>
               </div>
@@ -1480,7 +1863,7 @@ async function listar_responsables() {
     const data = await response.json();
     // console.log('🚀 ~ listar_responsables ~ data:', data);
     var html = '<option value="">Seleccionar cliente</option>';
-    data.forEach(function(item) {
+    data.forEach(function (item) {
       html += `<option value="${item.nom_usuario}">${item.user_log} - ${item.nom_usuario}</option>`;
     });
     $('#responsable').html(html);

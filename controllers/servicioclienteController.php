@@ -42,6 +42,8 @@ class servicioclienteController extends Controller
 	private $_filtros;
 	private $_ver_solicitud;
 	private $_traer_escenarios;
+	private $_lita_clientes;
+	private $_lita_empresas;
 
 	public function __construct()
 	{
@@ -87,6 +89,12 @@ class servicioclienteController extends Controller
 		$this->_view->titulo = 'Solicitudes Pendientes';
 		$this->_view->renderizar_ventana('prioritarias', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
 	}
+	public function en_curso()
+	{
+		$this->_view->titulo = 'Solicitudes en Curso';
+		$this->_view->renderizar_ventana('en_curso', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+	}
+
 	public function completadas()
 	{
 		$this->_view->titulo = 'Solicitudes Completadas';
@@ -181,7 +189,83 @@ class servicioclienteController extends Controller
 	public function CrearCotizacion()
 	{
 		$response = [];
-		// $num_cotizacion = $_POST["num_cotizacion"];
+
+		//VALIDAR LOS COSTOS EFICENTES DEL SICETAC AL CREAR LA COTIZACION
+
+		/* 	$CostosEficientesSicetac = json_decode($_POST["CostosEficientesSicetac"]);
+
+		// print_r($CostosEficientesSicetac->configuracion_vehiculo[0]);
+		// exit();
+
+		// foreach ($CostosEficientesSicetac as $key => $value) {
+		// 	print_r($value['configuracion_vehiculo']);
+
+		// }
+
+		$xml_sicetac = '';
+		$xml_sicetac .= "<?xml version='1.0' encoding='ISO-8859-1'?>";
+		$xml_sicetac .= '<root>';
+		$xml_sicetac .= '<acceso>';
+		$xml_sicetac .= '<username>' . MINTRANS_USER . '</username>';
+		$xml_sicetac .= '<password>' . MINTRANS_PASS . '</password>';
+		$xml_sicetac .= '</acceso>';
+		$xml_sicetac .= '<solicitud>';
+		$xml_sicetac .= '<tipo>2</tipo>';
+		$xml_sicetac .= '<procesoid>26</procesoid>';
+		$xml_sicetac .= '</solicitud>';
+		$xml_sicetac .= '<variables>';
+		$xml_sicetac .= 'VALOR';
+		$xml_sicetac .= '</variables>';
+		$xml_sicetac .= '<documento>';
+		// $xml_sicetac .= "<PERIODO>'" . (int) date('Ym') . "'</PERIODO>";
+		$xml_sicetac .= "<PERIODO>'202503'</PERIODO>";
+		// $xml_sicetac .= "<CONFIGURACION>'" . $CostosEficientesSicetac->configuracion_vehiculo[0] . "'</CONFIGURACION>";
+		$xml_sicetac .= "<CONFIGURACION>'3S3'</CONFIGURACION>";
+		// $xml_sicetac .= "<ORIGEN>'" . $CostosEficientesSicetac->origen_sicetac[0] . "'</ORIGEN>";
+		$xml_sicetac .= "<ORIGEN>'11001000'</ORIGEN> ";
+		// $xml_sicetac .= "<DESTINO>'" . $CostosEficientesSicetac->destino_sicetac[0] . "'</DESTINO>";
+		$xml_sicetac .= " <DESTINO>'5001000'</DESTINO>";
+		// $xml_sicetac .= "<NOMBREUNIDADTRANSPORTE>'" . $CostosEficientesSicetac->unidad_transporte[0] . "'</NOMBREUNIDADTRANSPORTE>";
+		// $xml_sicetac .= " <NOMBREUNIDADTRANSPORTE>'ESTIBAS'</NOMBREUNIDADTRANSPORTE>";
+		// $xml_sicetac .= "<NOMBRETIPOCARGA>'" . $CostosEficientesSicetac->tipo_carga[0] . "'</NOMBRETIPOCARGA>";
+		// $xml_sicetac .= " <NOMBRETIPOCARGA>'General'</NOMBRETIPOCARGA> ";
+		$xml_sicetac .= '</documento>';
+		$xml_sicetac .= '</root>';
+
+		echo "<pre>" . htmlspecialchars($xml_sicetac) . "</pre>";
+		exit; // Detiene la ejecución después de imprimir
+
+		$result_sicetac = $this->rndc_conexion($xml_sicetac);
+		// Si no hay respuesta o el XML es inválido
+		if (!$result_sicetac || !simplexml_load_string($result_sicetac)) {
+			$data['status'] = 'false';
+			$data['resultado'] = 'Error en la conexión o respuesta no válida.';
+			echo json_encode($data);
+			return;
+		}
+
+		// Cargar la respuesta como XML
+		$xml = simplexml_load_string(mb_convert_encoding($result_sicetac, 'UTF-8', from_encoding: 'ISO-8859-1'));
+
+		// Verificar si hay un error específico en la respuesta
+		if (isset($xml->ErrorMSG)) {
+			$data['status'] = 'false';
+			$data['codigo'] = (string)$xml->ErrorMSG['codigo'] ?? 'Desconocido';
+			$data['mensaje'] = (string)$xml->ErrorMSG;
+			echo json_encode($data);
+			return;
+		}
+
+		// Procesar la respuesta exitosa
+		$json = json_encode($xml);
+		$resultm = json_decode($json, associative: true);
+
+		$data['status'] = 'true';
+		$data['resultado'] = $resultm;
+		echo json_encode($data);
+
+		exit(); */
+
 		$nit = $_POST["nit"];
 		$digito = $_POST["digito"];
 		$dire = $_POST["direccion_cotizacion"];
@@ -315,24 +399,25 @@ class servicioclienteController extends Controller
 
 			/*********************************************Puntod de entrega(Remitentes)******************************************************/
 			// $solicitud_servicio1 = $_POST["solicitud_servicio1"];
-			$id_punto = $_POST["idpuntrem"];
-			$mentrega = $_POST["mentrega"];
-			$dire = $_POST["dire"];
-			$cliente = $_POST["clientea"];
-			$fentrega = $_POST["fentrega"];
-			$obs = $_POST["obs"];
-			$hora_estimada = $_POST["hora"];
-			$tipo = $_POST["tipo"];
-			$orden = $_POST["orden"];
-			$pun = $_POST["pun"];
+			// $id_punto = $_POST["idpuntrem"];
+			// $mentrega = $_POST["mentrega"];
+			// $dire = $_POST["dire"];
+			// $cliente = $_POST["clientea"];
+			// $fentrega = $_POST["fentrega"];
+			// $obs = $_POST["obs"];
+			// $hora_estimada = $_POST["hora"];
+			// $tipo = $_POST["tipo"];
+			// $orden = $_POST["orden"];
+			// $pun = $_POST["pun"];
 			$userio = $_SESSION["usuario"]["nom_usuario"];
 			$hora = date('H:i:s');
 			$fecha = date('Y-m-d');
-			$telefono = $_POST["telefono"];
+			// $telefono = $_POST["telefono"];
 			$peso = $_POST["peso"];
 			// $peso = $_POST["peso_remitente"];
-			$sitio = $_POST["sitio"];
+			// $sitio = $_POST["sitio"];
 			$maximo = $_POST["maximo"];
+			$insertremit = json_decode($_POST['datos_remitentes']);
 			/*********************************************Puntod de entrega(Destinatario)******************************************************/
 			$insertdesti = json_decode($_POST['datos_destinatario']);
 			$nFilas = $_POST["nFilas"];
@@ -367,23 +452,24 @@ class servicioclienteController extends Controller
 				'horacliente' => $horacliente,
 				/*********************************************Puntod de entrega(Remitentes)******************************************************/
 				// 'solicitud_servicio1' => $solicitud_servicio1,
-				'id_punto' => $id_punto,
-				'mentrega' => $mentrega,
-				'dire' => $dire,
-				'cliente' => $cliente,
-				'fentrega' => $fentrega,
-				'obs' => $obs,
-				'hora_estimada' => $hora_estimada,
-				'tipo' => $tipo,
-				'orden' => $orden,
-				'pun' => $pun,
+				// 'id_punto' => $id_punto,
+				// 'mentrega' => $mentrega,
+				// 'dire' => $dire,
+				// 'cliente' => $cliente,
+				// 'fentrega' => $fentrega,
+				// 'obs' => $obs,
+				// 'hora_estimada' => $hora_estimada,
+				// 'tipo' => $tipo,
+				// 'orden' => $orden,
+				// 'pun' => $pun,
 				// 'user' => $user,
 				'hora' => $hora,
 				'fecha' => $fecha,
-				'telefono' => $telefono,
+				// 'telefono' => $telefono,
 				// 'peso' => $peso,
-				'sitio' => $sitio,
+				// 'sitio' => $sitio,
 				'maximo' => $maximo,
+				'insertremit' => $insertremit,
 				'insertdesti' => $insertdesti,
 				'nFilas' => $nFilas,
 				'empresa_id' => $empresa_id,
@@ -403,12 +489,28 @@ class servicioclienteController extends Controller
 
 	public function consultar_cotizaciones()
 	{
-		$tipo = $_POST['tipo'];
-		$fecha_incial = $_POST['fecha_inicial'];
-		$fecha_final = $_POST['fecha_final'];
-		$estado = $_POST['estado'];
 		$this->_modelo = $this->loadModel('servicioclientei');
-		$this->consultar_cotizaciones = $this->_modelo->getPrueba($tipo, $fecha_incial, $fecha_final, $estado);
+
+		// Obtener y sanitizar valores
+		$tipo = $_POST['tipo'] ?? '';
+		$fecha_inicial = $_POST['fecha_inicial'] ?? '';
+		$fecha_final = $_POST['fecha_final'] ?? '';
+		$estado = $_POST['estado'] ?? '';
+
+		// Si cliente/empresa están vacíos, se asignan como NULL o cadena vacía
+		$cliente = !empty($_POST['cliente']) ? intval($_POST['cliente']) : null; // Si es numérico
+		$empresa = !empty($_POST['empresa']) ? intval($_POST['empresa']) : null;
+
+		// Pasar los parámetros al modelo
+		$this->consultar_cotizaciones = $this->_modelo->getPrueba(
+			$tipo,
+			$fecha_inicial,
+			$fecha_final,
+			$estado,
+			$cliente,
+			$empresa
+		);
+
 		echo json_encode($this->consultar_cotizaciones);
 	}
 
@@ -745,7 +847,8 @@ class servicioclienteController extends Controller
 	{
 		$referencia_operacion = $_POST["referencia_operacion"];
 		$mer_idservicio = $_POST["mer_idservicio"];
-		$this->guardar_contenedor = $this->_modelo->Actualizar_referencia($referencia_operacion, $mer_idservicio);
+		$puntoId = $_POST["puntoId"];
+		$this->guardar_contenedor = $this->_modelo->Actualizar_referencia($referencia_operacion, $mer_idservicio, $puntoId);
 		echo json_encode($this->guardar_contenedor);
 	}
 
@@ -786,5 +889,29 @@ class servicioclienteController extends Controller
 		$estado = $_POST['estado'];
 		$this->update_solicitud = $this->_modelo->Update_Solicitud_Aprobada($estado, $solicitud);
 		echo json_encode($this->update_solicitud);
+	}
+
+	public function Listar_Clientes()
+	{
+		$this->_lita_clientes = $this->_modelo->ListarClientes();
+		echo json_encode($this->_lita_clientes);
+	}
+	public function Listar_Empresas()
+	{
+		$this->_lita_empresas = $this->_modelo->ListarEmpresas();
+		echo json_encode($this->_lita_empresas);
+	}
+
+	public function solicitar_remitentes()
+	{
+		$soli_servi = $_POST['soli_servi'];
+		$this->_lita_empresas = $this->_modelo->ListarRemitentes($soli_servi);
+		echo json_encode($this->_lita_empresas);
+	}
+	public function solicitar_destinatarios()
+	{
+		$soli_servi = $_POST['soli_servi'];
+		$this->_lita_empresas = $this->_modelo->ListarDestinatarios($soli_servi);
+		echo json_encode($this->_lita_empresas);
 	}
 }

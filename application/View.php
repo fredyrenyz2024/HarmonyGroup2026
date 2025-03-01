@@ -206,7 +206,7 @@ class View
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'footer.php';  $url == '/mvcLuisMiguel/index/index1/?idmenu=' . $idmenu . '/?submenu=' . $submenu . ''
         } else if (
             $url == '/mvcLuisMiguel/index/index1/?idmenu=8' || $url == '/mvcLuisMiguel/serviciocliente/cotizaciones_nuevo?idmenu=8/?submenu=85' || $url == '/mvcLuisMiguel/index/index1/?idmenu=1' ||
-            $url == '/mvcLuisMiguel/prefiltro_nacional/solicitudes_nacional?idmenu=1/?submenu=92' || $url == '/mvcLuisMiguel/pantallas/nuevo_filtro/?idmenu=3'
+            $url == '/mvcLuisMiguel/prefiltro_nacional/solicitudes_nacional?idmenu=1/?submenu=92' || $url == '/mvcLuisMiguel/pantallas/nuevo_filtro/?idmenu=3' || $url == '/mvcLuisMiguel/pantallas/nueva_ventana/?idmenu=3'
         ) {
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headernuevo.php';
             require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headertop.php';
@@ -358,8 +358,8 @@ class View
             }
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'footer.php';  $url == '/mvcLuisMiguel/index/index1/?idmenu=' . $idmenu . '/?submenu=' . $submenu . ''
         } else if (
-            $url == '/mvcLuisMiguel/index/index1/?idmenu=8' || $url == '/mvcLuisMiguel/serviciocliente/cotizaciones_nuevo/?idmenu=' . $idmenu_encrypted . '' || $url == '/mvcLuisMiguel/index/index1/?idmenu=1' ||
-            $url == '/mvcLuisMiguel/transporte/ver_orden/?idmenu=%201' || $url = "mvcLuisMiguel/parametros/nueva_pantalla/?idmenu=3" || $url = '/mvcLuisMiguel/prefiltro_nacional/solicitudes_nacional/?idmenu=' . $idmenu_encrypted . ''
+            $url == '/mvcLuisMiguel/index/index1/?idmenu=8' || $url == '/mvcLuisMiguel/serviciocliente/cotizaciones_nuevo/?idmenu=85' || $url == '/mvcLuisMiguel/index/index1/?idmenu=1' ||
+            $url == '/mvcLuisMiguel/transporte/ver_orden/?idmenu=%201' || $url = "mvcLuisMiguel/parametros/nueva_pantalla/?idmenu=3" || $url = '/mvcLuisMiguel/prefiltro_nacional/solicitudes_nacional/?idmenu=92'
         ) {
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headernuevo.php';
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headertop.php';
@@ -380,35 +380,6 @@ class View
         }
     }
 
-    // public function Cargar_Filtros_ventana($ventana)
-    // {
-    //     /***** PROGRAMACION DEL MENU ******/
-    //     $model = new Conexion;
-    //     $conexion = $model->conectar();
-    //     $response = [];
-    //     $empresa_id = $_SESSION["usuario"]["empresa_id"];
-    //     $opciones = [];
-
-    //     $sql = $conexion->prepare("SELECT *,fo.opcion  FROM cmx_filtros f 
-    //     INNER JOIN cmx_ventana_filtro vf ON f.id=vf.filtro_id
-    //     LEFT JOIN cmx_filtro_opcion fo ON f.id=fo.filtro_id
-    //     where vf.ventena_id=:ventana AND f.empresa_id=:empresa");
-    //     $sql->bindParam(':ventana', $ventana, PDO::PARAM_INT);
-    //     $sql->bindParam(':empresa', $empresa_id, PDO::PARAM_INT);
-    //     $sql->execute();
-    //     $resultados = $sql->fetchAll(PDO::FETCH_ASSOC);
-    //     foreach ($resultados as $key => $value) {
-    //         if (!empty($value['opcion'])) { // Verificar que la opción no esté vacía
-    //             $opciones[] = $value['opcion']; // Agregar la opción al array
-    //         }
-    //     }
-    //     $response = [
-    //         "resultados" => $resultados,
-    //         "opciones" => $opciones
-    //     ];
-    //     return $response;
-    // }
-
     public function Cargar_Filtros_ventana($ventana)
     {
         $model = new Conexion;
@@ -419,7 +390,7 @@ class View
         FROM cmx_filtros f 
         INNER JOIN cmx_ventana_filtro vf ON f.id = vf.filtro_id
         LEFT JOIN cmx_filtro_opcion fo ON f.id = fo.filtro_id
-        WHERE vf.ventena_id = :ventana AND f.empresa_id = :empresa");
+        WHERE vf.ventena_id = :ventana AND f.empresa_id = :empresa AND vf.estado_ventana_filtro='Activo'");
         $sql->bindParam(':ventana', $ventana, PDO::PARAM_INT);
         $sql->bindParam(':empresa', $empresa_id, PDO::PARAM_INT);
         $sql->execute();

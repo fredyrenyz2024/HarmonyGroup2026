@@ -1,0 +1,30 @@
+<div class="container-fluid">
+  <!-- <div class="d-flex justify-content-center"></div> -->
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'>
+        <table id='table1' class='table table-bordered table-sm' data-page-length='100' style=" font-size:12px;">
+          <thead>
+            <tr>
+              <!-- <th></th> -->
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Solicitud</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Itr</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cliente</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Mercancia</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Peso</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Servicio</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Estado</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Asignación placa</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Prioridades</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Empresa responsable</th>
+            </tr>
+          </thead>
+          <tbody id='tbl_cotizaciones_en_curso' class='text-center'></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<?php include_once "views/serviciocliente/canvas.phtml"; ?>

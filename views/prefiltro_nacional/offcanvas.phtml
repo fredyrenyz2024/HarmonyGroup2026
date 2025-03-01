@@ -1,0 +1,1363 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+?>
+<div class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel" style="width: 1000px;">
+  <!-- <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button> -->
+  <h5 class="offcanvas-title" id="staticBackdropLabel" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;"><span class="text-white uil uil-car"></span> Consultar vehículo</h5>
+  <div class="offcanvas-header">
+    <div class="d-flex justify-content-center align-items-center w-100">
+      <div class="row w-100">
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+          <label>N° solicitud</label>
+          <input type="text" id="servicio_base" class="form-control form-control-sm text-center" disabled>
+        </div>
+
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+          <label class="text-center">Tipo servicio</label>
+          <input type="text" id="tipo_base" class="form-control form-control-sm text-center" disabled>
+        </div>
+
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+          <label>Placa</label>
+          <input type="text" id="placa" class="form-control form-control-sm text-center">
+          <input type="hidden" id="proceso_itr" class="form-control form-control-sm text-center">
+        </div>
+
+        <div class="col-xs-3 col-md-3 col-sm-3 col-lg-3">
+          <br>
+          <button class="btn btn-primary btn-sm" onclick="ValidacionReglaNegocio();" style="width: 100%;">
+            <span class="uil uil-search"></span> Buscar
+          </button>
+        </div>
+
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+          <input type="hidden" id="origen_base" class="form-control form-control-sm" readonly="readonly" name="origen_de_base">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="offcanvas-body">
+    <div id="nexos_messages_popup"></div>
+    <!--CABECERA-->
+    <h4 id="nexos_messages_b1"></h4>
+    <h4 id="nexos_messages_b2"></h4>
+    <div id="historicos"></div>
+    <div id="mensaje_itr"></div>
+    <!-- <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <label>N° solicitud</label>
+            <input type="text" id="servicio_base" class="form-control form-control-sm text-center" disabled>
+          </div>
+
+          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <label class="text-center">Tipo servicio</label>
+            <input type="text" id="tipo_base" class="form-control form-control-sm text-center" disabled>
+          </div>
+
+          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <label>Placa</label>
+            <input type="text" id="placa" class="form-control form-control-sm text-center">
+            <input type="hidden" id="proceso_itr" class="form-control form-control-sm text-center">
+          </div>
+
+          <div class="col-xs-3 col-md-3 col-sm-3 col-lg-3">
+            <br>
+            <button class="btn btn-primary btn-sm" onclick="ValidacionReglaNegocio();" style="width: 100%;">
+              <span class="uil uil-search"></span> Buscar
+            </button>
+          </div>
+          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <input type="hidden" id="origen_base" class="form-control form-control-sm" readonly="readonly" name="origen_de_base">
+          </div>
+        </div>
+      </div>
+    </div> -->
+
+    <div class="row">
+      <!-- <label id="historico" style="font-weight:700;"></label> -->
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="historico"></div>
+        <div id="historico_vencido"></div>
+      </div>
+    </div>
+
+    <div class="row pt-2" id="controles_tipo">
+      <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12  thv" style="display:none;">
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+          <input type="hidden" id="estado_vehiculo">
+          <label><b>Tipo de operación:</b>&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+        </div>
+        <di class="d-flex justify-content-center">
+          <div id="divnuevo" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="display:none;">
+            <input type="radio" id="nuevo" class="tipo_hoja" name="gender" value="1" style="width: 20px; height: 20px;">
+            <label for="nuevo" id="nuevo2">Nuevo</label>&nbsp;&nbsp;
+          </div>
+
+          <div id="divhabil" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="display:none;">
+            <input type="radio" id="habil" class="tipo_hoja" name="gender" value="2" style="width: 20px; height: 20px;">
+            <label for="habil" id="habil2">Habilitar</label>&nbsp;&nbsp;
+          </div>
+
+          <div id="divactualiza" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="display:none;">
+            <input type="radio" id="update" class="tipo_hoja" name="gender" value="3" style="width: 20px; height: 20px;">
+            <label for="update" id="update2">Actualizar</label>
+          </div>
+        </di>
+
+      </div>
+    </div>
+    <!--estados de prefiltro -->
+    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+      <input type="hidden" id="tiporadio" class="form-control input-sm">
+    </div>
+    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+      <label>Último estado (prefiltro):</label>
+      <input type="text" id="estado_prefiltron" class="form-control text-danger input-sm" disabled="disabled" style="border:0px; background-color:white; font-weight:700; text-align:left;  ">
+      <input type="hidden" id="solianterior" class="form-control input-sm">
+    </div>
+
+    <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12" id="mensaje_vehiculo_bloquear"></div>
+    <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12" id="mensaje_inciado"></div>
+    <!--CUERPO EDITAR PREESTUDIO-->
+    <div class="row" style="padding-right:1px; padding-left:1px; padding-bottom:1px;  padding-top:1px;" id="diveditardatos">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <!--	<p class="text-left" style="font-size:10pt; font-weight:500; color:#2E2E2E;">Señor Usuario recuerde que podra actualizar datos siempre y cuando su solicitud  este en proceso por parte del área de seguridad</p> -->
+      </div>
+    </div>
+    <!--CUERPO DEL VEHICULO PREESTUDIO CREAR PREESTUDIO-->
+    <div class="row" id="divdatos">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="accordion1" class="panel-group accordion">
+          <!-- Acordeon Itr -->
+          <div class="panel panel-default hello" id="datos_proveedores" style="display:none;">
+            <div class="panel-heading">
+              <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseitr" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>Datos ITR</a></h4>
+            </div>
+            <div id="collapseitr" class="panel-collapse collapse">
+              <div class="panel-body" style="padding: 1px 1px 1px;">
+                <!-- Validar los datos del vehiculo para el otro servio itr -->
+                <div class="datos_proveedores">
+                  <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+                    <tbody>
+                      <tr>
+                        <td class="celda_titulo2 text-center" style="margin:25px;">
+                          <b>Datos del Vehículo</b>
+                        </td>
+                      </tr>
+                      <tr>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <table cellpadding="0" cellspacing="0" width="100%" id="tbl_datos_prefiltro">
+                    <tbody>
+                      <tr class="text-center active">
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Propietario</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Celular</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Acción</th>
+                      </tr>
+                      <tr>
+                        <td id="vpropi" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="vpdocumento" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="cpropi" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="accion_propietario" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                      </tr>
+                      <tr>
+                      </tr>
+                      <tr class="text-center active">
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Poseedor</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Celular</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Acción</th>
+                      </tr>
+                      <tr>
+                        <td id="vtene" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="vtdocumento" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="ctene" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="accion_poseedor" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                      </tr>
+                      <tr>
+                      </tr>
+                      <tr class="text-center active">
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Conductor</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Celular</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Acción</th>
+                      </tr>
+                      <tr>
+                        <td id="vcondu" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="vcdocumento" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="ccondu" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="accion_conductor" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                      </tr>
+                      <tr>
+                      </tr>
+                      <tr class="text-center active">
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Propietario Trailer</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento Propietarioi Trailer</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Celular</th>
+                        <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Acción</th>
+                      </tr>
+                      <tr>
+                        <td id="ptcondu" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="ptcdocumento" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                        <td id="cpropt" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+                        <td id="accion_propietario_trailer" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <!-- <div class="text-center" style="margin-top: 5px;">
+                        <button id="Generar_orden_para_itr" class="btn btn-success btn-xs"><i class="far fa-save"></i> Generar Orden de cargue</button>
+                      </div> -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion" id="hvpreestudio" style="display:none;">
+            <div class="accordion-item border-top">
+              <!-- <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseThree" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>Datos del vehículo</a></h4> -->
+              <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Datos del vehículo</button>
+              </h2>
+            </div>
+            <!-- <div id="collapseThree" class="panel-collapse collapse"> -->
+            <div class="accordion-collapse collapse" aria-labelledby="headingOne" id="collapseOne">
+              <!-- <div class="panel-body"> -->
+              <div class="accordion-body pt-0">
+                <div class="row">
+                  <div class="sms"></div>
+                  <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    <label>Placa Vehiculo&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" id="placag" class="form-control input-xs" disabled="disabled">
+                  </div>
+                  <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    <label>Web Sátelital&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" id="web" name="web" class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    <label>Usuario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" id="user_satelite" name="user_satelite" class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    <label>Clave&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" id="clave" name="clave" class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <label>Documento Propietario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="number" id="docupro" name="docupro" class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <label>Nombre Propietario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" id="nompro" name="nompro" class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div id="mensaje_propietario_existe"></div>
+                  </div>
+                  <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <label>Documento Poseedor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="number" id="docutene" name="docutene" class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <label>Nombre Poseedor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" id="nomtene" name="nomtene" class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div id="mensaje_poseedor_existe"></div>
+                  </div>
+                  <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <label>Documento Conductor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="number" id="docucondu" name="docucondu" class="form-control input-xs" onChange="javascript:referencias_prefiltro();">
+                  </div>
+                  <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <label>Nombre Conductor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" id="nomcondu" name="nomcondu" class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div id="mensaje_conductor_existe"></div>
+                  </div>
+                  <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12 mt-2">
+                    <div class="border border-1 p-2">
+                      <h5 style="font-weight: bold;">Datos Trailer&nbsp;&nbsp;&nbsp;&nbsp; <input type="checkbox" id="propietario_obligatorio" style="transform: scale(1.5);"></h5>
+                    </div>
+                  </div>
+                  <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    <label id="etiqueta_placa_trailer">Placa Trailer </label>
+                    <input type="text" id="placat" name="placat" disabled class="form-control input-xs">
+                  </div>
+                  <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    <label id="etiqueta_documento_trailer">Documento Propietario Trailer</label>
+                    <input type="number" id="docproptrailer" name="docproptrailer" class="form-control input-xs" disabled>
+                  </div>
+                  <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    <label id="estiqueta_propietario_trailer">Nombre Propietario Trailer</label>
+                    <input type="text" id="nomproptrailer" name="nomproptrailer" class="form-control input-xs" disabled>
+                  </div>
+                  <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div id="mensaje_trailer_existe"></div>
+                    <div id="mensaje_trailer_obligatorio" style="margin-top: 5px;"></div>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <input type="hidden" id="cab" value="1">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- REFERENCIAS PARA VEHICULO NUEVO -->
+          <div class="accordion" id="panel_referenciaNEW" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="collapsereferencianew">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwos" aria-expanded="true" aria-controls="collapseTwos">Referencias laborales</button>
+              </h2>
+            </div>
+            <div id="collapseTwos" class="accordion-collapse collapse" aria-labelledby="collapsereferencianew">
+              <div class="accordion-body pt-0">
+                <!--REFERENCIAS PARA VEHICULOS NUEVOS -->
+                <div class="col-xs-6 col-sm-2 col-md-2 col-lg-2" style="margin-top:10px; text-align:center; ">
+                  <button class="btn btn-info btn-sm text-center" data-toggle="tooltip" data-placement="top" title="Agregar fila" id="agregar_fila">
+                  <span class="uil uil-file-plus-alt"></span>
+                  </button>
+                </div>
+                <hr />
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                  <h3>
+                    <p class="text-center text-info">Referencias laborales</p>
+                  </h3><br>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                  <table class="table table-sm table-bordered" id="table_mercancia">
+                    <thead style="border-color:blue;"></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                  <input type="hidden" id="ref" value="2">
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--FIN REFERENCIA PARA VEHICULOS NUEVOS -->
+
+          <!--REFERENCIAS PARA ACTUALIZAR y HABILITAR  -->
+          <div class="accordion" id="panel_referenciahv" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="headingReferer">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsereferencia" aria-expanded="true" aria-controls="collapsereferencia">Referencias Empresariales</button>
+              </h2>
+            </div>
+            <div id="collapsereferencia" class="accordion-collapse collapse" aria-labelledby="headingReferer">
+              <div class="accordion-body pt-0">
+                <input type="hidden" id="idconductor">
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <span class="badge badge-pill badge-primary">1</span>
+                  </div>
+
+                  <div class="col-xs-12 col-sm-12 col-md-12  REmpresarial8">
+                    <label>Empresa 1:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" class="form-control input-sm" id="referencias_empresariales1" onblur="mayuscula(this);">
+                    <label id="error_referencia_empresarial2"></label>
+                  </div>
+
+                  <div class="col-xs-6 col-sm-6 col-md-6">
+                    <label>Fecha Ingreso:</label>
+                    <input type="date" id="fingreso1" class="form-control input-sm">
+                  </div>
+
+                  <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <label>Fecha Retiro:</label>
+                    <input type="date" id="fretiro1" class="form-control input-sm">
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label>Persona Contacto:</label>
+                    <input type="text" id="contacto_ref1" placeholder="Nombre Contacto" class="form-control input-sm" onblur="mayuscula(this);">
+                    <label id="error_contacto"></label>
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="int" id="celular_ref1" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm">
+                    <label id="error_celularref1"></label>
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
+                    <label>Cargo:</label>
+                    <input type="text" id="cargo_ref1" placeholder="Cargo" class="form-control input-sm" onblur="mayuscula(this);">
+                    <label id="error_cargo"></label>
+                  </div>
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
+                    <label>Antiguedad</label>
+                    <input type="number" id="anti_ref1" min="0" placeholder="Antiguedad1" class="form-control input-sm">
+                  </div>
+                  <input type="hidden" id="idrl1">
+                </div>
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <span class="badge badge-pill badge-primary">2</span>
+                  </div>
+
+                  <div class="col-xs-12 col-sm-12 col-md-12  REmpresarial8">
+                    <label>Empresa 2:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" class="form-control input-sm" id="referencias_empresariales2" onblur="mayuscula(this);">
+                    <label id="error_referencia_empresarial2"></label>
+                  </div>
+
+                  <div class="col-xs-6 col-sm-6 col-md-6">
+                    <label>Fecha Ingreso:</label>
+                    <input type="date" id="fingreso2" class="form-control input-sm">
+                  </div>
+
+                  <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <label>Fecha Retiro:</label>
+                    <input type="date" id="fretiro2" class="form-control input-sm">
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label>Persona Contacto:</label>
+                    <input type="text" id="contacto_ref2" placeholder="Nombre Contacto" class="form-control input-sm" onblur="mayuscula(this);">
+                    <label id="error_contacto"></label>
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="int" id="celular_ref2" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm">
+                    <label id="error_celularref1"></label>
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
+                    <label>Cargo:</label>
+                    <input type="text" id="cargo_ref2" placeholder="Cargo" class="form-control input-sm" onblur="mayuscula(this);">
+                    <label id="error_cargo"></label>
+                  </div>
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
+                    <label>Antiguedad</label>
+                    <input type="number" id="anti_ref2" min="0" placeholder="Antiguedad2" class="form-control input-sm">
+                  </div>
+                  <input type="hidden" id="idrl2">
+                </div>
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <span class="badge badge-pill badge-primary">3</span>
+                  </div>
+
+                  <div class="col-xs-12 col-sm-12 col-md-12  REmpresarial8">
+                    <label>Empresa 3:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" class="form-control input-sm" id="referencias_empresariales3" onblur="mayuscula(this);">
+                    <label id="error_referencia_empresarial2"></label>
+                  </div>
+
+                  <div class="col-xs-6 col-sm-6 col-md-6">
+                    <label>Fecha Ingreso:</label>
+                    <input type="date" id="fingreso3" class="form-control input-sm">
+                  </div>
+
+                  <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <label>Fecha Retiro:</label>
+                    <input type="date" id="fretiro3" class="form-control input-sm">
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label>Persona Contacto:</label>
+                    <input type="text" id="contacto_ref3" placeholder="Nombre Contacto" class="form-control input-sm" onblur="mayuscula(this);">
+                    <label id="error_contacto"></label>
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="int" id="celular_ref3" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm">
+                    <label id="error_celularref1"></label>
+                  </div>
+
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
+                    <label>Cargo:</label>
+                    <input type="text" id="cargo_ref3" placeholder="Cargo" class="form-control input-sm" onblur="mayuscula(this);">
+                    <label id="error_cargo"></label>
+                  </div>
+                  <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
+                    <label>Antiguedad</label>
+                    <input type="number" id="anti_ref3" min="0" placeholder="Antiguedad3" class="form-control input-sm">
+                  </div>
+                  <input type="hidden" id="idrl3">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--REFERENCIAS PERSONALES solo para habilitar-actualizar -->
+          <div class="accordion" id="panel_refepersonal" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="headingReferer">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsepersonal" aria-expanded="true" aria-controls="collapsepersonal">Persona Contacto y Referencia</button>
+              </h2>
+            </div>
+            <div id="collapsepersonal" class="accordion-collapse collapse">
+              <div class="accordion-body pt-0">
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label><strong>Contacto en caso de emergencia</strong></label>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <span class="badge badge-pill badge-primary">1</span>
+                  </div>
+                  <div class="col-xs-12 col-sm-3 col-md-3 REmpresarial2">
+                    <label>Nombre Persona 1:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input class="form-control form-control-sm" id="referencias_personales1" onblur="mayuscula(this);">
+                    <label id="error_referencias_personales"></label>
+                  </div>
+                  <div class="col-xs-12 col-sm-3 col-md-3 FPersonal1">
+                    <label>Fecha 1:</label>
+                    <input type="date" id="fecha_personal1" class="form-control form-control-sm">
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
+                    <label>Parentezco:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <select class="form-select form-select-sm" id="parenp1">
+                      <option value="" readonly="readonly">Seleccione una opción</option>
+                      <option value="1">Amigo/a</option>
+                      <option value="2">Hermano/a</option>
+                      <option value="3">Padre</option>
+                      <option value="4">Madre</option>
+                      <option value="5">Tio/a</option>
+                      <option value="6">Sobrino/a</option>
+                      <option value="7">Hijo/a</option>
+                      <option value="8">Espaso/a</option>
+                    </select>
+                    <label id="error_referencias_personales"></label>
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
+                    <label>Teléfono:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="number" id="telefonop1" min="0" class="form-control form-control-sm" maxlength="10">
+                    <label id="error_referencias_personales"></label>
+                  </div>
+                  <div class="col-xs-12 col-sm-3 col-md-3 REmpresarial2">
+                    <input type="hidden" id="idrper1">
+                  </div>
+                </div>
+                <!-- Referencias personales -->
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label><strong>Referencia personal</strong></label>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <span class="badge badge-pill badge-primary">2</span>
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-3 RPersonal2">
+                    <label>Nombre Persona 2:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" class="form-control form-control-sm" id="referencias_personales2" onblur="mayuscula(this);">
+                    <label id="error_referencias_personales"></label>
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-3 FRpersonal2">
+                    <label>Fecha Personal 2:</label>
+                    <input type="date" id="fecha_personal2" class="form-control form-control-sm" value="">
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
+                    <label>Parentezco:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <select class="form-select form-select-sm" id="parenp2">
+                      <option value="" readonly="readonly">Seleccione una opción</option>
+                      <option value="1">Amigo/a</option>
+                      <option value="2">Hermano/a</option>
+                      <option value="3">Padre</option>
+                      <option value="4">Madre</option>
+                      <option value="5">Tio/a</option>
+                      <option value="6">Sobrino/a</option>
+                      <option value="7">Hijo/a</option>
+                      <option value="8">Espaso/a</option>
+                    </select>
+                    <label id="error_referencias_personales"></label>
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
+                    <label>Teléfono:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="number" id="telefonop2" min="0" class="form-control form-control-sm" maxlength="10">
+                    <label id="error_referencias_personales"></label>
+                  </div>
+                  <div class="col-xs-12 col-sm-3 col-md-3 REmpresarial2">
+                    <input type="hidden" id="idrper2">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion" id="panel_solicitudes" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="headingDatosSolicitud">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapsepersonal">Datos de la solicitud</button>
+              </h2>
+            </div>
+            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingDatosSolicitud">
+              <div class="accordion-body pt-0">
+                <!--MODAL SOLICITUDES SERVICIO - cargarlas -->
+                <div id="solicitudservicio" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y:auto;">
+                  <div class=".modal-dialog-modal-lg.modal-dialog ">
+                    <div class="modal-content ">
+                      <div class="modal-header">
+                        <button type="button" id="cancel" class="close md-close"><span class="mdi mdi-close"></span></button>
+                        <h3 class="modal-title">
+                          <label style="font-weight:900; margin-top:20px;">
+                            Solicitudes de servicio
+                          </label>
+                        </h3>
+                      </div>
+                      <div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+                        <div id="nexos_messages_popup"></div>
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Listas seleccionadas</label>
+                            <ul id="listamodal"></ul>
+                          </div>
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                            <?php echo $table_solicitud; ?>
+
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" id="cancel" class="btn btn-default md-close">Cancelar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--SOLICITUD DE PREESTUDIO -->
+                <div class="row">
+                  <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                    <label style="font-weight:600; margin-top:20px;"> Solicitudes de servicio:
+                    </label>&nbsp;&nbsp;
+                    <button type="button" id="btn_soli" data-toggle="modal" class="btn btn-primary btn-sm"><span class="uil-shopping-cart-alt"></span></button>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <label style="font-weight:800; margin-top:20px;">Solicitudes de servicio seleccionadas</label>
+                    <input type="hidden" id="maxservi" value="1">
+                  </div>
+
+                  <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                    <input type="hidden" value="3" id="soli_total">
+                  </div>
+                  <style type="text/css">
+                    .seleccionada {
+                      background-color: #0585C0;
+                      color: white;
+                    }
+                  </style>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <table class="table table-bordered table-sm">
+                      <thead>
+                        <th>#</th>
+                        <th>Servicio</th>
+                        <th>cotización-Item-Mercancía</th>
+                        <th>Cliente</th>
+                        <th>Flete cot.</th>
+                        <th style="display:none">Peso bruto(Tn)</th>
+                        <th>Tarifa cot.</th>
+                        <th>Acción</th>
+                      </thead>
+                      <tbody id="cuerpo_lista2">
+                      </tbody>
+                    </table>
+                  </div>
+
+
+                  <!-- <div class="row"></div> -->
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <table class="table table-bordered table-sm">
+                      <thead>
+                        <th>Suma de Flete por solicitudes</th>
+                        <th style="display:none;">Total peso Bruto(Tn)</th>
+                      </thead>
+                      <tbody id="totalizar"></tbody>
+                    </table>
+                  </div>
+
+
+                  <!-- <div class="row"></div> -->
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <table class="table table-bordered table-sm">
+                      <thead>
+                        <th>N° - Remitente</th>
+                        <th>Fecha</th>
+                        <th>Peso(Kg)</th>
+                        <th>Punto de cargue</th>
+                      </thead>
+                      <tbody id="cuerpo_fechas">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <label>Total sumatoria Peso(Kg)</label>
+                    <input type="text" id="total_pesos" class="form-control form-control-sm" disabled>
+                  </div>
+                  <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <label>Capacidad carga vehículo(Kg)&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <input type="text" id="capa_carga_vh" class="form-control form-control-sm">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Solicitud de Preestudio</label>
+                  </div>
+                  <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                    <label>Fecha</label>
+                    <input type="text" id="fpree" value="<?php echo date('Y-m-d'); ?>" class="form-control form-control-sm" disabled>
+                  </div>
+                  <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                    <label>Hora</label>
+                    <input type="text" id="hpree" value="<?php echo date('H:i:s'); ?>" class="form-control form-control-sm" disabled>
+                  </div>
+                  <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                    <label>Usuario</label>
+                    <input type="text" id="userpree" class="form-control form-control-sm" value="<?php echo $ssn_nombre; ?>" disabled>
+                  </div>
+                  <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <label>Observaciones</label>
+                    <textarea id="obserpree" class="form-control form-control-sm"></textarea>
+                  </div>
+                  <input type="hidden" id="id_consolidacion" class="form-control form-control-sm" disabled>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion" id="panel_seguridad" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="headingUpdateData">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_update" aria-expanded="true" aria-controls="collapse_update">Actualiza Seguridad (hojas de vida)</button>
+              </h2>
+            </div>
+            <div id="collapse_update" class="accordion-collapse collapse" aria-labelledby="headingUpdateData">
+              <div class="accordion-body pt-0">
+                <div id="msg_alerta" class="py-2"></div>
+                <div class="row pt-3">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <div class="row">
+                      <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <h4><span class="uil-list-ui-alt"></span> Recursos actuales</h4>
+                      </div>
+                      <div class="col-sm-6 col-md-6 col-lg-6"></div>
+                      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                        <div class="mb-1">
+                          <label>Vehículo</label>
+                          <input type="text" class="form-control form-control-sm fs-10" id="veh_vehiculo" disabled>
+                        </div>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                        <div class="mb-1">
+                          <label>Conductor</label>
+                          <input type="text" class="form-control form-control-sm fs-10" id="veh_conduc" disabled>
+                        </div>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                        <div class="mb-1">
+                          <label>Propietario</label>
+                          <input type="text" class="form-control form-control-sm fs-10" id="veh_propiet" disabled>
+                        </div>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                        <div class="mb-1">
+                          <label>Poseedor</label>
+                          <input type="text" class="form-control form-control-sm fs-10" id="veh_poseed" disabled>
+                        </div>
+                      </div>
+                    </div>
+                    <hr class="my-1 text-dark">
+                    <div class="d-flex justify-content-center">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input recursos_checbox" id="cbox1" type="checkbox" value="nuevo_recurso" style="transform: scale(1.3);">
+                        <label class="form-check-label fs-12" for="cbox1">Nuevo recurso</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input recursos_checbox" id="cbox2" type="checkbox" value="datos_dinamicos" style="transform: scale(1.3);">
+                        <label class="form-check-label fs-12" for="cbox2">Datos dinámicos</label>
+                      </div>
+                    </div>
+                    <hr class="my-1 text-dark">
+                  </div>
+                </div>
+
+                <!-- TABS INICIO -->
+                <div class="row panel_tabs_recursos pt-3">
+                  <div class="col-sm-12 col-md-12 col-lg-12">
+                    <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+                      <li class="nav-item re_inexis"><a class="nav-link active" data-bs-toggle="tab" href="#home2" role="tab" aria-controls="home2" aria-selected="true" style="display: none;" id="creacion_nuevo_recuro">Creación de recursos nuevos</a></li>
+                      <li class="nav-item re_dinamic"><a class="nav-link" data-bs-toggle="tab" href="#profile2" role="tab" aria-controls="profile2" aria-selected="false" style="display: none;" id="datos_dinamicos">Datos dinámicos</a></li>
+                      <!-- <li class="nav-item"><a class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#tab-contact" role="tab" aria-controls="tab-contact" aria-selected="false">Contact</a></li> -->
+                    </ul>
+
+                    <div class="tab-content mt-3" id="myTabContent">
+                      <div class="tab-pane fade show active re_inexis" id="home2" role="tabpanel" aria-labelledby="home2">
+                        <div class="panel panel-border-color panel-border-color-dark" id="inexistente_actividades"><!-- recurso -->
+                          <div class="panel-body text-center" style="padding: 1px 1px 1p;">
+
+                            <div class="d-flex justify-content-center">
+                              <div class="form-check form-check-inline">
+                                <input class="form-check-input chebox_recurso" id="cbpre1" type="checkbox" value="Propietario" style="transform: scale(1.3);">
+                                <label class="form-check-label fs-12" for="cbpre1">Propietario</label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input class="form-check-input chebox_recurso" id="cbpre2" type="checkbox" value="Poseedor" style="transform: scale(1.3);">
+                                <label class="form-check-label fs-12" for="cbpre2">Poseedor</label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input class="form-check-input chebox_recurso" id="cbpre3" type="checkbox" value="Conductor" style="transform: scale(1.3);">
+                                <label class="form-check-label fs-12" for="cbpre3">Conductor</label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input class="form-check-input chebox_recurso" id="cbpre4" type="checkbox" value="Trailer" style="transform: scale(1.3);">
+                                <label class="form-check-label fs-12" for="cbpre4">Tráiler</label>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+
+                        <!-- propietario -->
+                        <div id="inexistente_propietario">
+                          <div class="row">
+                            <!-- <div class="panel-body"> </div> -->
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                              <div class="mb-1">
+                                <label>Número Documento</label>
+                                <input type="number" class="form-control form-control-sm" id="number_propietario">
+                              </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                              <div class="mb-1">
+                                <label>Nombre completo propietario</label>
+                                <input type="text" class="form-control form-control-sm nombre_i" id="name_propietario">
+                              </div>
+                            </div>
+                          </div>
+                          <hr class="my-1 text-dark">
+                        </div>
+
+                        <!-- poseedor -->
+                        <div id="inexistente_poseedor">
+                          <div class="row">
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                              <label>Número Documento</label>
+                              <input type="number" class="form-control form-control-sm" id="number_poseedor">
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                              <label>Nombre completo poseedor</label>
+                              <input type="text" class="form-control form-control-sm nombrei" id="name_poseedor">
+                            </div>
+                          </div>
+                          <hr class="my-1 text-dark">
+                        </div>
+
+                        <!-- conductor-->
+                        <div id="inexistente_conductor">
+                          <div class="panel-body">
+                            <div class="row">
+                              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                <label>Número Documento</label>
+                                <input type="number" class="form-control form-control-sm" id="number_conductor">
+                              </div>
+                              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                <label>Nombre completo conductor</label>
+                                <input type="text" class="form-control form-control-sm nombre_i" id="name_conductor">
+                              </div>
+                            </div><br>
+                            <div class="row">
+                              <!-- Primera referencia -->
+                              <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4" style="border-right:1px solid gray">
+                                <span>Nombre Empresa</span>
+                                <input type="text" class="form-control form-control-sm" id="referencias_empresariales1pre" onblur="mayuscula(this);">
+                                <span>Persona Contacto</span>
+                                <input type="text" id="contacto_ref1pre" placeholder="Nombre Contacto" class="form-control form-control-sm" onblur="mayuscula(this);">
+                                <span>Celular Empresa</span>
+                                <input type="number" id="celular_ref1pre" placeholder="Celular Empresa" maxlength="10" class="form-control form-control-sm">
+                                <span>Cargo</span>
+                                <input type="text" id="cargo_ref1pre" placeholder="Cargo" class="form-control input-sm" onblur="mayuscula(this);">
+                                <span>Fecha ingreso 1</span>
+                                <input type="date" id="fingresoa1pre" class="form-control form-control-sm">
+                                <span>Fecha ingreso 2</span>
+                                <input type="date" id="fretiroa3pre" class="form-control form-control-sm">
+                                <span>Antiguedad</span>
+                                <input type="number" id="anti_ref1pre" min="0" class="form-control form-control-sm">
+                              </div>
+                              <!-- Segunda referencia -->
+                              <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4" style="border-right:1px solid gray">
+                                <span>Nombre Empresa</span>
+                                <input type="text" class="form-control form-control-sm" id="referencias_empresariales2pre" onblur="mayuscula(this);">
+                                <span>Persona Contacto</span>
+                                <input type="text" id="contacto_ref2pre" placeholder="Nombre Contacto" class="form-control form-control-sm" onblur="mayuscula(this);">
+                                <span>Celular Empresa</span>
+                                <input type="number" id="celular_ref2pre" placeholder="Celular Empresa" maxlength="10" class="form-control form-control-sm">
+                                <span>Cargo</span>
+                                <input type="text" id="cargo_ref2pre" placeholder="Cargo" class="form-control form-control-sm" onblur="mayuscula(this);">
+                                <span>Fecha ingreso 1</span>
+                                <input type="date" id="fingresob1pre" class="form-control form-control-sm">
+                                <span>Fecha ingreso 2</span>
+                                <input type="date" id="fretirob3pre" class="form-control form-control-sm">
+                                <span>Antiguedad</span>
+                                <input type="number" id="anti_ref2pre" min="0" class="form-control form-control-sm">
+                              </div>
+                              <!-- tercera referencia  -->
+                              <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                                <span>Nombre Empresa</span>
+                                <input type="text" class="form-control form-control-sm" id="referencias_empresariales3pre" onblur="mayuscula(this);">
+                                <span>Persona Contacto</span>
+                                <input type="text" id="contacto_ref3pre" placeholder="Nombre Contacto" class="form-control form-control-sm" onblur="mayuscula(this);">
+                                <span>Celular Empresa</span>
+                                <input type="number" id="celular_ref3pre" placeholder="Celular Empresa" maxlength="10" class="form-control form-control-sm">
+                                <span>Cargo</span>
+                                <input type="text" id="cargo_ref3pre" placeholder="Cargo" class="form-control form-control-sm" onblur="mayuscula(this);">
+                                <span>Fecha ingreso 1</span>
+                                <input type="date" id="fingresoc1pre" class="form-control form-control-sm">
+                                <span>Fecha ingreso 2</span>
+                                <input type="date" id="fretiroc3pre" class="form-control form-control-sm">
+                                <span>Antiguedad</span>
+                                <input type="number" id="anti_ref3pre" min="0" class="form-control form-control-sm">
+                              </div>
+                            </div>
+                            <!--cierre del panel body -->
+                          </div>
+                          <hr class="my-1 text-dark">
+                        </div>
+
+                        <!-- vehiculo -->
+                        <div class="panel panel-border-color panel-border-color-dark" id="inexistente_vehiculo">
+                          <div class="panel-body">
+                            <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+                              <div class="mb-1">
+                                <label>Placa vehículo</label>
+                                <input type="text" class="form-control form-control-sm" id="placa_vehiculosat">
+                              </div>
+                            </div>
+                            <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+                              <div class="mb-1">
+                                <label>URL satélital</label>
+                                <input type="text" class="form-control form-control-sm" id="url_sat">
+                              </div>
+                            </div>
+                            <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+                              <div class="mb-1">
+                                <label>Usuario satélital</label>
+                                <input type="text" class="form-control form-control-sm" id="user_sat">
+                              </div>
+                            </div>
+                            <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+                              <div class="mb-1">
+                                <label>Clave satélital</label>
+                                <input type="text" class="form-control form-control-sm" id="pass_sat">
+                              </div>
+                            </div>
+                          </div>
+                          <hr class="my-1 text-dark">
+                        </div>
+
+                        <!--trailer -->
+                        <div id="inexistente_trailer">
+                          <div class="row">
+                            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                              <label>Placa tráiler</label>
+                              <input type="text" class="form-control form-control-sm" id="placa_trailerpre">
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                              <label>Número documento propietario tráiler</label>
+                              <input type="text" class="form-control form-control-sm" id="propidocu_trailer">
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                              <label>Nombre propietario tráiler</label>
+                              <input type="text" class="form-control form-control-sm" id="propi_trailer">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade re_dinamic" id="profile2" role="tabpanel" aria-labelledby="profile2">
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-412col-md-12 col-lg-12">
+                            <div class="input-group input-group-sm mb-3">
+                              <label class="input-group-text" for="inputGroupSelect01">Tipo hoja de vida</label>
+                              <select id="thv" class="form-select form-select-sm text-center">
+                                <option value="">Seleccione</option>
+                                <option value="propietario">Propietario</option>
+                                <option value="conductor">Conductor</option>
+                                <option value="tenedor">Tenedor</option>
+                                <option value="vehiculo">Vehículo</option>
+                                <option value="trailer">Trailer</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row uno">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="mb-1">
+                              <input type="text" id="label" class="form-control form-control-sm" readonly="" style="font-size:12pt; text-align:center;">
+                            </div>
+                          </div>
+                          <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4" id="elbtn">
+                            <div class="mb-1">
+                              <label>Campo actualizar: </label>
+                              <input type='text' class='form-control form-control-sm' id='dato'>
+                            </div>
+                          </div>
+                          <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4" id="elbtn">
+                            <div class="mb-1">
+                              <label>Información actualizar: </label>
+                              <input type='text' class='form-control form-control-sm' id='detalle'>
+                            </div>
+                          </div>
+                          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 pt-4" id="elbtn">
+                            <div class="mb-1">
+                              <button id="agregue_tb" class="btn btn-phoenix-success btn-sm text-center"><span class="uil uil-plus-square"></span></button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- <div class="tab-pane fade" id="tab-contact" role="tabpanel" aria-labelledby="contact-tab">Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.</div> -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TABS FIN -->
+                <!-- Tabla -->
+                <div class="row panel_total_recursos pt-3">
+                  <div class="col-sm-12 col-md-12 col-lg-12">
+                    <div class="panel panel-default">
+                      <table class="table table-hover table-bordered table-sm text-center" style=" font-size:12px;">
+                        <thead>
+                          <tr>
+                            <th>Código</th>
+                            <th>Tipo HV</th>
+                            <th>Dato actualizar</th>
+                            <th>Detalle</th>
+                            <th>Archivo</th>
+                          </tr>
+                        </thead>
+                        <tbody id="cuerpo_actu">
+                        <tbody>
+                      </table>
+                      <input type="hidden" id="valortb" readonly="readonly">
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <!--DOCUMENTOS -->
+
+          <!--documentos para actualizar-->
+          <div class="accordion" id="panel_papeles_actualiza" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="headingUpdateData1">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doc_update" aria-expanded="true" aria-controls="doc_update"><i class="icon mdi mdi-chevron-down"></i>Documentos Para Actualizar</button>
+              </h2>
+            </div>
+            <div id="doc_update" class="accordion-collapse collapse" aria-labelledby="headingUpdateData1">
+              <div class="accordion-body pt-0">
+              </div>
+            </div>
+          </div>
+
+          <!--documentos para habilitar-->
+          <div class="accordion" id="panel_papeles_habilitar" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="headingUpdateData2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doc_habilitar" aria-expanded="true" aria-controls="doc_habilitar"><i class="icon mdi mdi-chevron-down"></i>Documentos Para Habilitar</a></button>
+              </h2>
+            </div>
+            <div id="doc_habilitar" class="accordion-collapse collapse" aria-labelledby="headingUpdateData2">
+              <div class="accordion-body pt-0">
+                <div class="row">
+                  <input type="hidden" id="deta_condu">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <p class="text-center text-primary" style="font-size:14pt; margin-top:20px;"><strong>Documentos
+                        obligatorios:</strong></p>
+                    <hr>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Fotos del Conductor</label>
+
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Fotos de Indumentaria</label>
+                  </div>
+                </div>
+                <div class="row">
+                  <p class="text-center text-primary" style="font-size:14pt; margin-top:20px;"><strong>Documentos
+                      complementarios:</strong></p>
+                  <hr>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Referencia laboral</label>
+                    <table class="table">
+                      <thead style="text-align:left;
+                       					 color:white; background-color:#FFA900;">
+                        <tr>
+                          <th style="width:3%;">#</th>
+                          <th style="width:5%;">Documento/Img</th>
+                          <th style="width:10%;">Nombre</th>
+                          <th style="width:20%;">Actualice documento</th>
+                        </tr>
+                      </thead>
+                      <tbody id="consulta_documentos">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Referencia Personal</label>
+                    <table class="table">
+                      <thead style="text-align:left;
+                       					 color:white; background-color:#FFA900;">
+                        <tr>
+                          <th style="width:3%;">#</th>
+                          <th style="width:5%;">Documento/Img</th>
+                          <th style="width:10%;">Nombre</th>
+                          <th style="width:20%;">Actualice documento</th>
+                        </tr>
+                      </thead>
+                      <tbody id="documentos_personal">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Licencia</label>
+                    <table class="table">
+                      <thead style="text-align:left;
+                       					 color:white; background-color:#FFA900;">
+                        <tr>
+                          <th style="width:3%;">#</th>
+                          <th style="width:5%;">Documento/Img</th>
+                          <th style="width:10%;">Nombre</th>
+                          <th style="width:20%;">Actualice documento</th>
+                        </tr>
+                      </thead>
+                      <tbody id="documentos_licencia">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Rut</label>
+                    <table class="table">
+                      <thead style="text-align:left;
+                       					 color:white; background-color:#FFA900;">
+                        <tr>
+                          <th style="width:3%;">#</th>
+                          <th style="width:5%;">Documento/Img</th>
+                          <th style="width:10%;">Nombre</th>
+                          <th style="width:20%;">Actualice documento</th>
+                        </tr>
+                      </thead>
+                      <tbody id="documentos_rut">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Eps</label>
+                    <table class="table">
+                      <thead style="text-align:left;
+                       					 color:white; background-color:#FFA900;">
+                        <tr>
+                          <th style="width:3%;">#</th>
+                          <th style="width:5%;">Documento/Img</th>
+                          <th style="width:10%;">Nombre</th>
+                          <th style="width:20%;">Actualice documento</th>
+                        </tr>
+                      </thead>
+                      <tbody id="documentos_eps">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Arl</label>
+                    <table class="table">
+                      <thead style="text-align:left;
+                       					 color:white; background-color:#FFA900;">
+                        <tr>
+                          <th style="width:3%;">#</th>
+                          <th style="width:5%;">Documento/Img</th>
+                          <th style="width:10%;">Nombre</th>
+                          <th style="width:20%;">Actualice documento</th>
+                        </tr>
+                      </thead>
+                      <tbody id="documentos_arl">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label style="font-weight:800; margin-top:20px;">Curso Mercancías peligrosas</label>
+                    <table class="table">
+                      <thead style="text-align:left;
+                       					 color:white; background-color:#FFA900;">
+                        <tr>
+                          <th style="width:3%;">#</th>
+                          <th style="width:5%;">Documento/Img</th>
+                          <th style="width:10%;">Nombre</th>
+                          <th style="width:20%;">Actualice documento</th>
+                        </tr>
+                      </thead>
+                      <tbody id="documentos_peligro">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--documentos nuevos-->
+          <div class="accordion" id="panel_papeles" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="headingUpdateData3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#documentos" aria-expanded="true" aria-controls="documentos"><i class="icon mdi mdi-chevron-down"></i>Documentos prefiltro</button>
+              </h2>
+            </div>
+            <div id="documentos" class="accordion-collapse collapse" aria-labelledby="headingUpdateData3">
+              <div class="accordion-body pt-0">
+                <div class="row">
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <label>¿Desea Agregar un documento?</label>
+                  </div>
+                  <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                    <button class=" form-control btn btn-info mdi mdi-plus input-sm text-center" data-toggle="tooltip" data-placement="top" title="Agregar" id="agregar_docu"> Agregar
+                      Documentos</button>
+                  </div>
+                </div><br>
+                <div class="row">
+                  <table class="table table-bordered table-condensed">
+                    <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+                      <th>#</th>
+                      <th>Tipo Hoja Vida</th>
+                      <th>Clase</th>
+                      <th>Ruta</th>
+                      <th>Subir</th>
+                      <th>Nombre Archivo</th>
+                      <th>Acción</th>
+                    </thead>
+                    <tbody id="tabla_papeles">
+                    </tbody>
+                  </table>
+                </div>
+                <input type="hidden" id="cont_papel">
+                <input type="hidden" id="valor_documento" class="form-control input-sm" readonly="readonly" value="6">
+              </div>
+            </div>
+          </div>
+
+          <!--documento flete-placa -->
+          <div class="accordion" id="panel_fletepk" style="display:none;">
+            <div class="accordion-item border-top">
+              <h2 class="accordion-header" id="headingSubasta">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo"><i class="icon mdi mdi-chevron-down"></i>Subasta</button>
+              </h2>
+            </div>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingSubasta">
+              <div class="accordion-body pt-0">
+                <div class="row">
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Placa</label>
+                      <input type="text" id="su_placa" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Num. servicio</label>
+                      <input type="text" id="su_servicio" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Flete sugerido</label>
+                      <input type="text" id="su_fletecot" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Total flete propuesto</label>
+                      <input type="text" id="su_propuesto" class="form-control form-control-sm" min="0">
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Total peso bruto(Tn)</label>
+                      <input type="text" id="su_neto" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <label title="sumatoria">Total peso Neto(Kg)</label>
+                      <input type="text" id="su_sumatorianeto" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>estado creación</label>
+                      <input type="text" id="su_estado" value="pendiente" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>usuario creación</label>
+                      <input type="text" id="su_user" class="form-control form-control-sm" value="<?php echo $ssn_nombre; ?>" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Fecha creación</label>
+                      <input type="text" id="su_fecha" value="<?php echo date('Y-m-d'); ?>" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Hora creación</label>
+                      <input type="text" id="su_hora" value="<?php echo date('H:i:s'); ?>" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Número subasta</label>
+                      <input type="text" id="su_numsubasta" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                    <div class="mb-1">
+                      <label>Responsable VehÍculo <span style="color:red;"><i>(*)</i></span></label>
+                      <select name="responsable_vehiculo" id="responsable_vehiculo" class="form-control form-control-sm "></select>
+                    </div>
+                  </div>
+                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="mb-1">
+                      <input type="hidden" id="su_tarifacot" class="form-control form-control-sm" disabled>
+                    </div>
+                  </div>
+                  <input type="hidden" id="su_valida" class="form-control form-control-sm" disabled value="1">
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--FIN DOCUMENTOS -->
+        </div>
+        <!--GUARDAR SOLO  -->
+        <!-- <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12" id="divbotones">
+              <button id="crear_preestudio" class="btn btn-success">Guardar</button>
+            </div> -->
+      </div>
+    </div>
+    <!--CUERPO DE LA SOLICITUD-->
+    <div class="offcanvas-footer p-3 border-top text-center">
+      <div class="d-flex justify-content-end align-content-between gap-3">
+        <button type="button" id="btn_cerrar" data-bs-dismiss="offcanvas" aria-label="Close" class="btn btn-danger btn-sm" id="cierremodal"><i class="fas fa-times"></i> Cancelar</button>
+        <button id="crear_preestudio" class="btn btn-success btn-sm"><i class="far fa-save"></i> Guardar Prefiltro</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="<?= BASE_URL ?>views/prefiltro_nacional/js/ejemplo.js"></script>

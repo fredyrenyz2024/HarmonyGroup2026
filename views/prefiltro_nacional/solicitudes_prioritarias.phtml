@@ -2,29 +2,30 @@
   <!-- <div class="d-flex justify-content-center"></div> -->
   <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
     <div class="row">
-      <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'>
-        <table class='table table-bordered table-sm' data-page-length='100' style="font-size:12px;">
-          <thead>
-            <tr>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>#</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Solicitud</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Tipo Servicio</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Itr</th>
-              <!--<th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cantidad</th>-->
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cliente</th>
-              <th style="text-align: center;vertical-align: middle;width: 200px;">Mercancía</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Vehículo</th>
-              <th style="text-align: center;vertical-align: middle; width: 10px;">P.Neto</th>
-              <th style="text-align: center;vertical-align: middle;width: 200px;">Ruta</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Estado</th>
-              <th style="text-align: center;vertical-align: middle;width: 100px;">Acciones</th>
-            </tr>
-          </thead>
-          <tbody id='tbl-solicitudes' class='text-center'></tbody>
-        </table>
-      </div>
-      <!-- <div id="contenido_ventana"></div> -->
+      <!-- <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'></div> -->
+      <table class='table table-bordered table-sm' data-page-length='100' style="font-size:12px;">
+        <thead>
+          <tr>
+            <!-- <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>#</th> -->
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Solicitud</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Tipo Servicio</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Itr</th>
+            <!--<th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cantidad</th>-->
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cliente</th>
+            <th style="text-align: center;vertical-align: middle;width: 200px;">Mercancía</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Vehículo</th>
+            <th style="text-align: center;vertical-align: middle; width: 10px;">P.Neto</th>
+            <th style="text-align: center;vertical-align: middle;width: 200px;">Ruta</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Estado</th>
+            <!-- <th style="text-align: center;vertical-align: middle;width: auto;white-space: nowrap;">Acciones</th> -->
+          </tr>
+        </thead>
+        <tbody id='tbl-solicitudes-prioritarias' class='text-center'></tbody>
+      </table>
     </div>
   </div>
 </div>
+
+<!-- Offcanvas -->
+<?php include_once 'views/prefiltro_nacional/offcanvas.phtml'; ?>

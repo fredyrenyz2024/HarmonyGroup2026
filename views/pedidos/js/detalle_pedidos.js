@@ -29,6 +29,7 @@ d.addEventListener('DOMContentLoaded', async e => {
     .then(resultado => {
       console.log('Datos recibidos:', resultado);
       let tbody = d.getElementById('tbody_actividades');
+      let usuario = d.getElementById('id_usuario').value;
       tbody.innerHTML = '';
       resultado.forEach(element => {
         setTimeout(() => {
@@ -76,37 +77,65 @@ d.addEventListener('DOMContentLoaded', async e => {
 
               if (actividadDependiente && actividadDependiente.estado_actividad === 'COMPLETADO') {
                 // Si la actividad dependiente está completada, desbloqueamos la actividad actual
+                if (usuario === "404" || usuario === "403" || usuario === "400" || usuario === "401" || usuario === "402") {
+                  columnaAcciones.innerHTML = `
+                  <div class="btn-group btn-group-xs" role="group" aria-label="...">
+                    <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
+                  </div>`;
+                } else {
+                  columnaAcciones.innerHTML = `
+                  <div class="btn-group btn-group-xs" role="group" aria-label="...">
+                    <button type="button" class="btn btn-success" title="Gestionar actividad" id="btn_gestion_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-tasks"></i></button>
+                    <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
+                    <button type="button" class="btn btn-danger"><i class="far fa-file-pdf"></i></button>
+                  </div>`;
+                }
+              } else {
+                // Si no está completada, dejamos la actividad bloqueada
+                if (usuario === "404" || usuario === "403" || usuario === "400" || usuario === "401" || usuario === "402") {
+                  columnaAcciones.innerHTML = `
+                  <div class="btn-group btn-group-xs" role="group" aria-label="...">
+                    <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
+                  </div>`;
+                } else {
+                  columnaAcciones.innerHTML = `
+                  <div class="btn-group btn-group-xs" role="group" aria-label="...">
+                    <button type="button" class="btn btn-success" title="Gestionar actividad" id="btn_gestion_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}" disabled><i class="fas fa-tasks"></i></button>
+                    <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
+                    <button type="button" class="btn btn-danger"><i class="far fa-file-pdf"></i></button>
+                  </div>`;
+                }
+              }
+            } else {
+              // Si no tiene dependencia, se puede gestionar sin restricciones
+              if (usuario === "404" || usuario === "403" || usuario === "400" || usuario === "401" || usuario === "402") {
+                columnaAcciones.innerHTML = `
+                <div class="btn-group btn-group-xs" role="group" aria-label="...">
+                  <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
+                </div>`;
+              } else {
                 columnaAcciones.innerHTML = `
                 <div class="btn-group btn-group-xs" role="group" aria-label="...">
                   <button type="button" class="btn btn-success" title="Gestionar actividad" id="btn_gestion_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-tasks"></i></button>
                   <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
                   <button type="button" class="btn btn-danger"><i class="far fa-file-pdf"></i></button>
                 </div>`;
-              } else {
-                // Si no está completada, dejamos la actividad bloqueada
-                columnaAcciones.innerHTML = `
-                <div class="btn-group btn-group-xs" role="group" aria-label="...">
-                  <button type="button" class="btn btn-success" title="Gestionar actividad" id="btn_gestion_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}" disabled><i class="fas fa-tasks"></i></button>
-                  <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
-                  <button type="button" class="btn btn-danger"><i class="far fa-file-pdf"></i></button>
-                </div>`;
               }
-            } else {
-              // Si no tiene dependencia, se puede gestionar sin restricciones
+            }
+          } else if (element.estado_actividad === 'COMPLETADO' || element.estado_actividad === 'CANCELADO') {
+            // Si la actividad ya está completada o cancelada
+            if (usuario === "404" || usuario === "403" || usuario === "400" || usuario === "401" || usuario === "402") {
               columnaAcciones.innerHTML = `
               <div class="btn-group btn-group-xs" role="group" aria-label="...">
-                <button type="button" class="btn btn-success" title="Gestionar actividad" id="btn_gestion_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-tasks"></i></button>
+                <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
+              </div>`;
+            } else {
+              columnaAcciones.innerHTML = `
+              <div class="btn-group btn-group-xs" role="group" aria-label="...">
                 <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
                 <button type="button" class="btn btn-danger"><i class="far fa-file-pdf"></i></button>
               </div>`;
             }
-          } else if (element.estado_actividad === 'COMPLETADO' || element.estado_actividad === 'CANCELADO') {
-            // Si la actividad ya está completada o cancelada
-            columnaAcciones.innerHTML = `
-            <div class="btn-group btn-group-xs" role="group" aria-label="...">
-              <button type="button" class="btn btn-primary" title="Detalle Gestión actividad" id="btn_detalle_actividad" data-idproceso="${element.proceso_id}" data-idactividad="${element.actividad_id}"><i class="fas fa-eye"></i></button>
-              <button type="button" class="btn btn-danger"><i class="far fa-file-pdf"></i></button>
-            </div>`;
           }
 
           const fila2 = d.createElement('tr');
@@ -219,7 +248,7 @@ d.addEventListener('DOMContentLoaded', async e => {
           tbody.appendChild(fila3);
 
           // Selecciona el input por su id
-          document.getElementById(`costo_actividad${element.actividad_id}`).addEventListener('keydown', async function(event) {
+          document.getElementById(`costo_actividad${element.actividad_id}`).addEventListener('keydown', async function (event) {
             // Verifica si la tecla presionada es Enter
             if (event.key === 'Enter') {
               // Evita la acción predeterminada del Enter (como el envío de formulario)
@@ -320,7 +349,7 @@ d.addEventListener('DOMContentLoaded', async e => {
           d.getElementById('cargando_gif').style.display = 'none';
           // d.getElementById("accordion").style.display = "block";
           // Recorre los checkboxes y marca aquellos cuyo valor coincida
-          checkboxes.forEach(function(checkbox) {
+          checkboxes.forEach(function (checkbox) {
             if (checkbox.value === element.tipo_procesos_id) {
               checkbox.checked = true;
               checkbox.disabled = true;
@@ -348,7 +377,7 @@ d.addEventListener('DOMContentLoaded', async e => {
       resultado.forEach(element => {
         datos_detalle.detalle.push(element.detalle_proceso);
         setTimeout(() => {
-          checkboxes1.forEach(function(checkbox1) {
+          checkboxes1.forEach(function (checkbox1) {
             if (checkbox1.value === element.detalle_proceso) {
               checkbox1.checked = true;
               checkbox1.disabled = true;
@@ -372,7 +401,7 @@ d.addEventListener('DOMContentLoaded', async e => {
         d.getElementById('btn_editar_pedido').style.display = 'none';
         // Listar de prametros (acordeon)
         let checkboxes = d.getElementsByName('chk_trazabilidad[]');
-        checkboxes.forEach(function(checkbox) {
+        checkboxes.forEach(function (checkbox) {
           let btnEditarDetalles = d.getElementById('btn_editar_detalles' + checkbox.value);
           var miElemento2 = d.getElementById('list_detalle' + checkbox.value);
           var miElemento3 = d.querySelector('.chk_detalle' + checkbox.value);
@@ -394,7 +423,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                   let checkboxesDetalle = d.querySelectorAll('.chk_detalle' + checkbox.value);
                   var valorDataId3 = miElemento3.getAttribute('data-id3');
                   // console.log(valorDataId3);
-                  checkboxesDetalle.forEach(function(checkboxdetalle) {
+                  checkboxesDetalle.forEach(function (checkboxdetalle) {
                     if (valorDataId3 === checkbox.value) {
                       if (checkboxdetalle.checked) {
                         checkboxdetalle.disabled = false;
@@ -421,7 +450,7 @@ d.addEventListener('DOMContentLoaded', async e => {
         d.getElementById('btn_editar_pedido').style.display = 'block';
         // Listar de prametros (acordeon)
         let checkboxes = d.getElementsByName('chk_trazabilidad[]');
-        checkboxes.forEach(function(checkbox) {
+        checkboxes.forEach(function (checkbox) {
           let btnEditarDetalles = d.getElementById('btn_editar_detalles' + checkbox.value);
           if (checkbox.checked) {
             // Mostrar el botón en cada acordeón
@@ -435,7 +464,7 @@ d.addEventListener('DOMContentLoaded', async e => {
         });
         // Lista detalles(tipo desatlle)
         let checkboxes1 = d.getElementsByName('chk_detalle[]');
-        checkboxes1.forEach(function(checkbox1) {
+        checkboxes1.forEach(function (checkbox1) {
           if (checkbox1.checked) {
             // checkbox1.checked = true;
             checkbox1.disabled = true;
@@ -479,7 +508,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                   </div>
               </div>`;
               $('#crear_trazabilidad').modal('hide');
-              setTimeout(function() {
+              setTimeout(function () {
                 location.reload(false);
                 d.getElementById('mensaje').innerHTML = mensaje;
               }, 1500);
@@ -695,7 +724,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                         </div>
                     </div>`;
                   }
-                  setTimeout(function() {
+                  setTimeout(function () {
                     location.reload(false);
                     d.getElementById('mensaje' + actividad_id).innerHTML = mensaje;
                   }, 1000);
@@ -823,8 +852,8 @@ d.addEventListener('DOMContentLoaded', async e => {
           type: 'POST',
           dataType: 'json',
           // data: data,
-          data: {publicado: valor, id: valor_id},
-          success: function(response) {
+          data: { publicado: valor, id: valor_id },
+          success: function (response) {
             if (response.numero === 200) {
               mensaje = `
               <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
@@ -950,8 +979,8 @@ function Publicado(elemento, actividad, nundoc, detalle) {
       type: 'POST',
       dataType: 'json',
       // data: data,
-      data: {publicado: valorElemento, id: detalle},
-      success: function(response) {
+      data: { publicado: valorElemento, id: detalle },
+      success: function (response) {
         if (response.numero === 200) {
           mensaje = `
             <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
@@ -995,7 +1024,7 @@ async function Listar_clientes() {
     .then(response => {
       let CLIENTES = d.getElementById('clientes');
       response.forEach(value => {
-        let {id, documento, nombre} = value;
+        let { id, documento, nombre } = value;
         let opt = document.createElement('option');
         opt.value = id;
         // opt.textContent = documento + " | " + nombre;
@@ -1128,7 +1157,7 @@ async function Listar_solicitudes_cliente() {
     .then(response => {
       let SOLICITUDES = d.getElementById('solicitudes_cliente');
       response.forEach(value => {
-        let {solicitud_servicio, PESO, MERCANCIA} = value;
+        let { solicitud_servicio, PESO, MERCANCIA } = value;
         let opt = document.createElement('option');
         if (solicitud_servicio !== ' ') {
           opt.value = solicitud_servicio;
@@ -1158,7 +1187,7 @@ async function Listar_parametros_gestion(nundoc) {
       let PEDIDOS = d.getElementById('parametros_pedido');
       PEDIDOS.innerHTML = '';
       response.forEach(value => {
-        let {nombre_tipo, id} = value;
+        let { nombre_tipo, id } = value;
         let opt = document.createElement('option');
         opt.value = id;
         opt.textContent = nombre_tipo;
@@ -1184,7 +1213,7 @@ async function Listar_opcion_parametros_gestion(nundoc, trazabilidad_id) {
       let PEDIDOS = d.getElementById('parametros_punto_pedido_opcion');
       PEDIDOS.innerHTML = '';
       response.forEach(value => {
-        let {nombre_opcion, id} = value;
+        let { nombre_opcion, id } = value;
         let opt = document.createElement('option');
         opt.value = id;
         opt.textContent = nombre_opcion;

@@ -423,7 +423,7 @@ class web_serviceModel extends Model
 					gu.rndc_id AS rndc_vehiculo, ve2.peso,
 					ve2.capacidad_tn, carro.rndc_id AS rndc_carroceria,
 					ve2.cod_tipo_combustible, ve2.num_soat, ve2.vence_soat,
-					ase.rndc_id AS rndc_aseguradora, gu.rndc_id_trailer, gu.nombre AS ccompleta
+					ase.rndc_id AS rndc_aseguradora, gu.rndc_id_trailer, gu.rndc_id AS ccompleta
 					FROM cmx_vehiculos ve
 					INNER JOIN cmx_vehiculo2 ve2
 					ON ve.numdoc_vehiculo=ve2.id_vehiculo
