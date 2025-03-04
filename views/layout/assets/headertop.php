@@ -69,22 +69,8 @@
   <link href="<?php echo BASE_URL ?>public/vendors/leaflet.markercluster/MarkerCluster.Default.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.min.css" />
-  <!-- <style>
-    .select2-sm .select2-selection--multiple {
-      min-height: calc(1.8em + 0.5rem + 2px);
-      /* Ajusta la altura */
-      padding: 0.25rem 0.5rem;
-      /* Ajusta el padding */
-      font-size: 0.875rem;
-      /* Ajusta el tamaño de la fuente */
-    }
-
-    .select2-sm .select2-dropdown {
-      font-size: 0.875rem;
-      /* Tamaño de fuente pequeño */
-    }
-  </style> -->
-
+  <!-- Agregamos SheetJS desde un CDN, o podrías instalarlo con npm/yarn -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     /* Estilos para el contenedor del select */
     .select2-sm .select2-selection--single,
@@ -237,6 +223,7 @@
 <body class="overflow-x-hidden">
   <!-- URL PARA CARGAR -->
   <input type="hidden" name="base_url" id="base_url" value="<?php echo BASE_URL ?>">
+  <input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
   <nav class="navbar navbar-vertical navbar-expand-lg" style="display: none;"></nav>
   <nav class="navbar navbar-top navbar-slim justify-content-between fixed-top navbar-expand-lg" id="navbarTopSlim" style="display:none;">
     <div class="navbar-logo">
@@ -248,18 +235,13 @@
         </span>
       </button>
       <a class="navbar-brand navbar-brand" href="<?php echo BASE_URL ?>">
-      <span class="fw-bold">Harmony </span> <span class="text-body-highlight d-none d-sm-inline">Group</span>
+        <span class="fw-bold">Harmony </span> <span class="text-body-highlight d-none d-sm-inline">Group</span>
       </a>
     </div>
     <div class="collapse navbar-collapse navbar-top-collapse order-1 order-lg-0 justify-content-center"
       id="navbarTopCollapse">
       <ul class="navbar-nav navbar-nav-top" data-dropdown-on-hover="data-dropdown-on-hover">
         <li class="nav-item dropdown">
-          <!-- <li class="nav-item"> </li></li> -->
-          <!-- <a class="nav-link lh-1" href="<?php echo BASE_URL; ?>" role="button" data-bs-toggle="dropdown"
-            data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
-            <span data-feather="home" class="me-2"></span> Dashboard
-          </a> -->
           <a class="nav-link dropdown-toggle lh-1" href="<?= BASE_URL; ?>" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false"><span class="uil fs-8 me-2 uil-create-dashboard text-danger"></span>Dashboard</a>
         </li>
         <!-- Crear menu -->

@@ -53,6 +53,101 @@ $(document).ready(function () {
         Filtro(SELECTFILTRO, fecha_inicial, fecha_final, "En_Curso", valorSeleccionado);
       });
     }
+
+    //Solicitar prioridad para solicitudes
+    document.addEventListener('click', async function (e) {  // 🔹 Escuchamos eventos de clic en toda la página
+      if (e.target.matches("#btn_aprobar_solicitud") || e.target.closest("#btn_aprobar_solicitud")) {
+        let enlace = e.target.closest('#btn_aprobar_solicitud');
+        let dataId = enlace.getAttribute('data-id');
+
+        const result = await Swal.fire({
+          title: 'Seguro',
+          text: '¿Desea aprobar la solicitud?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3B71CA',
+          cancelButtonColor: '#9FA6B2',
+          confirmButtonText: 'Aceptar',
+          cancelButtonText: 'Cancelar',
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+
+        if (result.isConfirmed) {
+          var datos = new FormData();
+          datos.append('solicitud', dataId);
+          datos.append('estado', "Aprobada");
+
+          try {
+            const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
+              method: 'POST',
+              body: datos,
+              cache: 'no-cache',
+            });
+            const data = await response.json();
+            Swal.fire({
+              title: "Mensaje!",
+              text: data.message,
+              icon: data.status === 200 ? "success" : "error",
+              draggable: true
+            });
+            Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
+            // if (data.ststus === 200) resetAll();
+          } catch (error) {
+            console.error('Error en la solicitud:', error);
+          }
+        }
+      }
+
+      if (e.target.matches("#btn-solicitar-prioridad") || e.target.matches("#btn-solicitar-prioridad *")) {
+        // Buscar el elemento padre con el id, en caso de que se haya clickeado un hijo
+        const btn = e.target.closest("#btn-solicitar-prioridad");
+        // Obtener el atributo 'data-id2'
+        const numdoc_sol = btn.getAttribute('data-id2');
+
+        const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: '¿Quieres cambiar el estado?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, cambiar',
+          cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+          datos = new FormData();
+          datos.append('estado', "Propuesta");
+          datos.append('numdoc_solicitud', numdoc_sol);
+          try {
+            const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
+              method: 'POST',
+              body: datos,
+              cache: 'no-cache',
+            });
+            const data = await response.json();
+            if (data.status === 200) {
+              Swal.fire({
+                title: "Mensaje!",
+                text: data.message,
+                icon: "success",
+                draggable: true
+              });
+              Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
+            } else {
+              Swal.fire({
+                title: "Mensaje!",
+                text: data.message,
+                icon: "error",
+                draggable: true
+              });
+            }
+          } catch (error) {
+            console.error('Error en la primera solicitud:', error);
+          }
+        }
+      }
+    });
   };
 });
 
@@ -82,6 +177,7 @@ async function Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente)
           let toltip = '';
           let estadobtn = '';
           let itr = '';
+          let perfil = document.getElementById("perfil_id").value;
           if (data.length > 0) {
             // console.log(data);
             template.innerHTML = '';
@@ -126,47 +222,80 @@ async function Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente)
                 // itr = '<span class="badge badge-primary float-right">NO</span>';
                 itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">NO</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>';
               }
+              if (element.prioritaria === 'Propuesta') {
+                if (perfil === '1') {
+                  Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label"><a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-primary" title="Aprobar solicitud">${element.prioritaria}</a></span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
+                } else {
+                  Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">${element.prioritaria}</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
+                }
+              } else if (element.prioritaria === 'Aprobada') {
+                Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${element.prioritaria}</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
+              } else {
+                Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Sin proponer</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+              }
               template += `
                   <tr>
-                    <td class="cell-detail">
-                      <a href="#" class="text-decoration-none fw-bold"  onclick="preestudio(this);" data-id="${element.n_cotizacion}" 
-                        data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item}" data-id5="${element.tipo_mercancia}"
-                        data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer}"  data-id9="${element.total_tarifa}"
-                        data-id10=""${element.origen_rndc}"  data-id11="${element.itr}" onclick="reiniciar_contador();" ${estadobtn}>N°${element.elid}</a> 
+                    <!--<td class='text-${clase_btn}'>
+                      <center>
+                        <span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="${element.esoli !== null ? element.esoli : 'Pendiente'}"></span>
+                      </center> data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop"
+                    </td>-->
+
+                      <td class="cell-detail">
+                          <div class="dropdown">
+                            <a class="btn btn-link dropdown-toggle text-decoration-none fw-bold" id="dropdownMenuLink" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">N°${element.elid}</a>
+                            <div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="dropdownMenuLink">
+                              <a class="dropdown-item fw-bold" href="#"  onclick="preestudio(this);" data-id="${element.n_cotizacion}" 
+                              data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item}" data-id5="${element.tipo_mercancia}"
+                              data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer}"  data-id9="${element.total_tarifa}"
+                              data-id10=""${element.origen_rndc}"  data-id11="${element.itr}" onclick="reiniciar_contador();" ${estadobtn}><span class="uil uil-envelope-send"></span> Solicitar Estudio Seguridad</a>
+                              <a class="dropdown-item fw-bold" href="#" id="btn-detalle-solicitud-servicio" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}"><span class="uil uil-file-search-alt"></span> Detalle Solicitud</a>
+                              ${(element.prioritaria === "Propuesta" || element.prioritaria === "Aprobada") ? '' : `<a class="dropdown-item fw-bold" id="btn-solicitar-prioridad" href="#" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}"> <span class="uil uil-bell"></span> Solicitar Prioridad </a>`}
+                              <!--<div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="#">Separated link</a>-->
+                            </div>
+                          </div>
+                              <!--COT-SS-BN
+                        <span>${element.n_cotizacion} - ${element.elid} - ${element.item} </span>
+                        <span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer}</span>-->
                     </td>
-                    <td  class="cell-detail">
+                    <td>
                       <span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer}</span>   
                     </td>
 
-                    <td class="cell-detail">
+                    <td>
                       <span>${itr}</span>
                     </td>
 
-                    <td class="cell-detail">
+                    <td style="width: auto; white-space: nowrap; color:black;">
                         <span> ${element.nombre_cliente} ${element.nit}</span>
                     </td>
 
-                    <td class="cell-detail" style="text-align: left;vertical-align: middle;font-size: 9px;" >
+                    <td style="width: auto; white-space: nowrap; color:black;">
                         <span>${element.tipo_mercancia}</span>
                     </td>
 
-                    <td class="cell-detail" >
+                    <td style="width: auto; white-space: nowrap; color:black;">
                         <span>${element.nombre}</span>
                     </td>
 
-                    <td class="cell-detail" style="text-align: left;vertical-align: middle;font-size: 9px;width: 10px;">
+                    <td style="width: auto; white-space: nowrap; color:black;">
                       <span title="Peso Neto kg">${formatNum(element.peso_kg)} kg</span>
                     </td>
 
-                    <td class="cell-detail" style="font-size: 9px;width:100px;" >
-                      <span><b>Origén:</b> ${element.origen_solicitud} <br> <b>Destino:</b> ${element.destino_solicitud}</span>
+                    <td style="width: auto; white-space: nowrap; color:black;">
+                      <span><b>Origén:</b> ${element.origen_solicitud} - <b>Destino:</b> ${element.destino_solicitud}</span>
                     </td>
 
-                    <td class="cell-detail text-center"
-                      <span>${element.fecha}<br>${element.hora_creacion} </span>
+                    <td class="cell-detail text-center" style="width: auto; white-space: nowrap; color:black;">
+                      <span>${element.fecha} ${element.hora_creacion} </span>
+                    </td>
+                    
+                    <td class="cell-detail text-center" style="width: auto; white-space: nowrap; color:black;">
+                        ${Prioridad}
                     </td>
                   
-                    <td class="cell-detail">
+                    <td style="width: auto; white-space: nowrap; color:black;">
                         ${element.numero_placas > 0 ? '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Placas asignadas</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>' : '<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Sin asignar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>'}
                     </td>
                 </tr>`;

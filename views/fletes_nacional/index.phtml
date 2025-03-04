@@ -4,11 +4,11 @@ $ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
 $ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
 $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
 $vista = '';
-$table_content='';
+$table_content = '';
 
 
 
-$table_content.="<div class='row' >
+$table_content .= "<div class='row' >
 			<div class='col-sm-12'>
 				<div  class='table-responsive noSwipe'>
 					<table id='table1' class='table table-striped table-hover' data-page-length='100'>
@@ -18,21 +18,24 @@ $table_content.="<div class='row' >
 								<th>Origen</th>
 								<th>Destino</th>
 								<th>Tipo Vehículo</th>
+								<th>Vigencia</th>
+								<th>Mes</th>
 								<th>Flete</th>
 								<th style='width:10%;min-width: 10%;'>acciones</th>
 							</tr>
 						</thead>
 						<tbody>";
-						$arrayPermisos = $this->flete->permisosPerfil( $ssn_id_perfil , 59);
-						$_permisos = $arrayPermisos;
-						$array = $this->flete->getFleteNacional();
-						if ( $array) {
-							foreach ($array as $key => $valor) {
+$arrayPermisos = $this->flete->permisosPerfil($ssn_id_perfil, 59);
+$_permisos = $arrayPermisos;
+$array = $this->flete->getFleteNacional();
+if ($array) {
+	foreach ($array as $key => $valor) {
 
-								$_btn_editar = ''; $btn_elimina='';
-							if($valor['estado']==1){
-								if ($_permisos['editar']) {
-									$_btn_editar = '
+		$_btn_editar = '';
+		$btn_elimina = '';
+		if ($valor['estado'] == 1) {
+			if ($_permisos['editar']) {
+				$_btn_editar = '
 										<a id="pruebabtn" href="javascript:"
 										onclick="editaFlete(' . $valor['id'] . ')" class="cell-detail hint--top-left" data-hint="Editar Flete" 
 											>
@@ -41,66 +44,68 @@ $table_content.="<div class='row' >
 											</span>
 										</a>
 									';
-								}	
+			}
 
-								if($_permisos['eliminar']){
-									$btn_elimina='<a id="" href="javascript:"
-										onclick="inactivaFlete(' . $valor['id'] . ', '.$valor['tarifa'].')" class="cell-detail hint--top-left" data-hint="Inactivar Flete" 
+			if ($_permisos['eliminar']) {
+				$btn_elimina = '<a id="" href="javascript:"
+										onclick="inactivaFlete(' . $valor['id'] . ', ' . $valor['tarifa'] . ')" class="cell-detail hint--top-left" data-hint="Inactivar Flete" 
 											>
 											<span class="icon mdi mdi-block" data-toggle="modal"
 											data-target="#Inactiva_fletenacional" >
 											</span>
 										</a>';
-								}
-							}	
+			}
+		}
 
-							//estados
-							$estado='';
-							if($valor['estado']==1){
-								$estado="<td class='nexos-txt-success'>
+		//estados
+		$estado = '';
+		if ($valor['estado'] == 1) {
+			$estado = "<td class='nexos-txt-success'>
 									<center><span class='mdi mdi-dot-circle icon'></span></center>
 								</td>";
-							}
-							if($valor['estado']==0){
-								$estado="<td class='nexos-txt-danger'>
+		}
+		if ($valor['estado'] == 0) {
+			$estado = "<td class='nexos-txt-danger'>
 									<center><span class='mdi mdi-dot-circle icon'></span></center>
 								</td>";
-							}
+		}
 
-								$table_content.='
+		$table_content .= '
 								<tr>
-								'.$estado.'
-								<td>'.$valor['municipio_origen'].'</td>
-								<td>'.$valor['municipio_destino'].'</td>
-								<td>'.$valor['nombre'].'</td>
-								<td>'.
-								number_format($valor["tarifa"], 2, ',', '.') .'</td>
+								' . $estado . '
+								<td>' . $valor['municipio_origen'] . '</td>
+								<td>' . $valor['municipio_destino'] . '</td>
+								<td>' . $valor['nombre'] . '</td>
+								<td>' . $valor['vigencia'] . '</td>
+								<td>' . $valor['mes'] . '</td>
+								<td>' .
+			number_format($valor["tarifa"], 2, ',', '.') . '</td>
 								<td  class="actions" >
-								 '.$_btn_editar.'
-								 '.$btn_elimina.'
+								 ' . $_btn_editar . '
+								 ' . $btn_elimina . '
 								</td>
 								</tr>';
-							}
-						}	
-						$table_content.="</tbody>
+	}
+}
+$table_content .= "</tbody>
 					</table>
 				</div>
 			</div>
 		</div>";
 
 
-	$vista.='
+$vista .= '
 			<div class="panel panel-border panel-contrast">
 				<div class="panel-heading panel-heading-contrast">
 					Fletes
 					<div class="tools">
-						<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="" ><span class="icon mdi mdi-plus" title="Agregar"></span></a> 
+						<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint=""><span class="icon mdi mdi-plus" title="Agregar"></span></a> 
 					</div>
 					<span class="panel-subtitle">Lista de Fletes estandar de las diferentes rutas a nivel nacional con variedad de tipos de vehículos.
 					</span>
 					<div class=" col-xs-12 col-sm-4 col-md-12">
-						<input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'" >
-						<input type="hidden" id="elperfil" class="form-control input-sm" readonly="readonly" value="'.$ssn_id_perfil.'">
+						<input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="' . $ssn_nombre . '" >
+						<input type="hidden" id="elperfil" class="form-control input-sm" readonly="readonly" value="' . $ssn_id_perfil . '">
 					</div>
 				</div>
 				<div class="panel-body">
@@ -113,20 +118,20 @@ $table_content.="<div class='row' >
 					</div>
 				</div>
 			</div>
-		'; 
+		';
 
 
-		?>
+?>
 <script type="text/javascript">
-		//abrir el primer modal
-		$(document).on('click', '#btn_crea', function() {
-			//abrir el modal principal
-	        $('#crea_fletenacional').modal('show');
-    	});
-	</script>
+	//abrir el primer modal
+	$(document).on('click', '#btn_crea', function() {
+		//abrir el modal principal
+		$('#crea_fletenacional').modal('show');
+	});
+</script>
 
-<?php 
-$vista.='
+<?php
+$vista .= '
 <div id="crea_fletenacional" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
 	<div class=".modal-dialog-modal-lg.modal-dialog ">
 		<div class="modal-content ">
@@ -140,22 +145,61 @@ $vista.='
 			</div>
 			<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
 			<div id="nexos_messages_popup"></div>
-			<div class="row">
+
+			
+			<!-- Selecionar que tipo de cargue de informacion se hara  -->
+			 <!-- Select con dos opciones -->
+			<select id="miSelect" class="form-control input-sm" style="margin-bottom:20px;">
+				<option value="">-- Selecciona una opción --</option>
+				<option value="cargue">Cargue Masivo</option>
+				<option value="flete">Crear Flete</option>
+			</select>
+
+			<div id="cargue_masivo" style="display:none;">			
+			<!-- Botón para descargar la plantilla de Excel -->
+			<div class="text-right">
+				<a href="' . BASE_URL . 'public/files/formatoFletes.xlsx" download class="btn btn-info btn-xs">Descargar Plantilla de Excel</a>
+			</div>
+			<br /><br />
+
+			<!-- 1) Input para seleccionar el archivo de Excel -->
+			<div class="mb-3">
+				<label class="form-label" for="customFileSm">Subir Archivo</label>
+				<input type="file" class="form-control" id="excelFile" accept=".xls, .xlsx" />
+			</div>
+
+			<!-- 2) Botón para leer y previsualizar el Excel -->
+			<br>
+			<button onclick="leerExcel()" class="btn btn-primary btn-xs">Previsualizar</button>
+
+			<!-- 3) Área de previsualización --> 
+			<h5>Vista Previa</h5>
+			<div class="form-group col-xs-12">
+				<table class="table-striped" id="previewTable" cellpadding="0" border="1" style="width: 100%; border: #332D2D;">
+					<!-- Aquí se generarán dinámicamente las filas -->
+				</table>
+			</div>
+
+			<!-- 4) Botón para confirmar y enviar los datos al servidor -->
+			<button onclick="enviarDatos()" class="btn btn-success btn-xs">Confirmar y Enviar</button>
+			</div>
+
+			<div class="row" id="crear_flete" style="display:none;">
 				<div class="text-right">
 					<span>(*) Campos Obligatorios</span>
 				</div>
 							<div class="form-group col-xs-6">
 								<label style="font-weight:800; margin-top:20px;">(*) Origen:</label>
-								' . $this->municipios->getHtmlSelectnew( "id_ciudad_origen" , "" ) . '
+								' . $this->municipios->getHtmlSelectnew("id_ciudad_origen", "") . '
 							</div>
 							<div class="form-group col-xs-6">
 								<label style="font-weight:800; margin-top:20px;">(*) Destino:</label>
-								' . $this->municipios->getHtmlSelectnew2( "id_ciudad_destino" , "" ) . '
+								' . $this->municipios->getHtmlSelectnew2("id_ciudad_destino", "") . '
 							</div>
 							<div class="row"></div>
 							<div class="form-group col-xs-4">
 								<label style="font-weight:800; margin-top:20px;">(*) Tipo Vehículo:</label>
-								' . $this->tipo_vehiculo->getHtmlSelect2( "id_tipo_vehiculo" , "" , "1" ) . '
+								' . $this->tipo_vehiculo->getHtmlSelect2("id_tipo_vehiculo", "", "1") . '
 							</div>
 							<div class="form-group col-xs-4">
 								<label style="font-weight:800; margin-top:20px;">(*)Costo Flete:</label>
@@ -195,7 +239,7 @@ $vista.='
 </div>	';
 
 
-$vista.='
+$vista .= '
 <div id="edita_fletenacional" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
 	<div class=".modal-dialog-modal-lg.modal-dialog ">
 		<div class="modal-content ">
@@ -223,7 +267,7 @@ $vista.='
 	</div>
 </div>';
 
-$vista.='<div id="Inactiva_fletenacional" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+$vista .= '<div id="Inactiva_fletenacional" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
 	<div class=".modal-dialog-modal-lg.modal-dialog ">
 		<div class="modal-content ">
 			<div class="modal-header">
@@ -246,15 +290,15 @@ $vista.='<div id="Inactiva_fletenacional" tabindex="-1" role="dialog" class="mod
 					</div>
 				</div>
 		</div>
-		<div class="modal-footer">
+		<div class="modal-footer" id="footer_botones">
 			<button type="button" data-dismiss="modal" id="btn_inactiva_flete" class="btn btn-success md-close">Inactivar</button>
 			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
 		</div>
 	</div>
 	</div>
 </div>';
-	
-	$vista.= '
+
+$vista .= '
 		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
 		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
 		<script src="%root_file%js/main.js" type="text/javascript"></script>
@@ -287,6 +331,9 @@ $vista.='<div id="Inactiva_fletenacional" tabindex="-1" role="dialog" class="mod
 
 		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
 		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+		<!-- Agregamos SheetJS desde un CDN, o podrías instalarlo con npm/yarn -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 		<script type="text/javascript">
 			$.fn.niftyModal(\'setDefaults\',{
 				overlaySelector: \'.modal-overlay\',
@@ -309,136 +356,169 @@ $vista.='<div id="Inactiva_fletenacional" tabindex="-1" role="dialog" class="mod
 			});
 		</script>
 	';
-	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
-	$vista = str_replace("%content%" , $table_content , $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
-	echo $vista;	
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
+echo $vista;
 ?>
 
 <script type="text/javascript">
-$("select[name=slct_municipios]").change(function () {
-	$(".nexos-messages").empty();
-	$("#nexos_messages_popup").html('');
-	if($("select[name=slct_municipios]").val() && $("select[name=slct_municipios2]").val() && $("#slct_tipo_vehiculo_").val()){
-		if( verificaFlete( $("select[name=slct_municipios]").val(), $("select[name=slct_municipios2]").val(), $("#slct_tipo_vehiculo_").val() ) ){
-			$("#valor").val("");
-			$("#valor").attr("disabled",true);
-			$("#vigencia").val("");
-			$("#vigencia").attr("disabled",true);
-			$("#nexos_messages_popup").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong><p>El Flete que esta intentando crear ya se encuentra creado, por favor búsquelo en la lista de fletes para editarlo.</p></div></div>');
-		}
-	}
-});
+	// Obtenemos referencias a los elementos
+	const select = document.getElementById("miSelect");
+	const divCargue = document.getElementById("cargue_masivo");
+	const divFlete = document.getElementById("crear_flete");
+	const btn_flete = document.getElementById("footer_botones");
 
-$("select[name=slct_municipios2]").change(function () {
-	$(".nexos-messages").empty();
-	$("#nexos_messages_popup").html('');
-	if($("select[name=slct_municipios]").val() && $("select[name=slct_municipios2]").val() && $("#slct_tipo_vehiculo_").val()){
-		if( verificaFlete( $("select[name=slct_municipios]").val(), $("select[name=slct_municipios2]").val(), $("#slct_tipo_vehiculo_").val() ) ){
-			$("#valor").val("");
-			$("#valor").attr("disabled",true);
-			$("#vigencia").val("");
-			$("#vigencia").attr("disabled",true);
-			$("#nexos_messages_popup").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong><p>El Flete que esta intentando crear ya se encuentra creado, por favor búsquelo en la lista de fletes para editarlo.</p></div></div>');
-		}
-	}
-});	
+	// Escuchamos el evento "change" del select
+	select.addEventListener("change", function() {
+		// Ocultamos ambos divs
+		// divCargue.classList.add("hidden");
+		// divFlete.classList.add("hidden");
 
-$("#slct_tipo_vehiculo_").change(function () {
-	$(".nexos-messages").empty();
-	$("#nexos_messages_popup").html('');
-	if($("select[name=slct_municipios]").val() && $("select[name=slct_municipios2]").val() && $("#slct_tipo_vehiculo_").val()){
-		if( verificaFlete( $("select[name=slct_municipios]").val(), $("select[name=slct_municipios2]").val(), $("#slct_tipo_vehiculo_").val() ) ){
-			$("#valor").val("");
-			$("#valor").attr("disabled",true);
-			$("#vigencia").val("");
-			$("#vigencia").attr("disabled",true);
-			$("#nexos_messages_popup").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong><p>El Flete que esta intentando crear ya se encuentra creado, por favor búsquelo en la lista de fletes para editarlo.</p></div></div>');
+		// Mostramos el div correspondiente según la opción seleccionada
+		const selected = select.value;
+		if (selected === "cargue") {
+			// divCargue.classList.remove("hidden");
+			divCargue.style.display = "block";
+			divFlete.style.display = "none";
+			btn_flete.style.display = "none";
+		} else if (selected === "flete") {
+			// divFlete.classList.remove("hidden");
+			divFlete.style.display = "block";
+			divCargue.style.display = "none";
+			btn_flete.style.display = "block";
 		}
-	}
-});
+	});
 
-$("#btn_agregar_flete").click(function () {
-	//alert('crear flete');
-	$("#nexos_messages_popup").empty();
+	$("select[name=slct_municipios]").change(function() {
+		$(".nexos-messages").empty();
+		$("#nexos_messages_popup").html('');
+		if ($("select[name=slct_municipios]").val() && $("select[name=slct_municipios2]").val() && $("#slct_tipo_vehiculo_").val()) {
+			if (verificaFlete($("select[name=slct_municipios]").val(), $("select[name=slct_municipios2]").val(), $("#slct_tipo_vehiculo_").val())) {
+				$("#valor").val("");
+				$("#valor").attr("disabled", true);
+				$("#vigencia").val("");
+				$("#vigencia").attr("disabled", true);
+				$("#nexos_messages_popup").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong><p>El Flete que esta intentando crear ya se encuentra creado, por favor búsquelo en la lista de fletes para editarlo.</p></div></div>');
+			}
+		}
+	});
+
+	$("select[name=slct_municipios2]").change(function() {
+		$(".nexos-messages").empty();
+		$("#nexos_messages_popup").html('');
+		if ($("select[name=slct_municipios]").val() && $("select[name=slct_municipios2]").val() && $("#slct_tipo_vehiculo_").val()) {
+			if (verificaFlete($("select[name=slct_municipios]").val(), $("select[name=slct_municipios2]").val(), $("#slct_tipo_vehiculo_").val())) {
+				$("#valor").val("");
+				$("#valor").attr("disabled", true);
+				$("#vigencia").val("");
+				$("#vigencia").attr("disabled", true);
+				$("#nexos_messages_popup").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong><p>El Flete que esta intentando crear ya se encuentra creado, por favor búsquelo en la lista de fletes para editarlo.</p></div></div>');
+			}
+		}
+	});
+
+	$("#slct_tipo_vehiculo_").change(function() {
+		$(".nexos-messages").empty();
+		$("#nexos_messages_popup").html('');
+		if ($("select[name=slct_municipios]").val() && $("select[name=slct_municipios2]").val() && $("#slct_tipo_vehiculo_").val()) {
+			if (verificaFlete($("select[name=slct_municipios]").val(), $("select[name=slct_municipios2]").val(), $("#slct_tipo_vehiculo_").val())) {
+				$("#valor").val("");
+				$("#valor").attr("disabled", true);
+				$("#vigencia").val("");
+				$("#vigencia").attr("disabled", true);
+				$("#nexos_messages_popup").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong><p>El Flete que esta intentando crear ya se encuentra creado, por favor búsquelo en la lista de fletes para editarlo.</p></div></div>');
+			}
+		}
+	});
+
+	$("#btn_agregar_flete").click(function() {
+		//alert('crear flete');
+		$("#nexos_messages_popup").empty();
 		var msg_error = "";
 
 		// Validaciones del módulo 
-		if ( !$("select[name=slct_municipios]").val() ) {
-			msg_error+= "<p>Debe seleccionar un <strong>Origen</strong> para poder crear el Flete.</p>";
+		if (!$("select[name=slct_municipios]").val()) {
+			msg_error += "<p>Debe seleccionar un <strong>Origen</strong> para poder crear el Flete.</p>";
 		}
-		if ( !$("select[name=slct_municipios2]").val() ) {
-			msg_error+= "<p>Debe seleccionar un <strong>Destino</strong> para poder crear el Flete.</p>";
+		if (!$("select[name=slct_municipios2]").val()) {
+			msg_error += "<p>Debe seleccionar un <strong>Destino</strong> para poder crear el Flete.</p>";
 		}
-		if ( !$("#slct_tipo_vehiculo_").val() ) {
-			msg_error+= "<p>Debe seleccionar un <strong>Tipo Vehículo</strong> para poder crear el Flete.</p>";
+		if (!$("#slct_tipo_vehiculo_").val()) {
+			msg_error += "<p>Debe seleccionar un <strong>Tipo Vehículo</strong> para poder crear el Flete.</p>";
 		}
-		if ( !$("#valor").val() ) {
-			msg_error+= "<p>Debe diligenciar el campo <strong>Costo Flete</strong> para poder crear el Flete.</p>";
+		if (!$("#valor").val()) {
+			msg_error += "<p>Debe diligenciar el campo <strong>Costo Flete</strong> para poder crear el Flete.</p>";
 		}
-		if ( !$("#vigencia").val() ) {
-			msg_error+= "<p>Debe diligenciar el campo <strong>Vigencia</strong> para poder crear el Flete.</p>";
+		if (!$("#vigencia").val()) {
+			msg_error += "<p>Debe diligenciar el campo <strong>Vigencia</strong> para poder crear el Flete.</p>";
 		}
-		if( !$("#mes_flete").val() ){
-			msg_error+= "<p>Debe diligenciar el campo <strong>Mes Vigencia</strong> para poder crear el Flete.</p>";
+		if (!$("#mes_flete").val()) {
+			msg_error += "<p>Debe diligenciar el campo <strong>Mes Vigencia</strong> para poder crear el Flete.</p>";
 		}
 		// Fin - Validaciones del módulo 
 		if (!msg_error) {
 			var params = {
-				vigencia 		: $("#vigencia").val(),
-				mes             : $("#mes_flete").val(),
-				origen 			: $("select[name=slct_municipios]").val(),
-				destino 		: $("select[name=slct_municipios2]").val(),
-				tipo_vehiculo 	: $("#slct_tipo_vehiculo_").val(),
-				tarifa 			: $("#valor").val()
-				
+				vigencia: $("#vigencia").val(),
+				mes: $("#mes_flete").val(),
+				origen: $("select[name=slct_municipios]").val(),
+				destino: $("select[name=slct_municipios2]").val(),
+				tipo_vehiculo: $("#slct_tipo_vehiculo_").val(),
+				tarifa: $("#valor").val()
+
 			}
 			// console.log(params);
-			$.ajaxSetup({async: false});
+			$.ajaxSetup({
+				async: false
+			});
 			$.ajax({
 				url: $("#id_url_ajax").val() + "libs/fletes_ajax.php?action=guardaFleteNacional",
 				type: 'POST',
 				data: params,
 				cache: false,
 				dataType: 'json',
-				beforeSend	: function(jqXHR, settings){
+				beforeSend: function(jqXHR, settings) {
 					console.log("Entro en el proceso de creación del remitente/destinatario");
 					$("#nexos_messages_popup").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
 				},
-				error: function (jqXHR, textStatus, errorThrown)
-				{
+				error: function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR);
 					console.log(textStatus);
 					console.log(errorThrown);
-					if(jqXHR.responseText){
-						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+					if (jqXHR.responseText) {
+						msg_error += "<p>" + jqXHR.responseText + "</p>";
 					}
 				},
-				success: function (data, textStatus, jqXHR)
-				{
+				success: function(data, textStatus, jqXHR) {
 					// console.log(data);
 					if (!data.error) {
 						$("#nexos_messages_popup").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se ha creado el registro con éxito.</div></div>');
-						setTimeout(function() { location.reload(false);  }, 600);
+						setTimeout(function() {
+							location.reload(false);
+						}, 600);
 					} else {
-						msg_error+= data.error;
+						msg_error += data.error;
 					}
 				}
 			});
-			$.ajaxSetup({async: true});
+			$.ajaxSetup({
+				async: true
+			});
 		}
-		if(msg_error){
+		if (msg_error) {
 			$("#nexos_messages_popup").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
-			$("html, body").animate({ scrollTop: 0 }, 600);
+			$("html, body").animate({
+				scrollTop: 0
+			}, 600);
 		}
-});
+	});
 
-function editaFlete(id){
+	function editaFlete(id) {
 		// console.log("Entro en editaFlete");
-		 //alert(id);
+		//alert(id);
 		$(".nexos_messages_popup").html('');
 
 		var params = {
-			id 		: id
+			id: id
 		}
 
 		$.ajax({
@@ -447,14 +527,12 @@ function editaFlete(id){
 			data: params,
 			cache: false,
 			dataType: 'json',
-			error: function (jqXHR, textStatus, errorThrown)
-			{
+			error: function(jqXHR, textStatus, errorThrown) {
 				console.log(jqXHR);
 				console.log(textStatus);
 				console.log(errorThrown);
 			},
-			success: function (data, textStatus, jqXHR)
-			{
+			success: function(data, textStatus, jqXHR) {
 				// console.log(data);
 				console.log(data.control);
 				$(".nexos-messages").html('');
@@ -467,145 +545,349 @@ function editaFlete(id){
 		});
 	}
 
-$("#btn_edita_flete").click(function(){
-	// alert('editar flete');
-	$(".nexos-messages").empty();
-	var msg_error = "";
-	if ( !$("#e_valor").val() ) {
-			msg_error+= "<p>Debe diligenciar el campo <strong>Flete</strong> para poder editar el Flete.</p>";
+	$("#btn_edita_flete").click(function() {
+		// alert('editar flete');
+		$(".nexos-messages").empty();
+		var msg_error = "";
+		if (!$("#e_valor").val()) {
+			msg_error += "<p>Debe diligenciar el campo <strong>Flete</strong> para poder editar el Flete.</p>";
 		}
-		if ( !$("#e_vigencia").val() ) {
-			msg_error+= "<p>Debe diligenciar el campo <strong>Vigencia</strong> para poder editar el Flete.</p>";
+		if (!$("#e_vigencia").val()) {
+			msg_error += "<p>Debe diligenciar el campo <strong>Vigencia</strong> para poder editar el Flete.</p>";
 		}
 
 		if (!msg_error) {
 			var params = {
-				id 				: $("#e_id").val(),
-				tarifa 			: $("#e_valor").val(),
-				vigencia 		: $("#e_vigencia").val(),
-				mes             : $("#e_mes").val()
+				id: $("#e_id").val(),
+				tarifa: $("#e_valor").val(),
+				vigencia: $("#e_vigencia").val(),
+				mes: $("#e_mes").val()
 			}
 			// console.log(params);
 
-			$.ajaxSetup({async: false});
+			$.ajaxSetup({
+				async: false
+			});
 			$.ajax({
 				url: $("#id_url_ajax").val() + "libs/fletes_ajax.php?action=editaFlete2",
 				type: 'POST',
 				data: params,
 				cache: false,
 				dataType: 'json',
-				beforeSend	: function(jqXHR, settings){
+				beforeSend: function(jqXHR, settings) {
 					$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
 				},
-				error: function (jqXHR, textStatus, errorThrown)
-				{
+				error: function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR);
 					console.log(textStatus);
 					console.log(errorThrown);
-					if(jqXHR.responseText){
-						msg_error+= "<p>" + jqXHR.responseText + "</p>";
+					if (jqXHR.responseText) {
+						msg_error += "<p>" + jqXHR.responseText + "</p>";
 					}
 				},
-				success: function (data, textStatus, jqXHR)
-				{
+				success: function(data, textStatus, jqXHR) {
 					// console.log(data);
 					if (!data.error) {
 						$(".nexos-messages").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se ha editado el registro con éxito.</div></div>');
-						setTimeout(function() { location.reload(false);  }, 600);
+						setTimeout(function() {
+							location.reload(false);
+						}, 600);
 					} else {
-						msg_error+= data.error;
+						msg_error += data.error;
 					}
 				}
 			});
-			$.ajaxSetup({async: true});
+			$.ajaxSetup({
+				async: true
+			});
 		}
 
-		if(msg_error){
+		if (msg_error) {
 			$(".nexos-messages").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
-			$("html, body").animate({ scrollTop: 0 }, 600);
+			$("html, body").animate({
+				scrollTop: 0
+			}, 600);
 		}
 
-});	
+	});
 
 
-function inactivaFlete(id,valor){
-	$("#idflete").val(id);	
-	$("#iflete").val(valor);
-}
-
-$("#btn_inactiva_flete").click(function(){
-	$(".nexos-messages").empty();
-	var msg_error = "";
-	var id=$("#idflete").val();
-	var params = {
-		id 		: id
+	function inactivaFlete(id, valor) {
+		$("#idflete").val(id);
+		$("#iflete").val(valor);
 	}
-	$.ajaxSetup({async: false});
-			$.ajax({
-				url: $("#id_url_ajax").val() + "libs/fletes_ajax.php?action=inactivarFlete",
-				type: 'POST',
-				data: params,
-				cache: false,
-				dataType: 'json',
-				beforeSend	: function(jqXHR, settings){
-					$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
-				},
-				error: function (jqXHR, textStatus, errorThrown)
-				{
-					console.log(jqXHR);
-					console.log(textStatus);
-					console.log(errorThrown);
-					if(jqXHR.responseText){
-						msg_error+= "<p>" + jqXHR.responseText + "</p>";
-					}
-				},
-				success: function (data, textStatus, jqXHR)
-				{
-					// console.log(data);
-					alert('Flete Inactivado Exitosamente!!');
-					setTimeout(function() { location.reload(false);  }, 600);
-				}
-			});
-			$.ajaxSetup({async: true});
-	
-});
 
-function verificaFlete(origen, destino, tipo_vehiculo){
+	$("#btn_inactiva_flete").click(function() {
+		$(".nexos-messages").empty();
+		var msg_error = "";
+		var id = $("#idflete").val();
+		var params = {
+			id: id
+		}
+		$.ajaxSetup({
+			async: false
+		});
+		$.ajax({
+			url: $("#id_url_ajax").val() + "libs/fletes_ajax.php?action=inactivarFlete",
+			type: 'POST',
+			data: params,
+			cache: false,
+			dataType: 'json',
+			beforeSend: function(jqXHR, settings) {
+				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+				if (jqXHR.responseText) {
+					msg_error += "<p>" + jqXHR.responseText + "</p>";
+				}
+			},
+			success: function(data, textStatus, jqXHR) {
+				// console.log(data);
+				alert('Flete Inactivado Exitosamente!!');
+				setTimeout(function() {
+					location.reload(false);
+				}, 600);
+			}
+		});
+		$.ajaxSetup({
+			async: true
+		});
+
+	});
+
+	function verificaFlete(origen, destino, tipo_vehiculo) {
 		// console.log("Entro en función verificaFlete");
-		$("#valor").attr("disabled",false);
-		$("#vigencia").attr("disabled",false);
+		$("#valor").attr("disabled", false);
+		$("#vigencia").attr("disabled", false);
 		var flag_verifica_flete = false;
 		var params = {
-			origen 			: origen,
-			destino 		: destino,
-			tipo_vehiculo 	: tipo_vehiculo
+			origen: origen,
+			destino: destino,
+			tipo_vehiculo: tipo_vehiculo
 		}
-		$.ajaxSetup({async: false});
+		$.ajaxSetup({
+			async: false
+		});
 		$.ajax({
 			url: $("#id_url_ajax").val() + "libs/fletes_ajax.php?action=verificaFlete2",
 			type: 'POST',
 			data: params,
 			cache: false,
 			dataType: 'json',
-			beforeSend	: function(jqXHR, settings){
+			beforeSend: function(jqXHR, settings) {
 				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
 			},
-			error: function (jqXHR, textStatus, errorThrown)
-			{
+			error: function(jqXHR, textStatus, errorThrown) {
 				console.log(jqXHR);
 				console.log(textStatus);
 				console.log(errorThrown);
 			},
-			success: function (data, textStatus, jqXHR)
-			{
+			success: function(data, textStatus, jqXHR) {
 				$(".nexos-messages").html('');
 				// console.log(data);
-				if ( data.flag_flete ) {
+				if (data.flag_flete) {
 					flag_verifica_flete = true;
 				}
 			}
 		});
-		$.ajaxSetup({async: true});
+		$.ajaxSetup({
+			async: true
+		});
 		return flag_verifica_flete;
-}
+	}
+
+
+
+	// function cargarExcel() {
+	//       const fileInput = document.getElementById('excelFile');
+	//       const file = fileInput.files[0];
+	//       if (!file) {
+	//         alert("Por favor selecciona un archivo de Excel primero.");
+	//         return;
+	//       }
+
+	//       const reader = new FileReader();
+
+	//       reader.onload = function(e) {
+	//         const data = new Uint8Array(e.target.result);
+	//         // Leemos el workbook
+	//         const workbook = XLSX.read(data, { type: 'array' });
+	//         // Obtenemos el nombre de la primera hoja
+	//         const sheetName = workbook.SheetNames[0];
+	//         // Obtenemos la hoja
+	//         const sheet = workbook.Sheets[sheetName];
+	//         // Convertimos la hoja a un array de arrays
+	//         const sheetData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+	//         // sheetData es un array bidimensional, donde la primera fila son los nombres de columna
+	//         // Ejemplo: [
+	//         //   ["vaciacion","agencia","destino",...],
+	//         //   [2018, 386, 376, ...],
+	//         //   [2019, 100, 200, ...],
+	//         //   ...
+	//         // ]
+
+	//         if (sheetData.length < 2) {
+	//           alert("El archivo parece estar vacío o sin datos.");
+	//           return;
+	//         }
+
+	//         // Separamos la cabecera (primera fila) de los datos
+	//         const headers = sheetData[0];   // ["vaciacion","agencia","destino",...]
+	//         const rows = sheetData.slice(1); // el resto de filas
+
+	//         // Mapeamos cada fila a un objeto { cabecera: valor, ... }
+	//         // Ejemplo de row: [2018, 386, 376, ...]
+	//         const jsonData = rows.map(row => {
+	//           let obj = {};
+	//           headers.forEach((header, index) => {
+	//             obj[header] = row[index];
+	//           });
+	//           return obj;
+	//         });
+
+	//         // Enviamos la data al servidor por fetch POST
+	//         fetch($("#id_url_ajax").val() + "libs/fletes_ajax.php?action=uploadMasivo", {
+	//           method: 'POST',
+	//           headers: { 'Content-Type': 'application/json' },
+	//           body: JSON.stringify(jsonData)
+	//         })
+	//         .then(response => response.text())
+	//         .then(resp => {
+	//           alert(resp);
+	//         })
+	//         .catch(err => {
+	//           console.error(err);
+	//           alert("Error al enviar datos al servidor.");
+	//         });
+	//       };
+
+	//       // Leemos el archivo como arrayBuffer
+	//       reader.readAsArrayBuffer(file);
+	//     }
+
+
+	// Variable global donde guardaremos los datos en formato de objetos (JSON)
+	let globalData = [];
+
+	function leerExcel() {
+		const fileInput = document.getElementById('excelFile');
+		const file = fileInput.files[0];
+
+		if (!file) {
+			alert("Por favor selecciona un archivo de Excel primero.");
+			return;
+		}
+
+		const reader = new FileReader();
+
+		reader.onload = function(e) {
+			const data = new Uint8Array(e.target.result);
+			// Leemos el workbook (libro) usando SheetJS
+			const workbook = XLSX.read(data, {
+				type: 'array'
+			});
+
+			// Obtenemos el nombre de la primera hoja
+			const sheetName = workbook.SheetNames[0];
+			// Obtenemos la hoja
+			const sheet = workbook.Sheets[sheetName];
+
+			// Convertimos la hoja a un array de arrays
+			const sheetData = XLSX.utils.sheet_to_json(sheet, {
+				header: 1
+			});
+			// sheetData[0] será la fila de cabeceras
+			// sheetData[1..] serán las filas con datos
+
+			if (sheetData.length === 0) {
+				alert("El archivo está vacío o no tiene datos.");
+				return;
+			}
+
+			// Limpiamos la tabla de vista previa
+			const previewTable = document.getElementById("previewTable");
+			previewTable.innerHTML = "";
+
+			// 1) Crear la fila de encabezados en la tabla
+			const thead = document.createElement("thead");
+			thead.style.borderCollapse = "collapse";
+			thead.style.fontSize = "12px";
+			thead.style.backgroundColor = "#332D2D";
+			thead.style.color = "#FFFFFF";
+			const headerRow = document.createElement("tr");
+			headerRow.setAttribute("class", "text-center");
+
+			sheetData[0].forEach(headerText => {
+				const th = document.createElement("th");
+				th.textContent = headerText;
+				headerRow.appendChild(th);
+			});
+			thead.appendChild(headerRow);
+			previewTable.appendChild(thead);
+
+			// 2) Crear el cuerpo de la tabla con las filas
+			const tbody = document.createElement("tbody");
+			for (let i = 1; i < sheetData.length; i++) {
+				const rowData = sheetData[i];
+				const row = document.createElement("tr");
+
+				rowData.forEach(cellData => {
+					const td = document.createElement("td");
+					td.textContent = (cellData !== undefined && cellData !== null) ? cellData : "";
+					row.appendChild(td);
+				});
+
+				tbody.appendChild(row);
+			}
+			previewTable.appendChild(tbody);
+
+			// 3) Convertimos los datos a JSON para poder enviarlos luego al servidor
+			//    - La primera fila (sheetData[0]) son las cabeceras
+			//    - El resto (sheetData.slice(1)) son las filas de datos
+			const headers = sheetData[0];
+			const rows = sheetData.slice(1);
+
+			// Mapeamos cada fila a un objeto { cabecera: valor }
+			globalData = rows.map(row => {
+				let obj = {};
+				headers.forEach((header, index) => {
+					obj[header] = row[index] || "";
+				});
+				return obj;
+			});
+
+			// alert("Vista previa generada. Ahora puedes confirmar y enviar los datos.");
+		};
+
+		// Leemos el archivo como arrayBuffer para que SheetJS lo pueda interpretar
+		reader.readAsArrayBuffer(file);
+	}
+
+	function enviarDatos() {
+		if (globalData.length === 0) {
+			alert("No hay datos para enviar. Primero carga y previsualiza un archivo de Excel.");
+			return;
+		}
+
+		// Enviamos la data al servidor con fetch POST
+		fetch($("#id_url_ajax").val() + "libs/fletes_ajax.php?action=uploadMasivo", {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(globalData)
+			})
+			.then(response => response.text())
+			.then(resp => {
+				alert("Respuesta del servidor: " + resp);
+			})
+			.catch(err => {
+				console.error(err);
+				alert("Error al enviar datos al servidor.");
+			});
+	}
 </script>

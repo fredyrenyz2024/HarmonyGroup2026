@@ -65,9 +65,11 @@ class prefiltro_nacionalController extends Controller
 		$fecha_inicial = $_POST["fecha_inicial"];
 		$fecha_final = $_POST["fecha_final"];
 		$estado = $_POST["estado"];
-		$cliente = $_POST["cliente"];
+		// Si cliente/empresa están vacíos, se asignan como NULL o cadena vacía
+		$cliente = !empty($_POST['cliente']) ? intval($_POST['cliente']) : null; // Si es numérico
+		$empresa = !empty($_POST['empresa']) ? intval($_POST['empresa']) : null;
 		$id_usuario = $_SESSION["usuario"]["id_usuario"];
-		$this->solicitudes = $this->pedir_vehiculo->getasignarvehiculo($id_usuario, $filtro, $fecha_inicial, $fecha_final, $estado, $cliente);
+		$this->solicitudes = $this->pedir_vehiculo->getasignarvehiculo($id_usuario, $filtro, $fecha_inicial, $fecha_final, $estado, $cliente, $empresa);
 		echo json_encode($this->solicitudes);
 	}
 

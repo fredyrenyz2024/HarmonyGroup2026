@@ -3,6 +3,62 @@ $ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
 $ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
 $ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
 $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+// $table_solicitud = '';
+// $table_solicitud .= "
+// <div  class='table-responsive noSwipe'>
+//   <table id='table2' class='table table-striped table-hover' data-page-length='100'>
+//       <thead>
+//         <tr class='nexos-encabezado'>
+//         <th>Solicitud</th>
+//         <th>Mercancía</th>
+//         <th>Item</th>
+//         <th>Origen</th>
+//         <th>Destino</th>
+//         <th>Peso(Kg) / Tipo vehiculo</th>
+//         <th>Cliente</th>
+//         <th>Tipo</th>
+//         <th>Acciones</th>
+//         </tr>
+//       </thead>
+//       <tbody>";
+
+// $arra = $this->pedir_vehiculo->getsolicitudes($ssn_id_perfil);
+
+// if ($arra) {
+//   $cont = 0;
+//   foreach ($arra as $key => $value) {
+//     $cont++;
+//     $btn_seleccion = '';
+
+//     if ($value['elesta'] != 'Realizada') {
+//       $table_solicitud .= "<tr>
+//       <td>$value[nundoc_solicitud]</td>
+//       <td>$value[idpareja_origen_destino]- $value[tipo_mercancia]</td>
+//       <td>$value[item]</td>
+//       <td>$value[ori]</td>
+//       <td>$value[des]</td>
+//       <td>$value[peso_kg]/$value[tipo_vehiculo]</td>
+//       <td>$value[nombre_cliente]</td>
+//       <td class='text-success' style='font-weight:800;'>$value[tipo_servicio_mer]</td>
+//       <td><button id='btn_uno" . $cont . "'  class='btn btn-secondary mdi mdi-plus' onclick='atraparsolici(" . $cont . ",this);'
+//           data-id='" . $value['nundoc_solicitud'] . "'
+//          data-id2='" . $value['nombre_cliente'] . "'
+//          data-id3='" . $value['n_cotizacion'] . "'
+//          data-id4='" . $value['item'] . "'
+//          data-id5='" . $value['tipo_mercancia'] . "'
+//          data-id6='" . $value['flete'] . "'
+//          data-id7='" . $value['peso_neto_tn'] . "'
+//          data-id8='" . $value['total_tarifa'] . "'
+//          >
+//       </button></td>
+//       </tr>";
+//     }
+//   }
+// }
+// $table_solicitud .= "</tbody>
+// </table>
+// </div>";
 ?>
 <div class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel" style="width: 1000px;">
   <!-- <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button> -->
@@ -35,6 +91,7 @@ $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
 
         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
           <input type="hidden" id="origen_base" class="form-control form-control-sm" readonly="readonly" name="origen_de_base">
+          <input type="hidden" id="empresa_cliente" class="form-control form-control-sm" readonly="readonly" name="empresa_cliente">
         </div>
       </div>
     </div>
@@ -46,37 +103,6 @@ $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
     <h4 id="nexos_messages_b2"></h4>
     <div id="historicos"></div>
     <div id="mensaje_itr"></div>
-    <!-- <div class="panel panel-default">
-      <div class="panel-body">
-        <div class="row">
-          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-            <label>N° solicitud</label>
-            <input type="text" id="servicio_base" class="form-control form-control-sm text-center" disabled>
-          </div>
-
-          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-            <label class="text-center">Tipo servicio</label>
-            <input type="text" id="tipo_base" class="form-control form-control-sm text-center" disabled>
-          </div>
-
-          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-            <label>Placa</label>
-            <input type="text" id="placa" class="form-control form-control-sm text-center">
-            <input type="hidden" id="proceso_itr" class="form-control form-control-sm text-center">
-          </div>
-
-          <div class="col-xs-3 col-md-3 col-sm-3 col-lg-3">
-            <br>
-            <button class="btn btn-primary btn-sm" onclick="ValidacionReglaNegocio();" style="width: 100%;">
-              <span class="uil uil-search"></span> Buscar
-            </button>
-          </div>
-          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <input type="hidden" id="origen_base" class="form-control form-control-sm" readonly="readonly" name="origen_de_base">
-          </div>
-        </div>
-      </div>
-    </div> -->
 
     <div class="row">
       <!-- <label id="historico" style="font-weight:700;"></label> -->
@@ -322,7 +348,7 @@ $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
                 <!--REFERENCIAS PARA VEHICULOS NUEVOS -->
                 <div class="col-xs-6 col-sm-2 col-md-2 col-lg-2" style="margin-top:10px; text-align:center; ">
                   <button class="btn btn-info btn-sm text-center" data-toggle="tooltip" data-placement="top" title="Agregar fila" id="agregar_fila">
-                  <span class="uil uil-file-plus-alt"></span>
+                    <span class="uil uil-file-plus-alt"></span>
                   </button>
                 </div>
                 <hr />
@@ -613,9 +639,22 @@ $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
                             <ul id="listamodal"></ul>
                           </div>
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-
-                            <?php echo $table_solicitud; ?>
-
+                            <table id='table2' class='table table-striped table-hover' data-page-length='100'>
+                              <thead>
+                                <tr>
+                                  <th>Solicitud</th>
+                                  <th>Mercancía</th>
+                                  <th>Item</th>
+                                  <th>Origen</th>
+                                  <th>Destino</th>
+                                  <th>Peso(Kg) / Tipo vehiculo</th>
+                                  <th>Cliente</th>
+                                  <th>Tipo</th>
+                                  <th>Acciones</th>
+                                </tr>
+                              </thead>
+                              <tbody id="tbl-solicitudes-consolidadas"></tbody>
+                            </table>
                           </div>
                         </div>
                       </div>
@@ -650,15 +689,15 @@ $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
                     }
                   </style>
                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <table class="table table-bordered table-sm">
+                    <table class="table table-bordered table-sm" style="font-size: 12px;">
                       <thead>
                         <th>#</th>
                         <th>Servicio</th>
-                        <th>cotización-Item-Mercancía</th>
+                        <th>Item-Mercancía</th>
                         <th>Cliente</th>
                         <th>Flete cot.</th>
                         <th style="display:none">Peso bruto(Tn)</th>
-                        <th>Tarifa cot.</th>
+                        <!-- <th>Tarifa cot.</th> -->
                         <th>Acción</th>
                       </thead>
                       <tbody id="cuerpo_lista2">
@@ -669,15 +708,14 @@ $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
 
                   <!-- <div class="row"></div> -->
                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <table class="table table-bordered table-sm">
+                    <table class="table table-bordered table-sm" style="font-size: 12px;">
                       <thead>
                         <th>Suma de Flete por solicitudes</th>
-                        <th style="display:none;">Total peso Bruto(Tn)</th>
+                        <th>Total peso Bruto(Tn)</th>
                       </thead>
                       <tbody id="totalizar"></tbody>
                     </table>
                   </div>
-
 
                   <!-- <div class="row"></div> -->
                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -1360,4 +1398,23 @@ $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
   </div>
 </div>
 
-<script src="<?= BASE_URL ?>views/prefiltro_nacional/js/ejemplo.js"></script>
+<!-- <script src="<?= BASE_URL ?>views/prefiltro_nacional/js/ejemplo.js"></script> -->
+
+<script type="text/javascript">
+  $(document).on('click', '#btn_soli', function() {
+    $('#solicitudservicio').modal('show');
+  });
+  $(document).on('click', '#cancel', function() {
+    $('#solicitudservicio').modal('hide');
+  });
+  $(document).on('click', '#btn_soli2', function() {
+    $('#solicitudservicionew').modal('show');
+  });
+  $(document).on('click', '#cancel2', function() {
+    $('#solicitudservicionew').modal('hide');
+  });
+  $(document).on('click', '#btn_cerrar', function() {
+    $('#crea_vehiculopreestudio').modal('hide');
+    location.reload();
+  });
+</script>

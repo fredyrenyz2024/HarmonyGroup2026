@@ -2176,7 +2176,7 @@ class Popup
 								</div>
 								<div class="modal-footer">
 									<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
-									<button id="btn_%id%" type="button" data-dismiss="modal" class="btn btn-success md-close">GuardarES</button>
+									<button id="btn_%id%" type="button" data-dismiss="modal" class="btn btn-success md-close">GuardarESsss</button>
 								</div>
 							</form>
 						</div>

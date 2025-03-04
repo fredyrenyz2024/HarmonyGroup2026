@@ -79,6 +79,39 @@ class servicioclienteiModel extends Model
         $resultado = $sql->fetch(PDO::FETCH_ASSOC);
         return $resultado;
     }
+
+    /* Validar tarifas sicetac */
+
+    public function Validar_trafifa_Sicetac($datos)
+    {
+
+        $sumaArray = [];
+        foreach ($datos->configuracion_vehiculo as $index => $merca) {
+            $sql = $this->_db3->prepare("SELECT valor_tarifa, valor_hora FROM cmx_maestro_tarifas_sicetac 
+                                WHERE configuracion = :configuracion 
+                                  AND id_unidad_transporte = :id_unidad_transporte 
+                                  AND id_tipo_carga = :id_tipo_carga 
+                                  AND id_origen = :id_origen 
+                                  AND id_destino = :id_destino");
+            $sql->bindParam(':configuracion', $datos->configuracion_vehiculo[$index]);
+            $sql->bindParam(':id_unidad_transporte', $datos->unidad_transporte[$index]);
+            $sql->bindParam(':id_tipo_carga', $datos->tipo_carga[$index]);
+            $sql->bindParam(':id_origen', $datos->origen_sicetac[$index]);
+            $sql->bindParam(':id_destino', $datos->destino_sicetac[$index]);
+            $sql->execute();
+            $resultado = $sql->fetch();
+
+            // Solo imprimimos si hay un resultado válido (opcional, para depurar)
+            if ($resultado !== false) {
+                // Multiplicar valor_hora por 8 y sumar con valor_tarifa
+                $valor_hora_multiplicado = $resultado['valor_hora'] * 8;
+                $Suma = $valor_hora_multiplicado + $resultado['valor_tarifa'];
+                $sumaArray[] = $Suma;
+            }
+        }
+        return $sumaArray;
+    }
+
     public function Insertar_Cotizacion(
         $nit,
         $digito,
@@ -478,10 +511,7 @@ class servicioclienteiModel extends Model
                         $params_main[':empresa'] = $empresa;
                     }
 
-                    // print_r($sql);
-                    // exit();
                     $sql->execute($params_main);
-
 
                     $result_cotizaciones = $sql->fetchAll(PDO::FETCH_ASSOC);
 

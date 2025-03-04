@@ -231,6 +231,7 @@ class View
 
     public function renderizar_ventana($vista, $item = false)
     {
+
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
@@ -368,7 +369,9 @@ class View
             } else {
                 throw new Exception("Error de vista: El archivo " . $rutaView . " no es leible o no se encuentra en el servidor");
             }
+            // echo "<script src='" . ROOT . "views" . DS . "layout" . DS . DEFAULT_LAYOUT . DS . "lib" . DS . $js . "'></script>";
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'footernuevo.php';
+            // BASE_URL . 'views/layout/assets/lib/' . $js;
         } else {
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'header.php';
             if (is_readable($rutaView)) {

@@ -167,33 +167,65 @@ class Consultas
      * @param array $arrayData
      * @return boolean
      */
+    // public function setRegistro($table, $array)
+    // {
+    //     $conex = ConectarDb::getConexion();
+    //     // $conex = Conexion::conectar2();
+    //     $campos = '';
+    //     $valor = '';
+
+    //     foreach ($array as $key => $value) {
+    //         $campos .= "`{$key}`,";
+    //         $valor .= "'{$value}',";
+    //     }
+
+    //     if ($table == 'cmx_remitente_destinatario') {
+    //         $sql = 'INSERT INTO `' . $table . '` (' . substr($campos, 0, -1) . ') VALUES (' . substr($valor, 0, -1) . ')';
+    //         $result = $conex->query($sql) or die($conex->error . __LINE__);
+    //         return $conex->insert_id;
+    //     } else {
+    //         $sql = 'INSERT INTO `' . $table . '` (' . substr($campos, 0, -1) . ') VALUES (' . substr($valor, 0, -1) . ')';
+    //         $result = $conex->query($sql) or die($conex->error . __LINE__);
+    //         return $conex->insert_id;
+    //     }
+    //     /* liberar la serie de resultados */
+    //     // $conex->free();
+
+    //     /* cerrar la conexión */
+    //     // $conex->close(); //solo para insertar
+    // }
+
     public function setRegistro($table, $array)
     {
-        $conex = ConectarDb::getConexion();
-        // $conex = Conexion::conectar2();
-        $campos = '';
-        $valor = '';
+        // Obtenemos la conexión PDO
+        $conex = Conexion::conectar2();
 
+        // Extraemos los nombres de los campos del array
+        $campos = array_keys($array);
+        // Se construye la lista de columnas, escapando los nombres con backticks
+        $columns = '`' . implode('`,`', $campos) . '`';
+        // Se crean los placeholders para cada campo (ejemplo: :nombre, :email, etc.)
+        $placeholders = ':' . implode(', :', $campos);
+
+        // Preparamos la sentencia SQL para la inserción
+        $sql = "INSERT INTO `$table` ($columns) VALUES ($placeholders)";
+        $stmt = $conex->prepare($sql);
+
+        // Se asocian los valores a cada placeholder
         foreach ($array as $key => $value) {
-            $campos .= "`{$key}`,";
-            $valor .= "'{$value}',";
+            $stmt->bindValue(":$key", $value);
         }
 
-        if ($table == 'cmx_remitente_destinatario') {
-            $sql = 'INSERT INTO `' . $table . '` (' . substr($campos, 0, -1) . ') VALUES (' . substr($valor, 0, -1) . ')';
-            $result = $conex->query($sql) or die($conex->error . __LINE__);
-            return $conex->insert_id;
+        // Se ejecuta la consulta
+        if ($stmt->execute()) {
+            return $conex->lastInsertId();
         } else {
-            $sql = 'INSERT INTO `' . $table . '` (' . substr($campos, 0, -1) . ') VALUES (' . substr($valor, 0, -1) . ')';
-            $result = $conex->query($sql) or die($conex->error . __LINE__);
-            return $conex->insert_id;
+            // Opcional: Manejo de errores en caso de falla en la ejecución
+            $errorInfo = $stmt->errorInfo();
+            die("Error en la inserción: " . $errorInfo[2]);
         }
-        /* liberar la serie de resultados */
-        // $conex->free();
-
-        /* cerrar la conexión */
-        // $conex->close(); //solo para insertar
     }
+
 
     // public function setRegistro($table, $array)
     // {

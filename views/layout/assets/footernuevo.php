@@ -28,20 +28,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.min.js"></script>
-<!-- <script>
-  $(document).ready(function() {
-    $('#tipo_mercancia').select2({
-      placeholder: 'Seleccione una opción',
-      allowClear: true,
-      dropdownCssClass: 'select2-sm', // Aplica la clase al dropdown
-      containerCssClass: 'select2-sm', // Aplica la clase al contenedor
-    });
-  });
-</script> -->
+
 <script>
   // JavaScript para manejar el cambio de pestañas y "recargar" el formulario
-  // const d = document;
-  // const w = window;
   document.addEventListener('DOMContentLoaded', async e => {
     e.preventDefault();
     const tab = document.getElementById('myTab');
@@ -76,347 +65,327 @@
         });
       }
     }
-  });
 
-  function ejecutarJavaScriptDeVentana(id) {
-    let scripts = [];
+    function ejecutarJavaScriptDeVentana(id) {
+      let scripts = [];
 
-    switch (id) {
-      case '1':
-        scripts = ['<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js'];
-        break;
+      switch (id) {
+        case '1':
+          scripts = [
+            // '<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+            '<?= BASE_URL ?>views/serviciocliente/js/todos.js',
+          ];
+          break;
 
-      case '2':
-        scripts = ['<?= BASE_URL ?>views/serviciocliente/js/prioritarias.js'];
-        // scripts = ['<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js', '<?= BASE_URL ?>views/serviciocliente/js/prioritarias.js'];
-        break;
+        case '2':
+          scripts = [
+            '<?= BASE_URL ?>views/serviciocliente/js/prioritarias.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          // console.log("HOLA DESDE EL CASO");
+          break;
 
-      case '4':
-        scripts = ['<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js'];
-        break;
+        case '4':
+          scripts = ['<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js'];
+          break;
 
-      case '5':
-        // scripts = ['<?= BASE_URL ?>views/serviciocliente/js/solicitudes.js'];
-        scripts = ['<?= BASE_URL ?>views/serviciocliente/js/pendientes.js'];
-        break;
+        case '5':
+          // scripts = ['<?= BASE_URL ?>views/serviciocliente/js/solicitudes.js'];
+          scripts = ['<?= BASE_URL ?>views/serviciocliente/js/pendientes.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
 
-      case '8':
-        scripts = ['<?= BASE_URL ?>/views/prefiltro_nacional/js/prefiltro_nacional.js'];
-        break;
+        case '8':
+          scripts = ['<?= BASE_URL ?>/views/prefiltro_nacional/js/prefiltro_nacional.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
 
-      case '11':
-        // scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/prefiltro_nacional.js', '<?= BASE_URL ?>/views/prefiltro_nacional/js/prioritarias_operaciones.js'];
-        scripts = ['<?= BASE_URL ?>/views/prefiltro_nacional/js/prioritarias_operaciones.js'];
-        break;
+        case '11':
+          // scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/prefiltro_nacional.js', '<?= BASE_URL ?>/views/prefiltro_nacional/js/prioritarias_operaciones.js'];
+          scripts = [
+            '<?= BASE_URL ?>/views/prefiltro_nacional/js/prioritarias_operaciones.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
 
-      case '12':
-        scripts = ['<?= BASE_URL ?>views/serviciocliente/js/en_curso.js'];
-        // scripts = ['<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js', '<?= BASE_URL ?>views/serviciocliente/js/en_curso.js'];
-        break;
+        case '12':
+          scripts = ['<?= BASE_URL ?>views/serviciocliente/js/en_curso.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          // scripts = ['<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js', '<?= BASE_URL ?>views/serviciocliente/js/en_curso.js'];
+          break;
 
-      case '13':
-        scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/pendientes_operaciones.js'];
-        // scripts = ['<?= BASE_URL ?>/views/prefiltro_nacional/js/prefiltro_nacional.js', '<?= BASE_URL ?>/views/prefiltro_nacional/js/pendientes_operaciones.js'];
-        break;
+        case '13':
+          scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/pendientes_operaciones.js'];
+          // scripts = ['<?= BASE_URL ?>/views/prefiltro_nacional/js/prefiltro_nacional.js', '<?= BASE_URL ?>/views/prefiltro_nacional/js/pendientes_operaciones.js'];
+          break;
 
-      case '14':
-        scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/en_curso_operaciones.js'];
-        break;
-      default:
-        console.log('Ventana no reconocida');
-        return;
-    }
-
-    cargarScripts(scripts, id);
-  }
-
-  // Función para cargar scripts dinámicamente y ejecutar en $(document).ready()
-  function cargarScripts(scripts, id) {
-    const loadScript = (url) => {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = url;
-        script.type = 'text/javascript';
-        script.async = true;
-        script.onload = () => {
-          console.log(`Cargado: ${url} con ID: ${id}`);
-          resolve();
-        };
-        script.onerror = () => {
-          console.error(`Error al cargar: ${url}`);
-          reject();
-        };
-        document.body.appendChild(script);
-      });
-    };
-
-    let promise = Promise.resolve();
-
-    scripts.forEach(url => {
-      promise = promise.then(() => loadScript(url));
-    });
-
-    // Ejecutar lógica en $(document).ready()
-    promise.then(() => {
-      $(document).ready(function() {
-        if (typeof window.initScript === 'function') {
-          window.initScript(id); // Ejecuta initScript en los archivos cargados
-        }
-      });
-    });
-  }
-
-  function cargar_filtros(controlador, ventana) {
-    fetch($('#base_url').val() + controlador + '/crear_filtro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          param1: ventana,
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        const contenedorCampo = document.getElementById(`contenedor-campo-${ventana}`);
-        contenedorCampo.innerHTML = ''; // Limpiar contenedor antes de agregar filtros
-
-        if (data.resultados && Array.isArray(data.resultados)) {
-          const elementos = [];
-
-          // Agregar primero los select
-          data.resultados.forEach(element => {
-            if (element.tipo_campo === "select") {
-              elementos.push(crearCampo(ventana, element.tipo_campo, element.label, element.nombre_filtro, element.opciones || []));
-            }
-          });
-
-          // Luego los inputs de texto, fechas, etc.
-          data.resultados.forEach(element => {
-            if (element.tipo_campo !== "select" && element.tipo_campo !== "button") {
-              elementos.push(crearCampo(ventana, element.tipo_campo, element.label, element.nombre_filtro));
-            }
-          });
-
-          // Finalmente, los botones
-          data.resultados.forEach(element => {
-            if (element.tipo_campo === "button") {
-              elementos.push(crearCampo(ventana, element.tipo_campo, element.label, element.nombre_filtro));
-            }
-          });
-
-          // Insertar los elementos en el contenedor
-          elementos.forEach(elemento => {
-            contenedorCampo.appendChild(elemento);
-          });
-        } else {
-          console.log('No hay resultados o el formato es incorrecto:', data);
-        }
-      })
-      .catch(error => console.log(error));
-  }
-
-  function crearCampo(ventana, tipo, label, nombre, opciones = []) {
-    const contenedor = document.createElement('div');
-    contenedor.classList.add('d-flex', 'flex-column', 'me-2');
-
-    const elementoID = `campo-${ventana}-${label}`; // Generar un ID único para cada ventana
-
-    if (tipo === "button") {
-      const button = document.createElement('button');
-      button.type = "button";
-      button.setAttribute('name', label);
-      button.setAttribute('id', elementoID);
-      button.setAttribute('class', 'btn btn-phoenix-success btn-sm');
-      button.textContent = nombre || "Botón";
-      button.style.fontSize = "10px";
-      contenedor.appendChild(button);
-    } else if (tipo === "select") {
-      const select = document.createElement('select');
-      select.setAttribute('name', label);
-      select.setAttribute('id', elementoID);
-      select.setAttribute('class', 'form-select form-select-sm');
-      select.style.height = "100%";
-
-      if (label === "clientes") {
-        select.style.display = "none";
-      } else if (label === "empresas") {
-        select.style.display = "none";
+        case '14':
+          scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/en_curso_operaciones.js'];
+          break;
+        default:
+          console.log('Ventana no reconocida');
+          return;
       }
 
-      const opcionDefault = document.createElement('option');
-      opcionDefault.value = "";
-      opcionDefault.textContent = "Seleccione " + label;
-      opcionDefault.selected = true;
-      select.appendChild(opcionDefault);
+      cargarScripts(scripts, id);
+    }
 
-      if (Array.isArray(opciones) && opciones.length > 0) {
-        opciones.forEach(opcion => {
-          const option = document.createElement('option');
-          option.value = opcion;
-          option.textContent = opcion;
-          select.appendChild(option);
+    // Función para cargar scripts dinámicamente y ejecutar en $(document).ready()
+    /*     function cargarScripts(scripts, id) {
+          const loadScript = (url) => {
+            return new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = url;
+              // script.type = 'text/javascript';
+              script.type = 'module';
+              script.async = true;
+              script.onload = () => {
+                console.log(`Cargado: ${url} con ID: ${id}`);
+                resolve();
+              };
+              script.onerror = () => {
+                console.error(`Error al cargar: ${url}`);
+                reject();
+              };
+              document.body.appendChild(script);
+            });
+          };
+
+          let promise = Promise.resolve();
+
+          scripts.forEach(url => {
+            promise = promise.then(() => loadScript(url));
+          });
+
+          // Ejecutar lógica en $(document).ready()
+          promise.then(() => {
+            $(document).ready(function() {
+              if (typeof window.initScript === 'function') {
+                window.initScript(parseInt(id)); // Ejecuta initScript en los archivos cargados
+              }
+            });
+          });
+        } */
+
+    // function cargarScripts(scripts, id) {
+    //   // Cache para scripts ya cargados (evita duplicados)
+    //   const loadedScripts = new Set();
+
+    //   const loadScript = (url) => {
+    //     if (loadedScripts.has(url)) {
+    //       return Promise.resolve(); // Ya está cargado
+    //     }
+
+    //     return new Promise((resolve, reject) => {
+    //       const script = document.createElement('script');
+    //       script.src = url;
+    //       // script.type = 'module';
+    //       script.type = 'text/javascript';
+    //       script.async = true;
+
+    //       // Guardar el ID en el script como atributo de datos
+    //       script.setAttribute('data-ventana-id', id);
+
+    //       script.onload = () => {
+    //         loadedScripts.add(url);
+    //         console.log(`Script cargado: ${url} con ID: ${id}`);
+    //         resolve();
+    //       };
+
+    //       script.onerror = () => {
+    //         console.error(`Error cargando: ${url}`);
+    //         reject();
+    //       };
+
+    //       document.body.appendChild(script);
+    //     });
+    //   };
+
+    //   // Capturar el ID actual en el contexto
+    //   const currentId = parseInt(id);
+
+    //   // Cargar scripts en secuencia y ejecutar initScript
+    //   scripts.reduce((promise, url) => {
+    //     return promise.then(() => loadScript(url));
+    //   }, Promise.resolve()).then(() => {
+    //     // Ejecutar initScript con el ID capturado
+    //     if (typeof window.initScript === 'function') {
+    //       window.initScript(currentId);
+    //     }
+    //   });
+    // }
+
+
+    function cargarScripts(scripts, id) {
+      // Eliminar los scripts existentes con el mismo data-ventana-id
+      const previousScripts = document.querySelectorAll(`script[data-ventana-id="${id}"]`);
+      previousScripts.forEach(script => {
+        script.parentNode.removeChild(script);
+        console.log(`Script eliminado con data-ventana-id: ${id}`);
+      });
+
+      const loadScript = (url) => {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = url;
+          script.type = 'text/javascript';
+          script.async = true;
+
+          // Asigna el ID como atributo para identificarlo
+          script.setAttribute('data-ventana-id', id);
+
+          script.onload = () => {
+            console.log(`Script cargado: ${url} con ID: ${id}`);
+            resolve();
+          };
+
+          script.onerror = () => {
+            console.error(`Error cargando: ${url}`);
+            reject();
+          };
+
+          document.body.appendChild(script);
         });
-      }
+      };
 
-      contenedor.appendChild(select);
-    } else {
-      const input = document.createElement('input');
-      input.type = tipo;
-      input.setAttribute('name', label);
-      input.setAttribute('id', elementoID);
-      input.setAttribute('class', 'form-control form-control-sm');
-      input.style.height = "50%";
+      const currentId = parseInt(id, 10);
 
-      if (tipo === "date" || tipo === "datetime-local") {
-        const fechaActual = new Date();
-        fechaActual.setHours(fechaActual.getHours() - 5);
-
-        if (tipo === "date") {
-          input.value = fechaActual.toISOString().split('T')[0];
-        } else if (tipo === "datetime-local") {
-          input.value = fechaActual.toISOString().slice(0, 16);
+      // Cargar los scripts en secuencia
+      scripts.reduce((promise, url) => {
+        return promise.then(() => loadScript(url));
+      }, Promise.resolve()).then(() => {
+        if (typeof window.initScript === 'function') {
+          window.initScript(currentId);
         }
-      }
-
-      contenedor.appendChild(input);
+      });
     }
 
-    return contenedor;
-  }
+    function cargar_filtros(controlador, ventana) {
+      fetch($('#base_url').val() + controlador + '/crear_filtro', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            param1: ventana,
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          const contenedorCampo = document.getElementById(`contenedor-campo-${ventana}`);
+          contenedorCampo.innerHTML = ''; // Limpiar contenedor antes de agregar filtros
 
+          if (data.resultados && Array.isArray(data.resultados)) {
+            const elementos = [];
 
+            // Agregar primero los select
+            data.resultados.forEach(element => {
+              if (element.tipo_campo === "select") {
+                elementos.push(crearCampo(ventana, element.tipo_campo, element.label, element.nombre_filtro, element.opciones || []));
+              }
+            });
 
-  // function cargar_filtros(controlador, ventana) {
-  //   fetch($('#base_url').val() + controlador + '/crear_filtro', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/x-www-form-urlencoded',
-  //       },
-  //       body: new URLSearchParams({
-  //         param1: ventana,
-  //       })
-  //     })
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       // Seleccionar el contenedor de campos específico para esta ventana
-  //       const contenedorCampo = document.getElementById(`contenedor-campo-${ventana}`);
-  //       contenedorCampo.innerHTML = '';
+            // Luego los inputs de texto, fechas, etc.
+            data.resultados.forEach(element => {
+              if (element.tipo_campo !== "select" && element.tipo_campo !== "button") {
+                elementos.push(crearCampo(ventana, element.tipo_campo, element.label, element.nombre_filtro));
+              }
+            });
 
-  //       if (data.resultados && Array.isArray(data.resultados)) {
-  //         const elementos = []; // Almacenar los elementos en orden
+            // Finalmente, los botones
+            data.resultados.forEach(element => {
+              if (element.tipo_campo === "button") {
+                elementos.push(crearCampo(ventana, element.tipo_campo, element.label, element.nombre_filtro));
+              }
+            });
 
-  //         // Primero agregar los <select>
-  //         data.resultados.forEach(element => {
-  //           if (element.tipo_campo === "select") {
-  //             elementos.push(crearCampo(element.tipo_campo, element.label, element.nombre_filtro, element.opciones || []));
-  //           }
-  //         });
+            // Insertar los elementos en el contenedor
+            elementos.forEach(elemento => {
+              contenedorCampo.appendChild(elemento);
+            });
+          } else {
+            console.log('No hay resultados o el formato es incorrecto:', data);
+          }
+        })
+        .catch(error => console.log(error));
+    }
 
-  //         // Luego agregar los demás filtros (ejemplo: input de fecha o texto)
-  //         data.resultados.forEach(element => {
-  //           if (element.tipo_campo !== "select" && element.tipo_campo !== "button") {
-  //             elementos.push(crearCampo(element.tipo_campo, element.label, element.nombre_filtro));
-  //           }
-  //         });
+    function crearCampo(ventana, tipo, label, nombre, opciones = []) {
+      const contenedor = document.createElement('div');
+      contenedor.classList.add('d-flex', 'flex-column', 'me-2');
+      contenedor.setAttribute('id', `contenedor_${ventana}_${label}`)
 
-  //         // Finalmente agregar el botón de acciones
-  //         data.resultados.forEach(element => {
-  //           if (element.tipo_campo === "button") {
-  //             elementos.push(crearCampo(element.tipo_campo, element.label, element.nombre_filtro));
-  //           }
-  //         });
+      const elementoID = `campo-${ventana}-${label}`; // Generar un ID único para cada ventana
 
-  //         // Insertar los elementos en el contenedor en el orden correcto
-  //         elementos.forEach(elemento => {
-  //           contenedorCampo.appendChild(elemento);
-  //         });
+      if (tipo === "button") {
+        const button = document.createElement('button');
+        button.type = "button";
+        button.setAttribute('name', label);
+        button.setAttribute('id', elementoID);
+        button.setAttribute('class', 'btn btn-phoenix-success btn-sm');
+        button.textContent = nombre || "Botón";
+        button.style.fontSize = "10px";
+        contenedor.appendChild(button);
+      } else if (tipo === "select") {
+        const select = document.createElement('select');
+        select.setAttribute('name', label);
+        select.setAttribute('id', elementoID);
+        select.setAttribute('class', 'form-select form-select-sm');
+        select.style.height = "100%";
 
-  //       } else {
-  //         console.log('No hay resultados o el formato es incorrecto:', data);
-  //       }
-  //     })
-  //     .catch(error => console.log(error));
-  // }
+        if (label === "clientes") {
+          select.style.display = "none";
+        } else if (label === "empresas") {
+          select.style.display = "none";
+        } else if (label === "estados") {
+          select.style.display = "none";
+        }
 
-  // function crearCampo(tipo, label, nombre, opciones = []) {
-  //   const contenedor = document.createElement('div');
-  //   contenedor.classList.add('d-flex', 'flex-column', 'me-2'); // Agrega margen a la derecha entre elementos
+        const opcionDefault = document.createElement('option');
+        opcionDefault.value = "";
+        opcionDefault.textContent = "Seleccione " + label;
+        opcionDefault.selected = true;
+        select.appendChild(opcionDefault);
 
-  //   const button = document.createElement('button');
-  //   if (tipo === "button") {
-  //     button.type = "button";
-  //     button.setAttribute('name', label);
-  //     button.setAttribute('id', label);
-  //     button.setAttribute('class', 'btn btn-phoenix-success btn-sm');
-  //     button.textContent = nombre || "Botón";
-  //     button.style.fontSize = "10px";
-  //     contenedor.appendChild(button);
-  //   } else if (tipo === "select") {
-  //     // Crear un elemento <select>
-  //     const select = document.createElement('select');
-  //     select.setAttribute('name', label);
-  //     select.setAttribute('id', label);
-  //     select.setAttribute('class', 'form-select form-select-sm');
-  //     select.style.height = "50%";
+        if (Array.isArray(opciones) && opciones.length > 0) {
+          opciones.forEach(opcion => {
+            const option = document.createElement('option');
+            option.value = opcion;
+            option.textContent = opcion;
+            select.appendChild(option);
+          });
+        }
 
-  //     if (label === "clientes") {
-  //       select.style.display = "none";
-  //     } else {
+        contenedor.appendChild(select);
+      } else {
+        const input = document.createElement('input');
+        input.type = tipo;
+        input.setAttribute('name', label);
+        input.setAttribute('id', elementoID);
+        input.setAttribute('class', 'form-control form-control-sm');
+        input.style.height = "50%";
 
-  //     }
+        if (tipo === "date" || tipo === "datetime-local") {
+          const fechaActual = new Date();
+          fechaActual.setHours(fechaActual.getHours() - 5);
 
-  //     // Agregar la opción "Seleccione" por defecto
-  //     const opcionDefault = document.createElement('option');
-  //     opcionDefault.value = ""; // Valor vacío
-  //     opcionDefault.textContent = "Seleccione " + label; // Texto que se mostrará
-  //     // opcionDefault.disabled = true; // Deshabilitar la opción para que no sea seleccionable
-  //     opcionDefault.selected = true; // Seleccionar esta opción por defecto
-  //     select.appendChild(opcionDefault);
+          if (tipo === "date") {
+            input.value = fechaActual.toISOString().split('T')[0];
+          } else if (tipo === "datetime-local") {
+            input.value = fechaActual.toISOString().slice(0, 16);
+          }
+        }
 
-  //     // Agregar las opciones al <select>
-  //     // Verificar si hay opciones antes de iterar
-  //     if (Array.isArray(opciones) && opciones.length > 0) {
-  //       opciones.forEach(opcion => {
-  //         const option = document.createElement('option');
-  //         option.value = opcion;
-  //         option.textContent = opcion;
-  //         select.appendChild(option);
-  //       });
-  //     }
+        contenedor.appendChild(input);
+      }
 
-  //     contenedor.appendChild(select);
-  //   } else {
-  //     const input = document.createElement('input');
-  //     input.type = tipo;
-  //     input.setAttribute('name', label);
-  //     input.setAttribute('id', label);
-  //     input.setAttribute('class', 'form-control form-control-sm');
-  //     input.style.height = "50%";
-
-  //     // Si el campo es de tipo "date" o "datetime-local", establecer la fecha y hora de Colombia
-  //     if (tipo === "date" || tipo === "datetime-local") {
-  //       const fechaActual = new Date();
-
-  //       // Ajustar la hora a la zona horaria de Colombia (UTC-5)
-  //       fechaActual.setHours(fechaActual.getHours() - 5);
-
-  //       if (tipo === "date") {
-  //         // Formatear la fecha en YYYY-MM-DD
-  //         const fechaColombia = fechaActual.toISOString().split('T')[0];
-  //         input.value = fechaColombia;
-  //       } else if (tipo === "datetime-local") {
-  //         // Formatear la fecha y hora en YYYY-MM-DDTHH:MM
-  //         const fechaHoraColombia = fechaActual.toISOString().slice(0, 16);
-  //         input.value = fechaHoraColombia;
-  //       }
-  //     }
-
-  //     contenedor.appendChild(input);
-  //   }
-
-  //   return contenedor;
-  // }
+      return contenedor;
+    }
+  });
 </script>
 
 

@@ -21,7 +21,7 @@ class fletes_nacionalModel extends Model
 				cmu1.id id_origen,cmu1.municipio municipio_origen,cmu1.depto depto_origen,cmu1.pais pais_origen,
 				cmu2.id id_destino,cmu2.municipio municipio_destino,cmu2.depto depto_destino,cmu2.pais pais_destino,
 				ctv.id,ctv.nombre,
-				ct.tarifa,ct.vigencia,ct.estado
+				ct.tarifa,ct.vigencia,ct.estado,ct.mes
 			FROM
 				cmx_fletes_nacional  ct
 				INNER JOIN cmx_municipios cmu1 ON ct.origen = cmu1.rndc_codigo_ciudad

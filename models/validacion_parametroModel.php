@@ -397,7 +397,7 @@ class validacion_parametroModel extends Model
     public function Insertar_vehiculo_nuevo($datos)
     {
         $user = $_SESSION["usuario"]["nom_usuario"];
-        $empresa_id = $_SESSION['usuario']['empresa_id'];
+        // $empresa_id = $_SESSION['usuario']['empresa_id'];
         // Consultar maestro de Solicitud de prefiltro de vehiculo nuevo
         $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='SPVN' AND numero_actual>numero_inicial");
         $resultado_consecutivo = $sql_consecutivo->execute();
@@ -410,6 +410,7 @@ class validacion_parametroModel extends Model
         $resultado_consecutivo_vehiculo_prefiltro = $sql_consecutivo_vehiculo_preestudio->fetch(PDO::FETCH_ASSOC);
         $numdoc_vehiculo_prefiltro = $resultado_consecutivo_vehiculo_prefiltro['consecutivo'];
         $numdoc_actualizar_vehiculo_prefiltro = $resultado_consecutivo_vehiculo_prefiltro['consecutivo'] + 1;
+
         try {
             $this->_db3->beginTransaction();
             if ($numdoc != 0 && $numdoc_vehiculo_prefiltro != 0) {
@@ -444,7 +445,7 @@ class validacion_parametroModel extends Model
                     $sql->bindParam(':tiene_trailer', $datos['tiene_trailer']);
                     $sql->bindParam(':itr', $datos['itr']);
                     $sql->bindParam(':responsable', $datos['responsable_vehiculo']);
-                    $sql->bindParam(':empresa_id',  $empresa_id);
+                    $sql->bindParam(':empresa_id',  $datos['empresa_cliente']);
                     $sql->execute();
 
                     if ($sql) {
@@ -1958,6 +1959,9 @@ class validacion_parametroModel extends Model
                                         INNER JOIN cmx_usuarios u ON v.responsable=u.id
 										LEFT JOIN cmx_vehiculos ve ON v.placa_vehiculo=ve.placa
 										LEFT JOIN cmx_log_solicitudvehiculo2 soli ON s.id=soli.id_solictud AND soli.estado_actu=1
+                                        LEFT JOIN cmx_preestudio_solicitudes_servicio n ON e.id_solicitud=n.id_solicitudpreestudio
+		                                LEFT JOIN cmx_solicitud_vehiculo2 pp ON n.id_servicio_cliente=pp.nundoc_solicitud
+
 										WHERE e.estado_actual='1' AND e.fecha BETWEEN '" . $fecha_inicial . "' AND '" . $fecha_final . "' ORDER BY s.id DESC");
                     $resultado_ssp = $sql->execute();
                     $resultado_ssp = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -1989,7 +1993,6 @@ class validacion_parametroModel extends Model
                     }
 
                     $sql = $this->_db3->prepare("SELECT s.id AS esoli, s.id_preestudio, s.placa, s.fecha, s.hora, s.usuario,
-
 										s.observacion, s.proceso,s.operacion, e.estado, e.estado_actual,
 										CASE e.estado WHEN 'aprobado' THEN 'Autorizado HV' ELSE e.estado END AS campo,
 										CASE WHEN ve.id   IS NULL THEN 0 ELSE ve.id  END AS 'idvehi',
@@ -3291,8 +3294,8 @@ class validacion_parametroModel extends Model
 
     public function Insert_estudio($datos, $datos_nuevos)
     {
-        $placas_insert = $datos['placa'];
-        $empresa_id = $_SESSION['usuario']['empresa_id'];
+        // $placas_insert = $datos['placa'];
+        // $empresa_id = $_SESSION['usuario']['empresa_id'];
         try {
             $this->_db3->beginTransaction();
             //obtener id de agrupacion
@@ -3352,7 +3355,7 @@ class validacion_parametroModel extends Model
                                         $sql_insert_estudio_vh->bindParam(':viaje_itr', $viaje, PDO::PARAM_STR);
                                         $sql_insert_estudio_vh->bindParam(':itr', $itr, PDO::PARAM_STR);
                                         $sql_insert_estudio_vh->bindParam(':responsable', $datos['responsable_vehiculo'], PDO::PARAM_STR);
-                                        $sql_insert_estudio_vh->bindParam(':empresa_id', $empresa_id, PDO::PARAM_STR);
+                                        $sql_insert_estudio_vh->bindParam(':empresa_id', $datos['empresa_cliente'], PDO::PARAM_STR);
                                         $resultado_insert_estudio_vh = $sql_insert_estudio_vh->execute();
                                         if ($resultado_insert_estudio_vh) {
                                             // Consultar maestro de Estudio de seguridad Completo
@@ -4520,7 +4523,7 @@ class validacion_parametroModel extends Model
     /* Funcion para insertar el estudio como itr */
     public function Insert_estudio_Itr($datos, $datos_nuevos)
     {
-        $empresa_id = $_SESSION['usuario']['empresa_id'];
+        // $empresa_id = $_SESSION['usuario']['empresa_id'];
         try {
 
             $this->_db3->beginTransaction();
@@ -4566,21 +4569,6 @@ class validacion_parametroModel extends Model
                                         $null = null;
                                         $viaje = 1;
                                         $itr = 'SI';
-                                        // $sql_insert_estudio_vh = $this->_db3->prepare("INSERT INTO cmx_estudio_vehiculo(id_estudio,id_solicitud,observacion_vehiculo,observacion_conductor,observacion_tenedor,usuario,fecha,hora,operacion,placa,viaje_itr,itr)
-                                        //                                         VALUES(:id_estudio,:id_solicitud,:observacion_vehiculo,:observacion_conductor,:observacion_tenedor,:usuario,:fecha,:hora,:operacion,:placa,:viaje_itr,:itr)");
-                                        // $sql_insert_estudio_vh->bindParam(':id_estudio', $numdoc, PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':id_solicitud', $numdoc_cabecera, PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':observacion_vehiculo', $null, PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':observacion_conductor', $null, PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':observacion_tenedor', $null, PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':usuario', $datos["usuario"], PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':fecha', $datos["fecha"], PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':hora', $datos["hora"], PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':operacion', $datos["tipo_operacion"], PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':placa', $datos["placa"], PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':viaje_itr', $viaje, PDO::PARAM_STR);
-                                        // $sql_insert_estudio_vh->bindParam(':itr', $itr, PDO::PARAM_STR);
-                                        // $resultado_insert_estudio_vh = $sql_insert_estudio_vh->execute();
                                         $sql_insert_estudio_vh = $this->_db3->prepare("INSERT INTO cmx_estudio_vehiculo(id_estudio,id_solicitud,observacion_vehiculo,observacion_conductor,observacion_tenedor,observacion_general,usuario,fecha,hora,operacion,placa,viaje_itr,itr,responsable,empresa_id)
                                         VALUES(:id_estudio,:id_solicitud,:observacion_vehiculo,:observacion_conductor,:observacion_tenedor,:observacion_general,:usuario,:fecha,:hora,:operacion,:placa,:viaje_itr,:itr,:responsable,:empresa_id)");
                                         $sql_insert_estudio_vh->bindParam(':id_estudio', $numdoc, PDO::PARAM_STR);
@@ -4597,7 +4585,7 @@ class validacion_parametroModel extends Model
                                         $sql_insert_estudio_vh->bindParam(':viaje_itr', $viaje, PDO::PARAM_STR);
                                         $sql_insert_estudio_vh->bindParam(':itr', $itr, PDO::PARAM_STR);
                                         $sql_insert_estudio_vh->bindParam(':responsable', $datos['responsable_vehiculo'], PDO::PARAM_STR);
-                                        $sql_insert_estudio_vh->bindParam(':empresa_id', $empresa_id, PDO::PARAM_STR);
+                                        $sql_insert_estudio_vh->bindParam(':empresa_id', $datos['empresa_cliente'], PDO::PARAM_STR);
                                         $resultado_insert_estudio_vh = $sql_insert_estudio_vh->execute();
                                         if ($resultado_insert_estudio_vh) {
                                             // Consultar maestro de Estudio de seguridad Completo
@@ -5796,8 +5784,8 @@ class validacion_parametroModel extends Model
                     $null = null;
                     $viaje = 1;
                     $itr = 'SI';
-                    $sql_insert_estudio_vh = $this->_db3->prepare("INSERT INTO cmx_estudio_vehiculo(id_estudio,id_solicitud,observacion_vehiculo,observacion_conductor,observacion_tenedor,usuario,fecha,hora,operacion,placa,viaje_itr,itr)
-                                                    VALUES(:id_estudio,:id_solicitud,:observacion_vehiculo,:observacion_conductor,:observacion_tenedor,:usuario,:fecha,:hora,:operacion,:placa,:viaje_itr,:itr)");
+                    $sql_insert_estudio_vh = $this->_db3->prepare("INSERT INTO cmx_estudio_vehiculo(id_estudio,id_solicitud,observacion_vehiculo,observacion_conductor,observacion_tenedor,usuario,fecha,hora,operacion,placa,viaje_itr,itr,responsable,empresa_id)
+                                                    VALUES(:id_estudio,:id_solicitud,:observacion_vehiculo,:observacion_conductor,:observacion_tenedor,:usuario,:fecha,:hora,:operacion,:placa,:viaje_itr,:itr,:responsable,:empresa_id)");
                     $sql_insert_estudio_vh->bindParam(':id_estudio', $numdoc, PDO::PARAM_STR);
                     $sql_insert_estudio_vh->bindParam(':id_solicitud', $numdoc_cabecera, PDO::PARAM_STR);
                     $sql_insert_estudio_vh->bindParam(':observacion_vehiculo', $null, PDO::PARAM_STR);
@@ -5810,6 +5798,8 @@ class validacion_parametroModel extends Model
                     $sql_insert_estudio_vh->bindParam(':placa', $datos["placa"], PDO::PARAM_STR);
                     $sql_insert_estudio_vh->bindParam(':viaje_itr', $viaje, PDO::PARAM_STR);
                     $sql_insert_estudio_vh->bindParam(':itr', $itr, PDO::PARAM_STR);
+                    $sql_insert_estudio_vh->bindParam(':responsable', $datos['responsable_vehiculo'], PDO::PARAM_STR);
+                    $sql_insert_estudio_vh->bindParam(':empresa_id', $datos['empresa_cliente'], PDO::PARAM_STR);
                     $resultado_insert_estudio_vh = $sql_insert_estudio_vh->execute();
                     if ($resultado_insert_estudio_vh) {
                         // Consultar maestro de Estudio de seguridad Completo

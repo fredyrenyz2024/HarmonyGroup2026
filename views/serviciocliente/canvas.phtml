@@ -1,211 +1,236 @@
-<div class="offcanvas offcanvas-end" tabindex="-1" data-bs-backdrop="static" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="width: 900px;">
+<!-- <div class="offcanvas offcanvas-end" tabindex="-1" data-bs-backdrop="static" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="width: 900px;">
   <div class="offcanvas-header bg-primary-subtle" style="text-align:left;height: 50px;padding: 19px;">
-    <!-- <h5 class="offcanvas-title" id="offcanvasRightLabel">Datos solicitud se servicio</h5> -->
     <h5 class="offcanvas-title text-primary-emphasis" id="staticBackdropLabel"><span class="text-primary-emphasis uil uil-file-alt"></span> Datos solicitud de servicio</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
 
   <div class="offcanvas-body" style="overflow-x: hidden;">
-    <div class="d-flex justify-content-end">
-      <div class="form-check form-switch">
-        <input class="form-check-input" id="flexSwitchCheckChecked" type="checkbox" />
-        <label class="form-check-label" for="flexSwitchCheckChecked">Prioritaria</label>
-      </div>
-    </div>
 
-    <div id="msg_ver"></div><!-- id para manejar los mensajes de errordel popup -->
-    <div id="content_ver">
-      <div id="titlu"></div>
-      <!-- Mostrar datos del cliente -->
-      <div class="d-flex flex-wrap justify-content-start mt-2">
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-          <h6 class="mb-0 text-body-highlight me-2">Cliente</h6>
-        </div>
-      </div>
-      <hr class="my-1 text-dark">
+  </div>
+</div> -->
+<?php require_once 'views/layout/header.phtml'; ?>
 
-      <div id="cuerpo_cliente"><!-- Datos desde Javascript --></div>
-
-      <!-- <hr class="my-1 text-dark"> -->
-      <div class="d-flex flex-wrap justify-content-start mt-2">
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-          <h6 class="mb-0 text-body-highlight me-2">Mercancia</h6>
-        </div>
-      </div>
-      <hr class="my-1 text-dark">
-
-
-      <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-        <ul class="nav nav-underline fs-9" role="tablist" id="bloques_mercancias_menu" style="--phoenix-nav-link-padding-x: rem !important;">
-          <!-- Bloques de mercancia -->
-        </ul>
-
-        <div class="tab-content mt-1" id="detalle_mercancias">
-          <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
-        </div>
-
-        <!-- servicios especiales -->
-        <ul class="nav nav-underline fs-9" role="tablist" id="bloques_servicios_especiales_menu" style="--phoenix-nav-link-padding-x: rem !important;">
-          <!-- Bloques de servicio especial -->
-        </ul>
-
-        <div class="tab-content mt-1" id="detalle_servicios_especiales">
-          <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+<div class="container-fluid">
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <div class="d-flex justify-content-end" id="check_prioridad">
+        <div class="form-check form-switch">
+          <input class="form-check-input" id="flexSwitchCheckChecked" type="checkbox" />
+          <label class="form-check-label" for="flexSwitchCheckChecked">Prioritaria</label>
         </div>
       </div>
 
-      <!-- <hr class="my-1 text-dark"> -->
-      <div class="d-flex flex-wrap justify-content-start mt-2">
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-          <h6 class="mb-0 text-body-highlight me-2">Costos de servicio</h6>
+      <div id="msg_ver"></div><!-- id para manejar los mensajes de errordel popup -->
+      <div id="content_ver">
+        <!-- <div id="titlu"></div> -->
+        <!-- Mostrar datos del cliente -->
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Cliente</h6>
+          </div>
         </div>
-      </div>
+        <hr class="my-1 text-dark">
 
-      <hr class="my-1 text-dark">
-      <div id="costos"><!-- Contenido desde Javascript --></div>
-      <hr class="my-1 text-dark">
-      <div id="costos1"></div>
-      <hr class="my-1 text-dark">
-      <!-- Total del servicio -->
-      <div id="totcotiza"></div>
+        <div id="cuerpo_cliente"><!-- Datos desde Javascript --></div>
 
-      <div id="Mensaje_update"></div>
-
-      <!-- <hr class="my-1 text-dark"> -->
-      <div class="d-flex flex-wrap justify-content-start mt-2">
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-          <h6 class="mb-0 text-body-highlight me-2">Remitentes y Destinatarios</h6>
+        <!-- <hr class="my-1 text-dark"> -->
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Mercancia</h6>
+          </div>
         </div>
-      </div>
-      <hr class="my-1 text-dark">
+        <hr class="my-1 text-dark">
 
-      <!-- Remitentes -->
-      <div class="d-flex flex-wrap justify-content-start mt-2">
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-          <h6 class="mb-0 text-body-highlight me-2">Remitente(s)</h6>
-        </div>
-      </div>
-      <hr class="my-1 text-dark">
 
-      <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-        <ul class="nav nav-underline fs-9" role="tablist" id="bloques_punto_remitente" style="--phoenix-nav-link-padding-x: rem !important;">
-          <!-- Bloques de remitentes -->
-        </ul>
-
-        <div class="tab-content" id="detalle_puntos_remitentes">
-          <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
-        </div>
-      </div>
-      <hr class="my-1 text-dark">
-
-      <!-- Destinatarios -->
-      <div class="d-flex flex-wrap justify-content-start mt-2">
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-          <h6 class="mb-0 text-body-highlight me-2">Destinatario(s)</h6>
-        </div>
-      </div>
-      <hr class="my-1 text-dark">
-
-      <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-        <ul class="nav nav-underline fs-9" role="tablist" id="bloques_punto_destinatario" style="--phoenix-nav-link-padding-x: rem !important;">
-          <!-- Bloques de destinatarios -->
-        </ul>
-
-        <div class="tab-content" id="detalle_puntos_destinatarios">
-          <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
-        </div>
-      </div>
-      <hr class="my-1 text-dark">
-
-      <!-- Referenias para la facturacion -->
-
-      <div class="row">
         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-          <!-- Listar la referencias por cada destinatario de la oslicyud d servicio -->
-          <ul class="nav nav-underline fs-9" role="tablist" id="bloques_referencias_menu" style="--phoenix-nav-link-padding-x: rem !important;">
+          <ul class="nav nav-underline fs-9" role="tablist" id="bloques_mercancias_menu" style="--phoenix-nav-link-padding-x: rem !important;">
             <!-- Bloques de mercancia -->
           </ul>
 
-          <div class="tab-content mt-1" id="detalle_referencias">
+          <div class="tab-content mt-1" id="detalle_mercancias">
+            <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+          </div>
+
+          <!-- servicios especiales -->
+          <ul class="nav nav-underline fs-9" role="tablist" id="bloques_servicios_especiales_menu" style="--phoenix-nav-link-padding-x: rem !important;">
+            <!-- Bloques de servicio especial -->
+          </ul>
+
+          <div class="tab-content mt-1" id="detalle_servicios_especiales">
             <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
           </div>
         </div>
-      </div>
-      <hr class="my-1 text-dark">
 
-      <div class="d-flex flex-wrap justify-content-start mt-2">
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-          <h6 class="mb-0 text-body-highlight me-2">Datos Adicionales</h6>
-        </div>
-      </div>
-      <hr class="my-1 text-dark">
-
-      <div class="row">
-        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
-          <div class="mb-1">
-            <label style="font-size: 12px;">Agencias</label>
-            <select id="servicio_agencia" style="width: 100%;" class="ts form-select form-select-sm">
-              <option value="" selected>Seleccione</option>
-            </select>
+        <!-- <hr class="my-1 text-dark"> -->
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Costos de servicio</h6>
           </div>
         </div>
-        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
-          <div class="mb-1">
-            <label style="font-size: 12px;">Tipo Servicio</label>
-            <select id="servicio_cliente" style="width: 100%;" class="ts form-select form-select-sm">
-              <option value="" selected>Seleccione</option>
-              <option value="Expreso">Expreso - Viaje</option>
-              <option value="Consolidado">Consolidado - Tonelada</option>
-            </select>
-          </div>
-        </div>
-        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2">
-          <div class="mb-1 pt-5 d-flex justify-content-end">
-            <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_update_agencia_solicitud"><span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar</button>
-          </div>
-        </div>
-        <input type="hidden" name="numero_cotizacion" id="numero_cotizacion">
-        <input type="hidden" name="numero_solicitud" id="numero_solicitud">
-      </div>
 
-      <hr class="my-1 text-dark">
+        <hr class="my-1 text-dark">
+        <div id="costos"><!-- Contenido desde Javascript --></div>
+        <hr class="my-1 text-dark">
+        <div id="costos1"></div>
+        <hr class="my-1 text-dark">
+        <!-- Total del servicio -->
+        <div id="totcotiza"></div>
 
-      <!-- Datos para el contenedor  -->
-      <div class="row">
-        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
-          <div class="mb-1">
-            <label style="font-size: 12px;">Numero Contenedor</label>
-            <input type="text" id="numero_contenedor" name="numero_contenedor" class="form-control form-control-sm text-dark fs-10" oninput="this.value = this.value.toUpperCase();">
+        <div id="Mensaje_update"></div>
+
+        <!-- <hr class="my-1 text-dark"> -->
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Remitentes y Destinatarios</h6>
           </div>
         </div>
-        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
-          <div class="mb-1 pt-4">
-            <div class="form-check form-switch">
-              <input class="form-check-input" id="agrupable" type="checkbox">
-              <label class="form-check-label" for="agrupable">Agrupable</label>
+        <hr class="my-1 text-dark">
+
+        <!-- Remitentes -->
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Remitente(s)</h6>
+          </div>
+        </div>
+        <hr class="my-1 text-dark">
+
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+          <ul class="nav nav-underline fs-9" role="tablist" id="bloques_punto_remitente" style="--phoenix-nav-link-padding-x: rem !important;">
+            <!-- Bloques de remitentes -->
+          </ul>
+
+          <div class="tab-content" id="detalle_puntos_remitentes">
+            <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+          </div>
+        </div>
+        <hr class="my-1 text-dark">
+
+        <!-- Destinatarios -->
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Destinatario(s)</h6>
+          </div>
+        </div>
+        <hr class="my-1 text-dark">
+
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+          <ul class="nav nav-underline fs-9" role="tablist" id="bloques_punto_destinatario" style="--phoenix-nav-link-padding-x: rem !important;">
+            <!-- Bloques de destinatarios -->
+          </ul>
+
+          <div class="tab-content" id="detalle_puntos_destinatarios">
+            <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+          </div>
+        </div>
+        <hr class="my-1 text-dark">
+
+        <!-- Referenias para la facturacion -->
+
+        <div class="row">
+          <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+            <!-- Listar la referencias por cada destinatario de la oslicyud d servicio -->
+            <ul class="nav nav-underline fs-9" role="tablist" id="bloques_referencias_menu" style="--phoenix-nav-link-padding-x: rem !important;">
+              <!-- Bloques de mercancia -->
+            </ul>
+
+            <div class="tab-content mt-1" id="detalle_referencias">
+              <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
             </div>
           </div>
         </div>
-        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
-          <div class="mb-1 pt-5 d-flex justify-content-end">
-            <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_contenedor"><span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar</button>
+        <hr class="my-1 text-dark">
+
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Datos Adicionales</h6>
           </div>
         </div>
+        <hr class="my-1 text-dark">
+
+        <div class="row" id="Datos_adicionales">
+          <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
+            <div class="mb-1">
+              <label style="font-size: 12px;">Agencias</label>
+              <select id="servicio_agencia" style="width: 100%;" class="ts form-select form-select-sm">
+                <option value="" selected>Seleccione</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
+            <div class="mb-1">
+              <label style="font-size: 12px;">Tipo Servicio</label>
+              <select id="servicio_cliente" style="width: 100%;" class="ts form-select form-select-sm">
+                <option value="" selected>Seleccione</option>
+                <option value="Expreso">Expreso - Viaje</option>
+                <option value="Consolidado">Consolidado - Tonelada</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2">
+            <div class="mb-1 pt-5 d-flex justify-content-end">
+              <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_update_agencia_solicitud"><span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar</button>
+            </div>
+          </div>
+          <input type="hidden" name="numero_cotizacion" id="numero_cotizacion">
+          <input type="hidden" name="numero_solicitud" id="numero_solicitud">
+        </div>
+
+
+        <div class="row" id="Datos_adicionales_operaciones" style="display: none;">
+          <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+            <div class="d-flex justify-content-center mb-2">
+              <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Información Restringida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-1 text-dark">
+
+        <!-- Datos para el contenedor  -->
+        <div class="row" id="Contenedor">
+          <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+            <div class="mb-1">
+              <label style="font-size: 12px;">Numero Contenedor</label>
+              <input type="text" id="numero_contenedor" name="numero_contenedor" class="form-control form-control-sm text-dark fs-10" oninput="this.value = this.value.toUpperCase();">
+            </div>
+          </div>
+          <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+            <div class="mb-1 pt-4">
+              <div class="form-check form-switch">
+                <input class="form-check-input" id="agrupable" type="checkbox">
+                <label class="form-check-label" for="agrupable">Agrupable</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+            <div class="mb-1 pt-5 d-flex justify-content-end">
+              <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_contenedor"><span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" id="Contenedor_operaciones" style="display: none;">
+          <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+            <div class="d-flex justify-content-center mb-2">
+              <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Información Restringida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-1 text-dark">
+
+        <!-- Costos Adicionales -->
+        <div id="cuerpo_adicional"></div>
       </div>
-
-      <hr class="my-1 text-dark">
-
-      <!-- Costos Adicionales -->
-      <div id="cuerpo_adicional"></div>
     </div>
-
-    <!-- <div class="d-flex justify-content-end border-top gap-2 my-3">
-      <button id="guarda_solicitud" class="btn btn-success btn-sm me-1 mb-1 mt-3">Guardar</button>
-      <button type="button" class="btn btn-secondary btn-sm me-1 mb-1" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close">Cerrar</button>
-    </div> -->
   </div>
 </div>
 
-<script type="text/javascript">
-  alert("hola mundo");
-</script>
+<!-- <div class="d-flex justify-content-end border-top gap-2 my-3">
+      <button id="guarda_solicitud" class="btn btn-success btn-sm me-1 mb-1 mt-3">Guardar</button>
+      <button type="button" class="btn btn-secondary btn-sm me-1 mb-1" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close">Cerrar</button>
+    </div> -->
+<?php require_once 'views/layout/footer.phtml'; ?>
+
+<script src="<?= BASE_URL ?>public/helpers/helpers.js"></script>
+<!-- <script src="<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js"></script> -->

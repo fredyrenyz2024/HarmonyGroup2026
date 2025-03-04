@@ -18,296 +18,241 @@ window.DESTINO_ARRAY = [];
 window.initScript = function (id) {
   window.VENTANA = id; // Asigna el ID de la ventana a la variable global
 
-  $(document).ready(function () {
-    // console.log("Script inicializado para la ventana:", typeof window.VENTANA);
-    let path = window.location.pathname; // Obtiene el path completo
-    let partes = path.split('/'); // Divide el path en partes separadas por "/"
-    intermedio = partes[2]; // Obtiene el tercer segmento (índice 2)
+  // console.log("Script inicializado para la ventana:", typeof window.VENTANA);
+  let path = window.location.pathname; // Obtiene el path completo
+  let partes = path.split('/'); // Divide el path en partes separadas por "/"
+  intermedio = partes[2]; // Obtiene el tercer segmento (índice 2)
 
-    $('.select2').select2({
-      placeholder: "Seleccione",
-      allowClear: true, // Permite limpiar la selección
+  $('.select2').select2({
+    placeholder: "Seleccione",
+    allowClear: true, // Permite limpiar la selección
+  });
+
+  const hoy = new Date(); // Obtener la fecha actual
+  const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
+
+  /* Actualiar la session de php para la ventana */
+  // $.post($('#base_url').val() + 'serviciocliente/actualizar_session', {
+  //   ventana_id: id
+  // }, function (response) {
+  //   console.log("Sesión actualizada:", response);
+  // });
+
+
+  if (window.VENTANA == 1) {
+    // var tipo = 2;
+    // var dato = "";
+    // var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_inicial`).val();
+    // var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_final`).val();
+    // var cliente = $(`#campo-${window.VENTANA}-clientes`).length > 0 ? $(`#campo-${window.VENTANA}-clientes`).val() || "" : "";
+    // var empresa = $(`#campo-${window.VENTANA}-empresas`).length > 0 ? $(`#campo-${window.VENTANA}-empresas`).val() || "" : "";
+
+    // var estado = "Todas";
+    // listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa, id);
+    // Seleccionar el checkbox por su id
+
+    /************************** Funcion para buscar Cotizaciones ******************************/
+    // document.addEventListener("click", async e => {
+    //   if (e.target.matches(`#campo-${window.VENTANA}-buscar`) || e.target.matches(`#campo-${window.VENTANA}-buscar *`)) {
+    //     var tipo = 2;
+    //     var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val();
+    //     var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val();
+    //     var cliente = $(`#campo-${window.VENTANA}-clientes`).val() === "" ? "" : $(`#campo-${window.VENTANA}-clientes`).val();
+    //     var empresa = $(`#campo-${window.VENTANA}-empresas`).val() === '' ? "" : $(`#campo-${window.VENTANA}-empresas`).val();
+    //     var estado = "Todas";
+    //     listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa, id);
+    //   }
+    // });
+
+    // const checkbox = document.getElementById(`flexSwitchCheckChecked`);
+    // checkbox.addEventListener('change', async function (e) {
+    //   e.preventDefault(); // Evita que el checkbox cambie directamente
+
+    //   const result = await Swal.fire({
+    //     title: '¿Estás seguro?',
+    //     text: '¿Quieres cambiar el estado?',
+    //     icon: 'warning',
+    //     showCancelButton: true,
+    //     confirmButtonText: 'Sí, cambiar',
+    //     cancelButtonText: 'Cancelar'
+    //   });
+
+    //   if (result.isConfirmed) {
+    //     // checkbox.checked = !checkbox.checked; // Aplica el cambio solo si se confirma
+    //     if (checkbox.checked) {
+    //       datos = new FormData();
+    //       datos.append('estado', "Propuesta");
+    //       datos.append('numdoc_solicitud', document.getElementById("numero_solicitud").value);
+
+    //       try {
+    //         const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
+    //           method: 'POST',
+    //           body: datos,
+    //           cache: 'no-cache',
+    //         });
+    //         const data = await response.json();
+
+    //         if (data.status === 200) {
+    //           Swal.fire({
+    //             title: "Mensaje!",
+    //             text: data.message,
+    //             icon: "success",
+    //             draggable: true
+    //           });
+    //           resetAll();
+    //         } else {
+    //           Swal.fire({
+    //             title: "Mensaje!",
+    //             text: data.message,
+    //             icon: "error",
+    //             draggable: true
+    //           });
+    //         }
+
+    //       } catch (error) {
+    //         console.error('Error en la primera solicitud:', error);
+    //       }
+    //     } else {
+    //       console.log('El checkbox no está marcado (unchecked)');
+    //       // Acciones si no está marcado
+    //     }
+    //   } else {
+    //     checkbox.checked = !checkbox.checked; // Revierte el cambio si se cancela
+    //   }
+    // });
+
+    // //Filtro para clientes
+    // $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
+    //   let valorSeleccionado = $(this).val();
+
+    //   // Verifica si los elementos existen antes de manipularlos
+    //   let $clientes = $(`#campo-${window.VENTANA}-clientes`);
+    //   let $empresas = $(`#campo-${window.VENTANA}-empresas`);
+    //   let $estados = $(`#campo-${window.VENTANA}-estados`);
+
+    //   if (valorSeleccionado === "Clientes") {
+    //     // Si Empresas está visible, la ocultamos
+    //     if ($empresas.is(":visible")) {
+    //       $empresas.hide().val(""); // Ocultar y resetear selección
+    //     }
+
+    //     if ($clientes.is(":visible")) {
+    //       $clientes.hide().val(""); // Ocultar y resetear selección
+    //     }
+    //     // Mostramos el select de Clientes
+    //     $clientes.show();
+
+    //     // Cargar clientes por AJAX
+    //     $.ajax({
+    //       url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
+    //       type: "POST",
+    //       dataType: "json",
+    //       success: function (data) {
+    //         $clientes.empty().append('<option value="">Seleccione</option>');
+    //         $.each(data, function (index, item) {
+    //           $clientes.append(`<option value="${item.id}">${item.nombre}</option>`);
+    //         });
+
+    //         // Inicializa Select2 en el select de clientes
+    //         $clientes.select2({
+    //           placeholder: 'Seleccione una opción',
+    //           allowClear: true,
+    //         });
+    //       },
+    //       error: function (xhr, status, error) {
+    //         console.error("Error en AJAX:", status, error);
+    //         alert("Error al cargar los datos.");
+    //       }
+    //     });
+
+    //   } else if (valorSeleccionado === "Empresa") {
+    //     // Si Clientes está visible, lo ocultamos
+    //     if ($clientes.is(":visible")) {
+    //       $clientes.hide().val(""); // Ocultar y resetear selección
+    //     }
+
+
+    //     if ($empresas.is(":visible")) {
+    //       $empresas.hide().val(""); // Ocultar y resetear selección
+    //     }
+    //     // Mostramos el select de Empresas
+    //     $empresas.show();
+
+    //     // Cargar empresas por AJAX
+    //     $.ajax({
+    //       url: $('#base_url').val() + 'serviciocliente/Listar_Empresas',
+    //       type: "POST",
+    //       dataType: "json",
+    //       success: function (data) {
+    //         $empresas.empty().append('<option value="">Seleccione</option>');
+    //         $.each(data, function (index, item) {
+    //           $empresas.append(`<option value="${item.id}">${item.nombre_empresa}</option>`);
+    //         });
+
+    //         // Inicializa Select2 en el select de empresas
+    //         $empresas.select2({
+    //           placeholder: 'Seleccione una opción',
+    //           allowClear: true,
+    //         });
+    //       },
+    //       error: function (xhr, status, error) {
+    //         console.error("Error en AJAX:", status, error);
+    //         alert("Error al cargar los datos.");
+    //       }
+    //     });
+    //   } else if (valorSeleccionado === "Estado") {
+    //     // Si Empresas está visible, la ocultamos
+    //     if ($empresas.is(":visible")) {
+    //       $empresas.hide().val(""); // Ocultar y resetear selección
+    //     }
+
+    //     if ($clientes.is(":visible")) {
+    //       $clientes.hide().val(""); // Ocultar y resetear selección
+    //     }
+    //     // Mostramos el select de Clientes
+    //     $estados.show();
+    //   }
+    // });
+
+  } else if (window.VENTANA === '2') {
+    //VENTANA PARA LISTAR LAS CPCIONES DE LAS PRIORITARIAS
+  } else if (window.VENTANA === '7') {
+    //VENTANA PARA LISTAR LAS CPCIONES DE LAS COMPLETADAS
+  } else if (window.VENTANA === '5') {
+    //VENTANA PARA LISTAR LAS CPCIONES DE LAS PENDIENTES
+  } else if (window.VENTANA === 4) {
+    // VENTANA PARA TRABAJAR EN LA CREACION DE LAS NUEVAS SOLICITUDES DE SERVICIO
+    let table = new DataTable('#myTable', {
+      language: { // Corrección aquí (antes era 'lenguage')
+        "processing": "Procesando...",
+        "lengthMenu": "Mostrar _MENU_ registros",
+        "zeroRecords": "No se encontraron resultados",
+        "emptyTable": "Ningún dato disponible en esta tabla",
+        "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "infoFiltered": "(filtrado de un total de _MAX_ registros)",
+        "search": "Buscar:",
+        "loadingRecords": "Cargando...",
+        "paginate": {
+          "first": "Primero",
+          "last": "Último",
+          "next": "Siguiente",
+          "previous": "Anterior"
+        }
+      } // Se eliminó la coma extra antes del `)`
     });
 
-    const hoy = new Date(); // Obtener la fecha actual
-    const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
+    $('#escenarios').html(''); // Limpia el select antes de agregar nuevas opciones
+    $('#escenarios').append(`<option value="" selected> Seleccione</option>`);
 
-    if (window.VENTANA === '1') {
-      var tipo = 2;
-      var dato = "";
-      var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_inicial`).val();
-      var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_final`).val();
-      var cliente = $(`#campo-${window.VENTANA}-clientes`).length > 0
-        ? $(`#campo-${window.VENTANA}-clientes`).val() || ""
-        : "";
-
-      var empresa = $(`#campo-${window.VENTANA}-empresas`).length > 0
-        ? $(`#campo-${window.VENTANA}-empresas`).val() || ""
-        : "";
-
-      var estado = "Todas";
-      listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa);
-      // Seleccionar el checkbox por su id
-
-      /************************** Funcion para buscar Cotizaciones ******************************/
-      $(`#campo-${window.VENTANA}-buscar`).off("click").on("click", async function () {
-        var tipo = 2;
-        var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val();
-        var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val();
-        var cliente = $(`#campo-${window.VENTANA}-clientes`).val() === "" ? "" : $(`#campo-${window.VENTANA}-clientes`).val();
-        var empresa = $(`#campo-${window.VENTANA}-empresas`).val() === '' ? "" : $(`#campo-${window.VENTANA}-empresas`).val();
-        var estado = "Todas";
-        listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa);
-      });
-
-      const checkbox = document.getElementById('flexSwitchCheckChecked');
-      checkbox.addEventListener('change', async function (e) {
-        e.preventDefault(); // Evita que el checkbox cambie directamente
-
-        const result = await Swal.fire({
-          title: '¿Estás seguro?',
-          text: '¿Quieres cambiar el estado?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Sí, cambiar',
-          cancelButtonText: 'Cancelar'
-        });
-
-        if (result.isConfirmed) {
-          // checkbox.checked = !checkbox.checked; // Aplica el cambio solo si se confirma
-          if (checkbox.checked) {
-            datos = new FormData();
-            datos.append('estado', "Propuesta");
-            datos.append('numdoc_solicitud', document.getElementById("numero_solicitud").value);
-
-            try {
-              const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
-                method: 'POST',
-                body: datos,
-                cache: 'no-cache',
-              });
-              const data = await response.json();
-
-              if (data.status === 200) {
-                Swal.fire({
-                  title: "Mensaje!",
-                  text: data.message,
-                  icon: "success",
-                  draggable: true
-                });
-                resetAll();
-              } else {
-                Swal.fire({
-                  title: "Mensaje!",
-                  text: data.message,
-                  icon: "error",
-                  draggable: true
-                });
-              }
-
-            } catch (error) {
-              console.error('Error en la primera solicitud:', error);
-            }
-          } else {
-            console.log('El checkbox no está marcado (unchecked)');
-            // Acciones si no está marcado
-          }
-        } else {
-          checkbox.checked = !checkbox.checked; // Revierte el cambio si se cancela
-        }
-      });
-
-      //Filtro para clientes
-      // $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
-      //   let valorSeleccionado = $(this).val();
-      //   if (valorSeleccionado === "Clientes") {
-      //     document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "block";
-      //     document.getElementById(`campo-${window.VENTANA}-empresas`).style.display = "none";
-      //     // document.getElementById(`campo-${window.VENTANA}-fecha_inicial`).style.display = "none";
-      //     // document.getElementById(`campo-${window.VENTANA}-fecha_final`).style.display = "none";
-      //     $.ajax({
-      //       url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
-      //       type: "POST",
-      //       dataType: "json",
-      //       success: function (data) {
-      //         let select = $(`#campo-${window.VENTANA}-clientes`);
-      //         select.empty().append('<option value="">Seleccione</option>');
-
-      //         $.each(data, function (index, item) {
-      //           select.append(`<option value="${item.id}">${item.nombre}</option>`);
-      //         });
-
-      //         // Inicializa Select2 en el select de clientes
-      //         select.select2({
-      //           placeholder: 'Seleccione una opción',
-      //           allowClear: true,
-      //         });
-      //       },
-      //       error: function (xhr, status, error) {
-      //         console.error("Error en AJAX:", status, error);
-      //         alert("Error al cargar los datos.");
-      //       }
-      //     });
-      //   } else if (valorSeleccionado === "Empresa") {
-      //     document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "none";
-      //     document.getElementById(`campo-${window.VENTANA}-empresas`).style.display = "block";
-      //     $.ajax({
-      //       url: $('#base_url').val() + 'serviciocliente/Listar_Empresas',
-      //       type: "POST",
-      //       dataType: "json",
-      //       success: function (data) {
-      //         let select = $(`#campo-${window.VENTANA}-empresas`);
-      //         select.empty().append('<option value="">Seleccione</option>');
-
-      //         $.each(data, function (index, item) {
-      //           select.append(`<option value="${item.id}">${item.nombre_empresa}</option>`);
-      //         });
-
-      //         // Inicializa Select2 en el select de clientes
-      //         select.select2({
-      //           placeholder: 'Seleccione una opción',
-      //           allowClear: true,
-      //         });
-      //       },
-      //       error: function (xhr, status, error) {
-      //         console.error("Error en AJAX:", status, error);
-      //         alert("Error al cargar los datos.");
-      //       }
-      //     });
-      //   }
-      // });
-
-      $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
-        let valorSeleccionado = $(this).val();
-
-        // Verifica si los elementos existen antes de manipularlos
-        let $clientes = $(`#campo-${window.VENTANA}-clientes`);
-        let $empresas = $(`#campo-${window.VENTANA}-empresas`);
-
-        if (valorSeleccionado === "Clientes") {
-          // Si Empresas está visible, la ocultamos
-          if ($empresas.is(":visible")) {
-            $empresas.hide().val(""); // Ocultar y resetear selección
-          }
-
-          if ($clientes.is(":visible")) {
-            $clientes.hide().val(""); // Ocultar y resetear selección
-          }
-          // Mostramos el select de Clientes
-          $clientes.show();
-
-          // Cargar clientes por AJAX
-          $.ajax({
-            url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
-            type: "POST",
-            dataType: "json",
-            success: function (data) {
-              $clientes.empty().append('<option value="">Seleccione</option>');
-              $.each(data, function (index, item) {
-                $clientes.append(`<option value="${item.id}">${item.nombre}</option>`);
-              });
-
-              // Inicializa Select2 en el select de clientes
-              $clientes.select2({
-                placeholder: 'Seleccione una opción',
-                allowClear: true,
-              });
-            },
-            error: function (xhr, status, error) {
-              console.error("Error en AJAX:", status, error);
-              alert("Error al cargar los datos.");
-            }
-          });
-
-        } else if (valorSeleccionado === "Empresa") {
-          // Si Clientes está visible, lo ocultamos
-          if ($clientes.is(":visible")) {
-            $clientes.hide().val(""); // Ocultar y resetear selección
-          }
-
-
-          if ($empresas.is(":visible")) {
-            $empresas.hide().val(""); // Ocultar y resetear selección
-          }
-          // Mostramos el select de Empresas
-          $empresas.show();
-
-          // Cargar empresas por AJAX
-          $.ajax({
-            url: $('#base_url').val() + 'serviciocliente/Listar_Empresas',
-            type: "POST",
-            dataType: "json",
-            success: function (data) {
-              $empresas.empty().append('<option value="">Seleccione</option>');
-              $.each(data, function (index, item) {
-                $empresas.append(`<option value="${item.id}">${item.nombre_empresa}</option>`);
-              });
-
-              // Inicializa Select2 en el select de empresas
-              $empresas.select2({
-                placeholder: 'Seleccione una opción',
-                allowClear: true,
-              });
-            },
-            error: function (xhr, status, error) {
-              console.error("Error en AJAX:", status, error);
-              alert("Error al cargar los datos.");
-            }
-          });
-        }
-      });
-
-      // $(`#campo-${window.VENTANA}-clientes`).off("change").on("change", function () {
-      //   let valorSeleccionado = $(this).val();
-      //   // console.log("Cambio en el filtro detectado. Mostrando clientes... " + valorSeleccionado); // Depuración
-      //   listar_cotizaciones(tipo, fecha_inicial, fecha_final, valorSeleccionado);
-      // });
-
-      // $(`#campo-${window.VENTANA}-empresas`).off("change").on("change", function () {
-      //   let valorSeleccionado = $(this).val();
-      //   // console.log("Cambio en el filtro detectado. Mostrando clientes... " + valorSeleccionado); // Depuración
-      //   listar_cotizaciones(tipo, fecha_inicial, fecha_final, valorSeleccionado);
-      // });
-
-    } else if (window.VENTANA === '2') {
-      //VENTANA PARA LISTAR LAS CPCIONES DE LAS PRIORITARIAS
-    } else if (window.VENTANA === '7') {
-      //VENTANA PARA LISTAR LAS CPCIONES DE LAS COMPLETADAS
-    } else if (window.VENTANA === '5') {
-      //VENTANA PARA LISTAR LAS CPCIONES DE LAS PENDIENTES
-    } else if (window.VENTANA === '4') {
-      // VENTANA PARA TRABAJAR EN LA CREACION DE LAS NUEVAS SOLICITUDES DE SERVICIO
-      let table = new DataTable('#myTable', {
-        language: { // Corrección aquí (antes era 'lenguage')
-          "processing": "Procesando...",
-          "lengthMenu": "Mostrar _MENU_ registros",
-          "zeroRecords": "No se encontraron resultados",
-          "emptyTable": "Ningún dato disponible en esta tabla",
-          "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-          "infoFiltered": "(filtrado de un total de _MAX_ registros)",
-          "search": "Buscar:",
-          "loadingRecords": "Cargando...",
-          "paginate": {
-            "first": "Primero",
-            "last": "Último",
-            "next": "Siguiente",
-            "previous": "Anterior"
-          }
-        } // Se eliminó la coma extra antes del `)`
-      });
-
-      $('#escenarios').html(''); // Limpia el select antes de agregar nuevas opciones
-      $('#escenarios').append(`<option value="" selected> Seleccione</option>`);
-
-      $.ajax({
-        url: $('#base_url').val() + 'serviciocliente/Traer_Escenarios',
-        type: 'POST',
-        dataType: 'json',
-        success: function (data) {
-          if (data) {
-            let options = ''; // Almacena las opciones en una variable para mejor rendimiento
-            data.forEach(element => {
-              options += `
+    $.ajax({
+      url: $('#base_url').val() + 'serviciocliente/Traer_Escenarios',
+      type: 'POST',
+      dataType: 'json',
+      success: function (data) {
+        if (data) {
+          let options = ''; // Almacena las opciones en una variable para mejor rendimiento
+          data.forEach(element => {
+            options += `
         <option value = "${element.id}"
       data-nombre="${element.escenario}"
       data-vehiculo="${element.vehiculo}"
@@ -318,716 +263,629 @@ window.initScript = function (id) {
         ${element.escenario + '-' + element.detalle_texto}
               </option>
         `;
-            });
-            $('#escenarios').append(options); // Inserta todas las opciones en una sola operación
-          }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          console.log(jqXHR, textStatus, errorThrown);
-        },
-      });
-
-      /* Cargar datos de la solictud de servicio */
-      $('#agencia').html(''); // Limpia el select antes de agregar nuevas opciones
-      // Agrega la opción "Seleccione" como la primera opción y la marca como seleccionada
-      $('#agencia').append('<option value="" selected>Seleccione</option>');
-
-      $.ajax({
-        url: $('#base_url').val() + 'serviciocliente/Traer_Agencias',
-        type: 'POST',
-        dataType: 'json',
-        success: function (data) {
-          if (data) {
-            // Itera sobre los datos recibidos y agrega cada opción al select
-            data.forEach(function (element, index) {
-              $('#agencia').append('<option value="' + element.id + '">' + element.nombre + '</option>');
-            });
-          }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          console.log(jqXHR);
-          console.log(textStatus);
-          console.log(errorThrown);
-        },
-      });
-
-      // Evento change para capturar los valores de data-*
-      $('#escenarios').on('change', function () {
-        let selectedOption = $(this).find('option:selected'); // Obtiene la opción seleccionada
-
-        // Asignar valores a las variables globales
-        ID = selectedOption.val();
-        VEHICULO = selectedOption.data('vehiculo');
-        REMITENTE = selectedOption.data('remitente');
-        DESTINATARIO = selectedOption.data('destinatario');
-        BLOQUE_MERCANCIA = selectedOption.data('bloque_mercancia');
-        SERVICIO = selectedOption.data('servicio');
-
-        // console.log('ID:', ID);
-        // console.log('Vehiculo:', VEHICULO);
-        // console.log('Remitente:', REMITENTE);
-        // console.log('Destinatario:', DESTINATARIO);
-        // console.log('Bloque Mercancia:', BLOQUE_MERCANCIA);
-        // console.log('Servicio:', SERVICIO);
-
-        /* Validaciones para armar los escenarios de solicitud de servicio */
-        if (window.ID === '1' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') { //Escenario donde todo es uno a uno
-          document.getElementById("agregar_fila").style.display = 'none';
-          agregar();
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
-          document.getElementById("maximo_entregab").value = 1;
-          document.getElementById("maximo_entregab").disabled = true;
-        } else if (ID === '2' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
-          document.getElementById("agregar_fila").style.display = 'none';
-          agregar();
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
-          document.getElementById("maximo_entregab").value = 1;
-          document.getElementById("maximo_entregab").disabled = true;
-        } else if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
-          document.getElementById("agregar_fila").style.display = 'none';
-          agregar();
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
-        } else if (ID === '4' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
-          document.getElementById("agregar_fila").style.display = 'none';
-          agregar();
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
-        } else if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {/* Escenario donde todas las mercancias son distintas */
-          agregar();
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
-          // Agregar un carro por cada bloque de marcancias
-          document.getElementById("maximo_entregab").value = 1;
-          document.getElementById("maximo_entregab").disabled = true;
-        } else if (ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
-          agregar();
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
-          // Agregar un carro por cada bloque de marcancias
-          document.getElementById("maximo_entregab").value = 1;
-          document.getElementById("maximo_entregab").disabled = true;
-        } else if (ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
-          agregar();
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
-          document.getElementById("#maximo_entregab").disabled = false;
-        } else if (ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
-          agregar();
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
-        } else if (ID === '9' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Consolidado') {
-          agregar();
-          //OCultarel boton de agregar bloque de mercancia
-          document.getElementById("agregar_fila").style.display = 'none';
-          // Agregar un carro por cada bloque de marcancias
-          document.getElementById("maximo_entregab").value = 1;
-          document.getElementById("maximo_entregab").disabled = true;
-        } else if (ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
-          agregar();
-          // Agregar un carro por cada bloque de marcancias
-          document.getElementById("maximo_entregab").value = 1;
-          document.getElementById("maximo_entregab").disabled = true;
-        } else if (ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
-          agregar();
-          // Agregar un carro por cada bloque de marcancias
-          document.querySelector(".cantvehiculo").value = 1;
-          document.querySelector(".cantvehiculo").disabled = true;
+          });
+          $('#escenarios').append(options); // Inserta todas las opciones en una sola operación
         }
-      });
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR, textStatus, errorThrown);
+      },
+    });
 
-      //agregar filas a la tabla de mercancias
-      $('#agregar_fila').click(function () {
+    /* Cargar datos de la solictud de servicio */
+    $('#agencia').html(''); // Limpia el select antes de agregar nuevas opciones
+    // Agrega la opción "Seleccione" como la primera opción y la marca como seleccionada
+    $('#agencia').append('<option value="" selected>Seleccione</option>');
+
+    $.ajax({
+      url: $('#base_url').val() + 'serviciocliente/Traer_Agencias',
+      type: 'POST',
+      dataType: 'json',
+      success: function (data) {
+        if (data) {
+          // Itera sobre los datos recibidos y agrega cada opción al select
+          data.forEach(function (element, index) {
+            $('#agencia').append('<option value="' + element.id + '">' + element.nombre + '</option>');
+          });
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      },
+    });
+
+    // Evento change para capturar los valores de data-*
+    $('#escenarios').on('change', function () {
+      let selectedOption = $(this).find('option:selected'); // Obtiene la opción seleccionada
+
+      // Asignar valores a las variables globales
+      ID = selectedOption.val();
+      VEHICULO = selectedOption.data('vehiculo');
+      REMITENTE = selectedOption.data('remitente');
+      DESTINATARIO = selectedOption.data('destinatario');
+      BLOQUE_MERCANCIA = selectedOption.data('bloque_mercancia');
+      SERVICIO = selectedOption.data('servicio');
+
+      // console.log('ID:', ID);
+      // console.log('Vehiculo:', VEHICULO);
+      // console.log('Remitente:', REMITENTE);
+      // console.log('Destinatario:', DESTINATARIO);
+      // console.log('Bloque Mercancia:', BLOQUE_MERCANCIA);
+      // console.log('Servicio:', SERVICIO);
+
+      /* Validaciones para armar los escenarios de solicitud de servicio */
+      if (window.ID === '1' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') { //Escenario donde todo es uno a uno
+        document.getElementById("agregar_fila").style.display = 'none';
         agregar();
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+        document.getElementById("maximo_entregab").value = 1;
+        document.getElementById("maximo_entregab").disabled = true;
+      } else if (ID === '2' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
+        document.getElementById("agregar_fila").style.display = 'none';
+        agregar();
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+        document.getElementById("maximo_entregab").value = 1;
+        document.getElementById("maximo_entregab").disabled = true;
+      } else if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
+        document.getElementById("agregar_fila").style.display = 'none';
+        agregar();
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+      } else if (ID === '4' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
+        document.getElementById("agregar_fila").style.display = 'none';
+        agregar();
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+      } else if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {/* Escenario donde todas las mercancias son distintas */
+        agregar();
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+        // Agregar un carro por cada bloque de marcancias
+        document.getElementById("maximo_entregab").value = 1;
+        document.getElementById("maximo_entregab").disabled = true;
+      } else if (ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
+        agregar();
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+        // Agregar un carro por cada bloque de marcancias
+        document.getElementById("maximo_entregab").value = 1;
+        document.getElementById("maximo_entregab").disabled = true;
+      } else if (ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
+        agregar();
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+        document.getElementById("#maximo_entregab").disabled = false;
+      } else if (ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
+        agregar();
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+      } else if (ID === '9' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Consolidado') {
+        agregar();
+        //OCultarel boton de agregar bloque de mercancia
+        document.getElementById("agregar_fila").style.display = 'none';
+        // Agregar un carro por cada bloque de marcancias
+        document.getElementById("maximo_entregab").value = 1;
+        document.getElementById("maximo_entregab").disabled = true;
+      } else if (ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+        agregar();
+        // Agregar un carro por cada bloque de marcancias
+        document.getElementById("maximo_entregab").value = 1;
+        document.getElementById("maximo_entregab").disabled = true;
+      } else if (ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+        agregar();
+        // Agregar un carro por cada bloque de marcancias
+        document.querySelector(".cantvehiculo").value = 1;
+        document.querySelector(".cantvehiculo").disabled = true;
+      }
+    });
+
+    //agregar filas a la tabla de mercancias
+    $('#agregar_fila').click(function () {
+      agregar();
+    });
+
+    $('#btn_agregar_cotizacion').click(function () {
+      //validaciones
+      var msg_error = '';
+
+      if (!$('#nit_empresa').val()) {
+        msg_error += '<p>Debe seleccionar un <strong>cliente</strong> para realizar la solicitud de servicio.</p>';
+        $('#documento').css('background-color', 'rgb(254,242,181)');
+        $('#nombre_clientes').css('background-color', 'rgb(254,242,181)');
+        $('#direccion_cliente').css('background-color', 'rgb(254,242,181)');
+        $('#telefono_cliente').css('background-color', 'rgb(254,242,181)');
+        $('#correo').css('background-color', 'rgb(254,242,181)');
+        $('#tipo_documento').css('background-color', 'rgb(254,242,181)');
+      } else {
+        $('#documento').css('background-color', 'rgb(255,255,255)');
+        $('#nombre_clientes').css('background-color', 'rgb(255,255,255)');
+        $('#direccion_cliente').css('background-color', 'rgb(255,255,255)');
+        $('#telefono_cliente').css('background-color', 'rgb(255,255,255)');
+        $('#correo').css('background-color', 'rgb(255,255,255)');
+        $('#tipo_documento').css('background-color', 'rgb(255,255,255)');
+      }
+
+      $('.tmerca').each(function (index) {
+        var mercancia = $(this).val();
+        if (!mercancia) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Mercancía - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.tmerca').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.tmerca').blur().css('background-color', 'white');
+        }
       });
 
-      $('#btn_agregar_cotizacion').click(function () {
-        //validaciones
-        var msg_error = '';
+      $('.natumer').each(function (index) {
+        var naturaleza = $(this).val();
+      });
 
-        if (!$('#nit_empresa').val()) {
-          msg_error += '<p>Debe seleccionar un <strong>cliente</strong> para realizar la solicitud de servicio.</p>';
-          $('#documento').css('background-color', 'rgb(254,242,181)');
-          $('#nombre_clientes').css('background-color', 'rgb(254,242,181)');
-          $('#direccion_cliente').css('background-color', 'rgb(254,242,181)');
-          $('#telefono_cliente').css('background-color', 'rgb(254,242,181)');
-          $('#correo').css('background-color', 'rgb(254,242,181)');
-          $('#tipo_documento').css('background-color', 'rgb(254,242,181)');
+      $('.valor_merca').each(function (index) {
+        var valor = $(this).val();
+        if (!valor) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Valor declarado - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.valor_merca').focus().css('background-color', 'rgb(254,242,181)');
         } else {
-          $('#documento').css('background-color', 'rgb(255,255,255)');
-          $('#nombre_clientes').css('background-color', 'rgb(255,255,255)');
-          $('#direccion_cliente').css('background-color', 'rgb(255,255,255)');
-          $('#telefono_cliente').css('background-color', 'rgb(255,255,255)');
-          $('#correo').css('background-color', 'rgb(255,255,255)');
-          $('#tipo_documento').css('background-color', 'rgb(255,255,255)');
+          $('.valor_merca').blur().css('background-color', 'white');
         }
+      });
 
-        $('.tmerca').each(function (index) {
-          var mercancia = $(this).val();
-          if (!mercancia) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Mercancía - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.tmerca').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.tmerca').blur().css('background-color', 'white');
-          }
-        });
+      $('.ts').each(function (index) {
+        var tiposervicio = $(this).val();
+        if (!tiposervicio) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Tipo servicio - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.ts').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.ts').blur().css('background-color', 'white');
+        }
+      });
 
-        $('.natumer').each(function (index) {
-          var naturaleza = $(this).val();
-        });
-
-        $('.valor_merca').each(function (index) {
-          var valor = $(this).val();
-          if (!valor) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Valor declarado - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.valor_merca').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.valor_merca').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.ts').each(function (index) {
-          var tiposervicio = $(this).val();
-          if (!tiposervicio) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Tipo servicio - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.ts').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.ts').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.operamer').each(function (index) {
-          var operacion = $(this).val();
-          if (!operacion) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Tipo de Operación - datos de mercancía ' + index + '</strong> para poder crear la cotización.</p>';
-            $('.operamer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.operamer').blur().css('background-color', 'white');
-            for (var i = 0; i <= contador_global1; i++) {
-              if (
-                typeof document.getElementsByClassName('operamer')[i] !== 'undefined' &&
-                typeof document.getElementsByClassName('operamer')[i] !== undefined &&
-                document.getElementsByClassName('empaquemer')[i] !== undefined &&
-                document.getElementsByClassName('rndcproducto')[i] !== undefined
-              ) {
-                let operacion = document.getElementsByClassName('operamer')[i].id;
-                let empaque = document.getElementsByClassName('empaquemer')[i].id;
-                let producto = document.getElementsByClassName('rndcproducto')[i].id;
-                if (typeof operacion != 'undefined' && typeof empaque != 'undefined' && producto != 'undefined') {
-                  if ($('#' + operacion + '').val() === 'V') {
-                    //contenedor vacio
-                    if ($('#' + empaque + '').val() == 8 || $('#' + empaque + '').val() == 9 || $('#' + empaque + '').val() == 10) {
-                    } else {
-                      msg_error += '<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser Contenedor por el Tipo Operación: Contenedor Vacío.</p>';
-                    }
-                    if ($('#' + producto + '').val() != '009990') {
-                      msg_error += '<p>El campo <strong>Mercancía - datos de mercancía </strong> debe ser Contenedor Vacío por el Tipo Operación: Contenedor Vacío.</p>';
-                    }
+      $('.operamer').each(function (index) {
+        var operacion = $(this).val();
+        if (!operacion) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Tipo de Operación - datos de mercancía ' + index + '</strong> para poder crear la cotización.</p>';
+          $('.operamer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.operamer').blur().css('background-color', 'white');
+          for (var i = 0; i <= contador_global1; i++) {
+            if (
+              typeof document.getElementsByClassName('operamer')[i] !== 'undefined' &&
+              typeof document.getElementsByClassName('operamer')[i] !== undefined &&
+              document.getElementsByClassName('empaquemer')[i] !== undefined &&
+              document.getElementsByClassName('rndcproducto')[i] !== undefined
+            ) {
+              let operacion = document.getElementsByClassName('operamer')[i].id;
+              let empaque = document.getElementsByClassName('empaquemer')[i].id;
+              let producto = document.getElementsByClassName('rndcproducto')[i].id;
+              if (typeof operacion != 'undefined' && typeof empaque != 'undefined' && producto != 'undefined') {
+                if ($('#' + operacion + '').val() === 'V') {
+                  //contenedor vacio
+                  if ($('#' + empaque + '').val() == 8 || $('#' + empaque + '').val() == 9 || $('#' + empaque + '').val() == 10) {
+                  } else {
+                    msg_error += '<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser Contenedor por el Tipo Operación: Contenedor Vacío.</p>';
                   }
-
-                  if ($('#' + operacion + '').val() === 'C') {
-                    //contenedor cargado
-                    if ($('#' + empaque + '').val() !== '8' && $('#' + empaque + '').val() !== '9' && $('#' + empaque + '').val() !== '10') {
-                      //alert('A si debe salir');
-                      msg_error += '<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser Contenedor, Tipo Operación: Contenedor Cargado.</p>';
-                    } else {
-                      //msg_error+= "<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser Contenedor, Tipo Operación: Contenedor Cargado.</p>";
-                    }
-                    if ($('#' + producto + '').val() == '009990' || $('#' + producto + '').val() == '009880') {
-                      msg_error += '<p>El campo <strong>Mercancía - datos de mercancía </strong> no debe ser Contenedor vacío ó Miscelaneos contenidos,Tipo Operación: Contenedor Cargado.</p>';
-                    }
+                  if ($('#' + producto + '').val() != '009990') {
+                    msg_error += '<p>El campo <strong>Mercancía - datos de mercancía </strong> debe ser Contenedor Vacío por el Tipo Operación: Contenedor Vacío.</p>';
                   }
+                }
 
-                  if ($('#' + operacion + '').val() === 'P') {
-                    //paqueteo
-                    if ($('#' + empaque + '').val() != 11) {
-                      msg_error += '<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser (Paquetes) Tipo Operación: Paqueteo.</p>';
-                    }
-                    if ($('#' + producto + '').val() != '009880') {
-                      msg_error += '<p>El campo <strong>Mercancía - datos de mercancía </strong> debe ser (009880)MISCELANEOS CONTENIDOS EN PAQUETES ( PAQUETEO ) Tipo Operación: Paqueteo.</p>';
-                    }
+                if ($('#' + operacion + '').val() === 'C') {
+                  //contenedor cargado
+                  if ($('#' + empaque + '').val() !== '8' && $('#' + empaque + '').val() !== '9' && $('#' + empaque + '').val() !== '10') {
+                    //alert('A si debe salir');
+                    msg_error += '<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser Contenedor, Tipo Operación: Contenedor Cargado.</p>';
+                  } else {
+                    //msg_error+= "<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser Contenedor, Tipo Operación: Contenedor Cargado.</p>";
+                  }
+                  if ($('#' + producto + '').val() == '009990' || $('#' + producto + '').val() == '009880') {
+                    msg_error += '<p>El campo <strong>Mercancía - datos de mercancía </strong> no debe ser Contenedor vacío ó Miscelaneos contenidos,Tipo Operación: Contenedor Cargado.</p>';
+                  }
+                }
+
+                if ($('#' + operacion + '').val() === 'P') {
+                  //paqueteo
+                  if ($('#' + empaque + '').val() != 11) {
+                    msg_error += '<p>El campo <strong>Tipo Empaque - datos de mercancía </strong> debe ser (Paquetes) Tipo Operación: Paqueteo.</p>';
+                  }
+                  if ($('#' + producto + '').val() != '009880') {
+                    msg_error += '<p>El campo <strong>Mercancía - datos de mercancía </strong> debe ser (009880)MISCELANEOS CONTENIDOS EN PAQUETES ( PAQUETEO ) Tipo Operación: Paqueteo.</p>';
                   }
                 }
               }
             }
           }
-        });
+        }
+      });
 
-        $('.empaquemer').each(function (index) {
-          var empaque = $(this).val();
-          if (!empaque) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Tipo de Empaque - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.empaquemer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.empaquemer').blur().css('background-color', 'white');
-          }
-        });
+      $('.empaquemer').each(function (index) {
+        var empaque = $(this).val();
+        if (!empaque) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Tipo de Empaque - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.empaquemer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.empaquemer').blur().css('background-color', 'white');
+        }
+      });
 
-        $('.ttransportemer').each(function (index) {
-          var tipo_transporte = $(this).val();
-          if (!tipo_transporte) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Tipo de Transporte - datos de mercancía ' + index + '</strong> para poder crear la cotización.</p>';
-            $('.ttransportemer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.ttransportemer').blur().css('background-color', 'white');
-            //validacion
-            for (var i = 0; i <= contador_global1; i++) {
-              if (
-                typeof document.getElementsByClassName('ttransportemer')[i] !== 'undefined' &&
-                typeof document.getElementsByClassName('ttransportemer')[i] !== undefined &&
-                document.getElementsByClassName('originario')[i] !== undefined &&
-                document.getElementsByClassName('destinar')[i] !== undefined
-              ) {
-                let tipo_operacion = document.getElementsByClassName('ttransportemer')[i].id;
-                let origen = document.getElementsByClassName('originario')[i].id;
-                let destino = document.getElementsByClassName('destinar')[i].id;
-                if (typeof tipo_operacion != 'undefined' && typeof origen != 'undefined' && typeof destino != 'undefined') {
-                  if ($('#' + tipo_operacion + '').val() == 'Urbano') {
-                    if ($('#' + origen + '').val() != $('#' + destino + '').val()) {
-                      msg_error += '<p>El Origen y Destino deben ser igual ya que el tipo de Transporte seleccionado es: Urbano</p>';
-                    }
+      $('.ttransportemer').each(function (index) {
+        var tipo_transporte = $(this).val();
+        if (!tipo_transporte) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Tipo de Transporte - datos de mercancía ' + index + '</strong> para poder crear la cotización.</p>';
+          $('.ttransportemer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.ttransportemer').blur().css('background-color', 'white');
+          //validacion
+          for (var i = 0; i <= contador_global1; i++) {
+            if (
+              typeof document.getElementsByClassName('ttransportemer')[i] !== 'undefined' &&
+              typeof document.getElementsByClassName('ttransportemer')[i] !== undefined &&
+              document.getElementsByClassName('originario')[i] !== undefined &&
+              document.getElementsByClassName('destinar')[i] !== undefined
+            ) {
+              let tipo_operacion = document.getElementsByClassName('ttransportemer')[i].id;
+              let origen = document.getElementsByClassName('originario')[i].id;
+              let destino = document.getElementsByClassName('destinar')[i].id;
+              if (typeof tipo_operacion != 'undefined' && typeof origen != 'undefined' && typeof destino != 'undefined') {
+                if ($('#' + tipo_operacion + '').val() == 'Urbano') {
+                  if ($('#' + origen + '').val() != $('#' + destino + '').val()) {
+                    msg_error += '<p>El Origen y Destino deben ser igual ya que el tipo de Transporte seleccionado es: Urbano</p>';
                   }
                 }
               }
             }
           }
-        });
+        }
+      });
 
-        $('.originario').each(function (index) {
-          var origen = $(this).val();
-          if (!origen) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Origen - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.originario').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.originario').blur().css('background-color', 'white');
-          }
-        });
+      $('.originario').each(function (index) {
+        var origen = $(this).val();
+        if (!origen) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Origen - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.originario').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.originario').blur().css('background-color', 'white');
+        }
+      });
 
-        $('.destinar').each(function (index) {
-          var destino = $(this).val();
-          if (!destino) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Destino - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.destinar').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.destinar').blur().css('background-color', 'white');
-          }
-        });
+      $('.destinar').each(function (index) {
+        var destino = $(this).val();
+        if (!destino) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Destino - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.destinar').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.destinar').blur().css('background-color', 'white');
+        }
+      });
 
-        $('.tipovehiculo').each(function (index) {
-          var tvehiculo = $(this).val();
-          if (!tvehiculo) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Tipo Vehículo - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.tipovehiculo').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.tipovehiculo').blur().css('background-color', 'white');
-          }
-        });
+      $('.tipovehiculo').each(function (index) {
+        var tvehiculo = $(this).val();
+        if (!tvehiculo) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Tipo Vehículo - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.tipovehiculo').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.tipovehiculo').blur().css('background-color', 'white');
+        }
+      });
 
-        $('.pesobruto').each(function (index) {
-          var tvehiculo = $(this).val();
-          if (!tvehiculo) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Peso Bruto (kg)- datos de mercancía ' + index + '</strong> para poder crear la cotización.</p>';
-            $('.pesobruto').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.pesobruto').blur().css('background-color', 'white');
-            for (var i = 0; i <= contador_global1; i++) {
-              if (
-                typeof document.getElementsByClassName('pesobruto')[i] !== 'undefined' &&
-                typeof document.getElementsByClassName('pesobruto')[i] !== undefined &&
-                document.getElementsByClassName('pnetomer')[i] !== undefined &&
-                document.getElementsByClassName('pnetomer')[i] !== undefined
-              ) {
-                let pbrutoc = document.getElementsByClassName('pesobruto')[i].id;
-                let pnetoc = document.getElementsByClassName('pnetomer')[i].id;
-                let valor1 = $('#' + pbrutoc + '').val().toString().replace(/,/g, '');
-                let valor2 = $('#' + pnetoc + '').val().toString().replace(/,/g, '');
-                if (parseFloat(valor1) < parseFloat(valor2)) {
-                  msg_error += '<p>El <strong>Peso bruto </strong> debe ser Mayor al <strong> Peso Neto </strong></p>';
-                }
+      $('.pesobruto').each(function (index) {
+        var tvehiculo = $(this).val();
+        if (!tvehiculo) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Peso Bruto (kg)- datos de mercancía ' + index + '</strong> para poder crear la cotización.</p>';
+          $('.pesobruto').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.pesobruto').blur().css('background-color', 'white');
+          for (var i = 0; i <= contador_global1; i++) {
+            if (
+              typeof document.getElementsByClassName('pesobruto')[i] !== 'undefined' &&
+              typeof document.getElementsByClassName('pesobruto')[i] !== undefined &&
+              document.getElementsByClassName('pnetomer')[i] !== undefined &&
+              document.getElementsByClassName('pnetomer')[i] !== undefined
+            ) {
+              let pbrutoc = document.getElementsByClassName('pesobruto')[i].id;
+              let pnetoc = document.getElementsByClassName('pnetomer')[i].id;
+              let valor1 = $('#' + pbrutoc + '').val().toString().replace(/,/g, '');
+              let valor2 = $('#' + pnetoc + '').val().toString().replace(/,/g, '');
+              if (parseFloat(valor1) < parseFloat(valor2)) {
+                msg_error += '<p>El <strong>Peso bruto </strong> debe ser Mayor al <strong> Peso Neto </strong></p>';
               }
             }
           }
-        });
+        }
+      });
 
-        $('.pnetomer').each(function (index) {
-          var neto = $(this).val();
-          if (!neto) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Peso Neto (Kg)- datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.pnetomer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.pnetomer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.pesobrutoton').each(function (index) {
-          var brutotn = $(this).val();
-          if (!brutotn) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Peso Neto (Tn)- datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.pesobrutoton').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.pesobrutoton').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.cantidadmer').each(function (index) {
-          var cantidad = $(this).val();
-          if (!cantidad) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Cantidad(unidades)- datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.cantidadmer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.cantidadmer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.altomer').each(function (index) {
-          var alto = $(this).val();
-          if (!alto) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Alto - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.altomer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.altomer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.largomer').each(function (index) {
-          var largo = $(this).val();
-          if (!$('.largomer').val()) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Largo - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.largomer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.largomer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.volumenmer').each(function (index) {
-          var volumen = $(this).val();
-          if (!volumen) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Volumen - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.volumenmer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.volumenmer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.fletemer').each(function (index) {
-          var flete = $(this).val();
-          if (flete <= 0) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Costo flete - datos de mercancía mayor a ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.fletemer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.fletemer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.tarifamer').each(function (index) {
-          var tarifa = $(this).val();
-          if (!tarifa) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Costo flete - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.tarifamer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.tarifamer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.rentamer').each(function (index) {
-          var rentabilidad = $(this).val();
-          if (!rentabilidad) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Rentabilidad - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.rentamer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.rentamer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.utilmer').each(function (index) {
-          var utilidad = $(this).val();
-          if (!utilidad) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Utilidad - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.utilmer').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.utilmer').blur().css('background-color', 'white');
-          }
-        });
-
-        $('.cantvehi').each(function (index) {
-          var cuanto_vehiculo = $(this).val();
-          if (!cuanto_vehiculo) {
-            msg_error += '<p>Debe diligenciar el campo <strong>Cantidad Vehículos - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-            $('.cantvehi').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.cantvehi').blur().css('background-color', 'white');
-          }
-        });
-        // FIN VALIDACIONES COTIZACIONES
-
-        //VALIDACIONES DE LA SOLICITUD DE SERVICIO
-        // var msg_error = '';
-        var peso = $('#pesoneto').val();
-        var cont_opcion = $('#cnt_opcion').val();
-        var cont_dias = $('#cnt_dias').val();
-        var cont_municipio = $('#cnt_municipio').val();
-        var cont_direccion = $('#cnt_direccion').val();
-        var cont_tipo = $('#cnt_tipocon').val();
-        var cont_num = $('#cnt_num').val();
-        var cont_comodato = $('#cnt_fcomodato').val();
-        var cont_peso = $('#cnt_peso').val();
-        var cant_solicitada = $('#cant_vehiculo').val();
-        var cant_disponible = $('#cant_disponible').val();
-        var fhoy = moment().format('Y-M-D');
-        var tipo_transporte = $('#tip_transport').val();
-
-        if (!$('#agencia').val()) {
-          msg_error += '<p>Por favor seleccione la <strong>Agencia</strong> para poder registrar solicitud de servicio</p>';
-          $('#agencia').focus().css('background-color', 'rgb(254,242,181)');
+      $('.pnetomer').each(function (index) {
+        var neto = $(this).val();
+        if (!neto) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Peso Neto (Kg)- datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.pnetomer').focus().css('background-color', 'rgb(254,242,181)');
         } else {
-          $('#agencia').blur().css('background-color', 'white');
+          $('.pnetomer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.pesobrutoton').each(function (index) {
+        var brutotn = $(this).val();
+        if (!brutotn) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Peso Neto (Tn)- datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.pesobrutoton').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.pesobrutoton').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.cantidadmer').each(function (index) {
+        var cantidad = $(this).val();
+        if (!cantidad) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Cantidad(unidades)- datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.cantidadmer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.cantidadmer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.altomer').each(function (index) {
+        var alto = $(this).val();
+        if (!alto) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Alto - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.altomer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.altomer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.largomer').each(function (index) {
+        var largo = $(this).val();
+        if (!$('.largomer').val()) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Largo - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.largomer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.largomer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.volumenmer').each(function (index) {
+        var volumen = $(this).val();
+        if (!volumen) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Volumen - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.volumenmer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.volumenmer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.fletemer').each(function (index) {
+        var flete = $(this).val();
+        if (flete <= 0) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Costo flete - datos de mercancía mayor a ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.fletemer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.fletemer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.tarifamer').each(function (index) {
+        var tarifa = $(this).val();
+        if (!tarifa) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Costo flete - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.tarifamer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.tarifamer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.rentamer').each(function (index) {
+        var rentabilidad = $(this).val();
+        if (!rentabilidad) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Rentabilidad - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.rentamer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.rentamer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.utilmer').each(function (index) {
+        var utilidad = $(this).val();
+        if (!utilidad) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Utilidad - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.utilmer').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.utilmer').blur().css('background-color', 'white');
+        }
+      });
+
+      $('.cantvehi').each(function (index) {
+        var cuanto_vehiculo = $(this).val();
+        if (!cuanto_vehiculo) {
+          msg_error += '<p>Debe diligenciar el campo <strong>Cantidad Vehículos - datos de mercancía ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+          $('.cantvehi').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.cantvehi').blur().css('background-color', 'white');
+        }
+      });
+      // FIN VALIDACIONES COTIZACIONES
+
+      //VALIDACIONES DE LA SOLICITUD DE SERVICIO
+      // var msg_error = '';
+      var peso = $('#pesoneto').val();
+      var cont_opcion = $('#cnt_opcion').val();
+      var cont_dias = $('#cnt_dias').val();
+      var cont_municipio = $('#cnt_municipio').val();
+      var cont_direccion = $('#cnt_direccion').val();
+      var cont_tipo = $('#cnt_tipocon').val();
+      var cont_num = $('#cnt_num').val();
+      var cont_comodato = $('#cnt_fcomodato').val();
+      var cont_peso = $('#cnt_peso').val();
+      var cant_solicitada = $('#cant_vehiculo').val();
+      var cant_disponible = $('#cant_disponible').val();
+      var fhoy = moment().format('Y-M-D');
+      var tipo_transporte = $('#tip_transport').val();
+
+      if (!$('#agencia').val()) {
+        msg_error += '<p>Por favor seleccione la <strong>Agencia</strong> para poder registrar solicitud de servicio</p>';
+        $('#agencia').focus().css('background-color', 'rgb(254,242,181)');
+      } else {
+        $('#agencia').blur().css('background-color', 'white');
+      }
+
+      if (!$('#group').val()) {
+        msg_error += '<p>Por favor ingrese el <strong>Grupo</strong> para poder registrar solicitud de servicio</p>';
+        $('#group').focus().css('background-color', 'rgb(254,242,181)');
+      } else {
+        $('#group').blur().css('background-color', 'white');
+      }
+
+      if (!$('#houremail').val()) {
+        msg_error += '<p>Por favor ingrese el <strong>Hora envío email </strong> para poder registrar solicitud de servicio</p>';
+        $('#hora_ss').focus().css('background-color', 'rgb(254,242,181)');
+      } else {
+        $('#hora_ss').focus().css('background-color', 'white');
+      }
+
+      if (cont_opcion == '1') {
+        if (cont_dias == '') {
+          msg_error += '<p>Por favor ingrese los <strong>Días del contenedor</strong> para registrar la solicitud de servicio</p>';
         }
 
-        if (!$('#group').val()) {
-          msg_error += '<p>Por favor ingrese el <strong>Grupo</strong> para poder registrar solicitud de servicio</p>';
-          $('#group').focus().css('background-color', 'rgb(254,242,181)');
-        } else {
-          $('#group').blur().css('background-color', 'white');
+        if (cont_municipio == '') {
+          msg_error += '<p>Por favor ingrese el <strong>Municipio</strong> para registrar la solicitud de servicio</p>';
         }
 
-        if (!$('#houremail').val()) {
-          msg_error += '<p>Por favor ingrese el <strong>Hora envío email </strong> para poder registrar solicitud de servicio</p>';
-          $('#hora_ss').focus().css('background-color', 'rgb(254,242,181)');
-        } else {
-          $('#hora_ss').focus().css('background-color', 'white');
+        if (cont_direccion == '') {
+          msg_error += '<p>Por favor ingrese la <strong>Dirección</strong> para registrar la solicitud de servicio</p>';
         }
 
-        if (cont_opcion == '1') {
-          if (cont_dias == '') {
-            msg_error += '<p>Por favor ingrese los <strong>Días del contenedor</strong> para registrar la solicitud de servicio</p>';
-          }
-
-          if (cont_municipio == '') {
-            msg_error += '<p>Por favor ingrese el <strong>Municipio</strong> para registrar la solicitud de servicio</p>';
-          }
-
-          if (cont_direccion == '') {
-            msg_error += '<p>Por favor ingrese la <strong>Dirección</strong> para registrar la solicitud de servicio</p>';
-          }
-
-          if (cont_tipo == '') {
-            msg_error += '<p>Por favor ingrese el <strong>Tipo de contenedor</strong> para registrar la solicitud de servicio</p>';
-          }
-
-          if (cont_num == '') {
-            msg_error += '<p>Por favor ingrese el <strong>Número de contenedor</strong> para registrar la solicitud de servicio</p>';
-          }
-
-          if (cont_peso == '') {
-            msg_error += '<p>Por favor ingrese el <strong>Peso vacío de contenedor</strong> para registrar la solicitud de servicio</p>';
-          }
+        if (cont_tipo == '') {
+          msg_error += '<p>Por favor ingrese el <strong>Tipo de contenedor</strong> para registrar la solicitud de servicio</p>';
         }
 
-        $('.re_cliente').each(function (index) {
-          var remitente = $(this).val();
-          if (!remitente) {
-            msg_error += '<p>Por favor seleccione el <strong>Remitente</strong> para poder registrar solicitudde servicio </p>';
-          } else {
-            $('.re_dire').each(function (index) {
-              var direccion_remitente = $(this).val();
-              if (!direccion_remitente) {
-                msg_error += '<p>Por favor ingrese la <strong>Dirección Remitente</strong> para poder registrar la solicitud de servicio</p>';
-              } else {
-                // if(direccion_remitente.length == 0 || direccion_remitente.length > 50){
-                if (direccion_remitente.trim().length > 50) {
-                  msg_error += '<p>La <strong>Dirección Remitente</strong> debe tener maximo 50 caracteres para poder registrar la solicitud de servicio</p>';
-                }
-                if (direccion_remitente.trim().length < 3) {
-                  msg_error += '<p>La <strong>Dirección Remitente</strong> debe tener mínimo 3 caracteres para poder registrar la solicitud de servicio</p>';
-                }
-              }
-            });
+        if (cont_num == '') {
+          msg_error += '<p>Por favor ingrese el <strong>Número de contenedor</strong> para registrar la solicitud de servicio</p>';
+        }
 
-            $('.rlname').each(function (index) {
-              var rename = $(this).val();
-              if (rename < 3) {
-                msg_error += '<p>El <strong>Nombre Remitente</strong> debe tener mínimo 3 caracteres para poder registrar solicitud de servicio</p>';
-              }
-              if (rename > 50) {
-                msg_error += '<p>El <strong>Nombre Remitente</strong> debe tener máximo 50 caracteres para poder registrar solicitud de servicio</p>';
-              }
-            });
+        if (cont_peso == '') {
+          msg_error += '<p>Por favor ingrese el <strong>Peso vacío de contenedor</strong> para registrar la solicitud de servicio</p>';
+        }
+      }
 
-            $('.re_ciudad').each(function (index) {
-              var ciudad_remitente = $(this).val();
-              if (!ciudad_remitente) {
-                msg_error += '<p>Por favor seleccione la <strong>Ciudad Remitente</strong> para poder registrar solicitud de servicio</p>';
-              }
-            });
-
-            $('.re_telefono').each(function (index) {
-              var telefono_remitente = $(this).val();
-              if (!telefono_remitente) {
-                msg_error += '<p>Por favor ingresa el <strong>Teléfono Remitente</strong> para poder registrar solicitud de servicio</p>';
-              } else {
-                if (telefono_remitente.length < 10) {
-                  msg_error += '<p>El <strong>Teléfono Remitente</strong> debe tener 10 dígitos para poder registrar solicitud de servicio</p>';
-                } else if (telefono_remitente.length > 10) {
-                  msg_error += '<p>El <strong>Teléfono Remitente</strong> debe tener 10 dígitos para poder registrar solicitud de servicio</p>';
-                } else if (telefono_remitente == '0000000000') {
-                  msg_error += '<p>El <strong>Teléfono Remitente</strong> no es válido</p>';
-                }
-              }
-            });
-
-            $('.re_peso').each(function (index) {
-              var peso_remitente = $(this).val();
-              if (!peso_remitente) {
-                msg_error += '<p>Por favor ingresa el <strong>Peso Remitente</strong> para poder registrar solicitud de servicio</p>';
-              }
-            });
-
-            $('.re_fecha').each(function (index) {
-              var fecha_remitente = $(this).val();
-              if (!fecha_remitente) {
-                msg_error += '<p>Por favor ingresa la <strong>Fecha Remitente</strong> para poder registrar solicitud de servicio</p>';
-              } else {
-                var fhoym = moment();
-                var tf = fhoym.diff(fecha_remitente, 'days');
-                if (tf > 0) {
-                  msg_error += '<p>Por favor ingrese la <strong>Fecha Remitente</strong> mayor a la fecha actual para registrar la solicitud de servicio</p>';
-                }
-              }
-            });
-
-            $('.re_hora').each(function (index) {
-              var hora_remitente = $(this).val();
-              if (!hora_remitente) {
-                msg_error += '<p>Por favor ingresa la <strong>Hora Remitente</strong> para poder registrar solicitud de servicio</p>';
-              }
-            });
-
-            $('.re_lugar').each(function (index) {
-              var lugar_remitente = $(this).val();
-              if (!lugar_remitente) {
-                msg_error += '<p>Por favor ingresa el <strong>Lugar Remitente</strong> para poder registrar solicitud de servicio</p>';
-              }
-            });
-
-            //validacines para rndc
-            $('.est_upgrade').each(function (index) {
-              var estado_retransmision = $(this).val();
-              if (estado_retransmision == 0) {
-                msg_error += '<p>Por favor transmitir el <strong>Remitente</strong> para poder registrar solicitud de servicio</p>';
-              }
-            });
-
-            $('.re_dire').each(function (index) {
-              var largo_dire = $(this).val();
-              if (largo_dire.trim().length < 3) {
-                msg_error += '<p>La <strong>Dirección Remitente</strong> debe tener mas de 3 caracteres</p>';
-              }
-              if (largo_dire.trim().length > 50) {
-                msg_error += '<p>La <strong>Dirección Remitente</strong> debe tener menos de 50 caracteres</p>';
-              }
-            });
-          }
-        });
-        //FIN DE LAS VALIDACIONES PARA LOS REMITENTES
-
-        var destinatario = $('.de_cliente').val();
-        if (!destinatario || destinatario == undefined) {
-          msg_error += '<p>Por favor selecciona el <strong>Destinatario</strong> para poder registrar solicitud de servicio</p>';
+      $('.re_cliente').each(function (index) {
+        var remitente = $(this).val();
+        if (!remitente) {
+          msg_error += '<p>Por favor seleccione el <strong>Remitente</strong> para poder registrar solicitudde servicio </p>';
         } else {
-          $('.de_dire').each(function (index) {
-            var direccion_destinatario = $(this).val();
-            if (!direccion_destinatario) {
-              msg_error += '<p>Por favor ingresa la <strong>Dirección Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          $('.re_dire').each(function (index) {
+            var direccion_remitente = $(this).val();
+            if (!direccion_remitente) {
+              msg_error += '<p>Por favor ingrese la <strong>Dirección Remitente</strong> para poder registrar la solicitud de servicio</p>';
             } else {
-              // if(direccion_destinatario.length == 0 || direccion_destinatario.length > 50){
-              if (direccion_destinatario.trim().length > 50) {
-                msg_error += '<p>La <strong>Dirección Destinatario</strong> debe tener maximo 50 caracteres para poder registrar la solicitud de servicio</p>';
+              // if(direccion_remitente.length == 0 || direccion_remitente.length > 50){
+              if (direccion_remitente.trim().length > 50) {
+                msg_error += '<p>La <strong>Dirección Remitente</strong> debe tener maximo 50 caracteres para poder registrar la solicitud de servicio</p>';
               }
-              if (direccion_destinatario.trim().length < 3) {
-                msg_error += '<p>La <strong>Dirección Destinatario</strong> debe tener mínimo 3 caracteres para poder registrar la solicitud de servicio</p>';
+              if (direccion_remitente.trim().length < 3) {
+                msg_error += '<p>La <strong>Dirección Remitente</strong> debe tener mínimo 3 caracteres para poder registrar la solicitud de servicio</p>';
               }
             }
           });
 
-          $('.tel_dire').each(function (index) {
-            var telefono_destinatario = $(this).val();
-            if (!telefono_destinatario) {
-              msg_error += '<p>Por favor ingresa la <strong>Teléfono Remitente</strong> para poder registrar solicitud de servicio</p>';
+          $('.rlname').each(function (index) {
+            var rename = $(this).val();
+            if (rename < 3) {
+              msg_error += '<p>El <strong>Nombre Remitente</strong> debe tener mínimo 3 caracteres para poder registrar solicitud de servicio</p>';
+            }
+            if (rename > 50) {
+              msg_error += '<p>El <strong>Nombre Remitente</strong> debe tener máximo 50 caracteres para poder registrar solicitud de servicio</p>';
+            }
+          });
+
+          $('.re_ciudad').each(function (index) {
+            var ciudad_remitente = $(this).val();
+            if (!ciudad_remitente) {
+              msg_error += '<p>Por favor seleccione la <strong>Ciudad Remitente</strong> para poder registrar solicitud de servicio</p>';
+            }
+          });
+
+          $('.re_telefono').each(function (index) {
+            var telefono_remitente = $(this).val();
+            if (!telefono_remitente) {
+              msg_error += '<p>Por favor ingresa el <strong>Teléfono Remitente</strong> para poder registrar solicitud de servicio</p>';
             } else {
-              if (telefono_destinatario.length > 10) {
+              if (telefono_remitente.length < 10) {
                 msg_error += '<p>El <strong>Teléfono Remitente</strong> debe tener 10 dígitos para poder registrar solicitud de servicio</p>';
-              } else if (telefono_destinatario.length < 10) {
+              } else if (telefono_remitente.length > 10) {
                 msg_error += '<p>El <strong>Teléfono Remitente</strong> debe tener 10 dígitos para poder registrar solicitud de servicio</p>';
-              } else if (telefono_destinatario == '0000000000') {
+              } else if (telefono_remitente == '0000000000') {
                 msg_error += '<p>El <strong>Teléfono Remitente</strong> no es válido</p>';
               }
             }
           });
 
-          $('.de_ciudad').each(function (index) {
-            var ciudad_destinatario = $(this).val();
-            if (!ciudad_destinatario) {
-              msg_error += '<p>Por favor ingresa la <strong>Ciudad Destinatario</strong> para poder registrar la solicitud de servicio</p>';
+          $('.re_peso').each(function (index) {
+            var peso_remitente = $(this).val();
+            if (!peso_remitente) {
+              msg_error += '<p>Por favor ingresa el <strong>Peso Remitente</strong> para poder registrar solicitud de servicio</p>';
             }
           });
 
-          $('.de_fecha').each(function (index) {
-            var fecha_destinatario = $(this).val();
-            if (!fecha_destinatario) {
-              msg_error += '<p>Por favor ingresa la <strong>Fecha Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          $('.re_fecha').each(function (index) {
+            var fecha_remitente = $(this).val();
+            if (!fecha_remitente) {
+              msg_error += '<p>Por favor ingresa la <strong>Fecha Remitente</strong> para poder registrar solicitud de servicio</p>';
             } else {
               var fhoym = moment();
               var tf = fhoym.diff(fecha_remitente, 'days');
-              var fecha_remitente = $('.re_fecha').val();
-              if (fecha_destinatario < fecha_remitente) {
-                msg_error += '<p>La <strong>Fecha Destinatario</strong> debe ser mayor a la fecha cargue para poder registrar solicitud de servicio</p>';
+              if (tf > 0) {
+                msg_error += '<p>Por favor ingrese la <strong>Fecha Remitente</strong> mayor a la fecha actual para registrar la solicitud de servicio</p>';
               }
             }
           });
 
-          $('.de_hora').each(function (index) {
-            var hora_destinatario = $(this).val();
-            if (!hora_destinatario) {
-              msg_error += '<p>Por favor ingresa la <strong>Hora Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          $('.re_hora').each(function (index) {
+            var hora_remitente = $(this).val();
+            if (!hora_remitente) {
+              msg_error += '<p>Por favor ingresa la <strong>Hora Remitente</strong> para poder registrar solicitud de servicio</p>';
             }
           });
 
-          $('.de_peso').each(function (index) {
-            var peso_destinatario = $(this).val();
-            if (!peso_destinatario) {
-              msg_error += '<p>Por favor ingresa el <strong>Peso Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          $('.re_lugar').each(function (index) {
+            var lugar_remitente = $(this).val();
+            if (!lugar_remitente) {
+              msg_error += '<p>Por favor ingresa el <strong>Lugar Remitente</strong> para poder registrar solicitud de servicio</p>';
             }
           });
 
-          $('.de_lugar').each(function (index) {
-            var lugar_destinatario = $(this).val();
-            if (!lugar_destinatario) {
-              msg_error += '<p>Por favor ingresa el <strong>Lugar Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          //validacines para rndc
+          $('.est_upgrade').each(function (index) {
+            var estado_retransmision = $(this).val();
+            if (estado_retransmision == 0) {
+              msg_error += '<p>Por favor transmitir el <strong>Remitente</strong> para poder registrar solicitud de servicio</p>';
             }
           });
 
-          //validaciones destinatario punto control rndc
-          $('.dlestado').each(function (index) {
-            var estado_retransmisiond = $(this).val();
-            if (estado_retransmisiond == 0) {
-              msg_error += '<p>Por favor transmitir el <strong>Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          $('.re_dire').each(function (index) {
+            var largo_dire = $(this).val();
+            if (largo_dire.trim().length < 3) {
+              msg_error += '<p>La <strong>Dirección Remitente</strong> debe tener mas de 3 caracteres</p>';
+            }
+            if (largo_dire.trim().length > 50) {
+              msg_error += '<p>La <strong>Dirección Remitente</strong> debe tener menos de 50 caracteres</p>';
             }
           });
+        }
+      });
+      //FIN DE LAS VALIDACIONES PARA LOS REMITENTES
 
-          $('.dlname').each(function (index) {
-            var largo_nombred = $(this).val();
-            if (largo_nombred < 3) {
-              msg_error += '<p>El <strong>Nombre Destinatario</strong> debe tener mínimo 3 caracteres para poder registrar solicitud de servicio</p>';
-            }
-            if (largo_nombred > 50) {
-              msg_error += '<p>El <strong>Nombre Destinatario</strong> debe tener máximo 50 caracteres para poder registrar solicitud de servicio</p>';
-            }
-          });
-
-          $('.de_dire').each(function (index) {
-            var direccion_destinatario = $(this).val();
+      var destinatario = $('.de_cliente').val();
+      if (!destinatario || destinatario == undefined) {
+        msg_error += '<p>Por favor selecciona el <strong>Destinatario</strong> para poder registrar solicitud de servicio</p>';
+      } else {
+        $('.de_dire').each(function (index) {
+          var direccion_destinatario = $(this).val();
+          if (!direccion_destinatario) {
+            msg_error += '<p>Por favor ingresa la <strong>Dirección Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          } else {
             // if(direccion_destinatario.length == 0 || direccion_destinatario.length > 50){
             if (direccion_destinatario.trim().length > 50) {
               msg_error += '<p>La <strong>Dirección Destinatario</strong> debe tener maximo 50 caracteres para poder registrar la solicitud de servicio</p>';
@@ -1035,1068 +893,1312 @@ window.initScript = function (id) {
             if (direccion_destinatario.trim().length < 3) {
               msg_error += '<p>La <strong>Dirección Destinatario</strong> debe tener mínimo 3 caracteres para poder registrar la solicitud de servicio</p>';
             }
+          }
+        });
+
+        $('.tel_dire').each(function (index) {
+          var telefono_destinatario = $(this).val();
+          if (!telefono_destinatario) {
+            msg_error += '<p>Por favor ingresa la <strong>Teléfono Remitente</strong> para poder registrar solicitud de servicio</p>';
+          } else {
+            if (telefono_destinatario.length > 10) {
+              msg_error += '<p>El <strong>Teléfono Remitente</strong> debe tener 10 dígitos para poder registrar solicitud de servicio</p>';
+            } else if (telefono_destinatario.length < 10) {
+              msg_error += '<p>El <strong>Teléfono Remitente</strong> debe tener 10 dígitos para poder registrar solicitud de servicio</p>';
+            } else if (telefono_destinatario == '0000000000') {
+              msg_error += '<p>El <strong>Teléfono Remitente</strong> no es válido</p>';
+            }
+          }
+        });
+
+        $('.de_ciudad').each(function (index) {
+          var ciudad_destinatario = $(this).val();
+          if (!ciudad_destinatario) {
+            msg_error += '<p>Por favor ingresa la <strong>Ciudad Destinatario</strong> para poder registrar la solicitud de servicio</p>';
+          }
+        });
+
+        $('.de_fecha').each(function (index) {
+          var fecha_destinatario = $(this).val();
+          if (!fecha_destinatario) {
+            msg_error += '<p>Por favor ingresa la <strong>Fecha Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          } else {
+            var fhoym = moment();
+            var tf = fhoym.diff(fecha_remitente, 'days');
+            var fecha_remitente = $('.re_fecha').val();
+            if (fecha_destinatario < fecha_remitente) {
+              msg_error += '<p>La <strong>Fecha Destinatario</strong> debe ser mayor a la fecha cargue para poder registrar solicitud de servicio</p>';
+            }
+          }
+        });
+
+        $('.de_hora').each(function (index) {
+          var hora_destinatario = $(this).val();
+          if (!hora_destinatario) {
+            msg_error += '<p>Por favor ingresa la <strong>Hora Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          }
+        });
+
+        $('.de_peso').each(function (index) {
+          var peso_destinatario = $(this).val();
+          if (!peso_destinatario) {
+            msg_error += '<p>Por favor ingresa el <strong>Peso Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          }
+        });
+
+        $('.de_lugar').each(function (index) {
+          var lugar_destinatario = $(this).val();
+          if (!lugar_destinatario) {
+            msg_error += '<p>Por favor ingresa el <strong>Lugar Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          }
+        });
+
+        //validaciones destinatario punto control rndc
+        $('.dlestado').each(function (index) {
+          var estado_retransmisiond = $(this).val();
+          if (estado_retransmisiond == 0) {
+            msg_error += '<p>Por favor transmitir el <strong>Destinatario</strong> para poder registrar solicitud de servicio</p>';
+          }
+        });
+
+        $('.dlname').each(function (index) {
+          var largo_nombred = $(this).val();
+          if (largo_nombred < 3) {
+            msg_error += '<p>El <strong>Nombre Destinatario</strong> debe tener mínimo 3 caracteres para poder registrar solicitud de servicio</p>';
+          }
+          if (largo_nombred > 50) {
+            msg_error += '<p>El <strong>Nombre Destinatario</strong> debe tener máximo 50 caracteres para poder registrar solicitud de servicio</p>';
+          }
+        });
+
+        $('.de_dire').each(function (index) {
+          var direccion_destinatario = $(this).val();
+          // if(direccion_destinatario.length == 0 || direccion_destinatario.length > 50){
+          if (direccion_destinatario.trim().length > 50) {
+            msg_error += '<p>La <strong>Dirección Destinatario</strong> debe tener maximo 50 caracteres para poder registrar la solicitud de servicio</p>';
+          }
+          if (direccion_destinatario.trim().length < 3) {
+            msg_error += '<p>La <strong>Dirección Destinatario</strong> debe tener mínimo 3 caracteres para poder registrar la solicitud de servicio</p>';
+          }
+        });
+
+        //Validar si esta en el escenario mumeor 3 donde los pesos se distribuyen en los remitentes
+        if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso' ||
+          ID === '4' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso' ||
+          ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+          ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
+          ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+          let total = 0;
+          let errores = [];
+          // document.querySelectorAll(".re_peso").forEach(function (input) {
+          //   console.log("🚀 ~ input:", input)
+          // });
+          document.querySelectorAll(".re_peso").forEach(function (input) {
+            // Convertir valor a número
+            const valor = parseFloat(input.value) || 0;
+
+            // Validaciones individuales (ejemplo)
+            if (input.value === "") {
+              errores.push(`El campo ${input.name} está vacío`);
+            }
+
+            if (valor < 0) {
+              errores.push(`El campo ${input.name} no puede ser negativo`);
+            }
+
+            // Sumar al total
+            total += valor;
           });
 
-          //Validar si esta en el escenario mumeor 3 donde los pesos se distribuyen en los remitentes
-          if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso' ||
-            ID === '4' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso' ||
-            ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
-            ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
-            ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
-            let total = 0;
-            let errores = [];
-            // document.querySelectorAll(".re_peso").forEach(function (input) {
-            //   console.log("🚀 ~ input:", input)
-            // });
-            document.querySelectorAll(".re_peso").forEach(function (input) {
-              // Convertir valor a número
-              const valor = parseFloat(input.value) || 0;
+          // Validación del total
+          if (total <= 0) {
+            errores.push("El total debe ser mayor a cero");
+          }
 
-              // Validaciones individuales (ejemplo)
-              if (input.value === "") {
-                errores.push(`El campo ${input.name} está vacío`);
-              }
-
-              if (valor < 0) {
-                errores.push(`El campo ${input.name} no puede ser negativo`);
-              }
-
-              // Sumar al total
-              total += valor;
-            });
-
-            // Validación del total
-            if (total <= 0) {
-              errores.push("El total debe ser mayor a cero");
-            }
-
-            // Mostrar errores o total
-            if (errores.length > 0) {
-              console.error("Errores:", errores);
-              alert(errores.join("\n"));
-              return false;
-            } else {
-              // console.log("Total calculado:", total);
-              // return total;
-              var sumpesod = 0;
-              $('.de_peso').each(function (index) {
-                var valor_des = $(this).val();
-                sumpesod = parseFloat(sumpesod) + parseFloat(valor_des);
-              });
-
-              if (parseFloat(sumpesod) > total) {
-                msg_error += '<p><strong>El Peso  Total del Destinatario supera el Peso Total del Remitente </strong></p>';
-              }
-            }
+          // Mostrar errores o total
+          if (errores.length > 0) {
+            console.error("Errores:", errores);
+            alert(errores.join("\n"));
+            return false;
           } else {
-            //Valida pesos
-            var sumpeso = 0;
-            $('.re_peso').each(function (index) {
-              var valor = $(this).val();
-              sumpeso = parseFloat(sumpeso) + parseFloat(valor); //peso total del remitente
-            });
-            if (parseFloat(sumpeso) > parseFloat(peso)) {
-              msg_error += '<p><strong>El valor total del Peso Remitente  supera el Peso Neto </strong></p>';
-            }
-
+            // console.log("Total calculado:", total);
+            // return total;
             var sumpesod = 0;
             $('.de_peso').each(function (index) {
               var valor_des = $(this).val();
               sumpesod = parseFloat(sumpesod) + parseFloat(valor_des);
             });
 
-            if (parseFloat(sumpesod) > parseFloat(sumpeso)) {
+            if (parseFloat(sumpesod) > total) {
               msg_error += '<p><strong>El Peso  Total del Destinatario supera el Peso Total del Remitente </strong></p>';
             }
           }
+        } else {
+          //Valida pesos
+          var sumpeso = 0;
+          $('.re_peso').each(function (index) {
+            var valor = $(this).val();
+            sumpeso = parseFloat(sumpeso) + parseFloat(valor); //peso total del remitente
+          });
+          if (parseFloat(sumpeso) > parseFloat(peso)) {
+            msg_error += '<p><strong>El valor total del Peso Remitente  supera el Peso Neto </strong></p>';
+          }
+
+          var sumpesod = 0;
+          $('.de_peso').each(function (index) {
+            var valor_des = $(this).val();
+            sumpesod = parseFloat(sumpesod) + parseFloat(valor_des);
+          });
+
+          if (parseFloat(sumpesod) > parseFloat(sumpeso)) {
+            msg_error += '<p><strong>El Peso  Total del Destinatario supera el Peso Total del Remitente </strong></p>';
+          }
         }
-        //FIN VALIDACIONES DE DESTINATARIOS
+      }
+      //FIN VALIDACIONES DE DESTINATARIOS
 
-        //HOMOLOGAR DATOS SERVICIOS ESPECIALES
-        $('.tcostoesp').each(function (index) {
-          var tipocosto = $(this).val();
-          if (typeof tipocosto !== 'undefined' || typeof tipocosto !== 'undefined') {
-            $('.tiposerviespe').each(function (index) {
-              var tiposervice = $(this).val();
-              if (!tiposervice) {
-                msg_error += '<p>Debe diligenciar el campo <strong>Tipo servicio especial  -datos especiales ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-                $('.tiposerviespe').focus().css('background-color', 'rgb(254,242,181)');
-              } else {
-                $('.tiposerviespe').blur().css('background-color', 'white');
-              }
-            });
-
-            $('.cantiespec').each(function (index) {
-              var canti = $(this).val();
-              if (canti < 1) {
-                msg_error += '<p>Debe diligenciar el campo <strong>cantidad  -datos especiales ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-                $('.cantiespec').focus().css('background-color', 'rgb(254,242,181)');
-              } else {
-                $('.cantiespec').blur().css('background-color', 'white');
-              }
-            });
-
-            $('.tarifaespe').each(function (index) {
-              var tarifa = $(this).val();
-              if (tarifa <= 0) {
-                msg_error += '<p>Debe diligenciar el campo <strong>Tarifa unitaria  -datos especiales ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
-                $('.tarifaespe').focus().css('background-color', 'rgb(254,242,181)');
-              } else {
-                $('.tarifaespe').blur().css('background-color', 'white');
-                if (parseFloat($('#tarifauni' + index).val()) < parseFloat($('#tservi_cliente' + index).val())) {
-                  msg_error += '<p><strong>Tarifa unitaria  </strong> debe ser mayor o igual al valor del <strong> costo unitario  </strong> en servicios especiales.</p>';
-                }
-              }
-            });
-          }
-        });
-
-        //VALIDACION DE LOS COSOTOS EFICINETS DEL SICETAC
-        $('.configuracion_vehiculo_sicetac').each(function (index) {
-          var configuracion_vehiculo_sicetac = $(this).val();
-          if (!configuracion_vehiculo_sicetac) {
-            msg_error += '<p>Por favor seleccionar la <strong>Configuración del Vehículo</strong> para poder registrar solicitud de servicio</p>';
-            $('.configuracion_vehiculo_sicetac').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.configuracion_vehiculo_sicetac').focus().css('background-color', '#FFFFFF');
-          }
-        });
-
-        $('.unidad_transporte_sicetac').each(function (index) {
-          var unidad_transporte_sicetac = $(this).val();
-          if (!unidad_transporte_sicetac) {
-            msg_error += '<p>Por favor seleccionar la <strong>Unidad de transporte</strong> para poder registrar solicitud de servicio</p>';
-            $('.unidad_transporte_sicetac').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.unidad_transporte_sicetac').focus().css('background-color', '#FFFFFF');
-          }
-        });
-
-        $('.tipo_carga_sicetac').each(function (index) {
-          var tipo_carga_sicetac = $(this).val();
-          if (!tipo_carga_sicetac) {
-            msg_error += '<p>Por favor seleccionar el <strong>Tipo de carga</strong> para poder registrar solicitud de servicio</p>';
-            $('.tipo_carga_sicetac').focus().css('background-color', 'rgb(254,242,181)');
-          } else {
-            $('.tipo_carga_sicetac').focus().css('background-color', '#FFFFFF');
-          }
-        });
-
-        if (!msg_error) {
-          Swal.fire({
-            title: 'Seguro',
-            text: '¿Desea guardar la Solicitud de Servicio?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3B71CA',
-            cancelButtonColor: '#9FA6B2',
-            confirmButtonText: 'Aceptar',
-            cancelButtonText: 'Cancelar',
-            customClass: {
-              popup: 'swal2-custom-font',
-            },
-          }).then(async result => {
-            if (result.isConfirmed) {
-              Inserta_Cotizacion(id);
+      //HOMOLOGAR DATOS SERVICIOS ESPECIALES
+      $('.tcostoesp').each(function (index) {
+        var tipocosto = $(this).val();
+        if (typeof tipocosto !== 'undefined' || typeof tipocosto !== 'undefined') {
+          $('.tiposerviespe').each(function (index) {
+            var tiposervice = $(this).val();
+            if (!tiposervice) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Tipo servicio especial  -datos especiales ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+              $('.tiposerviespe').focus().css('background-color', 'rgb(254,242,181)');
+            } else {
+              $('.tiposerviespe').blur().css('background-color', 'white');
             }
           });
-        } else {
-          Swal.fire({
-            title: "Advertencia!",
-            html: msg_error,
-            icon: "warning",
-            draggable: true,
-            showConfirmButton: true,
-            // timer: 1000,
-            customClass: {
-              popup: 'custom-swal-popup', // Clase para el contenedor principal
-              title: 'custom-swal-title', // Clase para el título
-              htmlContainer: 'custom-swal-html-container', // Clase para el mensaje
-            },
+
+          $('.cantiespec').each(function (index) {
+            var canti = $(this).val();
+            if (canti < 1) {
+              msg_error += '<p>Debe diligenciar el campo <strong>cantidad  -datos especiales ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+              $('.cantiespec').focus().css('background-color', 'rgb(254,242,181)');
+            } else {
+              $('.cantiespec').blur().css('background-color', 'white');
+            }
           });
-          $('#bloque_formulario').animate({ scrollTop: 0 }, 800);
+
+          $('.tarifaespe').each(function (index) {
+            var tarifa = $(this).val();
+            if (tarifa <= 0) {
+              msg_error += '<p>Debe diligenciar el campo <strong>Tarifa unitaria  -datos especiales ' + index + '</strong> para poder crear la solicitud de servicio.</p>';
+              $('.tarifaespe').focus().css('background-color', 'rgb(254,242,181)');
+            } else {
+              $('.tarifaespe').blur().css('background-color', 'white');
+              if (parseFloat($('#tarifauni' + index).val()) < parseFloat($('#tservi_cliente' + index).val())) {
+                msg_error += '<p><strong>Tarifa unitaria  </strong> debe ser mayor o igual al valor del <strong> costo unitario  </strong> en servicios especiales.</p>';
+              }
+            }
+          });
         }
       });
+
+      //VALIDACION DE LOS COSOTOS EFICINETS DEL SICETAC
+      $('.configuracion_vehiculo_sicetac').each(function (index) {
+        var configuracion_vehiculo_sicetac = $(this).val();
+        if (!configuracion_vehiculo_sicetac) {
+          msg_error += '<p>Por favor seleccionar la <strong>Configuración del Vehículo</strong> para poder registrar solicitud de servicio</p>';
+          $('.configuracion_vehiculo_sicetac').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.configuracion_vehiculo_sicetac').focus().css('background-color', '#FFFFFF');
+        }
+      });
+
+      $('.unidad_transporte_sicetac').each(function (index) {
+        var unidad_transporte_sicetac = $(this).val();
+        if (!unidad_transporte_sicetac) {
+          msg_error += '<p>Por favor seleccionar la <strong>Unidad de transporte</strong> para poder registrar solicitud de servicio</p>';
+          $('.unidad_transporte_sicetac').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.unidad_transporte_sicetac').focus().css('background-color', '#FFFFFF');
+        }
+      });
+
+      $('.tipo_carga_sicetac').each(function (index) {
+        var tipo_carga_sicetac = $(this).val();
+        if (!tipo_carga_sicetac) {
+          msg_error += '<p>Por favor seleccionar el <strong>Tipo de carga</strong> para poder registrar solicitud de servicio</p>';
+          $('.tipo_carga_sicetac').focus().css('background-color', 'rgb(254,242,181)');
+        } else {
+          $('.tipo_carga_sicetac').focus().css('background-color', '#FFFFFF');
+        }
+      });
+
+      /* Validar si el costo del flete es menor al costos del sicetac */
+      $('.fletemer').each(function (index) {
+        // Obtener el valor del input .fletemer y convertirlo a número eliminando comas
+        var tarifa_flete = $(this).val();
+        var numTarifaFlete = parseFloat(tarifa_flete.replace(/,/g, ''));
+
+        // Obtener el valor correspondiente del input .costo_sicetac y convertirlo a número
+        var costo = $('.costo_sicetac').eq(index).val();
+        var numCosto = parseFloat(costo.replace(/,/g, ''));
+
+        // Si no se ha ingresado un valor (o no es un número válido)
+        if (!numTarifaFlete || isNaN(numTarifaFlete)) {
+          msg_error += '<p>Por favor seleccionar el <strong>Tipo de carga</strong> para poder registrar solicitud de servicio</p>';
+          $(this).focus().css('background-color', 'rgb(254,242,181)');
+        }
+        // Si el valor de .fletemer es menor que el valor de .costo_sicetac
+        else if (numTarifaFlete < numCosto) {
+          msg_error += '<p>El valor de flete es menora los costos del SICETAC.</p>';
+          $(this).focus().css('background-color', 'rgb(254,242,181)');
+        }
+        // Si todo está bien, restablecer el fondo
+        else {
+          $(this).css('background-color', '#FFFFFF');
+        }
+      });
+
+      if (!msg_error) {
+        Swal.fire({
+          title: 'Seguro',
+          text: '¿Desea guardar la Solicitud de Servicio?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3B71CA',
+          cancelButtonColor: '#9FA6B2',
+          confirmButtonText: 'Aceptar',
+          cancelButtonText: 'Cancelar',
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        }).then(async result => {
+          if (result.isConfirmed) {
+            Inserta_Cotizacion(id);
+          }
+        });
+      } else {
+        Swal.fire({
+          title: "Advertencia!",
+          html: msg_error,
+          icon: "warning",
+          draggable: true,
+          showConfirmButton: true,
+          // timer: 1000,
+          customClass: {
+            popup: 'custom-swal-popup', // Clase para el contenedor principal
+            title: 'custom-swal-title', // Clase para el título
+            htmlContainer: 'custom-swal-html-container', // Clase para el mensaje
+          },
+        });
+        $('#bloque_formulario').animate({ scrollTop: 0 }, 800);
+      }
+    });
+  }
+
+  //funcion para mostrar el contenido segun el boton seleccionado
+  $('#Nacional').change(function () {
+    if ($(this).is(':checked')) {
+      $('.titulogeneral').show();
+      $('.formulario').show();
+    } else {
+      $('.titulogeneral').hide();
+      $('.formulario').hide();
+    }
+  });
+
+  $('#btn_total').click(function () {
+    // alert('click btn total');
+    var a = $('#Tservicio_transporte').val();
+    var b = $('#Ttarifa_especial').val();
+    var opera = parseFloat(a) + parseFloat(b);
+    // alert(opera);
+    $('.total_oculto').show();
+    $('#Ttotal_cotizacion').val(opera);
+  });
+
+  // agregar filas a tabla servicio especial
+  // agregar filas a tabla servicio especial
+  $('#agregar_especial').click(function () {
+    //select de mercancia
+    if (contador_global1 > 0) {
+      agregar_especial();
+    } else {
+      alert('Debe agregar mercancías a la cotización');
+    }
+  });
+
+  // Escuchar el evento change del select con clase tmerca
+  $('.tmerca').on('change', function () {
+    // Obtener el valor seleccionado
+    var valorSeleccionado = $(this).val();
+
+    // Validar el valor seleccionado
+    if (valorSeleccionado) {
+      console.log("Valor seleccionado:", valorSeleccionado);
+
+      // Aquí puedes hacer tu validación
+      if (valorSeleccionado === "CONTENEDOR VACIO") {
+        // console.log("OCONTENEDOR VACIO seleccionada");
+        document.getElementById("devolver_contenedor").style.display = "block";
+        document.getElementById("cnt_opcion").disabled = false;
+        document.getElementById("cnt_tipocon").disabled = false;
+        /* Ejecutar funcion para cargar la lista de contendores */
+        /**************************Cargar Cotenedores para crear la solicitud************************/
+        $('#cnt_tipocon').html('<option value="">Seleccione</option>');
+        $.ajax({
+          url: $('#base_url').val() + 'serviciocliente/Consultar_Contenedor',
+          type: 'POST',
+          dataType: 'json',
+          success: function (data) {
+            if (data) {
+              data.forEach(function (element, index) {
+                $('#cnt_tipocon').append('<option value="' + element.id + '">' + element.nombre + '</option>');
+              });
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log('no trajo agencia');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+          },
+        });
+        document.getElementById("cnt_num").disabled = false;
+        document.getElementById("cnt_dias").disabled = false;
+        document.getElementById("cnt_municipio").disabled = false;
+        /* Cargar Municipios de los contenedores */
+        $('#cnt_municipio').html('<option value="">Seleccione</option>');
+        $.ajax({
+          url: $('#base_url').val() + 'serviciocliente/Consultar_Municipios',
+          type: 'POST',
+          dataType: 'json',
+          success: function (data) {
+            if (data) {
+              data.forEach(function (element, index) {
+                $('#cnt_municipio').append('<option value="' + element.id + '">' + element.municipio + '-' + element.depto + '</option>');
+              });
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log('no trajo municipio');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+          },
+        });
+        document.getElementById("cnt_direccion").disabled = false;
+        document.getElementById("cnt_fcomodato").disabled = false;
+        document.getElementById("cnt_peso").disabled = false;
+        // document.getElementById("cnt_peso").value = false;
+        // Lógica para la opción 1
+      } else if (valorSeleccionado === "2") {
+        console.log("Opción 2 seleccionada");
+        // Lógica para la opción 2
+      } else if (valorSeleccionado === "3") {
+        console.log("Opción 3 seleccionada");
+        // Lógica para la opción 3
+      } else {
+        console.log("Opción no válida");
+      }
+    } else {
+      console.log("No se ha seleccionado ninguna opción");
+    }
+  });
+
+  $('.operamer').on('change', function () {
+    // Obtener el valor seleccionado
+    var valorSeleccionado = $(this).val();
+
+    // Validar el valor seleccionado
+    if (valorSeleccionado) {
+      console.log("Valor seleccionado:", valorSeleccionado);
+
+      // Aquí puedes hacer tu validación
+      if (valorSeleccionado === "C" || valorSeleccionado === "V") {
+        // console.log("OCONTENEDOR VACIO seleccionada");
+        document.getElementById("devolver_contenedor").style.display = "block";
+        document.getElementById("cnt_opcion").disabled = false;
+        document.getElementById("cnt_tipocon").disabled = false;
+        /* Ejecutar funcion para cargar la lista de contendores */
+        /**************************Cargar Cotenedores para crear la solicitud************************/
+        $('#cnt_tipocon').html('<option value="">Seleccione</option>');
+        $.ajax({
+          url: $('#base_url').val() + 'serviciocliente/Consultar_Contenedor',
+          type: 'POST',
+          dataType: 'json',
+          success: function (data) {
+            if (data) {
+              data.forEach(function (element, index) {
+                $('#cnt_tipocon').append('<option value="' + element.id + '">' + element.nombre + '</option>');
+              });
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log('no trajo agencia');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+          },
+        });
+        document.getElementById("cnt_num").disabled = false;
+        document.getElementById("cnt_dias").disabled = false;
+        document.getElementById("cnt_municipio").disabled = false;
+        /* Cargar Municipios de los contenedores */
+        $('#cnt_municipio').html('<option value="">Seleccione</option>');
+        $.ajax({
+          url: $('#base_url').val() + 'serviciocliente/Consultar_Municipios',
+          type: 'POST',
+          dataType: 'json',
+          success: function (data) {
+            if (data) {
+              data.forEach(function (element, index) {
+                $('#cnt_municipio').append('<option value="' + element.id + '">' + element.municipio + '-' + element.depto + '</option>');
+              });
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log('no trajo municipio');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+          },
+        });
+        document.getElementById("cnt_direccion").disabled = false;
+        document.getElementById("cnt_fcomodato").disabled = false;
+        document.getElementById("cnt_peso").disabled = false;
+        // document.getElementById("cnt_peso").value = false;
+        // Lógica para la opción 1
+      } else if (valorSeleccionado === "2") {
+        console.log("Opción 2 seleccionada");
+        // Lógica para la opción 2
+      } else if (valorSeleccionado === "3") {
+        console.log("Opción 3 seleccionada");
+        // Lógica para la opción 3
+      } else {
+        console.log("Opción no válida");
+      }
+    } else {
+      console.log("No se ha seleccionado ninguna opción");
+    }
+  });
+
+  // Puedes acceder a estas variables en cualquier parte del código
+  document.addEventListener("click", async e => {
+    // if (e.target.matches("#btn_ver_solicitud") || e.target.matches("#btn_ver_solicitud *")) {
+    //   // let padre = e.target.parentElement.parentElement;
+    //   // Obtener el enlace (el elemento con el data-id)
+    //   let enlace = e.target.closest('#btn_ver_solicitud');
+    //   // // Obtener el valor del atributo data-id
+    //   let dataId = enlace.getAttribute('data-id');
+    //   let dataId2 = enlace.getAttribute('data-id2');
+    //   let dataId3 = enlace.getAttribute('data-id3');
+    //   // Visualizar(dataId, dataId2, dataId3);
+
+    //   // // Definir dimensiones de la nueva ventana
+    //   const w = 1000;
+    //   const h = 1000;
+
+    //   // Fixes dual-screen position                         Most browsers      Firefox
+    //   var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+    //   var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+
+    //   var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    //   var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    //   var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+    //   var top = ((height / 2) - (h / 2)) + dualScreenTop;
+    //   var newWindow = window.open($('#base_url').val() + "serviciocliente/canvas?cotizacion=" + encodeURIComponent(dataId) + "&solicitud_servicio=" + encodeURIComponent(dataId2) + "&ventana=" + encodeURIComponent(dataId3), "ventanaCentrada", 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+
+    //   // Puts focus on the newWindow
+    //   if (window.focus) {
+    //     newWindow.focus();
+    //   }
+    // }
+
+    // Verificar si el clic fue en un botón cuyo ID empieza con "btn_edit_cargue"
+    // Obtener el botón (incluso si se hace clic en un elemento hijo)
+    const btnValidarSicetac = e.target.closest('[id^="btn-validar-sicetac"]');
+    if (btnValidarSicetac) {
+      // Acceder al data-id
+      const dataId = btnValidarSicetac.getAttribute('data-id');
+      //VALORES PARA VALIDACIONES SICETAC
+      var ArraySicetac = {
+        configuracion_vehiculo: [],
+        unidad_transporte: [],
+        tipo_carga: [],
+        origen_sicetac: [],
+        destino_sicetac: [],
+        costo_sicetac: [],
+      }
+
+      $('.configuracion_vehiculo_sicetac').each(function (index) {
+        var configuracion_vehiculo = $(this).val();
+        ArraySicetac.configuracion_vehiculo[index] = configuracion_vehiculo;
+      });
+
+      $('.unidad_transporte_sicetac').each(function (index) {
+        var unidad_transporte = $(this).val();
+        ArraySicetac.unidad_transporte[index] = unidad_transporte;
+      });
+
+      $('.tipo_carga_sicetac').each(function (index) {
+        var tipo_carga = $(this).val();
+        ArraySicetac.tipo_carga[index] = tipo_carga;
+      });
+
+      $('.originario').each(function (index) {
+        var origen_sicetac = $(this).val();
+        ArraySicetac.origen_sicetac[index] = origen_sicetac;
+      });
+
+      $('.destinar').each(function (index) {
+        var destino_sicetac = $(this).val();
+        ArraySicetac.destino_sicetac[index] = destino_sicetac;
+      });
+
+      $('.costo_sicetac').each(function (index) {
+        var costo_sicetac = $(this).val();
+        ArraySicetac.costo_sicetac[index] = costo_sicetac;
+      });
+
+      var CostosEficientesSicetac = ArraySicetac;
+      CostosEficientesSicetac = JSON.stringify(CostosEficientesSicetac);
+
+      let datos = new FormData();
+      datos.append("CostosEficientesSicetac", CostosEficientesSicetac);
+      try {
+        const response = await fetch($("#base_url").val() + "serviciocliente/Validar_tarifa_sicetac", {
+          method: "POST",
+          body: datos,
+          cache: "no-cache",
+        });
+        const data = await response.json();
+        if (data) {
+          if (Array.isArray(data)) {
+            $('.costo_sicetac').each(function (index) {
+              if (data[index] !== undefined) {
+                // Convertir y formatear el valor obtenido
+                let valorCosto = parseFloat(data[index]);
+                let valorFormateado = valorCosto.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                $(this).val(valorFormateado);
+
+                // Obtener el input .fletemer correspondiente usando el mismo índice
+                let fletemerInput = $('.fletemer').eq(index);
+                // Remover comas para convertir correctamente el valor a número
+                let valorFletemer = parseFloat(fletemerInput.val().replace(/,/g, ''));
+
+                // Compara: si el valor en .fletemer es menor que valorCosto...
+                if (valorFletemer < valorCosto) {
+                  // Se aplica un borde rojo al input
+                  fletemerInput.css('border', '1px solid red');
+                  // Se añade un mensaje de error debajo si no existe ya
+                  if (fletemerInput.next('.error-message').length === 0) {
+                    fletemerInput.after('<div class="error-message" style="color: red; font-size: 12px; font-weight: bold;">El valor ingresado es menor a los costos del SICETAC.</div>');
+                  }
+                } else {
+                  console.log("entro");
+                  // Si el valor es mayor o igual, se remueve el borde y el mensaje de error
+                  fletemerInput.css('border', '');
+                  fletemerInput.next('.error-message').remove();
+                }
+              }
+            });
+          }
+        } else {
+          Swal.fire({
+            title: "Exito",
+            text: data.mensaje,
+            icon: "error"
+          });
+        }
+      } catch (error) {
+        console.error("Error en la primera solicitud:", error);
+        throw error;
+      } finally {
+      }
     }
 
-    //funcion para mostrar el contenido segun el boton seleccionado
-    $('#Nacional').change(function () {
-      if ($(this).is(':checked')) {
-        $('.titulogeneral').show();
-        $('.formulario').show();
-      } else {
-        $('.titulogeneral').hide();
-        $('.formulario').hide();
-      }
-    });
+    // Verificar si el clic fue en un botón cuyo ID empieza con "btn_edit_cargue"
+    // Obtener el botón (incluso si se hace clic en un elemento hijo)
+    // const buttonEditarCargue = e.target.closest('[id^="btn_edit_cargue"]');
+    // if (buttonEditarCargue) {
+    //   // Acceder al data-id
+    //   // const dataId = buttonEditarCargue.getAttribute('data-puntoId');
+    //   const dataId = buttonEditarCargue.getAttribute('data-puntoId');
+    //   // También puedes usar dataset (recomendado)
+    //   // const dataId = button.dataset.id;
 
-    $('#btn_total').click(function () {
-      // alert('click btn total');
-      var a = $('#Tservicio_transporte').val();
-      var b = $('#Ttarifa_especial').val();
-      var opera = parseFloat(a) + parseFloat(b);
-      // alert(opera);
-      $('.total_oculto').show();
-      $('#Ttotal_cotizacion').val(opera);
-    });
+    //   // Resto de tu código...
+    //   let fecha = document.getElementById("fecha_cargue_edit" + dataId);
+    //   let hora = document.getElementById("hora_cargue_edit" + dataId);
+    //   fecha.disabled = false;
+    //   hora.disabled = false;
+    //   document.getElementById("btn_save_cargue" + dataId).style.display = "block";
+    //   document.getElementById("btn_canelar_cargue" + dataId).style.display = "block";
+    //   document.getElementById("btn_edit_cargue" + dataId).style.display = "none";
+    // }
 
-    // agregar filas a tabla servicio especial
-    // agregar filas a tabla servicio especial
-    $('#agregar_especial').click(function () {
-      //select de mercancia
-      if (contador_global1 > 0) {
-        agregar_especial();
-      } else {
-        alert('Debe agregar mercancías a la cotización');
-      }
-    });
+    // const buttonCencelarEdicionCargue = e.target.closest('[id^="btn_canelar_cargue"]');
+    // if (buttonCencelarEdicionCargue) {
+    //   // Obtener el botón (incluso si se hace clic en un elemento hijo)
+    //   // Acceder al data-id
+    //   const dataId = buttonCencelarEdicionCargue.getAttribute('data-puntoId');
+    //   // Resto de tu código...
+    //   let fecha = document.getElementById("fecha_cargue_edit" + dataId);
+    //   let hora = document.getElementById("hora_cargue_edit" + dataId);
+    //   fecha.disabled = true;
+    //   hora.disabled = true;
+    //   document.getElementById("btn_save_cargue" + dataId).style.display = "none";
+    //   document.getElementById("btn_canelar_cargue" + dataId).style.display = "none";
+    //   document.getElementById("btn_edit_cargue" + dataId).style.display = "block";
+    // }
 
-    // Escuchar el evento change del select con clase tmerca
-    $('.tmerca').on('change', function () {
-      // Obtener el valor seleccionado
-      var valorSeleccionado = $(this).val();
+    // const buttonGuardarEdicionCargue = e.target.closest('[id^="btn_save_cargue"]');
+    // if (buttonGuardarEdicionCargue) {
+    //   // Acceder al data-id
+    //   const Remitente = buttonGuardarEdicionCargue.getAttribute("data-Remitente");
+    //   const dataId = buttonGuardarEdicionCargue.getAttribute('data-puntoId');
+    //   Swal.fire({
+    //     title: 'Seguro',
+    //     text: '¿Desea guardar la actualización del remintente: ' + Remitente + '?',
+    //     icon: 'warning',
+    //     showCancelButton: true,
+    //     confirmButtonColor: '#3B71CA',
+    //     cancelButtonColor: '#9FA6B2',
+    //     confirmButtonText: 'Aceptar',
+    //     cancelButtonText: 'Cancelar',
+    //     customClass: {
+    //       popup: 'swal2-custom-font',
+    //     },
+    //   }).then(async result => {
+    //     if (result.isConfirmed) {
+    //       const num_sol = buttonGuardarEdicionCargue.getAttribute("data-NumDocSol");
+    //       const Punto = buttonGuardarEdicionCargue.getAttribute("data-Punto");
+    //       let fecha = document.getElementById("fecha_cargue_edit" + dataId).value;
+    //       let hora = document.getElementById("hora_cargue_edit" + dataId).value;
+    //       let datos = new FormData();
+    //       datos.append("solicitud", num_sol);
+    //       datos.append("fecha_cargue", fecha);
+    //       datos.append("hora_cargue", hora);
+    //       datos.append("punto_rem", Punto);
+    //       try {
+    //         const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
+    //           method: "POST",
+    //           body: datos,
+    //           cache: "no-cache",
+    //         });
+    //         const data = await response.json();
+    //         if (data.numero === 200) {
+    //           Swal.fire({
+    //             title: "Exito",
+    //             text: data.mensaje,
+    //             icon: "success"
+    //           });
+    //           // Resto de tu código...
+    //           let fecha = document.getElementById("fecha_cargue_edit" + dataId);
+    //           let hora = document.getElementById("hora_cargue_edit" + dataId);
+    //           fecha.disabled = true;
+    //           hora.disabled = true;
+    //           document.getElementById("btn_save_cargue" + dataId).style.display = "none";
+    //           document.getElementById("btn_canelar_cargue" + dataId).style.display = "none";
+    //           document.getElementById("btn_edit_cargue" + dataId).style.display = "block";
+    //         } else {
+    //           Swal.fire({
+    //             title: "Exito",
+    //             text: data.mensaje,
+    //             icon: "error"
+    //           });
+    //         }
+    //       } catch (error) {
+    //         console.error("Error en la primera solicitud:", error);
+    //         throw error;
+    //       } finally {
+    //       }
+    //     }
+    //   });
+    // }
 
-      // Validar el valor seleccionado
-      if (valorSeleccionado) {
-        console.log("Valor seleccionado:", valorSeleccionado);
+    // // if (e.target.matches("#btn_edit_descargue") || e.target.matches("#btn_edit_descargue *")) {
+    // const buttonEditarDescargue = e.target.closest('[id^="btn_edit_descargue"]');
+    // if (buttonEditarDescargue) {
+    //   // const dataId = buttonEditarCargue.getAttribute('data-puntoId');
+    //   const dataId = buttonEditarDescargue.getAttribute('data-puntoId');
+    //   let fecha = document.getElementById("fecha_descargue_edit" + dataId);
+    //   let hora = document.getElementById("hora_descargue_edit" + dataId);
+    //   fecha.disabled = false;
+    //   hora.disabled = false;
+    //   document.getElementById("btn_save_descargue" + dataId).style.display = "block";
+    //   document.getElementById("btn_canelar_descargue" + dataId).style.display = "block";
+    //   document.getElementById("btn_edit_descargue" + dataId).style.display = "none";
+    // }
 
-        // Aquí puedes hacer tu validación
-        if (valorSeleccionado === "CONTENEDOR VACIO") {
-          // console.log("OCONTENEDOR VACIO seleccionada");
-          document.getElementById("devolver_contenedor").style.display = "block";
-          document.getElementById("cnt_opcion").disabled = false;
-          document.getElementById("cnt_tipocon").disabled = false;
-          /* Ejecutar funcion para cargar la lista de contendores */
-          /**************************Cargar Cotenedores para crear la solicitud************************/
-          $('#cnt_tipocon').html('<option value="">Seleccione</option>');
-          $.ajax({
-            url: $('#base_url').val() + 'serviciocliente/Consultar_Contenedor',
-            type: 'POST',
-            dataType: 'json',
-            success: function (data) {
-              if (data) {
-                data.forEach(function (element, index) {
-                  $('#cnt_tipocon').append('<option value="' + element.id + '">' + element.nombre + '</option>');
-                });
-              }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log('no trajo agencia');
-              console.log(jqXHR);
-              console.log(textStatus);
-              console.log(errorThrown);
-            },
-          });
-          document.getElementById("cnt_num").disabled = false;
-          document.getElementById("cnt_dias").disabled = false;
-          document.getElementById("cnt_municipio").disabled = false;
-          /* Cargar Municipios de los contenedores */
-          $('#cnt_municipio').html('<option value="">Seleccione</option>');
-          $.ajax({
-            url: $('#base_url').val() + 'serviciocliente/Consultar_Municipios',
-            type: 'POST',
-            dataType: 'json',
-            success: function (data) {
-              if (data) {
-                data.forEach(function (element, index) {
-                  $('#cnt_municipio').append('<option value="' + element.id + '">' + element.municipio + '-' + element.depto + '</option>');
-                });
-              }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log('no trajo municipio');
-              console.log(jqXHR);
-              console.log(textStatus);
-              console.log(errorThrown);
-            },
-          });
-          document.getElementById("cnt_direccion").disabled = false;
-          document.getElementById("cnt_fcomodato").disabled = false;
-          document.getElementById("cnt_peso").disabled = false;
-          // document.getElementById("cnt_peso").value = false;
-          // Lógica para la opción 1
-        } else if (valorSeleccionado === "2") {
-          console.log("Opción 2 seleccionada");
-          // Lógica para la opción 2
-        } else if (valorSeleccionado === "3") {
-          console.log("Opción 3 seleccionada");
-          // Lógica para la opción 3
-        } else {
-          console.log("Opción no válida");
-        }
-      } else {
-        console.log("No se ha seleccionado ninguna opción");
-      }
-    });
+    // const buttonCencelarEdicionDescargue = e.target.closest('[id^="btn_canelar_descargue"]');
+    // if (buttonCencelarEdicionDescargue) {
+    //   // Obtener el botón (incluso si se hace clic en un elemento hijo)
+    //   // Acceder al data-id
+    //   const dataId = buttonCencelarEdicionDescargue.getAttribute('data-puntoId');
+    //   // Resto de tu código...
+    //   let fecha = document.getElementById("fecha_descargue_edit" + dataId);
+    //   let hora = document.getElementById("hora_descargue_edit" + dataId);
+    //   fecha.disabled = true;
+    //   hora.disabled = true;
+    //   document.getElementById("btn_save_descargue" + dataId).style.display = "none";
+    //   document.getElementById("btn_canelar_descargue" + dataId).style.display = "none";
+    //   document.getElementById("btn_edit_descargue" + dataId).style.display = "block";
+    // }
 
-    $('.operamer').on('change', function () {
-      // Obtener el valor seleccionado
-      var valorSeleccionado = $(this).val();
+    // const buttonGuardarEdicionDescargue = e.target.closest('[id^="btn_save_descargue"]');
+    // if (buttonGuardarEdicionDescargue) {
+    //   // Acceder al data-id
+    //   const Destinatario = buttonGuardarEdicionDescargue.getAttribute("data-Destinatario");
+    //   Swal.fire({
+    //     title: 'Seguro',
+    //     text: '¿Desea guardar la actualización del destinatario: ' + Destinatario + '?',
+    //     icon: 'warning',
+    //     showCancelButton: true,
+    //     confirmButtonColor: '#3B71CA',
+    //     cancelButtonColor: '#9FA6B2',
+    //     confirmButtonText: 'Aceptar',
+    //     cancelButtonText: 'Cancelar',
+    //     customClass: {
+    //       popup: 'swal2-custom-font',
+    //     },
+    //   }).then(async result => {
+    //     if (result.isConfirmed) {
+    //       const dataId = buttonGuardarEdicionDescargue.getAttribute('data-puntoId');
+    //       const num_sol = buttonGuardarEdicionDescargue.getAttribute("data-NumDocSol");
+    //       const Punto = buttonGuardarEdicionDescargue.getAttribute("data-Punto");
+    //       let fecha = document.getElementById("fecha_descargue_edit" + dataId).value;
+    //       let hora = document.getElementById("hora_descargue_edit" + dataId).value;
 
-      // Validar el valor seleccionado
-      if (valorSeleccionado) {
-        console.log("Valor seleccionado:", valorSeleccionado);
+    //       let datos = new FormData();
+    //       datos.append("solicitud", num_sol);
+    //       datos.append("fecha_descargue", fecha);
+    //       datos.append("hora_descargue", hora);
+    //       datos.append("punto_desc", dataId);
+    //       try {
+    //         const response = await fetch($("#base_url").val() + "solicitudes/update_descargue", {
+    //           method: "POST",
+    //           body: datos,
+    //           cache: "no-cache",
+    //         });
+    //         const data = await response.json();
+    //         if (data.numero === 200) {
+    //           Swal.fire({
+    //             title: "Exito",
+    //             text: data.mensaje,
+    //             icon: "success"
+    //           });
+    //           // Resto de tu código...
+    //           let fecha = document.getElementById("fecha_descargue_edit" + dataId);
+    //           let hora = document.getElementById("hora_descargue_edit" + dataId);
+    //           fecha.disabled = true;
+    //           hora.disabled = true;
+    //           document.getElementById("btn_save_descargue" + dataId).style.display = "none";
+    //           document.getElementById("btn_canelar_descargue" + dataId).style.display = "none";
+    //           document.getElementById("btn_edit_descargue" + dataId).style.display = "block";
+    //         } else {
+    //           Swal.fire({
+    //             title: "Exito",
+    //             text: data.mensaje,
+    //             icon: "error"
+    //           });
+    //         }
+    //       } catch (error) {
+    //         console.error("Error en la primera solicitud:", error);
+    //         throw error;
+    //       } finally {
+    //       }
+    //     }
+    //   });
+    // }
 
-        // Aquí puedes hacer tu validación
-        if (valorSeleccionado === "C" || valorSeleccionado === "V") {
-          // console.log("OCONTENEDOR VACIO seleccionada");
-          document.getElementById("devolver_contenedor").style.display = "block";
-          document.getElementById("cnt_opcion").disabled = false;
-          document.getElementById("cnt_tipocon").disabled = false;
-          /* Ejecutar funcion para cargar la lista de contendores */
-          /**************************Cargar Cotenedores para crear la solicitud************************/
-          $('#cnt_tipocon').html('<option value="">Seleccione</option>');
-          $.ajax({
-            url: $('#base_url').val() + 'serviciocliente/Consultar_Contenedor',
-            type: 'POST',
-            dataType: 'json',
-            success: function (data) {
-              if (data) {
-                data.forEach(function (element, index) {
-                  $('#cnt_tipocon').append('<option value="' + element.id + '">' + element.nombre + '</option>');
-                });
-              }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log('no trajo agencia');
-              console.log(jqXHR);
-              console.log(textStatus);
-              console.log(errorThrown);
-            },
-          });
-          document.getElementById("cnt_num").disabled = false;
-          document.getElementById("cnt_dias").disabled = false;
-          document.getElementById("cnt_municipio").disabled = false;
-          /* Cargar Municipios de los contenedores */
-          $('#cnt_municipio').html('<option value="">Seleccione</option>');
-          $.ajax({
-            url: $('#base_url').val() + 'serviciocliente/Consultar_Municipios',
-            type: 'POST',
-            dataType: 'json',
-            success: function (data) {
-              if (data) {
-                data.forEach(function (element, index) {
-                  $('#cnt_municipio').append('<option value="' + element.id + '">' + element.municipio + '-' + element.depto + '</option>');
-                });
-              }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log('no trajo municipio');
-              console.log(jqXHR);
-              console.log(textStatus);
-              console.log(errorThrown);
-            },
-          });
-          document.getElementById("cnt_direccion").disabled = false;
-          document.getElementById("cnt_fcomodato").disabled = false;
-          document.getElementById("cnt_peso").disabled = false;
-          // document.getElementById("cnt_peso").value = false;
-          // Lógica para la opción 1
-        } else if (valorSeleccionado === "2") {
-          console.log("Opción 2 seleccionada");
-          // Lógica para la opción 2
-        } else if (valorSeleccionado === "3") {
-          console.log("Opción 3 seleccionada");
-          // Lógica para la opción 3
-        } else {
-          console.log("Opción no válida");
-        }
-      } else {
-        console.log("No se ha seleccionado ninguna opción");
-      }
-    });
+    // /* Boton para gaurar el contenedor en las solicitudes */
+    // if (e.target.matches("#btn_save_contenedor") || e.target.matches("#btn_save_contenedor *")) {
+    //   Swal.fire({
+    //     title: 'Mnesaje',
+    //     text: '¿Está seguro de continuar?',
+    //     icon: 'question',
+    //     showCancelButton: true,
+    //     cancelButtonColor: '#9FA6B2',
+    //     confirmButtonColor: '#14A44D',
+    //     confirmButtonText: 'Si',
+    //     cancelButtonText: 'No',
+    //     customClass: {
+    //       popup: 'swal2-custom-font',
+    //     },
+    //   }).then(async result => {
+    //     if (result.isConfirmed) {
+    //       $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
+    //       /* Definir las variables para los filtros */
+    //       let formdata = new FormData();
+    //       formdata.append('numero_contenedor', document.getElementById('numero_contenedor').value);
+    //       formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
 
-    // Puedes acceder a estas variables en cualquier parte del código
-    document.addEventListener("click", async e => {
-      if (e.target.matches("#btn_ver_solicitud") || e.target.matches("#btn_ver_solicitud *")) {
-        let padre = e.target.parentElement.parentElement;
-        // Obtener el enlace (el elemento con el data-id)
-        let enlace = e.target.closest('#btn_ver_solicitud');
-        // Obtener el valor del atributo data-id
-        let dataId = enlace.getAttribute('data-id');
-        let dataId2 = enlace.getAttribute('data-id2');
-        Visualizar(dataId, dataId2);
-      }
+    //       // Obtén el elemento por su id (sin el #)
+    //       var checkbox = document.getElementById("agrupable");
+    //       // Verifica si está marcado
+    //       if (checkbox.checked) {
+    //         formdata.append('agrupado', "SI");
+    //       } else {
+    //         formdata.append('agrupado', "NO");
+    //       }
 
-      // Verificar si el clic fue en un botón cuyo ID empieza con "btn_edit_cargue"
-      // Obtener el botón (incluso si se hace clic en un elemento hijo)
-      const buttonEditarCargue = e.target.closest('[id^="btn_edit_cargue"]');
-      if (buttonEditarCargue) {
-        // Acceder al data-id
-        // const dataId = buttonEditarCargue.getAttribute('data-puntoId');
-        const dataId = buttonEditarCargue.getAttribute('data-puntoId');
-        // También puedes usar dataset (recomendado)
-        // const dataId = button.dataset.id;
+    //       try {
+    //         const response = await fetch($('#base_url').val() + 'serviciocliente/GuardarContenedor', {
+    //           method: 'POST',
+    //           body: formdata,
+    //           cache: 'no-cache',
+    //         });
 
-        // Resto de tu código...
-        let fecha = document.getElementById("fecha_cargue_edit" + dataId);
-        let hora = document.getElementById("hora_cargue_edit" + dataId);
-        fecha.disabled = false;
-        hora.disabled = false;
-        document.getElementById("btn_save_cargue" + dataId).style.display = "block";
-        document.getElementById("btn_canelar_cargue" + dataId).style.display = "block";
-        document.getElementById("btn_edit_cargue" + dataId).style.display = "none";
-      }
+    //         const data = await response.json();
+    //         if (data.status === 400) {
+    //           Swal.fire({
+    //             title: 'Información',
+    //             text: data.message,
+    //             icon: 'info',
+    //             customClass: {
+    //               popup: 'swal2-custom-font',
+    //             },
+    //           });
+    //         } else {
+    //           Swal.fire({
+    //             title: 'Mensaje',
+    //             text: data.message,
+    //             icon: 'success',
+    //             customClass: {
+    //               popup: 'swal2-custom-font',
+    //             },
+    //           });
+    //         }
+    //       } catch (error) {
+    //         console.error('Error en la primera solicitud:', error);
+    //         throw error;
+    //       } finally {
+    //         $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+    //       }
+    //     }
+    //   });
+    // }
 
-      const buttonCencelarEdicionCargue = e.target.closest('[id^="btn_canelar_cargue"]');
-      if (buttonCencelarEdicionCargue) {
-        // Obtener el botón (incluso si se hace clic en un elemento hijo)
-        // Acceder al data-id
-        const dataId = buttonCencelarEdicionCargue.getAttribute('data-puntoId');
-        // Resto de tu código...
-        let fecha = document.getElementById("fecha_cargue_edit" + dataId);
-        let hora = document.getElementById("hora_cargue_edit" + dataId);
-        fecha.disabled = true;
-        hora.disabled = true;
-        document.getElementById("btn_save_cargue" + dataId).style.display = "none";
-        document.getElementById("btn_canelar_cargue" + dataId).style.display = "none";
-        document.getElementById("btn_edit_cargue" + dataId).style.display = "block";
-      }
+    // /* Boton para actualizar las referencias de los despachos */
+    // const buttonGuardarEdicionReferencia = e.target.closest('[id^="btn_save_referencia"]');
+    // if (buttonGuardarEdicionReferencia) {
+    //   const puntoId = buttonGuardarEdicionReferencia.getAttribute("data-puntoId");
+    //   const NumDocSol = buttonGuardarEdicionReferencia.getAttribute("data-NumDocSol");
+    //   Swal.fire({
+    //     title: 'Mnesaje',
+    //     text: '¿Está seguro de continuar?',
+    //     icon: 'question',
+    //     showCancelButton: true,
+    //     cancelButtonColor: '#9FA6B2',
+    //     confirmButtonColor: '#14A44D',
+    //     confirmButtonText: 'Si',
+    //     cancelButtonText: 'No',
+    //     customClass: {
+    //       popup: 'swal2-custom-font',
+    //     },
+    //   }).then(async result => {
+    //     if (result.isConfirmed) {
+    //       $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
+    //       /* Definir las variables para los filtros */
+    //       let formdata = new FormData();
+    //       formdata.append('referencia_operacion', document.getElementById('referencia_operacion' + puntoId).value);
+    //       formdata.append('mer_idservicio', NumDocSol);
+    //       formdata.append('puntoId', puntoId);
 
-      const buttonGuardarEdicionCargue = e.target.closest('[id^="btn_save_cargue"]');
-      if (buttonGuardarEdicionCargue) {
-        // Acceder al data-id
-        const Remitente = buttonGuardarEdicionCargue.getAttribute("data-Remitente");
-        const dataId = buttonGuardarEdicionCargue.getAttribute('data-puntoId');
-        Swal.fire({
-          title: 'Seguro',
-          text: '¿Desea guardar la actualización del remintente: ' + Remitente + '?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3B71CA',
-          cancelButtonColor: '#9FA6B2',
-          confirmButtonText: 'Aceptar',
-          cancelButtonText: 'Cancelar',
-          customClass: {
-            popup: 'swal2-custom-font',
-          },
-        }).then(async result => {
-          if (result.isConfirmed) {
-            const num_sol = buttonGuardarEdicionCargue.getAttribute("data-NumDocSol");
-            const Punto = buttonGuardarEdicionCargue.getAttribute("data-Punto");
-            let fecha = document.getElementById("fecha_cargue_edit" + dataId).value;
-            let hora = document.getElementById("hora_cargue_edit" + dataId).value;
+    //       try {
+    //         const response = await fetch($('#base_url').val() + 'serviciocliente/ActualizarReferencia', {
+    //           method: 'POST',
+    //           body: formdata,
+    //           cache: 'no-cache',
+    //         });
 
-            let datos = new FormData();
-            datos.append("solicitud", num_sol);
-            datos.append("fecha_cargue", fecha);
-            datos.append("hora_cargue", hora);
-            datos.append("punto_rem", Punto);
-            try {
-              const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
-                method: "POST",
-                body: datos,
-                cache: "no-cache",
-              });
-              const data = await response.json();
-              if (data.numero === 200) {
-                Swal.fire({
-                  title: "Exito",
-                  text: data.mensaje,
-                  icon: "success"
-                });
-                // Resto de tu código...
-                let fecha = document.getElementById("fecha_cargue_edit" + dataId);
-                let hora = document.getElementById("hora_cargue_edit" + dataId);
-                fecha.disabled = true;
-                hora.disabled = true;
-                document.getElementById("btn_save_cargue" + dataId).style.display = "none";
-                document.getElementById("btn_canelar_cargue" + dataId).style.display = "none";
-                document.getElementById("btn_edit_cargue" + dataId).style.display = "block";
-              } else {
-                Swal.fire({
-                  title: "Exito",
-                  text: data.mensaje,
-                  icon: "error"
-                });
-              }
+    //         const data = await response.json();
+    //         if (data.status === 400) {
+    //           Swal.fire({
+    //             title: 'Información',
+    //             text: data.message,
+    //             icon: 'info',
+    //           });
+    //         } else {
+    //           Swal.fire({
+    //             title: 'Mensaje',
+    //             text: data.message,
+    //             icon: 'success',
+    //           });
+    //         }
+    //       } catch (error) {
+    //         console.error('Error en la primera solicitud:', error);
+    //         throw error;
+    //       } finally {
+    //         $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+    //       }
+    //     }
+    //   });
+    // }
 
-            } catch (error) {
-              console.error("Error en la primera solicitud:", error);
-              throw error;
-            } finally {
-            }
-          }
-        });
-      }
+    // /* Actualizar Agencias solicitud servio */
+    // if (e.target.matches("#btn_update_agencia_solicitud")) {
 
-      // if (e.target.matches("#btn_edit_descargue") || e.target.matches("#btn_edit_descargue *")) {
-      const buttonEditarDescargue = e.target.closest('[id^="btn_edit_descargue"]');
-      if (buttonEditarDescargue) {
-        // const dataId = buttonEditarCargue.getAttribute('data-puntoId');
-        const dataId = buttonEditarDescargue.getAttribute('data-puntoId');
-        let fecha = document.getElementById("fecha_descargue_edit" + dataId);
-        let hora = document.getElementById("hora_descargue_edit" + dataId);
-        fecha.disabled = false;
-        hora.disabled = false;
-        document.getElementById("btn_save_descargue" + dataId).style.display = "block";
-        document.getElementById("btn_canelar_descargue" + dataId).style.display = "block";
-        document.getElementById("btn_edit_descargue" + dataId).style.display = "none";
-      }
+    // }
 
-      const buttonCencelarEdicionDescargue = e.target.closest('[id^="btn_canelar_descargue"]');
-      if (buttonCencelarEdicionDescargue) {
-        // Obtener el botón (incluso si se hace clic en un elemento hijo)
-        // Acceder al data-id
-        const dataId = buttonCencelarEdicionDescargue.getAttribute('data-puntoId');
-        // Resto de tu código...
-        let fecha = document.getElementById("fecha_descargue_edit" + dataId);
-        let hora = document.getElementById("hora_descargue_edit" + dataId);
-        fecha.disabled = true;
-        hora.disabled = true;
-        document.getElementById("btn_save_descargue" + dataId).style.display = "none";
-        document.getElementById("btn_canelar_descargue" + dataId).style.display = "none";
-        document.getElementById("btn_edit_descargue" + dataId).style.display = "block";
-      }
+    // if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
+    //   if (window.confirm("¿Esta seguro que quiere actualizar las fechas de la solicitud de servicio?")) {
+    //     //let fechacargue= document.getElementById(fecha_cargue_edit);
+    //     let msg_error = '';
+    //     let fechacargue = $("#fecha_cargue_edit").val();
+    //     let horacargue = $("#hora_cargue_edit").val();
+    //     let fechadescargue = $("#fecha_descargue_edit").val();
+    //     let horadescargue = $("#hora_descargue_edit").val();
+    //     let num_sol = $("#mer_idservicio").val();
+    //     let punto_rem = $("#punto_rem").val();
+    //     let punto_des = $("#punto_des").val();
+    //     var fc = (fechacargue + ' ' + horacargue);
+    //     var fd = (fechadescargue + ' ' + horadescargue);
 
-      const buttonGuardarEdicionDescargue = e.target.closest('[id^="btn_save_descargue"]');
-      if (buttonGuardarEdicionDescargue) {
-        // Acceder al data-id
-        const Destinatario = buttonGuardarEdicionDescargue.getAttribute("data-Destinatario");
-        Swal.fire({
-          title: 'Seguro',
-          text: '¿Desea guardar la actualización del destinatario: ' + Destinatario + '?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3B71CA',
-          cancelButtonColor: '#9FA6B2',
-          confirmButtonText: 'Aceptar',
-          cancelButtonText: 'Cancelar',
-          customClass: {
-            popup: 'swal2-custom-font',
-          },
-        }).then(async result => {
-          if (result.isConfirmed) {
-            const dataId = buttonGuardarEdicionDescargue.getAttribute('data-puntoId');
-            const num_sol = buttonGuardarEdicionDescargue.getAttribute("data-NumDocSol");
-            const Punto = buttonGuardarEdicionDescargue.getAttribute("data-Punto");
-            let fecha = document.getElementById("fecha_descargue_edit" + dataId).value;
-            let hora = document.getElementById("hora_descargue_edit" + dataId).value;
+    //     /* Validar que actualizacion se va a realizar */
+    //     let agencia = document.getElementById("servicio_agencia").value.trim();
+    //     let tipo_servicio = document.getElementById("servicio_cliente").value.trim();
 
-            let datos = new FormData();
-            datos.append("solicitud", num_sol);
-            datos.append("fecha_descargue", fecha);
-            datos.append("hora_descargue", hora);
-            datos.append("punto_desc", dataId);
-            try {
-              const response = await fetch($("#base_url").val() + "solicitudes/update_descargue", {
-                method: "POST",
-                body: datos,
-                cache: "no-cache",
-              });
-              const data = await response.json();
-              if (data.numero === 200) {
-                Swal.fire({
-                  title: "Exito",
-                  text: data.mensaje,
-                  icon: "success"
-                });
-                // Resto de tu código...
-                let fecha = document.getElementById("fecha_descargue_edit" + dataId);
-                let hora = document.getElementById("hora_descargue_edit" + dataId);
-                fecha.disabled = true;
-                hora.disabled = true;
-                document.getElementById("btn_save_descargue" + dataId).style.display = "none";
-                document.getElementById("btn_canelar_descargue" + dataId).style.display = "none";
-                document.getElementById("btn_edit_descargue" + dataId).style.display = "block";
-              } else {
-                Swal.fire({
-                  title: "Exito",
-                  text: data.mensaje,
-                  icon: "error"
-                });
-              }
-            } catch (error) {
-              console.error("Error en la primera solicitud:", error);
-              throw error;
-            } finally {
-            }
-          }
-        });
-      }
+    //     if (agencia === "" && tipo_servicio === "") {
+    //       if (fc > fd) {
+    //         msg_error += "La Fecha - Hora de cargue no puede ser mayor a la Fecha Descargue";
+    //         alert(msg_error);
+    //       } else {
+    //         let datos = new FormData();
+    //         datos.append("fecha_cargue", fechacargue);
+    //         datos.append("hora_cargue", horacargue);
+    //         datos.append("fecha_descargue", fechadescargue);
+    //         datos.append("hora_descargue", horadescargue);
+    //         datos.append("solicitud", num_sol);
+    //         datos.append("punto_rem", punto_rem);
+    //         datos.append("punto_des", punto_des);
+    //         try {
+    //           const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
+    //             method: "POST",
+    //             body: datos,
+    //             cache: "no-cache",
+    //           });
+    //           const data = await response.json();
+    //           if (data.numero === 200) {
+    //             document.getElementById("Mensaje_update").innerHTML = `
+    //             < div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
+    //                         <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+    //                         <div class="message">
+    //                           <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                           <strong>Mensaje!</strong> ${data.mensaje}
+    //                         </div>
+    //                         </div > `;
+    //             window.location.reload();
+    //           } else {
+    //             document.getElementById("Mensaje_update").innerHTML = `
+    //           < div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
+    //                         <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                         <div class="message">
+    //                           <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                           <strong>Mensaje!</strong> ${data.mensaje}
+    //                         </div>
+    //                       </div > `;
+    //           }
+    //         } catch (error) {
+    //           console.error("Error en la primera solicitud:", error);
+    //           throw error;
+    //         } finally {
+    //           document.getElementById("fecha_cargue_edit").disabled = true;
+    //           document.getElementById("hora_cargue_edit").disabled = true;
+    //           document.getElementById("btn_edit_cargue").style.display = "block";
+    //           document.getElementById("fecha_descargue_edit").disabled = true;
+    //           document.getElementById("hora_descargue_edit").disabled = true;
+    //           document.getElementById("btn_edit_descargue").style.display = "block";
+    //         }
+    //       }
+    //     } else {
+    //       let datos = new FormData();
+    //       datos.append("agencia", agencia);
+    //       datos.append("tipo_servicio", tipo_servicio);
+    //       datos.append("solicitud", num_sol);
+    //       datos.append("numero_cotizacion", document.getElementById("numero_cotizacion").value);
+    //       try {
+    //         const response = await fetch($("#base_url").val() + "serviciocliente/update_solicitud", {
+    //           method: "POST",
+    //           body: datos,
+    //           cache: "no-cache",
+    //         });
+    //         const data = await response.json();
+    //         if (data.status === 200) {
+    //           document.getElementById("Mensaje_update").innerHTML = `
+    //             <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
+    //               <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+    //               <div class="message">
+    //                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                 <strong>Mensaje!</strong> ${data.message}
+    //               </div>
+    //             </div > `;
+    //           window.location.reload();
+    //         } else {
+    //           document.getElementById("Mensaje_update").innerHTML = `
+    //             <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
+    //               <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //               <div class="message">
+    //                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                 <strong>Mensaje!</strong> ${data.message}
+    //               </div>
+    //             </div > `;
+    //         }
 
-      /* Boton para gaurar el contenedor en las solicitudes */
-      if (e.target.matches("#btn_save_contenedor") || e.target.matches("#btn_save_contenedor *")) {
-        Swal.fire({
-          title: 'Mnesaje',
-          text: '¿Está seguro de continuar?',
-          icon: 'question',
-          showCancelButton: true,
-          cancelButtonColor: '#9FA6B2',
-          confirmButtonColor: '#14A44D',
-          confirmButtonText: 'Si',
-          cancelButtonText: 'No',
-          customClass: {
-            popup: 'swal2-custom-font',
-          },
-        }).then(async result => {
-          if (result.isConfirmed) {
-            $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
-            /* Definir las variables para los filtros */
-            let formdata = new FormData();
-            formdata.append('numero_contenedor', document.getElementById('numero_contenedor').value);
-            formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
+    //       } catch (error) {
+    //         console.error("Error en la primera solicitud:", error);
+    //         throw error;
+    //       } finally {
 
-            // Obtén el elemento por su id (sin el #)
-            var checkbox = document.getElementById("agrupable");
-            // Verifica si está marcado
-            if (checkbox.checked) {
-              formdata.append('agrupado', "SI");
-            } else {
-              formdata.append('agrupado', "NO");
-            }
+    //       }
+    //     }
+    //   }
+    // }
+  });
 
-            try {
-              const response = await fetch($('#base_url').val() + 'serviciocliente/GuardarContenedor', {
-                method: 'POST',
-                body: formdata,
-                cache: 'no-cache',
-              });
+  /* Agregar validaciones para ver que filtro escojer */
+  $("#agregar_fila_entrega2").click(function () {
+    var cliente = $("#id_cliente_seleccionado").val();
 
-              const data = await response.json();
-              if (data.status === 400) {
-                Swal.fire({
-                  title: 'Información',
-                  text: data.message,
-                  icon: 'info',
-                  customClass: {
-                    popup: 'swal2-custom-font',
-                  },
-                });
-              } else {
-                Swal.fire({
-                  title: 'Mensaje',
-                  text: data.message,
-                  icon: 'success',
-                  customClass: {
-                    popup: 'swal2-custom-font',
-                  },
-                });
-              }
-            } catch (error) {
-              console.error('Error en la primera solicitud:', error);
-              throw error;
-            } finally {
-              $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-            }
-          }
-        });
-      }
-
-      /* Boton para actualizar las referencias de los despachos */
-      const buttonGuardarEdicionReferencia = e.target.closest('[id^="btn_save_referencia"]');
-      if (buttonGuardarEdicionReferencia) {
-        const puntoId = buttonGuardarEdicionReferencia.getAttribute("data-puntoId");
-        const NumDocSol = buttonGuardarEdicionReferencia.getAttribute("data-NumDocSol");
-        Swal.fire({
-          title: 'Mnesaje',
-          text: '¿Está seguro de continuar?',
-          icon: 'question',
-          showCancelButton: true,
-          cancelButtonColor: '#9FA6B2',
-          confirmButtonColor: '#14A44D',
-          confirmButtonText: 'Si',
-          cancelButtonText: 'No',
-          customClass: {
-            popup: 'swal2-custom-font',
-          },
-        }).then(async result => {
-          if (result.isConfirmed) {
-            $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
-            /* Definir las variables para los filtros */
-            let formdata = new FormData();
-            formdata.append('referencia_operacion', document.getElementById('referencia_operacion' + puntoId).value);
-            formdata.append('mer_idservicio', NumDocSol);
-            formdata.append('puntoId', puntoId);
-
-            try {
-              const response = await fetch($('#base_url').val() + 'serviciocliente/ActualizarReferencia', {
-                method: 'POST',
-                body: formdata,
-                cache: 'no-cache',
-              });
-
-              const data = await response.json();
-              if (data.status === 400) {
-                Swal.fire({
-                  title: 'Información',
-                  text: data.message,
-                  icon: 'info',
-                });
-              } else {
-                Swal.fire({
-                  title: 'Mensaje',
-                  text: data.message,
-                  icon: 'success',
-                });
-              }
-            } catch (error) {
-              console.error('Error en la primera solicitud:', error);
-              throw error;
-            } finally {
-              $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-            }
-          }
-        });
-      }
-
-      /* Actualizar Agencias solicitud servio */
-
-      if (e.target.matches("#btn_update_agencia_solicitud")) {
-        
-      }
-
-      if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
-        if (window.confirm("¿Esta seguro que quiere actualizar las fechas de la solicitud de servicio?")) {
-          //let fechacargue= document.getElementById(fecha_cargue_edit);
-          let msg_error = '';
-          let fechacargue = $("#fecha_cargue_edit").val();
-          let horacargue = $("#hora_cargue_edit").val();
-          let fechadescargue = $("#fecha_descargue_edit").val();
-          let horadescargue = $("#hora_descargue_edit").val();
-          let num_sol = $("#mer_idservicio").val();
-          let punto_rem = $("#punto_rem").val();
-          let punto_des = $("#punto_des").val();
-          var fc = (fechacargue + ' ' + horacargue);
-          var fd = (fechadescargue + ' ' + horadescargue);
-
-          /* Validar que actualizacion se va a realizar */
-          let agencia = document.getElementById("servicio_agencia").value.trim();
-          let tipo_servicio = document.getElementById("servicio_cliente").value.trim();
-
-          if (agencia === "" && tipo_servicio === "") {
-            if (fc > fd) {
-              msg_error += "La Fecha - Hora de cargue no puede ser mayor a la Fecha Descargue";
-              alert(msg_error);
-            } else {
-              let datos = new FormData();
-              datos.append("fecha_cargue", fechacargue);
-              datos.append("hora_cargue", horacargue);
-              datos.append("fecha_descargue", fechadescargue);
-              datos.append("hora_descargue", horadescargue);
-              datos.append("solicitud", num_sol);
-              datos.append("punto_rem", punto_rem);
-              datos.append("punto_des", punto_des);
-              try {
-                const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
-                  method: "POST",
-                  body: datos,
-                  cache: "no-cache",
-                });
-                const data = await response.json();
-                if (data.numero === 200) {
-                  document.getElementById("Mensaje_update").innerHTML = `
-                < div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
-                            <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-                            <div class="message">
-                              <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                              <strong>Mensaje!</strong> ${data.mensaje}
-                            </div>
-                            </div > `;
-                  window.location.reload();
-                } else {
-                  document.getElementById("Mensaje_update").innerHTML = `
-              < div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
-                            <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                            <div class="message">
-                              <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                              <strong>Mensaje!</strong> ${data.mensaje}
-                            </div>
-                          </div > `;
-                }
-              } catch (error) {
-                console.error("Error en la primera solicitud:", error);
-                throw error;
-              } finally {
-                document.getElementById("fecha_cargue_edit").disabled = true;
-                document.getElementById("hora_cargue_edit").disabled = true;
-                document.getElementById("btn_edit_cargue").style.display = "block";
-                document.getElementById("fecha_descargue_edit").disabled = true;
-                document.getElementById("hora_descargue_edit").disabled = true;
-                document.getElementById("btn_edit_descargue").style.display = "block";
-              }
-            }
-          } else {
-            let datos = new FormData();
-            datos.append("agencia", agencia);
-            datos.append("tipo_servicio", tipo_servicio);
-            datos.append("solicitud", num_sol);
-            datos.append("numero_cotizacion", document.getElementById("numero_cotizacion").value);
-            try {
-              const response = await fetch($("#base_url").val() + "serviciocliente/update_solicitud", {
-                method: "POST",
-                body: datos,
-                cache: "no-cache",
-              });
-              const data = await response.json();
-              if (data.status === 200) {
-                document.getElementById("Mensaje_update").innerHTML = `
-                <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
-                  <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-                  <div class="message">
-                    <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                    <strong>Mensaje!</strong> ${data.message}
-                  </div>
-                </div > `;
-                window.location.reload();
-              } else {
-                document.getElementById("Mensaje_update").innerHTML = `
-                <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
-                  <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                  <div class="message">
-                    <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                    <strong>Mensaje!</strong> ${data.message}
-                  </div>
-                </div > `;
-              }
-
-            } catch (error) {
-              console.error("Error en la primera solicitud:", error);
-              throw error;
-            } finally {
-
-            }
-          }
-        }
-      }
-    });
-
-    /* Agregar validaciones para ver que filtro escojer */
-    $("#agregar_fila_entrega2").click(function () {
-      var cliente = $("#id_cliente_seleccionado").val();
-
-      // Verificar si el array ORIGEN_ARRAY está vacío
-      if (ORIGEN_ARRAY.length === 0) {
-        Swal.fire({
-          position: "top-end",
-          icon: "warning",
-          html: "Debe seleccionar al menos un <strong>municipio de origen</strong> antes de agregar remitentes y destinatarios",
-          showConfirmButton: false,
-          timer: 1500
-        });
-        return;
-      }
-
-      // Validaciones adicionales
-      if (!$("#maximo_entregab").val()) {
-        Swal.fire({
-          position: "top-end",
-          icon: "warning",
-          html: "Por favor ingrese la <strong>cantidad de Remitentes</strong> que requiere para asignar",
-          showConfirmButton: false,
-          timer: 1500
-        });
-        document.getElementById("maximo_entregab").focus();
-        return;
-      }
-
-      if (cliente === "") {
-        Swal.fire({
-          position: "top-end",
-          icon: "warning",
-          html: "Por favor debe seleccionar un <strong>cliente</strong> para agregar remitentes y destinatarios",
-          showConfirmButton: false,
-          timer: 1500
-        });
-        return;
-      }
-
-      // Procesar cada origen en ORIGEN_ARRAY sin restricciones
-      // ORIGEN_ARRAY.forEach(function (origen) {
-      //   // console.log("🚀 ~ origen:", origen)
-      //   Agrega_Remitente(cliente, origen);
-      // });
-      Agrega_Remitente(cliente, ORIGEN_ARRAY[0]);
-
+    // Verificar si el array ORIGEN_ARRAY está vacío
+    if (ORIGEN_ARRAY.length === 0) {
       Swal.fire({
         position: "top-end",
-        icon: "success",
-        html: "Los remitentes han sido agregados correctamente.",
+        icon: "warning",
+        html: "Debe seleccionar al menos un <strong>municipio de origen</strong> antes de agregar remitentes y destinatarios",
         showConfirmButton: false,
         timer: 1500
       });
-    });
+      return;
+    }
 
-    //***********fin del document ready function***
+    // Validaciones adicionales
+    if (!$("#maximo_entregab").val()) {
+      Swal.fire({
+        position: "top-end",
+        icon: "warning",
+        html: "Por favor ingrese la <strong>cantidad de Remitentes</strong> que requiere para asignar",
+        showConfirmButton: false,
+        timer: 1500
+      });
+      document.getElementById("maximo_entregab").focus();
+      return;
+    }
+
+    if (cliente === "") {
+      Swal.fire({
+        position: "top-end",
+        icon: "warning",
+        html: "Por favor debe seleccionar un <strong>cliente</strong> para agregar remitentes y destinatarios",
+        showConfirmButton: false,
+        timer: 1500
+      });
+      return;
+    }
+
+    // Procesar cada origen en ORIGEN_ARRAY sin restricciones
+    // ORIGEN_ARRAY.forEach(function (origen) {
+    //   // console.log("🚀 ~ origen:", origen)
+    //   Agrega_Remitente(cliente, origen);
+    // });
+    Agrega_Remitente(cliente, ORIGEN_ARRAY[0]);
+
+    // Swal.fire({
+    //   position: "top-end",
+    //   icon: "success",
+    //   html: "Los remitentes han sido agregados correctamente.",
+    //   showConfirmButton: false,
+    //   timer: 1500
+    // });
   });
+
+  /* Validar si change de costo flete si el valor si el valor tarifa sietac no esta vacio */
+
+  $(document).on('change', '.fletemer', function () {
+    // Obtener el índice del input cambiado
+    let index = $('.fletemer').index(this);
+
+    // Capturar y limpiar el valor del input .fletemer
+    let fletemerStr = $(this).val();
+    // Eliminar comas para parsearlo correctamente
+    let fletemerVal = parseFloat(fletemerStr.replace(/,/g, ''));
+
+    // Obtener el valor del input .costo_sicetac correspondiente
+    let costoStr = $('.costo_sicetac').eq(index).val();
+
+    // Solo comparar si .costo_sicetac no está vacío
+    if (costoStr !== '' && costoStr !== '') {
+      let costoVal = parseFloat(costoStr.replace(/,/g, ''));
+      if (fletemerVal < costoVal) {
+        // Aplica el borde rojo y muestra el mensaje de error si aún no existe
+        $(this).css('border', '1px solid red');
+        if ($(this).next('.error-message').length === 0) {
+          $(this).after('<div class="error-message" style="color: red; font-size: 12px; font-weight: bold;">El valor ingresado es menor a los costos del SICETAC.</div>');
+        }
+      } else {
+        // Si el valor es mayor o igual, se remueven estilos y mensajes de error
+        $(this).css('border', '');
+        $(this).next('.error-message').remove();
+      }
+    }
+  });
+
+  //***********fin del document ready function***
 };
 
-async function listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa) {
-  /* Funcion para enviar los datos */
-  let dato = new FormData();
-  dato.append('tipo', tipo);
-  dato.append('fecha_inicial', fecha_inicial);
-  dato.append('fecha_final', fecha_final);
-  dato.append('estado', estado);
-  dato.append('cliente', cliente);
-  dato.append('empresa', empresa);
-  try {
-    const response = await fetch($('#base_url').val() + 'serviciocliente/consultar_cotizaciones', {
-      method: 'POST',
-      body: dato,
-      cache: 'no-cache',
-    });
-    const data = await response.json();
-    if (data) {
-      let tbody = document.getElementById('tbl_cotizaciones');
-      tbody.innerHTML = '';
-      let esatdo_autorizado = '';
-      let col_estatus = '';
-      let cot_itr = '';
-      let n_cotizacion = '';
-      let btn_editar = '';
-      let Prioridad = '';
-      // let perfil = document.getElementById("perfil_id").value;
-      // document.querySelector('.badge').innerHTML = data.resultado_cantidad['total_cotizaciones'];
-      // $('.badge').html(data.resultado_cantidad['total_cotizaciones']);
+// async function listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa, id) {
+//   /* Funcion para enviar los datos */
+//   $('#load_info').css('display', 'flex'); // Mostrar mensaje de carga
+//   let dato = new FormData();
+//   dato.append('tipo', tipo);
+//   dato.append('fecha_inicial', fecha_inicial);
+//   dato.append('fecha_final', fecha_final);
+//   dato.append('estado', estado);
+//   dato.append('cliente', cliente);
+//   dato.append('empresa', empresa);
+//   try {
+//     const response = await fetch($('#base_url').val() + 'serviciocliente/consultar_cotizaciones', {
+//       method: 'POST',
+//       body: dato,
+//       cache: 'no-cache',
+//     });
+//     const data = await response.json();
+//     if (data) {
+//       $('#load_info').css('display', 'none'); // Mostrar mensaje de carga
+//       let tbody = document.getElementById('tbl_cotizaciones');
+//       tbody.innerHTML = '';
+//       let esatdo_autorizado = '';
+//       let col_estatus = '';
+//       let cot_itr = '';
+//       let n_cotizacion = '';
+//       let btn_editar = '';
+//       let Prioridad = '';
 
-      data.resultado.forEach(element => {
-        const fila = document.createElement('tr');
-        if (element.estado_estudio === 'Sin Estado') {
-          if (element.estado === 'Pendiente') {
-            col_estatus = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">sin gestionar</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-          } else if (element.estado === 'por autorizar') {
-            col_estatus = `<span  data-toggle="tooltip" style="color:#ec1f00;">${element.estado}</span>`;
-          } else {
-            col_estatus = `<td class="text"></td>`;
-          }
-        } else {
-          if (element.estado_estudio === 'pendiente_iniciar') {
-            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Estudio Pendiente Iniciar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>`;
-          } else if (element.estado_estudio === 'iniciado') {
-            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">Estudio Iniciado</span><span class="ms-1" data-feather="info" style="height:12.8px;width:12.8px;"></span></span>`;
-          } else if (element.estado_estudio === 'Pendiente') {
-            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Estudio Pendiente</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-          } else if (element.estado_estudio === 'Rechazado') {
-            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Rechazado</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>`;
-          } else if (element.estado_estudio === 'Aprobado') {
-            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Estudio Aprobado</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
-          } else {
-            col_estatus = `<td class="text"></td>`;
-          }
-        }
-        // if (element.estado_autorizado === 'autorizado') {
-        //   col_estatus = `< span  data - toggle="tooltip" style = "color:purple;" > ${ element.estado_autorizado }</span > `;
-        // } else if (element.estado_autorizado === 'por autorizar') {
-        //   col_estatus = `< span  data - toggle="tooltip" style = "color:red;" > ${ element.estado_autorizado }</span > `;
-        // } else {
-        //   col_estatus = `< td class="text" ></td > `;
-        // }
-        /* Consultas de estado de las solicitudes */
-        if (element.estado_autorizacion === 'F1') {
-          // esatdo_autorizado = `< span class="mdi mdi-dot-circle icon text-default"  data - toggle="tooltip" title = "Realizada" ></span > `;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary" ><span class="badge-label">Realizada</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span > `;
-        } else if (element.estado_autorizacion === 'F2') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-success"  data - toggle="tooltip" title = "Entregada" ></span > `;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary" ><span class="badge-label">Entregada</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span > `;
-        } else if (element.estado_autorizacion === 'F4') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-danger" data - toggle="tooltip" title = "Pérdida" ></span > `;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger" ><span class="badge-label">Pérdida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span > `;
-        } else if (element.estado_autorizacion === 'F3') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-warning"  data - toggle="tooltip" title = "Ganada" ></span > `;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-success" ><span class="badge-label">Ganada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span > `;
-        } else if (element.estado_autorizacion === 'F5') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-primary" data - toggle="tooltip" title = "Cancelada" ></span > `;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger" ><span class="badge-label">Cancelada</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span > `;
-        } else if (element.estado_autorizacion === 'F6') {
-          // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-gray" data - toggle="tooltip" title = "Rechazada" ></span > `;
-          esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning" ><span class="badge-label">Rechazada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span > `;
-        }
-        /* Validar si la solicitud es Itr */
-        if (element.itr === 'Si') {
-          cot_itr = `<span class="badge badge-phoenix badge-phoenix-success float-right" > SI</span > `;
-        } else {
-          cot_itr = `<span class="badge badge-phoenix badge-phoenix-primary float-right" > NO</span > `;
-        }
+//       data.resultado.forEach(element => {
+//         const fila = document.createElement('tr');
+//         if (element.estado_estudio === 'Sin Estado') {
+//           if (element.estado === 'Pendiente') {
+//             col_estatus = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">sin gestionar</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+//           } else if (element.estado === 'por autorizar') {
+//             col_estatus = `<span  data-toggle="tooltip" style="color:#ec1f00;">${element.estado}</span>`;
+//           } else {
+//             col_estatus = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">sin gestionar</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+//           }
+//         } else {
+//           if (element.estado_estudio === 'pendiente_iniciar') {
+//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Estudio Pendiente Iniciar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>`;
+//           } else if (element.estado_estudio === 'iniciado') {
+//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">Estudio Iniciado</span><span class="ms-1" data-feather="info" style="height:12.8px;width:12.8px;"></span></span>`;
+//           } else if (element.estado_estudio === 'Pendiente') {
+//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Estudio Pendiente</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+//           } else if (element.estado_estudio === 'Rechazado') {
+//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Rechazado</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>`;
+//           } else if (element.estado_estudio === 'Aprobado') {
+//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Estudio Aprobado</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
+//           } else if (element.estado_estudio === 'vencida') {
+//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Vencido</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
+//           } else if (element.estado_estudio === 'Sin Estado') {
+//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">Sin Estado</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
+//           }
+//         }
 
-        if (element.prioritaria === 'Propuesta') {
-          Prioridad = `<span class="badge badge-phoenix badge-phoenix-warning float-right" > <a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span > `;
-        } else if (element.prioritaria === null) {
-          Prioridad = `<span class="badge badge-phoenix badge-phoenix-info float-right" > No marcada</span > `;
-        } else {
-          Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right" > ${element.prioritaria}</span > `;
-        }
+//         // if (element.estado_autorizado === 'autorizado') {
+//         //   col_estatus = `< span  data - toggle="tooltip" style = "color:purple;" > ${ element.estado_autorizado }</span > `;
+//         // } else if (element.estado_autorizado === 'por autorizar') {
+//         //   col_estatus = `< span  data - toggle="tooltip" style = "color:red;" > ${ element.estado_autorizado }</span > `;
+//         // } else {
+//         //   col_estatus = `< td class="text" ></td > `;
+//         // }
 
-        const columnaEstado = document.createElement('td');
-        columnaEstado.innerHTML = col_estatus;
-        const columnaEstado_Autorizacion = document.createElement('td');
-        columnaEstado_Autorizacion.innerHTML = esatdo_autorizado;
-        const columnaItr = document.createElement('td');
-        columnaItr.innerHTML = cot_itr;
-        const columnaNum_Cotizacion = document.createElement('td');
-        columnaNum_Cotizacion.innerHTML = `<a href="#" id = "btn_ver_solicitud" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" class="text-decoration-none" aria-disabled="true"> N°${element.nundoc_solicitud}</a > `;
-        const columnaCliente = document.createElement('td');
-        columnaCliente.innerHTML = element.nombre_cliente;
-        const columnaMercancia = document.createElement('td');
-        columnaMercancia.innerHTML = element.tipo_mercancia;
-        const columnaPeso = document.createElement('td');
-        columnaPeso.innerHTML = element.peso_neto_kg + 'Kg';
-        const columnafecha = document.createElement('td');
-        columnafecha.innerHTML = element.fecha_solicitud_servicio;
-        const columnaServicio = document.createElement('td');
-        columnaServicio.innerHTML = element.tipo_transporte;
-        const columnaPrioridad = document.createElement('td');
-        columnaPrioridad.innerHTML = Prioridad;
-        //Empresas
-        const columnaAcciones = document.createElement('td');
-        columnaAcciones.innerHTML = element.nombre_empresa;
+//         /* Consultas de estado de las solicitudes */
+//         if (element.estado_autorizacion === 'F1') {
+//           // esatdo_autorizado = `< span class="mdi mdi-dot-circle icon text-default"  data - toggle="tooltip" title = "Realizada" ></span > `;
+//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary" ><span class="badge-label">Realizada</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span > `;
+//         } else if (element.estado_autorizacion === 'F2') {
+//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-success"  data - toggle="tooltip" title = "Entregada" ></span > `;
+//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary" ><span class="badge-label">Entregada</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span > `;
+//         } else if (element.estado_autorizacion === 'F4') {
+//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-danger" data - toggle="tooltip" title = "Pérdida" ></span > `;
+//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger" ><span class="badge-label">Pérdida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span > `;
+//         } else if (element.estado_autorizacion === 'F3') {
+//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-warning"  data - toggle="tooltip" title = "Ganada" ></span > `;
+//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-success" ><span class="badge-label">Ganada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span > `;
+//         } else if (element.estado_autorizacion === 'F5') {
+//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-primary" data - toggle="tooltip" title = "Cancelada" ></span > `;
+//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger" ><span class="badge-label">Cancelada</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span > `;
+//         } else if (element.estado_autorizacion === 'F6') {
+//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-gray" data - toggle="tooltip" title = "Rechazada" ></span > `;
+//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning" ><span class="badge-label">Rechazada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span > `;
+//         }
+//         /* Validar si la solicitud es Itr */
+//         if (element.itr === 'Si') {
+//           cot_itr = `<span class="badge badge-phoenix badge-phoenix-success float-right" > SI</span > `;
+//         } else {
+//           cot_itr = `<span class="badge badge-phoenix badge-phoenix-primary float-right" > NO</span > `;
+//         }
 
-        /* Acciones para los botones */
-        // if (element.n_cotizacion) {
-        //   n_cotizacion = element.n_cotizacion;
-        //   if (element.estado_autorizacion === 'cancelada' || element.estado_autorizacion === 'autorizado') {
-        //     btn_editar = `
-        //       <button  class="btn btn-warning btn-sm cell-detail hint--top-left" data-toggle="modal" data-target="#no_editar_cotizacion" title="Editar Cotización" data-toogle="tooltip" data-placement="top" onclick="prueba_editar_no(this)" data-hint="" data-id="${n_cotizacion}" data-id2="${element.estado_autorizado}">
-        //           <span class="uil uil-file-edit-alt" style="color:#ffffff;"></span>
-        //       </button>`;
-        //   } else if (element.estado_autorizacion !== 'cancelada' || element.estado_autorizacion !== 'autorizado') {
-        //     btn_editar = `
-        //     <button onclick="prueba_editar_no(this)" class="btn btn-warning btn-sm cell-detail hint--top-left" data-hint="" data-id="${n_cotizacion}" data-id2="${element.estado_autorizado}">
-        //       <!--<span class="icon mdi mdi-edit" data-toggle="modal" data-target="#no_editar_cotizacion" title="Editar Cotización"></span>-->
-        //       <span class="uil uil-file-edit-alt" style="color:#ffffff;"></span>
-        //     </button>`;
-        //   }
-        //   columnaAcciones.innerHTML = `
-        //   <div class="btn-group btn-group-sm" role="group" aria-label="...">
-        //     ${btn_editar}
-        //     <button onclick="Visualizar(this)"; data-placement="top" class="btn btn-info btn-sm cell-detail hint--top-left" data-hint="" data-id="${n_cotizacion}" data-toggle="modal" data-target="#ver_cotizacion" title="Ver Cotización">
-        //       <span class="uil uil-eye" style="color:#ffffff;"></span>
-        //     </button>
-        //     <button data-toggle="modal" data-target="#ver_historico" title="Historico" data-placement="top" onclick="historico(this,${n_cotizacion})";  class="btn btn-secondary btn-xs cell-detail hint--top-left" data-hint="" data-id="${element.nombre_cliente}">
-        //       <span class="icon mdi mdi-balance"></span>
-        //     </button>
-        //     <button data-placement="top" data-toggle="modal" data-target="#tb_solicitud" title="Solicitud de servicio" onclick="tbsolicitudes(this,${n_cotizacion})";  class="btn btn-success btn-xs cell-detail hint--top-left" data-hint="" data-id="${element.nombre_cliente}">
-        //        <span class="icon mdi mdi-account-circle" style="color:#ffffff;"></span>
-        //      </button>
-        //   </div>
-        //   `;
-        // } else {
-        // }
+//         if (element.prioritaria === 'Propuesta') {
+//           Prioridad = `<span class="badge badge-phoenix badge-phoenix-warning float-right" > <a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span > `;
+//         } else if (element.prioritaria === null) {
+//           Prioridad = `<span class="badge badge-phoenix badge-phoenix-info float-right" > No marcada</span > `;
+//         } else {
+//           Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right" > ${element.prioritaria}</span > `;
+//         }
 
-        fila.appendChild(columnaNum_Cotizacion);
-        fila.appendChild(columnaItr);
-        fila.appendChild(columnaCliente);
-        fila.appendChild(columnaMercancia);
-        fila.appendChild(columnaPeso);
-        fila.appendChild(columnaServicio);
-        fila.appendChild(columnafecha);
-        fila.appendChild(columnaEstado_Autorizacion);
-        fila.appendChild(columnaEstado);
-        fila.appendChild(columnaPrioridad);
-        fila.appendChild(columnaAcciones);
-        tbody.appendChild(fila);
-      });
-    } else {
-      console.log('else');
-    }
-  } catch (error) {
-    console.error('Error en la primera solicitud:', error);
-    console.log('error no inserta');
-    throw error;
-  } finally {
-    // d.getElementById('loading-overlay-mensaje_carga').style.display = 'none';
-  }
-}
+//         const columnaEstado = document.createElement('td');
+//         columnaEstado.innerHTML = col_estatus;
+//         const columnaEstado_Autorizacion = document.createElement('td');
+//         columnaEstado_Autorizacion.innerHTML = esatdo_autorizado;
+//         const columnaItr = document.createElement('td');
+//         columnaItr.innerHTML = cot_itr;
+//         const columnaNum_Cotizacion = document.createElement('td');
+//         columnaNum_Cotizacion.innerHTML = `<a href="#" id = "btn_ver_solicitud" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}" data-id3="${id}" aria-controls="offcanvasRight" class="text-decoration-none"> N°${element.nundoc_solicitud}</a > `;
+//         const columnaCliente = document.createElement('td');
+//         columnaCliente.innerHTML = element.nombre_cliente;
+//         const columnaMercancia = document.createElement('td');
+//         columnaMercancia.innerHTML = element.tipo_mercancia;
+//         const columnaPeso = document.createElement('td');
+//         columnaPeso.innerHTML = element.peso_neto_kg + 'Kg';
+//         const columnafecha = document.createElement('td');
+//         columnafecha.innerHTML = element.fecha_solicitud_servicio;
+//         const columnaServicio = document.createElement('td');
+//         columnaServicio.innerHTML = element.tipo_transporte;
+//         const columnaPrioridad = document.createElement('td');
+//         columnaPrioridad.innerHTML = Prioridad;
+//         //Empresas
+//         const columnaAcciones = document.createElement('td');
+//         columnaAcciones.innerHTML = element.nombre_empresa;
+
+//         fila.appendChild(columnaNum_Cotizacion);
+//         fila.appendChild(columnaItr);
+//         fila.appendChild(columnaCliente);
+//         fila.appendChild(columnaMercancia);
+//         fila.appendChild(columnaPeso);
+//         fila.appendChild(columnaServicio);
+//         fila.appendChild(columnafecha);
+//         fila.appendChild(columnaEstado_Autorizacion);
+//         fila.appendChild(columnaEstado);
+//         fila.appendChild(columnaPrioridad);
+//         fila.appendChild(columnaAcciones);
+//         tbody.appendChild(fila);
+//       });
+//     } else {
+//       // $('#load_info').css('display', 'none'); // Mostrar mensaje de carga
+//       // const fila = document.createElement('tr');
+//       // let tbody = document.getElementById('tbl_cotizaciones');
+//       // tbody.innerHTML = '';
+//       // const columnaSinDatos = document.createElement('td');
+//       // columnaSinDatos.colSpan = '11';
+//       // columnaSinDatos.style.fontBold = 'bold';
+//       // columnaSinDatos.innerHTML = `<span class="uil uil-list-ui-alt"></span> Sin resultados`;
+//       // fila.appendChild(columnaSinDatos);
+//       // tbody.appendChild(fila);
+//     }
+//   } catch (error) {
+//     console.error('Error en la primera solicitud:', error);
+//     console.log('error no inserta');
+//     throw error;
+//   } finally {
+//     // d.getElementById('loading-overlay-mensaje_carga').style.display = 'none';
+//   }
+// }
 /****************************************************Funciones de los Botones**********************************************************/
 function prueba_editar_no(element) {
   $('#estado_actual').html(''); //limpiar el estado actual de cada edición
@@ -2449,710 +2551,6 @@ function prueba_editar_no(element) {
     },
     error: function () { },
   });
-}
-
-function Visualizar(cotizacion, solicitud_servicio) {
-  document.getElementById("numero_cotizacion").value = cotizacion;
-  document.getElementById("numero_solicitud").value = solicitud_servicio;
-  //CABECERA
-  var dato = {
-    ncotizar: cotizacion,
-    // action: 'ver',
-  };
-
-  $.ajax({
-    url: $('#base_url').val() + 'serviciocliente/Ver_cotizacion',
-    type: 'POST',
-    data: dato,
-    dataType: 'json',
-    success: function (data) {
-      if (data) {
-        // $('#titlu').html('<h3 class="text-center"><strong>Cotizacion Número: ' + data.n_cotizacion + '</strong></h3>');
-        $('#linea').val('');
-
-        $('#cuerpo_cotizacion').html("");
-        $('#cuerpo_cliente').html(`
-          <div class="row">
-              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Cliente</label>
-                  <input type="text" id="nombre_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.nombre_cliente}" disabled>
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Numero documento</label>
-                  <input type="text" id="documento_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.nit}-${data.digito}" disabled>
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Dirección</label>
-                  <input type="text" id="direccion_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.direccion}" disabled>
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Telefono</label>
-                  <input type="text" id="telefono_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.telefono}" disabled>
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Procedencia</label>
-                  <input type="text" id="procedencia_pedido_cliente" class="form-control form-control-sm text-center text-dark fs-10" value="${data.procedencia_cotizacion}" disabled>
-                </div>
-              </div>
-          </div>
-        `);
-
-        $('#costos').html("");
-        $('#costos').html(`
-            <div class="row"> 
-              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Tarifa venta</label>
-                  <input type="text" id="tottari" class="form-control form-control-sm text-center text-dark fs-10" disabled value="${data.total_transporte}">
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Tarifa Flete</label>
-                 <input type="text" id="totfle" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tmer_flete}">
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Utilidad</label>
-                  <input type="text" id="totutil" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tmer_rent}">
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Rentabilidad</label>
-                  <input type="text" id="totren" class="form-control form-control-sm text-center text-dark fs-10 maqu" readonly value="${data.tmer_utili}">
-                </div>
-              </div>
-            </div>
-        `);
-
-        $('#costos1').html("");
-        $('#costos1').html(`
-          <div class="row">
-            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-              <div class="mb-1">
-                <label style="font-size: 12px;">Costo servicio especial</label>
-                <input type="text" id="flees" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tes_flete}">
-              </div>
-            </div>
-            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-              <div class="mb-1">
-                <label style="font-size: 12px;">Tarifa servicio especial</label>
-               <input type="text" id="tarespe" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tes_tarifa}">
-              </div>
-            </div>
-            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-              <div class="mb-1">
-                <label style="font-size: 12px;">Utilidad servicio especial</label>
-               <input type="text" id="totuties" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.tes_renta}">
-              </div>
-            </div>
-            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-              <div class="mb-1">
-                <label style="font-size: 12px;">Rentabilidad servicio especial</label>
-                 <input type="text" id="totrenes" class="form-control form-control-sm text-center text-dark fs-10 bg-white text-dark" readonly value="${data.tes_util}">
-              </div>
-            </div>
-          </div>
-        `);
-
-        $('#costos2').html("");
-        $('#totcotiza').html(`
-          <div class="row">
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-              <div class="mb-1">
-                <label style="font-size: 12px;">Total del servicio</label>
-                <input type="text" id="totalcoti" class="form-control form-control-sm text-center text-dark fs-10" readonly value="${data.total_cotizacion}">
-              </div>
-            </div>
-          </div>
-        `);
-
-        $('#cuerpo_adicional').html("");
-        $('#cuerpo_adicional').html(`
-            <div class="row">
-              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Observación</label>
-                  <input type="text" id="observaciones" class="form-control form-control-sm text-center text-dark fs-10" disabled value="${data.observaciones}">
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Elaborado</label>
-                  <input type="text" id="elaborado_por" class="form-control form-control-sm text-center text-dark fs-10" disabled value="${data.elaborado_por}">
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Autorizado</label>
-                  <input type="text" id="autorizado_por" class="form-control form-control-sm text-center text-dark fs-10" disabled value="${data.autorizado_por}">
-                </div>
-              </div>
-            </div>
-        `);
-      }
-
-      //Formatear números	totales - bloques
-      $('#totalcoti').val(parseFloat($('#totalcoti').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#totfle').val(parseFloat($('#totfle').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#tottari').val(parseFloat($('#tottari').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#totutil').val(parseFloat($('#totutil').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#totren').val(parseFloat($('#totren').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-
-      //Formatear números	totales - especiales
-
-      $('#flees').val(parseFloat($('#flees').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#tarespe').val(parseFloat($('#tarespe').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#totuties').val(parseFloat($('#totuties').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#totrenes').val(parseFloat($('#totrenes').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-    },
-
-    error: function (jqXHR, textStatus, errorThrown) {
-      // console.log(data.result);
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    },
-  });
-
-  //MERCANCIAS
-  var dato1 = {
-    ncotizar1: cotizacion,
-  };
-
-  $('#cuerpo_mer1').html('');
-  $('#cuerpo_mer2').html('');
-  $('#muniorigen').html('');
-  $('#munidestino').html('');
-  var htm, fila;
-
-  $.ajax({
-    url: $('#base_url').val() + 'serviciocliente/Ver_Merncancia',
-    type: 'POST',
-    data: dato1,
-    dataType: 'json',
-    success: function (data) {
-      // console.log(data.result);
-      var c = 0;
-      var contador = 0;
-      var carga = '';
-
-      $('#detalle_mercancias').html('');
-      $("#bloques_mercancias_menu").html("");
-      data.forEach(function (element, index) {
-        c++;
-        // Clases para el nav-item (active solo en el primero)
-        const isFirst = index === 0;
-        contador = contador + 1;
-        if (c <= contador) {
-          if (element.tipo_carga == 'G') {
-            carga = 'General';
-          }
-
-          if (element.tipo_carga == 'P') {
-            carga = 'Paqueteo';
-          }
-
-          if (element.tipo_carga == 'C') {
-            carga = 'Contenedor Cargado';
-          }
-
-          if (element.tipo_carga == 'V') {
-            carga = 'Contenedor Vacío';
-          }
-          var idorigen = element.origen;
-          var iddestino = element.destino;
-
-
-          var cabeza = `<li class="nav-item"><a class="nav-link ${isFirst ? 'active' : ''}" id="home-tab-${c}" data-bs-toggle="tab" href="#tab-${c}" role="tab" aria-controls="tab-${c}" aria-selected="${isFirst ? 'true' : 'false'}">Bloque de Mercancia ${c}</a></li>`;
-          $("#bloques_mercancias_menu").append(cabeza);
-
-          fila = `
-           <div class="tab-pane fade ${isFirst ? 'show active' : ''}" id="tab-${c}" role="tabpanel" aria-labelledby="home-${c}">
-              <div class="row">
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Pareja origen-destino</label>
-                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.id}" disabled>
-                  <label style="font-size:12px;" >Tipo servicio</label>
-                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.tipo_servicio_mer}" disabled>
-                </div>
-                <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Tipo vehículo</label>
-                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.nombre}" disabled>
-                  <label style="font-size:12px;" >Tipo carga</label>
-                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${carga}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Tipo transporte</label>
-                    <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.tipo_transporte}" disabled>
-                    <label style="font-size:12px;" >Peso bruto (kg)</label>
-                  <input type="text" id="pbruto${c}" class="form-control form-control-sm text-dark fs-10 maq" value="${element.peso_bruto_kg}" disabled>
-                </div>
-                
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Peso neto (kg)</label>
-                  <input type="text" id="pneto${c}" class="form-control form-control-sm text-dark fs-10" value="${element.peso_neto_kg}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Peso Bruto (Tn)</label>
-                  <input type="text" id="netotn${c}" class="form-control form-control-sm text-dark fs-10" value="${element.peso_neto_tn}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Alto</label>
-                  <input type="text" id="valto${c}" class="form-control form-control-sm text-dark fs-10" value="${element.alto}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Largo</label>
-                  <input type="text" id="vlargo${c}" class="form-control form-control-sm text-dark fs-10" value="${element.largo}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Ancho</label>
-                  <input type="text" id="vancho${c}" class="form-control form-control-sm text-dark fs-10 maqu" value="${element.ancho}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Volumen total</label>
-                  <input type="text" id="vvolum${c}" class="form-control form-control-sm text-dark fs-10" value="${element.volumen_total}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Costo flete</label>
-                  <input type="text" id="vflete${c}" class="form-control form-control-sm text-dark fs-10" value="${element.flete}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Tarifa venta</label>
-                  <input type="text" id="vtarifa${c}" class="form-control form-control-sm text-dark fs-10" value="${element.total_tarifa}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Rentabilidad%</label>
-                  <input type="text" id="vutil${c}" class="form-control form-control-sm text-dark fs-10" value="${element.utilidad}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Utilidad</label>
-                  <input type="text" id="vrent${c}" class="form-control form-control-sm text-dark fs-10" value="${element.rentabilidad}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Tipo Mercancía</label>
-                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.tipo_mercancia}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Valor Mercancía</label>
-                  <input type="text" id="vmerca${c}" class="form-control form-control-sm text-dark fs-10" value="${element.valor_mercancia}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Tipo empaque</label>
-                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.empaque}" disabled>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                  <label style="font-size:12px;" >Cantidad Empaque</label>
-                  <input type="text" id="vcant${c}" class="form-control form-control-sm text-dark fs-10" value="${element.cantidad_empaque}" disabled>
-                </div>
-                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                  <label style="font-size:12px;" >Origen</label>
-                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.orig}" disabled>
-                </div>
-                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                  <label style="font-size:12px;" >Destino</label>
-                  <input type="text" class="form-control form-control-sm text-dark fs-10" value="${element.dest}" disabled>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                  <label style="font-size:12px;" >Observación</label>
-                  <textarea class="form-control form-control-sm text-dark" disabled rows="1">${element.observacion}</textarea>
-                </div>
-              </div>
-          </div>
-        `;
-
-          $('#detalle_mercancias').append(fila);
-          //FORMATEAR NUMEROS
-          $('#pbruto' + c).val(parseFloat($('#pbruto' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#pneto' + c).val(parseFloat($('#pneto' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#netotn' + c).val(parseFloat($('#netotn' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#valto' + c).val(parseFloat($('#valto' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vlargo' + c).val(parseFloat($('#vlargo' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vancho' + c).val(parseFloat($('#vancho' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vvolum' + c).val(parseFloat($('#vvolum' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vflete' + c).val(parseFloat($('#vflete' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vtarifa' + c).val(parseFloat($('#vtarifa' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vutil' + c).val(parseFloat($('#vutil' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vrent' + c).val(parseFloat($('#vrent' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vmerca' + c).val(parseFloat($('#vmerca' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-          $('#vcant' + c).val(parseFloat($('#vcant' + c).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-        } //cierre del if
-      });
-    }, //succes ver
-
-    error: function (jqXHR, textStatus, errorThrown) {
-      console.log('error ver');
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    },
-  });
-
-  //SERVICIOS ESPECIALES
-  var dato2 = {
-    ncotizar2: cotizacion,
-  };
-
-  fila_espe = '';
-  $.ajax({
-    url: $('#base_url').val() + 'serviciocliente/Ver_Servicios_Especiales',
-    type: 'POST',
-    data: dato2,
-    dataType: 'json',
-    success: function (data) {
-      ce = 0;
-      htm = '';
-      $('#detalle_servicios_especiales').html('');
-      $('#bloques_servicios_especiales_menu').html('');
-      if (data.length === 0) {
-        htm = "<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 d-flex justify-content-center fw-bold my-3'>Sin servicios especiales</div>";
-      } else {
-        data.forEach(function (element, index) {
-          ce++;
-          var cabeza = `<li class="nav-item"><a class="nav-link" id="home-tab-${c}" data-bs-toggle="tab" href="#tab-${c}" role="tab" aria-controls="tab-${c}" aria-selected="true">Servicio Especial ${c}</a></li>`;
-          $("#bloques_servicios_especiales_menu").append(cabeza);
-          htm += `
-          <div class="tab-pane fade show" id="home-tab-${c}" role="tabpanel" aria-labelledby="home-${c}">
-            <div class="panel-body">
-              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <label>Servicio especial/ Mercancía a la que pertenece:</label><br>
-                <a href="#" class="badge badge-success" title="Servicio especial">${element.item_especial}</a> /
-                <a href="#" class="badge badge-primary" title="Servicio mercancía">${element.item_mercancia}</a>
-                <h4>Servicios especiales</h4>
-              </div>
-              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <span style="font-weight:500; margin-top:20px;">Tipo servicio</span>
-                <input type="text" class="form-control input-xs" value="${element.tipo_servicio}" readonly style="background-color:white;">
-              </div>
-              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <span style="font-weight:500; margin-top:20px;">Cantidad</span>
-                <input type="text" class="form-control input-xs" value="${element.cantidad}" readonly style="background-color:white;">
-              </div>
-              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <span style="font-weight:500; margin-top:20px;">Costo unitario</span>
-                <input type="text" id="valores${ce}" class="form-control input-xs" value="${element.valor_unitario}" readonly style="background-color:white;">
-              </div>
-              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <span style="font-weight:500; margin-top:20px;">Tarifa unitaria</span>
-                <input type="text" id="taries${ce}" class="form-control input-xs maqu" value="${element.tarifa_unitaria}" readonly style="background-color:white;">
-              </div>
-              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <span style="font-weight:500; margin-top:20px;">Cálculo costo</span>
-                <input type="text" id="totes${ce}" value="${element.total_servicio}" class="form-control input-xs" readonly style="background-color:white;">
-              </div>
-              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <span style="font-weight:500; margin-top:20px;">Cálculo tarifa</span>
-                <input type="text" id="tarifaes${ce}" class="form-control input-xs" value="${element.tarifa}" readonly style="background-color:white;">
-              </div>
-              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <span style="font-weight:500; margin-top:20px;">Utilidad</span>
-                <input type="text" id="uties${ce}" value="${element.rentabilidad}" class="form-control input-xs" readonly style="background-color:white;">
-              </div>
-              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <span style="font-weight:500; margin-top:20px;">Rentabilidad%</span>
-                <input type="text" id="rentes${ce}" class="form-control input-xs" value="${element.utilidad}" readonly style="background-color:white;">
-              </div>
-            </div>
-          </div>`;
-        });
-      }
-      $('#detalle_servicios_especiales').append(htm);
-
-      $('#valores' + ce).val(parseFloat($('#valores' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#taries' + ce).val(parseFloat($('#taries' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#totes' + ce).val(parseFloat($('#totes' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#tarifaes' + ce).val(parseFloat($('#tarifaes' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#uties' + ce).val(parseFloat($('#uties' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-      $('#rentes' + ce).val(parseFloat($('#rentes' + ce).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-    },
-    error: function (jqXHR, textStatus, errorThrown) {
-      console.log('error');
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    },
-  });
-
-  /* Remitentes */
-  var soli = {
-    soli_servi: solicitud_servicio,
-    // action: 'solicitud_servicio'
-  };
-
-  $.ajax({
-    url: $('#base_url').val() + 'serviciocliente/solicitar_remitentes',
-    type: 'POST',
-    data: soli,
-    dataType: 'json',
-    success: function (data) {
-      // document.getElementById("referencia_operacion").value = data[0].observacion; //verificar segun los escenearios
-      // numero_contenedor
-      if (data[0].numero_contenedor === null) {
-        document.getElementById("numero_contenedor").value = "";
-        document.getElementById("numero_contenedor").disabled = false;
-        document.getElementById("btn_save_contenedor").disabled = false;
-        document.getElementById("agrupable").checked = false;
-        document.getElementById("agrupable").disabled = false;
-      } else {
-        if (data[0].agrupable === null || data[0].agrupable === 'NO') {
-          document.getElementById("numero_contenedor").value = data[0].numero_contenedor;
-          document.getElementById("numero_contenedor").disabled = true;
-          document.getElementById("btn_save_contenedor").disabled = true;
-          document.getElementById("agrupable").checked = false;
-          document.getElementById("agrupable").disabled = false;
-        } else {
-          document.getElementById("numero_contenedor").value = data[0].numero_contenedor;
-          document.getElementById("numero_contenedor").disabled = true;
-          document.getElementById("btn_save_contenedor").disabled = true;
-          document.getElementById("agrupable").checked = true;
-          document.getElementById("agrupable").disabled = true;
-        }
-      }
-
-      /* Validar y marcar la solictud si es prioritaria si esta aprobada */
-      if (data[0].Solicitud_Prioritaria === "Aprobada") {
-        document.getElementById("flexSwitchCheckChecked").checked = true;
-        document.getElementById("flexSwitchCheckChecked").disabled = true;
-      } else {
-        document.getElementById("flexSwitchCheckChecked").checked = false;
-        document.getElementById("flexSwitchCheckChecked").disabled = false;
-      }
-
-      // Limpia los contenedores antes de agregar nuevos elementos
-      $("#bloques_punto_remitente").empty();
-      $("#detalle_puntos_remitentes").empty();
-      var c = 0;
-      // let navItem = '';
-      let tabPane = '';
-      data.forEach(function (element, index) {
-        c++;
-        // Clases para el nav-item (active solo en el primero)
-        const isFirst = index === 0;
-        // Crea el elemento del menú (nav item)
-        var navItem = ` 
-          <li class="nav-item">
-            <a class="nav-link ${isFirst ? 'active' : ''}" id="home-tabs-${c}" data-bs-toggle="tab" href="#tabRemitente-${c}" role="tab" aria-controls="tabRemitente-${c}" aria-selected="${isFirst ? 'true' : 'false'}">
-              Remitente ${element.punto_rem}
-            </a>
-          </li>
-        `;
-
-        tabPane = `
-        <div class="tab-pane fade ${isFirst ? 'show active' : ''}" id="tabRemitente-${c}" role="tabpanel" aria-labelledby="tabRemitente-${c}">
-          <!-- Fila con el botón en la esquina superior derecha -->
-          <div class="row mb-2">
-            <div class="col-12 d-flex justify-content-end align-items-center">
-              <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">
-                <button class="btn btn-subtle-warning btn-sm me-1 px-1 py-0" type="button" id="btn_edit_cargue${element.punto_entrega_id}" style="font-size:12px;" data-puntoId="${element.punto_entrega_id}">
-                  <span class="uil uil-file-edit-alt" data-fa-transform="shrink-3"></span> Editar
-                </button>
-                <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_cargue${element.punto_entrega_id}" style="font-size:12px;display:none;" data-Remitente="${element.remitente}" data-Punto="${element.punto_rem}" data-puntoId="${element.punto_entrega_id}" data-NumDocSol="${element.nundoc_solicitud}">
-                  <span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar
-                </button>
-                <button class="btn btn-subtle-danger btn-sm me-1 px-1 py-0" type="button" id="btn_canelar_cargue${element.punto_entrega_id}" style="font-size:12px;display:none;" data-Remitente="${element.remitente}" data-Punto="${element.punto_rem}" data-puntoId="${element.punto_entrega_id}" data-NumDocSol="${element.nundoc_solicitud}">
-                  <span class="uil uil-cancel" data-fa-transform="shrink-3"></span> Cacelar
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Fila con los campos -->
-          <div class="row g-2">
-            <div class="col-2 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="text" id="mer_idservicio${element.punto_entrega_id}" disabled value="${element.nundoc_solicitud}">
-            </div>
-            <div class="col-4 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="text" id="remitente_edit${element.punto_entrega_id}" disabled value="${element.remitente}">
-            </div>
-            <div class="col-2 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="date" id="fecha_cargue_edit${element.punto_entrega_id}" disabled value="${element.fecha_cargue}">
-            </div>
-            <div class="col-2 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="time" id="hora_cargue_edit${element.punto_entrega_id}" disabled value="${element.hora_cargue}">
-            </div>
-            <div class="col-2 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="text" id="agencia${element.punto_entrega_id}" disabled value="${element.nombre}">
-            </div>
-          </div>
-        </div>
-      `;
-        $("#bloques_punto_remitente").append(navItem);
-        $("#detalle_puntos_remitentes").append(tabPane);
-      });
-    },
-    error: function (jqXHR, textStatus, errorThrown) {
-      console.log('error');
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    }
-  });
-
-  //Destinatarios
-  $.ajax({
-    url: $('#base_url').val() + 'serviciocliente/solicitar_destinatarios',
-    type: 'POST',
-    data: soli,
-    dataType: 'json',
-    success: function (data) {
-      // document.getElementById("referencia_operacion").value = data[0].observacion; //verificar segun los escenearios
-      // numero_contenedor
-      if (data[0].numero_contenedor === null) {
-        document.getElementById("numero_contenedor").value = "";
-        document.getElementById("numero_contenedor").disabled = false;
-        document.getElementById("btn_save_contenedor").disabled = false;
-        document.getElementById("agrupable").checked = false;
-        document.getElementById("agrupable").disabled = false;
-      } else {
-        if (data[0].agrupable === null || data[0].agrupable === 'NO') {
-          document.getElementById("numero_contenedor").value = data[0].numero_contenedor;
-          document.getElementById("numero_contenedor").disabled = true;
-          document.getElementById("btn_save_contenedor").disabled = true;
-          document.getElementById("agrupable").checked = false;
-          document.getElementById("agrupable").disabled = false;
-        } else {
-          document.getElementById("numero_contenedor").value = data[0].numero_contenedor;
-          document.getElementById("numero_contenedor").disabled = true;
-          document.getElementById("btn_save_contenedor").disabled = true;
-          document.getElementById("agrupable").checked = true;
-          document.getElementById("agrupable").disabled = true;
-        }
-      }
-
-      // Limpia los contenedores antes de agregar nuevos elementos
-      $("#bloques_punto_destinatario").empty();
-      $("#detalle_puntos_destinatarios").empty();
-      /* Refrencias */
-      $("#bloques_referencias_menu").empty();
-      $("#detalle_referencias").empty();
-      var c = 0;
-      let tabPane = '';
-      let tabPaneRef = '';
-      data.forEach(function (element, index) {
-        c++;
-        // Clases para el nav-item (active solo en el primero)
-        const isFirst = index === 0;
-
-        //Llenar las referencais de los destinatarios
-        var navTitleRef = `
-          <li class="nav-item">
-              <a class="nav-link ${isFirst ? 'show active' : ''}" id="home-tabs-${c}" data-bs-toggle="tab" href="#tabRefDestinatario-${c}" role="tab" aria-controls="tabRefDestinatario-${c}" aria-selected="${isFirst ? 'true' : 'false'}">
-                Referencia ${element.punto_des}
-              </a>
-          </li>
-        `;
-        $("#bloques_referencias_menu").append(navTitleRef);
-
-        /* Detalle de las referencias por cada destinatario */
-        tabPaneRef = `
-          <div class="tab-pane fade ${isFirst ? 'show active' : ''}" id="tabRefDestinatario-${c}" role="tabpanel" aria-labelledby="tabRefDestinatario-${c}">
-            <div class="row">
-              <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xxl-10">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Referencia</label>
-                  <input type="text" id="referencia_operacion${element.punto_destinatario_id}" name="referencia_operacion" class="form-control form-control-sm text-dark fs-10" value="${element.observacion}" oninput="this.value = this.value.toUpperCase();">
-                </div>
-              </div>
-              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2">
-                <div class="mb-1 pt-5 d-flex justify-content-end">
-                  <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_referencia${element.punto_destinatario_id}" data-puntoId="${element.punto_destinatario_id}" data-NumDocSol="${element.nundoc_solicitud}" ><span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar</button>
-                </div>
-              </div>
-            </div>
-          </div>`;
-        $("#detalle_referencias").append(tabPaneRef);
-
-        // Crea el elemento del menú (nav item)
-        var navItem = ` 
-          <li class="nav-item">
-            <a class="nav-link ${isFirst ? 'show active' : ''}" id="home-tabs-${c}" data-bs-toggle="tab" href="#tabDestinatario-${c}" role="tab" aria-controls="tabDestinatario-${c}" aria-selected="${isFirst ? 'true' : 'false'}">
-              Destinatario ${element.punto_des}
-            </a>
-          </li>
-        `;
-        $("#bloques_punto_destinatario").append(navItem);
-
-        // Crea el contenedor de la pestaña (tab pane)
-        tabPane = `
-        <div class="tab-pane fade ${isFirst ? 'show active' : ''}" id="tabDestinatario-${c}" role="tabpanel" aria-labelledby="tabDestinatario-${c}">
-          <!-- Fila con el botón en la esquina superior derecha -->
-          <div class="row mb-2">
-            <div class="col-12 d-flex justify-content-end align-items-center">
-              <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">
-                <button class="btn btn-subtle-warning btn-sm me-1 px-1 py-0" type="button" id="btn_edit_descargue${element.punto_destinatario_id}" style="font-size:12px;" data-puntoId="${element.punto_destinatario_id}">
-                  <span class="uil uil-file-edit-alt" data-fa-transform="shrink-3"></span> Editar
-                </button>
-                <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_descargue${element.punto_destinatario_id}" style="font-size:12px;display:none;" data-Destinatario="${element.remitente}"  data-Punto="${element.punto_des}" data-puntoId="${element.punto_destinatario_id}" data-NumDocSol="${element.nundoc_solicitud}">
-                  <span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar
-                </button>
-                <button class="btn btn-subtle-danger btn-sm me-1 px-1 py-0" type="button" id="btn_canelar_descargue${element.punto_destinatario_id}" style="font-size:12px;display:none;" data-Destinatario="${element.remitente}"  data-Punto="${element.punto_des}" data-puntoId="${element.punto_destinatario_id}" data-NumDocSol="${element.nundoc_solicitud}">
-                  <span class="uil uil-cancel" data-fa-transform="shrink-3"></span> Cacelar
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Fila con los campos -->
-          <div class="row g-2">
-            <div class="col-2 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="text" id="desti_idservicio${element.punto_destinatario_id}" disabled value="${element.nundoc_solicitud}">
-            </div>
-            <div class="col-4 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="text" id="destinatario_edit${element.punto_destinatario_id}" disabled value="${element.destinatario}">
-            </div>
-            <div class="col-2 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="date" id="fecha_descargue_edit${element.punto_destinatario_id}" disabled value="${element.fecha_descargue}">
-            </div>
-            <div class="col-2 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="time" id="hora_descargue_edit${element.punto_destinatario_id}" disabled value="${element.hora_descargue}">
-            </div>
-            <div class="col-2 text-center">
-              <input class="form-control form-control-sm text-dark fs-10" type="text" id="agencia${element.punto_destinatario_id}" disabled value="${element.nombre}">
-            </div>
-          </div>
-        </div>
-      `;
-
-        $("#detalle_puntos_destinatarios").append(tabPane);
-      });
-    },
-    error: function (jqXHR, textStatus, errorThrown) {
-      console.log('error');
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    }
-  });
-
-  /* Consultar las agencias y lostipos de servicio para actualizar */
-  fetch($('#base_url').val() + "serviciocliente/ListarAgenciasTipoServicios", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-  }).then(response => response.json())
-    .then(data => {
-      $("#servicio_agencia").html('');
-      $("#servicio_agencia").append('<option value="" selected>Seleccione...</option>');
-      data.forEach(element => {
-        $("#servicio_agencia").append('<option value="' + element.id + '">' + element.nombre + '</option>');
-      });
-    })
-    .catch(error => {
-      console.log('error');
-      console.log(error);
-    });
 }
 
 //CIERRE DE LA FUNCIÓN visualizar
@@ -4940,6 +4338,13 @@ function agregar() {
                    <input type="text" class="typeahead form-control form-control-sm costo_sicetac" id="costo_sicetac${cont}" disabled>
                 </div>
               </div>
+
+              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+                <div class="mb-1">
+                  <label style="font-size: 12px;">Costo sicetac</label>
+                   <button class="btn btn-subtle-secondary btn-sm me-1 mb-1" type="button">Secondary</button>
+                </div>
+              </div>
         
           </div>`;
       $('#table_mercancia').append(htmlTags);
@@ -5216,15 +4621,15 @@ function agregar() {
             <label style="font-size: 12px;">Unidad de Transporte &nbsp;<span style="color:red;"><i>(*)</i></label> 
             <select name="unidadtransporte" id="unidadtransporte${cont}" class="form-select form-select-sm unidad_transporte_sicetac">
               <option selected="selected" value=""> </option>
-              <option value="ESTACAS">ESTACAS</option>
-              <option value="ESTIBAS">ESTIBAS</option>
-              <option value="TANQUE">TANQUE</option>
-              <option value="FURGON">FURGON</option>
-              <option value="PORTACONTENEDORES">PORTACONTENEDORES</option>
-              <option value="TRAYLER">TRAYLER</option>
-              <option value="VOLCO">VOLCO</option>
-              <option value="PLATAFORMA">PLATAFORMA</option>
-              <option value="FURGON REFRIGERADO">FURGON REFRIGERADO</option>
+              <option value="1">ESTACAS</option>
+              <option value="10">ESTIBAS</option>
+              <option value="1061">TANQUE</option>
+              <option value="2">FURGON</option>
+              <option value="231">PORTACONTENEDORES</option>
+              <option value="36">TRAYLER</option>
+              <option value="4">VOLCO</option>
+              <option value="48">PLATAFORMA</option>
+              <option value="60">FURGON REFRIGERADO</option>
             </select>
           </div>
         </div>
@@ -5234,19 +4639,25 @@ function agregar() {
             <label style="font-size: 12px;">Tipo de Carga &nbsp;<span style="color:red;"><i>(*)</i></label> 
             <select name="tipocarga" id="tipocarga${cont}" class="form-select form-select-sm tipo_carga_sicetac">
               <option selected="selected" value=""> </option>
-              <option value=">Granel líquido">Granel líquido</option>
-              <option value="General">General</option>
-              <option value="Contenedor">Contenedor</option>
-              <option value="Carga Refrigerada">Carga Refrigerada</option>
-              <option value="Granel Sólido">Granel Sólido</option>
+              <option value="1003">Granel líquido</option>
+              <option value="12">General</option>
+              <option value="13">Contenedor</option>
+              <option value="2">Carga Refrigerada</option>
+              <option value="5">Granel Sólido</option>
             </select>
           </div>
         </div>
 
-        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
           <div class="mb-1">
             <label style="font-size: 12px;">Costo sicetac</label>
               <input type="text" class="typeahead form-control form-control-sm costo_sicetac" id="costo_sicetac${cont}" disabled>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-1 col-lg-1 col-xl-1 col-xxl-1 tr${cont}">
+          <div class="mt-5">
+              <button class="btn btn-subtle-secondary btn-sm me-1 px-1 py-1" id="btn-validar-sicetac${cont}" data-id="${cont}" type="button" style="width: 100%;">Validar Sicetac</button>
           </div>
         </div>
 
@@ -7344,52 +6755,6 @@ async function Inserta_Cotizacion(ventana_id) {
     nFilas: nFilas,
   };
 
-
-  //VALORES PARA VALIDACIONES SICETAC
-  var ArraySicetac = {
-    configuracion_vehiculo: [],
-    unidad_transporte: [],
-    tipo_carga: [],
-    origen_sicetac: [],
-    destino_sicetac: [],
-    costo_sicetac: [],
-  }
-
-  $('.configuracion_vehiculo_sicetac').each(function (index) {
-    var configuracion_vehiculo = $(this).val();
-    ArraySicetac.configuracion_vehiculo[index] = configuracion_vehiculo;
-  });
-
-  $('.unidad_transporte_sicetac').each(function (index) {
-    var unidad_transporte = $(this).val();
-    ArraySicetac.unidad_transporte[index] = unidad_transporte;
-  });
-
-  $('.tipo_carga_sicetac').each(function (index) {
-    var tipo_carga = $(this).val();
-    ArraySicetac.tipo_carga[index] = tipo_carga;
-  });
-
-  $('.originario').each(function (index) {
-    var origen_sicetac = $(this).val();
-    ArraySicetac.origen_sicetac[index] = origen_sicetac;
-  });
-
-  $('.destinar').each(function (index) {
-    var destino_sicetac = $(this).val();
-    ArraySicetac.destino_sicetac[index] = destino_sicetac;
-  });
-
-  $('.costo_sicetac').each(function (index) {
-    var costo_sicetac = $(this).val();
-    ArraySicetac.costo_sicetac[index] = costo_sicetac;
-  });
-
-  var CostosEficientesSicetac = ArraySicetac;
-  CostosEficientesSicetac = JSON.stringify(CostosEficientesSicetac);
-
-
-
   $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
   // Crear una instancia de FormData
   let formData = new FormData();
@@ -7418,7 +6783,7 @@ async function Inserta_Cotizacion(ventana_id) {
   formData.append('bloque_datoespecial', especiales);
   formData.append('clienteid', id_cliente);
   formData.append('escenario_id', id_escenario);
-  formData.append('CostosEficientesSicetac', CostosEficientesSicetac);
+  // formData.append('CostosEficientesSicetac', CostosEficientesSicetac);
   //EMPRESA DEL CLIENTE AL QUE SE LE REALIZA LA SOLICITUD DE SERVICIO
   formData.append('empresa_id', id_empresa);
   for (const key in datos_solicitud) {

@@ -49,6 +49,38 @@ $(document).ready(function () {
         listar_cotizaciones(tipo, fecha_inicial, fecha_final, valorSeleccionado);
       });
     }
+    document.addEventListener("click", async e => {
+      if (e.target.matches("#btn_ver_solicitud_en_curso") || e.target.matches("#btn_ver_solicitud_en_curso *")) {
+        // let padre = e.target.parentElement.parentElement;
+        // Obtener el enlace (el elemento con el data-id)
+        let enlace = e.target.closest('#btn_ver_solicitud_en_curso');
+        // // Obtener el valor del atributo data-id
+        let dataId = enlace.getAttribute('data-id');
+        let dataId2 = enlace.getAttribute('data-id2');
+        // let dataId3 = enlace.getAttribute('data-id3');
+        // Visualizar(dataId, dataId2, dataId3);
+
+        // // Definir dimensiones de la nueva ventana
+        const w = 1000;
+        const h = 1000;
+
+        // Fixes dual-screen position                         Most browsers      Firefox
+        var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+        var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+
+        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+        var top = ((height / 2) - (h / 2)) + dualScreenTop;
+        var newWindow = window.open($('#base_url').val() + "serviciocliente/canvas?cotizacion=" + encodeURIComponent(dataId) + "&solicitud_servicio=" + encodeURIComponent(dataId2), "ventanaCentrada", 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+
+        // Puts focus on the newWindow
+        if (window.focus) {
+          newWindow.focus();
+        }
+      }
+    });
   };
 });
 
@@ -76,9 +108,6 @@ async function listar_cotizaciones(tipo, fecha_inicial, fecha_final, cliente) {
       let n_cotizacion = '';
       let btn_editar = '';
       let Prioridad = '';
-      // let perfil = document.getElementById("perfil_id").value;
-      // document.querySelector('.badge').innerHTML = data.resultado_cantidad['total_cotizaciones'];
-      // $('.badge').html(data.resultado_cantidad['total_cotizaciones']);
 
       data.resultado.forEach(element => {
         const fila = document.createElement('tr');
@@ -89,7 +118,7 @@ async function listar_cotizaciones(tipo, fecha_inicial, fecha_final, cliente) {
           } else if (element.estado === 'por autorizar') {
             col_estatus = `<span  data-toggle="tooltip" style="color:#ec1f00;">${element.estado}</span>`;
           } else {
-            col_estatus = `<td class="text"></td>`;
+            col_estatus = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">sin gestionar</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
           }
         } else {
           if (element.estado_estudio === 'pendiente_iniciar') {
@@ -102,17 +131,13 @@ async function listar_cotizaciones(tipo, fecha_inicial, fecha_final, cliente) {
             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Rechazado</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>`;
           } else if (element.estado_estudio === 'Aprobado') {
             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Estudio Aprobado</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
-          } else {
-            col_estatus = `<td class="text"></td>`;
+          } else if (element.estado_estudio === 'vencida') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Vencido</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
+          } else if (element.estado_estudio === 'Sin Estado') {
+            col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">Sin Estado</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
           }
         }
-        // if (element.estado_autorizado === 'autorizado') {
-        //   col_estatus = `<span  data-toggle="tooltip" style="color:purple;">${element.estado_autorizado}</span>`;
-        // } else if (element.estado_autorizado === 'por autorizar') {
-        //   col_estatus = `<span  data-toggle="tooltip" style="color:red;">${element.estado_autorizado}</span>`;
-        // } else {
-        //   col_estatus = `<td class="text"></td>`;
-        // }
+
         /* Consultas de estado de las solicitudes */
         if (element.estado_autorizacion === 'F1') {
           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-default"  data-toggle="tooltip" title="Realizada" ></span>`;
@@ -163,7 +188,8 @@ async function listar_cotizaciones(tipo, fecha_inicial, fecha_final, cliente) {
         const columnaItr = document.createElement('td');
         columnaItr.innerHTML = cot_itr;
         const columnaNum_Cotizacion = document.createElement('td');
-        columnaNum_Cotizacion.innerHTML = `<a href="#" id="btn_ver_solicitud" data-id="${element.n_cotizacion}"  data-id2="${element.nundoc_solicitud}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" class="text-decoration-none" aria-disabled="true">N°${element.nundoc_solicitud}</a>`;
+        columnaNum_Cotizacion.innerHTML = `<a href="#" id="btn_ver_solicitud_en_curso" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}" class="text-decoration-none">N°${element.nundoc_solicitud}</a>`;
+        // columnaNum_Cotizacion.innerHTML = `<a href="#" id="btn_ver_solicitud" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" class="text-decoration-none" aria-disabled="true">N°${element.nundoc_solicitud}</a>`;
         const columnaCliente = document.createElement('td');
         columnaCliente.innerHTML = element.nombre_cliente;
         const columnaMercancia = document.createElement('td');

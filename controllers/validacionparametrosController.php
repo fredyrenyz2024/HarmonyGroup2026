@@ -138,6 +138,7 @@ class validacionparametrosController extends Controller
         $flete_subasta = $_POST["flete_subasta"];
         $tarifa_subasta = $_POST["tarifa_subasta"];
         $responsable_vehiculo = $_POST["responsable_vehiculo"];
+        $empresa_cliente = $_POST["empresa_cliente"];
         // Empresas
         foreach ($empre as $item) {
             ${"empresa_" . $index} = $item;
@@ -274,6 +275,7 @@ class validacionparametrosController extends Controller
             'tiene_trailer' => $tiene_trailer,
             'itr' => $itr,
             'usuario' =>  $usuario,
+            'empresa_cliente' =>  $empresa_cliente,
         );
         $this->datos = $this->_modelo->Insertar_vehiculo_nuevo($datos_vehiculo);
         echo json_encode($this->datos);
@@ -778,6 +780,7 @@ class validacionparametrosController extends Controller
         $usuario = $_POST["usuario"];
         $fserva = $_POST["fserva"];
         $observacion = $_POST["observacion"];
+        $empresa_cliente = $_POST["empresa_cliente"];
         $temp = array();
 
         if ($_POST["tipo_operacion"] == 'Actualizar') {
@@ -1107,7 +1110,7 @@ class validacionparametrosController extends Controller
                         "trailer_check" => $trailer_check,
                         "placa_trailer" => $placa_trailer,
                         "propi_trailer" => $propi_trailer,
-                        "propidoc_trailer" => $propidoc_trailer
+                        "propidoc_trailer" => $propidoc_trailer,
                     );
                 }
             }
@@ -1128,6 +1131,7 @@ class validacionparametrosController extends Controller
             "usuario" => $usuario,
             "solicitudes" => $fserva,
             "observacion" => $observacion,
+            "empresa_cliente" => $empresa_cliente,
             "responsable_vehiculo" => $responsable_vehiculo,
             "dinamicos" => isset($_POST["dinamicos"]) ? $_POST["dinamicos"] : "",
             "nuevo_recurso" => isset($_POST["nuevos_recursos"]) ? $_POST["nuevos_recursos"] : "",
@@ -1151,6 +1155,7 @@ class validacionparametrosController extends Controller
         $usuario = $_POST["usuario"];
         $fserva = $_POST["fserva"];
         $observacion = $_POST["observacion"];
+        $empresa_cliente = $_POST["empresa_cliente"];
         $temp = array();
         $datos_nuevos = [];
 
@@ -1499,6 +1504,7 @@ class validacionparametrosController extends Controller
             "usuario" => $usuario,
             "solicitudes" => $fserva,
             "observacion" => $observacion,
+            "empresa_cliente" => $empresa_cliente,
             "responsable_vehiculo" => $responsable_vehiculo,
             "dinamicos" => isset($_POST["dinamicos"]) ? $_POST["dinamicos"] : 'No',
             "nuevo_recurso" => isset($_POST["nuevos_recursos"]) ? $_POST["nuevos_recursos"] : 'No',
@@ -1971,6 +1977,8 @@ class validacionparametrosController extends Controller
         $usuario = $_POST["usuario"];
         $fserva = $_POST["fserva"];
         $solicitud = $_POST["solicitud"];
+        $responsable_vehiculo = $_POST["responsable_vehiculo"];
+        $empresa_cliente = $_POST["empresa_cliente"];
 
         $datos = array(
             "tipo_operacion" => $tipo_operacion,
@@ -1982,6 +1990,8 @@ class validacionparametrosController extends Controller
             "usuario" => $usuario,
             "solicitudes" => $fserva,
             "solicitud" => $solicitud,
+            "responsable_vehiculo" => $responsable_vehiculo,
+            "empresa_cliente" => $empresa_cliente,
             // "dinamicos" => isset($_POST["dinamicos"]) ? $_POST["dinamicos"] : 'No',
             // "nuevo_recurso" => isset($_POST["nuevos_recursos"]) ? $_POST["nuevos_recursos"] : 'No',
             "papeles" => isset($papeles) ? $papeles : $_POST["papeles"],

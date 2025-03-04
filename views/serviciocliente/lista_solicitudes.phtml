@@ -1,4 +1,5 @@
 <input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
 <div class="container-fluid">
 	<!-- <div class="d-flex justify-content-center"></div> -->
 	<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
@@ -21,10 +22,19 @@
 						<th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Empresa responsable</th>
 					</tr>
 				</thead>
-				<tbody id='tbl_cotizaciones' class='text-center'></tbody>
+				<tbody id='tbl_cotizaciones' class='text-center'>
+					<tr id="load_info" style="display: none;">
+						<td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+							<img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25"> Esperando Información
+						</td>
+					</tr>
+				</tbody>
 			</table>
 		</div>
 	</div>
 </div>
 
-<?php include_once "views/serviciocliente/canvas.phtml"; ?>
+<!-- <?php
+			// $parametro1 = $_SESSION['ventana_id'];
+			// include_once "views/serviciocliente/canvas.phtml";
+			?> -->

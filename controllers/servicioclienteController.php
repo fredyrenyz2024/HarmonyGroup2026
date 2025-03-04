@@ -44,6 +44,7 @@ class servicioclienteController extends Controller
 	private $_traer_escenarios;
 	private $_lita_clientes;
 	private $_lita_empresas;
+	private $_validar_tarifa_sicetac;
 
 	public function __construct()
 	{
@@ -67,6 +68,7 @@ class servicioclienteController extends Controller
 	public function todos()
 	{
 		$this->_view->titulo = 'Ejemplos';
+		// $js = $_POST['param1'];
 		// $this->_view->renderizar('lista_solicitudes', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
 		$this->_view->renderizar_ventana('lista_solicitudes', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
 	}
@@ -100,6 +102,11 @@ class servicioclienteController extends Controller
 		$this->_view->titulo = 'Solicitudes Completadas';
 		$this->_view->renderizar_ventana('completadas', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
 	}
+	public function canvas()
+	{
+		$this->_view->titulo = 'Solicitudes Completadas';
+		$this->_view->renderizar_ventana('canvas', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+	}
 
 	//Funcion para cargar los filtros
 	public function crear_filtro()
@@ -116,7 +123,7 @@ class servicioclienteController extends Controller
 		// $numdoc_solicitud = $_POST['numdoc_solicitud'];
 		// $this->_ver_solicitud = $this->_modelo->Get_Solicitudes($numdoc_solicitud);
 		// echo json_encode($this->_ver_solicitud);
-		$this->_view->renderizar_ventana('ver_solicitud', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+		// $this->_view->renderizar_ventana('ver_solicitud', 'serviciocliente'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
 	}
 
 	public function sessio()
@@ -186,86 +193,19 @@ class servicioclienteController extends Controller
 		echo json_encode($this->traer_naturaleza);
 	}
 
+
+	/* Funcion para validar la  tarifa del sicetac */
+	public function Validar_tarifa_sicetac()
+	{
+		$CostosEficientesSicetac = json_decode($_POST['CostosEficientesSicetac']);
+		$this->_validar_tarifa_sicetac = $this->_modelo->Validar_trafifa_Sicetac($CostosEficientesSicetac);
+		echo json_encode($this->_validar_tarifa_sicetac);
+	}
+
+
 	public function CrearCotizacion()
 	{
 		$response = [];
-
-		//VALIDAR LOS COSTOS EFICENTES DEL SICETAC AL CREAR LA COTIZACION
-
-		/* 	$CostosEficientesSicetac = json_decode($_POST["CostosEficientesSicetac"]);
-
-		// print_r($CostosEficientesSicetac->configuracion_vehiculo[0]);
-		// exit();
-
-		// foreach ($CostosEficientesSicetac as $key => $value) {
-		// 	print_r($value['configuracion_vehiculo']);
-
-		// }
-
-		$xml_sicetac = '';
-		$xml_sicetac .= "<?xml version='1.0' encoding='ISO-8859-1'?>";
-		$xml_sicetac .= '<root>';
-		$xml_sicetac .= '<acceso>';
-		$xml_sicetac .= '<username>' . MINTRANS_USER . '</username>';
-		$xml_sicetac .= '<password>' . MINTRANS_PASS . '</password>';
-		$xml_sicetac .= '</acceso>';
-		$xml_sicetac .= '<solicitud>';
-		$xml_sicetac .= '<tipo>2</tipo>';
-		$xml_sicetac .= '<procesoid>26</procesoid>';
-		$xml_sicetac .= '</solicitud>';
-		$xml_sicetac .= '<variables>';
-		$xml_sicetac .= 'VALOR';
-		$xml_sicetac .= '</variables>';
-		$xml_sicetac .= '<documento>';
-		// $xml_sicetac .= "<PERIODO>'" . (int) date('Ym') . "'</PERIODO>";
-		$xml_sicetac .= "<PERIODO>'202503'</PERIODO>";
-		// $xml_sicetac .= "<CONFIGURACION>'" . $CostosEficientesSicetac->configuracion_vehiculo[0] . "'</CONFIGURACION>";
-		$xml_sicetac .= "<CONFIGURACION>'3S3'</CONFIGURACION>";
-		// $xml_sicetac .= "<ORIGEN>'" . $CostosEficientesSicetac->origen_sicetac[0] . "'</ORIGEN>";
-		$xml_sicetac .= "<ORIGEN>'11001000'</ORIGEN> ";
-		// $xml_sicetac .= "<DESTINO>'" . $CostosEficientesSicetac->destino_sicetac[0] . "'</DESTINO>";
-		$xml_sicetac .= " <DESTINO>'5001000'</DESTINO>";
-		// $xml_sicetac .= "<NOMBREUNIDADTRANSPORTE>'" . $CostosEficientesSicetac->unidad_transporte[0] . "'</NOMBREUNIDADTRANSPORTE>";
-		// $xml_sicetac .= " <NOMBREUNIDADTRANSPORTE>'ESTIBAS'</NOMBREUNIDADTRANSPORTE>";
-		// $xml_sicetac .= "<NOMBRETIPOCARGA>'" . $CostosEficientesSicetac->tipo_carga[0] . "'</NOMBRETIPOCARGA>";
-		// $xml_sicetac .= " <NOMBRETIPOCARGA>'General'</NOMBRETIPOCARGA> ";
-		$xml_sicetac .= '</documento>';
-		$xml_sicetac .= '</root>';
-
-		echo "<pre>" . htmlspecialchars($xml_sicetac) . "</pre>";
-		exit; // Detiene la ejecución después de imprimir
-
-		$result_sicetac = $this->rndc_conexion($xml_sicetac);
-		// Si no hay respuesta o el XML es inválido
-		if (!$result_sicetac || !simplexml_load_string($result_sicetac)) {
-			$data['status'] = 'false';
-			$data['resultado'] = 'Error en la conexión o respuesta no válida.';
-			echo json_encode($data);
-			return;
-		}
-
-		// Cargar la respuesta como XML
-		$xml = simplexml_load_string(mb_convert_encoding($result_sicetac, 'UTF-8', from_encoding: 'ISO-8859-1'));
-
-		// Verificar si hay un error específico en la respuesta
-		if (isset($xml->ErrorMSG)) {
-			$data['status'] = 'false';
-			$data['codigo'] = (string)$xml->ErrorMSG['codigo'] ?? 'Desconocido';
-			$data['mensaje'] = (string)$xml->ErrorMSG;
-			echo json_encode($data);
-			return;
-		}
-
-		// Procesar la respuesta exitosa
-		$json = json_encode($xml);
-		$resultm = json_decode($json, associative: true);
-
-		$data['status'] = 'true';
-		$data['resultado'] = $resultm;
-		echo json_encode($data);
-
-		exit(); */
-
 		$nit = $_POST["nit"];
 		$digito = $_POST["digito"];
 		$dire = $_POST["direccion_cotizacion"];
@@ -913,5 +853,20 @@ class servicioclienteController extends Controller
 		$soli_servi = $_POST['soli_servi'];
 		$this->_lita_empresas = $this->_modelo->ListarDestinatarios($soli_servi);
 		echo json_encode($this->_lita_empresas);
+	}
+
+	public function actualizar_session()
+	{
+		// Si existe una sesión previa para 'ventana_id', la eliminamos
+		if (isset($_SESSION['ventana_id'])) {
+			unset($_SESSION['ventana_id']);
+		}
+
+		if (isset($_POST['ventana_id'])) {
+			$_SESSION['ventana_id'] = $_POST['ventana_id'];
+			echo json_encode(['status' => 'ok', 'ventana_id' => $_SESSION['ventana_id']]);
+		} else {
+			echo json_encode(['status' => 'error', 'message' => 'ID no recibido']);
+		}
 	}
 }
