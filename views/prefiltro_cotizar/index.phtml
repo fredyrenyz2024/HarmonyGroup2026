@@ -673,79 +673,82 @@ $vista .= '
       </div>
       <div class="modal-body">
         <div id="msg_tarifa_subasta"></div>
-        <div id="content_ver">
-          <div id="titlu"></div>
-          <input type="hidden" id="ssidflete">
-          <input type="hidden" id="idpareja_origen_destino">
-          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 msg"></div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Subasta</label>
-            <input type="text" id="ssubnum" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Nombre cliente</label>
-            <input type="text" id="sscliente" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">num seguridad</label>
-            <input type="text" id="ssseguridad" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Solicitud de servicio</label>
-            <input type="text" id="ssservicio" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Placa</label>
-            <input type="text" id="ssplaca" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Flete sugerido</label>
-            <input type="text" id="ssfsugerido" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700; color:orange;">Flete propuesto</label>
-            <input type="text" id="ssfpropuesto" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Acepta Flete:</label>
-            <select id="respuesta_flete_s" class="form-control input-xs">
-              <option value="">Seleccione</option>
-              <option value="1">Si</option>
-              <option value="0">No</option>
-            </select>
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <button id="repuesta_flete" class="btn btn-sm btn-primary">Guardar</button>
-          </div>
+        <div class="row">
+          <div id="content_ver">
+            <div id="titlu"></div>
+            <input type="hidden" id="ssidflete">
+            <input type="hidden" id="idpareja_origen_destino">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 msg"></div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Subasta</label>
+              <input type="text" id="ssubnum" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Nombre cliente</label>
+              <input type="text" id="sscliente" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">num seguridad</label>
+              <input type="text" id="ssseguridad" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Solicitud de servicio</label>
+              <input type="text" id="ssservicio" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Placa</label>
+              <input type="text" id="ssplaca" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Flete sugerido</label>
+              <input type="text" id="ssfsugerido" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700; color:orange;">Flete propuesto</label>
+              <input type="text" id="ssfpropuesto" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Acepta Flete:</label>
+              <select id="respuesta_flete_s" class="form-control input-xs">
+                <option value="">Seleccione</option>
+                <option value="1">Si</option>
+                <option value="0">No</option>
+              </select>
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <button id="repuesta_flete" class="btn btn-sm btn-primary">Guardar</button>
+            </div>
+  
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <hr>
+              </hr>
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Tarifa venta</label>
+              <input type="text" id="sstarifasold" class="form-control input-xs" onchange="cambia_tarifa()">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Utilidad</label>
+              <input type="text" id="ss_utilidad" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Rentabilidad</label>
+              <input type="text" id="ss_rentabilidad" class="form-control input-xs" readonly="readonly">
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Ajuste de tarifa</label>
+              <select id="ssaprobar" class="form-control input-xs">
+                <option value="">Seleccione</option>
+              </select>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              <label class="control-label" style="font-weight: 700">Estado Flete</label>
+              <input type="text" id="estado_flete" class="form-control input-sm" readonly="readonly">
+            </div>
+          </div><!--conten fin -->
+          <div class="row"></div>
 
-          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <hr>
-            </hr>
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Tarifa venta</label>
-            <input type="text" id="sstarifasold" class="form-control input-xs" onchange="cambia_tarifa()">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Utilidad</label>
-            <input type="text" id="ss_utilidad" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Rentabilidad</label>
-            <input type="text" id="ss_rentabilidad" class="form-control input-xs" readonly="readonly">
-          </div>
-          <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Ajuste de tarifa</label>
-            <select id="ssaprobar" class="form-control input-xs">
-              <option value="">Seleccione</option>
-            </select>
-          </div>
-          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <label class="control-label" style="font-weight: 700">Estado Flete</label>
-            <input type="text" id="estado_flete" class="form-control input-sm" readonly="readonly">
-          </div>
-        </div><!--conten fin -->
-        <div class="row"></div>
+        </div>
       </div>
       <div class="modal-footer">
         <button id="btnaprobar_tarifa" class="btn btn-success">Guardar</button>
@@ -1718,82 +1721,82 @@ echo $vista;
           }); //cierre del boton
 
 
-          $("#btn_etarifa" + cont + "").click(function() {
-            var idcotizar = $(this).attr('data-id');
-            var solicitud = $(this).attr('data-id2');
-            var datos = {
-              n_servicio: solicitud,
-              action: 'consulta_datos_subasta'
-            };
-            $.ajax({
-              url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
-              type: 'POST',
-              data: datos,
-              dataType: 'json',
-              success: function(data) {
-                if (data.result != null) {
+          // $("#btn_etarifa" + cont + "").click(function() {
+          //   var idcotizar = $(this).attr('data-id');
+          //   var solicitud = $(this).attr('data-id2');
+          //   var datos = {
+          //     n_servicio: solicitud,
+          //     action: 'consulta_datos_subasta'
+          //   };
+          //   $.ajax({
+          //     url: $('#id_url_ajax').val() + "libs/servicio_cliente_ajax.php",
+          //     type: 'POST',
+          //     data: datos,
+          //     dataType: 'json',
+          //     success: function(data) {
+          //       if (data.result != null) {
 
-                  if (data.result[0].acepta_flete == 'null') {
-                    document.getElementById("sstarifasold").disabled = true;
-                    document.getElementById("ssaprobar").disabled = true;
-                    $('#btnaprobar_tarifa').attr('disabled', true);
-                    document.getElementById("respuesta_flete_s").disabled = false;
-                    document.getElementById("repuesta_flete").disabled = false;
-                  }
-                  if (data.result[0].acepta_flete == 'Aceptado') {
-                    document.getElementById("sstarifasold").disabled = false;
-                    document.getElementById("ssaprobar").disabled = false;
-                    $('#btnaprobar_tarifa').attr('disabled', false);
-                    document.getElementById("respuesta_flete_s").disabled = true;
-                    document.getElementById("repuesta_flete").disabled = true;
-                  }
+          //         if (data.result[0].acepta_flete == 'null') {
+          //           document.getElementById("sstarifasold").disabled = true;
+          //           document.getElementById("ssaprobar").disabled = true;
+          //           $('#btnaprobar_tarifa').attr('disabled', true);
+          //           document.getElementById("respuesta_flete_s").disabled = false;
+          //           document.getElementById("repuesta_flete").disabled = false;
+          //         }
+          //         if (data.result[0].acepta_flete == 'Aceptado') {
+          //           document.getElementById("sstarifasold").disabled = false;
+          //           document.getElementById("ssaprobar").disabled = false;
+          //           $('#btnaprobar_tarifa').attr('disabled', false);
+          //           document.getElementById("respuesta_flete_s").disabled = true;
+          //           document.getElementById("repuesta_flete").disabled = true;
+          //         }
 
-                  $(".msg").html('');
-                  $("#estado_flete").val(data.result[0].acepta_flete);
-                  $("#ssidflete").val(data.result[0].idflete);
-                  $("#ssubnum").val(data.result[0].id_suba);
-                  $("#sscliente").val(data.result[0].nombre_cliente);
-                  $("#ssseguridad").val(data.result[0].num_estudioseguridad);
-                  $("#ssservicio").val(data.result[0].numer_solservicio);
-                  $("#ssplaca").val(data.result[0].placa);
-                  $("#ssfsugerido").val(data.result[0].flete_sugerido);
-                  $("#ssfpropuesto").val(data.result[0].flete_propuesto);
-                  $("#sstarifasold").val(data.result[0].tarifa_promedio);
-                  $("#idpareja_origen_destino").val(data.result[0].parejaorigen);
-                  //calcular utilidad + rentabilidad
-                  let a = (data.result[0].tarifa_promedio).replace(/,/g, "");
-                  let b = (data.result[0].flete_propuesto).replace(/,/g, "");
-                  let rent = (parseFloat(a) - parseFloat(b));
-                  $("#ss_rentabilidad").val(rent);
-                  let calculo = (parseFloat(rent) / parseFloat(a));
-                  let res = (parseFloat(calculo) * 100);
-                  let util = res.toFixed(2);
-                  $("#ss_utilidad").val(util);
-                  $("#ss_rentabilidad").val(parseFloat($("#ss_rentabilidad").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
-                  $("#ssfpropuesto").val(parseFloat($("#ssfpropuesto").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
-                  //  $("#sstarifasold").val(parseFloat($("#sstarifasold").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
-                  if (parseFloat(util) >= parseFloat(15)) {
-                    $("#ssaprobar").html('<option value="aprobado_sac">Ajustar</option>');
-                  } else {
-                    $("#ssaprobar").html('<option value="no_aprobado_sac">No ajustar</option>');
-                  }
-                } else {
-                  var msg_error = "";
-                  msg_error += "<p>No hay tarifas registradas para esta solicitud.</p>";
-                  $(".msg").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
-                  $("#consulta_sub").animate({
-                    scrollTop: 0
-                  }, 600);
-                }
-              },
-              error: function(jqXHR, textStatus, errorThrown) {
-                // console.log('no trajomunis');
-                console.log(jqXHR);
-                console.log(textStatus);
-                console.log(errorThrown);
-              }
-            });
-          });
+          //         $(".msg").html('');
+          //         $("#estado_flete").val(data.result[0].acepta_flete);
+          //         $("#ssidflete").val(data.result[0].idflete);
+          //         $("#ssubnum").val(data.result[0].id_suba);
+          //         $("#sscliente").val(data.result[0].nombre_cliente);
+          //         $("#ssseguridad").val(data.result[0].num_estudioseguridad);
+          //         $("#ssservicio").val(data.result[0].numer_solservicio);
+          //         $("#ssplaca").val(data.result[0].placa);
+          //         $("#ssfsugerido").val(data.result[0].flete_sugerido);
+          //         $("#ssfpropuesto").val(data.result[0].flete_propuesto);
+          //         $("#sstarifasold").val(data.result[0].tarifa_promedio);
+          //         $("#idpareja_origen_destino").val(data.result[0].parejaorigen);
+          //         //calcular utilidad + rentabilidad
+          //         let a = (data.result[0].tarifa_promedio).replace(/,/g, "");
+          //         let b = (data.result[0].flete_propuesto).replace(/,/g, "");
+          //         let rent = (parseFloat(a) - parseFloat(b));
+          //         $("#ss_rentabilidad").val(rent);
+          //         let calculo = (parseFloat(rent) / parseFloat(a));
+          //         let res = (parseFloat(calculo) * 100);
+          //         let util = res.toFixed(2);
+          //         $("#ss_utilidad").val(util);
+          //         $("#ss_rentabilidad").val(parseFloat($("#ss_rentabilidad").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+          //         $("#ssfpropuesto").val(parseFloat($("#ssfpropuesto").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+          //         //  $("#sstarifasold").val(parseFloat($("#sstarifasold").val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+          //         if (parseFloat(util) >= parseFloat(15)) {
+          //           $("#ssaprobar").html('<option value="aprobado_sac">Ajustar</option>');
+          //         } else {
+          //           $("#ssaprobar").html('<option value="no_aprobado_sac">No ajustar</option>');
+          //         }
+          //       } else {
+          //         var msg_error = "";
+          //         msg_error += "<p>No hay tarifas registradas para esta solicitud.</p>";
+          //         $(".msg").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + msg_error + '</div></div>');
+          //         $("#consulta_sub").animate({
+          //           scrollTop: 0
+          //         }, 600);
+          //       }
+          //     },
+          //     error: function(jqXHR, textStatus, errorThrown) {
+          //       // console.log('no trajomunis');
+          //       console.log(jqXHR);
+          //       console.log(textStatus);
+          //       console.log(errorThrown);
+          //     }
+          //   });
+          // });
 
 
           $("#btn_ver" + cont + "").click(function() {
@@ -2341,46 +2344,46 @@ echo $vista;
     }
   });
 
-  function Aprobar_Tarifa() {
-    var sidflete = $("#ssidflete").val();
-    var subasta = $("#ssubnum").val();
-    var cliente = $("#sscliente").val();
-    var tarifa = $("#sstarifasold").val().replace(/,/g, "");
-    var estado = $("#ssaprobar").val();
-    var idpareja = $("#idpareja_origen_destino").val();
-    //update en el campo nuevo de estado estado_sac
-    //insert en el campo nuevo de detalle de mercancia
-    // tarifa_subasta  responsable
-    var dato = {
-      sidflete: sidflete,
-      subasta: subasta,
-      tarifa: tarifa,
-      estado: estado,
-      idpareja: idpareja,
-      action: 'Aprueba_Sac'
-    };
-    $.ajax({
-      url: $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php",
-      type: 'POST',
-      data: dato,
-      dataType: 'json',
-      success: function(data) {
-        alert('Se Registro Exitosamente!!!');
-        $("html, body").animate({
-          scrollTop: 0
-        }, 600);
-        setTimeout(function() {
-          location.reload(false);
-        }, 800);
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log('error error');
-        console.log(jqXHR);
-        console.log(textStatus);
-        console.log(errorThrown);
-      }
-    });
-  }
+  // function Aprobar_Tarifa() {
+  //   var sidflete = $("#ssidflete").val();
+  //   var subasta = $("#ssubnum").val();
+  //   var cliente = $("#sscliente").val();
+  //   var tarifa = $("#sstarifasold").val().replace(/,/g, "");
+  //   var estado = $("#ssaprobar").val();
+  //   var idpareja = $("#idpareja_origen_destino").val();
+  //   //update en el campo nuevo de estado estado_sac
+  //   //insert en el campo nuevo de detalle de mercancia
+  //   // tarifa_subasta  responsable
+  //   var dato = {
+  //     sidflete: sidflete,
+  //     subasta: subasta,
+  //     tarifa: tarifa,
+  //     estado: estado,
+  //     idpareja: idpareja,
+  //     action: 'Aprueba_Sac'
+  //   };
+  //   $.ajax({
+  //     url: $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php",
+  //     type: 'POST',
+  //     data: dato,
+  //     dataType: 'json',
+  //     success: function(data) {
+  //       alert('Se Registro Exitosamente!!!');
+  //       $("html, body").animate({
+  //         scrollTop: 0
+  //       }, 600);
+  //       setTimeout(function() {
+  //         location.reload(false);
+  //       }, 800);
+  //     },
+  //     error: function(jqXHR, textStatus, errorThrown) {
+  //       console.log('error error');
+  //       console.log(jqXHR);
+  //       console.log(textStatus);
+  //       console.log(errorThrown);
+  //     }
+  //   });
+  // }
 
   function cambia_tarifa() {
     tarifa = $("#sstarifasold").val().replace(/,/g, "");
@@ -2401,56 +2404,56 @@ echo $vista;
     }
   }
 
-  $("#repuesta_flete").click(function() {
-    flete_propu = $("#ssfpropuesto").val();
-    tarifa_pro = $("#sstarifasold").val();
-    utilidad = $("#ss_utilidad").val();
-    rentabili = $("#ss_rentabilidad").val();
-    subasta = $("#ssubnum").val();
-    rta = $("#respuesta_flete_s").val();
-    var sidflete = $("#ssidflete").val();
-    ss = $("#ssservicio").val();
-    var rta_flete = {
-      sidflete: sidflete,
-      flete_propu: flete_propu,
-      tarifa_pro: tarifa_pro,
-      utilidad: utilidad,
-      rentabili: rentabili,
-      subasta: subasta,
-      estado: rta,
-      nservicio: ss,
-      action: 'respuesta_flete'
-    };
-    $.ajax({
-      url: $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php",
-      type: 'POST',
-      data: rta_flete,
-      dataType: 'json',
-      success: function(data) {
-        if (rta == 1) {
-          //activar boton y ajuste tarifa
-          alert('Se Registro Exitosamente!!!');
-          document.getElementById("sstarifasold").disabled = false;
-          document.getElementById("ssaprobar").disabled = false;
-          $('#btnaprobar_tarifa').attr('disabled', false);
-        } else {
-          alert('Se Registro Exitosamente!!!');
-          $("html, body").animate({
-            scrollTop: 0
-          }, 600);
-          setTimeout(function() {
-            location.reload(false);
-          }, 800);
-        }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log('error error');
-        console.log(jqXHR);
-        console.log(textStatus);
-        console.log(errorThrown);
-      }
-    });
-  });
+  // $("#repuesta_flete").click(function() {
+  //   flete_propu = $("#ssfpropuesto").val();
+  //   tarifa_pro = $("#sstarifasold").val();
+  //   utilidad = $("#ss_utilidad").val();
+  //   rentabili = $("#ss_rentabilidad").val();
+  //   subasta = $("#ssubnum").val();
+  //   rta = $("#respuesta_flete_s").val();
+  //   var sidflete = $("#ssidflete").val();
+  //   ss = $("#ssservicio").val();
+  //   var rta_flete = {
+  //     sidflete: sidflete,
+  //     flete_propu: flete_propu,
+  //     tarifa_pro: tarifa_pro,
+  //     utilidad: utilidad,
+  //     rentabili: rentabili,
+  //     subasta: subasta,
+  //     estado: rta,
+  //     nservicio: ss,
+  //     action: 'respuesta_flete'
+  //   };
+  //   $.ajax({
+  //     url: $("#id_url_ajax").val() + "libs/servicio_cliente_ajax.php",
+  //     type: 'POST',
+  //     data: rta_flete,
+  //     dataType: 'json',
+  //     success: function(data) {
+  //       if (rta == 1) {
+  //         //activar boton y ajuste tarifa
+  //         alert('Se Registro Exitosamente!!!');
+  //         document.getElementById("sstarifasold").disabled = false;
+  //         document.getElementById("ssaprobar").disabled = false;
+  //         $('#btnaprobar_tarifa').attr('disabled', false);
+  //       } else {
+  //         alert('Se Registro Exitosamente!!!');
+  //         $("html, body").animate({
+  //           scrollTop: 0
+  //         }, 600);
+  //         setTimeout(function() {
+  //           location.reload(false);
+  //         }, 800);
+  //       }
+  //     },
+  //     error: function(jqXHR, textStatus, errorThrown) {
+  //       console.log('error error');
+  //       console.log(jqXHR);
+  //       console.log(textStatus);
+  //       console.log(errorThrown);
+  //     }
+  //   });
+  // });
 
   function contador_solicitud(fecha_i, fecha_f) {
     var dato_conteo = {

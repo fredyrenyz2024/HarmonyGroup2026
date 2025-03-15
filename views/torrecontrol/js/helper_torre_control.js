@@ -1,0 +1,905 @@
+$(document).ready(function () {
+
+  document.addEventListener("click", async (e) => {
+    if (e.target.matches("#btn_asignar_proveedor") || e.target.matches("#btn_asignar_proveedor *")) {
+      let enlace = e.target.closest("#btn_asignar_proveedor");
+      let dataId = enlace.getAttribute("data-id");
+      let dataId2 = enlace.getAttribute("data-id2");
+
+      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Asignar proveedor solicitud de servicio`);
+
+      // Mostrar un indicador de carga mientras se obtienen los datos
+      myOffcanvas.updateContent(`
+        <div class="col-12">
+          <div class="row">
+            <table class="table table-sm" style="font-size: 12px;">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Proveedor</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbody_proveedor_torre_control">
+                <tr><td colspan="4" class="text-center">Cargando proveedores...</td></tr>
+              </tbody>
+            </table>
+
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+              <div class="mb-3">
+                <label class="control-label">(*) Fecha Vencimiento:</label>
+                <input type="date" class="form-control form-control-sm" id="fecha_vencimiento" name="fecha_vencimiento">
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+              <div class="mb-3">
+                <label class="control-label">(*) Hora Vencimiento:</label>
+                <input type="time" class="form-control form-control-sm" id="hora_vencimiento" name="hora_vencimiento">
+              </div>
+            </div>
+
+            <div class="col-12 gy-6 my-3">
+              <div class="row g-3 justify-content-end">
+                <div class="col-auto">
+                  <button class="btn btn-phoenix-primary btn-sm text-danger" type="button" id="btn-cancelar">
+                    <span class="text-danger" data-feather="x"></span> Cancelar
+                  </button>
+                </div>
+
+                <div class="col-auto">
+                  <button class="btn btn-primary btn-sm" id="btn_asignacion_proveedor" type="button" data-numdoc_solicitud="${dataId}">
+                    <span class="uil uil-save"></span> Guardar Asignación
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `);
+
+      try {
+        let formData = new FormData();
+        formData.append("dataId2", dataId2);
+
+        let response = await fetch($('#base_url').val() + 'torrecontrol/listar_proveedores_cliente', {
+          method: "POST",
+          body: formData
+        });
+
+        let data = await response.json();
+        if (data) {
+          let rows = "";
+          data.forEach((proveedor, index) => {
+            rows += `
+                <tr>
+                  <th scope="row">${index + 1}</th>
+                  <td>${proveedor.razon_social}</td>
+                  <td>${proveedor.estado_proveedor}</td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                      <button class="btn btn-subtle-warning btn-sm me-1 px-1 py-0 asignar-proveedor" id="btn_listar_servicios" data-id="${proveedor.id}" type="button">
+                        Servicios
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr id="servicios_${proveedor.id}" style="display: none;">
+                  <td colspan="4">
+                    <div class="lista-servicios"></div>
+                  </td>
+                </tr>
+              `;
+          });
+
+          document.getElementById("tbody_proveedor_torre_control").innerHTML = rows;
+        } else {
+          document.getElementById("tbody_proveedor_torre_control").innerHTML = `<tr><td colspan="4" class="text-center text-danger">${data.message}</td></tr>`;
+        }
+      } catch (error) {
+        console.error("Error al obtener proveedores:", error);
+        document.getElementById("tbody_proveedor_torre_control").innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error al cargar proveedores</td></tr>`;
+      }
+
+      myOffcanvas.show();
+    }
+
+    // 🚀 Evento para listar servicios cuando se haga clic en "Servicios"
+    if (e.target.matches("#btn_listar_servicios") || e.target.matches("#btn_listar_servicios *")) {
+      let enlace = e.target.closest("#btn_listar_servicios");
+      let proveedorId = enlace.getAttribute("data-id");
+      let filaServicios = document.getElementById(`servicios_${proveedorId}`);
+
+      // Mostrar u ocultar la fila de servicios
+      if (filaServicios.style.display === "none") {
+        filaServicios.style.display = "table-row";
+
+        // Obtener servicios si aún no se han cargado
+        if (filaServicios.querySelector(".lista-servicios").innerHTML.trim() === "") {
+          try {
+            let formData = new FormData();
+            formData.append("proveedor_id", proveedorId);
+
+            let response = await fetch($('#base_url').val() + 'torrecontrol/listar_servicios_proveedor', {
+              method: "POST",
+              body: formData
+            });
+
+            let data = await response.json();
+
+            if (data) {
+              let serviciosHTML = '<ul class="list-group">';
+              data.forEach((servicio) => {
+                serviciosHTML += `
+                  <li class="list-group-item d-flex align-items-center p-1">
+                    <!--<i class="uil uil-folder text-warning me-2"></i>-->
+                    <div class="form-check form-switch">
+                      <input class="form-check-input me-2" type="checkbox" name="servicioProveedor" id="servicio_${servicio.id}" value="${servicio.id}" data-idProveedor="${proveedorId}">
+                      <label for="servicio_${servicio.id}" class="flex-grow-1">${servicio.tipo_servicio}</label>
+                    </div>
+                  </li>
+                `;
+              });
+              serviciosHTML += '</ul>';
+
+              filaServicios.querySelector(".lista-servicios").innerHTML = serviciosHTML;
+            } else {
+              filaServicios.querySelector(".lista-servicios").innerHTML = `<p class="text-danger">${data.message}</p>`;
+            }
+          } catch (error) {
+            console.error("Error al obtener servicios:", error);
+            filaServicios.querySelector(".lista-servicios").innerHTML = `<p class="text-danger">Error al cargar servicios</p>`;
+          }
+        }
+      } else {
+        filaServicios.style.display = "none";
+      }
+    }
+
+    if (e.target.matches("#btn_asignacion_proveedor") || e.target.matches("#btn_asignacion_proveedor *")) {
+      let enlace = e.target.closest("#btn_asignacion_proveedor");
+      let numdocSolicitud = enlace.getAttribute("data-numdoc_solicitud");
+
+      let asignaciones = [];
+
+      document.querySelectorAll('input[name="servicioProveedor"]:checked').forEach((checkbox) => {
+        let servicioId = checkbox.value;
+        let proveedorId = checkbox.getAttribute("data-idProveedor");
+
+        asignaciones.push({
+          servicio_id: servicioId,
+          proveedor_id: proveedorId
+        });
+      });
+
+      if (asignaciones.length === 0) {
+        alert("Debe seleccionar al menos un servicio y un proveedor.");
+        return;
+      }
+
+      const result = await Swal.fire({
+        title: "Seguro",
+        text: "¿Desea guardar asignacion del proveedor?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3B71CA",
+        cancelButtonColor: "#9FA6B2",
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+          popup: "swal2-custom-font",
+        },
+      });
+
+      if (result.isConfirmed) {
+        const btn = document.querySelector("#btn_asignacion_proveedor");
+
+        btn.disabled = true;
+        btn.innerHTML = "Asignando Proveedor... ⏳";
+
+        let formData = new FormData();
+        formData.append("numdocSolicitud", numdocSolicitud);
+        formData.append("asignaciones", JSON.stringify(asignaciones));
+        formData.append("fecha_vencimiento", document.getElementById("fecha_vencimiento").value);
+        formData.append("hora_vencimiento", document.getElementById("hora_vencimiento").value);
+
+        try {
+          const response = await fetch($('#base_url').val() + 'torrecontrol/insertar_asignacion', {
+            method: 'POST',
+            body: formData,
+            cache: 'no-cache',
+          });
+
+          const data = await response.json();
+
+          Swal.fire({
+            title: "Mensaje!",
+            text: data.message,
+            icon: data.status ? "success" : "error",
+            draggable: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // location.reload(); // Recargar la página
+              myOffcanvas.hide();
+              listar_pedidos_administrador(fechaColombia, fechaColombia);
+            }
+          });
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire("Error", "Error al enviar datos al servidor.", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "<span class='uil uil-save'></span> Guardar Asignación";
+        }
+      }
+    }
+
+    if (e.target.matches("#btn_publicar_pedido") || e.target.matches("#btn_publicar_pedido *")) {
+      let enlace = e.target.closest("#btn_publicar_pedido");
+      let dataId = enlace.getAttribute("data-id");
+      let dataId2 = enlace.getAttribute("data-id2");
+
+      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Publicar Pedido ${dataId}`);
+
+      // Mostrar un indicador de carga mientras se obtienen los datos
+      myOffcanvas.updateContent(`
+        <div class="col-12">
+          <div class="row">
+            <table class="table table-sm" style="font-size: 12px;">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Servicio</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Acción</th>
+                  <th scope="col">Seleccionar</th>
+                </tr>
+              </thead>
+              <tbody id="tbody_servicio_torre_control">
+                <tr><td colspan="4" class="text-center">Cargando servicios...</td></tr>
+              </tbody>
+            </table>
+
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+              <div class="mb-3">
+                <label class="control-label">(*) Fecha Vencimiento:</label>
+                <input type="date" class="form-control form-control-sm" id="fecha_vencimiento" name="fecha_vencimiento">
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+              <div class="mb-3">
+                <label class="control-label">(*) Hora Vencimiento:</label>
+                <input type="time" class="form-control form-control-sm" id="hora_vencimiento" name="hora_vencimiento">
+              </div>
+            </div>
+
+            <div class="col-12 gy-6 my-3">
+              <div class="row g-3 justify-content-end">
+                <div class="col-auto">
+                  <button class="btn btn-phoenix-primary btn-sm text-danger" type="button" id="btn-cancelar">
+                    <span class="text-danger" data-feather="x"></span> Cancelar
+                  </button>
+                </div>
+
+                <div class="col-auto">
+                  <button class="btn btn-primary btn-sm" id="btn_publicacion_pedido" type="button" data-numdoc_solicitud="${dataId}">
+                    <span class="uil uil-save"></span> Publicar Pedido
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `);
+
+
+      try {
+        let formData = new FormData();
+        formData.append("dataId2", dataId2);
+
+        let response = await fetch($('#base_url').val() + 'torrecontrol/listar_servicio_proveedor', {
+          method: "POST",
+          body: formData
+        });
+
+        let data = await response.json();
+        if (data) {
+          let rows = "";
+          data.forEach((servicio, index) => {
+            rows += `
+                <tr>
+                  <th scope="row">${index + 1}</th>
+                  <td>${servicio.tipo_servicio}</td>
+                  <td>${servicio.esatdo_servicio}</td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                      <button class="btn btn-subtle-warning btn-sm me-1 px-1 py-0 asignar-servicio" id="btn_listar_proveedores" data-id="${servicio.cliente_id}" data-id2="${servicio.servicio_id}" type="button">
+                        Proveedores
+                      </button>
+                    </div>
+                  </td>
+                  <td><div class="form-check form-switch"><input class="form-check-input me-2" type="checkbox" name="ProveedorServicio" data-clienId="${servicio.cliente_id}" id="servicio_${servicio.servicio_id}" value="${servicio.servicio_id}"></div></td>
+                </tr>
+                <tr id="proveedores_${servicio.servicio_id}" style="display: none;">
+                  <td colspan="5">
+                    <div class="lista-proveedores"></div>
+                  </td>
+                </tr>
+              `;
+          });
+
+          document.getElementById("tbody_servicio_torre_control").innerHTML = rows;
+        } else {
+          document.getElementById("tbody_servicio_torre_control").innerHTML = `<tr><td colspan="4" class="text-center text-danger">${data.message}</td></tr>`;
+        }
+      } catch (error) {
+        console.error("Error al obtener proveedores:", error);
+        document.getElementById("tbody_servicio_torre_control").innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error al cargar proveedores</td></tr>`;
+      }
+
+      myOffcanvas.show();
+    }
+
+    if (e.target.matches("#btn_listar_proveedores") || e.target.matches("#btn_listar_proveedores *")) {
+      let enlace = e.target.closest("#btn_listar_proveedores");
+      let clienId = enlace.getAttribute("data-id");
+      let ServicioId = enlace.getAttribute("data-id2");
+
+      await mostrarProveedores(clienId, ServicioId);
+    }
+
+    if (e.target.matches("#btn_publicacion_pedido") || e.target.matches("#btn_publicacion_pedido *")) {
+      let enlace = e.target.closest("#btn_publicacion_pedido");
+      let numdocSolicitud = enlace.getAttribute("data-numdoc_solicitud");
+
+      let seleccionados = [];
+      let ArrayProveedoresseleccionados = [];
+
+      document.querySelectorAll("input[name='ProveedorServicio']:checked").forEach((checkbox) => {
+        let servicioId = checkbox.value;
+        let proveedores = document.querySelectorAll(`#proveedores_${servicioId} input[name='ServiciosProveedores']`);
+        let proveedoresSeleccionados = [];
+
+        proveedores.forEach((input) => {
+          // Si el proveedor no está en el array, lo agregamos
+          proveedoresSeleccionados.push(input.value);
+          if (!ArrayProveedoresseleccionados.includes(input.value)) {
+            ArrayProveedoresseleccionados.push(input.value); // Guardamos en el array global
+          }
+        });
+
+        seleccionados.push({
+          servicio_id: servicioId,
+          proveedores: proveedoresSeleccionados
+        });
+      });
+
+      // console.log(seleccionados);
+      // console.log(ArrayProveedoresseleccionados); // Muestra la lista global sin duplicados
+
+
+      if (seleccionados.length === 0) {
+        Swal.fire("Error", "Debe seleccionar al menos un servicio y un proveedor.", "error");
+        return;
+      }
+
+      let fechaVencimiento = document.getElementById("fecha_vencimiento").value.trim();
+      let horaVencimiento = document.getElementById("hora_vencimiento").value.trim();
+
+      if (!fechaVencimiento || !horaVencimiento) {
+        Swal.fire("Error", "Debe seleccionar fecha y hora de vencimiento.", "error");
+        return;
+      }
+
+      const result = await Swal.fire({
+        title: "¿Seguro?",
+        text: "¿Desea guardar publicación del pedido?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3B71CA",
+        cancelButtonColor: "#9FA6B2",
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar",
+        customClass: { popup: "swal2-custom-font" },
+      });
+
+      if (result.isConfirmed) {
+        const btn = document.querySelector("#btn_publicacion_pedido");
+
+        btn.disabled = true;
+        btn.innerHTML = "Publicando Pedido... ⏳";
+
+        let formData = new FormData();
+        formData.append("numdocSolicitud", numdocSolicitud);
+        formData.append("seleccionados", JSON.stringify(seleccionados));
+        formData.append("fecha_vencimiento", fechaVencimiento);
+        formData.append("hora_vencimiento", horaVencimiento);
+        formData.append("Proveedoresseleccionados", JSON.stringify(ArrayProveedoresseleccionados));
+        formData.append("proceso", 'Publicación');
+
+        try {
+          const response = await fetch($('#base_url').val() + "torrecontrol/publicar_pedido", {
+            method: "POST",
+            body: formData,
+            cache: "no-cache",
+          });
+
+          if (!response.ok) {
+            const text = await response.text(); // Captura la respuesta completa en texto
+            console.error("Error en la respuesta del servidor:", response.status, text);
+            Swal.fire("Error", `Error ${response.status}: ${text}`, "error");
+            return;
+          }
+
+          const data = await response.json();
+
+          Swal.fire({
+            title: "Mensaje!",
+            text: data.message,
+            icon: data.status ? "success" : "error",
+            draggable: true,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              myOffcanvas.hide();
+              listar_pedidos_administrador(fechaColombia, fechaColombia);
+            }
+          });
+
+        } catch (err) {
+          console.error("Error en fetch:", err);
+          Swal.fire("Error", "Error al enviar datos al servidor.", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "<span class='uil uil-save'></span> Publicar Pedido";
+        }
+      }
+    }
+
+    if (e.target.matches("#btn_detalle_proceso") || e.target.matches("#btn_detalle_proceso *")) {
+      let enlace = e.target.closest("#btn_detalle_proceso");
+      let Solicitud = enlace.getAttribute("data-id");
+      let Cliente = enlace.getAttribute("data-id2");
+      let Proceso = enlace.getAttribute("data-proceso");
+
+      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Destalle Proceso del pedido N°` + Solicitud);
+      myOffcanvas.updateContent(`
+
+        <ul class="list-group d-flex flex-row gap-3">
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2" style="font-size:13px;">
+            Total Servicios Gestionados
+              <span class="badge badge-phoenix badge-phoenix-primary rounded-pill me-2" id="servicios_gestionados">0</span>
+          </li>
+
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2" style="font-size:13px;">
+            Total Servicios Postulados
+              <span class="badge badge-phoenix badge-phoenix-primary rounded-pill me-2" id="servicios_postulados">0</span>
+          </li>
+
+            <!-- Botón al lado de la segunda li -->
+          <button class="btn btn-subtle-primary btn-sm text-right" type="button" id="btn_subastar" style="display: none;" data-id="${Solicitud}">Subastar Servicios</button>
+        </ul>
+        <hr class="my-1">
+        <h5 class="mt-3"> SERVICIOS</h5>
+        <table class="table table-sm" style="font-size:10px;">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">PROCESO</th>
+              <th scope="col">TIPO SERVICIO</th>
+              <th scope="col">PROVEEDOR</th>
+              <th scope="col">FECHA VENCIMIENTO</th>
+              <th scope="col">HORA VENCIMIENTO</th>
+            </tr>
+          </thead>
+          <tbody id="tbody_detalle_proceso"></tbody>
+        </table>
+
+        <h5> SUBASTA</h5>
+
+        <table class="table table-sm" style="font-size:10px;">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">SERVICIO</th>
+              <th scope="col">VALOR SERVICIO</th>
+              <th scope="col">PROVEEDOR</th>
+              <th scope="col">FECHA INICIO</th>
+              <th scope="col">HORA INICIO</th>
+              <th scope="col">FECHA REGISTRO</th>
+              <th scope="col">HORA REGISTRO</th>
+            </tr>
+          </thead>
+          <tbody id="tbody_subasta_proceso"></tbody>
+        </table>
+
+      <h5>RESULTADOS DE LA SUBASTA</h5>
+
+      <table class="table table-sm" style="font-size:10px;">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">SERVICIO</th>
+              <th scope="col">VALOR SERVICIO</th>
+              <th scope="col">PROVEEDOR</th>
+              <th scope="col">FECHA INICIO</th>
+              <th scope="col">HORA INICIO</th>
+              <th scope="col">FECHA REGISTRO</th>
+              <th scope="col">HORA REGISTRO</th>
+            </tr>
+          </thead>
+          <tbody id="tbody_subasta_resultados"></tbody>
+        </table>
+      `);
+
+      try {
+        let formData = new FormData();
+        formData.append("Solicitud", Solicitud);
+
+        let response = await fetch($('#base_url').val() + 'torrecontrol/detalle_proceso', {
+          method: "POST",
+          body: formData
+        });
+
+        let data = await response.json();
+        if (data.consulta_general.length > 0) {
+          let rows = "";
+          data.consulta_general.forEach((proveedor, index) => {
+            rows += `
+                <tr>
+                  <th scope="row">${index + 1}</th>
+                  <td>${proveedor.proceso}</td>
+                  <td>${proveedor.tipo_servicio}</td>
+                  <td>${proveedor.razon_social}</td>
+                  <td>${proveedor.fecha_vencimiento}</td>
+                  <td>${proveedor.hora_vencimiento}</td>
+                  <!--<td>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                      <button class="btn btn-subtle-warning btn-sm me-1 px-1 py-0 asignar-proveedor" id="btn_listar_servicios" data-id="${proveedor.id}" type="button">
+                        Servicios
+                      </button>
+                    </div>
+                  </td>-->
+                </tr>
+                <!--<tr id="servicios_${proveedor.id}" style="display: none;">
+                  <td colspan="4">
+                    <div class="lista-servicios"></div>
+                  </td>
+                </tr>-->
+              `;
+          });
+          document.getElementById("tbody_detalle_proceso").innerHTML = rows;
+        } else {
+          document.getElementById("tbody_detalle_proceso").innerHTML = `<tr><td colspan="4" class="text-center text-danger">${data.message}</td></tr>`;
+        }
+
+        /* LLenar tabla de subasta */
+        if (data.consulta_subasta.length > 0) {
+          let rows = "";
+          data.consulta_subasta.forEach((proveedor, index) => {
+            rows += `
+                <tr>
+                  <th scope="row">${index + 1}</th>
+                  <td>${proveedor.tipo_servicio}</td>
+                  <td>${proveedor.valor_servicio}</td>
+                  <td>${proveedor.razon_social}</td>
+                  <td>${proveedor.fecha_inicio}</td>
+                  <td>${proveedor.hora_inicio}</td>
+                  <td>${proveedor.fecha_actualizacion}</td>
+                  <td>${proveedor.hora_actualizacion}</td>
+                </tr>
+              `;
+          });
+          document.getElementById("tbody_subasta_proceso").innerHTML = rows;
+
+        } else {
+          document.getElementById("tbody_subasta_proceso").innerHTML = `<tr><td colspan="4" class="text-center text-danger">${data.message}</td></tr>`;
+        }
+
+        document.getElementById("servicios_gestionados").innerHTML = data.total_gestionados.total_gestionados;
+        document.getElementById("servicios_postulados").innerHTML = data.total_servicios.total_servicios;
+
+        if (data.total_gestionados.total_gestionados === data.total_servicios.total_servicios) {
+          document.getElementById("btn_subastar").style.display = "";
+        } else {
+          document.getElementById("btn_subastar").style.display = "none";
+        }
+
+      } catch (error) {
+        console.error("Error al obtener proveedores:", error);
+        document.getElementById("tbody_detalle_proceso").innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error al cargar proveedores</td></tr>`;
+      }
+
+      myOffcanvas.show();
+    }
+
+    if (e.target.matches("#btn_observacion_solicitud_servicio") || e.target.matches("#btn_observacion_solicitud_servicio *")) {
+      let enlace = e.target.closest("#btn_observacion_solicitud_servicio");
+      let Observacion = enlace.getAttribute("data-id");
+      let NumdocSolicitud = enlace.getAttribute("data-id2");
+      let SitioCargue = enlace.getAttribute("data-id3");
+      let SitioDescargue = enlace.getAttribute("data-id4");
+      let ReferenciaProducto = enlace.getAttribute("data-id5");
+      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Detalle de solicitud de servicio N°` + NumdocSolicitud);
+      myOffcanvas.updateContent(`<b>Observación:</b> ${Observacion} <br> <b>Sitio Cargue:</b> ${SitioCargue} <br> <b>Sitio Descargue:</b> ${SitioDescargue} <br> <b>Referencia Producto:</b> ${ReferenciaProducto}`);
+      myOffcanvas.show();
+    }
+
+    if (e.target.matches("#btn_marcar_prioridad") || e.target.matches("#btn_marcar_prioridad *")) {
+      let enlace = e.target.closest("#btn_marcar_prioridad");
+      let numdocSolicitud = enlace.getAttribute("data-id");
+      const result = await Swal.fire({
+        title: "Seguro",
+        text: "¿Desea guardar la prioridad?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3B71CA",
+        cancelButtonColor: "#9FA6B2",
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+          popup: "swal2-custom-font",
+        },
+      });
+
+      if (result.isConfirmed) {
+        const btn = document.querySelector("#btn_marcar_prioridad");
+
+        btn.disabled = true;
+        btn.innerHTML = "Asignando Prioridad... ⏳";
+
+        let formData = new FormData();
+        formData.append("numdocSolicitud", numdocSolicitud);
+
+        try {
+          const response = await fetch($('#base_url').val() + 'torrecontrol/Insertar_Prioridad', {
+            method: 'POST',
+            body: formData,
+            cache: 'no-cache',
+          });
+
+          const data = await response.json();
+
+          Swal.fire({
+            title: "Mensaje!",
+            text: data.message,
+            icon: data.status ? "success" : "error",
+            draggable: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // location.reload(); // Recargar la página
+              myOffcanvas.hide();
+              listar_pedidos_administrador(fechaColombia, fechaColombia);
+            }
+          });
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire("Error", "Error al enviar datos al servidor.", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "<span class='uil uil-bell'></span> Marcar como Prioridad";
+        }
+      }
+    }
+
+    if (e.target.matches("#btn_subastar") || e.target.matches("#btn_subastar *")) {
+      let enlace = e.target.closest("#btn_subastar");
+      let numdocSolicitud = enlace.getAttribute("data-id");
+
+      const result = await Swal.fire({
+        title: "Seguro",
+        text: "¿Desea Autorizar la subasta?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3B71CA",
+        cancelButtonColor: "#9FA6B2",
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+          popup: "swal2-custom-font",
+        },
+      });
+
+      if (result.isConfirmed) {
+        const btn = document.querySelector("#btn_subastar");
+
+        btn.disabled = true;
+        btn.innerHTML = "Subastando... ⏳";
+
+        let formData = new FormData();
+        formData.append("numdocSolicitud", numdocSolicitud);
+
+        try {
+          const response = await fetch($('#base_url').val() + 'torrecontrol/Subastar_Pedido', {
+            method: 'POST',
+            body: formData,
+            cache: 'no-cache',
+          });
+
+          const data = await response.json();
+
+          // Swal.fire({
+          //   title: "Mensaje!",
+          //   text: data.message,
+          //   icon: data.status ? "success" : "error",
+          //   draggable: true
+          // }).then((result) => {
+          //   if (result.isConfirmed) {
+          //     // location.reload(); // Recargar la página
+          //     myOffcanvas.hide();
+          //     listar_pedidos_administrador(fechaColombia, fechaColombia);
+          //   }
+          // });
+
+          /* LLenar tabla de subasta */
+          if (data.length > 0) {
+            let rows = "";
+            data.forEach((proveedor, index) => {
+              rows += `
+                <tr>
+                  <th scope="row">${index + 1}</th>
+                  <td>${proveedor.tipo_servicio}</td>
+                  <td>${proveedor.menor_valor}</td>
+                  <td>${proveedor.razon_social}</td>
+                  <td>${proveedor.fecha_inicio}</td>
+                  <td>${proveedor.hora_inicio}</td>
+                  <td>${proveedor.fecha_actualizacion}</td>
+                  <td>${proveedor.hora_actualizacion}</td>
+                </tr>
+              `;
+            });
+            document.getElementById("tbody_subasta_resultados").innerHTML = rows;
+
+          } else {
+            document.getElementById("tbody_subasta_resultados").innerHTML = `<tr><td colspan="8" class="text-center text-danger">${data.message}</td></tr>`;
+          }
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire("Error", "Error al enviar datos al servidor.", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "Subastar Servicios";
+        }
+      }
+    }
+
+  });
+
+  // Evento para mostrar/ocultar proveedores con el checkbox y hacer la petición AJAX
+  document.addEventListener("change", async (e) => {
+    if (e.target.matches("input[name='ProveedorServicio']")) {
+      let ServicioId = e.target.value;
+      let clienId = e.target.getAttribute("data-clienId");
+
+      await mostrarProveedores(clienId, ServicioId);
+    }
+  });
+});
+// Construir un OffCanvas
+// Constructor del Offcanvas Dinámico
+function DynamicOffcanvas(options) {
+  // Configuración predeterminada
+  var defaults = {
+    id: 'dynamicOffcanvas',
+    title: 'Default Title',
+    content: 'Default Content',
+    scroll: true,
+    backdrop: false
+  };
+
+  // Fusionar opciones con defaults
+  this.settings = Object.assign({}, defaults, options);
+
+  // Inicializar
+  this.initialize();
+}
+
+DynamicOffcanvas.prototype.initialize = function () {
+  this.createOffcanvas();
+  this.bsOffcanvas = new bootstrap.Offcanvas(this.offcanvasElement);
+};
+
+DynamicOffcanvas.prototype.createOffcanvas = function () {
+  var offcanvasHTML = `
+    <div class="offcanvas offcanvas-end" 
+        id="${this.settings.id}" 
+        data-bs-scroll="${this.settings.scroll}" 
+        data-bs-backdrop="${this.settings.backdrop}" 
+        tabindex="-1" 
+        aria-labelledby="${this.settings.id}-label" style="width: 800px;">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title fw-bold" id="${this.settings.id}-label">
+            ${this.settings.title}
+          </h5>
+          <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas"></button>
+        </div>
+      <div class="offcanvas-body">
+        ${this.settings.content}
+      </div>
+    </div>
+`;
+
+  var container = document.createElement('div');
+  container.innerHTML = offcanvasHTML;
+  this.offcanvasElement = container.firstElementChild;
+  document.body.appendChild(this.offcanvasElement);
+};
+
+DynamicOffcanvas.prototype.updateContent = function (newContent) {
+  var body = this.offcanvasElement.querySelector('.offcanvas-body');
+  body.innerHTML = newContent;
+};
+
+DynamicOffcanvas.prototype.updateTitle = function (newTitle) {
+  var title = this.offcanvasElement.querySelector('.offcanvas-title');
+  title.innerHTML = newTitle;
+};
+
+DynamicOffcanvas.prototype.show = function () {
+  this.bsOffcanvas.show();
+};
+
+DynamicOffcanvas.prototype.hide = function () {
+  this.bsOffcanvas.hide();
+};
+
+// Función para obtener y mostrar proveedores
+async function mostrarProveedores(clienId, ServicioId) {
+  let filaProveedores = document.getElementById(`proveedores_${ServicioId}`);
+
+  if (!filaProveedores) {
+    console.error(`No se encontró el <tr> con id #proveedores_${ServicioId}`);
+    return;
+  }
+
+  // Mostrar u ocultar la fila de servicios
+  if (filaProveedores.style.display === "none") {
+    filaProveedores.style.display = "table-row";
+
+    // Obtener servicios si aún no se han cargado
+    if (filaProveedores.querySelector(".lista-proveedores").innerHTML.trim() === "") {
+      try {
+        let formData = new FormData();
+        formData.append("clienId", clienId);
+        formData.append("ServicioId", ServicioId);
+
+        let response = await fetch($('#base_url').val() + 'torrecontrol/listar_provedores_clientes', {
+          method: "POST",
+          body: formData
+        });
+
+        let data = await response.json();
+
+        if (data) {
+          let serviciosHTML = '<ul class="list-group">';
+          data.forEach((proveedor) => {
+            serviciosHTML += `
+              <li class="list-group-item d-flex align-items-center p-1">
+                <div class="form-check form-switch">
+                  <input class="form-check-input me-2" type="hidden" name="ServiciosProveedores" id="proveedor_${proveedor.id}" value="${proveedor.id}" data-ServicioId="${proveedor.servicio_id}">
+                  <label for="servicio_${proveedor.id}" class="flex-grow-1">${proveedor.razon_social}</label>
+                </div>
+              </li>
+            `;
+          });
+          serviciosHTML += '</ul>';
+
+          filaProveedores.querySelector(".lista-proveedores").innerHTML = serviciosHTML;
+        } else {
+          filaProveedores.querySelector(".lista-proveedores").innerHTML = `<p class="text-danger">${data.message}</p>`;
+        }
+      } catch (error) {
+        console.error("Error al obtener servicios:", error);
+        filaProveedores.querySelector(".lista-proveedores").innerHTML = `<p class="text-danger">Error al cargar proveedores</p>`;
+      }
+    }
+  } else {
+    filaProveedores.style.display = "none";
+  }
+}

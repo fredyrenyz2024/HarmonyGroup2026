@@ -39,139 +39,6 @@ class importacionModel extends Model
 		}
 
 		if ($usuario["id_perfil"] == 1 or $usuario["id_perfil"] == 13 or $usuario["id_perfil"] == 21 or $usuario["id_perfil"] == 29 or $usuario["id_perfil"] == 22 or $usuario["id_perfil"] == 32) {
-			// echo "HOLA MUNDO DESDE AQUI";
-			// exit();
-			// $sql = 'SELECT cip.*,
-			// 			IF (cip.id_contrato IS NOT NULL,
-			// 				IF((SELECT ccc1.estado FROM cmx_contrato_cliente ccc1 WHERE ccc1.id = cip.id_contrato) = 1, TRUE,FALSE), TRUE) FLAG_CONTRATO,
-			// 			IF(cip.id_contrato IS NOT NULL,
-			// 			(SELECT ccc1.cod_contrato FROM cmx_contrato_cliente ccc1 WHERE ccc1.id = cip.id_contrato), NULL) NUM_CONTRATO,ctc.id ID_CARGA, ctc.nombre TIPO_CARGA,cc.id ID_CLIENTE, cc.nombre CLIENTE,
-			// 			(	SELECT ctc.nombre FROM cmx_tipo_contenedor ctc WHERE ctc.id = cip.tipo_contenedor) NOM_CONTENEDOR,
-			// 			(	SELECT ctc.tara FROM cmx_tipo_contenedor ctc WHERE ctc.id = cip.tipo_contenedor) TARA_CONTENEDOR,
-			// 			IF((SELECT COUNT(cis1.id) CUANTOS 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				) > 0,
-			// 				(	SELECT cis1.id
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				), NULL
-			// 			) ID_PROYECTO_INTERNACIONAL,
-			// 			IF((	SELECT COUNT(cis1.id) CUANTOS 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				) > 0,
-			// 				(	SELECT cis1.do
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				), NULL
-			// 			) DO_PROYECTO,
-			// 			IF((	SELECT COUNT(cis1.id) CUANTOS 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				) > 0,
-			// 				(	SELECT COUNT(citm1.id) CUANTOS
-			// 					FROM cmx_intr_solicitudes cis1
-			// 						INNER JOIN cmx_intr_tramos cit1 ON cit1.id_intr_proyecto = cis1.id
-			// 						INNER JOIN cmx_intr_tramo_materiales citm1 ON citm1.id_tramo = cit1.id
-			// 					WHERE cis1.id_proyecto = cip.id),
-			// 				( 	SELECT COUNT(DISTINCT(cia.id_material))
-			// 					FROM cmx_importacion_actividades cia
-			// 					WHERE cia.id_material IS NOT NULL
-			// 						AND cia.id_importacion = cip.id)
-			// 			) MATERIALES_PROYECTO,
-			// 			(	SELECT COUNT(cioc1.id) CUANTOS
-			// 				FROM cmx_intr_solicitudes cis1
-			// 					INNER JOIN cmx_intr_oferta_comercial cioc1 ON cioc1.id_intr_proyecto = cis1.id
-			// 				WHERE cis1.id_proyecto = cip.id
-			// 					AND cioc1.estado = 1
-			// 			) INTR_COTIZACION_PRESENTADA,
-			// 			IF((	SELECT cis1.id
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				),
-			// 				(	SELECT CONCAT("(",cii1.sigla,") ",cii1.nombre) INCOTERM 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 						INNER JOIN cmx_intr_incoterms cii1 ON cii1.sigla = cis1.incoterm
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				), NULL
-			// 			) INCOTERM,
-			// 			IF((	SELECT cis1.id
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				),
-			// 				(	SELECT cis1.tipo_transporte TIPO_TRANSPORTE 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				), NULL
-			// 			) TIPO_TRANSPORTE,
-			// 			IF((	SELECT cis1.id
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id),
-			// 				IF((	SELECT cis1.estado 
-			// 						FROM cmx_intr_solicitudes cis1
-			// 						WHERE cis1.id_proyecto = cip.id) = 0,
-			// 					(	SELECT cia1.respuesta 
-			// 						FROM cmx_importacion_actividades cia1
-			// 						WHERE cia1.id_importacion = cip.id
-			// 							AND cia1.tipo_actividad = "intr_cotizacion"
-			// 					), NULL
-			// 				), NULL
-			// 			) INTR_ESTADO_PROYECTO,
-			// 			IF((	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 				) > 0,
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL),
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id)
-			// 			) ACTIVIDADES,
-			// 			IF((	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 				) > 0,
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 						AND cia1.estado = 2),
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.estado = 2)
-			// 			) ACTIVIDADES_ACTIVAS,
-			// 			IF((	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 				) > 0,
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 						AND cia1.estado = 1),
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.estado = 1)
-			// 			) ACTIVIDADES_TERMINADAS
-			// 		FROM 
-			// 			cmx_importacion_proyecto cip
-			// 			INNER JOIN cmx_clientes cc ON cc.id = cip.id_cliente
-			// 			INNER JOIN cmx_tipo_carga ctc ON ctc.id = cip.id_tipo_carga
-			// 		WHERE 
-			// 			cip.estado = 1 
-			// 		HAVING 
-			// 			INTR_ESTADO_PROYECTO IS NULL
-			// 			AND ACTIVIDADES != ACTIVIDADES_TERMINADAS
-			// 			AND' . $mas . '
-			// 		ORDER BY cip.numero_importacion DESC';
 			$sql = '
 			SELECT cip.*,
 				IF (cip.id_contrato IS NOT NULL,
@@ -323,182 +190,6 @@ class importacionModel extends Model
 				AND    ' . $mas . '
 			ORDER BY cip.numero_importacion DESC';
 		} else {
-			// echo "ENTRO AL ELSE DEL IF";
-			// exit();
-			// $sql = 'SELECT cip.*,
-			// 			IF(	cip.id_contrato IS NOT NULL,
-			// 				IF((	SELECT ccc1.estado
-			// 						FROM cmx_contrato_cliente ccc1
-			// 						WHERE ccc1.id = cip.id_contrato
-			// 					) = 1,
-			// 					TRUE,FALSE
-			// 				), TRUE
-			// 			) FLAG_CONTRATO,
-			// 			IF(	cip.id_contrato IS NOT NULL,
-			// 				(	SELECT ccc1.cod_contrato
-			// 					FROM cmx_contrato_cliente ccc1
-			// 					WHERE ccc1.id = cip.id_contrato
-			// 				), NULL
-			// 			) NUM_CONTRATO,
-			// 			ctc.id ID_CARGA, ctc.nombre TIPO_CARGA,
-			// 			cc.id ID_CLIENTE, cc.nombre CLIENTE,
-			// 			(	SELECT ctc.nombre
-			// 				FROM cmx_tipo_contenedor ctc
-			// 				WHERE ctc.id = cip.tipo_contenedor
-			// 			) NOM_CONTENEDOR,
-			// 			(	SELECT ctc.tara
-			// 				FROM cmx_tipo_contenedor ctc
-			// 				WHERE ctc.id = cip.tipo_contenedor
-			// 			) TARA_CONTENEDOR,
-			// 			IF((	SELECT COUNT(cis1.id) CUANTOS 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				) > 0,
-			// 				(	SELECT cis1.id
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				), NULL
-			// 			) ID_PROYECTO_INTERNACIONAL,
-			// 			IF((	SELECT COUNT(cis1.id) CUANTOS 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				) > 0,
-			// 				(	SELECT cis1.do
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				),NULL
-			// 			) DO_PROYECTO,
-			// 			IF((	SELECT COUNT(cis1.id) CUANTOS 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				) > 0,
-			// 				(	SELECT COUNT(citm1.id) CUANTOS
-			// 					FROM cmx_intr_solicitudes cis1
-			// 						INNER JOIN cmx_intr_tramos cit1 ON cit1.id_intr_proyecto = cis1.id
-			// 						INNER JOIN cmx_intr_tramo_materiales citm1 ON citm1.id_tramo = cit1.id
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				),
-			// 				( 	SELECT COUNT(DISTINCT(cia.id_material))
-			// 					FROM cmx_importacion_actividades cia
-			// 					WHERE cia.id_material IS NOT NULL
-			// 						AND cia.id_importacion = cip.id
-			// 				)
-			// 			) MATERIALES_PROYECTO,
-			// 			(	SELECT COUNT(cioc1.id) CUANTOS
-			// 				FROM cmx_intr_solicitudes cis1
-			// 					INNER JOIN cmx_intr_oferta_comercial cioc1 ON cioc1.id_intr_proyecto = cis1.id
-			// 				WHERE cis1.id_proyecto = cip.id
-			// 					AND cioc1.estado = 1
-			// 			) INTR_COTIZACION_PRESENTADA,
-			// 			IF ((	SELECT cis1.id
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				),
-			// 				(	SELECT CONCAT("(",cii1.sigla,") ",cii1.nombre) INCOTERM 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 						INNER JOIN cmx_intr_incoterms cii1 ON cii1.sigla = cis1.incoterm
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				), NULL
-			// 			) INCOTERM,
-			// 			IF ((	SELECT cis1.id
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				),
-			// 				(	SELECT cis1.tipo_transporte TIPO_TRANSPORTE 
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				),
-			// 				NULL
-			// 			) TIPO_TRANSPORTE,
-			// 			IF((	SELECT cis1.id
-			// 					FROM cmx_intr_solicitudes cis1
-			// 					WHERE cis1.id_proyecto = cip.id
-			// 				),
-			// 				IF((	SELECT cis1.estado 
-			// 						FROM cmx_intr_solicitudes cis1
-			// 						WHERE cis1.id_proyecto = cip.id
-			// 					) = 0,
-			// 					(	SELECT cia1.respuesta 
-			// 						FROM cmx_importacion_actividades cia1
-			// 						WHERE cia1.id_importacion = cip.id
-			// 							AND cia1.tipo_actividad = "intr_cotizacion"
-			// 					), NULL
-			// 				), NULL
-			// 			) INTR_ESTADO_PROYECTO,
-			// 			IF((	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 				) > 0,
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 				),
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 				)
-			// 			) ACTIVIDADES,
-			// 			IF((	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 				) > 0,
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 						AND cia1.estado = 2
-			// 				),
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.estado = 2
-			// 				)
-			// 			) ACTIVIDADES_ACTIVAS,
-			// 			IF((	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 				) > 0,
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.id_material IS NOT NULL
-			// 						AND cia1.estado = 1
-			// 				),
-			// 				(	SELECT COUNT(cia1.id)
-			// 					FROM cmx_importacion_actividades cia1
-			// 					WHERE cia1.id_importacion = cip.id
-			// 						AND cia1.estado = 1
-			// 				)
-			// 			) ACTIVIDADES_TERMINADAS
-			// 		FROM 
-			// 			cmx_importacion_proyecto cip
-			// 			INNER JOIN cmx_clientes cc ON cc.id = cip.id_cliente
-			// 			INNER JOIN cmx_tipo_carga ctc ON ctc.id = cip.id_tipo_carga
-			// 		WHERE 
-			// 			cip.estado = 1
-			// 		HAVING (SELECT
-			// 					COUNT(cia1.perfil_responsable)
-			// 				FROM cmx_importacion_actividades cia1
-			// 					INNER JOIN cmx_usuario_cliente cus1 ON cus1.id_perfil = cia1.perfil_responsable
-			// 					INNER JOIN cmx_clientes_serv_responsables ccdr1 ON ccdr1.id_usuario = cus1.id_usuario
-			// 					INNER JOIN cmx_clientes_serv_contratados ccsc1 ON ccsc1.id = ccdr1.id_serv_contratado
-			// 				WHERE cia1.id_importacion = cip.id
-			// 					AND ccsc1.id_cliente = cip.id_cliente
-			// 					AND ccsc1.servicio IN ("Transporte de Carga Internacional","Transporte de Carga Nacional")
-			// 					AND ccdr1.estado = 1
-			// 					AND ccsc1.estado = 1
-			// 					AND cus1.id_perfil = ' . $usuario["id_perfil"] . '
-			// 					AND ccdr1.id_usuario = ' . $usuario["id_usuario"] . '
-			// 			) > 0
-			// 			AND INTR_ESTADO_PROYECTO IS NULL
-			// 			AND ACTIVIDADES != ACTIVIDADES_TERMINADAS
-			// 			AND   ' . $mas . '
-			// 		ORDER BY cip.numero_importacion DESC
-			// 	';
 			$sql = '
 					SELECT 
 						cip.*,
@@ -681,97 +372,196 @@ class importacionModel extends Model
 		$result->execute();
 		$return["proyectos"] = $result->fetchAll(PDO::FETCH_ASSOC);
 		if ($return["proyectos"]) {
-			$array = array();
-			$array_01 = array();
+			$array = [];
+			$array_01 = [];
+			// foreach ($return["proyectos"] as $key => $value) {
+			// 	if ($value["ID_PROYECTO_INTERNACIONAL"]) {
+			// 		$sql = 'SELECT 
+			// 					IF((	SELECT COUNT(cioc1.id)
+			// 							FROM cmx_intr_oferta_comercial cioc1
+			// 							WHERE cioc1.id_intr_proyecto = cis.id
+			// 								AND cioc1.estado = 1),
+			// 						IF((	SELECT MIN(cia1.estado)
+			// 								FROM cmx_importacion_actividades cia1 
+			// 									INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
+			// 									INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
+			// 								WHERE cis1.id = cis.id
+			// 									AND cia1.tipo_actividad = "intr_cotizacion") = 1,
+			// 							"OCA", "OCP"
+			// 						), "OCN"
+			// 					) OFERTA_COMERCIAL,
+			// 					IF((	SELECT COUNT(cioc1.id)
+			// 							FROM cmx_intr_oferta_comercial cioc1
+			// 							WHERE cioc1.id_intr_proyecto = cis.id
+			// 								AND cioc1.estado = 1),
+			// 						(
+			// 							SELECT cioc1.valor 
+			// 							FROM cmx_intr_oferta_comercial cioc1
+			// 								INNER JOIN cmx_monedas cm1 ON cm1.id = cioc1.id_moneda
+			// 							WHERE cioc1.id_intr_proyecto = cis.id
+			// 								AND cioc1.estado = 1
+			// 						), NULL
+			// 					) VALOR_OFERTA,
+			// 					IF((	SELECT COUNT(cioc1.id)
+			// 							FROM cmx_intr_oferta_comercial cioc1
+			// 							WHERE cioc1.id_intr_proyecto = cis.id
+			// 								AND cioc1.estado = 1),
+			// 						(
+			// 							SELECT CONCAT("(",cm1.codigo,")") VALOR
+			// 							FROM cmx_intr_oferta_comercial cioc1
+			// 								INNER JOIN cmx_monedas cm1 ON cm1.id = cioc1.id_moneda
+			// 							WHERE cioc1.id_intr_proyecto = cis.id
+			// 								AND cioc1.estado = 1
+			// 						), NULL
+			// 					) MONEDA_OFERTA,
+			// 					IF((	SELECT COUNT(cic1.id)
+			// 							FROM cmx_intr_cotizaciones cic1
+			// 							WHERE cic1.id_intr_proyecto = cis.id
+			// 						),
+			// 						IF((	SELECT MIN(cia1.estado)
+			// 								FROM cmx_importacion_actividades cia1 
+			// 									INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
+			// 									INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
+			// 								WHERE cis1.id = cis.id
+			// 									AND cia1.tipo_actividad = "intr_cotizacion") != 1,
+			// 							IF((	SELECT COUNT( DISTINCT(cic1.id_concepto) )
+			// 									FROM cmx_intr_cotizaciones cic1
+			// 									WHERE cic1.id_intr_proyecto = cis.id
+			// 										AND cic1.estado = 1),
+			// 								"CPA", "CP"
+			// 							), "CA"
+			// 						), "SC"
+			// 					) COTIZACION_PROVEEDORES,
+			// 					IF((	SELECT COUNT(cisd1.id)
+			// 							FROM cmx_intr_solicitud_documentos cisd1
+			// 							WHERE cisd1.estado = 1
+			// 								AND cisd1.id_intr_proyecto = cis.id
+			// 								AND cisd1.id_tipo_documento = 20),
+			// 						"PEE", "PEP"
+			// 					) PRUEBA_ENTREGA,
+			// 					IF(((	SELECT MIN(cia1.estado)
+			// 							FROM cmx_importacion_actividades cia1 
+			// 								INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
+			// 								INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
+			// 							WHERE cis1.id = cis.id
+			// 								AND cia1.tipo_actividad = "intr_instruccion_factura") = 1) 
+			// 								AND cis.id_factura IS NOT NULL,
+			// 						"IFR", "IFP"
+			// 					) INSTRUCCION_FACTURA,
+			// 					IF(((	SELECT MIN(cia1.estado)
+			// 							FROM cmx_importacion_actividades cia1 
+			// 								INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
+			// 								INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
+			// 							WHERE cis1.id = cis.id
+			// 								AND cia1.tipo_actividad = "intr_factura") = 1
+			// 								AND cis.id_factura IS NOT NULL ),
+			// 						"FR", "FP"
+			// 					) FACTURA
+			// 				FROM 
+			// 					cmx_intr_solicitudes cis
+			// 				WHERE cis.id = ' . $value["ID_PROYECTO_INTERNACIONAL"] . '';
+			// 		$result = $this->_db3->prepare($sql);
+			// 		$result->execute();
+			// 		$array_01 = $result->fetch(PDO::FETCH_ASSOC);
+			// 		$array[$value["ID_PROYECTO_INTERNACIONAL"]] = $array_01;
+			// 	}
+			// }
 			foreach ($return["proyectos"] as $key => $value) {
 				if ($value["ID_PROYECTO_INTERNACIONAL"]) {
-					$sql = '
-							SELECT 
-								IF((	SELECT COUNT(cioc1.id)
-										FROM cmx_intr_oferta_comercial cioc1
-										WHERE cioc1.id_intr_proyecto = cis.id
-											AND cioc1.estado = 1),
-									IF((	SELECT MIN(cia1.estado)
-											FROM cmx_importacion_actividades cia1 
-												INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
-												INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
-											WHERE cis1.id = cis.id
-												AND cia1.tipo_actividad = "intr_cotizacion") = 1,
-										"OCA", "OCP"
-									), "OCN"
-								) OFERTA_COMERCIAL,
-								IF((	SELECT COUNT(cioc1.id)
-										FROM cmx_intr_oferta_comercial cioc1
-										WHERE cioc1.id_intr_proyecto = cis.id
-											AND cioc1.estado = 1),
-									(
-										SELECT cioc1.valor 
-										FROM cmx_intr_oferta_comercial cioc1
-											INNER JOIN cmx_monedas cm1 ON cm1.id = cioc1.id_moneda
-										WHERE cioc1.id_intr_proyecto = cis.id
-											AND cioc1.estado = 1
-									), NULL
-								) VALOR_OFERTA,
-								IF((	SELECT COUNT(cioc1.id)
-										FROM cmx_intr_oferta_comercial cioc1
-										WHERE cioc1.id_intr_proyecto = cis.id
-											AND cioc1.estado = 1),
-									(
-										SELECT CONCAT("(",cm1.codigo,")") VALOR
-										FROM cmx_intr_oferta_comercial cioc1
-											INNER JOIN cmx_monedas cm1 ON cm1.id = cioc1.id_moneda
-										WHERE cioc1.id_intr_proyecto = cis.id
-											AND cioc1.estado = 1
-									), NULL
-								) MONEDA_OFERTA,
-								IF((	SELECT COUNT(cic1.id)
-										FROM cmx_intr_cotizaciones cic1
-										WHERE cic1.id_intr_proyecto = cis.id
-									),
-									IF((	SELECT MIN(cia1.estado)
-											FROM cmx_importacion_actividades cia1 
-												INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
-												INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
-											WHERE cis1.id = cis.id
-												AND cia1.tipo_actividad = "intr_cotizacion") != 1,
-										IF((	SELECT COUNT( DISTINCT(cic1.id_concepto) )
-												FROM cmx_intr_cotizaciones cic1
-												WHERE cic1.id_intr_proyecto = cis.id
-													AND cic1.estado = 1),
-											"CPA", "CP"
-										), "CA"
-									), "SC"
-								) COTIZACION_PROVEEDORES,
-								IF((	SELECT COUNT(cisd1.id)
-										FROM cmx_intr_solicitud_documentos cisd1
-										WHERE cisd1.estado = 1
-											AND cisd1.id_intr_proyecto = cis.id
-											AND cisd1.id_tipo_documento = 20),
-									"PEE", "PEP"
-								) PRUEBA_ENTREGA,
-								IF(((	SELECT MIN(cia1.estado)
-										FROM cmx_importacion_actividades cia1 
-											INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
-											INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
-										WHERE cis1.id = cis.id
-											AND cia1.tipo_actividad = "intr_instruccion_factura") = 1) 
-											AND cis.id_factura IS NOT NULL,
-									"IFR", "IFP"
-								) INSTRUCCION_FACTURA,
-								IF(((	SELECT MIN(cia1.estado)
-										FROM cmx_importacion_actividades cia1 
-											INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
-											INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
-										WHERE cis1.id = cis.id
-											AND cia1.tipo_actividad = "intr_factura") = 1
-											AND cis.id_factura IS NOT NULL ),
-									"FR", "FP"
-								) FACTURA
-							FROM 
-								cmx_intr_solicitudes cis
-							WHERE cis.id = ' . $value["ID_PROYECTO_INTERNACIONAL"] . '';
-					// $result = $this->_db->getConsulta($sql);
-					// $array[$value[0]] = $result["rowsData"][0];
+					$sql = 'SELECT 
+												IF(
+														(SELECT COUNT(cioc1.id) 
+														 FROM cmx_intr_oferta_comercial cioc1 
+														 WHERE cioc1.id_intr_proyecto = cis.id AND cioc1.estado = 1),
+														IF(
+																(SELECT MIN(cia1.estado) 
+																 FROM cmx_importacion_actividades cia1 
+																 INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
+																 INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
+																 WHERE cis1.id = cis.id 
+																 AND cia1.tipo_actividad = "intr_cotizacion" 
+																 LIMIT 1) = 1,
+																"OCA", "OCP"
+														), 
+														"OCN"
+												) AS OFERTA_COMERCIAL,
+		
+												(SELECT cioc1.valor 
+												 FROM cmx_intr_oferta_comercial cioc1 
+												 INNER JOIN cmx_monedas cm1 ON cm1.id = cioc1.id_moneda 
+												 WHERE cioc1.id_intr_proyecto = cis.id 
+												 AND cioc1.estado = 1 
+												 ORDER BY cioc1.id DESC 
+												 LIMIT 1) AS VALOR_OFERTA,
+		
+												(SELECT CONCAT("(", cm1.codigo, ")") 
+												 FROM cmx_intr_oferta_comercial cioc1 
+												 INNER JOIN cmx_monedas cm1 ON cm1.id = cioc1.id_moneda 
+												 WHERE cioc1.id_intr_proyecto = cis.id 
+												 AND cioc1.estado = 1 
+												 ORDER BY cioc1.id DESC 
+												 LIMIT 1) AS MONEDA_OFERTA,
+
+												IF(
+														(SELECT COUNT(cic1.id) 
+														 FROM cmx_intr_cotizaciones cic1 
+														 WHERE cic1.id_intr_proyecto = cis.id),
+														IF(
+																(SELECT MIN(cia1.estado) 
+																 FROM cmx_importacion_actividades cia1 
+																 INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
+																 INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
+																 WHERE cis1.id = cis.id 
+																 AND cia1.tipo_actividad = "intr_cotizacion" 
+																 LIMIT 1) != 1,
+																IF(
+																		(SELECT COUNT(DISTINCT cic1.id_concepto) 
+																		 FROM cmx_intr_cotizaciones cic1 
+																		 WHERE cic1.id_intr_proyecto = cis.id 
+																		 AND cic1.estado = 1 
+																		 LIMIT 1),
+																		"CPA", "CP"
+																), "CA"
+														), 
+														"SC"
+												) AS COTIZACION_PROVEEDORES,
+		
+												IF(
+														(SELECT COUNT(cisd1.id) 
+														 FROM cmx_intr_solicitud_documentos cisd1 
+														 WHERE cisd1.estado = 1 
+														 AND cisd1.id_intr_proyecto = cis.id 
+														 AND cisd1.id_tipo_documento = 20),
+														"PEE", "PEP"
+												) AS PRUEBA_ENTREGA,
+		
+												IF(
+														((SELECT MIN(cia1.estado) 
+															FROM cmx_importacion_actividades cia1 
+															INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
+															INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
+															WHERE cis1.id = cis.id 
+															AND cia1.tipo_actividad = "intr_instruccion_factura" 
+															LIMIT 1) = 1) 
+															AND cis.id_factura IS NOT NULL,
+														"IFR", "IFP"
+												) AS INSTRUCCION_FACTURA,
+		
+												IF(
+														((SELECT MIN(cia1.estado) 
+															FROM cmx_importacion_actividades cia1 
+															INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
+															INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
+															WHERE cis1.id = cis.id 
+															AND cia1.tipo_actividad = "intr_factura" 
+															LIMIT 1) = 1
+															AND cis.id_factura IS NOT NULL),
+														"FR", "FP"
+												) AS FACTURA
+										FROM 
+												cmx_intr_solicitudes cis
+										WHERE cis.id = ' . $value["ID_PROYECTO_INTERNACIONAL"] . '';
+
 					$result = $this->_db3->prepare($sql);
 					$result->execute();
 					$array_01 = $result->fetch(PDO::FETCH_ASSOC);
@@ -1881,7 +1671,6 @@ class importacionModel extends Model
 				'count' => $rowCount,
 				'data' => $data
 			];
-
 		} catch (PDOException $e) {
 			// Manejo de errores (loggear y/o devolver error)
 			error_log("Error en getGrupoActividadesMaterial: " . $e->getMessage());
@@ -1932,7 +1721,6 @@ class importacionModel extends Model
 				'count' => count($data),
 				'data' => $data
 			];
-
 		} catch (PDOException $e) {
 			error_log("Error en getGrupoActividadesProyecto: " . $e->getMessage());
 			return [
@@ -3361,48 +3149,31 @@ class importacionModel extends Model
 	public function getSeguimientoActividad($id_actividad)
 	{
 		$arrayId_actividad = explode(",", $id_actividad);
-
-		// print_r($arrayId_actividad);
-
-		$sql = "
-				SELECT 
-					cis.*,
-					cu.nom_usuario, cu.url_avatar
-				FROM 
-					cmx_importacion_seguimiento cis
+		$sql = "SELECT 	cis.*,cu.nom_usuario, cu.url_avatar
+				FROM cmx_importacion_seguimiento cis
 					INNER JOIN cmx_usuarios cu ON cu.id = cis.autor
-				WHERE 
-					cis.id_actividad = " . $arrayId_actividad[0] . "
+				WHERE cis.id_actividad = " . $arrayId_actividad[0] . "
 					AND cis.estado = 1
 					AND cis.id_seguimiento IS NULL
-				ORDER BY cis.fecha_hora DESC;
+				ORDER BY cis.fecha_hora DESC
 			";
-		// echo "<pre>" . $sql . "</pre>";
-		// $result = $this->_db->getConsulta($sql);}
 		$result = $this->_db3->prepare($sql);
 		$result->execute();
 		$result = $result->fetchAll(PDO::FETCH_ASSOC);
-
 		$return["seguimientos"] = $result;
 
 		if ($return["seguimientos"]) {
 			$arrayComentarios = [];
 			foreach ($return["seguimientos"] as $key => $value) {
-				$sql = "
-						SELECT 
-							cis.*,
-							cu.nom_usuario, cu.url_avatar
-						FROM 
-							cmx_importacion_seguimiento cis
+				$sql = "SELECT cis.*,cu.nom_usuario, cu.url_avatar
+						FROM cmx_importacion_seguimiento cis
 							INNER JOIN cmx_usuarios cu ON cu.id = cis.autor
 						WHERE 
 							cis.id_actividad = " . $arrayId_actividad[0] . "
 							AND cis.estado = 1
 							AND cis.id_seguimiento = " . $value['id'] . "
-						ORDER BY cis.fecha_hora DESC;
+						ORDER BY cis.fecha_hora DESC
 					";
-				// echo "<pre>" . $sql . "</pre>";
-				// $result_01 = $this->_db->getConsulta($sql);
 				$result_01 = $this->_db3->prepare($sql);
 				$result_01->execute();
 				$result_01 = $result_01->fetchAll(PDO::FETCH_ASSOC);
@@ -3415,9 +3186,39 @@ class importacionModel extends Model
 			}
 			$return["comentarios"] = $arrayComentarios;
 		}
-
 		return $return;
 	}
+
+	// public function getSeguimientoActividad($id_actividad)
+	// {
+	// 	$arrayId_actividad = explode(",", $id_actividad);
+	// 	$id_actividad = (int) $arrayId_actividad[0]; // Asegurar que sea un entero
+
+	// 	// Obtener seguimientos y comentarios en una sola consulta
+	// 	$sql = "SELECT cis.*, cu.nom_usuario, cu.url_avatar, COALESCE(cis.id_seguimiento, cis.id) AS parent_id
+	// 						FROM cmx_importacion_seguimiento cis
+	// 						INNER JOIN cmx_usuarios cu ON cu.id = cis.autor
+	// 						WHERE cis.id_actividad=:id_actividad AND cis.estado=1
+	// 						ORDER BY cis.fecha_hora DESC";
+	// 	$stmt = $this->_db3->prepare($sql);
+	// 	$stmt->execute(['id_actividad' => $id_actividad]);
+	// 	$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+	// 	// Separar seguimientos y comentarios
+	// 	$return = ["seguimientos" => [], "comentarios" => []];
+
+	// 	foreach ($result as $row) {
+	// 		if ($row['id_seguimiento'] === null) {
+	// 			$return["seguimientos"][] = $row;
+	// 		} else {
+	// 			$return["comentarios"][$row['id_seguimiento']][] = $row;
+	// 		}
+	// 	}
+
+	// 	return $return;
+	// }
+
+
 	/******** FIN CONSULTAS DE TIPO DE ACTIVIDAD seguimiento **********/
 
 	/******** CONSULTAS DE TIPO DE ACTIVIDAD oferta_comercial **********/

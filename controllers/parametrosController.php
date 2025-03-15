@@ -12,6 +12,8 @@ class parametrosController extends Controller
 	private $point;
 	private $ruleupdate;
 	private $actualiza;
+	private $_filtros;
+	private $_Insertar_Proveedor;
 	public function __construct()
 	{
 		parent::__construct();
@@ -45,11 +47,64 @@ class parametrosController extends Controller
 
 	public function  configuracion_envio()
 	{
-		// $regla_sistema = $this->loadModel('parametro');
-		// $this->_view->regla_sistema = $regla_sistema;
 		$this->_view->titulo = 'Configuración Envio Correos';
 		$this->_view->renderizar('configuracion_correos', 'parametros');
 	}
+
+	/* Nuevas funciones para crear y asignar proveedores */
+	public function crear_proveedor()
+	{
+		$this->_view->titulo = 'Nuevo Proveedor';
+		$this->_view->renderizar('proveedor/index_proveedor', 'parametros');
+	}
+	public function todos()
+	{
+		$this->_view->titulo = 'Listar Proveedores';
+		$this->_view->renderizar_ventana('proveedor/listar_proveedor', 'parametros');
+	}
+	public function nuevo()
+	{
+		$this->_view->titulo = 'Listar Proveedores';
+		$this->_view->renderizar_ventana('proveedor/nuevo_proveedor', 'parametros');
+	}
+	public function asignar()
+	{
+		$this->_view->titulo = 'Asignar Proveedores';
+		$this->_view->renderizar_ventana('proveedor/asignar_proveedor', 'parametros');
+	}
+
+	public function crear_filtro()
+	{
+		$ventana = $_POST['param1'];
+		$this->_filtros = $this->_view->Cargar_Filtros_ventana($ventana);
+		// $this->_filtros = $this->_modelo->Cargar_Filtros_ventana($ventana);
+		echo json_encode($this->_filtros);
+	}
+
+	public function insertar_proveedores()
+	{
+		$datosProveedor = [
+			'tipo_documento' => $_POST['slct_tipo_documento_'],
+			'regimen' => $_POST['slct_regimen_'],
+			'razon_social' => $_POST['razon_social'],
+			'documento' => $_POST['documento'],
+			'digito_verificacion' => $_POST['digito_verificacion'],
+			'ciudad_id' => $_POST['slct_ciudad_'],
+			'direccion' => $_POST['direccion_proveedor'],
+			'telefono' => $_POST['telefono_proveedor'],
+			'correo' => $_POST['correo_proveedor'],
+			'contacto' => $_POST['contacto_proveedor'],
+			'numero_contacto' => $_POST['numero_contacto'],
+			'estado_proveedor' => $_POST['estado_proveedor'], // Valor por defecto
+			// 'usuario' => $_POST['usuario'],
+			'fecha' => date('Y-m-d'),
+			'hora' => date('H:i:s')
+		];
+
+		$this->_Insertar_Proveedor = $this->_modelo->Insertar_Proveedor_Torre_Control($datosProveedor);
+		echo json_encode($this->_Insertar_Proveedor);
+	}
+
 
 
 	public function Consulta_Municipios()

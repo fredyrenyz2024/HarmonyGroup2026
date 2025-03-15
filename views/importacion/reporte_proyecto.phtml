@@ -1019,7 +1019,7 @@ if (isset($proyecto["FLAG_INTERNACIONAL"]) and $proyecto["FLAG_INTERNACIONAL"]) 
 
 		foreach ($arrayActividades["materiales"] as $key => $value) {
 			/***** Contenido del accordeón *****/
-			$encabezado = $value['id'];
+			$encabezado = $value[0];
 			// Se lista los materiales de la Guía
 			$materiales = $value;
 
@@ -1202,13 +1202,13 @@ if (isset($proyecto["FLAG_INTERNACIONAL"]) and $proyecto["FLAG_INTERNACIONAL"]) 
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_' . $encabezado[0] . '" class="collapsed" aria-expanded="false">
+								<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_' . $encabezado['id'] . '" class="collapsed" aria-expanded="false">
 									<i class="icon mdi mdi-chevron-down"></i> ' . $encabezado["guia"] . ' <small>' . $encabezado["tipo_transporte"] . '</small>
 									<span class="panel-subtitle"><strong>' . $encabezado["sigla"] . '</strong> ' . $encabezado["direccion"] . ' <strong>' . $encabezado["municipio"] . ' (' . $encabezado["depto"] . ' - ' . $encabezado["pais"] . ')</strong></span>
 								</a>
 							</h4>
 						</div>
-						<div id="collapse_' . $encabezado[0] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+						<div id="collapse_' . $encabezado['id'] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 							<div class="panel-body">
 								<strong>Materiales</strong>
 								' . $materiales_content . '
@@ -1285,13 +1285,15 @@ if (isset($proyecto["FLAG_INTERNACIONAL"]) and $proyecto["FLAG_INTERNACIONAL"]) 
 	/***** Pestaña proveedores *****/
 	$_proveedores_content = '';
 	if (isset($arrayActividades["proveedores"])) {
+
+		echo "HOLA MUNDO DESDE AQUI";
+
 		$_gran_total_cant_facturas = 0;
 		$_gran_total_factura_pesos = 0;
 		$_gran_total_factura_usd = 0;
 
-		$_proveedores_content = '
-				<div id="accordion2" class="panel-group accordion">
-			';
+		$_proveedores_content = '<div id="accordion2" class="panel-group accordion">';
+
 		foreach ($arrayActividades["proveedores"] as $key => $value) {
 			// Se pinta las cotizaciones del proveedor
 			$_cotizaciones = '
@@ -1621,9 +1623,6 @@ if (isset($proyecto["FLAG_INTERNACIONAL"]) and $proyecto["FLAG_INTERNACIONAL"]) 
 						$descarga_egreso = '';
 					}
 
-
-
-
 					$_facturas .= '
 							<tr>
 								' . $_egreso . '
@@ -1848,7 +1847,10 @@ if (isset($proyecto["FLAG_INTERNACIONAL"]) and $proyecto["FLAG_INTERNACIONAL"]) 
 		$_proveedores_content .= '
 				</div>
 			';
+	} else {
+		echo "NO ENTRO A PROVEEDORES";
 	}
+	// exit();
 
 	$proveedores = '';
 	if ($_proveedores_content) {

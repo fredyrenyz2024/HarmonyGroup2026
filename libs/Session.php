@@ -311,53 +311,6 @@ class Session
         $model = new Conexion;
         $conexion = $model->conectar();
 
-        //     $sql = "
-        //     SELECT 
-        //         uc.*, 
-        //         u.nom_usuario AS 'nom_usuario',
-        //         u.url_avatar AS 'avatar', 
-        //         u.email AS 'email',
-        //         p.nombre_perfil AS 'nombre_perfil',
-        //         c.nombre AS 'nombre_cliente',
-        //         u.user_log,
-        //         u.pass,
-        //         eu.empresa_id,
-        //         ep.nombre_empresa,
-        //         (SELECT DATEDIFF(CURDATE(), cuc1.fecha)
-        //             FROM cmx_usuarios_claves cuc1
-        //             WHERE cuc1.id_usuario = u.id
-        //             AND cuc1.estado = 'Activo'
-        //         ) AS VIGENCIA,
-        //         p.tipo_perfil,
-        //         p.nombre_perfil,
-        //         GROUP_CONCAT(DISTINCT CONCAT(pt.id, ':', pt.nombre_pantalla) ORDER BY pt.id SEPARATOR '|') AS pantallas,
-        //         GROUP_CONCAT(DISTINCT pt.menu_id ORDER BY pt.menu_id SEPARATOR '|') AS menu_ids,  -- Agregar menu_ids
-        //         GROUP_CONCAT(DISTINCT CONCAT(pt.menu_id, ':', pt.nombre_pantalla) ORDER BY pt.menu_id SEPARATOR '|') AS menu_pantallas,
-        //         GROUP_CONCAT(DISTINCT v.nombre_ventana ORDER BY v.nombre_ventana SEPARATOR '|') AS ventanas
-        //     FROM
-        //         cmx_usuarios u
-        //         INNER JOIN cmx_usuario_cliente uc ON u.id = uc.id_usuario
-        //         INNER JOIN cmx_clientes c ON uc.id_cliente = c.id
-        //         INNER JOIN cmx_perfiles p ON uc.id_perfil = p.id
-        //         INNER JOIN cmx_empresa_usuario eu ON u.id = eu.usuario_id
-        //         INNER JOIN cmx_empresas ep ON eu.empresa_id = ep.id
-        //         INNER JOIN cmx_modulos_perfil mp ON mp.id_perfil = p.id
-        //         INNER JOIN cmx_modulos mo ON mo.id = mp.id_modulo
-        //         INNER JOIN cmx_pantallas pt ON mo.id = pt.modulo_id
-        //         INNER JOIN cmx_pantallas_menu ptm ON pt.id = ptm.pantalla_id
-        //         INNER JOIN cmx_ventanas v ON ptm.ventana_id = v.id
-        //     WHERE
-        //         u.user_log = :user_log
-        //         AND u.pass = :pass
-        //         AND u.estado = 1
-        //         AND uc.estado = 1
-        //         AND p.estado = 1
-        //         AND c.estado = 1
-        //         AND p.id NOT IN (2, 3)
-        //     GROUP BY u.id
-        //     HAVING VIGENCIA <= " . VIGENCIA_CLAVES . ";
-        // ";
-
         $sql = "SELECT 
         uc.*, 
         u.nom_usuario AS 'nom_usuario',
@@ -418,28 +371,65 @@ class Session
             $this->respuesta = "GOOD";
             $fila = $consulta->fetch();
 
-            session_start();
-            $_SESSION['usuario']['id_cliente'] = $fila['id_cliente'];
-            $_SESSION['usuario']['id_usuario'] = $fila['id_usuario'];
-            $_SESSION['usuario']['id_perfil'] = $fila['id_perfil'];
-            $_SESSION['usuario']['nom_usuario'] = $fila['nom_usuario'];
-            $_SESSION['usuario']['avatar'] = $fila['avatar'];
-            $_SESSION['usuario']['nombre_perfil'] = $fila['nombre_perfil'];
-            $_SESSION['usuario']['nombre_cliente'] = $fila['nombre_cliente'];
-            $_SESSION['usuario']['email'] = $fila['email'];
-            $_SESSION['usuario']['id_bodega'] = $fila['id_bodega'];
-            $_SESSION['usuario']['tipo_perfil'] = $fila['tipo_perfil'];
-            $_SESSION['usuario']['user_log'] = $fila['user_log'];
-            $_SESSION['usuario']['pass'] = $fila['pass'];
-            $_SESSION['usuario']['empresa_id'] = $fila['empresa_id'];
-            $_SESSION['usuario']['nombre_empresa'] = $fila['nombre_empresa'];
-            $_SESSION['usuario']['nombre_perfil'] = $fila['nombre_perfil'];
+            /* Se consulta si el perfil es proveedor traemos esos datos */
+            if ($fila['tipo_perfil'] == "PROVEEDOR") {
 
-            // Guardar pantallas, menu_ids y ventanas en la sesión
-            $_SESSION['usuario']['pantallas'] = explode('|', $fila['pantallas']);
-            $_SESSION['usuario']['menu_ids'] = explode('|', $fila['menu_ids']);
-            $_SESSION['usuario']['menu_pantallas'] = explode('|', $fila['menu_pantallas']);
-            $_SESSION['usuario']['ventanas'] = explode('|', $fila['ventanas']);  // Formato: id_ventana:nombre_ventana:orden_ventana:pantalla_id
+                $sql = $conexion->prepare("SELECT proveedor_id,razon_social FROM cmx_proveedor_usuario pu
+                INNER JOIN cmx_proveedor_torre_control pt ON pt.id = pu.proveedor_id              
+               WHERE pu.usuario_id='" . $fila['id_usuario'] . "'");
+                $sql->execute();
+                if ($sql->rowCount() == 1) {
+                    session_start();
+                    $ProveedorDatos = $sql->fetch();
+                    $_SESSION['usuario']['id_cliente'] = $fila['id_cliente'];
+                    $_SESSION['usuario']['id_usuario'] = $fila['id_usuario'];
+                    $_SESSION['usuario']['id_perfil'] = $fila['id_perfil'];
+                    $_SESSION['usuario']['nom_usuario'] = $fila['nom_usuario'];
+                    $_SESSION['usuario']['avatar'] = $fila['avatar'];
+                    $_SESSION['usuario']['nombre_perfil'] = $fila['nombre_perfil'];
+                    $_SESSION['usuario']['nombre_cliente'] = $fila['nombre_cliente'];
+                    $_SESSION['usuario']['email'] = $fila['email'];
+                    $_SESSION['usuario']['id_bodega'] = $fila['id_bodega'];
+                    $_SESSION['usuario']['tipo_perfil'] = $fila['tipo_perfil'];
+                    $_SESSION['usuario']['user_log'] = $fila['user_log'];
+                    $_SESSION['usuario']['pass'] = $fila['pass'];
+                    $_SESSION['usuario']['empresa_id'] = $fila['empresa_id'];
+                    $_SESSION['usuario']['nombre_empresa'] = $fila['nombre_empresa'];
+                    $_SESSION['usuario']['nombre_perfil'] = $fila['nombre_perfil'];
+                    $_SESSION['usuario']['proveedor_id'] = $ProveedorDatos['proveedor_id'];
+                    $_SESSION['usuario']['razon_social'] = $ProveedorDatos['razon_social'];
+
+                    // Guardar pantallas, menu_ids y ventanas en la sesión
+                    $_SESSION['usuario']['pantallas'] = explode('|', $fila['pantallas']);
+                    $_SESSION['usuario']['menu_ids'] = explode('|', $fila['menu_ids']);
+                    $_SESSION['usuario']['menu_pantallas'] = explode('|', $fila['menu_pantallas']);
+                    $_SESSION['usuario']['ventanas'] = explode('|', $fila['ventanas']);  // Formato: id_ventana:nombre_ventana:orden_ventana:pantalla_id
+                }
+            } else {
+                session_start();
+                $_SESSION['usuario']['id_cliente'] = $fila['id_cliente'];
+                $_SESSION['usuario']['id_usuario'] = $fila['id_usuario'];
+                $_SESSION['usuario']['id_perfil'] = $fila['id_perfil'];
+                $_SESSION['usuario']['nom_usuario'] = $fila['nom_usuario'];
+                $_SESSION['usuario']['avatar'] = $fila['avatar'];
+                $_SESSION['usuario']['nombre_perfil'] = $fila['nombre_perfil'];
+                $_SESSION['usuario']['nombre_cliente'] = $fila['nombre_cliente'];
+                $_SESSION['usuario']['email'] = $fila['email'];
+                $_SESSION['usuario']['id_bodega'] = $fila['id_bodega'];
+                $_SESSION['usuario']['tipo_perfil'] = $fila['tipo_perfil'];
+                $_SESSION['usuario']['user_log'] = $fila['user_log'];
+                $_SESSION['usuario']['pass'] = $fila['pass'];
+                $_SESSION['usuario']['empresa_id'] = $fila['empresa_id'];
+                $_SESSION['usuario']['nombre_empresa'] = $fila['nombre_empresa'];
+                $_SESSION['usuario']['nombre_perfil'] = $fila['nombre_perfil'];
+                $_SESSION['usuario']['proveedor_id'] = "";
+                $_SESSION['usuario']['razon_social'] = "";
+                // Guardar pantallas, menu_ids y ventanas en la sesión
+                $_SESSION['usuario']['pantallas'] = explode('|', $fila['pantallas']);
+                $_SESSION['usuario']['menu_ids'] = explode('|', $fila['menu_ids']);
+                $_SESSION['usuario']['menu_pantallas'] = explode('|', $fila['menu_pantallas']);
+                $_SESSION['usuario']['ventanas'] = explode('|', $fila['ventanas']);  // Formato: id_ventana:nombre_ventana:orden_ventana:pantalla_id
+            }
         }
     }
 

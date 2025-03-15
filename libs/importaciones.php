@@ -25,7 +25,7 @@ $time = time();
 $conectar = $Data2->conectar();
 
 switch ($_GET["action"]) {
-	
+
 	case 'insertar_nacional':
 		$_msg_control .= "Entro en insertar_nacional\n";
 		$numero_importacion = time();
@@ -34,6 +34,7 @@ switch ($_GET["action"]) {
 		if (!isset($_POST["id_contrato"]) or $_POST["id_contrato"] != "otro") {
 			$arrayProyecto["id_contrato"] = $_POST["id_contrato"];
 		}
+
 		$arrayProyecto["importacion"] = trim($_POST["importacion"]);
 		$arrayProyecto["numero_importacion"] = $numero_importacion;
 		$arrayProyecto["rndc_material"] = $_POST["id_rndc_material"];
@@ -60,14 +61,14 @@ switch ($_GET["action"]) {
 				$array_valor = explode(",", $_POST["valor_contrato"]);
 				$_valor = str_replace(".", "", $array_valor[0]);
 
-				$array = array(
+				$array = [
 					'cod_contrato' => $cod_contrato,
 					'id_cliente' => $_POST["id_cliente"],
 					'tipo_contrato' => $_POST["tipo_contrato"],
 					'valor' => $_valor,
 					'fecha_inicio' => $_POST["inicio_contrato"],
 					'fecha_fin' => $_POST["fin_contrato"]
-				);
+				];
 				$result = $Data->setRegistro("cmx_contrato_cliente", $array);
 
 				if ($result) {
@@ -325,128 +326,6 @@ switch ($_GET["action"]) {
 		}
 		break;
 
-	// case 'actividades_proyecto':
-	// 	$_msg_control .= "Entro en actividades_proyecto\n";
-
-	// 	$sql = 'SELECT MAX(id) FROM cmx_importacion_proyecto';
-	// 	// $respuesta = $Data->getConsulta($sql);
-	// 	$sqlrespuesta = $conectar->prepare($sql);
-	// 	$sqlrespuesta->execute();
-	// 	$respuesta = $sqlrespuesta->fetch(PDO::FETCH_ASSOC);
-
-	// 	$arrayActividadProyecto = [];
-	// 	$arrayActividadProyecto["id_importacion"] = $respuesta;
-	// 	$arrayActividadProyecto["nombre"] = $_POST["nombre"];
-	// 	$arrayActividadProyecto["descripcion"] = $_POST["descripcion"];
-	// 	$arrayActividadProyecto["actividad_previa"] = $_POST["actividad_previa"];
-	// 	$arrayActividadProyecto["orden"] = $_POST["orden"];
-	// 	$arrayActividadProyecto["documentos"] = $_POST["documentos"];
-	// 	$arrayActividadProyecto["tiempo_aprobado"] = $_POST["tiempo_aprobado"];
-	// 	$arrayActividadProyecto["costo_aprobado"] = $_POST["costo_aprobado"];
-	// 	$arrayActividadProyecto["moneda"] = $_POST["moneda"];
-	// 	$arrayActividadProyecto["perfil_responsable"] = $_POST["perfil_responsable"];
-	// 	$arrayActividadProyecto["integracion"] = $_POST["integracion"];
-	// 	$arrayActividadProyecto["sub_integracion"] = $_POST["sub_integracion"];
-	// 	$arrayActividadProyecto["tipo_actividad"] = $_POST["tipo_actividad"];
-	// 	$arrayActividadProyecto["adjunto"] = $_POST["adjunto"];
-	// 	$arrayActividadProyecto["fecha_creacion"] = $fecha_actual["year"] . "-" . $fecha_actual["mon"] . "-" . $fecha_actual["mday"] . " " . $fecha_actual["hours"] . ":" . $fecha_actual["minutes"] . ":" . $fecha_actual["seconds"];
-
-	// 	if ($_POST["id_centro_costo"] != 0) {
-	// 		$arrayActividadProyecto["id_centro_costo"] = $_POST["id_centro_costo"];
-	// 	}
-	// 	$arrayActividadProyecto["bloque"] = $_POST["bloque"];
-	// 	$arrayActividadProyecto["simultaneo"] = $_POST["simultaneo"];
-	// 	$arrayActividadProyecto["grupo"] = $_POST["grupo"];
-	// 	$arrayActividadProyecto["urbaneo"] = $_POST["urbaneo"];
-	// 	$return["arrayActividad"] = $arrayActividadProyecto;
-
-	// 	// Se guarda la informacion del proyecto en la base de datos 
-	// 	$resul = $Data->setRegistro("cmx_importacion_actividades", $arrayActividadProyecto);
-	// 	// print_r($resul);
-	// 	break;
-
-	// case 'actividades_proyecto':
-	// 	$_msg_control .= "Entro en actividades_proyecto\n";
-
-	// 	try {
-	// 		// Obtener MAX(id)
-	// 		$sql = 'SELECT MAX(id) as max_id FROM cmx_importacion_proyecto';
-	// 		$stmt = $conectar->prepare($sql);
-	// 		$stmt->execute();
-	// 		$respuesta = $stmt->fetch(PDO::FETCH_ASSOC);
-
-	// 		$id_importacion = $respuesta['max_id'] ?? 0;
-
-	// 		// Preparar array de datos
-	// 		$arrayActividadProyecto = [
-	// 			":id_importacion" => $id_importacion,
-	// 			":nombre" => $_POST["nombre"],
-	// 			":descripcion" => $_POST["descripcion"],
-	// 			":actividad_previa" => $_POST["actividad_previa"],
-	// 			":orden" => $_POST["orden"],
-	// 			":documentos" => $_POST["documentos"],
-	// 			":tiempo_aprobado" => $_POST["tiempo_aprobado"],
-	// 			":costo_aprobado" => $_POST["costo_aprobado"],
-	// 			":moneda" => $_POST["moneda"],
-	// 			":perfil_responsable" => $_POST["perfil_responsable"],
-	// 			":integracion" => $_POST["integracion"],
-	// 			":sub_integracion" => $_POST["sub_integracion"],
-	// 			":tipo_actividad" => $_POST["tipo_actividad"],
-	// 			":adjunto" => $_POST["adjunto"],
-	// 			":fecha_creacion" => date('Y-m-d H:i:s'),  // Usamos date() directamente
-	// 			":bloque" => $_POST["bloque"],
-	// 			":simultaneo" => $_POST["simultaneo"],
-	// 			":grupo" => $_POST["grupo"],
-	// 			":urbaneo" => $_POST["urbaneo"] ?? 0
-	// 		];
-
-	// 		// Manejar campo opcional
-	// 		if ($_POST["id_centro_costo"] != 0) {
-	// 			$arrayActividadProyecto[":id_centro_costo"] = $_POST["id_centro_costo"];
-	// 			$centro_costo_field = ", id_centro_costo";
-	// 			$centro_costo_value = ", :id_centro_costo";
-	// 		} else {
-	// 			$centro_costo_field = "";
-	// 			$centro_costo_value = "";
-	// 		}
-
-	// 		// Construir SQL
-	// 		$sql = "INSERT INTO cmx_importacion_actividades (
-	//                   id_importacion, nombre, descripcion, actividad_previa, orden, 
-	//                   documentos, tiempo_aprobado, costo_aprobado, moneda, 
-	//                   perfil_responsable, integracion, sub_integracion, 
-	//                   tipo_actividad, adjunto, fecha_creacion, bloque, 
-	//                   simultaneo, grupo, urbaneo $centro_costo_field
-	//               ) VALUES (
-	//                   :id_importacion, :nombre, :descripcion, :actividad_previa, :orden, 
-	//                   :documentos, :tiempo_aprobado, :costo_aprobado, :moneda, 
-	//                   :perfil_responsable, :integracion, :sub_integracion, 
-	//                   :tipo_actividad, :adjunto, :fecha_creacion, :bloque, 
-	//                   :simultaneo, :grupo, :urbaneo $centro_costo_value
-	//               )";
-
-	// 		// Ejecutar inserción
-	// 		$stmt = $conectar->prepare($sql);
-	// 		$resultado = $stmt->execute($arrayActividadProyecto);
-
-	// 		// Verificar resultado
-	// 		if ($resultado) {
-	// 			$return['success'] = true;
-	// 			$return['message'] = "Registro insertado correctamente";
-	// 			$return['lastInsertId'] = $conectar->lastInsertId();
-	// 		} else {
-	// 			$error = $stmt->errorInfo();
-	// 			throw new Exception("Error al insertar: " . $error[2]);
-	// 		}
-
-	// 	} catch (Exception $e) {
-	// 		$return['success'] = false;
-	// 		$return['message'] = "Error: " . $e->getMessage();
-	// 	}
-
-	// 	$return["arrayActividad"] = $arrayActividadProyecto;
-	// 	break;
-
 	case 'actividades_proyecto':
 		$_msg_control .= "Entro en actividades_proyecto\n";
 
@@ -523,7 +402,6 @@ switch ($_GET["action"]) {
 				$error = $stmt->errorInfo();
 				throw new Exception("Error al insertar: " . $error[2]);
 			}
-
 		} catch (Exception $e) {
 			$return['success'] = false;
 			$return['message'] = "Error: " . $e->getMessage();
@@ -1141,7 +1019,6 @@ switch ($_GET["action"]) {
 							/******* FIN SE PREGUNTA SI LA ACTIVIDAD ANTIGUA TIENE IMAGENES DE ACTIVIDAD *******/
 						}
 						$_registro_exitoso++;
-
 					}
 					// Se actualizan las actividades que no tienen material asignado para evitar inconvenientes con la gestion de las demás actividades con material
 					$sql = '
@@ -1715,7 +1592,6 @@ switch ($_GET["action"]) {
 												$arrayAgrupacionMaterial["valor_declarado"] = $_POST["material_agrupacion"][$materiales[$i]]["valor_declarado"];
 												$resul = $Data->setRegistro("cmx_agrupacion_material", $arrayAgrupacionMaterial);
 											}
-
 										}
 									}
 								}
@@ -1996,7 +1872,7 @@ switch ($_GET["action"]) {
 								'id_proveedor' => (int) $_POST["id_proveedor_servicio_" . $value],
 								'id_instruccion' => (int) $id_instruccion,
 								'url_costo' => $archivo_destino,
-								'sobrecosto' => (boolean) $_POST["sobrecosto_" . $value]
+								'sobrecosto' => (bool) $_POST["sobrecosto_" . $value]
 							);
 							// Se valida si el costo pertenece a algun tramo del proyecto 
 							if ($_POST["id_tramo_" . $value]) {
@@ -2667,5 +2543,3 @@ function datosContrato($id)
 	}
 	return $content;
 }
-
-?>

@@ -102,44 +102,97 @@ class Consultas
      * @return array
      */
 
+    // public function getConsulta($sql)
+    // {
+    //     ini_set('memory_limit', '1024M'); // or you could use 1G
+    //     set_time_limit(300); // Increase the maximum execution time to 300 seconds
+
+    //     $conex = ConectarDb::getConexion();
+
+    //     try {
+    //         // Perform the query and handle any errors
+    //         $result = $conex->query($sql);
+    //         if (!$result) {
+    //             throw new Exception("Query Error: " . $conex->error);
+    //         }
+
+    //         $arrayrows = array();
+    //         if ($result->num_rows > 0) {
+    //             while ($row = $result->fetch_array(MYSQLI_ASSOC)) { // Fetch associative array
+    //                 array_push($arrayrows, $row);
+    //             }
+    //             // Store the result in an array
+    //             $arrayData = array("rowsData" => $arrayrows, "rowsNum" => $result->num_rows);
+
+    //             // Free the result set
+    //             $result->free();
+    //         } else {
+    //             $arrayData = false;
+    //         }
+
+    //         // Close the connection
+    //         $conex->close();
+
+    //         return $arrayData;
+    //     } catch (Exception $e) {
+    //         // Handle exceptions and close the connection
+    //         if (isset($conex) && $conex->ping()) {
+    //             $conex->close();
+    //         }
+    //         echo "Error: " . $e->getMessage();
+    //         return false;
+    //     }
+    // }
+
     public function getConsulta($sql)
     {
-        ini_set('memory_limit', '1024M'); // or you could use 1G
-        set_time_limit(300); // Increase the maximum execution time to 300 seconds
+        ini_set('memory_limit', '1024M');
+        set_time_limit(300);
 
         $conex = ConectarDb::getConexion();
 
         try {
-            // Perform the query and handle any errors
             $result = $conex->query($sql);
-            if (!$result) {
-                throw new Exception("Query Error: " . $conex->error);
+
+            if ($result === false) {
+                throw new Exception("Error en la consulta: " . $conex->error);
             }
 
-            $arrayrows = array();
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_array(MYSQLI_ASSOC)) { // Fetch associative array
-                    array_push($arrayrows, $row);
-                }
-                // Store the result in an array
-                $arrayData = array("rowsData" => $arrayrows, "rowsNum" => $result->num_rows);
+            $arrayData = false;
 
-                // Free the result set
+            // Verificar si es un resultado de tipo SELECT
+            if ($result instanceof mysqli_result) {
+                $num_rows = $result->num_rows;
+                $arrayrows = array();
+
+                if ($num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $arrayrows[] = $row;
+                    }
+                    $arrayData = array(
+                        "rowsData" => $arrayrows,
+                        "rowsNum" => $num_rows
+                    );
+                }
                 $result->free();
             } else {
-                $arrayData = false;
+                // Para consultas que no devuelven resultados (INSERT/UPDATE/DELETE)
+                $arrayData = array(
+                    "affected_rows" => $conex->affected_rows,
+                    "insert_id" => $conex->insert_id
+                );
             }
 
-            // Close the connection
             $conex->close();
 
             return $arrayData;
         } catch (Exception $e) {
-            // Handle exceptions and close the connection
-            if (isset($conex) && $conex->ping()) {
-                $conex->close();
+            if (isset($conex)) {
+                if ($conex->ping()) {
+                    $conex->close();
+                }
             }
-            echo "Error: " . $e->getMessage();
+            error_log("Error en getConsulta: " . $e->getMessage());
             return false;
         }
     }

@@ -3687,7 +3687,11 @@ class web_serviceController extends Controller
 
           // Colocar la agencia de donde debe colocar el ICA
           if ($manifiesto[0]['agencia'] == 1) { // Bogota
-            $ica = '4.14';
+            if ($manifiesto[0]['origen'] == 409) {
+              $ica = '10';
+            } else {
+              $ica = '4.14';
+            }
           } elseif ($manifiesto[0]['agencia'] == 2) { // Cartagena
             $ica = '8.56';
           } elseif ($manifiesto[0]['agencia'] == 4) { // Buenaventura

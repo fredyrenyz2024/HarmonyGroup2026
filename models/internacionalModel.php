@@ -449,20 +449,16 @@ class internacionalModel extends Model
 
 	public function setInactivaCotizaciones($id_intr_proyecto, $id_concepto)
 	{
-		$sql = '
-			SELECT cico.id
-			FROM cmx_intr_cotizaciones cico
-			WHERE cico.id_intr_proyecto = ' . $id_intr_proyecto . '	
-				AND cico.id_concepto = ' . $id_concepto . '
-				AND cico.estado != 2
-		';
+		$sql = 'SELECT cico.id FROM cmx_intr_cotizaciones cico
+			WHERE cico.id_intr_proyecto = ' . $id_intr_proyecto . '	AND cico.id_concepto = ' . $id_concepto . ' AND cico.estado != 2';
 		$result = $this->_db->getConsulta($sql);
-
+		// var_dump($result);
+		// exit();
 		if ($result) {
 			foreach ($result["rowsData"] as $key => $value) {
-				$array = array();
+				$array = [];
 				$array["estado"] = 0;
-				$this->_db->updateRegistro("cmx_intr_cotizaciones", $array, (int)$value[0]);
+				$this->_db->updateRegistro("cmx_intr_cotizaciones", $array, (int)$value['id']);
 			}
 		}
 	}
@@ -473,24 +469,18 @@ class internacionalModel extends Model
 	{
 		$usuario = $_SESSION["usuario"];
 		$_falg_perfil = false;
-		if (
-			$usuario["id_perfil"] == 24 or $usuario["id_perfil"] == 22 or $usuario["id_perfil"] == 25
-			or $usuario["id_perfil"] == 29 or $usuario["id_perfil"] == 31 or $usuario["id_perfil"] == 32
-		) {
+		if ($usuario["id_perfil"] == 24 or $usuario["id_perfil"] == 22 or $usuario["id_perfil"] == 25 or $usuario["id_perfil"] == 29 or $usuario["id_perfil"] == 31 or $usuario["id_perfil"] == 32) {
 			$_falg_perfil = true;
 		}
 
 		if ($this->validaAdministrador($usuario["id_perfil"], $_falg_perfil)) {
-			$sql = '
-				SELECT cis.id ID_PROYECTO_INTERNACIONAL, 
-					cip.tipo_operacion, cip.numero_importacion, cip.importacion, cis.do,
+			$sql = 'SELECT cis.id ID_PROYECTO_INTERNACIONAL, cip.tipo_operacion, cip.numero_importacion, cip.importacion, cis.do,
 					cc.cod_cliente, CONCAT(cc.documento, "-", cc.digito_verificacion) DOC_CLIENTE, cc.sigla, cc.nombre,
 					cis.tipo_transporte, cis.incoterm, cis.valor_declarado, cia.fecha_hora_inicio,
 					IF( cis.id_moneda IS NOT NULL,
 						(	SELECT CONCAT( cm.nom_moneda, " (", cm.codigo, ")" )
 							FROM cmx_monedas cm 
-							WHERE cm.id = cis.id_moneda
-						),
+							WHERE cm.id = cis.id_moneda),
 						NULL 
 					) MONEDA
 				FROM cmx_importacion_proyecto cip
@@ -565,8 +555,7 @@ class internacionalModel extends Model
 	public function getDatosSubeFacturas($id)
 	{
 		// Se busca la información básica de la cotización
-		$sql = '
-			SELECT cis.id ID_PROYECTO_INTERNACIONAL, cis.do, 
+		$sql = 'SELECT cis.id ID_PROYECTO_INTERNACIONAL, cis.do, 
 				cip.tipo_operacion, cip.numero_importacion, cip.importacion,
 				IF(	cip.tipo_contenedor,
 					(	SELECT CONCAT(cip.contenedor," (", ctc1.nombre,")")
@@ -604,8 +593,7 @@ class internacionalModel extends Model
 		$result["materiales"] = $this->getMaterialProyecto($id);
 
 		// Se buscan los proveedores a los que se le aprobó cotizaciones 
-		$sql = '
-			SELECT DISTINCT cico.id_proveedor, cico.proveedor, 
+		$sql = 'SELECT DISTINCT cico.id_proveedor, cico.proveedor, 
 				(	SELECT COUNT(cico1.id_proveedor) CUANTOS
 					FROM cmx_intr_cotizaciones cico1
 					WHERE cico1.estado = 1
@@ -1438,8 +1426,7 @@ class internacionalModel extends Model
 	public function getDatosAnticiposProveedores($id)
 	{
 		// Se busca la información del proveedor de egreso generado
-		$sql = '
-			SELECT cp.*,
+		$sql = 'SELECT cp.*,
 				cap.actividad,
 				cm.municipio, cm.depto, cm.pais,
 				CONCAT(cm.municipio," (", cm.depto," - ",cm.pais,")") CIUDAD
@@ -1460,8 +1447,7 @@ class internacionalModel extends Model
 		$return["proveedor"] = $result;
 
 		// Se busca la información de las facturas presentadas por el proveedor
-		$sql = '
-			SELECT cif.*,
+		$sql = 'SELECT cif.*,
 				cie.numero_egreso, cie.fecha_egreso, 
 				cc.sigla NOM_CLIENTE, 
 				IF( cif.id_moneda IS NOT NULL,
@@ -1501,62 +1487,93 @@ class internacionalModel extends Model
 				INNER JOIN cmx_importacion_proyecto cip ON cip.id = cis.id_proyecto
 				INNER JOIN cmx_clientes cc ON cc.id = cip.id_cliente
 			WHERE cie.id = ' . $id . '
-				AND cie.estado = 2
-		';
-		// $result = $this->_db->getConsulta($sql);
+				AND cie.estado = 2';
 		$result = $this->_db3->prepare($sql);
 		$result->execute();
 		$return["facturas"] = $result->fetchAll(PDO::FETCH_ASSOC);
+		$return["total_facturas"] = count($return["facturas"]);
 		// $return["facturas"] = $result;
 
 		// Se busca la información de las cotizaciones de la factura 
 		if ($return) {
 			// foreach ($result["rowsData"] as $key => $value) {
 			foreach ($return["facturas"] as $key => $value) {
-				$sql = '
-					SELECT cico.*,
-						IF( cico.id_moneda IS NOT NULL,
-							(	SELECT CONCAT( cm.nom_moneda, " (", cm.codigo, ")" )
-								FROM cmx_monedas cm 
-								WHERE cm.id = cico.id_moneda
-							),
-							NULL 
-						) MONEDA_COTIZACION,
-						IF(	cico.id_moneda = 2,
-							1,
-							IF((	SELECT COUNT(cmt1.id)
-									FROM cmx_monedas_trm cmt1
-									WHERE cmt1.id_moneda = cico.id_moneda
-										AND cmt1.fecha = cico.fecha_cotizacion
-								) > 0,
-								(	SELECT cmt1.valor
-									FROM cmx_monedas_trm cmt1
-									WHERE cmt1.id_moneda = cico.id_moneda
-										AND cmt1.fecha = cico.fecha_cotizacion
-								),
-								NULL
-							)
-						) TRM_COTIZACION,
-						cico.descripcion DESCRIPCION_COTIZACION, cico.url URL_COTIZACION,
-						cic.nombre CONCEPTO, cic.descripcion DESCRIPCION_CONCEPTO
-					FROM cmx_intr_cotizaciones cico 
-						INNER JOIN cmx_intr_conceptos cic ON cic.id = cico.id_concepto
-					WHERE cico.id_factura = ' . $value['id'] . '
-						AND cico.estado = 1;
-				';
+				// $sql = 'SELECT cico.*,
+				// 		IF( cico.id_moneda IS NOT NULL,
+				// 			(	SELECT CONCAT( cm.nom_moneda, " (", cm.codigo, ")" )
+				// 				FROM cmx_monedas cm 
+				// 				WHERE cm.id = cico.id_moneda
+				// 			),
+				// 			NULL 
+				// 		) MONEDA_COTIZACION,
+				// 		IF(	cico.id_moneda = 2,
+				// 			1,
+				// 			IF((	SELECT COUNT(cmt1.id)
+				// 					FROM cmx_monedas_trm cmt1
+				// 					WHERE cmt1.id_moneda = cico.id_moneda
+				// 						AND cmt1.fecha = cico.fecha_cotizacion
+				// 				) > 0,
+				// 				(	SELECT cmt1.valor
+				// 					FROM cmx_monedas_trm cmt1
+				// 					WHERE cmt1.id_moneda = cico.id_moneda
+				// 						AND cmt1.fecha = cico.fecha_cotizacion
+				// 				),
+				// 				NULL
+				// 			)
+				// 		) TRM_COTIZACION,
+				// 		cico.descripcion DESCRIPCION_COTIZACION, cico.url URL_COTIZACION,
+				// 		cic.nombre CONCEPTO, cic.descripcion DESCRIPCION_CONCEPTO
+				// 	FROM cmx_intr_cotizaciones cico 
+				// 		INNER JOIN cmx_intr_conceptos cic ON cic.id = cico.id_concepto
+				// 	WHERE cico.id_factura = ' . $value['id'] . '
+				// 		AND cico.estado = 1;
+				// ';
+				// $result_01 = $this->_db3->prepare($sql);
+				// $result_01->execute();
+				// $return["cotizaciones"][$value['id']] = $result_01->fetchAll(PDO::FETCH_ASSOC);
 
-				// $result_01 = $this->_db->getConsulta($sql);
-				// $return["cotizaciones"][$value[0]] = $result_01;
+				$sql = 'SELECT cico.*,
+        IF( cico.id_moneda IS NOT NULL,
+            (SELECT CONCAT( cm.nom_moneda, " (", cm.codigo, ")" )
+             FROM cmx_monedas cm 
+             WHERE cm.id = cico.id_moneda),
+            NULL 
+        ) MONEDA_COTIZACION,
+        IF( cico.id_moneda = 2,
+            1,
+            IF((SELECT COUNT(cmt1.id)
+                 FROM cmx_monedas_trm cmt1
+                 WHERE cmt1.id_moneda = cico.id_moneda
+                   AND cmt1.fecha = cico.fecha_cotizacion) > 0,
+               (SELECT cmt1.valor
+                FROM cmx_monedas_trm cmt1
+                WHERE cmt1.id_moneda = cico.id_moneda
+                  AND cmt1.fecha = cico.fecha_cotizacion),
+               NULL
+            )
+        ) TRM_COTIZACION,
+        cico.descripcion DESCRIPCION_COTIZACION, 
+        cico.url URL_COTIZACION,
+        cic.nombre CONCEPTO, 
+        cic.descripcion DESCRIPCION_CONCEPTO
+				FROM cmx_intr_cotizaciones cico 
+				INNER JOIN cmx_intr_conceptos cic ON cic.id = cico.id_concepto
+				WHERE cico.id_factura = :id_factura AND cico.estado = 1';
+
 				$result_01 = $this->_db3->prepare($sql);
+				$result_01->bindParam(':id_factura', $value['id'], PDO::PARAM_INT);
 				$result_01->execute();
-				$return["cotizaciones"][$value['id']] = $result_01->fetchAll(PDO::FETCH_ASSOC);
+
+				$rows = $result_01->fetchAll(PDO::FETCH_ASSOC); // Obtener registros
+				// $total_rows = count($rows); // Contar registros obtenidos
+
+				$return["cotizaciones"][$value['id']] = $rows;
+				$return["cotizaciones_count"] = count($return["cotizaciones"]); // Guardar la cantidad de registros
 			}
 		}
 
 		// Se busca la información de la sumatoria de las facturas por moneda
-		$sql = '
-			SELECT 
-				cm.id, CONCAT(cm.nom_moneda," (",cm.codigo,")") MONEDA,
+		$sql = 'SELECT cm.id, CONCAT(cm.nom_moneda," (",cm.codigo,")") MONEDA,
 				SUM(cif.valor) VALOR
 			FROM cmx_intr_egresos cie
 				INNER JOIN cmx_intr_facturas cif ON cif.id_egreso = cie.id
@@ -1569,6 +1586,7 @@ class internacionalModel extends Model
 		$result->execute();
 		$return["sumatoria_monedas"] = $result->fetchAll(PDO::FETCH_ASSOC);
 		// $return["total_monedas"] = $result;
+		$return["total_monedas"] = count($return["sumatoria_monedas"]); // Ahora almacena el número de registros
 		return $return;
 	}
 
@@ -1727,8 +1745,7 @@ class internacionalModel extends Model
 
 	public function getInfoPago($id)
 	{
-		$sql = '
-			SELECT ciep.*,
+		$sql = 'SELECT ciep.*,
 				COUNT( DISTINCT(cie.id) ) CUANTOS,
 				SUM(cif.valor) TOTAL_FACTURAS,
 				cif.id_moneda, CONCAT(cm.nom_moneda," (",cm.codigo,")") MONEDA
@@ -1740,9 +1757,6 @@ class internacionalModel extends Model
 				AND ciep.id = ' . $id . '
 			GROUP BY ciep.id
 		';
-		// $result = $this->_db->getConsulta($sql);
-		// $return = $result;
-		// return $return;
 		$result = $this->_db3->prepare($sql);
 		$result->execute();
 		$return = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -1752,8 +1766,7 @@ class internacionalModel extends Model
 	public function getDatosPagos($id)
 	{
 		// Se busca la información del proveedor de egreso generado
-		$sql = '
-			SELECT DISTINCT(cp.id), cp.*,
+		$sql = 'SELECT DISTINCT(cp.id), cp.*,
 				cap.actividad,
 				cm.municipio, cm.depto, cm.pais,
 				CONCAT(cm.municipio," (", cm.depto," - ",cm.pais,")") CIUDAD
@@ -1765,18 +1778,14 @@ class internacionalModel extends Model
 				INNER JOIN cmx_municipios cm ON cm.id = cp.id_municipio
 			WHERE cie.id = ' . $id . '
 				AND cp.estado = "Activo"
-				AND cap.actividad = "Proveedor";
+				AND cap.actividad = "Proveedor"
 		';
-		// $result = $this->_db->getConsulta($sql);
-		// $return["proveedor"] = $result;
 		$result = $this->_db3->prepare($sql);
 		$result->execute();
 		$return["proveedor"] = $result->fetchAll(PDO::FETCH_ASSOC);
-		// $return["proveedor"] = $result;
 
 		// Se busca la información de las facturas presentadas por el proveedor
-		$sql = '
-			SELECT cif.*,
+		$sql = 'SELECT cif.*,
 				cie.numero_egreso, cie.fecha_egreso, 
 				cc.sigla NOM_CLIENTE, 
 				IF( cif.id_moneda IS NOT NULL,
@@ -1819,19 +1828,16 @@ class internacionalModel extends Model
 				AND cie.estado = 1
 				AND cie.id_pago IS NOT NULL
 		';
-		// $result = $this->_db->getConsulta($sql);
-		// $return["facturas"] = $result;
 		$result = $this->_db3->prepare($sql);
 		$result->execute();
 		$return["facturas"] = $result->fetchAll(PDO::FETCH_ASSOC);
-
+		$return["total_facturas"] = count($return["facturas"]);
 		// Se busca la información de las cotizaciones de la factura 
 		// if ($result) {
 		if ($return["facturas"]) {
 			// foreach ($result["rowsData"] as $key => $value) {
 			foreach ($return["facturas"] as $key => $value) {
-				$sql = '
-					SELECT cico.*,
+				$sql = 'SELECT cico.*,
 						IF( cico.id_moneda IS NOT NULL,
 							(	SELECT CONCAT( cm.nom_moneda, " (", cm.codigo, ")" )
 								FROM cmx_monedas cm 
@@ -1861,11 +1867,10 @@ class internacionalModel extends Model
 					WHERE cico.id_factura = ' . $value['id'] . '
 						AND cico.estado = 1;
 				';
-				// $result_01 = $this->_db->getConsulta($sql);
-				// $return["cotizaciones"][$value[0]] = $result_01;
 				$result_01 = $this->_db3->prepare($sql);
 				$result_01->execute();
 				$return["cotizaciones"][$value['id']] = $result_01->fetchAll(PDO::FETCH_ASSOC);
+				$return["cotizaciones_count"] = count($return["cotizaciones"]); // Guardar la cantidad de registros
 			}
 		}
 
@@ -1884,7 +1889,9 @@ class internacionalModel extends Model
 		// $return["total_monedas"] = $result;
 		$result = $this->_db3->prepare($sql);
 		$result->execute();
-		$return["total_monedas"] = $result->fetchAll(PDO::FETCH_ASSOC);
+		$return["sumatoria_monedas"] = $result->fetchAll(PDO::FETCH_ASSOC);
+		$return["total_monedas"] = count($return["sumatoria_monedas"]); // Ahora almacena el número de registros
+		// $return["total_monedas"] = $result->fetchAll(PDO::FETCH_ASSOC);
 		return $return;
 	}
 
@@ -2252,16 +2259,25 @@ class internacionalModel extends Model
 		$return["destinos"] = [];
 		foreach ($return["ciudades_destino"] as $key => $value) {
 			$sql = 'SELECT cit.id AS ID_TRAMO, crd.*
-                FROM cmx_intr_tramos cit
-                    INNER JOIN cmx_remitente_destinatario crd ON crd.id = cit.id_remitente_destinatario
-                    INNER JOIN cmx_municipios cm ON cm.id = crd.id_ciudad
-                WHERE cit.id_intr_proyecto = :id
-                  AND cm.id = :ciudad_id
-                  AND cit.tipo_tramo = "Descargue"';
+            FROM cmx_intr_tramos cit
+            INNER JOIN cmx_remitente_destinatario crd ON crd.id = cit.id_remitente_destinatario
+            INNER JOIN cmx_municipios cm ON cm.id = crd.id_ciudad
+            WHERE cit.id_intr_proyecto = :id
+            AND cm.id = :ciudad_id
+            AND cit.tipo_tramo = "Descargue"';
 
 			$stmt = $this->_db3->prepare($sql);
 			$stmt->execute(['id' => $id, 'ciudad_id' => $value['id']]);
-			$return["destinos"][$value['id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			// Obtener los datos y el número de filas
+			$resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$numFilas = count($resultados);
+
+			// Mantener misma estructura que en tu función original
+			$return["destinos"][$value['id']] = [
+				"rowsData" => $resultados,
+				"rowsNum" => $numFilas
+			];
 		}
 
 		return $return;

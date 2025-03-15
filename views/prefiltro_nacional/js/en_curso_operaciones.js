@@ -1,155 +1,169 @@
 window.VENTANA = null;
-$(document).ready(function () {
+// $(document).ready(function () {});
 
-  window.initScript = function (id) {
-    window.VENTANA = id; // Asigna el ID recibido a la variable global
+window.initScript = function (id) {
+  window.VENTANA = id; // Asigna el ID recibido a la variable global
 
-    const hoy = new Date(); // Obtener la fecha actual
-    const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
-    const SELECTFILTRO = "todos";
-    var fecha_inicial = fechaHoy;
-    var fecha_final = fechaHoy;
-    var estado = "En_Curso";
-    var cliente = "";
-    Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
+  // Crear instancia
+  // Usar una variable global o una propiedad en el objeto window
+  if (!window.myOffcanvas) {
+    window.myOffcanvas = new DynamicOffcanvas({
+      id: `customOffcanvas${id}`,
+      title: '<span class="text-dark uil uil-car"></span> Consultar vehículo',
+      content: '<p>Contenido inicial</p>',
+      scroll: true,
+      backdrop: false
+    });
+  } else {
+    console.log('El offcanvas ya está creado.');
+  }
 
-    if (window.VENTANA == 14) {
-      $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
-        let valorSeleccionado = $(this).val();
-        if (valorSeleccionado.trim().toLowerCase() === "clientes") {
-          document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "block";
-          $.ajax({
-            url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
-            type: "POST",
-            dataType: "json",
-            success: function (data) {
-              let select = $(`#campo-${window.VENTANA}-clientes`);
-              select.empty().append('<option value="">Seleccione</option>');
+  const hoy = new Date(); // Obtener la fecha actual
+  const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
+  const SELECTFILTRO = "todos";
+  var fecha_inicial = fechaHoy;
+  var fecha_final = fechaHoy;
+  var estado = "En_Curso";
+  var cliente = "";
+  Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
 
-              $.each(data, function (index, item) {
-                select.append(`<option value="${item.id}">${item.nombre}</option>`);
-              });
+  if (window.VENTANA == 14) {
+    $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
+      let valorSeleccionado = $(this).val();
+      if (valorSeleccionado.trim().toLowerCase() === "clientes") {
+        document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "block";
+        $.ajax({
+          url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
+          type: "POST",
+          dataType: "json",
+          success: function (data) {
+            let select = $(`#campo-${window.VENTANA}-clientes`);
+            select.empty().append('<option value="">Seleccione</option>');
 
-              // Inicializa Select2 en el select de clientes
-              select.select2({
-                placeholder: 'Seleccione una opción',
-                allowClear: true,
-              });
-            },
-            error: function (xhr, status, error) {
-              console.error("Error en AJAX:", status, error);
-              alert("Error al cargar los datos.");
-            }
+            $.each(data, function (index, item) {
+              select.append(`<option value="${item.id}">${item.nombre}</option>`);
+            });
+
+            // Inicializa Select2 en el select de clientes
+            select.select2({
+              placeholder: 'Seleccione una opción',
+              allowClear: true,
+            });
+          },
+          error: function (xhr, status, error) {
+            console.error("Error en AJAX:", status, error);
+            alert("Error al cargar los datos.");
+          }
+        });
+      } else if (valorSeleccionado.length == 0) {
+        document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "none";
+      }
+    });
+
+
+    $(`#campo-${window.VENTANA}-clientes`).off("change").on("change", function () {
+      let valorSeleccionado = $(this).val();
+      // console.log("Cambio en el filtro detectado. Mostrando clientes... " + valorSeleccionado); // Depuración
+      Filtro(SELECTFILTRO, fecha_inicial, fecha_final, "En_Curso", valorSeleccionado);
+    });
+  }
+
+  //Solicitar prioridad para solicitudes
+  document.addEventListener('click', async function (e) {  // 🔹 Escuchamos eventos de clic en toda la página
+    if (e.target.matches("#btn_aprobar_solicitud") || e.target.closest("#btn_aprobar_solicitud")) {
+      let enlace = e.target.closest('#btn_aprobar_solicitud');
+      let dataId = enlace.getAttribute('data-id');
+
+      const result = await Swal.fire({
+        title: 'Seguro',
+        text: '¿Desea aprobar la solicitud?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3B71CA',
+        cancelButtonColor: '#9FA6B2',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar',
+        customClass: {
+          popup: 'swal2-custom-font',
+        },
+      });
+
+      if (result.isConfirmed) {
+        var datos = new FormData();
+        datos.append('solicitud', dataId);
+        datos.append('estado', "Aprobada");
+
+        try {
+          const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
+            method: 'POST',
+            body: datos,
+            cache: 'no-cache',
           });
-        } else if (valorSeleccionado.length == 0) {
-          document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "none";
+          const data = await response.json();
+          Swal.fire({
+            title: "Mensaje!",
+            text: data.message,
+            icon: data.status === 200 ? "success" : "error",
+            draggable: true
+          });
+          Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
+          // if (data.ststus === 200) resetAll();
+        } catch (error) {
+          console.error('Error en la solicitud:', error);
         }
-      });
-
-
-      $(`#campo-${window.VENTANA}-clientes`).off("change").on("change", function () {
-        let valorSeleccionado = $(this).val();
-        // console.log("Cambio en el filtro detectado. Mostrando clientes... " + valorSeleccionado); // Depuración
-        Filtro(SELECTFILTRO, fecha_inicial, fecha_final, "En_Curso", valorSeleccionado);
-      });
+      }
     }
 
-    //Solicitar prioridad para solicitudes
-    document.addEventListener('click', async function (e) {  // 🔹 Escuchamos eventos de clic en toda la página
-      if (e.target.matches("#btn_aprobar_solicitud") || e.target.closest("#btn_aprobar_solicitud")) {
-        let enlace = e.target.closest('#btn_aprobar_solicitud');
-        let dataId = enlace.getAttribute('data-id');
+    if (e.target.matches("#btn-solicitar-prioridad") || e.target.matches("#btn-solicitar-prioridad *")) {
+      // Buscar el elemento padre con el id, en caso de que se haya clickeado un hijo
+      const btn = e.target.closest("#btn-solicitar-prioridad");
+      // Obtener el atributo 'data-id2'
+      const numdoc_sol = btn.getAttribute('data-id2');
 
-        const result = await Swal.fire({
-          title: 'Seguro',
-          text: '¿Desea aprobar la solicitud?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3B71CA',
-          cancelButtonColor: '#9FA6B2',
-          confirmButtonText: 'Aceptar',
-          cancelButtonText: 'Cancelar',
-          customClass: {
-            popup: 'swal2-custom-font',
-          },
-        });
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Quieres cambiar el estado?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cambiar',
+        cancelButtonText: 'Cancelar'
+      });
 
-        if (result.isConfirmed) {
-          var datos = new FormData();
-          datos.append('solicitud', dataId);
-          datos.append('estado', "Aprobada");
-
-          try {
-            const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
-              method: 'POST',
-              body: datos,
-              cache: 'no-cache',
-            });
-            const data = await response.json();
+      if (result.isConfirmed) {
+        datos = new FormData();
+        datos.append('estado', "Propuesta");
+        datos.append('numdoc_solicitud', numdoc_sol);
+        try {
+          const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
+            method: 'POST',
+            body: datos,
+            cache: 'no-cache',
+          });
+          const data = await response.json();
+          if (data.status === 200) {
             Swal.fire({
               title: "Mensaje!",
               text: data.message,
-              icon: data.status === 200 ? "success" : "error",
+              icon: "success",
               draggable: true
             });
             Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
-            // if (data.ststus === 200) resetAll();
-          } catch (error) {
-            console.error('Error en la solicitud:', error);
-          }
-        }
-      }
-
-      if (e.target.matches("#btn-solicitar-prioridad") || e.target.matches("#btn-solicitar-prioridad *")) {
-        // Buscar el elemento padre con el id, en caso de que se haya clickeado un hijo
-        const btn = e.target.closest("#btn-solicitar-prioridad");
-        // Obtener el atributo 'data-id2'
-        const numdoc_sol = btn.getAttribute('data-id2');
-
-        const result = await Swal.fire({
-          title: '¿Estás seguro?',
-          text: '¿Quieres cambiar el estado?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Sí, cambiar',
-          cancelButtonText: 'Cancelar'
-        });
-
-        if (result.isConfirmed) {
-          datos = new FormData();
-          datos.append('estado', "Propuesta");
-          datos.append('numdoc_solicitud', numdoc_sol);
-          try {
-            const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
-              method: 'POST',
-              body: datos,
-              cache: 'no-cache',
+          } else {
+            Swal.fire({
+              title: "Mensaje!",
+              text: data.message,
+              icon: "error",
+              draggable: true
             });
-            const data = await response.json();
-            if (data.status === 200) {
-              Swal.fire({
-                title: "Mensaje!",
-                text: data.message,
-                icon: "success",
-                draggable: true
-              });
-              Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente);
-            } else {
-              Swal.fire({
-                title: "Mensaje!",
-                text: data.message,
-                icon: "error",
-                draggable: true
-              });
-            }
-          } catch (error) {
-            console.error('Error en la primera solicitud:', error);
           }
+        } catch (error) {
+          console.error('Error en la primera solicitud:', error);
         }
       }
-    });
-  };
-});
+    }
+  });
+};
+
 
 async function Filtro(SELECTFILTRO, fecha_inicial, fecha_final, estado, cliente) {
   if (SELECTFILTRO !== '') {

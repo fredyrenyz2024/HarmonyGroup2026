@@ -8,10 +8,12 @@ date_default_timezone_set('America/Bogota');
 
 $_msg_error = "";
 $_msg_control = "Entro en internacional_ajax.php\n";
-$_msg_content = array();
-$_array_result = array();
+$_msg_content = [];
+$_array_result = [];
 
 $Data = new Consultas;
+$Data2 = new Conexion;
+$Pdo = $Data2->conectar();
 $Internacional = new internacionalModel;
 $time = time();
 
@@ -82,7 +84,7 @@ switch ($_GET["action"]) {
 		$_msg_control .= "Entro en la acción crea_trm.\n";
 
 		// Se crea el trm 
-		$array = array();
+		$array = [];
 		$array["id_moneda"] = $_POST["id_moneda"];
 		$array["fecha"] = $_POST["fecha"];
 		$array["valor"] =  str_replace(",", ".", str_replace(".", "", $_POST["valor"]));
@@ -93,7 +95,7 @@ switch ($_GET["action"]) {
 		$_msg_control .= "Entro en la acción edita_trm.\n";
 
 		// Se edita el trm 
-		$array = array();
+		$array = [];
 		$array["valor"] =  str_replace(",", ".", str_replace(".", "", $_POST["valor"]));
 		$Data->updateRegistro("cmx_monedas_trm", $array, (int)$_POST["id"]);
 		break;
@@ -134,7 +136,7 @@ switch ($_GET["action"]) {
 		$file = $_FILES[$_POST["div"] . "_file"];
 		$extension = $Internacional->get_extension_archivo($file["name"]);
 		$hora = date('H:i:s');
-		$array = array();
+		$array = [];
 		$array["id_intr_proyecto"] = $_POST["id_intr_proyecto"];
 		$array["id_concepto"] = $_POST["id_concepto"];
 		$array["id_proveedor"] = $_POST["id_proveedor"];
@@ -152,7 +154,7 @@ switch ($_GET["action"]) {
 		$archivo = $_POST["id_intr_proyecto"] . "-" . $_POST["id_concepto"] . "-" . $cotizacion . "-" . $_POST["fecha_cotizacion"] . "." . $extension;
 
 		// Se actualiza el dato del archivo de la cotización 
-		$array = array();
+		$array = [];
 		$array["url"] = $archivo;
 		$Data->updateRegistro("cmx_intr_cotizaciones", $array, (int)$cotizacion);
 
@@ -200,48 +202,42 @@ switch ($_GET["action"]) {
 
 	case 'actualiza_solicitud':
 		$_msg_control .= "Entro en la acción actualiza_solicitud.\n";
-		$array = array();
+		$array = [];
 		$array["do"] = "DO-" . $_POST["numero_importacion"];
 		$array["estado"] = 1;
 		$Data->updateRegistro("cmx_intr_solicitudes", $array, (int)$_POST["id"]);
 		break;
 
 	case 'actualiza_oferta':
-
-		echo "Hola desde aqui";
-		exit(0);
-
 		$_msg_control .= "Entro en la acción actualiza_oferta.\n";
 
 		$id_intr_protecto = $_POST["id_intr_proyecto"];
 
 		// Se busca las ofertas comerciales anteriores 
-		$sql = '
-				SELECT cioc.id
-				FROM cmx_intr_oferta_comercial cioc
-				WHERE cioc.id_intr_proyecto = ' . $id_intr_protecto . '
-			';
-		$resul = $Data->getConsulta($sql);
+		$sql = 'SELECT cioc.id FROM cmx_intr_oferta_comercial cioc 
+		WHERE cioc.id_intr_proyecto = :id_intr_proyecto';
+		$stmt = $Pdo->prepare($sql);
+		$stmt->bindParam(':id_intr_proyecto', $id_intr_protecto, PDO::PARAM_INT);
+		$stmt->execute();
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 		// Si existen ofertas comerciales se anulan 
 		if ($resul) {
-			foreach ($resul["rowsData"] as $key => $value) {
-				$array = array();
+			foreach ($resul as $key => $value) {
+				$array = [];
 				$array["estado"] = 0;
 				$Data->updateRegistro("cmx_intr_oferta_comercial", $array, (int)$value[0]);
 			}
 		}
 
 		// Se guarda la información de la nueva oferta comercial
-		$array = array();
+		$array = [];
 		$array["id_intr_proyecto"] = $id_intr_protecto;
 		$array["fecha"] = $_POST["fecha_oferta"];
 		$array["id_moneda"] = $_POST["moneda_oferta"];
 		$array["valor"] = (float)str_replace(",", ".", str_replace(".", "", $_POST["valor_oferta"]));
 		$array["fecha_aprobacion"] = date("Y-m-d");
 
-		var_dump($array);
-		exit(0);
 		$id_oferta_comercial = $Data->setRegistro("cmx_intr_oferta_comercial", $array);
 
 		// Se genera la información del archivo de la oferta comercial
@@ -252,7 +248,7 @@ switch ($_GET["action"]) {
 		$archivo = $id_intr_protecto . "-" . $id_oferta_comercial . "-" . $_POST["fecha_oferta"] . "." . $extension;
 
 		// Se actualiza el dato del archivo de la oferta comercial
-		$array = array();
+		$array = [];
 		$array["url"] = $archivo;
 		$Data->updateRegistro("cmx_intr_oferta_comercial", $array, (int)$id_oferta_comercial);
 
@@ -289,7 +285,6 @@ switch ($_GET["action"]) {
 		// Se pregunta por los permisos de acceso del perfil de usuario 
 		$arrayPermisos = $Internacional->permisosPerfil($_POST["id_perfil"], 59);
 		$_permisos = $arrayPermisos;
-
 
 		// Se busca la información de la cotización 
 		$cotizacion = $Internacional->getDatosCotizacion($_POST["id"]);
@@ -593,7 +588,7 @@ switch ($_GET["action"]) {
 		$_msg_control .= "Entro en la acción autoriza_cotizacion.\n";
 		$Internacional->setInactivaCotizaciones($_POST["id_intr_proyecto"], $_POST["id_concepto"]);
 		if ($_POST["flag_checked"] == "true") {
-			$array = array();
+			$array = [];
 			$array["estado"] = 1;
 			$Data->updateRegistro("cmx_intr_cotizaciones", $array, (int)$_POST["id_cotizacion"]);
 		}
@@ -612,7 +607,7 @@ switch ($_GET["action"]) {
 		$id_solicitud = $_POST["id_solicitud"];
 		$div = $_POST["div"];
 
-		$array = array();
+		$array = [];
 		$array["estado"] = 2;
 		$Data->updateRegistro("cmx_intr_cotizaciones", $array, (int)$_POST["id"]);
 
@@ -655,17 +650,15 @@ switch ($_GET["action"]) {
 		$return["result"] = $result["rowsData"];
 		break;
 
-
-
 	case 'cancelar_solicitud':
 		$_msg_control .= "Entro en la acción cancelar_solicitud.\n";
 		// Se inactiva la solicitud de internacional 
-		$array = array();
+		$array = [];
 		$array["estado"] = 0;
 		$Data->updateRegistro("cmx_intr_solicitudes", $array, (int)$_POST["id_intr_proyecto"]);
 
 		// Se gestiona la actividad actual 
-		$array = array();
+		$array = [];
 		$array["estado"] = 1;
 		$array["fecha_hora_finalizacion"] = date('Y-m-d H:i:s', $time);
 		$array["respuesta"] = $_POST["respuesta"];
@@ -877,7 +870,7 @@ switch ($_GET["action"]) {
 			/***** Fin - Contenido del formulario para la creación de sobrecostos *****/
 
 			/***** Contenido de los formularios para subir facturas por proveedor *****/
-			$arrayProveedores = array();
+			$arrayProveedores = [];
 			$_msg_content["content"] .= '
 					<form id="form_facturas">
 						<div id="accordion2" class="panel-group accordion">
@@ -1313,7 +1306,7 @@ switch ($_GET["action"]) {
 				$extension = $Internacional->get_extension_archivo($value["name"]);
 
 				// Se crea la información de la factura de la cotización con varias facturas una cotización
-				$array = array();
+				$array = [];
 				$array["num_factura"] = $_POST["factura_" . $id];
 				$array["id_intr_proyecto"] = $_POST["id_intr_proyecto"];
 				$array["id_proveedor"] = $_POST["id_proveedor_" . $id];
@@ -1324,7 +1317,7 @@ switch ($_GET["action"]) {
 
 				// Se guarda la información de la ubicacion del archivo de factura
 				$archivo = $id_intr_proyecto . "-" . $_POST["id_proveedor_" . $id] . "-" . $id_factura . "-" . date('Y-m-d', $time) . "." . $extension;
-				$array = array();
+				$array = [];
 				$array["url"] = $archivo;
 				$Data->updateRegistro("cmx_intr_facturas", $array, (int)$id_factura);
 
@@ -1332,7 +1325,7 @@ switch ($_GET["action"]) {
 				$arrayCotizaciones = explode(",", $_POST["id_cotizaciones_" . $id]);
 				foreach ($arrayCotizaciones as $value) {
 					if (isset($_POST["check_cotizacion_" . $value])) {
-						$array = array();
+						$array = [];
 						$array["id_factura"] = $id_factura;
 						$Data->updateRegistro("cmx_intr_cotizaciones", $array, (int)$_POST["check_cotizacion_" . $value]);
 					}
@@ -1387,12 +1380,12 @@ switch ($_GET["action"]) {
 
 		// Se guarda la información del adjunto de la factura 
 		$archivo_factura = $_POST["id_intr_proyecto_sobrecosto"] . "-" . $_POST["id_proveedor"] . "-" . $id_factura . "-" . date('Y-m-d', $time) . "." . $extension;
-		$array = array();
+		$array = [];
 		$array["url"] = $archivo_factura;
 		$Data->updateRegistro("cmx_intr_facturas", $array, (int)$id_factura);
 
 		// Se guarda la infomacion de la cotización 
-		$array = array();
+		$array = [];
 		$array["id_intr_proyecto"] = $_POST["id_intr_proyecto_sobrecosto"];
 		$array["id_factura"] = (int)$id_factura;
 		$array["id_concepto"] = $_POST["concepto"];
@@ -1411,7 +1404,7 @@ switch ($_GET["action"]) {
 		$archivo_cotizacion = $_POST["id_intr_proyecto_sobrecosto"] . "-" . $_POST["concepto"] . "-" . $cotizacion . "-" . $_POST["fecha"] . "." . $extension;
 
 		// Se actualiza el dato del archivo de la cotización 
-		$array = array();
+		$array = [];
 		$array["url"] = $archivo_cotizacion;
 		$Data->updateRegistro("cmx_intr_cotizaciones", $array, (int)$cotizacion);
 
@@ -1471,7 +1464,7 @@ switch ($_GET["action"]) {
 		$cotizacion = $Internacional->getDatosSubeFacturas($_POST["id"]);
 		$_array_result = $cotizacion;
 
-		$general = $cotizacion["general"]["rowsData"][0];
+		$general = $cotizacion["general"][0];
 
 		$_tabla_cotizaciones = '
 				<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
@@ -1505,12 +1498,12 @@ switch ($_GET["action"]) {
 
 			foreach ($proveedores as $key => $value) {
 				// Se calcula el valor total de las cotizaciones 
-				if (isset($cotizacion["proveedor_cotizaciones"][$value[0]])) {
+				if (isset($cotizacion["proveedor_cotizaciones"][$value['id_proveedor']])) {
 					$_flag_cotizacion_valor_pesos = true;
 					$_valor_cotizacion_pesos = 0;
 					$_flag_cotizacion_valor_usd = true;
 					$_valor_cotizacion_usd = 0;
-					foreach ($cotizacion["proveedor_cotizaciones"][$value[0]] as $key_01 => $value_01) {
+					foreach ($cotizacion["proveedor_cotizaciones"][$value['id_proveedor']] as $key_01 => $value_01) {
 						if ($_flag_cotizacion_valor_pesos and $value_01["VALOR_PESOS"]) {
 							$_valor_cotizacion_pesos += $value_01["VALOR_PESOS"];
 						} else {
@@ -1537,14 +1530,14 @@ switch ($_GET["action"]) {
 				// Se calcula el valor total de las facturas 
 				$_cant_facturas = 0;
 				$_valor_factura_pesos = 0;
-				if (isset($cotizacion["proveedor_facturas"][$value[0]])) {
-					$_cant_facturas = COUNT($cotizacion["proveedor_facturas"][$value[0]]);
+				if (isset($cotizacion["proveedor_facturas"][$value['id_proveedor']])) {
+					$_cant_facturas = COUNT($cotizacion["proveedor_facturas"][$value['id_proveedor']]);
 
 					$_flag_factura_valor_pesos = true;
 					$_valor_factura_pesos = 0;
 					$_flag_factura_valor_usd = true;
 					$_valor_factura_usd = 0;
-					foreach ($cotizacion["proveedor_facturas"][$value[0]] as $key_01 => $value_01) {
+					foreach ($cotizacion["proveedor_facturas"][$value['id_proveedor']] as $key_01 => $value_01) {
 						if ($_flag_factura_valor_pesos and $value_01["VALOR_PESOS"]) {
 							$_valor_factura_pesos += $value_01["VALOR_PESOS"];
 						} else {
@@ -1620,7 +1613,7 @@ switch ($_GET["action"]) {
 			';
 
 		// Se pregunta si se debe gestionar la actividad cuando es de una factura por cotización
-		$array = array();
+		$array = [];
 		$array["id"] = $general["ID_ACTIVIDAD"] . ",";
 		$array["orden"] = $general["orden"];
 		$array["fecha_hora_inicio"] = $general["fecha_hora_inicio"];
@@ -1863,7 +1856,7 @@ switch ($_GET["action"]) {
 		$numero_egreso = "EGR-" . $time;
 
 		// Se guarda la infomacion del comprobante de egreso
-		$array = array();
+		$array = [];
 		$array["numero_egreso"] = $numero_egreso;
 		$array["fecha_egreso"] = date('Y-m-d', $time);
 		$array["valor"] = $_POST["total_facturas_pesos"];
@@ -1872,7 +1865,7 @@ switch ($_GET["action"]) {
 		// Se relaciona el comprobante de egreso a las facturas seleccionadas
 		$arrayFacturas = explode(",", $_POST["id_facturas"]);
 		for ($i = 0; $i < COUNT($arrayFacturas) - 1; $i++) {
-			$array = array();
+			$array = [];
 			$array["id_egreso"] = $id_egreso;
 			$Data->updateRegistro("cmx_intr_facturas", $array, (int)$arrayFacturas[$i]);
 
@@ -2134,7 +2127,8 @@ switch ($_GET["action"]) {
 					';
 				// Se pinta la información del proveedor
 				if ($egresos["proveedor"]) {
-					$proveedor = $egresos["proveedor"]["rowsData"][0];
+					// $proveedor = $egresos["proveedor"][0];
+					$proveedor = $egresos["proveedor"];
 
 					$_proveedor_content = '
 							<strong>Proveedor</strong>
@@ -2187,7 +2181,7 @@ switch ($_GET["action"]) {
 
 					$total_facturas = 0;
 					$total_facturas_pesos = 0;
-					foreach ($egresos["facturas"]["rowsData"] as $key_010 => $value_010) {
+					foreach ($egresos["facturas"] as $key_010 => $value_010) {
 						// Se valida se se puede seleccionar la factura para egreso 
 						$_check_disabled = "disabled";
 						$_panel_color = "danger";
@@ -2224,8 +2218,9 @@ switch ($_GET["action"]) {
 									</div>
 								</div>
 							';
-						if ($egresos["cotizaciones"][$value_010[0]]) {
-							$_cant_conceptos = $egresos["cotizaciones"][$value_010[0]]["rowsNum"];
+						if ($egresos["cotizaciones"][$value_010['id']]) {
+							// $_cant_conceptos = $egresos["cotizaciones"][$value_010['id']]["rowsNum"];
+							$_cant_conceptos = $egresos["cotizaciones_count"];
 							// Tabla de listado de cotizaciones de la factura
 							$_cotizaciones = '
 									<div class="col-xs-12 col-sm-12 col-md-12">
@@ -2242,7 +2237,7 @@ switch ($_GET["action"]) {
 												<tbody>
 								';
 
-							foreach ($egresos["cotizaciones"][$value_010[0]]["rowsData"] as $key_020 => $value_020) {
+							foreach ($egresos["cotizaciones"][$value_010['id']] as $key_020 => $value_020) {
 								// Se verifica si la cotización corresponde a un sobrecosto
 
 								// Se toma la carpeta del concepto de la factura
@@ -2304,12 +2299,12 @@ switch ($_GET["action"]) {
 						 					</a>
 										</div>
 										<h4 class="panel-title">
-											<a data-toggle="collapse" data-parent="#accordion2" href="#accordion_' . $value_010[0] . '" class="collapsed" aria-expanded="false"><i class="icon mdi mdi-chevron-down"></i> ' . $value_010["do"] . ' <small><strong>' . $value_010["NOM_CLIENTE"] . '</strong></small>
+											<a data-toggle="collapse" data-parent="#accordion2" href="#accordion_' . $value_010['id'] . '" class="collapsed" aria-expanded="false"><i class="icon mdi mdi-chevron-down"></i> ' . $value_010["do"] . ' <small><strong>' . $value_010["NOM_CLIENTE"] . '</strong></small>
 												<span class="panel-subtitle">Factura: <strong>' . $value_010["num_factura"] . '</strong> | # Conceptos: <strong>' . $_cant_conceptos . '</strong> | Fecha: <strong>' . $value_010["fecha_factura"] . '</strong> | Valor: <strong>' . number_format($value_010["valor"], 2, ',', '.') . ' ' . $value_010["MONEDA_FACTURA"] . '</strong>' . $_factura_pesos . '</span>
 											</a>
 										</h4>
 									</div>
-									<div id="accordion_' . $value_010[0] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+									<div id="accordion_' . $value_010['id'] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 										<div class="panel-body">
 											' . $_cotizaciones . '
 										</div>
@@ -2331,7 +2326,7 @@ switch ($_GET["action"]) {
 								<h4 class="panel-title">
 									<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_' . $value . '">
 										<i class="icon mdi mdi-chevron-down"></i> ' . $value_010["numero_egreso"] . ' <small>(' . $value_010["fecha_egreso"] . ')</small>
-										<span class="panel-subtitle">Cant. Facturas: <strong>' . $egresos["facturas"]["rowsNum"] . '</strong> | Total Facturas: <strong>' . number_format($total_facturas, 2, ',', '.') . ' ' . $value_010["MONEDA_FACTURA"] . '</strong> | Total Facturas en COP: <strong>$' . number_format($total_facturas_pesos, 2, ',', '.') . '</strong></span>
+										<span class="panel-subtitle">Cant. Facturas: <strong>' . $egresos["total_facturas"] . '</strong> | Total Facturas: <strong>' . number_format($total_facturas, 2, ',', '.') . ' ' . $value_010["MONEDA_FACTURA"] . '</strong> | Total Facturas en COP: <strong>$' . number_format($total_facturas_pesos, 2, ',', '.') . '</strong></span>
 									</a>
 								</h4>
 							</div>
@@ -2373,7 +2368,7 @@ switch ($_GET["action"]) {
 		/***** Fin - Encabezado del formulario *****/
 
 		/***** Formulario de gestión de las activiadades *****/
-		$moneda = $egresos["total_monedas"]["rowsData"][0]["MONEDA"];
+		$moneda = $egresos["total_monedas"][0]["MONEDA"];
 
 		$form_content = '';
 		if ($egresos["total_monedas"]) {
@@ -2402,7 +2397,7 @@ switch ($_GET["action"]) {
 										<input size="10" type="text" value="" name="egreso_fecha" id="egreso_fecha" readonly="" class="form-control input-sm">
 										<span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
 									</div>
-								</div>
+								</div>	
 								<div class="form-group col-xs-12 col-sm-2 col-md-2">
 									<label>(*) Adjunto Egreso</label><br>
 									<input type="file" name="egreso_file" id="egreso_file" class="inputfile input-xs" placeholder="Buscar Archivo...">
@@ -2432,7 +2427,7 @@ switch ($_GET["action"]) {
 
 		if (isset($_POST["egreso_numero"]) and isset($_POST["valor_pago_pesos"]) and isset($_POST["egreso_fecha"])) {
 			// Se guarda el registro del desembolso 
-			$array = array();
+			$array = [];
 			$array["numero_pago"] = "PGO-" . $time;
 			$array["numero_egreso"] = $_POST["egreso_numero"];
 			$array["valor_egreso"] = (float)$_POST["valor_pago_pesos"];
@@ -2443,7 +2438,7 @@ switch ($_GET["action"]) {
 			$arrayEgresos = explode(",", $_POST["id_egresos"]);
 			foreach ($arrayEgresos as $value) {
 				if ($value) {
-					$array = array();
+					$array = [];
 					$array["id_pago"] = $id_pago;
 					$array["estado"] = 1;
 					$Data->updateRegistro("cmx_intr_egresos", $array, (int)$value);
@@ -2460,7 +2455,7 @@ switch ($_GET["action"]) {
 				$extension = $Internacional->get_extension_archivo($file["name"]);
 
 				// Se guarda la url del archivo en la base de datos 
-				$array = array();
+				$array = [];
 				$array["url_egreso"] = $id_pago . "." . $extension;
 				$Data->updateRegistro("cmx_intr_egresos_pagos", $array, (int)$id_pago);
 
@@ -2627,7 +2622,8 @@ switch ($_GET["action"]) {
 							';
 						if ($egresos["cotizaciones"][$value_010['id']]) {
 							// $_cant_conceptos = $egresos["cotizaciones"][$value_010[0]]["rowsNum"];
-							$_cant_conceptos = $egresos["cotizaciones"][$value_010['id']];
+							// $_cant_conceptos = $egresos["cotizaciones"][$value_010['cotizaciones_count']];
+							$_cant_conceptos = $egresos["cotizaciones_count"];
 							// Tabla de listado de cotizaciones de la factura
 							$_cotizaciones = '
 									<div class="col-xs-12 col-sm-12 col-md-12">
@@ -2733,7 +2729,7 @@ switch ($_GET["action"]) {
 								<h4 class="panel-title">
 									<a data-toggle="collapse" data-parent="#accordion1" href="#collapse_' . $value . '">
 										<i class="icon mdi mdi-chevron-down"></i> ' . $value_010["numero_egreso"] . ' <small>(' . $value_010["fecha_egreso"] . ')</small>
-										<span class="panel-subtitle">Cant. Facturas: <strong>' . $egresos["facturas"]["rowsNum"] . '</strong> | Total Facturas: <strong>' . number_format($total_facturas, 2, ',', '.') . ' ' . $value_010["MONEDA_FACTURA"] . '</strong> | Total Facturas en COP: <strong>$' . number_format($total_facturas_pesos, 2, ',', '.') . '</strong></span>
+										<span class="panel-subtitle">Cant. Facturas: <strong>' . $egresos["total_facturas"] . '</strong> | Total Facturas: <strong>' . number_format($total_facturas, 2, ',', '.') . ' ' . $value_010["MONEDA_FACTURA"] . '</strong> | Total Facturas en COP: <strong>$' . number_format($total_facturas_pesos, 2, ',', '.') . '</strong></span>
 									</a>
 								</h4>
 							</div>
@@ -2842,7 +2838,7 @@ switch ($_GET["action"]) {
 		$id_pago = $_POST["id_pago"];
 
 		// Se actualiza el registro del egreso 
-		$array = array();
+		$array = [];
 		$array["fecha_pago"] = $_POST["fecha_pago"];
 		$array["valor_pago"] = (float)str_replace(",", ".", str_replace(".", "", $_POST["valor_pago"]));
 		$array["estado"] = 1;
@@ -2858,7 +2854,7 @@ switch ($_GET["action"]) {
 			$extension = $Internacional->get_extension_archivo($file["name"]);
 
 			// Se guarda la url del archivo en la base de datos 
-			$array = array();
+			$array = [];
 			$array["url_pago"] = $id_pago . "." . $extension;
 			$Data->updateRegistro("cmx_intr_egresos_pagos", $array, (int)$id_pago);
 
@@ -2959,7 +2955,8 @@ switch ($_GET["action"]) {
 		$_tramos = '';
 		foreach ($arrayDestinos["ciudades_destino"] as $key => $value) {
 			$panel_content = '<div id="accordion' . $value['id'] . '" class="panel-group accordion">';
-			foreach ($arrayDestinos["destinos"][$value['id']] as $key_01 => $value_01) {
+			// foreach ($arrayDestinos["destinos"][$value['id']] as $key_01 => $value_01) {
+			foreach ($arrayDestinos["destinos"][$value['id']]["rowsData"] as $key_01 => $value_01) {
 				$_tramos .= $value_01['ID_TRAMO'] . ',';
 				$panel_content .= '
 						<div class="panel panel-default">
@@ -3112,10 +3109,6 @@ switch ($_GET["action"]) {
 					$Data->updateRegistro("cmx_intr_tramos", $array, (int)$value);
 					$time += $i;
 
-					
-					echo "ENTRO AQUI BIEN UPDATE " . $value . " ARRAY " . print_r($array);
-					exit();
-
 					do {
 						if (isset($_POST["material_" . $value . "_" . $i])) {
 							// Se crea el array para crear el material
@@ -3151,7 +3144,7 @@ switch ($_GET["action"]) {
 									$archivo = $value . "_" . $id_material . "." . $extension;
 
 									// Se guarda la url del archivo en la base de datos 
-									$array = array();
+									$array = [];
 									$array["material_peligroso"] = 1;
 									$array["un"] = $_POST["un_" . $value . "_" . $i];
 									$array["id_riesgo"] = $_POST["riesgo_" . $value . "_" . $i];
@@ -3162,8 +3155,18 @@ switch ($_GET["action"]) {
 									if ($file["error"] == 0) {
 										$tmp_file = $file["tmp_name"];
 										$archivo_temporal = "../public/files/tmp/tmp_file." . $extension;
-										if (move_uploaded_file($tmp_file, $archivo_temporal)) {
 
+										// Verificar si el archivo temporal existe
+										if (!file_exists($tmp_file)) {
+											die("Error: El archivo temporal no se encuentra en el servidor.");
+										}
+
+										// Crear la carpeta si no existe
+										if (!file_exists("../public/files/tmp")) {
+											mkdir("../public/files/tmp", 0777, true);
+										}
+
+										if (move_uploaded_file($tmp_file, $archivo_temporal)) {
 											// Se crean las carpetas de destino del archivo
 											$carpeta_destino = "../public/files/internacional";
 											if (!file_exists($carpeta_destino)) {
@@ -3401,7 +3404,7 @@ switch ($_GET["action"]) {
 				$extension = $Internacional->get_extension_archivo($file["name"]);
 				$archivo = $_POST["tramo_" . $value] . "_" . $value . "." . $extension;
 
-				$array = array();
+				$array = [];
 				$array["material_peligroso"] = 1;
 				$array["un"] = $_POST["un_" . $value];
 				$array["id_riesgo"] = (int)$_POST["riesgo_" . $value];
@@ -3446,7 +3449,7 @@ switch ($_GET["action"]) {
 		foreach ($arrayDocumentos as $value) {
 			if ($value) {
 				// Se guarda el registro en la base de datos
-				$array = array();
+				$array = [];
 				$array["id_intr_proyecto"] = $id_intr_proyecto;
 				$array["id_tipo_documento"] = $value;
 				if (isset($_POST["soporte_" . $value])) {
@@ -3462,7 +3465,7 @@ switch ($_GET["action"]) {
 				$archivo = $id_intr_proyecto . "_" . $id_documento . "." . $extension;
 
 				// Se guarda el nombre del archivo en la base de datos 
-				$array = array();
+				$array = [];
 				$array["url"] = $archivo;
 				$array["fecha"] = date("Y-m-d H:i:s", time());
 				$result = $Data->updateRegistro("cmx_intr_solicitud_documentos", $array, (int)$id_documento);
@@ -3477,7 +3480,6 @@ switch ($_GET["action"]) {
 						$carpeta_destino = "../public/files/internacional/documentos/" . $id_intr_proyecto;
 						if (!file_exists($carpeta_destino)) {
 							mkdir($carpeta_destino, 0777, true);
-							// print_r("Si se pudo crear la carpeta \n");
 						}
 
 						$destino = $carpeta_destino . "/" . $archivo;
@@ -3522,7 +3524,7 @@ switch ($_GET["action"]) {
 			';
 
 		// Se pregunta si se debe gestionar la actividad cuando es de una factura por cotización
-		$array = array();
+		$array = [];
 		$array["id"] = $general["ID_ACTIVIDAD"] . ",";
 		$array["orden"] = $general["orden"];
 		$array["fecha_hora_inicio"] = $general["fecha_hora_inicio"];
@@ -3785,7 +3787,7 @@ switch ($_GET["action"]) {
 							';
 
 						$_flag_habilita_check_impuestos = true;
-						$arraySumaImpuestos = array();
+						$arraySumaImpuestos = [];
 						$_id_cotizacion_impuestos = "";
 						foreach ($instruccion["impuestos"][$value["ID_PROYECTO_INTERNACIONAL"]] as $key_01 => $value_01) {
 							$_id_cotizacion_impuestos .= $value_01["ID_COTIZACION"] . ",";
@@ -4218,7 +4220,7 @@ switch ($_GET["action"]) {
 		$_msg_control .= "Entro en la acción actuliza_moneda_oferta.\n";
 
 		// Se edita la moneda de la oferta comercial
-		$array = array();
+		$array = [];
 		$array["id_moneda"] = $_POST["id_moneda"];
 		$Data->updateRegistro("cmx_intr_oferta_comercial", $array, (int)$_POST["id"]);
 		break;
@@ -4265,12 +4267,12 @@ switch ($_GET["action"]) {
 			';
 		foreach ($_POST["cuerpo"] as $key => $value) {
 			$id_intr_proyecto = $value[0];
-			$conceptos = array();
+			$conceptos = [];
 			if (isset($value[1])) {
 				$conceptos = $value[1];
 			}
 			$valores = $value[2];
-			$impuestos = array();
+			$impuestos = [];
 			if (isset($value[4])) {
 				$impuestos = $value[4];
 			}
@@ -4540,7 +4542,7 @@ switch ($_GET["action"]) {
 	case 'ajusta_documento_entrega':
 		$_msg_control .= "Entro en la acción ajusta_documento_entrega.\n";
 
-		$array = array();
+		$array = [];
 		$array["soporte_facturacion"] = (bool)$_POST["soporte_facturacion"];
 		$Data->updateRegistro("cmx_intr_solicitud_documentos", $array, (int)$_POST["id"]);
 		break;
@@ -4548,7 +4550,7 @@ switch ($_GET["action"]) {
 	case 'ajusta_vista_concepto':
 		$_msg_control .= "Entro en la acción ajusta_vista_concepto.\n";
 
-		$array = array();
+		$array = [];
 		$array["fct_muestra_concepto"] = (bool)$_POST["fct_muestra_concepto"];
 		$Data->updateRegistro("cmx_intr_cotizaciones", $array, (int)$_POST["id"]);
 		break;
@@ -4556,7 +4558,7 @@ switch ($_GET["action"]) {
 	case 'tabla_resumen_impuestos':
 		$_msg_control .= "Entro en la acción tabla_resumen_impuestos.\n";
 
-		$arrayTotalImpuestos = array();
+		$arrayTotalImpuestos = [];
 		$total_pesos = 0;
 		foreach ($_POST["array"] as $key => $value) {
 			if (!isset($arrayTotalImpuestos[$value["id_moneda"]])) {
@@ -4632,7 +4634,7 @@ switch ($_GET["action"]) {
 		}
 		$total = $subtotal + $iva + $retefuente;
 
-		$array = array();
+		$array = [];
 		$array["id_cliente"] = $_POST["id_cliente"];
 		$array["num_proforma"] = $proforma;
 		$array["subtotal"] = (int)$subtotal;
@@ -4648,7 +4650,7 @@ switch ($_GET["action"]) {
 		if ($result) {
 			$trm_factura = $result["result"];
 			foreach ($trm_factura as $key => $value) {
-				$array = array();
+				$array = [];
 				$array["id_factura"] = $id_factura;
 				$array["valor"] = (float)$value["valor"] + 25;
 				$array["id_moneda"] = $value["id_moneda"];
@@ -4674,7 +4676,7 @@ switch ($_GET["action"]) {
 					$valor_sobrecosto = number_format($_POST["total_sobrecosto_" . $value], 0, ',', '');
 				}
 
-				$array = array();
+				$array = [];
 				$array["id_factura"] = $id_factura;
 				$array["valor_facturado"] = (int)$valor_facturado;
 				$array["valor_agenciamiento"] = (int)$valor_agenciamiento;
@@ -4687,7 +4689,7 @@ switch ($_GET["action"]) {
 					$impuestos = explode(",", $_POST["id_impuestos_" . $value]);
 					foreach ($impuestos as $value_01) {
 						if ($value_01) {
-							$array = array();
+							$array = [];
 							$valor_facturado = 0;
 							if (isset($_POST["valor_impuesto_pesos_" . $value . "_" . $value_01]) and $_POST["valor_impuesto_pesos_" . $value . "_" . $value_01]) {
 								$valor_facturado =  number_format($_POST["valor_impuesto_pesos_" . $value . "_" . $value_01], 0, ',', '');
@@ -4705,7 +4707,7 @@ switch ($_GET["action"]) {
 					$sobrecostos = explode(",", $_POST["id_sobercosto_" . $value]);
 					foreach ($sobrecostos as $value_01) {
 						if ($value_01) {
-							$array = array();
+							$array = [];
 							$valor_facturado = 0;
 							if (isset($_POST["valor_facturar_" . $value . "_" . $value_01]) and $_POST["valor_facturar_" . $value . "_" . $value_01]) {
 								$valor_facturado = $_POST["valor_facturar_" . $value . "_" . $value_01];
@@ -5354,7 +5356,7 @@ switch ($_GET["action"]) {
 		$_msg_control .= "Entro en la acción gestionar_factura_cliente.\n";
 		$return["gestiona_actividad"] = false;
 
-		$array = array();
+		$array = [];
 		if ($_POST["factura"]) {
 			$array["num_factura"] = $_POST["factura"];
 		}
@@ -5383,7 +5385,7 @@ switch ($_GET["action"]) {
 					$return["copy_file_result"] = true;
 
 					// Se actualiza la información del archivo en la BD
-					$array = array();
+					$array = [];
 					$array["url"] = $archivo;
 					$Data->updateRegistro("cmx_intr_factura_cliente", $array, (int)$_POST["id_factura"]);
 					$return["gestiona_actividad"] = true;
@@ -5918,7 +5920,7 @@ switch ($_GET["action"]) {
 			// Se guarda el archivo de la cotización del sobrecosto
 			if ($file["error"] == 0) {
 				$pago = "RBC-" . $time;
-				$array = array();
+				$array = [];
 				$array["numero_pago"] = $pago;
 				$array["fecha_pago"] = $_POST["fecha_pago"];
 				$array["recibo_caja"] = $_POST["recibo_caja"];
@@ -5952,7 +5954,7 @@ switch ($_GET["action"]) {
 						if (copy($archivo_temporal, $destino)) {
 							$return["copy_file_result"] = true;
 							// Se guarda el registro del archivo en la base de datos 
-							$array = array();
+							$array = [];
 							$array["url"] = $archivo_destino;
 							$Data->updateRegistro("cmx_intr_pago_cartera", $array, (int)$id_pago);
 						} else {
@@ -6251,8 +6253,8 @@ function cotizacionesContent($array, $div, $id_perfil)
 		$_btn_eliminar = '';
 		if ($_permisos["eliminar"] == 1) {
 			$_btn_eliminar = '
-					<a href="javascript:" onclick="quitarCotizacion(\'' . $div . '-' . $value_01["id_intr_proyecto"] . '-' . $value_01["id_concepto"] . '-' . $value_01[0] . '\')" class="hint--top-left borra_cotizacion" data-hint="Quitar Cotización ' . $i . '" 
-						id="' . $div . '-' . $value_01["id_intr_proyecto"] . '-' . $value_01["id_concepto"] . '-' . $value_01[0] . '"
+					<a href="javascript:" onclick="quitarCotizacion(\'' . $div . '-' . $value_01["id_intr_proyecto"] . '-' . $value_01["id_concepto"] . '-' . $value_01['id'] . '\')" class="hint--top-left borra_cotizacion" data-hint="Quitar Cotización ' . $i . '" 
+						id="' . $div . '-' . $value_01["id_intr_proyecto"] . '-' . $value_01["id_concepto"] . '-' . $value_01['id'] . '"
 					>
 						<span class="icon mdi mdi-delete"></span>
 					</a>
@@ -6262,9 +6264,9 @@ function cotizacionesContent($array, $div, $id_perfil)
 		$_btn_actualizar = '';
 		if ($_permisos["editar"] == 1) {
 			$_btn_actualizar = '
-					<a href="javascript:" onclick="actualizarCotizacion(\'' . $div . '-' . $value_01["id_intr_proyecto"] . '-' . $value_01["id_concepto"] . '-' . $value_01[0] . '-' . $value_01["descripcion"] . '\')" 
+					<a href="javascript:" onclick="actualizarCotizacion(\'' . $div . '-' . $value_01["id_intr_proyecto"] . '-' . $value_01["id_concepto"] . '-' . $value_01['id'] . '-' . $value_01["descripcion"] . '\')" 
 					class="hint--top-left borra_cotizacion" data-hint="Actualiza Cotización ' . $i . '" 
-						id="' . $div . '-' . $value_01["id_intr_proyecto"] . '-' . $value_01["id_concepto"] . '-' . $value_01[0] . '-' . $value_01["descripcion"] . '">
+						id="' . $div . '-' . $value_01["id_intr_proyecto"] . '-' . $value_01["id_concepto"] . '-' . $value_01['id'] . '-' . $value_01["descripcion"] . '">
 						<span class="icon mdi mdi-edit btn-xs"></span>
 					</a>
 				';
@@ -6289,11 +6291,11 @@ function cotizacionesContent($array, $div, $id_perfil)
 							<span class="panel-subtitle"><strong>Cotización ' . $i . '</strong></span>
 						</div>
 						<div class="form-group col-xs-12">
-							<input type="hidden" id="' . $div . '_id_' . $i . '" value="' . $value_01[0] . '">
+							<input type="hidden" id="' . $div . '_id_' . $i . '" value="' . $value_01['id'] . '">
 							<input type="text" class="form-control input-xs" placeholder="Proveedor" value="' . $value_01["proveedor"] . '" readonly>
 						</div>
 						<div class="col-xs-12">
-							<input type="text" id="monedaco' . $value_01[0] . '" class="form-control input-xs" placeholder="Valor Cotización" value="' . number_format($value_01["valor"], 2, ',', '.') . '"  onkeyup="getFormatoNumeroDecimal(this)" onchange="getFormatoNumeroDecimal(this)"   >
+							<input type="text" id="monedaco' . $value_01['id'] . '" class="form-control input-xs" placeholder="Valor Cotización" value="' . number_format($value_01["valor"], 2, ',', '.') . '"  onkeyup="getFormatoNumeroDecimal(this)" onchange="getFormatoNumeroDecimal(this)"   >
 						</div>
 						<div class="col-xs-12">
 							' . $Internacional->getHtmlSelectMonedas_xs("id_moneda", $value_01["id_moneda"], "disabled") . '
@@ -6308,7 +6310,7 @@ function cotizacionesContent($array, $div, $id_perfil)
 							<input type="text"  class="form-control input-sm" value="' . $value_01['hora_cotizacion'] . '" disabled="disabled">
 						</div>
 						<div class="col-xs-12">
-							<textarea id="descri' . $value_01[0] . '" class="form-control input-xs" placeholder="Descripción">' . $value_01["descripcion"] . '</textarea>
+							<textarea id="descri' . $value_01['id'] . '" class="form-control input-xs" placeholder="Descripción">' . $value_01["descripcion"] . '</textarea>
 						</div>
 						' . $_check_autoriza . '
 					</div>
@@ -6574,13 +6576,13 @@ function materialProyecto($array)
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#accordion_guias" href="#collapse_' . $encabezado[0] . '" class="collapsed" aria-expanded="false">
+								<a data-toggle="collapse" data-parent="#accordion_guias" href="#collapse_' . $encabezado['id'] . '" class="collapsed" aria-expanded="false">
 									<i class="icon mdi mdi-chevron-down"></i> ' . $encabezado["guia"] . ' <small>' . $encabezado["tipo_transporte"] . '</small>
 									<span class="panel-subtitle"><strong>' . $encabezado["sigla"] . '</strong> ' . $encabezado["direccion"] . ' <strong>' . $encabezado["municipio"] . ' (' . $encabezado["depto"] . ' - ' . $encabezado["pais"] . ')</strong></span>
 								</a>
 							</h4>
 						</div>
-						<div id="collapse_' . $encabezado[0] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+						<div id="collapse_' . $encabezado['id'] . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 							<div class="panel-body">
 								<strong>Materiales</strong>
 								<div style="overflow-x:scroll; overflow-y:hidden; white-space:nowrap;">

@@ -45,6 +45,9 @@ class servicioclienteController extends Controller
 	private $_lita_clientes;
 	private $_lita_empresas;
 	private $_validar_tarifa_sicetac;
+	private $_consulta_datos_subasta;
+	private $_respuesta_flete;
+	private $_requiere_cancelacion;
 
 	public function __construct()
 	{
@@ -820,7 +823,10 @@ class servicioclienteController extends Controller
 	{
 		$estado = $_POST['estado'];
 		$numdoc_solicitud = $_POST['numdoc_solicitud'];
-		$this->update_solicitud = $this->_modelo->Update_Solicitud_Prioridad($estado,  $numdoc_solicitud);
+		$nivel_prioridad = $_POST['nivel_prioridad'];
+		$motivo_prioridad = $_POST['motivo_prioridad'];
+
+		$this->update_solicitud = $this->_modelo->Update_Solicitud_Prioridad($estado,  $numdoc_solicitud, $nivel_prioridad, $motivo_prioridad);
 		echo json_encode($this->update_solicitud);
 	}
 	public function Aprobar_Prioridad()
@@ -868,5 +874,69 @@ class servicioclienteController extends Controller
 		} else {
 			echo json_encode(['status' => 'error', 'message' => 'ID no recibido']);
 		}
+	}
+
+	/* Consultar datos para aprobacionde las tarifas de subasta */
+	public function consulta_datos_subasta()
+	{
+		$n_servicio = $_POST["n_servicio"];
+		$this->_consulta_datos_subasta = $this->_modelo->Datos_Subasta_Tarifa($n_servicio);
+		echo json_encode($this->_consulta_datos_subasta);
+	}
+
+	public function respuesta_flete()
+	{
+		if ($_POST["estado"] == 1) {
+			$statu = 'Aceptado';
+			$estado_letra = 'aprueba_flete_sac';
+		} else {
+			$statu = 'No aceptado';
+			$estado_letra = 'no_aprueba_flete_sac';
+		}
+		$datos = [
+			"flete_propu" => $_POST["flete_propu"],
+			"tarifa_pro"  => $_POST["tarifa_pro"],
+			"utilidad"    => $_POST["utilidad"],
+			"rentabili"   => $_POST["rentabili"],
+			"subasta"     => $_POST["subasta"],
+			"estado"      => $_POST["estado"],
+			"sidflete"    => $_POST["sidflete"],
+			"user"        => $_SESSION["usuario"]["nom_usuario"],
+			"servicio"    => $_POST["nservicio"],
+			"hora"        => date('H:i:s'),
+			"fecha"       => date('Y-m-d'),
+			"statu"       => $statu,
+			"estado_letra"      => $estado_letra,
+
+		];
+
+		$this->_respuesta_flete = $this->_modelo->Respuesta_Subasta_Tarifa($datos);
+		echo json_encode($this->_respuesta_flete);
+	}
+	public function cancelar_solicitud_servicio()
+	{
+		$n_servicio = $_POST["idsolicitud"];
+		$this->_requiere_cancelacion = $this->_modelo->Cancelar_Solicitud_Servicio($n_servicio);
+		echo json_encode($this->_requiere_cancelacion);
+	}
+	public function aprueba_Sac()
+	{
+		$fecha = date('Y-m-d');
+		$hora = date('G:i:s');
+		$user = $_SESSION["usuario"]["nom_usuario"];
+		$datos = [
+			"user" => $_SESSION["usuario"]["nom_usuario"],
+			"hora" => date('H:i:s'),
+			"fecha" => date('Y-m-d'),
+			"sidflete" => $_POST["sidflete"],
+			"subasta" => $_POST["subasta"],
+			"tarifa" => $_POST["tarifa"],
+			"estado" => $_POST["estado"],
+			"idpareja" => $_POST["idpareja"],
+			"responsable" => $fecha . ' ' . $hora . ' ' . $user,
+		];
+
+		$this->_requiere_cancelacion = $this->_modelo->Aprueba_Sac($datos);
+		echo json_encode($this->_requiere_cancelacion);
 	}
 }

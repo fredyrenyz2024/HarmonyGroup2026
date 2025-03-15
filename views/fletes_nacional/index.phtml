@@ -146,7 +146,6 @@ $vista .= '
 			<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
 			<div id="nexos_messages_popup"></div>
 
-			
 			<!-- Selecionar que tipo de cargue de informacion se hara  -->
 			 <!-- Select con dos opciones -->
 			<select id="miSelect" class="form-control input-sm" style="margin-bottom:20px;">
@@ -160,7 +159,8 @@ $vista .= '
 			<div class="text-right">
 				<a href="' . BASE_URL . 'public/files/formatoFletes.xlsx" download class="btn btn-info btn-xs">Descargar Plantilla de Excel</a>
 			</div>
-			<br /><br />
+			<br/>
+			<br/>
 
 			<!-- 1) Input para seleccionar el archivo de Excel -->
 			<div class="mb-3">
@@ -611,7 +611,6 @@ echo $vista;
 
 	});
 
-
 	function inactivaFlete(id, valor) {
 		$("#idflete").val(id);
 		$("#iflete").val(valor);
@@ -698,77 +697,6 @@ echo $vista;
 		});
 		return flag_verifica_flete;
 	}
-
-
-
-	// function cargarExcel() {
-	//       const fileInput = document.getElementById('excelFile');
-	//       const file = fileInput.files[0];
-	//       if (!file) {
-	//         alert("Por favor selecciona un archivo de Excel primero.");
-	//         return;
-	//       }
-
-	//       const reader = new FileReader();
-
-	//       reader.onload = function(e) {
-	//         const data = new Uint8Array(e.target.result);
-	//         // Leemos el workbook
-	//         const workbook = XLSX.read(data, { type: 'array' });
-	//         // Obtenemos el nombre de la primera hoja
-	//         const sheetName = workbook.SheetNames[0];
-	//         // Obtenemos la hoja
-	//         const sheet = workbook.Sheets[sheetName];
-	//         // Convertimos la hoja a un array de arrays
-	//         const sheetData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-	//         // sheetData es un array bidimensional, donde la primera fila son los nombres de columna
-	//         // Ejemplo: [
-	//         //   ["vaciacion","agencia","destino",...],
-	//         //   [2018, 386, 376, ...],
-	//         //   [2019, 100, 200, ...],
-	//         //   ...
-	//         // ]
-
-	//         if (sheetData.length < 2) {
-	//           alert("El archivo parece estar vacío o sin datos.");
-	//           return;
-	//         }
-
-	//         // Separamos la cabecera (primera fila) de los datos
-	//         const headers = sheetData[0];   // ["vaciacion","agencia","destino",...]
-	//         const rows = sheetData.slice(1); // el resto de filas
-
-	//         // Mapeamos cada fila a un objeto { cabecera: valor, ... }
-	//         // Ejemplo de row: [2018, 386, 376, ...]
-	//         const jsonData = rows.map(row => {
-	//           let obj = {};
-	//           headers.forEach((header, index) => {
-	//             obj[header] = row[index];
-	//           });
-	//           return obj;
-	//         });
-
-	//         // Enviamos la data al servidor por fetch POST
-	//         fetch($("#id_url_ajax").val() + "libs/fletes_ajax.php?action=uploadMasivo", {
-	//           method: 'POST',
-	//           headers: { 'Content-Type': 'application/json' },
-	//           body: JSON.stringify(jsonData)
-	//         })
-	//         .then(response => response.text())
-	//         .then(resp => {
-	//           alert(resp);
-	//         })
-	//         .catch(err => {
-	//           console.error(err);
-	//           alert("Error al enviar datos al servidor.");
-	//         });
-	//       };
-
-	//       // Leemos el archivo como arrayBuffer
-	//       reader.readAsArrayBuffer(file);
-	//     }
-
 
 	// Variable global donde guardaremos los datos en formato de objetos (JSON)
 	let globalData = [];

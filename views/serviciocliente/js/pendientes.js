@@ -1,75 +1,16 @@
-// Importa la función desde funciones.js
-// import { Visualizar } from '../../layout/assets/lib/serv_clientecotizaciones_ajax.js';
-// window.VENTANA = null; // Variable global para almacenar el ID
-// window.initScript = function (id) {
-//   window.VENTANA = id; // Asigna el ID recibido a la variable global
-//   // Definir la función initScript globalmente
-//   const hoy = new Date(); // Obtener la fecha actual
-//   const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
-
-//   if (window.VENTANA == 5) {
-//     // alert("hola mundo desde aqui");
-//     // Si la ventana es la 2, activar el evento de cambio en #filtro
-//     let tipo = 2;
-//     let cliente = "";
-//     var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_inicial`).val();
-//     var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_final`).val();
-//     listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, cliente);
-
-//     $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
-//       document.getElementById(`campo-${window.VENTANA}-clientes`).style.display = "block";
-//       $.ajax({
-//         url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
-//         type: "POST",
-//         dataType: "json",
-//         success: function (data) {
-//           let select = $(`#campo-${window.VENTANA}-clientes`);
-//           select.empty().append('<option value="">Seleccione</option>');
-
-//           $.each(data, function (index, item) {
-//             select.append(`<option value="${item.id}">${item.nombre}</option>`);
-//           });
-
-//           // Inicializa Select2 en el select de clientes
-//           select.select2({
-//             placeholder: 'Seleccione una opción',
-//             allowClear: true,
-//           });
-//         },
-//         error: function (xhr, status, error) {
-//           console.error("Error en AJAX:", status, error);
-//           alert("Error al cargar los datos.");
-//         }
-//       });
-//     });
-
-//     $(`#campo-${window.VENTANA}-clientes`).off("change").on("change", function () {
-//       let valorSeleccionado = $(this).val();
-//       listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, valorSeleccionado);
-//     });
-
-//     document.addEventListener("click", async e => {
-//       if (e.target.matches("#btn_ver_solicitud_Pendiente") || e.target.matches("#btn_ver_solicitud_Pendiente *")) {
-//         let padre = e.target.parentElement.parentElement;
-//         // Obtener el enlace (el elemento con el data-id)
-//         let enlace = e.target.closest('#btn_ver_solicitud_Pendiente');
-//         // Obtener el valor del atributo data-id
-//         let dataId = enlace.getAttribute('data-id');
-//         let dataId2 = enlace.getAttribute('data-id2');
-//         Visualizar(dataId, dataId2);
-//       }
-//     });
-//   }
-// };
-
 window.initScript = function (id) {
-  // Limpiar eventos anteriores si existen
-  if (window.VENTANA_HANDLERS) {
-    $(document).off('change', window.VENTANA_HANDLERS.filtroHandler);
-    $(document).off('change', window.VENTANA_HANDLERS.clientesHandler);
-    $(document).off('click', window.VENTANA_HANDLERS.clickHandler);
+  // Usar una variable global o una propiedad en el objeto window
+  if (!window.myOffcanvas) {
+    window.myOffcanvas = new DynamicOffcanvas({
+      id: `customOffcanvas${id}`,
+      title: '<span class="text-dark uil uil-car"></span> Consultar vehículo',
+      content: '<p>Contenido inicial</p>',
+      scroll: true,
+      backdrop: false
+    });
+  } else {
+    console.log('El offcanvas ya está creado.');
   }
-
 
   /* Actualiar la session de php para la ventana */
   $.post($('#base_url').val() + 'serviciocliente/actualizar_session', {
@@ -136,28 +77,247 @@ window.initScript = function (id) {
         let dataId3 = enlace.getAttribute('data-id3');
         // Visualizar(dataId, dataId2, dataId3);
 
-        // // Definir dimensiones de la nueva ventana
-        const w = 1000;
-        const h = 1000;
+        // Definir dimensiones de la nueva ventana
+        // const w = 1000;
+        // const h = 1000;
 
         // Fixes dual-screen position                         Most browsers      Firefox
-        var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
-        var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+        // var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+        // var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
 
-        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+        // var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        // var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
 
-        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-        var top = ((height / 2) - (h / 2)) + dualScreenTop;
-        var newWindow = window.open($('#base_url').val() + "serviciocliente/canvas?cotizacion=" + encodeURIComponent(dataId) + "&solicitud_servicio=" + encodeURIComponent(dataId2), "ventanaCentrada", 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+        // var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+        // var top = ((height / 2) - (h / 2)) + dualScreenTop;
+        // var newWindow = window.open($('#base_url').val() + "serviciocliente/canvas?cotizacion=" + encodeURIComponent(dataId) + "&solicitud_servicio=" + encodeURIComponent(dataId2), "ventanaCentrada", 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
 
-        // Puts focus on the newWindow
-        if (window.focus) {
-          newWindow.focus();
-        }
+        // // Puts focus on the newWindow
+        // if (window.focus) {
+        //   newWindow.focus();
+        // }
+
+        myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Datos solicitud de servicio`);
+
+        myOffcanvas.updateContent(`
+          <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+            <div class="row">
+              <div class="d-flex justify-content-end" id="check_prioridad">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" id="flexSwitchCheckChecked" type="checkbox" />
+                  <label class="form-check-label" for="flexSwitchCheckChecked">Prioritaria</label>
+                </div>
+              </div> 
+  
+              <div id="msg_ver"></div><!-- id para manejar los mensajes de errordel popup -->
+              <div id="content_ver">
+                <!-- <div id="titlu"></div> -->
+                <!-- Mostrar datos del cliente -->
+                <div class="d-flex flex-wrap justify-content-start mt-2">
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Cliente</h6>
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+                <div id="cuerpo_cliente"><!-- Datos desde Javascript --></div>
+  
+                <!-- <hr class="my-1 text-dark"> -->
+                <div class="d-flex flex-wrap justify-content-start mt-2">
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Mercancia</h6>
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+  
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                  <ul class="nav nav-underline fs-9" role="tablist" id="bloques_mercancias_menu" style="--phoenix-nav-link-padding-x: rem !important;">
+                    <!-- Bloques de mercancia -->
+                  </ul>
+  
+                  <div class="tab-content mt-1" id="detalle_mercancias">
+                    <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+                  </div>
+  
+                  <!-- servicios especiales -->
+                  <ul class="nav nav-underline fs-9" role="tablist" id="bloques_servicios_especiales_menu" style="--phoenix-nav-link-padding-x: rem !important;">
+                    <!-- Bloques de servicio especial -->
+                  </ul>
+  
+                  <div class="tab-content mt-1" id="detalle_servicios_especiales">
+                    <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+                  </div>
+                </div>
+  
+                <!-- <hr class="my-1 text-dark"> -->
+                <div class="d-flex flex-wrap justify-content-start mt-2">
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Costos de servicio</h6>
+                  </div>
+                </div>
+  
+                <hr class="my-1 text-dark">
+                <div id="costos"><!-- Contenido desde Javascript --></div>
+                <hr class="my-1 text-dark">
+                <div id="costos1"></div>
+                <hr class="my-1 text-dark">
+                <!-- Total del servicio -->
+                <div id="totcotiza"></div>
+  
+                <div id="Mensaje_update"></div>
+  
+                <!-- <hr class="my-1 text-dark"> -->
+                <div class="d-flex flex-wrap justify-content-start mt-2">
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Remitentes y Destinatarios</h6>
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+                <!-- Remitentes -->
+                <div class="d-flex flex-wrap justify-content-start mt-2">
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Remitente(s)</h6>
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                  <ul class="nav nav-underline fs-9" role="tablist" id="bloques_punto_remitente" style="--phoenix-nav-link-padding-x: rem !important;">
+                    <!-- Bloques de remitentes -->
+                  </ul>
+  
+                  <div class="tab-content" id="detalle_puntos_remitentes">
+                    <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+                <!-- Destinatarios -->
+                <div class="d-flex flex-wrap justify-content-start mt-2">
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Destinatario(s)</h6>
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                  <ul class="nav nav-underline fs-9" role="tablist" id="bloques_punto_destinatario" style="--phoenix-nav-link-padding-x: rem !important;">
+                    <!-- Bloques de destinatarios -->
+                  </ul>
+  
+                  <div class="tab-content" id="detalle_puntos_destinatarios">
+                    <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+                <!-- Referenias para la facturacion -->
+  
+                <div class="row">
+                  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <!-- Listar la referencias por cada destinatario de la oslicyud d servicio -->
+                    <ul class="nav nav-underline fs-9" role="tablist" id="bloques_referencias_menu" style="--phoenix-nav-link-padding-x: rem !important;">
+                      <!-- Bloques de mercancia -->
+                    </ul>
+  
+                    <div class="tab-content mt-1" id="detalle_referencias">
+                      <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
+                    </div>
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+                <div class="d-flex flex-wrap justify-content-start mt-2">
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos Adicionales</h6>
+                  </div>
+                </div>
+                <hr class="my-1 text-dark">
+  
+                <div class="row" id="Datos_adicionales">
+                  <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
+                    <div class="mb-1">
+                      <label style="font-size: 12px;">Agencias</label>
+                      <select id="servicio_agencia" style="width: 100%;" class="ts form-select form-select-sm">
+                        <option value="" selected>Seleccione</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
+                    <div class="mb-1">
+                      <label style="font-size: 12px;">Tipo Servicio</label>
+                      <select id="servicio_cliente" style="width: 100%;" class="ts form-select form-select-sm">
+                        <option value="" selected>Seleccione</option>
+                        <option value="Expreso">Expreso - Viaje</option>
+                        <option value="Consolidado">Consolidado - Tonelada</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2">
+                    <div class="mb-1 pt-5 d-flex justify-content-end">
+                      <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_update_agencia_solicitud"><span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar</button>
+                    </div>
+                  </div>
+                  <input type="hidden" name="numero_cotizacion" id="numero_cotizacion">
+                  <input type="hidden" name="numero_solicitud" id="numero_solicitud">
+                </div>
+  
+  
+                <div class="row" id="Datos_adicionales_operaciones" style="display: none;">
+                  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <div class="d-flex justify-content-center mb-2">
+                      <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Información Restringida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>
+                    </div>
+                  </div>
+                </div>
+  
+                <hr class="my-1 text-dark">
+  
+                <!-- Datos para el contenedor  -->
+                <div class="row" id="Contenedor">
+                  <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                    <div class="mb-1">
+                      <label style="font-size: 12px;">Numero Contenedor</label>
+                      <input type="text" id="numero_contenedor" name="numero_contenedor" class="form-control form-control-sm text-dark fs-10" oninput="this.value = this.value.toUpperCase();">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                    <div class="mb-1 pt-4">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" id="agrupable" type="checkbox">
+                        <label class="form-check-label" for="agrupable">Agrupable</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                    <div class="mb-1 pt-5 d-flex justify-content-end">
+                      <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" type="button" id="btn_save_contenedor"><span class="uil uil-save" data-fa-transform="shrink-3"></span> Guardar</button>
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="row" id="Contenedor_operaciones" style="display: none;">
+                  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <div class="d-flex justify-content-center mb-2">
+                      <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Información Restringida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>
+                    </div>
+                  </div>
+                </div>
+  
+                <hr class="my-1 text-dark">
+  
+                <!-- Costos Adicionales -->
+                <div id="cuerpo_adicional"></div>
+              </div>
+            </div>
+          </div>
+        `);
+
+        myOffcanvas.show();
+        Visualizar(dataId, dataId2, dataId3);
       }
-
-
     };
 
     // Asignar eventos usando delegación
@@ -171,16 +331,6 @@ window.initScript = function (id) {
       clientesHandler,
       clickHandler
     };
-  }
-};
-
-// Asegúrate de limpiar al cerrar la ventana/componente
-window.cleanupScript = function () {
-  if (window.VENTANA_HANDLERS) {
-    $(document).off('change', window.VENTANA_HANDLERS.filtroHandler);
-    $(document).off('change', window.VENTANA_HANDLERS.clientesHandler);
-    $(document).off('click', window.VENTANA_HANDLERS.clickHandler);
-    window.VENTANA_HANDLERS = null;
   }
 };
 

@@ -473,7 +473,7 @@ class Popup
 								</div>
 								<div class="modal-footer">
 									<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
-									<button id="btn_%id%" type="button" data-dismiss="modal" class="btn btn-success md-close">GuardarES</button>
+									<button id="btn_%id%" type="button" data-dismiss="modal" class="btn btn-success md-close">Guardar</button>
 								</div>
 							</form>
 						</div>
@@ -1230,6 +1230,7 @@ class Popup
 		return $_popup;
 	}
 
+
 	// FORMULARIO PARA ORDENAMIENTO DE LAS ACTIVIDADES DE LA PLANTILLA
 	public function _form_modal_multiple_insert_orden1($id, $title, $content, $table, $accion, $orden_compra, $orden)
 	{
@@ -1932,7 +1933,7 @@ class Popup
 							if(!msg_error){
 								$(".nexos-messages").html(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se ha creado el registro con éxito.</div></div>\');
 								$("html, body").animate({ scrollTop: 0 }, 600);
-								setTimeout(function() { location.reload(false); }, 800);
+								$setTimeout(function() { location.reload(false); }, 800);
 
 							}
 							if(msg_error){
@@ -2176,7 +2177,7 @@ class Popup
 								</div>
 								<div class="modal-footer">
 									<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
-									<button id="btn_%id%" type="button" data-dismiss="modal" class="btn btn-success md-close">GuardarESsss</button>
+									<button id="btn_%id%" type="button" data-dismiss="modal" class="btn btn-success md-close">GuardarES</button>
 								</div>
 							</form>
 						</div>

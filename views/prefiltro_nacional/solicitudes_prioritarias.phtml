@@ -1,10 +1,14 @@
-<!-- <input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>"> -->
 <div class="container-fluid">
-  <!-- <div class="d-flex justify-content-center"></div> -->
+  <input type="hidden" name="ssn_id_cliente" id="ssn_id_cliente" value="<?= $_SESSION["usuario"]["id_cliente"] ?>">
+  <input type="hidden" name="ssn_id_usuario" id="ssn_id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"] ?>">
+  <input type="hidden" name="ssn_nombre" id="ssn_nombre" value="<?= $_SESSION["usuario"]["nom_usuario"] ?>">
+  <input type="hidden" name="ssn_id_perfil" id="ssn_id_perfil" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+  <input type="hidden" name="fecha_dia_solicitud" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+  <input type="hidden" name="hora_dia_solicitud" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
   <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
     <div class="row">
-      <div class='table-responsive noSwipe p-1'>
-        <table class='table table-bordered table-sm' data-page-length='100' style="font-size:12px;">
+      <div class='table-responsive p-1'>
+        <table class='table table-bordered table-sm' data-page-length='100' style="font-size:10px;">
           <thead>
             <tr>
               <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Solicitud</th>
@@ -28,5 +32,21 @@
   </div>
 </div>
 
-<!-- Offcanvas -->
-<?php //include_once 'views/prefiltro_nacional/offcanvas.phtml'; ?>
+<script type="text/javascript">
+  $(document).on('click', '#btn_soli', function() {
+    $('#solicitudservicio').modal('show');
+  });
+  $(document).on('click', '#cancel', function() {
+    $('#solicitudservicio').modal('hide');
+  });
+  $(document).on('click', '#btn_soli2', function() {
+    $('#solicitudservicionew').modal('show');
+  });
+  $(document).on('click', '#cancel2', function() {
+    $('#solicitudservicionew').modal('hide');
+  });
+  $(document).on('click', '#btn_cerrar', function() {
+    $('#crea_vehiculopreestudio').modal('hide');
+    location.reload();
+  });
+</script>

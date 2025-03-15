@@ -3295,15 +3295,21 @@ class validacion_parametroModel extends Model
     public function Insert_estudio($datos, $datos_nuevos)
     {
         // $placas_insert = $datos['placa'];
-        // $empresa_id = $_SESSION['usuario']['empresa_id'];
+        $empresa_session_id = $_SESSION['usuario']['empresa_id'];
+        $response = [];
         try {
             $this->_db3->beginTransaction();
             //obtener id de agrupacion
-            $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='AGRU_SS' AND numero_actual>numero_inicial");
-            $resultado_consecutivo = $sql_consecutivo->execute();
+            $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo = :tipo AND numero_actual > numero_inicial AND empresa_id=:empresa_id");
+            $sql_consecutivo->execute([
+                ':tipo' => 'AGRU_SS',
+                ':empresa_id' => $empresa_session_id
+            ]);
+
             $resultado_consecutivo = $sql_consecutivo->fetch(PDO::FETCH_ASSOC);
-            $numdoc_agru = $resultado_consecutivo['numero_actual'];
-            $numero_agrupacion = $resultado_consecutivo['numero_actual'] + 1;
+            $numdoc_agru = $resultado_consecutivo['numero_actual'] ?? 0;
+            $numero_agrupacion = $numdoc_agru + 1;
+
             //consulta la solicitud de servicio
             $solicitudes_servicio = $datos["solicitudes"];
             foreach ($solicitudes_servicio as $value) {
@@ -3313,28 +3319,42 @@ class validacion_parametroModel extends Model
                 if ($total == 0) {
                     //insertar agrupacion de solicitudes
                     if ($numdoc_agru) {
-                        $sql_updata_maestro = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=$numero_agrupacion WHERE tipo='AGRU_SS'");
-                        $resultado_consecutivo_update = $sql_updata_maestro->execute();
+                        $sql_update_maestro = $this->_db3->prepare("UPDATE cmx_maestro  SET numero_actual=:numero_actual WHERE tipo=:tipo AND empresa_id=:empresa_id");
+                        $resultado_consecutivo_update = $sql_update_maestro->execute([
+                            ':numero_actual' => $numero_agrupacion,
+                            ':tipo' => 'AGRU_SS',
+                            ':empresa_id' => $empresa_session_id
+                        ]);
+
                         if ($resultado_consecutivo_update) {
-                            // $this->_db3->commit();
                             foreach ($solicitudes_servicio as $value) {
                                 $sql_agrupacion = $this->_db3->prepare("INSERT INTO cmx_consolidacion_solicitudes(id,solicitud_servicio,agrupacion) VALUES(null,:id_servicio,:agrupacion)");
                                 $sql_agrupacion->bindParam(':id_servicio', $value);
                                 $sql_agrupacion->bindParam(':agrupacion', $numdoc_agru);
                                 $resultado_agrupacion = $sql_agrupacion->execute();
                             }
+
                             if ($resultado_agrupacion) {
                                 //insertar habilitar y actualizar
                                 // Consultar maestro de Estudio de seguridad
-                                $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='EST_SEG' AND numero_actual>numero_inicial");
-                                $resultado_consecutivo = $sql_consecutivo->execute();
+                                $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo=:tipo AND numero_actual > numero_inicial  AND empresa_id=:empresa_id");
+                                $sql_consecutivo->execute([
+                                    ':tipo' => 'EST_SEG',
+                                    ':empresa_id' => $empresa_session_id
+                                ]);
                                 $resultado_consecutivo = $sql_consecutivo->fetch(PDO::FETCH_ASSOC);
-                                $numdoc = $resultado_consecutivo['numero_actual'];
-                                $numdoc_actualizar = $resultado_consecutivo['numero_actual'] + 1;
+                                $numdoc = $resultado_consecutivo['numero_actual'] ?? 0;
+                                $numdoc_actualizar = $numdoc + 1;
+
                                 if ($numdoc) {
                                     // Actualizar Maestro de Estudio segurdad
-                                    $sql_updata_maestro = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=$numdoc_actualizar WHERE tipo='EST_SEG'");
-                                    $resultado_consecutivo_update = $sql_updata_maestro->execute();
+                                    $sql_update_maestro = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=:numdoc_actualizar WHERE tipo=:tipo AND empresa_id=:empresa_id");
+                                    $resultado_consecutivo_update = $sql_update_maestro->execute([
+                                        ':numdoc_actualizar' => $numdoc_actualizar,
+                                        ':tipo' => 'EST_SEG',
+                                        ':empresa_id' => $empresa_session_id
+                                    ]);
+
                                     if ($resultado_consecutivo_update) {
                                         $null = null;
                                         $viaje = null;
@@ -3359,14 +3379,25 @@ class validacion_parametroModel extends Model
                                         $resultado_insert_estudio_vh = $sql_insert_estudio_vh->execute();
                                         if ($resultado_insert_estudio_vh) {
                                             // Consultar maestro de Estudio de seguridad Completo
-                                            $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='EST_SEG_COMP' AND numero_actual>numero_inicial");
-                                            $resultado_consecutivo_completo = $sql_consecutivo->execute();
+                                            $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo=:tipo AND numero_actual > numero_inicial AND empresa_id=:empresa_id");
+                                            $sql_consecutivo->execute([
+                                                ':tipo' => 'EST_SEG_COMP',
+                                                ':empresa_id' => $empresa_session_id
+                                            ]);
+
                                             $resultado_consecutivo_completo = $sql_consecutivo->fetch(PDO::FETCH_ASSOC);
-                                            $numdoc_completo = $resultado_consecutivo_completo['numero_actual'];
-                                            $numdoc_actualizar_completo = $resultado_consecutivo_completo['numero_actual'] + 1;
+                                            $numdoc_completo = $resultado_consecutivo_completo['numero_actual'] ?? 0;
+                                            $numdoc_actualizar_completo = $numdoc_completo + 1;
+
                                             if ($numdoc_completo) {
-                                                $sql_updata_maestro_completo = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=$numdoc_actualizar_completo WHERE tipo='EST_SEG_COMP'");
-                                                $resultado_consecutivo_update_completo = $sql_updata_maestro_completo->execute();
+                                                $sql_updata_maestro_completo = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=:numdoc_actualizar WHERE tipo=:tipo AND empresa_id=:empresa_id");
+
+                                                $resultado_consecutivo_update_completo = $sql_updata_maestro_completo->execute([
+                                                    ':numdoc_actualizar' => $numdoc_actualizar_completo,
+                                                    ':tipo' => 'EST_SEG_COMP',
+                                                    ':empresa_id' => $empresa_session_id
+                                                ]);
+
                                                 if ($resultado_consecutivo_update_completo) {
                                                     $estado_estudio_seguridad = "pendiente_iniciar";
                                                     $estado_actu = 1;
@@ -3378,7 +3409,7 @@ class validacion_parametroModel extends Model
                                                     $resultado = $sql_conductor_vehiculo->execute();
                                                     $resultado = $sql_conductor_vehiculo->fetch(PDO::FETCH_ASSOC);
                                                     $sql_insert_estudio_completo = $this->_db3->prepare("INSERT INTO cmx_estudiov_completo(id_estudio_c,id_estudio,estado,id_vehiculo,id_conductor,observacion,proceso,fecha,hora,usuario,estado_actu,estado_subasta)
-                                                                                                        VALUES(:id_estudio_c,:id_estudio,:estado,:id_vehiculo,:id_conductor,:observacion,:proceso,:fecha,:hora,:usuario,:estado_actu,:estado_subasta)");
+                                                    VALUES(:id_estudio_c,:id_estudio,:estado,:id_vehiculo,:id_conductor,:observacion,:proceso,:fecha,:hora,:usuario,:estado_actu,:estado_subasta)");
                                                     $sql_insert_estudio_completo->bindParam(':id_estudio_c', $numdoc_completo, PDO::PARAM_STR);
                                                     $sql_insert_estudio_completo->bindParam(':id_estudio', $numdoc, PDO::PARAM_STR);
                                                     $sql_insert_estudio_completo->bindParam(':estado', $estado_estudio_seguridad, PDO::PARAM_STR);
@@ -3394,7 +3425,8 @@ class validacion_parametroModel extends Model
                                                     $resultado_estudiov_completo = $sql_insert_estudio_completo->execute();
                                                     if ($resultado_estudiov_completo) {
                                                         $estado_log = "Crear";
-                                                        $sql_insert_log = $this->_db3->prepare("INSERT INTO cmx_logestudio_com(id_completo,id_estudio,fecha,hora,id_usuario,estado) VALUES(:id_completo,:id_estudio,:fecha,:hora,:id_usuario,:estado)");
+                                                        $sql_insert_log = $this->_db3->prepare("INSERT INTO cmx_logestudio_com(id_completo,id_estudio,fecha,hora,id_usuario,estado) 
+                                                        VALUES(:id_completo,:id_estudio,:fecha,:hora,:id_usuario,:estado)");
                                                         $sql_insert_log->bindParam(':id_completo', $numdoc_completo, PDO::PARAM_STR);
                                                         $sql_insert_log->bindParam(':id_estudio', $numdoc, PDO::PARAM_STR);
                                                         $sql_insert_log->bindParam(':fecha', $datos["fecha"], PDO::PARAM_STR);
@@ -3408,7 +3440,8 @@ class validacion_parametroModel extends Model
                                                             $p = 'E';
                                                             $solicitudes = $datos["solicitudes"];
                                                             foreach ($solicitudes as $value) {
-                                                                $sqlss = $this->_db3->prepare("INSERT INTO cmx_preestudio_solicitudes_servicio(id,id_servicio_cliente,id_solicitudpreestudio,fecha,hora,usuario,es,clasificacion)VALUES(null,:servicio,:idsolicitud,:fecha,:hora,:usuario,:es,:p)");
+                                                                $sqlss = $this->_db3->prepare("INSERT INTO cmx_preestudio_solicitudes_servicio(id,id_servicio_cliente,id_solicitudpreestudio,fecha,hora,usuario,es,clasificacion) 
+                                                                VALUES(null,:servicio,:idsolicitud,:fecha,:hora,:usuario,:es,:p)");
                                                                 $sqlss->bindParam(':servicio', $value);
                                                                 $sqlss->bindParam(':idsolicitud', $numdoc);
                                                                 $sqlss->bindParam(':fecha', $datos['fecha']);
@@ -3421,7 +3454,8 @@ class validacion_parametroModel extends Model
                                                             if ($resultado_solicitudes_servicio) {
                                                                 foreach ($solicitudes as $value) {
                                                                     $estado_log = 'asignada';
-                                                                    $sqlo = $this->_db3->prepare("INSERT INTO cmx_log_solicitudvehiculo(id,id_solictud,user_log,fecha_asignacion,hora_asignacion,estado) VALUES(null,:servicio,:usuario,:fecha,:hora,:statu)");
+                                                                    $sqlo = $this->_db3->prepare("INSERT INTO cmx_log_solicitudvehiculo(id,id_solictud,user_log,fecha_asignacion,hora_asignacion,estado) 
+                                                                    VALUES(null,:servicio,:usuario,:fecha,:hora,:statu)");
                                                                     $sqlo->bindParam(':servicio', $value);
                                                                     $sqlo->bindParam(':usuario', $datos["usuario"]);
                                                                     $sqlo->bindParam(':fecha', $datos['fecha']);
@@ -3431,7 +3465,8 @@ class validacion_parametroModel extends Model
                                                                 }
                                                                 if ($resultado_log) {
                                                                     $valor = 0;
-                                                                    $sql_subasta = $this->_db3->prepare("INSERT INTO cmx_subasta_temporal(id,fecha_inicio,numero_estudio,placa,flete,tarifa) VALUES(null,:fechasu,:numerosu,:placa_su,:fletesu,:tarifasu)");
+                                                                    $sql_subasta = $this->_db3->prepare("INSERT INTO cmx_subasta_temporal(id,fecha_inicio,numero_estudio,placa,flete,tarifa) 
+                                                                    VALUES(null,:fechasu,:numerosu,:placa_su,:fletesu,:tarifasu)");
                                                                     $sql_subasta->bindParam(':fechasu', $datos["fecha"]);
                                                                     $sql_subasta->bindParam(':numerosu', $numdoc);
                                                                     $sql_subasta->bindParam(':placa_su', $datos["placa"]);
@@ -3455,7 +3490,7 @@ class validacion_parametroModel extends Model
                                                                                             (int) $tol = count($archivos->tipohojahv);
                                                                                             for ($i = 0; $i < $tol; $i++) {
                                                                                                 $inse_update = $this->_db3->prepare("INSERT INTO cmx_actualiza_seguridad(id_sol_prees,tipo_hv,tipo_campo,info_campo,fecha,hora,usuario,ruta_archivo,name_archivo)
-                                                                                        VALUES(:solicitud, :tipohv, :campo, :dato, :fecha, :hora, :usuario, :ruta_archivo, :name_archivo)");
+                                                                                                VALUES(:solicitud, :tipohv, :campo, :dato, :fecha, :hora, :usuario, :ruta_archivo, :name_archivo)");
                                                                                                 $inse_update->bindParam(':solicitud', $numdoc);
                                                                                                 $inse_update->bindParam(':tipohv', $archivos->tipohojahv[$i]);
                                                                                                 $inse_update->bindParam(':campo', $archivos->campos[$i]);
@@ -3497,34 +3532,34 @@ class validacion_parametroModel extends Model
                                                                                                 }
 
                                                                                                 // Si todo ha ido bien, confirmar la transacción
-                                                                                                $this->_db3->commit();
-                                                                                                $response = array(
+                                                                                                // $this->_db3->commit();   
+                                                                                                $response = [
                                                                                                     'numero' => 200,
                                                                                                     'mensaje' => 'Solicitud de estudio para la placa registrada exitosamente.',
-                                                                                                );
+                                                                                                ];
                                                                                             } else {
                                                                                                 // Si las inserciones en la base de datos fallan, hacer rollback
-                                                                                                $this->_db3->rollback();
-                                                                                                $response = array(
+                                                                                                // $this->_db3->rollback();
+                                                                                                $response = [
                                                                                                     'numero' => 400,
                                                                                                     'mensaje' => 'No se pudo registrar los datos a actualizar para la placa.',
-                                                                                                );
+                                                                                                ];
                                                                                             }
 
-                                                                                            return $response;
+                                                                                            // return $response;
                                                                                         } else {
                                                                                             // Si no se pudo crear la carpeta
-                                                                                            $response = array(
+                                                                                            $response = [
                                                                                                 'numero' => 400,
                                                                                                 'mensaje' => "No se pudo crear la carpeta.",
-                                                                                            );
-                                                                                            return $response;
+                                                                                            ];
+                                                                                            // return $response;
                                                                                         }
                                                                                     } else {
                                                                                         (int) $tol = count($archivos->tipohojahv);
                                                                                         for ($i = 0; $i < count($archivos->tipohojahv); $i++) {
                                                                                             $inse_update = $this->_db3->prepare("INSERT INTO cmx_actualiza_seguridad(id_sol_prees,tipo_hv,tipo_campo,info_campo,fecha,hora,usuario,ruta_archivo,name_archivo)
-                                                                                                                                VALUES(:solicitud,:tipohv,:campo,:dato,:fecha,:hora,:usuario,:ruta_archivo,:name_archivo)");
+                                                                                            VALUES(:solicitud,:tipohv,:campo,:dato,:fecha,:hora,:usuario,:ruta_archivo,:name_archivo)");
                                                                                             $inse_update->bindParam(':solicitud', $numdoc);
                                                                                             $inse_update->bindParam(':tipohv', $archivos->tipohojahv[$i]);
                                                                                             $inse_update->bindParam(':campo', $archivos->campos[$i]);
@@ -3537,15 +3572,14 @@ class validacion_parametroModel extends Model
                                                                                             $resultado_update = $inse_update->execute();
                                                                                         }
                                                                                         if ($resultado_update) {
-                                                                                            $this->_db3->commit();
-                                                                                            $response = array('numero' => 200, 'mensaje' => 'Solicitud de estudio para la placa ' . $datos['placa'] . ' registrada exitosamente.');
-                                                                                            return $response;
+                                                                                            // $this->_db3->commit();
+                                                                                            $response = ['numero' => 200, 'mensaje' => 'Solicitud de estudio para la placa ' . $datos['placa'] . ' registrada exitosamente.'];
+                                                                                            // return $response;
                                                                                         } else {
-                                                                                            $response = array(
+                                                                                            $response = [
                                                                                                 'numero' => 400,
                                                                                                 'mensaje' => 'No se puedo registrar los datos a actualizar para la placa',
-                                                                                            );
-                                                                                            return $response;
+                                                                                            ];
                                                                                         }
                                                                                     }
                                                                                 } else {
@@ -3562,312 +3596,257 @@ class validacion_parametroModel extends Model
                                                                                         }
                                                                                     }
                                                                                     if ($resultado_subasta) {
-                                                                                        $this->_db3->commit();
-                                                                                        $response = array(
+                                                                                        // $this->_db3->commit();
+                                                                                        $response = [
                                                                                             'numero' => 200,
                                                                                             'mensaje' => 'Solicitud de estudio para la placa  registrada exitosamente.',
-                                                                                        );
-                                                                                        return $response;
+                                                                                        ];
+                                                                                        // return $response;
                                                                                     } else {
-                                                                                        $this->_db3->commit();
-                                                                                        $response = array(
+                                                                                        // $this->_db3->commit();
+                                                                                        $response = [
                                                                                             'numero' => 400,
                                                                                             'mensaje' => 'No se puedo registrar los datos a actualizar para la placa',
-                                                                                        );
-                                                                                        return $response;
+                                                                                        ];
+                                                                                        // return $response;
                                                                                     }
                                                                                 }
                                                                             } else {
                                                                                 /* Cuando se valla a unsertar un prefiltro para un nuevo recurso */
-                                                                                // if($datos["nuevo_recurso"]=="si"){}
                                                                                 $evalua_pro = $datos_nuevos["propietario_check"];
-                                                                                if ($evalua_pro == 'true') {
-                                                                                    $checkpro = 1;
-                                                                                    $name_pro = $datos_nuevos["nombre_propietario"];
-                                                                                    $doc_pro = $datos_nuevos["docu_propi"];
-                                                                                } else {
-                                                                                    $checkpro = 0;
-                                                                                    $name_pro = null;
-                                                                                    $doc_pro = null;
-                                                                                }
+                                                                                $checkpro = ($evalua_pro == 'true') ? 1 : 0;
+                                                                                $name_pro = $checkpro ? $datos_nuevos["nombre_propietario"] : null;
+                                                                                $doc_pro = $checkpro ? $datos_nuevos["docu_propi"] : null;
+
                                                                                 $evalua_pose = $datos_nuevos["tipo_posee"];
-                                                                                if ($evalua_pose == 'true') {
-                                                                                    $checkpose = 1;
-                                                                                    $name_pose = $datos_nuevos["nombre_poseedor"];
-                                                                                    $doc_pose = $datos_nuevos["docu_posee"];
-                                                                                } else {
-                                                                                    $checkpose = 0;
-                                                                                    $name_pose = null;
-                                                                                    $doc_pose = null;
-                                                                                }
+                                                                                $checkpose = ($evalua_pose == 'true') ? 1 : 0;
+                                                                                $name_pose = $checkpose ? $datos_nuevos["nombre_poseedor"] : null;
+                                                                                $doc_pose = $checkpose ? $datos_nuevos["docu_posee"] : null;
 
                                                                                 $evalua_veh = $datos_nuevos["vehi_check"];
-                                                                                if ($evalua_veh == 'true') {
-                                                                                    $checkcarro = 1;
-                                                                                    $placa_carro = $datos_nuevos["placa_vehiculo"];
-                                                                                    $satelital = $datos_nuevos["satelital"];
-                                                                                    $url_satelital = $datos_nuevos["url_satelital"];
-                                                                                    $clave_satelital = $datos_nuevos["clave_satelital"];
-                                                                                } else {
-                                                                                    $checkcarro = 0;
-                                                                                    $placa_carro = null;
-                                                                                    $satelital = null;
-                                                                                    $url_satelital = null;
-                                                                                    $clave_satelital = null;
-                                                                                }
+                                                                                $checkcarro = ($evalua_veh == 'true') ? 1 : 0;
+                                                                                $placa_carro = $checkcarro ? $datos_nuevos["placa_vehiculo"] : null;
+                                                                                $satelital = $checkcarro ? $datos_nuevos["satelital"] : null;
+                                                                                $url_satelital = $checkcarro ? $datos_nuevos["url_satelital"] : null;
+                                                                                $clave_satelital = $checkcarro ? $datos_nuevos["clave_satelital"] : null;
 
                                                                                 $evalua_trai = $datos_nuevos["trailer_check"];
-                                                                                if ($evalua_trai == 'true') {
-                                                                                    $checktrai = 1;
-                                                                                    $placa_trailer = $datos_nuevos["placa_trailer"];
-                                                                                    // $placa_trailer = null;
-                                                                                    $pro_trailer = $datos_nuevos["propi_trailer"];
-                                                                                    $pro_doctrailer = $datos_nuevos["propidoc_trailer"];
-                                                                                } else {
-                                                                                    $checktrai = 0;
-                                                                                    $placa_trailer = null;
-                                                                                    $pro_trailer = null;
-                                                                                    $pro_doctrailer = null;
-                                                                                }
+                                                                                $checktrai = ($evalua_trai == 'true') ? 1 : 0;
+                                                                                $placa_trailer = $checktrai ? $datos_nuevos["placa_trailer"] : null;
+                                                                                $pro_trailer = $checktrai ? $datos_nuevos["propi_trailer"] : null;
+                                                                                $pro_doctrailer = $checktrai ? $datos_nuevos["propidoc_trailer"] : null;
 
-                                                                                //conductor
                                                                                 $evalua_condu = $datos_nuevos["conductor_check"];
-                                                                                if ($evalua_condu == 'true') {
-                                                                                    $checkcondu = 1;
-                                                                                    $name_condu = $datos_nuevos["nombre_conductor"];
-                                                                                    $docu_condu = $datos_nuevos["docu_condu"];
+                                                                                $checkcondu = ($evalua_condu == 'true') ? 1 : 0;
+                                                                                $name_condu = $checkcondu ? $datos_nuevos["nombre_conductor"] : null;
+                                                                                $docu_condu = $checkcondu ? $datos_nuevos["docu_condu"] : null;
 
-                                                                                    $refe1 = $datos_nuevos["refe1"];
-                                                                                    $contacto1 = $datos_nuevos["contacto1"];
-                                                                                    $celular1 = $datos_nuevos["celular1"];
-                                                                                    $cargo1 = $datos_nuevos["cargo1"];
-                                                                                    $fechaa1 = $datos_nuevos["fechaa1"];
-                                                                                    $fechaa2 = $datos_nuevos["fechaa2"];
-                                                                                    $anti1 = $datos_nuevos["anti1"];
-
-                                                                                    $refe2 = $datos_nuevos["refe2"];
-                                                                                    $contacto2 = $datos_nuevos["contacto2"];
-                                                                                    $celular2 = $datos_nuevos["celular2"];
-                                                                                    $cargo2 = $datos_nuevos["cargo2"];
-                                                                                    $fechab1 = $datos_nuevos["fechab1"];
-                                                                                    $fechab2 = $datos_nuevos["fechab2"];
-                                                                                    $anti2 = $datos_nuevos["anti2"];
-
-                                                                                    $refe3 = $datos_nuevos["refe3"];
-                                                                                    $contacto3 = $datos_nuevos["contacto3"];
-                                                                                    $celular3 = $datos_nuevos["celular3"];
-                                                                                    $cargo3 = $datos_nuevos["cargo3"];
-                                                                                    $fechac1 = $datos_nuevos["fechac1"];
-                                                                                    $fechac2 = $datos_nuevos["fechac2"];
-                                                                                    $anti3 = $datos_nuevos["anti2"];
-                                                                                } else {
-                                                                                    $checkcondu = 0;
-                                                                                    $name_condu = null;
-                                                                                    $docu_condu = null;
-
-                                                                                    $refe1 = null;
-                                                                                    $contacto1 = null;
-                                                                                    $celular1 = null;
-                                                                                    $cargo1 = null;
-                                                                                    $fechaa1 = null;
-                                                                                    $fechaa2 = null;
-                                                                                    $anti1 = null;
-
-                                                                                    $refe2 = null;
-                                                                                    $contacto2 = null;
-                                                                                    $celular2 = null;
-                                                                                    $cargo2 = null;
-                                                                                    $fechab1 = null;
-                                                                                    $fechab2 = null;
-                                                                                    $anti2 = null;
-
-                                                                                    $refe3 = null;
-                                                                                    $contacto3 = null;
-                                                                                    $celular3 = null;
-                                                                                    $cargo3 = null;
-                                                                                    $fechac1 = null;
-                                                                                    $fechac2 = null;
-                                                                                    $anti3 = null;
+                                                                                $referencias = [];
+                                                                                for ($i = 1; $i <= 3; $i++) {
+                                                                                    $referencias[] = [
+                                                                                        'refe' => $checkcondu ? $datos_nuevos["refe$i"] : null,
+                                                                                        'contacto' => $checkcondu ? $datos_nuevos["contacto$i"] : null,
+                                                                                        'celular' => $checkcondu ? $datos_nuevos["celular$i"] : null,
+                                                                                        'cargo' => $checkcondu ? $datos_nuevos["cargo$i"] : null,
+                                                                                        'fecha1' => $checkcondu ? $datos_nuevos["fecha" . chr(96 + $i) . "1"] : null,
+                                                                                        'fecha2' => $checkcondu ? $datos_nuevos["fecha" . chr(96 + $i) . "2"] : null,
+                                                                                        'antiguedad' => $checkcondu ? $datos_nuevos["anti$i"] : null
+                                                                                    ];
                                                                                 }
-                                                                                $this->_db3->prepare("INSERT INTO cmx_prefiltro_actualizar(id,id_solicitud_u,propietario,name_propietario,documento_propietario,poseedor,name_poseedor,documento_poseedor,vehiculo,
-                                                                                placa,satelital,clave_satelital,url_satelital,user_satelital,trailer,placa_trailer,name_propietario_trailer,documento_propi_trailer,conductor,name_conductor,documento_conductor,
-                                                                                empresa1,persona1,cel1,cargo1,feca1,feca2,antiguedad1,empresa2,persona2,cel2,cargo2,fecb1,fecb2,antiguedad2,empresa3,persona3,cel3,cargo3,fecc1,fecc2,antiguedad3)
-                                                                                VALUES(null,:id_solicitud,:prop,:name_propi,:doc_propietario,:tene,:name_poseedor,:docpose,:carro,:placa_carro,:satelite,:clave_sate,:url_satelite,:user_satelital,:trailercheck,
-                                                                                :trailerplaca,:nomprotrail,:docuproptrail,:conductor,:namecondu,:doccondu,:ref1,:contacto1,:cel1,:cargo1,:feca1,:feca2,:antigue1,:empresa2,:person2,:celu2,:cargo2,:fechab1,:fechab2,
-                                                                                :anti2,:empre3,:contacto3,:celu3,:cargo3,:fecc1,:fecc2,:anti3)")
-                                                                                    ->execute(
-                                                                                        array(
-                                                                                            ':id_solicitud' => $numdoc,
-                                                                                            ':prop' => $checkpro,
-                                                                                            ':name_propi' => $name_pro,
-                                                                                            ':doc_propietario' => $doc_pro,
-                                                                                            ':tene' => $checkpose,
-                                                                                            ':name_poseedor' => $name_pose,
-                                                                                            ':docpose' => $doc_pose,
-                                                                                            ':carro' => $checkcarro,
-                                                                                            ':placa_carro' => $placa_carro,
-                                                                                            ':satelite' => $satelital,
-                                                                                            ':clave_sate' => $clave_satelital,
-                                                                                            ':url_satelite' => $url_satelital,
-                                                                                            ':user_satelital' => $clave_satelital,
-                                                                                            ':trailercheck' => $checktrai,
-                                                                                            ':trailerplaca' => $placa_trailer,
-                                                                                            ':nomprotrail' => $pro_trailer,
-                                                                                            ':docuproptrail' => $pro_doctrailer,
-                                                                                            ':conductor' => $checkcondu,
-                                                                                            ':namecondu' => $name_condu,
-                                                                                            ':doccondu' => $docu_condu,
-                                                                                            ':ref1' => $refe1,
-                                                                                            ':contacto1' => $contacto1,
-                                                                                            ':cel1' => $celular1,
-                                                                                            ':cargo1' => $cargo1,
-                                                                                            ':feca1' => $fechaa1,
-                                                                                            ':feca2' => $fechaa2,
-                                                                                            ':antigue1' => $anti1,
-                                                                                            ':empresa2' => $refe2,
-                                                                                            ':person2' => $contacto2,
-                                                                                            ':celu2' => $celular2,
-                                                                                            ':cargo2' => $cargo2,
-                                                                                            ':fechab1' => $fechab1,
-                                                                                            ':fechab2' => $fechab2,
-                                                                                            ':anti2' => $anti2,
-                                                                                            ':empre3' => $refe3,
-                                                                                            ':contacto3' => $contacto3,
-                                                                                            ':celu3' => $celular3,
-                                                                                            ':cargo3' => $cargo3,
-                                                                                            ':fecc1' => $fechac1,
-                                                                                            ':fecc2' => $fechac2,
-                                                                                            ':anti3' => $anti3,
-                                                                                        )
-                                                                                    );
 
-                                                                                $this->_db3->commit();
-                                                                                $response = array(
+                                                                                $query = "INSERT INTO cmx_prefiltro_actualizar 
+                                                                                (id, id_solicitud_u, propietario, name_propietario, documento_propietario, poseedor, name_poseedor, documento_poseedor,
+                                                                                    vehiculo, placa, satelital, clave_satelital, url_satelital, user_satelital, trailer, placa_trailer,
+                                                                                    name_propietario_trailer, documento_propi_trailer, conductor, name_conductor, documento_conductor,
+                                                                                    empresa1, persona1, cel1, cargo1, feca1, feca2, antiguedad1,
+                                                                                    empresa2, persona2, cel2, cargo2, fecb1, fecb2, antiguedad2,
+                                                                                    empresa3, persona3, cel3, cargo3, fecc1, fecc2, antiguedad3
+                                                                                ) VALUES (null, :id_solicitud, :prop, :name_propi, :doc_propietario, :tene, :name_poseedor, :docpose,
+                                                                                    :carro, :placa_carro, :satelite, :clave_sate, :url_satelite, :user_satelital, :trailercheck, :trailerplaca,
+                                                                                    :nomprotrail, :docuproptrail, :conductor, :namecondu, :doccondu,
+                                                                                    :ref1, :contacto1, :cel1, :cargo1, :feca1, :feca2, :antigue1,
+                                                                                    :empresa2, :person2, :celu2, :cargo2, :fechab1, :fechab2, :anti2,
+                                                                                    :empre3, :contacto3, :celu3, :cargo3, :fecc1, :fecc2, :anti3
+                                                                                )";
+
+                                                                                $this->_db3->prepare($query)->execute([
+                                                                                    ':id_solicitud' => $numdoc,
+                                                                                    ':prop' => $checkpro,
+                                                                                    ':name_propi' => $name_pro,
+                                                                                    ':doc_propietario' => $doc_pro,
+                                                                                    ':tene' => $checkpose,
+                                                                                    ':name_poseedor' => $name_pose,
+                                                                                    ':docpose' => $doc_pose,
+                                                                                    ':carro' => $checkcarro,
+                                                                                    ':placa_carro' => $placa_carro,
+                                                                                    ':satelite' => $satelital,
+                                                                                    ':clave_sate' => $clave_satelital,
+                                                                                    ':url_satelite' => $url_satelital,
+                                                                                    ':user_satelital' => $clave_satelital,
+                                                                                    ':trailercheck' => $checktrai,
+                                                                                    ':trailerplaca' => $placa_trailer,
+                                                                                    ':nomprotrail' => $pro_trailer,
+                                                                                    ':docuproptrail' => $pro_doctrailer,
+                                                                                    ':conductor' => $checkcondu,
+                                                                                    ':namecondu' => $name_condu,
+                                                                                    ':doccondu' => $docu_condu,
+                                                                                    ':ref1' => $referencias[0]['refe'],
+                                                                                    ':contacto1' => $referencias[0]['contacto'],
+                                                                                    ':cel1' => $referencias[0]['celular'],
+                                                                                    ':cargo1' => $referencias[0]['cargo'],
+                                                                                    ':feca1' => $referencias[0]['fecha1'],
+                                                                                    ':feca2' => $referencias[0]['fecha2'],
+                                                                                    ':antigue1' => $referencias[0]['antiguedad'],
+                                                                                    ':empresa2' => $referencias[1]['refe'],
+                                                                                    ':person2' => $referencias[1]['contacto'],
+                                                                                    ':celu2' => $referencias[1]['celular'],
+                                                                                    ':cargo2' => $referencias[1]['cargo'],
+                                                                                    ':fechab1' => $referencias[1]['fecha1'],
+                                                                                    ':fechb2' => $referencias[1]['fecha2'],
+                                                                                    ':anti2' => $referencias[1]['antiguedad'],
+                                                                                    ':empre3' => $referencias[2]['refe'],
+                                                                                    ':contacto3' => $referencias[2]['contacto'],
+                                                                                    ':celu3' => $referencias[2]['celular'],
+                                                                                    ':cargo3' => $referencias[2]['cargo'],
+                                                                                    ':fecc1' => $referencias[2]['fecha1'],
+                                                                                    ':fecc2' => $referencias[2]['fecha2'],
+                                                                                    ':anti3' => $referencias[2]['antiguedad'],
+                                                                                ]);
+
+                                                                                // $this->_db3->commit();
+                                                                                $response = [
                                                                                     'numero' => 200,
-                                                                                    'mensaje' => 'insert prefiltro en actualizar registrado exitosamente.',
-                                                                                );
-                                                                                return $response;
+                                                                                    'mensaje' => 'Inserto prefiltro en actualizar registrado exitosamente.',
+                                                                                ];
+                                                                                // return $response;
                                                                             }
                                                                         } else {
-                                                                            $this->_db3->commit();
-                                                                            $response = array(
+                                                                            // $this->_db3->commit();
+                                                                            $response = [
                                                                                 'numero' => 200,
-                                                                                'mensaje' => 'Solicitud de estudio para la placa  registrada exitosamente.',
-                                                                            );
-                                                                            return $response;
+                                                                                'mensaje' => 'Solicitud de estudio para la placa registrada exitosamente.',
+                                                                            ];
+                                                                            // return $response;
                                                                         }
                                                                     } else {
-                                                                        $this->_db3->commit();
-                                                                        $response = array(
+                                                                        // $this->_db3->commit();
+                                                                        $response = [
                                                                             'numero' => 400,
                                                                             'mensaje' => 'No se puedo registrar la asociacion de estudio para la placa',
-                                                                        );
-                                                                        return $response;
+                                                                        ];
+                                                                        // return $response;
                                                                     }
                                                                 } else {
-                                                                    $this->_db3->commit();
-                                                                    $response = array(
+                                                                    // $this->_db3->commit();
+                                                                    $response = [
                                                                         'numero' => 400,
                                                                         'mensaje' => 'No se puedo registrar la subasta temporal de estudio para la placa',
-                                                                    );
-                                                                    return $response;
+                                                                    ];
+                                                                    // return $response;
                                                                 }
                                                             } else {
-                                                                $this->_db3->commit();
-                                                                $response = array(
+                                                                // $this->_db3->commit();
+                                                                $response = [
                                                                     'numero' => 400,
                                                                     'mensaje' => 'No se puedo registrar log de ss con operaciones',
-                                                                );
+                                                                ];
                                                             }
                                                             // }
                                                         } else {
-                                                            $this->_db3->commit();
-                                                            $response = array(
+                                                            // $this->_db3->commit();
+                                                            $response = [
                                                                 'numero' => 400,
                                                                 'mensaje' => 'No se puedo registrar la solicitud de estudio para la placa',
-                                                            );
-                                                            return $response;
+                                                            ];
+                                                            // return $response;
                                                         }
                                                     } else {
-                                                        $response = array(
+                                                        $response = [
                                                             'numero' => 400,
                                                             'mensaje' => 'No se puedo resgistrar la solicitud de estudio para la placa',
-                                                        );
-                                                        $mensajeError = "transaccion fallo: insertar estado completo vehiculo" . date("Y-m-d") . $datos["usuario"];
-                                                        $er = error_log($mensajeError . "\n", 3, "error_log.txt");
+                                                        ];
+                                                        // $logFile = __DIR__ . "/logs/error_log_" . date("Y-m-d") . ".log"; // Log diario
+                                                        $logFile = "error_log.txt"; // Definir el archivo de log
+                                                        $mensajeError = "[" . date("Y-m-d H:i:s") . "] ERROR: Transacción falló al insertar vehículo. Usuario: " . $datos["usuario"];
+                                                        error_log($mensajeError . PHP_EOL, 3, $logFile);
                                                     }
                                                 } else {
-                                                    $mensajeError = "transaccion fallo: en Actualizar maestro estudio seguridad completo" . date("Y-m-d") . $datos["usuario"];
-                                                    $er = error_log($mensajeError . "\n", 3, "error_log.txt");
+                                                    $logFile = "error_log.txt"; // Definir el archivo de log
+                                                    $mensajeError = "[" . date("Y-m-d H:i:s") . "] ERROR: Transacción falló en actualizar maestro estudio seguridad completo. Usuario: " . $datos["usuario"];
+                                                    error_log($mensajeError . PHP_EOL, 3, $logFile);
                                                 }
                                             } else {
-                                                $mensajeError = "transaccion fallo: en solicitar maestro estudio seguridad completo" . date("Y-m-d") . $datos["usuario"];
-                                                $er = error_log($mensajeError . "\n", 3, "error_log.txt");
+                                                $logFile = "error_log.txt"; // Definir el archivo de log
+                                                $mensajeError = "[" . date("Y-m-d H:i:s") . "] ERROR: Transacción falló en solicitar maestro estudio seguridad completo. Usuario: " . $datos["usuario"];
+                                                error_log($mensajeError . PHP_EOL, 3, $logFile);
                                             }
                                         } else {
-                                            $response = array(
+                                            $response = [
                                                 'numero' => 400,
                                                 'mensaje' => 'No se puedo resgistrar la solicitud de estudio para la placa',
-                                            );
-                                            $mensajeError = "transaccion fallo: insertar estudio vehiculo" . date("Y-m-d") . $datos["usuario"];
-                                            $er = error_log($mensajeError . "\n", 3, "error_log.txt");
+                                            ];
+                                            $logFile = "error_log.txt"; // Definir el archivo de log
+                                            $mensajeError = "[" . date("Y-m-d H:i:s") . "] ERROR: Transacción falló en insertar estudio vehículo. Usuario: " . $datos["usuario"];
+                                            error_log($mensajeError . PHP_EOL, 3, $logFile);
                                         }
                                     } else {
-                                        $mensajeError = "transaccion fallo: en Actualizar maestro estudio seguridad" . date("Y-m-d") . $datos["usuario"];
-                                        $er = error_log($mensajeError, 3, "error_log.txt");
+                                        $logFile = "error_log.txt"; // Definir el archivo de log
+                                        $mensajeError = "[" . date("Y-m-d H:i:s") . "] ERROR: Transacción falló en actualizar maestro estudio seguridad. Usuario: " . $datos["usuario"];
+                                        error_log($mensajeError . PHP_EOL, 3, $logFile);
                                     }
                                 } else {
-                                    $mensajeError = "transaccion fallo: en solicitar maestro estudio seguridad" . date("Y-m-d") . $datos["usuario"];
-                                    $er = error_log($mensajeError, 3, "error_log.txt");
+                                    $logFile = "error_log.txt"; // Definir el archivo de log
+                                    $mensajeError = "[" . date("Y-m-d H:i:s") . "] ERROR: Transacción falló en solicitar maestro estudio seguridad. Usuario: " . $datos["usuario"];
+                                    error_log($mensajeError . PHP_EOL, 3, $logFile);
                                 }
                             } else {
-                                $this->_db3->commit();
-                                $response = array(
+                                // $this->_db3->commit();
+                                $response = [
                                     'numero' => 400,
                                     'mensaje' => 'No se pudo registrar la consolidacion de solicitudes',
-                                );
-                                return $response;
+                                ];
+                                // return $response;
+                                $logFile = "error_log.txt"; // Definir el archivo de log
+                                $mensajeError = "[" . date("Y-m-d H:i:s") . "] ERROR: No se pudo registrar la consolidacion de solicitudes. Usuario: " . $datos["usuario"];
+                                error_log($mensajeError . PHP_EOL, 3, $logFile);
                             }
                         } else {
-                            $this->_db3->commit();
-                            $response = array(
+                            // $this->_db3->commit();
+                            $response = [
                                 'numero' => 400,
                                 'mensaje' => 'No actualizo maestro para la agrupacion',
-                            );
-                            return $response;
+                            ];
+                            // return $response;
+                            $logFile = "error_log.txt"; // Definir el archivo de log
+                            $mensajeError = "[" . date("Y-m-d H:i:s") . "] ERROR: No actualizo maestro para la agrupacion. Usuario: " . $datos["usuario"];
+                            error_log($mensajeError . PHP_EOL, 3, $logFile);
                         }
                     }
                 } else {
                     //insertar habilitar y actualizar
                     // Consultar maestro de Estudio de seguridad
-                    $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='EST_SEG' AND numero_actual>numero_inicial");
-                    $resultado_consecutivo = $sql_consecutivo->execute();
+                    $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo=:tipo AND numero_actual > numero_inicial  AND empresa_id=:empresa_id");
+                    $sql_consecutivo->execute([
+                        ':tipo' => 'EST_SEG',
+                        ':empresa_id' => $empresa_session_id
+                    ]);
                     $resultado_consecutivo = $sql_consecutivo->fetch(PDO::FETCH_ASSOC);
-                    $numdoc = $resultado_consecutivo['numero_actual'];
-                    $numdoc_actualizar = $resultado_consecutivo['numero_actual'] + 1;
+                    $numdoc = $resultado_consecutivo['numero_actual'] ?? 0;
+                    $numdoc_actualizar = $numdoc + 1;
+
                     if ($numdoc) {
                         // Actualizar Maestro de Estudio segurdad
-                        $sql_updata_maestro = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=$numdoc_actualizar WHERE tipo='EST_SEG'");
-                        $resultado_consecutivo_update = $sql_updata_maestro->execute();
+                        $sql_update_maestro = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=:numdoc_actualizar WHERE tipo=:tipo AND empresa_id=:empresa_id");
+                        $resultado_consecutivo_update = $sql_update_maestro->execute([
+                            ':numdoc_actualizar' => $numdoc_actualizar,
+                            ':tipo' => 'EST_SEG',
+                            ':empresa_id' => $empresa_session_id
+                        ]);
+
                         if ($resultado_consecutivo_update) {
                             $null = null;
                             $viaje = null;
                             $itr = 'NO';
-                            // $sql_insert_estudio_vh = $this->_db3->prepare("INSERT INTO cmx_estudio_vehiculo(id_estudio,id_solicitud,observacion_vehiculo,observacion_conductor,observacion_tenedor,usuario,fecha,hora,operacion,placa,viaje_itr,itr)
-                            //                             VALUES(:id_estudio,:id_solicitud,:observacion_vehiculo,:observacion_conductor,:observacion_tenedor,:usuario,:fecha,:hora,:operacion,:placa,:viaje_itr,:itr)");
-                            // $sql_insert_estudio_vh->bindParam(':id_estudio', $numdoc, PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':id_solicitud', $numdoc_cabecera, PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':observacion_vehiculo', $null, PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':observacion_conductor', $null, PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':observacion_tenedor', $null, PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':usuario', $datos["usuario"], PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':fecha', $datos["fecha"], PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':hora', $datos["hora"], PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':operacion', $datos["tipo_operacion"], PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':placa', $datos["placa"], PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':viaje_itr', $viaje, PDO::PARAM_STR);
-                            // $sql_insert_estudio_vh->bindParam(':itr', $itr, PDO::PARAM_STR);
-                            // $resultado_insert_estudio_vh = $sql_insert_estudio_vh->execute();
 
                             $sql_insert_estudio_vh = $this->_db3->prepare("INSERT INTO cmx_estudio_vehiculo(id_estudio,id_solicitud,observacion_vehiculo,observacion_conductor,observacion_tenedor,observacion_general,usuario,fecha,hora,operacion,placa,viaje_itr,itr,responsable,empresa_id)
                             VALUES(:id_estudio,:id_solicitud,:observacion_vehiculo,:observacion_conductor,:observacion_tenedor,:observacion_general,:usuario,:fecha,:hora,:operacion,:placa,:viaje_itr,:itr,:responsable,:empresa_id)");
@@ -3889,110 +3868,75 @@ class validacion_parametroModel extends Model
                             $resultado_insert_estudio_vh = $sql_insert_estudio_vh->execute();
 
                             if ($resultado_insert_estudio_vh) {
-
                                 // Consultar maestro de Estudio de seguridad Completo
-
-                                $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='EST_SEG_COMP' AND numero_actual>numero_inicial");
-
-                                $resultado_consecutivo_completo = $sql_consecutivo->execute();
-
+                                $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo=:tipo AND numero_actual > numero_inicial AND empresa_id=:empresa_id");
+                                $sql_consecutivo->execute([
+                                    ':tipo' => 'EST_SEG_COMP',
+                                    ':empresa_id' => $empresa_session_id
+                                ]);
                                 $resultado_consecutivo_completo = $sql_consecutivo->fetch(PDO::FETCH_ASSOC);
-
-                                $numdoc_completo = $resultado_consecutivo_completo['numero_actual'];
-
-                                $numdoc_actualizar_completo = $resultado_consecutivo_completo['numero_actual'] + 1;
+                                $numdoc_completo = $resultado_consecutivo_completo['numero_actual'] ?? 0;
+                                $numdoc_actualizar_completo = $numdoc_completo + 1;
 
                                 if ($numdoc_completo) {
-
-                                    $sql_updata_maestro_completo = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=$numdoc_actualizar_completo WHERE tipo='EST_SEG_COMP'");
-
-                                    $resultado_consecutivo_update_completo = $sql_updata_maestro_completo->execute();
+                                    $sql_updata_maestro_completo = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=:numdoc_actualizar WHERE tipo=:tipo AND empresa_id=:empresa_id");
+                                    $resultado_consecutivo_update_completo = $sql_updata_maestro_completo->execute([
+                                        ':numdoc_actualizar' => $numdoc_actualizar_completo,
+                                        ':tipo' => 'EST_SEG_COMP',
+                                        ':empresa_id' => $empresa_session_id
+                                    ]);
 
                                     if ($resultado_consecutivo_update_completo) {
 
                                         $estado_estudio_seguridad = "pendiente_iniciar";
-
                                         $estado_actu = 1;
-
                                         $estado_subasta = "Activo";
-
                                         $observacion = null;
-
                                         $proceso = "Pen_Sol_Rut";
 
                                         $sql_conductor_vehiculo = $this->_db3->prepare("SELECT id, id_conductor,numdoc_vehiculo FROM cmx_vehiculos WHERE placa=:placa");
-
                                         $sql_conductor_vehiculo->bindParam(':placa', $datos["placa"], PDO::PARAM_STR);
-
                                         $resultado = $sql_conductor_vehiculo->execute();
-
                                         $resultado = $sql_conductor_vehiculo->fetch(PDO::FETCH_ASSOC);
 
                                         $sql_insert_estudio_completo = $this->_db3->prepare("INSERT INTO cmx_estudiov_completo(id_estudio_c,id_estudio,estado,id_vehiculo,id_conductor,observacion,proceso,fecha,hora,usuario,estado_actu,estado_subasta)
-
-                                                VALUES(:id_estudio_c,:id_estudio,:estado,:id_vehiculo,:id_conductor,:observacion,:proceso,:fecha,:hora,:usuario,:estado_actu,:estado_subasta)");
-
+                                        VALUES(:id_estudio_c,:id_estudio,:estado,:id_vehiculo,:id_conductor,:observacion,:proceso,:fecha,:hora,:usuario,:estado_actu,:estado_subasta)");
                                         $sql_insert_estudio_completo->bindParam(':id_estudio_c', $numdoc_completo, PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':id_estudio', $numdoc, PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':estado', $estado_estudio_seguridad, PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':id_vehiculo', $resultado["numdoc_vehiculo"], PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':id_conductor', $resultado["id_conductor"], PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':observacion', $observacion, PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':proceso', $proceso, PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':fecha', $datos["fecha"], PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':hora', $datos["hora"], PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':usuario', $datos["usuario"], PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':estado_actu', $estado_actu, PDO::PARAM_STR);
-
                                         $sql_insert_estudio_completo->bindParam(':estado_subasta', $estado_subasta, PDO::PARAM_STR);
-
                                         $resultado_estudiov_completo = $sql_insert_estudio_completo->execute();
 
                                         if ($resultado_estudiov_completo) {
 
                                             $estado_log = "Crear";
-
                                             $sql_insert_log = $this->_db3->prepare("INSERT INTO cmx_logestudio_com(id_completo,id_estudio,fecha,hora,id_usuario,estado)
-
-                                                    VALUES(:id_completo,:id_estudio,:fecha,:hora,:id_usuario,:estado)");
-
+                                            VALUES(:id_completo,:id_estudio,:fecha,:hora,:id_usuario,:estado)");
                                             $sql_insert_log->bindParam(':id_completo', $numdoc_completo, PDO::PARAM_STR);
-
                                             $sql_insert_log->bindParam(':id_estudio', $numdoc, PDO::PARAM_STR);
-
                                             $sql_insert_log->bindParam(':fecha', $datos["fecha"], PDO::PARAM_STR);
-
                                             $sql_insert_log->bindParam(':hora', $datos["hora"], PDO::PARAM_STR);
-
                                             $sql_insert_log->bindParam(':id_usuario', $datos["usuario"], PDO::PARAM_STR);
-
                                             $sql_insert_log->bindParam(':estado', $estado_log, PDO::PARAM_STR);
-
                                             $resultado_estudio_log = $sql_insert_log->execute();
 
                                             if ($resultado_estudio_log) {
-
                                                 //registrar solicitudes de servicio
-
                                                 $estss = 1;
                                                 $p = 'E';
                                                 $solicitudes = $datos["solicitudes"];
 
                                                 foreach ($solicitudes as $value) {
-
                                                     $sqlss = $this->_db3->prepare("INSERT INTO cmx_preestudio_solicitudes_servicio(id,id_servicio_cliente,id_solicitudpreestudio,fecha,hora,usuario,es,clasificacion)
                                                             VALUES(null,:servicio,:idsolicitud,:fecha,:hora,:usuario,:es,:p)");
-
                                                     $sqlss->bindParam(':servicio', $value);
                                                     $sqlss->bindParam(':idsolicitud', $numdoc);
                                                     $sqlss->bindParam(':fecha', $datos['fecha']);
@@ -4167,321 +4111,158 @@ class validacion_parametroModel extends Model
                                                                 } else {
                                                                     /* Cuando se valla a unsertar un prefiltro para un nuevo recurso */
                                                                     $evalua_pro = $datos_nuevos["propietario_check"];
-                                                                    if ($evalua_pro == 'true') {
-                                                                        $checkpro = 1;
-                                                                        $name_pro = $datos_nuevos["nombre_propietario"];
-                                                                        $doc_pro = $datos_nuevos["docu_propi"];
-                                                                    } else {
-                                                                        $checkpro = 0;
-                                                                        $name_pro = null;
-                                                                        $doc_pro = null;
-                                                                    }
+                                                                    $checkpro = ($evalua_pro == 'true') ? 1 : 0;
+                                                                    $name_pro = $checkpro ? $datos_nuevos["nombre_propietario"] : null;
+                                                                    $doc_pro = $checkpro ? $datos_nuevos["docu_propi"] : null;
+
                                                                     $evalua_pose = $datos_nuevos["tipo_posee"];
-                                                                    if ($evalua_pose == 'true') {
-                                                                        $checkpose = 1;
-                                                                        $name_pose = $datos_nuevos["nombre_poseedor"];
-                                                                        $doc_pose = $datos_nuevos["docu_posee"];
-                                                                    } else {
-                                                                        $checkpose = 0;
-                                                                        $name_pose = null;
-                                                                        $doc_pose = null;
-                                                                    }
+                                                                    $checkpose = ($evalua_pose == 'true') ? 1 : 0;
+                                                                    $name_pose = $checkpose ? $datos_nuevos["nombre_poseedor"] : null;
+                                                                    $doc_pose = $checkpose ? $datos_nuevos["docu_posee"] : null;
 
                                                                     $evalua_veh = $datos_nuevos["vehi_check"];
-                                                                    if ($evalua_veh == 'true') {
-                                                                        $checkcarro = 1;
-                                                                        $placa_carro = $datos_nuevos["placa_vehiculo"];
-                                                                        $satelital = $datos_nuevos["satelital"];
-                                                                        $url_satelital = $datos_nuevos["url_satelital"];
-                                                                        $clave_satelital = $datos_nuevos["clave_satelital"];
-                                                                    } else {
-                                                                        $checkcarro = 0;
-                                                                        $placa_carro = null;
-                                                                        $satelital = null;
-                                                                        $url_satelital = null;
-                                                                        $clave_satelital = null;
-                                                                    }
+                                                                    $checkcarro = ($evalua_veh == 'true') ? 1 : 0;
+                                                                    $placa_carro = $checkcarro ? $datos_nuevos["placa_vehiculo"] : null;
+                                                                    $satelital = $checkcarro ? $datos_nuevos["satelital"] : null;
+                                                                    $url_satelital = $checkcarro ? $datos_nuevos["url_satelital"] : null;
+                                                                    $clave_satelital = $checkcarro ? $datos_nuevos["clave_satelital"] : null;
 
                                                                     $evalua_trai = $datos_nuevos["trailer_check"];
-                                                                    if ($evalua_trai == 'true') {
-                                                                        $checktrai = 1;
-                                                                        $placa_trailer = $datos_nuevos["placa_trailer"];
-                                                                        $pro_trailer = $datos_nuevos["propi_trailer"];
-                                                                        $pro_doctrailer = $datos_nuevos["propidoc_trailer"];
-                                                                    } else {
-                                                                        $checktrai = 0;
-                                                                        $placa_trailer = null;
-                                                                        $pro_trailer = null;
-                                                                        $pro_doctrailer = null;
-                                                                    }
+                                                                    $checktrai = ($evalua_trai == 'true') ? 1 : 0;
+                                                                    $placa_trailer = $checktrai ? $datos_nuevos["placa_trailer"] : null;
+                                                                    $pro_trailer = $checktrai ? $datos_nuevos["propi_trailer"] : null;
+                                                                    $pro_doctrailer = $checktrai ? $datos_nuevos["propidoc_trailer"] : null;
 
-                                                                    //conductor
                                                                     $evalua_condu = $datos_nuevos["conductor_check"];
-                                                                    if ($evalua_condu == 'true') {
-                                                                        $checkcondu = 1;
-                                                                        $name_condu = $datos_nuevos["nombre_conductor"];
-                                                                        $docu_condu = $datos_nuevos["docu_condu"];
+                                                                    $checkcondu = ($evalua_condu == 'true') ? 1 : 0;
+                                                                    $name_condu = $checkcondu ? $datos_nuevos["nombre_conductor"] : null;
+                                                                    $docu_condu = $checkcondu ? $datos_nuevos["docu_condu"] : null;
 
-                                                                        $refe1 = $datos_nuevos["refe1"];
-                                                                        $contacto1 = $datos_nuevos["contacto1"];
-                                                                        $celular1 = $datos_nuevos["celular1"];
-                                                                        $cargo1 = $datos_nuevos["cargo1"];
-                                                                        $fechaa1 = empty($datos_nuevos["fechaa1"]) ? null : $datos_nuevos["fechaa1"];
-                                                                        $fechaa2 = empty($datos_nuevos["fechaa2"]) ? null : $datos_nuevos["fechaa2"];
-                                                                        $anti1 = empty($datos_nuevos["anti1"]) ? null : $datos_nuevos["anti1"];
-
-                                                                        $refe2 = $datos_nuevos["refe2"];
-                                                                        $contacto2 = $datos_nuevos["contacto2"];
-                                                                        $celular2 = $datos_nuevos["celular2"];
-                                                                        $cargo2 = $datos_nuevos["cargo2"];
-                                                                        $fechab1 = empty($datos_nuevos["fechab1"]) ? null : $datos_nuevos["fechab1"];
-                                                                        $fechab2 = empty($datos_nuevos["fechab2"]) ? null : $datos_nuevos["fechab2"];
-                                                                        $anti2 = empty($datos_nuevos["anti2"]) ? null : $datos_nuevos["anti2"];
-
-                                                                        $refe3 = $datos_nuevos["refe3"];
-                                                                        $contacto3 = $datos_nuevos["contacto3"];
-                                                                        $celular3 = $datos_nuevos["celular3"];
-                                                                        $cargo3 = $datos_nuevos["cargo3"];
-                                                                        $fechac1 = empty($datos_nuevos["fechac1"]) ? null : $datos_nuevos["fechac1"];
-                                                                        $fechac2 = empty($datos_nuevos["fechac2"]) ? null : $datos_nuevos["fechac2"];
-                                                                        $anti3 = empty($datos_nuevos["anti2"]) ? null : $datos_nuevos["anti2"];
-                                                                    } else {
-                                                                        $checkcondu = 0;
-                                                                        $name_condu = null;
-                                                                        $docu_condu = null;
-
-                                                                        $refe1 = null;
-                                                                        $contacto1 = null;
-                                                                        $celular1 = null;
-                                                                        $cargo1 = null;
-                                                                        $fechaa1 = null;
-                                                                        $fechaa2 = null;
-                                                                        $anti1 = null;
-
-                                                                        $refe2 = null;
-                                                                        $contacto2 = null;
-                                                                        $celular2 = null;
-                                                                        $cargo2 = null;
-                                                                        $fechab1 = null;
-                                                                        $fechab2 = null;
-                                                                        $anti2 = null;
-
-                                                                        $refe3 = null;
-                                                                        $contacto3 = null;
-                                                                        $celular3 = null;
-                                                                        $cargo3 = null;
-                                                                        $fechac1 = null;
-                                                                        $fechac2 = null;
-                                                                        $anti3 = null;
+                                                                    $referencias = [];
+                                                                    for ($i = 1; $i <= 3; $i++) {
+                                                                        $referencias[] = [
+                                                                            'refe' => $checkcondu ? $datos_nuevos["refe$i"] : null,
+                                                                            'contacto' => $checkcondu ? $datos_nuevos["contacto$i"] : null,
+                                                                            'celular' => $checkcondu ? $datos_nuevos["celular$i"] : null,
+                                                                            'cargo' => $checkcondu ? $datos_nuevos["cargo$i"] : null,
+                                                                            'fecha1' => $checkcondu ? $datos_nuevos["fecha" . chr(96 + $i) . "1"] : null,
+                                                                            'fecha2' => $checkcondu ? $datos_nuevos["fecha" . chr(96 + $i) . "2"] : null,
+                                                                            'antiguedad' => $checkcondu ? $datos_nuevos["anti$i"] : null
+                                                                        ];
                                                                     }
-                                                                    $this->_db3->prepare("INSERT INTO cmx_prefiltro_actualizar(id,id_solicitud_u,propietario,name_propietario,documento_propietario,poseedor,name_poseedor,documento_poseedor,vehiculo,
-                                                                    placa,satelital,clave_satelital,url_satelital,user_satelital,trailer,placa_trailer,name_propietario_trailer,documento_propi_trailer,conductor,name_conductor,documento_conductor,
-                                                                    empresa1,persona1,cel1,cargo1,feca1,feca2,antiguedad1,empresa2,persona2,cel2,cargo2,fecb1,fecb2,antiguedad2,empresa3,persona3,cel3,cargo3,fecc1,fecc2,antiguedad3)
-                                                                    VALUES(null,:id_solicitud,:prop,:name_propi,:doc_propietario,:tene,:name_poseedor,:docpose,:carro,:placa_carro,:satelite,:clave_sate,:url_satelite,:user_satelital,:trailercheck,
-                                                                    :trailerplaca,:nomprotrail,:docuproptrail,:conductor,:namecondu,:doccondu,:ref1,:contacto1,:cel1,:cargo1,:feca1,:feca2,:antigue1,:empresa2,:person2,:celu2,:cargo2,:fechab1,:fechab2,
-                                                                    :anti2,:empre3,:contacto3,:celu3,:cargo3,:fecc1,:fecc2,:anti3)")
-                                                                        ->execute(
-                                                                            array(
-                                                                                ':id_solicitud' => $numdoc,
-                                                                                ':prop' => $checkpro,
-                                                                                ':name_propi' => $name_pro,
-                                                                                ':doc_propietario' => $doc_pro,
-                                                                                ':tene' => $checkpose,
-                                                                                ':name_poseedor' => $name_pose,
-                                                                                ':docpose' => $doc_pose,
-                                                                                ':carro' => $checkcarro,
-                                                                                ':placa_carro' => $placa_carro,
-                                                                                ':satelite' => $satelital,
-                                                                                ':clave_sate' => $clave_satelital,
-                                                                                ':url_satelite' => $url_satelital,
-                                                                                ':user_satelital' => $clave_satelital,
-                                                                                ':trailercheck' => $checktrai,
-                                                                                ':trailerplaca' => $placa_trailer,
-                                                                                ':nomprotrail' => $pro_trailer,
-                                                                                ':docuproptrail' => $pro_doctrailer,
-                                                                                ':conductor' => $checkcondu,
-                                                                                ':namecondu' => $name_condu,
-                                                                                ':doccondu' => $docu_condu,
-                                                                                ':ref1' => $refe1,
-                                                                                ':contacto1' => $contacto1,
-                                                                                ':cel1' => $celular1,
-                                                                                ':cargo1' => $cargo1,
-                                                                                ':feca1' => $fechaa1,
-                                                                                ':feca2' => $fechaa2,
-                                                                                ':antigue1' => $anti1,
-                                                                                ':empresa2' => $refe2,
-                                                                                ':person2' => $contacto2,
-                                                                                ':celu2' => $celular2,
-                                                                                ':cargo2' => $cargo2,
-                                                                                ':fechab1' => $fechab1,
-                                                                                ':fechab2' => $fechab2,
-                                                                                ':anti2' => $anti2,
-                                                                                ':empre3' => $refe3,
-                                                                                ':contacto3' => $contacto3,
-                                                                                ':celu3' => $celular3,
-                                                                                ':cargo3' => $cargo3,
-                                                                                ':fecc1' => $fechac1,
-                                                                                ':fecc2' => $fechac2,
-                                                                                ':anti3' => $anti3,
-                                                                            )
-                                                                        );
 
-                                                                    $this->_db3->commit();
-                                                                    $response = array(
+                                                                    $query = "INSERT INTO cmx_prefiltro_actualizar 
+                                                                    (id, id_solicitud_u, propietario, name_propietario, documento_propietario, poseedor, name_poseedor, documento_poseedor,
+                                                                        vehiculo, placa, satelital, clave_satelital, url_satelital, user_satelital, trailer, placa_trailer,
+                                                                        name_propietario_trailer, documento_propi_trailer, conductor, name_conductor, documento_conductor,
+                                                                        empresa1, persona1, cel1, cargo1, feca1, feca2, antiguedad1,
+                                                                        empresa2, persona2, cel2, cargo2, fecb1, fecb2, antiguedad2,
+                                                                        empresa3, persona3, cel3, cargo3, fecc1, fecc2, antiguedad3
+                                                                    ) VALUES (null, :id_solicitud, :prop, :name_propi, :doc_propietario, :tene, :name_poseedor, :docpose,
+                                                                        :carro, :placa_carro, :satelite, :clave_sate, :url_satelite, :user_satelital, :trailercheck, :trailerplaca,
+                                                                        :nomprotrail, :docuproptrail, :conductor, :namecondu, :doccondu,
+                                                                        :ref1, :contacto1, :cel1, :cargo1, :feca1, :feca2, :antigue1,
+                                                                        :empresa2, :person2, :celu2, :cargo2, :fechab1, :fechab2, :anti2,
+                                                                        :empre3, :contacto3, :celu3, :cargo3, :fecc1, :fecc2, :anti3
+                                                                    )";
+
+                                                                    $this->_db3->prepare($query)->execute([
+                                                                        ':id_solicitud' => $numdoc,
+                                                                        ':prop' => $checkpro,
+                                                                        ':name_propi' => $name_pro,
+                                                                        ':doc_propietario' => $doc_pro,
+                                                                        ':tene' => $checkpose,
+                                                                        ':name_poseedor' => $name_pose,
+                                                                        ':docpose' => $doc_pose,
+                                                                        ':carro' => $checkcarro,
+                                                                        ':placa_carro' => $placa_carro,
+                                                                        ':satelite' => $satelital,
+                                                                        ':clave_sate' => $clave_satelital,
+                                                                        ':url_satelite' => $url_satelital,
+                                                                        ':user_satelital' => $clave_satelital,
+                                                                        ':trailercheck' => $checktrai,
+                                                                        ':trailerplaca' => $placa_trailer,
+                                                                        ':nomprotrail' => $pro_trailer,
+                                                                        ':docuproptrail' => $pro_doctrailer,
+                                                                        ':conductor' => $checkcondu,
+                                                                        ':namecondu' => $name_condu,
+                                                                        ':doccondu' => $docu_condu,
+                                                                        ':ref1' => $referencias[0]['refe'],
+                                                                        ':contacto1' => $referencias[0]['contacto'],
+                                                                        ':cel1' => $referencias[0]['celular'],
+                                                                        ':cargo1' => $referencias[0]['cargo'],
+                                                                        ':feca1' => $referencias[0]['fecha1'],
+                                                                        ':feca2' => $referencias[0]['fecha2'],
+                                                                        ':antigue1' => $referencias[0]['antiguedad'],
+                                                                        ':empresa2' => $referencias[1]['refe'],
+                                                                        ':person2' => $referencias[1]['contacto'],
+                                                                        ':celu2' => $referencias[1]['celular'],
+                                                                        ':cargo2' => $referencias[1]['cargo'],
+                                                                        ':fechab1' => $referencias[1]['fecha1'],
+                                                                        ':fechb2' => $referencias[1]['fecha2'],
+                                                                        ':anti2' => $referencias[1]['antiguedad'],
+                                                                        ':empre3' => $referencias[2]['refe'],
+                                                                        ':contacto3' => $referencias[2]['contacto'],
+                                                                        ':celu3' => $referencias[2]['celular'],
+                                                                        ':cargo3' => $referencias[2]['cargo'],
+                                                                        ':fecc1' => $referencias[2]['fecha1'],
+                                                                        ':fecc2' => $referencias[2]['fecha2'],
+                                                                        ':anti3' => $referencias[2]['antiguedad'],
+                                                                    ]);
+
+                                                                    // $this->_db3->commit();
+                                                                    $response = [
                                                                         'numero' => 200,
                                                                         'mensaje' => 'insert prefiltro en actualizar registrado exitosamente.',
-                                                                    );
-                                                                    return $response;
+                                                                    ];
+                                                                    // return $response;
                                                                 }
-                                                                // $id_s = $numdoc;
-                                                                // $papeles = $datos["papeles"];
-                                                                // $archivos = $datos["archivos"];
-                                                                // $ruta = 'public/files/seguridad_actualiza/' . $id_s . '/';
-                                                                // // $total1 = count($datos['tipohv_ac']);
-                                                                // if (!is_dir($ruta)) {
-                                                                //     // Crear la carpeta
-                                                                //     if ($papeles !== "Sin_datos") {
-                                                                //         if (mkdir($ruta, 0777, true)) {
-                                                                //             for ($i = 0; $i < count($archivos->tipohojahv); $i++) {
-                                                                //                 $inse_update = $this->_db3->prepare("INSERT INTO cmx_actualiza_seguridad(id_sol_prees,tipo_hv,tipo_campo,info_campo,fecha,hora,usuario,ruta_archivo,name_archivo)
-                                                                //                 VALUES(:solicitud,:tipohv,:campo,:dato,:fecha,:hora,:usuario,:ruta_archivo,:name_archivo)");
-                                                                //                 $inse_update->bindParam(':solicitud', $numdoc);
-                                                                //                 $inse_update->bindParam(':tipohv', $archivos->tipohojahv[$i]);
-                                                                //                 $inse_update->bindParam(':campo', $archivos->campos[$i]);
-                                                                //                 $inse_update->bindParam(':dato', $archivos->datos[$i]);
-                                                                //                 $inse_update->bindParam(':fecha', $datos['fecha']);
-                                                                //                 $inse_update->bindParam(':hora', $datos['hora']);
-                                                                //                 $inse_update->bindParam(':usuario', $datos["usuario"]);
-                                                                //                 $inse_update->bindParam(':ruta_archivo', $ruta);
-                                                                //                 $inse_update->bindParam(':name_archivo', $archivos->namearchivo[$i]);
-                                                                //                 $resultado_update = $inse_update->execute();
-                                                                //             }
-                                                                //             //pasar el archivo
-                                                                //             // $total = count($papeles['name']);
-                                                                //             $total = count(isset($papeles) ? $papeles : $papeles["name"]);
-                                                                //             for ($a = 0; $a < $total; $a++) {
-                                                                //                 if (isset($datos["papeles"])) {
-                                                                //                     $file = $papeles["name"][$a];
-                                                                //                     $tipo = $papeles["type"][$a];
-                                                                //                     $ruta_provisional = $papeles["tmp_name"][$a];
-                                                                //                     $carpeta = $ruta;
-                                                                //                     $src = $carpeta . $file;
-                                                                //                     move_uploaded_file($ruta_provisional, $src);
-                                                                //                 }
-                                                                //             }
-                                                                //             if ($resultado_update) {
-                                                                //                 $this->_db3->commit();
-                                                                //                 $response = array(
-                                                                //                     'numero' => 200,
-                                                                //                     'mensaje' => 'Solicitud de estudio para la placa ' . $datos['placa'] . ' registrada exitosamente.',
-                                                                //                 );
-                                                                //                 return $response;
-                                                                //             } else {
-                                                                //                 $this->_db3->commit();
-                                                                //                 $response = array(
-                                                                //                     'numero' => 400,
-                                                                //                     'mensaje' => 'No se puedo registrar los datos a actualizar para la placa <strong>' . $datos['placa'] . '</strong>',
-                                                                //                 );
-                                                                //                 return $response;
-                                                                //             }
-                                                                //         } else {
-                                                                //             echo "No se pudo crear la carpeta 2.";
-                                                                //         }
-                                                                //     } else {
-                                                                //         $this->_db3->commit();
-                                                                //         $response = array(
-                                                                //             'numero' => 200,
-                                                                //             'mensaje' => 'Solicitud de estudio para la placa ' . $datos['placa'] . ' registrada exitosamente.',
-                                                                //         );
-                                                                //         return $response;
-                                                                //     }
-                                                                // } else {
-                                                                //     //pasar el archivo
-                                                                //     $total = count($papeles['name']);
-                                                                //     for ($a = 0; $a < $total; $a++) {
-                                                                //         if (isset($datos["papeles"])) {
-                                                                //             $file = $papeles["name"][$a];
-                                                                //             $tipo = $papeles["type"][$a];
-                                                                //             $ruta_provisional = $papeles["tmp_name"][$a];
-                                                                //             $carpeta = $ruta;
-                                                                //             $src = $carpeta . $file;
-                                                                //             move_uploaded_file($ruta_provisional, $src);
-                                                                //         }
-                                                                //     }
-
-                                                                //     if ($resultado_subasta) {
-                                                                //         $this->_db3->commit();
-                                                                //         $response = array(
-                                                                //             'numero' => 200,
-                                                                //             'mensaje' => 'Solicitud de estudio para la placa ' . $datos['placa'] . ' registrada exitosamente.',
-                                                                //         );
-                                                                //         return $response;
-                                                                //     } else {
-                                                                //         $this->_db3->commit();
-                                                                //         $response = array(
-                                                                //             'numero' => 400,
-                                                                //             'mensaje' => 'No se puedo registrar los datos a actualizar para la placa <strong>' . $datos['placa'] . '</strong>',
-                                                                //         );
-                                                                //         return $response;
-                                                                //     }
-                                                                // }
                                                             } else {
-                                                                $this->_db3->commit();
-                                                                $response = array(
+                                                                // $this->_db3->commit();
+                                                                $response = [
                                                                     'numero' => 200,
                                                                     'mensaje' => 'Solicitud de estudio para la placa ' . $datos['placa'] . ' registrada exitosamente.',
-                                                                );
-                                                                return $response;
+                                                                ];
+                                                                // return $response;
                                                             }
                                                         } else {
-
-                                                            $this->_db3->commit();
-
-                                                            $response = array(
-
+                                                            // $this->_db3->commit();
+                                                            $response = [
                                                                 'numero' => 400,
-
                                                                 'mensaje' => 'No se puedo registrar la asociacion de estudio',
-
-                                                            );
-
-                                                            return $response;
+                                                            ];
+                                                            // return $response;
                                                         }
                                                     } else {
-                                                        $this->_db3->commit();
-                                                        $response = array(
+                                                        // $this->_db3->commit();
+                                                        $response = [
                                                             'numero' => 400,
                                                             'mensaje' => 'No se pudo registrar ss para operaciones',
-                                                        );
-                                                        return $response;
+                                                        ];
+                                                        // return $response;
                                                     }
                                                 } else {
-
-                                                    $this->_db3->commit();
-
-                                                    $response = array(
+                                                    // $this->_db3->commit();
+                                                    $response = [
                                                         'numero' => 400,
                                                         'mensaje' => 'No se puedo registrar la subasta temporal de estudio',
-                                                    );
-                                                    return $response;
+                                                    ];
+                                                    // return $response;
                                                 }
-                                                //}
                                             } else {
 
-                                                $this->_db3->commit();
-                                                $response = array(
+                                                // $this->_db3->commit();
+                                                $response = [
                                                     'numero' => 400,
                                                     'mensaje' => 'No se puedo registrar la solicitud de estudio',
-                                                );
-                                                return $response;
+                                                ];
+                                                // return $response;
                                             }
                                         } else {
-
-                                            $response = array(
+                                            $response = [
                                                 'numero' => 400,
                                                 'mensaje' => 'No se puedo resgistrar la solicitud de estudio',
-                                            );
-
+                                            ];
                                             $mensajeError = "transaccion fallo: insertar estado completo vehiculo" . date("Y-m-d") . $datos["usuario"];
                                             error_log($mensajeError . "\n", 3, "error_log.txt");
                                         }
@@ -4494,10 +4275,10 @@ class validacion_parametroModel extends Model
                                     error_log($mensajeError . "\n", 3, "error_log.txt");
                                 }
                             } else {
-                                $response = array(
+                                $response = [
                                     'numero' => 400,
                                     'mensaje' => 'No se puedo resgistrar la solicitud de estudio',
-                                );
+                                ];
                                 $mensajeError = "transaccion fallo: insertar estudio vehiculo" . date("Y-m-d") . $datos["usuario"];
                                 error_log($mensajeError . "\n", 3, "error_log.txt");
                             }

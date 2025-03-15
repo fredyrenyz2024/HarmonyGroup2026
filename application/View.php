@@ -130,9 +130,6 @@ class View
                     $tmpIdmenu = $query_params['idmenu'];
                 }
 
-                // print_r($tmpIdmenu);
-                // exit();
-
                 /***** PROGRAMACION DEL MENU ******/
                 $model = new Conexion;
                 $conexion = $model->conectar();
@@ -187,8 +184,7 @@ class View
 
         // Obtener la URL de la página actual
         $url = $_SERVER['REQUEST_URI'];
-        // var_dump($url);
-        // exit();
+
         if ($url == '/mvcLuisMiguel/') {
             require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headerlog.php';
             if (is_readable($rutaView)) {
@@ -205,8 +201,20 @@ class View
             }
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'footer.php';  $url == '/mvcLuisMiguel/index/index1/?idmenu=' . $idmenu . '/?submenu=' . $submenu . ''
         } else if (
-            $url == '/mvcLuisMiguel/index/index1/?idmenu=8' || $url == '/mvcLuisMiguel/serviciocliente/cotizaciones_nuevo?idmenu=8/?submenu=85' || $url == '/mvcLuisMiguel/index/index1/?idmenu=1' ||
-            $url == '/mvcLuisMiguel/prefiltro_nacional/solicitudes_nacional?idmenu=1/?submenu=92' || $url == '/mvcLuisMiguel/pantallas/nuevo_filtro/?idmenu=3' || $url == '/mvcLuisMiguel/pantallas/nueva_ventana/?idmenu=3'
+            $url == '/mvcLuisMiguel/index/index1/?idmenu=8' ||
+            $url == '/mvcLuisMiguel/serviciocliente/cotizaciones_nuevo?idmenu=8&submenu=85' ||
+            $url == '/mvcLuisMiguel/index/index1/?idmenu=1' ||
+            $url == '/mvcLuisMiguel/prefiltro_nacional/solicitudes_nacional?idmenu=1&submenu=92' ||
+            $url == '/mvcLuisMiguel/pantallas/nuevo_filtro/?idmenu=3' ||
+            $url == '/mvcLuisMiguel/pantallas/index/?idmenu=3' ||
+            $url == '/mvcLuisMiguel/pantallas/nueva_ventana/?idmenu=3' ||
+            $url == '/mvcLuisMiguel/index/index1/?idmenu=16' ||
+            $url == '/mvcLuisMiguel/pantallas/nueva_ventana?idmenu=3&submenu=200' ||
+            $url == '/mvcLuisMiguel/torrecontrol/index?idmenu=16&submenu=207' ||
+            $url == "/mvcLuisMiguel/torrecontrol/proveedor_torre_control?idmenu=16&submenu=208" ||
+            $url == '/mvcLuisMiguel/torrecontrol/cliente_torre_control?idmenu=16&submenu=209' ||
+            $url = '/mvcLuisMiguel/index/index1/?idmenu=3' ||
+            $url = '/mvcLuisMiguel/parametros/crear_proveedor?idmenu=3&submenu=211'
         ) {
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headernuevo.php';
             require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headertop.php';

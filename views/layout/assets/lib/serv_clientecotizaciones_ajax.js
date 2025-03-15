@@ -28,199 +28,10 @@ window.initScript = function (id) {
     allowClear: true, // Permite limpiar la selección
   });
 
-  const hoy = new Date(); // Obtener la fecha actual
-  const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
+  // const hoy = new Date(); // Obtener la fecha actual
+  // const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
 
-  /* Actualiar la session de php para la ventana */
-  // $.post($('#base_url').val() + 'serviciocliente/actualizar_session', {
-  //   ventana_id: id
-  // }, function (response) {
-  //   console.log("Sesión actualizada:", response);
-  // });
-
-
-  if (window.VENTANA == 1) {
-    // var tipo = 2;
-    // var dato = "";
-    // var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_inicial`).val();
-    // var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val() === undefined ? fechaHoy : $(`#campo-${window.VENTANA}-fecha_final`).val();
-    // var cliente = $(`#campo-${window.VENTANA}-clientes`).length > 0 ? $(`#campo-${window.VENTANA}-clientes`).val() || "" : "";
-    // var empresa = $(`#campo-${window.VENTANA}-empresas`).length > 0 ? $(`#campo-${window.VENTANA}-empresas`).val() || "" : "";
-
-    // var estado = "Todas";
-    // listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa, id);
-    // Seleccionar el checkbox por su id
-
-    /************************** Funcion para buscar Cotizaciones ******************************/
-    // document.addEventListener("click", async e => {
-    //   if (e.target.matches(`#campo-${window.VENTANA}-buscar`) || e.target.matches(`#campo-${window.VENTANA}-buscar *`)) {
-    //     var tipo = 2;
-    //     var fecha_inicial = $(`#campo-${window.VENTANA}-fecha_inicial`).val();
-    //     var fecha_final = $(`#campo-${window.VENTANA}-fecha_final`).val();
-    //     var cliente = $(`#campo-${window.VENTANA}-clientes`).val() === "" ? "" : $(`#campo-${window.VENTANA}-clientes`).val();
-    //     var empresa = $(`#campo-${window.VENTANA}-empresas`).val() === '' ? "" : $(`#campo-${window.VENTANA}-empresas`).val();
-    //     var estado = "Todas";
-    //     listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa, id);
-    //   }
-    // });
-
-    // const checkbox = document.getElementById(`flexSwitchCheckChecked`);
-    // checkbox.addEventListener('change', async function (e) {
-    //   e.preventDefault(); // Evita que el checkbox cambie directamente
-
-    //   const result = await Swal.fire({
-    //     title: '¿Estás seguro?',
-    //     text: '¿Quieres cambiar el estado?',
-    //     icon: 'warning',
-    //     showCancelButton: true,
-    //     confirmButtonText: 'Sí, cambiar',
-    //     cancelButtonText: 'Cancelar'
-    //   });
-
-    //   if (result.isConfirmed) {
-    //     // checkbox.checked = !checkbox.checked; // Aplica el cambio solo si se confirma
-    //     if (checkbox.checked) {
-    //       datos = new FormData();
-    //       datos.append('estado', "Propuesta");
-    //       datos.append('numdoc_solicitud', document.getElementById("numero_solicitud").value);
-
-    //       try {
-    //         const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
-    //           method: 'POST',
-    //           body: datos,
-    //           cache: 'no-cache',
-    //         });
-    //         const data = await response.json();
-
-    //         if (data.status === 200) {
-    //           Swal.fire({
-    //             title: "Mensaje!",
-    //             text: data.message,
-    //             icon: "success",
-    //             draggable: true
-    //           });
-    //           resetAll();
-    //         } else {
-    //           Swal.fire({
-    //             title: "Mensaje!",
-    //             text: data.message,
-    //             icon: "error",
-    //             draggable: true
-    //           });
-    //         }
-
-    //       } catch (error) {
-    //         console.error('Error en la primera solicitud:', error);
-    //       }
-    //     } else {
-    //       console.log('El checkbox no está marcado (unchecked)');
-    //       // Acciones si no está marcado
-    //     }
-    //   } else {
-    //     checkbox.checked = !checkbox.checked; // Revierte el cambio si se cancela
-    //   }
-    // });
-
-    // //Filtro para clientes
-    // $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
-    //   let valorSeleccionado = $(this).val();
-
-    //   // Verifica si los elementos existen antes de manipularlos
-    //   let $clientes = $(`#campo-${window.VENTANA}-clientes`);
-    //   let $empresas = $(`#campo-${window.VENTANA}-empresas`);
-    //   let $estados = $(`#campo-${window.VENTANA}-estados`);
-
-    //   if (valorSeleccionado === "Clientes") {
-    //     // Si Empresas está visible, la ocultamos
-    //     if ($empresas.is(":visible")) {
-    //       $empresas.hide().val(""); // Ocultar y resetear selección
-    //     }
-
-    //     if ($clientes.is(":visible")) {
-    //       $clientes.hide().val(""); // Ocultar y resetear selección
-    //     }
-    //     // Mostramos el select de Clientes
-    //     $clientes.show();
-
-    //     // Cargar clientes por AJAX
-    //     $.ajax({
-    //       url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
-    //       type: "POST",
-    //       dataType: "json",
-    //       success: function (data) {
-    //         $clientes.empty().append('<option value="">Seleccione</option>');
-    //         $.each(data, function (index, item) {
-    //           $clientes.append(`<option value="${item.id}">${item.nombre}</option>`);
-    //         });
-
-    //         // Inicializa Select2 en el select de clientes
-    //         $clientes.select2({
-    //           placeholder: 'Seleccione una opción',
-    //           allowClear: true,
-    //         });
-    //       },
-    //       error: function (xhr, status, error) {
-    //         console.error("Error en AJAX:", status, error);
-    //         alert("Error al cargar los datos.");
-    //       }
-    //     });
-
-    //   } else if (valorSeleccionado === "Empresa") {
-    //     // Si Clientes está visible, lo ocultamos
-    //     if ($clientes.is(":visible")) {
-    //       $clientes.hide().val(""); // Ocultar y resetear selección
-    //     }
-
-
-    //     if ($empresas.is(":visible")) {
-    //       $empresas.hide().val(""); // Ocultar y resetear selección
-    //     }
-    //     // Mostramos el select de Empresas
-    //     $empresas.show();
-
-    //     // Cargar empresas por AJAX
-    //     $.ajax({
-    //       url: $('#base_url').val() + 'serviciocliente/Listar_Empresas',
-    //       type: "POST",
-    //       dataType: "json",
-    //       success: function (data) {
-    //         $empresas.empty().append('<option value="">Seleccione</option>');
-    //         $.each(data, function (index, item) {
-    //           $empresas.append(`<option value="${item.id}">${item.nombre_empresa}</option>`);
-    //         });
-
-    //         // Inicializa Select2 en el select de empresas
-    //         $empresas.select2({
-    //           placeholder: 'Seleccione una opción',
-    //           allowClear: true,
-    //         });
-    //       },
-    //       error: function (xhr, status, error) {
-    //         console.error("Error en AJAX:", status, error);
-    //         alert("Error al cargar los datos.");
-    //       }
-    //     });
-    //   } else if (valorSeleccionado === "Estado") {
-    //     // Si Empresas está visible, la ocultamos
-    //     if ($empresas.is(":visible")) {
-    //       $empresas.hide().val(""); // Ocultar y resetear selección
-    //     }
-
-    //     if ($clientes.is(":visible")) {
-    //       $clientes.hide().val(""); // Ocultar y resetear selección
-    //     }
-    //     // Mostramos el select de Clientes
-    //     $estados.show();
-    //   }
-    // });
-
-  } else if (window.VENTANA === '2') {
-    //VENTANA PARA LISTAR LAS CPCIONES DE LAS PRIORITARIAS
-  } else if (window.VENTANA === '7') {
-    //VENTANA PARA LISTAR LAS CPCIONES DE LAS COMPLETADAS
-  } else if (window.VENTANA === '5') {
-    //VENTANA PARA LISTAR LAS CPCIONES DE LAS PENDIENTES
-  } else if (window.VENTANA === 4) {
+  if (window.VENTANA == 4) {
     // VENTANA PARA TRABAJAR EN LA CREACION DE LAS NUEVAS SOLICITUDES DE SERVICIO
     let table = new DataTable('#myTable', {
       language: { // Corrección aquí (antes era 'lenguage')
@@ -316,7 +127,8 @@ window.initScript = function (id) {
       // console.log('Servicio:', SERVICIO);
 
       /* Validaciones para armar los escenarios de solicitud de servicio */
-      if (window.ID === '1' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') { //Escenario donde todo es uno a uno
+      if (ID === '1' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') { //Escenario donde todo es uno a uno
+        Limpiar_formulario_cambio_escenario();
         document.getElementById("agregar_fila").style.display = 'none';
         agregar();
         document.querySelector(".cantvehiculo").value = 1;
@@ -324,6 +136,7 @@ window.initScript = function (id) {
         document.getElementById("maximo_entregab").value = 1;
         document.getElementById("maximo_entregab").disabled = true;
       } else if (ID === '2' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
+        Limpiar_formulario_cambio_escenario();
         document.getElementById("agregar_fila").style.display = 'none';
         agregar();
         document.querySelector(".cantvehiculo").value = 1;
@@ -331,16 +144,24 @@ window.initScript = function (id) {
         document.getElementById("maximo_entregab").value = 1;
         document.getElementById("maximo_entregab").disabled = true;
       } else if (ID === '3' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
+        Limpiar_formulario_cambio_escenario();
         document.getElementById("agregar_fila").style.display = 'none';
         agregar();
         document.querySelector(".cantvehiculo").value = 1;
         document.querySelector(".cantvehiculo").disabled = true;
+        /* Validar si el campo de numero de remitente es +1 */
+        document.getElementById("maximo_entregab").disabled = !document.getElementById("maximo_entregab").disabled;
       } else if (ID === '4' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Expreso') {
+        Limpiar_formulario_cambio_escenario();
         document.getElementById("agregar_fila").style.display = 'none';
         agregar();
         document.querySelector(".cantvehiculo").value = 1;
         document.querySelector(".cantvehiculo").disabled = true;
+        /* Validar si el campo de numero de remitente es +1 */
+        document.getElementById("maximo_entregab").disabled = !document.getElementById("maximo_entregab").disabled;
       } else if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {/* Escenario donde todas las mercancias son distintas */
+        Limpiar_formulario_cambio_escenario();
+        document.getElementById("agregar_fila").style.display = '';
         agregar();
         document.querySelector(".cantvehiculo").value = 1;
         document.querySelector(".cantvehiculo").disabled = true;
@@ -348,6 +169,8 @@ window.initScript = function (id) {
         document.getElementById("maximo_entregab").value = 1;
         document.getElementById("maximo_entregab").disabled = true;
       } else if (ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
+        Limpiar_formulario_cambio_escenario();
+        document.getElementById("agregar_fila").style.display = '';
         agregar();
         document.querySelector(".cantvehiculo").value = 1;
         document.querySelector(".cantvehiculo").disabled = true;
@@ -355,15 +178,24 @@ window.initScript = function (id) {
         document.getElementById("maximo_entregab").value = 1;
         document.getElementById("maximo_entregab").disabled = true;
       } else if (ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
+        Limpiar_formulario_cambio_escenario();
+        document.getElementById("agregar_fila").style.display = '';
         agregar();
         document.querySelector(".cantvehiculo").value = 1;
         document.querySelector(".cantvehiculo").disabled = true;
-        document.getElementById("#maximo_entregab").disabled = false;
+        document.getElementById("maximo_entregab").disabled = false;
+        /* Validar si el campo de numero de remitente es +1 */
+        document.getElementById("maximo_entregab").disabled = !document.getElementById("maximo_entregab").disabled;
       } else if (ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso') {
+        Limpiar_formulario_cambio_escenario();
+        document.getElementById("agregar_fila").style.display = '';
         agregar();
         document.querySelector(".cantvehiculo").value = 1;
         document.querySelector(".cantvehiculo").disabled = true;
+        /* Validar si el campo de numero de remitente es +1 */
+        document.getElementById("maximo_entregab").disabled = !document.getElementById("maximo_entregab").disabled;
       } else if (ID === '9' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === 1 && SERVICIO === 'Consolidado') {
+        Limpiar_formulario_cambio_escenario();
         agregar();
         //OCultarel boton de agregar bloque de mercancia
         document.getElementById("agregar_fila").style.display = 'none';
@@ -371,15 +203,24 @@ window.initScript = function (id) {
         document.getElementById("maximo_entregab").value = 1;
         document.getElementById("maximo_entregab").disabled = true;
       } else if (ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+        Limpiar_formulario_cambio_escenario();
+        document.getElementById("agregar_fila").style.display = '';
         agregar();
         // Agregar un carro por cada bloque de marcancias
         document.getElementById("maximo_entregab").value = 1;
         document.getElementById("maximo_entregab").disabled = true;
       } else if (ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
+        Limpiar_formulario_cambio_escenario();
+        document.getElementById("agregar_fila").style.display = '';
         agregar();
         // Agregar un carro por cada bloque de marcancias
         document.querySelector(".cantvehiculo").value = 1;
         document.querySelector(".cantvehiculo").disabled = true;
+        /* Validar si el campo de numero de remitente es +1 */
+        document.getElementById("maximo_entregab").disabled = !document.getElementById("maximo_entregab").disabled;
+      } else {
+        Limpiar_formulario_cambio_escenario();
+        document.getElementById("maximo_entregab").disabled = !document.getElementById("maximo_entregab").disabled;
       }
     });
 
@@ -1379,37 +1220,6 @@ window.initScript = function (id) {
 
   // Puedes acceder a estas variables en cualquier parte del código
   document.addEventListener("click", async e => {
-    // if (e.target.matches("#btn_ver_solicitud") || e.target.matches("#btn_ver_solicitud *")) {
-    //   // let padre = e.target.parentElement.parentElement;
-    //   // Obtener el enlace (el elemento con el data-id)
-    //   let enlace = e.target.closest('#btn_ver_solicitud');
-    //   // // Obtener el valor del atributo data-id
-    //   let dataId = enlace.getAttribute('data-id');
-    //   let dataId2 = enlace.getAttribute('data-id2');
-    //   let dataId3 = enlace.getAttribute('data-id3');
-    //   // Visualizar(dataId, dataId2, dataId3);
-
-    //   // // Definir dimensiones de la nueva ventana
-    //   const w = 1000;
-    //   const h = 1000;
-
-    //   // Fixes dual-screen position                         Most browsers      Firefox
-    //   var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
-    //   var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
-
-    //   var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-    //   var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-    //   var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-    //   var top = ((height / 2) - (h / 2)) + dualScreenTop;
-    //   var newWindow = window.open($('#base_url').val() + "serviciocliente/canvas?cotizacion=" + encodeURIComponent(dataId) + "&solicitud_servicio=" + encodeURIComponent(dataId2) + "&ventana=" + encodeURIComponent(dataId3), "ventanaCentrada", 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
-
-    //   // Puts focus on the newWindow
-    //   if (window.focus) {
-    //     newWindow.focus();
-    //   }
-    // }
-
     // Verificar si el clic fue en un botón cuyo ID empieza con "btn_edit_cargue"
     // Obtener el botón (incluso si se hace clic en un elemento hijo)
     const btnValidarSicetac = e.target.closest('[id^="btn-validar-sicetac"]');
@@ -1474,6 +1284,8 @@ window.initScript = function (id) {
               if (data[index] !== undefined) {
                 // Convertir y formatear el valor obtenido
                 let valorCosto = parseFloat(data[index]);
+                // Si data[index] está definido, se usa ese valor; de lo contrario se asigna 0.
+                // let valorCosto = (data.length > 0 || data[index] !== undefined) ? parseFloat(data[index]) : 0;
                 let valorFormateado = valorCosto.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
                 $(this).val(valorFormateado);
 
@@ -1500,11 +1312,7 @@ window.initScript = function (id) {
             });
           }
         } else {
-          Swal.fire({
-            title: "Exito",
-            text: data.mensaje,
-            icon: "error"
-          });
+          console.log(data.length);
         }
       } catch (error) {
         console.error("Error en la primera solicitud:", error);
@@ -1512,445 +1320,6 @@ window.initScript = function (id) {
       } finally {
       }
     }
-
-    // Verificar si el clic fue en un botón cuyo ID empieza con "btn_edit_cargue"
-    // Obtener el botón (incluso si se hace clic en un elemento hijo)
-    // const buttonEditarCargue = e.target.closest('[id^="btn_edit_cargue"]');
-    // if (buttonEditarCargue) {
-    //   // Acceder al data-id
-    //   // const dataId = buttonEditarCargue.getAttribute('data-puntoId');
-    //   const dataId = buttonEditarCargue.getAttribute('data-puntoId');
-    //   // También puedes usar dataset (recomendado)
-    //   // const dataId = button.dataset.id;
-
-    //   // Resto de tu código...
-    //   let fecha = document.getElementById("fecha_cargue_edit" + dataId);
-    //   let hora = document.getElementById("hora_cargue_edit" + dataId);
-    //   fecha.disabled = false;
-    //   hora.disabled = false;
-    //   document.getElementById("btn_save_cargue" + dataId).style.display = "block";
-    //   document.getElementById("btn_canelar_cargue" + dataId).style.display = "block";
-    //   document.getElementById("btn_edit_cargue" + dataId).style.display = "none";
-    // }
-
-    // const buttonCencelarEdicionCargue = e.target.closest('[id^="btn_canelar_cargue"]');
-    // if (buttonCencelarEdicionCargue) {
-    //   // Obtener el botón (incluso si se hace clic en un elemento hijo)
-    //   // Acceder al data-id
-    //   const dataId = buttonCencelarEdicionCargue.getAttribute('data-puntoId');
-    //   // Resto de tu código...
-    //   let fecha = document.getElementById("fecha_cargue_edit" + dataId);
-    //   let hora = document.getElementById("hora_cargue_edit" + dataId);
-    //   fecha.disabled = true;
-    //   hora.disabled = true;
-    //   document.getElementById("btn_save_cargue" + dataId).style.display = "none";
-    //   document.getElementById("btn_canelar_cargue" + dataId).style.display = "none";
-    //   document.getElementById("btn_edit_cargue" + dataId).style.display = "block";
-    // }
-
-    // const buttonGuardarEdicionCargue = e.target.closest('[id^="btn_save_cargue"]');
-    // if (buttonGuardarEdicionCargue) {
-    //   // Acceder al data-id
-    //   const Remitente = buttonGuardarEdicionCargue.getAttribute("data-Remitente");
-    //   const dataId = buttonGuardarEdicionCargue.getAttribute('data-puntoId');
-    //   Swal.fire({
-    //     title: 'Seguro',
-    //     text: '¿Desea guardar la actualización del remintente: ' + Remitente + '?',
-    //     icon: 'warning',
-    //     showCancelButton: true,
-    //     confirmButtonColor: '#3B71CA',
-    //     cancelButtonColor: '#9FA6B2',
-    //     confirmButtonText: 'Aceptar',
-    //     cancelButtonText: 'Cancelar',
-    //     customClass: {
-    //       popup: 'swal2-custom-font',
-    //     },
-    //   }).then(async result => {
-    //     if (result.isConfirmed) {
-    //       const num_sol = buttonGuardarEdicionCargue.getAttribute("data-NumDocSol");
-    //       const Punto = buttonGuardarEdicionCargue.getAttribute("data-Punto");
-    //       let fecha = document.getElementById("fecha_cargue_edit" + dataId).value;
-    //       let hora = document.getElementById("hora_cargue_edit" + dataId).value;
-    //       let datos = new FormData();
-    //       datos.append("solicitud", num_sol);
-    //       datos.append("fecha_cargue", fecha);
-    //       datos.append("hora_cargue", hora);
-    //       datos.append("punto_rem", Punto);
-    //       try {
-    //         const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
-    //           method: "POST",
-    //           body: datos,
-    //           cache: "no-cache",
-    //         });
-    //         const data = await response.json();
-    //         if (data.numero === 200) {
-    //           Swal.fire({
-    //             title: "Exito",
-    //             text: data.mensaje,
-    //             icon: "success"
-    //           });
-    //           // Resto de tu código...
-    //           let fecha = document.getElementById("fecha_cargue_edit" + dataId);
-    //           let hora = document.getElementById("hora_cargue_edit" + dataId);
-    //           fecha.disabled = true;
-    //           hora.disabled = true;
-    //           document.getElementById("btn_save_cargue" + dataId).style.display = "none";
-    //           document.getElementById("btn_canelar_cargue" + dataId).style.display = "none";
-    //           document.getElementById("btn_edit_cargue" + dataId).style.display = "block";
-    //         } else {
-    //           Swal.fire({
-    //             title: "Exito",
-    //             text: data.mensaje,
-    //             icon: "error"
-    //           });
-    //         }
-    //       } catch (error) {
-    //         console.error("Error en la primera solicitud:", error);
-    //         throw error;
-    //       } finally {
-    //       }
-    //     }
-    //   });
-    // }
-
-    // // if (e.target.matches("#btn_edit_descargue") || e.target.matches("#btn_edit_descargue *")) {
-    // const buttonEditarDescargue = e.target.closest('[id^="btn_edit_descargue"]');
-    // if (buttonEditarDescargue) {
-    //   // const dataId = buttonEditarCargue.getAttribute('data-puntoId');
-    //   const dataId = buttonEditarDescargue.getAttribute('data-puntoId');
-    //   let fecha = document.getElementById("fecha_descargue_edit" + dataId);
-    //   let hora = document.getElementById("hora_descargue_edit" + dataId);
-    //   fecha.disabled = false;
-    //   hora.disabled = false;
-    //   document.getElementById("btn_save_descargue" + dataId).style.display = "block";
-    //   document.getElementById("btn_canelar_descargue" + dataId).style.display = "block";
-    //   document.getElementById("btn_edit_descargue" + dataId).style.display = "none";
-    // }
-
-    // const buttonCencelarEdicionDescargue = e.target.closest('[id^="btn_canelar_descargue"]');
-    // if (buttonCencelarEdicionDescargue) {
-    //   // Obtener el botón (incluso si se hace clic en un elemento hijo)
-    //   // Acceder al data-id
-    //   const dataId = buttonCencelarEdicionDescargue.getAttribute('data-puntoId');
-    //   // Resto de tu código...
-    //   let fecha = document.getElementById("fecha_descargue_edit" + dataId);
-    //   let hora = document.getElementById("hora_descargue_edit" + dataId);
-    //   fecha.disabled = true;
-    //   hora.disabled = true;
-    //   document.getElementById("btn_save_descargue" + dataId).style.display = "none";
-    //   document.getElementById("btn_canelar_descargue" + dataId).style.display = "none";
-    //   document.getElementById("btn_edit_descargue" + dataId).style.display = "block";
-    // }
-
-    // const buttonGuardarEdicionDescargue = e.target.closest('[id^="btn_save_descargue"]');
-    // if (buttonGuardarEdicionDescargue) {
-    //   // Acceder al data-id
-    //   const Destinatario = buttonGuardarEdicionDescargue.getAttribute("data-Destinatario");
-    //   Swal.fire({
-    //     title: 'Seguro',
-    //     text: '¿Desea guardar la actualización del destinatario: ' + Destinatario + '?',
-    //     icon: 'warning',
-    //     showCancelButton: true,
-    //     confirmButtonColor: '#3B71CA',
-    //     cancelButtonColor: '#9FA6B2',
-    //     confirmButtonText: 'Aceptar',
-    //     cancelButtonText: 'Cancelar',
-    //     customClass: {
-    //       popup: 'swal2-custom-font',
-    //     },
-    //   }).then(async result => {
-    //     if (result.isConfirmed) {
-    //       const dataId = buttonGuardarEdicionDescargue.getAttribute('data-puntoId');
-    //       const num_sol = buttonGuardarEdicionDescargue.getAttribute("data-NumDocSol");
-    //       const Punto = buttonGuardarEdicionDescargue.getAttribute("data-Punto");
-    //       let fecha = document.getElementById("fecha_descargue_edit" + dataId).value;
-    //       let hora = document.getElementById("hora_descargue_edit" + dataId).value;
-
-    //       let datos = new FormData();
-    //       datos.append("solicitud", num_sol);
-    //       datos.append("fecha_descargue", fecha);
-    //       datos.append("hora_descargue", hora);
-    //       datos.append("punto_desc", dataId);
-    //       try {
-    //         const response = await fetch($("#base_url").val() + "solicitudes/update_descargue", {
-    //           method: "POST",
-    //           body: datos,
-    //           cache: "no-cache",
-    //         });
-    //         const data = await response.json();
-    //         if (data.numero === 200) {
-    //           Swal.fire({
-    //             title: "Exito",
-    //             text: data.mensaje,
-    //             icon: "success"
-    //           });
-    //           // Resto de tu código...
-    //           let fecha = document.getElementById("fecha_descargue_edit" + dataId);
-    //           let hora = document.getElementById("hora_descargue_edit" + dataId);
-    //           fecha.disabled = true;
-    //           hora.disabled = true;
-    //           document.getElementById("btn_save_descargue" + dataId).style.display = "none";
-    //           document.getElementById("btn_canelar_descargue" + dataId).style.display = "none";
-    //           document.getElementById("btn_edit_descargue" + dataId).style.display = "block";
-    //         } else {
-    //           Swal.fire({
-    //             title: "Exito",
-    //             text: data.mensaje,
-    //             icon: "error"
-    //           });
-    //         }
-    //       } catch (error) {
-    //         console.error("Error en la primera solicitud:", error);
-    //         throw error;
-    //       } finally {
-    //       }
-    //     }
-    //   });
-    // }
-
-    // /* Boton para gaurar el contenedor en las solicitudes */
-    // if (e.target.matches("#btn_save_contenedor") || e.target.matches("#btn_save_contenedor *")) {
-    //   Swal.fire({
-    //     title: 'Mnesaje',
-    //     text: '¿Está seguro de continuar?',
-    //     icon: 'question',
-    //     showCancelButton: true,
-    //     cancelButtonColor: '#9FA6B2',
-    //     confirmButtonColor: '#14A44D',
-    //     confirmButtonText: 'Si',
-    //     cancelButtonText: 'No',
-    //     customClass: {
-    //       popup: 'swal2-custom-font',
-    //     },
-    //   }).then(async result => {
-    //     if (result.isConfirmed) {
-    //       $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
-    //       /* Definir las variables para los filtros */
-    //       let formdata = new FormData();
-    //       formdata.append('numero_contenedor', document.getElementById('numero_contenedor').value);
-    //       formdata.append('mer_idservicio', document.getElementById('mer_idservicio').value);
-
-    //       // Obtén el elemento por su id (sin el #)
-    //       var checkbox = document.getElementById("agrupable");
-    //       // Verifica si está marcado
-    //       if (checkbox.checked) {
-    //         formdata.append('agrupado', "SI");
-    //       } else {
-    //         formdata.append('agrupado', "NO");
-    //       }
-
-    //       try {
-    //         const response = await fetch($('#base_url').val() + 'serviciocliente/GuardarContenedor', {
-    //           method: 'POST',
-    //           body: formdata,
-    //           cache: 'no-cache',
-    //         });
-
-    //         const data = await response.json();
-    //         if (data.status === 400) {
-    //           Swal.fire({
-    //             title: 'Información',
-    //             text: data.message,
-    //             icon: 'info',
-    //             customClass: {
-    //               popup: 'swal2-custom-font',
-    //             },
-    //           });
-    //         } else {
-    //           Swal.fire({
-    //             title: 'Mensaje',
-    //             text: data.message,
-    //             icon: 'success',
-    //             customClass: {
-    //               popup: 'swal2-custom-font',
-    //             },
-    //           });
-    //         }
-    //       } catch (error) {
-    //         console.error('Error en la primera solicitud:', error);
-    //         throw error;
-    //       } finally {
-    //         $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-    //       }
-    //     }
-    //   });
-    // }
-
-    // /* Boton para actualizar las referencias de los despachos */
-    // const buttonGuardarEdicionReferencia = e.target.closest('[id^="btn_save_referencia"]');
-    // if (buttonGuardarEdicionReferencia) {
-    //   const puntoId = buttonGuardarEdicionReferencia.getAttribute("data-puntoId");
-    //   const NumDocSol = buttonGuardarEdicionReferencia.getAttribute("data-NumDocSol");
-    //   Swal.fire({
-    //     title: 'Mnesaje',
-    //     text: '¿Está seguro de continuar?',
-    //     icon: 'question',
-    //     showCancelButton: true,
-    //     cancelButtonColor: '#9FA6B2',
-    //     confirmButtonColor: '#14A44D',
-    //     confirmButtonText: 'Si',
-    //     cancelButtonText: 'No',
-    //     customClass: {
-    //       popup: 'swal2-custom-font',
-    //     },
-    //   }).then(async result => {
-    //     if (result.isConfirmed) {
-    //       $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
-    //       /* Definir las variables para los filtros */
-    //       let formdata = new FormData();
-    //       formdata.append('referencia_operacion', document.getElementById('referencia_operacion' + puntoId).value);
-    //       formdata.append('mer_idservicio', NumDocSol);
-    //       formdata.append('puntoId', puntoId);
-
-    //       try {
-    //         const response = await fetch($('#base_url').val() + 'serviciocliente/ActualizarReferencia', {
-    //           method: 'POST',
-    //           body: formdata,
-    //           cache: 'no-cache',
-    //         });
-
-    //         const data = await response.json();
-    //         if (data.status === 400) {
-    //           Swal.fire({
-    //             title: 'Información',
-    //             text: data.message,
-    //             icon: 'info',
-    //           });
-    //         } else {
-    //           Swal.fire({
-    //             title: 'Mensaje',
-    //             text: data.message,
-    //             icon: 'success',
-    //           });
-    //         }
-    //       } catch (error) {
-    //         console.error('Error en la primera solicitud:', error);
-    //         throw error;
-    //       } finally {
-    //         $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-    //       }
-    //     }
-    //   });
-    // }
-
-    // /* Actualizar Agencias solicitud servio */
-    // if (e.target.matches("#btn_update_agencia_solicitud")) {
-
-    // }
-
-    // if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
-    //   if (window.confirm("¿Esta seguro que quiere actualizar las fechas de la solicitud de servicio?")) {
-    //     //let fechacargue= document.getElementById(fecha_cargue_edit);
-    //     let msg_error = '';
-    //     let fechacargue = $("#fecha_cargue_edit").val();
-    //     let horacargue = $("#hora_cargue_edit").val();
-    //     let fechadescargue = $("#fecha_descargue_edit").val();
-    //     let horadescargue = $("#hora_descargue_edit").val();
-    //     let num_sol = $("#mer_idservicio").val();
-    //     let punto_rem = $("#punto_rem").val();
-    //     let punto_des = $("#punto_des").val();
-    //     var fc = (fechacargue + ' ' + horacargue);
-    //     var fd = (fechadescargue + ' ' + horadescargue);
-
-    //     /* Validar que actualizacion se va a realizar */
-    //     let agencia = document.getElementById("servicio_agencia").value.trim();
-    //     let tipo_servicio = document.getElementById("servicio_cliente").value.trim();
-
-    //     if (agencia === "" && tipo_servicio === "") {
-    //       if (fc > fd) {
-    //         msg_error += "La Fecha - Hora de cargue no puede ser mayor a la Fecha Descargue";
-    //         alert(msg_error);
-    //       } else {
-    //         let datos = new FormData();
-    //         datos.append("fecha_cargue", fechacargue);
-    //         datos.append("hora_cargue", horacargue);
-    //         datos.append("fecha_descargue", fechadescargue);
-    //         datos.append("hora_descargue", horadescargue);
-    //         datos.append("solicitud", num_sol);
-    //         datos.append("punto_rem", punto_rem);
-    //         datos.append("punto_des", punto_des);
-    //         try {
-    //           const response = await fetch($("#base_url").val() + "solicitudes/update_cargue", {
-    //             method: "POST",
-    //             body: datos,
-    //             cache: "no-cache",
-    //           });
-    //           const data = await response.json();
-    //           if (data.numero === 200) {
-    //             document.getElementById("Mensaje_update").innerHTML = `
-    //             < div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
-    //                         <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-    //                         <div class="message">
-    //                           <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-    //                           <strong>Mensaje!</strong> ${data.mensaje}
-    //                         </div>
-    //                         </div > `;
-    //             window.location.reload();
-    //           } else {
-    //             document.getElementById("Mensaje_update").innerHTML = `
-    //           < div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
-    //                         <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-    //                         <div class="message">
-    //                           <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-    //                           <strong>Mensaje!</strong> ${data.mensaje}
-    //                         </div>
-    //                       </div > `;
-    //           }
-    //         } catch (error) {
-    //           console.error("Error en la primera solicitud:", error);
-    //           throw error;
-    //         } finally {
-    //           document.getElementById("fecha_cargue_edit").disabled = true;
-    //           document.getElementById("hora_cargue_edit").disabled = true;
-    //           document.getElementById("btn_edit_cargue").style.display = "block";
-    //           document.getElementById("fecha_descargue_edit").disabled = true;
-    //           document.getElementById("hora_descargue_edit").disabled = true;
-    //           document.getElementById("btn_edit_descargue").style.display = "block";
-    //         }
-    //       }
-    //     } else {
-    //       let datos = new FormData();
-    //       datos.append("agencia", agencia);
-    //       datos.append("tipo_servicio", tipo_servicio);
-    //       datos.append("solicitud", num_sol);
-    //       datos.append("numero_cotizacion", document.getElementById("numero_cotizacion").value);
-    //       try {
-    //         const response = await fetch($("#base_url").val() + "serviciocliente/update_solicitud", {
-    //           method: "POST",
-    //           body: datos,
-    //           cache: "no-cache",
-    //         });
-    //         const data = await response.json();
-    //         if (data.status === 200) {
-    //           document.getElementById("Mensaje_update").innerHTML = `
-    //             <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert" >
-    //               <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-    //               <div class="message">
-    //                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-    //                 <strong>Mensaje!</strong> ${data.message}
-    //               </div>
-    //             </div > `;
-    //           window.location.reload();
-    //         } else {
-    //           document.getElementById("Mensaje_update").innerHTML = `
-    //             <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert" >
-    //               <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-    //               <div class="message">
-    //                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-    //                 <strong>Mensaje!</strong> ${data.message}
-    //               </div>
-    //             </div > `;
-    //         }
-
-    //       } catch (error) {
-    //         console.error("Error en la primera solicitud:", error);
-    //         throw error;
-    //       } finally {
-
-    //       }
-    //     }
-    //   }
-    // }
   });
 
   /* Agregar validaciones para ver que filtro escojer */
@@ -1993,20 +1362,7 @@ window.initScript = function (id) {
       return;
     }
 
-    // Procesar cada origen en ORIGEN_ARRAY sin restricciones
-    // ORIGEN_ARRAY.forEach(function (origen) {
-    //   // console.log("🚀 ~ origen:", origen)
-    //   Agrega_Remitente(cliente, origen);
-    // });
     Agrega_Remitente(cliente, ORIGEN_ARRAY[0]);
-
-    // Swal.fire({
-    //   position: "top-end",
-    //   icon: "success",
-    //   html: "Los remitentes han sido agregados correctamente.",
-    //   showConfirmButton: false,
-    //   timer: 1500
-    // });
   });
 
   /* Validar si change de costo flete si el valor si el valor tarifa sietac no esta vacio */
@@ -2043,162 +1399,6 @@ window.initScript = function (id) {
   //***********fin del document ready function***
 };
 
-// async function listar_cotizaciones(tipo, fecha_inicial, fecha_final, estado, cliente, empresa, id) {
-//   /* Funcion para enviar los datos */
-//   $('#load_info').css('display', 'flex'); // Mostrar mensaje de carga
-//   let dato = new FormData();
-//   dato.append('tipo', tipo);
-//   dato.append('fecha_inicial', fecha_inicial);
-//   dato.append('fecha_final', fecha_final);
-//   dato.append('estado', estado);
-//   dato.append('cliente', cliente);
-//   dato.append('empresa', empresa);
-//   try {
-//     const response = await fetch($('#base_url').val() + 'serviciocliente/consultar_cotizaciones', {
-//       method: 'POST',
-//       body: dato,
-//       cache: 'no-cache',
-//     });
-//     const data = await response.json();
-//     if (data) {
-//       $('#load_info').css('display', 'none'); // Mostrar mensaje de carga
-//       let tbody = document.getElementById('tbl_cotizaciones');
-//       tbody.innerHTML = '';
-//       let esatdo_autorizado = '';
-//       let col_estatus = '';
-//       let cot_itr = '';
-//       let n_cotizacion = '';
-//       let btn_editar = '';
-//       let Prioridad = '';
-
-//       data.resultado.forEach(element => {
-//         const fila = document.createElement('tr');
-//         if (element.estado_estudio === 'Sin Estado') {
-//           if (element.estado === 'Pendiente') {
-//             col_estatus = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">sin gestionar</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-//           } else if (element.estado === 'por autorizar') {
-//             col_estatus = `<span  data-toggle="tooltip" style="color:#ec1f00;">${element.estado}</span>`;
-//           } else {
-//             col_estatus = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">sin gestionar</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-//           }
-//         } else {
-//           if (element.estado_estudio === 'pendiente_iniciar') {
-//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Estudio Pendiente Iniciar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>`;
-//           } else if (element.estado_estudio === 'iniciado') {
-//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">Estudio Iniciado</span><span class="ms-1" data-feather="info" style="height:12.8px;width:12.8px;"></span></span>`;
-//           } else if (element.estado_estudio === 'Pendiente') {
-//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Estudio Pendiente</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-//           } else if (element.estado_estudio === 'Rechazado') {
-//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Rechazado</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>`;
-//           } else if (element.estado_estudio === 'Aprobado') {
-//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Estudio Aprobado</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
-//           } else if (element.estado_estudio === 'vencida') {
-//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Vencido</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
-//           } else if (element.estado_estudio === 'Sin Estado') {
-//             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">Sin Estado</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
-//           }
-//         }
-
-//         // if (element.estado_autorizado === 'autorizado') {
-//         //   col_estatus = `< span  data - toggle="tooltip" style = "color:purple;" > ${ element.estado_autorizado }</span > `;
-//         // } else if (element.estado_autorizado === 'por autorizar') {
-//         //   col_estatus = `< span  data - toggle="tooltip" style = "color:red;" > ${ element.estado_autorizado }</span > `;
-//         // } else {
-//         //   col_estatus = `< td class="text" ></td > `;
-//         // }
-
-//         /* Consultas de estado de las solicitudes */
-//         if (element.estado_autorizacion === 'F1') {
-//           // esatdo_autorizado = `< span class="mdi mdi-dot-circle icon text-default"  data - toggle="tooltip" title = "Realizada" ></span > `;
-//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary" ><span class="badge-label">Realizada</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span > `;
-//         } else if (element.estado_autorizacion === 'F2') {
-//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-success"  data - toggle="tooltip" title = "Entregada" ></span > `;
-//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary" ><span class="badge-label">Entregada</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span > `;
-//         } else if (element.estado_autorizacion === 'F4') {
-//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-danger" data - toggle="tooltip" title = "Pérdida" ></span > `;
-//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger" ><span class="badge-label">Pérdida</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span > `;
-//         } else if (element.estado_autorizacion === 'F3') {
-//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-warning"  data - toggle="tooltip" title = "Ganada" ></span > `;
-//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-success" ><span class="badge-label">Ganada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span > `;
-//         } else if (element.estado_autorizacion === 'F5') {
-//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-primary" data - toggle="tooltip" title = "Cancelada" ></span > `;
-//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger" ><span class="badge-label">Cancelada</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span > `;
-//         } else if (element.estado_autorizacion === 'F6') {
-//           // esatdo_autorizado = `<span class="mdi mdi-dot-circle icon text-gray" data - toggle="tooltip" title = "Rechazada" ></span > `;
-//           esatdo_autorizado = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning" ><span class="badge-label">Rechazada</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span > `;
-//         }
-//         /* Validar si la solicitud es Itr */
-//         if (element.itr === 'Si') {
-//           cot_itr = `<span class="badge badge-phoenix badge-phoenix-success float-right" > SI</span > `;
-//         } else {
-//           cot_itr = `<span class="badge badge-phoenix badge-phoenix-primary float-right" > NO</span > `;
-//         }
-
-//         if (element.prioritaria === 'Propuesta') {
-//           Prioridad = `<span class="badge badge-phoenix badge-phoenix-warning float-right" > <a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span > `;
-//         } else if (element.prioritaria === null) {
-//           Prioridad = `<span class="badge badge-phoenix badge-phoenix-info float-right" > No marcada</span > `;
-//         } else {
-//           Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right" > ${element.prioritaria}</span > `;
-//         }
-
-//         const columnaEstado = document.createElement('td');
-//         columnaEstado.innerHTML = col_estatus;
-//         const columnaEstado_Autorizacion = document.createElement('td');
-//         columnaEstado_Autorizacion.innerHTML = esatdo_autorizado;
-//         const columnaItr = document.createElement('td');
-//         columnaItr.innerHTML = cot_itr;
-//         const columnaNum_Cotizacion = document.createElement('td');
-//         columnaNum_Cotizacion.innerHTML = `<a href="#" id = "btn_ver_solicitud" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}" data-id3="${id}" aria-controls="offcanvasRight" class="text-decoration-none"> N°${element.nundoc_solicitud}</a > `;
-//         const columnaCliente = document.createElement('td');
-//         columnaCliente.innerHTML = element.nombre_cliente;
-//         const columnaMercancia = document.createElement('td');
-//         columnaMercancia.innerHTML = element.tipo_mercancia;
-//         const columnaPeso = document.createElement('td');
-//         columnaPeso.innerHTML = element.peso_neto_kg + 'Kg';
-//         const columnafecha = document.createElement('td');
-//         columnafecha.innerHTML = element.fecha_solicitud_servicio;
-//         const columnaServicio = document.createElement('td');
-//         columnaServicio.innerHTML = element.tipo_transporte;
-//         const columnaPrioridad = document.createElement('td');
-//         columnaPrioridad.innerHTML = Prioridad;
-//         //Empresas
-//         const columnaAcciones = document.createElement('td');
-//         columnaAcciones.innerHTML = element.nombre_empresa;
-
-//         fila.appendChild(columnaNum_Cotizacion);
-//         fila.appendChild(columnaItr);
-//         fila.appendChild(columnaCliente);
-//         fila.appendChild(columnaMercancia);
-//         fila.appendChild(columnaPeso);
-//         fila.appendChild(columnaServicio);
-//         fila.appendChild(columnafecha);
-//         fila.appendChild(columnaEstado_Autorizacion);
-//         fila.appendChild(columnaEstado);
-//         fila.appendChild(columnaPrioridad);
-//         fila.appendChild(columnaAcciones);
-//         tbody.appendChild(fila);
-//       });
-//     } else {
-//       // $('#load_info').css('display', 'none'); // Mostrar mensaje de carga
-//       // const fila = document.createElement('tr');
-//       // let tbody = document.getElementById('tbl_cotizaciones');
-//       // tbody.innerHTML = '';
-//       // const columnaSinDatos = document.createElement('td');
-//       // columnaSinDatos.colSpan = '11';
-//       // columnaSinDatos.style.fontBold = 'bold';
-//       // columnaSinDatos.innerHTML = `<span class="uil uil-list-ui-alt"></span> Sin resultados`;
-//       // fila.appendChild(columnaSinDatos);
-//       // tbody.appendChild(fila);
-//     }
-//   } catch (error) {
-//     console.error('Error en la primera solicitud:', error);
-//     console.log('error no inserta');
-//     throw error;
-//   } finally {
-//     // d.getElementById('loading-overlay-mensaje_carga').style.display = 'none';
-//   }
-// }
 /****************************************************Funciones de los Botones**********************************************************/
 function prueba_editar_no(element) {
   $('#estado_actual').html(''); //limpiar el estado actual de cada edición
@@ -4269,82 +3469,81 @@ function agregar() {
                 </div>
               </div>
 
-                      <div class="d-flex flex-wrap justify-content-start mt-2">
-                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-                  <h6 class="mb-0 text-body-highlight me-2">Costos Eficientes SICE TAC</h6>
-                </div>
-              </div>
-              
-              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12 tr${cont}">
-                <hr class="my-1 text-dark">
-              </div>
-              
-              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4 tr${cont}">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Configuración de su vehículo</label> 
-                  <select name="configuracion_vehiculos" id="configuracion_vehiculos${cont}" class="form-control form-control-sm configuracion_vehiculo_sicetac">
-                    <option selected="selected" value=""> </option>
-                    <option value="2">Camión dos ejes - Sencillo PBV mas de 10500 Kg </option>
-                    <option value="2_7_8">Camion dos ejes - Sencillo PBV 7500-8000 Kg </option>
-                    <option value="2_8_9">Camion dos ejes - Sencillo PBV 8001-9000 Kg </option>
-                    <option value="2_9_105">Camion dos ejes - Sencillo PBV 9001-10500 Kg </option>
-                    <option value="2S2">Tractocamión dos ejes - Patineta - Minimula con semiremolque de dos ejes</option>
-                    <option value="2S3">Tractocamión dos ejes - Patineta - Minimula con semiremolque de tres ejes</option>
-                    <option value="3">Camión tres ejes - Dobletroque </option>
-                    <option value="3S2">Tractocamión tres ejes - Tractomula con semiremolque de dos ejes</option>
-                    <option value="3S3">Tractocamión tres ejes - Tractomula con semiremolque de tres ejes</option>
-                    <option value="V2">Volqueta dos ejes - Sencillo </option>
-                    <option value="V3">Volqueta tres ejes - Dobletroque </option>
-                    <option value="V4">Volqueta cuatro ejes - Cuatromanos </option>
-                  </select>
-                </div>
-              </div>
+        <div class="d-flex flex-wrap justify-content-start mt-2">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Costos Eficientes SICE TAC</h6>
+          </div>
+        </div>
+        
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12 tr${cont}">
+          <hr class="my-1 text-dark">
+        </div>
+        
+        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4 tr${cont}">
+          <div class="mb-1">
+            <label style="font-size: 12px;">Configuración de su vehículo &nbsp;<span style="color:red;"><i>(*)</i></label> 
+            <select name="configuracion_vehiculos" id="configuracion_vehiculos${cont}" class="form-control form-control-sm configuracion_vehiculo_sicetac">
+              <option selected="selected" value=""> </option>
+              <option value="2">Camión dos ejes - Sencillo PBV mas de 10500 Kg </option>
+              <option value="2_7_8">Camion dos ejes - Sencillo PBV 7500-8000 Kg </option>
+              <option value="2_8_9">Camion dos ejes - Sencillo PBV 8001-9000 Kg </option>
+              <option value="2_9_105">Camion dos ejes - Sencillo PBV 9001-10500 Kg </option>
+              <option value="2S2">Tractocamión dos ejes - Patineta - Minimula con semiremolque de dos ejes</option>
+              <option value="2S3">Tractocamión dos ejes - Patineta - Minimula con semiremolque de tres ejes</option>
+              <option value="3">Camión tres ejes - Dobletroque </option>
+              <option value="3S2">Tractocamión tres ejes - Tractomula con semiremolque de dos ejes</option>
+              <option value="3S3">Tractocamión tres ejes - Tractomula con semiremolque de tres ejes</option>
+              <option value="V2">Volqueta dos ejes - Sencillo </option>
+              <option value="V3">Volqueta tres ejes - Dobletroque </option>
+              <option value="V4">Volqueta cuatro ejes - Cuatromanos </option>
+            </select>
+          </div>
+        </div>
 
-              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Unidad de Transporte</label> 
-                  <select name="unidadtransporte" id="unidadtransporte${cont}" class="form-select form-select-sm unidad_transporte_sicetac">
-                    <option selected="selected" value=""> </option>
-                    <option value="1">ESTACAS</option>
-                    <option value="10">ESTIBAS</option>
-                    <option value="1061">TANQUE</option>
-                    <option value="2">FURGON</option>
-                    <option value="231">PORTACONTENEDORES</option>
-                    <option value="36">TRAYLER</option>
-                    <option value="4">VOLCO</option>
-                    <option value="48">PLATAFORMA</option>
-                    <option value="60">FURGON REFRIGERADO</option>
-                  </select>
-                </div>
-              </div>
+        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+          <div class="mb-1">
+            <label style="font-size: 12px;">Unidad de Transporte &nbsp;<span style="color:red;"><i>(*)</i></label> 
+            <select name="unidadtransporte" id="unidadtransporte${cont}" class="form-select form-select-sm unidad_transporte_sicetac">
+              <option selected="selected" value=""> </option>
+              <option value="1">ESTACAS</option>
+              <option value="10">ESTIBAS</option>
+              <option value="1061">TANQUE</option>
+              <option value="2">FURGON</option>
+              <option value="231">PORTACONTENEDORES</option>
+              <option value="36">TRAYLER</option>
+              <option value="4">VOLCO</option>
+              <option value="48">PLATAFORMA</option>
+              <option value="60">FURGON REFRIGERADO</option>
+            </select>
+          </div>
+        </div>
 
-              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Tipo de Carga</label> 
-                  <select name="tipocarga" id="tipocarga${cont}" class="form-select form-select-sm tipo_carga_sicetac">
-                    <option selected="selected" value=""> </option>
-                    <option value="1003">Granel líquido</option>
-                    <option value="12">General</option>
-                    <option value="13">Contenedor</option>
-                    <option value="2">Carga Refrigerada</option>
-                    <option value="5">Granel Sólido</option>
-                  </select>
-                </div>
-              </div>
+        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
+          <div class="mb-1">
+            <label style="font-size: 12px;">Tipo de Carga &nbsp;<span style="color:red;"><i>(*)</i></label> 
+            <select name="tipocarga" id="tipocarga${cont}" class="form-select form-select-sm tipo_carga_sicetac">
+              <option selected="selected" value=""> </option>
+              <option value="1003">Granel líquido</option>
+              <option value="12">General</option>
+              <option value="13">Contenedor</option>
+              <option value="2">Carga Refrigerada</option>
+              <option value="5">Granel Sólido</option>
+            </select>
+          </div>
+        </div>
 
-              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Costo sicetac</label>
-                   <input type="text" class="typeahead form-control form-control-sm costo_sicetac" id="costo_sicetac${cont}" disabled>
-                </div>
-              </div>
+        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 tr${cont}">
+          <div class="mb-1">
+            <label style="font-size: 12px;">Costo sicetac</label>
+              <input type="text" class="typeahead form-control form-control-sm costo_sicetac" id="costo_sicetac${cont}" disabled>
+          </div>
+        </div>
 
-              <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 tr${cont}">
-                <div class="mb-1">
-                  <label style="font-size: 12px;">Costo sicetac</label>
-                   <button class="btn btn-subtle-secondary btn-sm me-1 mb-1" type="button">Secondary</button>
-                </div>
-              </div>
+        <div class="col-12 col-sm-12 col-md-1 col-lg-1 col-xl-1 col-xxl-1 tr${cont}">
+          <div class="mt-4">
+              <button class="btn btn-subtle-secondary btn-sm me-1 px-1 py-1" id="btn-validar-sicetac${cont}" data-id="${cont}" type="button" style="width: 100%;">Validar Sicetac</button>
+          </div>
+        </div>
         
           </div>`;
       $('#table_mercancia').append(htmlTags);
@@ -4656,7 +3855,7 @@ function agregar() {
         </div>
 
         <div class="col-12 col-sm-12 col-md-1 col-lg-1 col-xl-1 col-xxl-1 tr${cont}">
-          <div class="mt-5">
+          <div class="mt-4">
               <button class="btn btn-subtle-secondary btn-sm me-1 px-1 py-1" id="btn-validar-sicetac${cont}" data-id="${cont}" type="button" style="width: 100%;">Validar Sicetac</button>
           </div>
         </div>
@@ -4738,122 +3937,6 @@ async function tipo_empaque(cont) {
     Municipios(cont); // Llama a la función para llenar los municipios
   }
 }
-
-// async function Municipios(cont) {
-//   //datos de los municipios
-//   $('#flete' + cont).html('');
-//   // $('#origen_cliente' + cont + '').html('');
-//   // Limpiar selects antes de agregar opciones
-//   $('#origen_cliente').html('');
-//   $('#destino_cliente').html('');
-
-//   try {
-//     const response = await fetch($('#base_url').val() + 'serviciocliente/Consulta_Municipios', {
-//       method: 'POST',
-//       dataType: 'json',
-//       cache: 'no-cache',
-//     });
-//     const data = await response.json();
-
-//     if (ID === '5' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
-//       ID === '6' && VEHICULO === 1 && REMITENTE === 1 && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
-//       ID === '7' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
-//       ID === '8' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Expreso' ||
-//       ID === '10' && VEHICULO === '+1' && REMITENTE === 1 && DESTINATARIO === 1 && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado' ||
-//       ID === '11' && VEHICULO === 1 && REMITENTE === '+1' && DESTINATARIO === '+1' && BLOQUE_MERCANCIA === '+1' && SERVICIO === 'Consolidado') {
-//       if (ORIGEN_ARRAY.length > 0 && DESTINO_ARRAY.length > 0) {
-//         $('#origen_cliente' + cont + '').append('<option value="' + ORIGEN_ARRAY[0] + '" selected>' + ORIGEN_ARRAY[1] + '-' + '' + ORIGEN_ARRAY[2] + '' + '</option>');
-//         $('#destino_cliente' + cont + '').append('<option value="' + DESTINO_ARRAY[0] + '" selected>' + DESTINO_ARRAY[1] + '-' + '' + DESTINO_ARRAY[2] + '' + '</option>');
-
-//         // Inicializa Select2 en el select de origen
-//         $('#origen_cliente' + cont).select2({
-//           placeholder: 'Seleccione una opción', // Texto del placeholder
-//           allowClear: true, // Permite limpiar la selección
-//         });
-//         // Inicializa Select2 en el select de destino
-//         $('#destino_cliente' + cont).select2({
-//           placeholder: 'Seleccione una opción', // Texto del placeholder
-//           allowClear: true, // Permite limpiar la selección
-//         });
-
-//         // Inicializa Select2 en el select de origen
-//         $('#origen_sicetac' + cont).select2({
-//           placeholder: 'Seleccione una opción', // Texto del placeholder
-//           allowClear: true, // Permite limpiar la selección
-//         });
-
-//         // Inicializa Select2 en el select de destino
-//         $('#destino_sicetac' + cont).select2({
-//           placeholder: 'Seleccione una opción', // Texto del placeholder
-//           allowClear: true, // Permite limpiar la selección
-//         });
-//         // Agregar la cantidad de vehiculos
-//         document.querySelector(".cantvehiculo").value = 1;
-//         document.querySelector(".cantvehiculo").disabled = true;
-//       } else {
-//         data.forEach(function (element, index) {
-//           $('#origen_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + '' + element.depto + '' + '</option>');
-//           $('#destino_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '">' + element.municipio + '-' + '' + element.depto + '' + '</option>');
-//         });
-//         // Inicializa Select2 en el select de origen
-//         $('#origen_cliente' + cont).select2({
-//           placeholder: 'Seleccione una opción', // Texto del placeholder
-//           allowClear: true, // Permite limpiar la selección
-//         });
-//         // Inicializa Select2 en el select de destino
-//         $('#destino_cliente' + cont).select2({
-//           placeholder: 'Seleccione una opción', // Texto del placeholder
-//           allowClear: true, // Permite limpiar la selección
-//         });
-
-//         // Inicializa Select2 en el select de origen
-//         $('#origen_sicetac' + cont).select2({
-//           placeholder: 'Seleccione una opción', // Texto del placeholder
-//           allowClear: true, // Permite limpiar la selección
-//         });
-
-//         // Inicializa Select2 en el select de destino
-//         $('#destino_sicetac' + cont).select2({
-//           placeholder: 'Seleccione una opción', // Texto del placeholder
-//           allowClear: true, // Permite limpiar la selección
-//         });
-//       }
-//     } else {
-//       data.forEach(function (element, index) {
-//         $('#origen_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '" >' + element.municipio + '-' + '' + element.depto + '' + '</option>');
-//         $('#destino_cliente' + cont + '').append('<option value="' + element.rndc_codigo_ciudad + '" data-municipio="' + element.municipio + '" data-depto="' + element.depto + '" >' + element.municipio + '-' + '' + element.depto + '' + '</option>');
-//       });
-
-//       // Inicializa Select2 en el select de origen
-//       $('#origen_cliente' + cont).select2({
-//         placeholder: 'Seleccione una opción', // Texto del placeholder
-//         allowClear: true, // Permite limpiar la selección
-//       });
-
-//       // Inicializa Select2 en el select de destino
-//       $('#destino_cliente' + cont).select2({
-//         placeholder: 'Seleccione una opción', // Texto del placeholder
-//         allowClear: true, // Permite limpiar la selección
-//       });
-
-//       // Inicializa Select2 en el select de origen
-//       $('#origen_sicetac' + cont).select2({
-//         placeholder: 'Seleccione una opción', // Texto del placeholder
-//         allowClear: true, // Permite limpiar la selección
-//       });
-
-//       // Inicializa Select2 en el select de destino
-//       $('#destino_sicetac' + cont).select2({
-//         placeholder: 'Seleccione una opción', // Texto del placeholder
-//         allowClear: true, // Permite limpiar la selección
-//       });
-//     }
-//   } catch (error) {
-//     console.error('Error en la primera solicitud:', error);
-//     throw error;
-//   } finally {
-//   }
-// }
 
 async function Municipios(cont) {
   // Vaciar el contenido de los selects específicos usando el identificador dinámico
@@ -5093,11 +4176,8 @@ function Agrega_Remitente(cliente, origen) {
     i = i + 1;
     s = s + 1;
     if (s <= m) {
-      // var cl = $("#cliente").val();
       var cl = cliente;
-      // var clid = $("#id_cliente_ss").val();
       var idorigen = origen;
-      // var id_destino = $("#destino").val();
       if (s == 1) {
         activo = 'active';
         var cliente_datos = {
@@ -5112,10 +4192,6 @@ function Agrega_Remitente(cliente, origen) {
           origen: idorigen,
           action: 'cliente_puntos1'
         };
-        // var cliente_datos = {
-        //   cliente: cl,
-        //   action: 'cliente_puntos'
-        // };
       }
 
       $("#clientea" + s + "").html('');
@@ -5511,7 +4587,6 @@ function Cambia_Remitente(c) {
 function Cambia_Destinatario(c) {
 
   var remite = $("#clienteb" + c).val();
-
   if (remite != '') {
     var dato = {
       idremite: remite,
@@ -6918,6 +5993,98 @@ function Limpiar_formulario() {
   contador_global2 = 0;
   $("#maximo_entregab").val('');
   $("#escenarios").val('');
+}
+function Limpiar_formulario_cambio_escenario() {
+  $('#nit_empresa').val('');
+  $('#digito_verificacion').val('');
+  $('#direccion_cliente').val('');
+  $('#telefono_cliente').val('');
+  $('#procede_cliente').val('');
+  $('.idproducto').val('');
+  $('.rndcproducto').val('');
+  $('.tmerca').val('').trigger('change');
+  $('.natumer').val('');
+  $('.valor_merca').val('');
+  $('.ts').val('');
+  $('.empaquemer').val('').trigger('change');
+  $('.operamer').val('');
+  $('.ttransportemer').val('');
+  $('.cantvehi').val('');
+  $('.originario').val('').trigger('change');
+  $('.destinar').val('').trigger('change');
+  $('.tipovehiculo').val('');
+  $('.cantgastamer').val('');
+  $('.pesobruto').val('');
+  $('.pnetomer').val('');
+  $('.pesobrutoton').val('');
+  $('.cantidadmer').val('');
+  $('.altomer').val('');
+  $('.largomer').val('');
+  $('.anchomer').val('');
+  $('.volumenmer').val('');
+  $('.fletemer').val('');
+  $('.tarifamer').val('');
+  $('.utilmer').val('');
+  $('.rentamer').val('');
+  $('.observamer').val('');
+  $('.tiposerviespe').val('');
+  $('.cantiespec').val('');
+  $('.valoruni').val('');
+  $('.tarifaespe').val('');
+  $('.tcostoesp').val('');
+  $('.ttariesp').val('');
+  $('.tutiesp').val('');
+  $('.trenesp').val('');
+  $('.cantvehiculo').val('');
+  $('#observacion').val('');
+  $('#Tcosto_flete').val('');
+  $('#Tservicio_transporte').val('');
+  $('#Tutilidad').val('');
+  $('#Trentabilidad').val('');
+  $('#Tcosto_especial').val('');
+  $('#Ttarifa_especial').val('');
+  $('#Tutilidad_especial').val('');
+  $('#Trenta_especial').val('');
+  $('#Ttotal_cotizacion').val('');
+  $('#observacion').val('');
+  $('#identi').val('');
+  $('.observacion_general').val('');
+  $('#documento').val('');
+  $('#nombre_clientes').val('');
+  $('#correo').val('');
+  $('#tipo_documento').val('');
+  // $("#table_mercancia").html("");
+  // $("#table_especial").html("");
+  cont = 0;
+  con = 0;
+  //$("#nexos_messages_popup").toggle();
+  //$("#nexos_messages_confirmacion").toggle();
+  $('#nexos_messages_popup').html('');
+  $('#nexos_messages_confirmacion').html('');
+  // $("#tbl_cliente").empty();
+  $('.documento').empty();
+  $('.nombre').empty();
+  $('.ubicacion').empty();
+  $('.telefono').empty();
+  $('.correo').empty();
+  $('.tipo_documento').empty();
+  $('#tbl_mercancia tbody').empty();
+  $('#tbl_especiales tbody').empty();
+
+  //Limpiar remitentes y destinatarios
+  $("#remitentes_menu").empty();
+  $("#nav_contenedor").empty();
+  s = 0;
+  $("#destinatarios_menu").empty();
+  $("#accordion_destinatario").empty();
+  d = 0;
+  $("#agencia").val('');
+  $('#group').val('').trigger('change');
+  $('#houremail').val('').trigger('change');
+  $("#table_mercancia").empty();
+  contador_global2 = 0;
+  $("#maximo_entregab").val('');
+  // $("#escenarios").val('');
 }
 
 /* Fucion para renderizar el compoenente depues de gaurdar la solicitu de servicio */

@@ -28,6 +28,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script>
   // JavaScript para manejar el cambio de pestañas y "recargar" el formulario
@@ -73,8 +74,8 @@
         case '1':
           scripts = [
             // '<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js',
-            // '<?= BASE_URL ?>public/helpers/helpers.js',
             '<?= BASE_URL ?>views/serviciocliente/js/todos.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
           ];
           break;
 
@@ -83,7 +84,6 @@
             '<?= BASE_URL ?>views/serviciocliente/js/prioritarias.js',
             '<?= BASE_URL ?>public/helpers/helpers.js',
           ];
-          // console.log("HOLA DESDE EL CASO");
           break;
 
         case '4':
@@ -91,20 +91,18 @@
           break;
 
         case '5':
-          // scripts = ['<?= BASE_URL ?>views/serviciocliente/js/solicitudes.js'];
           scripts = ['<?= BASE_URL ?>views/serviciocliente/js/pendientes.js',
-            // '<?= BASE_URL ?>public/helpers/helpers.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
           ];
           break;
 
         case '8':
           scripts = ['<?= BASE_URL ?>/views/prefiltro_nacional/js/prefiltro_nacional.js',
-            // '<?= BASE_URL ?>public/helpers/helpers.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
           ];
           break;
 
         case '11':
-          // scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/prefiltro_nacional.js', '<?= BASE_URL ?>/views/prefiltro_nacional/js/prioritarias_operaciones.js'];
           scripts = [
             '<?= BASE_URL ?>/views/prefiltro_nacional/js/prioritarias_operaciones.js',
             '<?= BASE_URL ?>public/helpers/helpers.js',
@@ -113,19 +111,126 @@
 
         case '12':
           scripts = ['<?= BASE_URL ?>views/serviciocliente/js/en_curso.js',
-            // '<?= BASE_URL ?>public/helpers/helpers.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
           ];
-          // scripts = ['<?= BASE_URL ?>views/layout/assets/lib/serv_clientecotizaciones_ajax.js', '<?= BASE_URL ?>views/serviciocliente/js/en_curso.js'];
           break;
 
         case '13':
-          scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/pendientes_operaciones.js'];
-          // scripts = ['<?= BASE_URL ?>/views/prefiltro_nacional/js/prefiltro_nacional.js', '<?= BASE_URL ?>/views/prefiltro_nacional/js/pendientes_operaciones.js'];
+          scripts = [
+            '<?= BASE_URL ?>views/prefiltro_nacional/js/pendientes_operaciones.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
           break;
 
         case '14':
-          scripts = ['<?= BASE_URL ?>views/prefiltro_nacional/js/en_curso_operaciones.js'];
+          scripts = [
+            '<?= BASE_URL ?>views/prefiltro_nacional/js/en_curso_operaciones.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
           break;
+
+        case '16':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/js/administrador_pedidos.js',
+            '<?= BASE_URL ?>views/torrecontrol/js/helper_torre_control.js',
+          ];
+          break;
+
+        case '17':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/js/prioritarias_pedidos.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '18':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/js/pendientes_pedidos.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '19':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/js/en_curso_pedidos.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '21':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/js/nuevo_pedido.js'
+          ];
+          break;
+
+        case '22':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/proveedor_pedidos.js',
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/helper_proveedor_torre_control.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '23':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/proveedor_prioritarias.js',
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/helper_proveedor_torre_control.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '24':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/proveedor_pendientes.js',
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/helper_proveedor_torre_control.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '25':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/proveedor_en_curso.js',
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/helper_proveedor_torre_control.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '26':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/proveedor_completadas.js',
+            '<?= BASE_URL ?>views/torrecontrol/proveedor/js/helper_proveedor_torre_control.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '27':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/cliente/js/clientes_todos.js',
+            '<?= BASE_URL ?>views/torrecontrol/cliente/js/helper_cliente_torre_control.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '32':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/cliente/js/clientes_nuevo_pedido.js',
+            '<?= BASE_URL ?>views/torrecontrol/cliente/js/helper_cliente_torre_control.js',
+            // '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
+        case '34':
+          scripts = [
+            '<?= BASE_URL ?>views/parametros/proveedor/js/nuevo_proeevor.js'
+          ];
+          break;
+
+        case '35':
+          scripts = [
+            '<?= BASE_URL ?>views/parametros/proveedor/js/asignar_proveedor.js'
+          ];
+          break;
+
         default:
           console.log('Ventana no reconocida');
           return;

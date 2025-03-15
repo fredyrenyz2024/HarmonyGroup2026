@@ -3,8 +3,17 @@
 $url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 
 $parsedUrl = parse_url($url);
+
 $path = explode('/', $parsedUrl['path']); // Esto devuelve: /mvcLuisMiguel/serviciocliente/cotizaciones_nuevo
 // print_r($parsedUrl['path']);
+
+$pathParts = explode('/', trim($parsedUrl['path'], '/'));
+
+// Convertir todos los elementos del array a minúsculas
+$pathParts = array_map('strtolower', $pathParts);
+
+$desiredPart = $pathParts[1]; // Posición 1 corresponde a "torrecontrol"
+
 // Extraer la parte de la consulta (query)
 $query_string = parse_url($url, PHP_URL_QUERY);
 
@@ -110,7 +119,8 @@ if (!empty($submenu_encrypted)) : ?>
                 <!-- Contenedor de campos específico para esta ventana -->
                 <div class="card border border-body-secondary">
                   <div class="card-header p-1 bg-body-secondary d-flex justify-content-between align-items-center">
-                    <h6 class="card-title m-0" style="padding-left: 10px;">Pantalla de trabajo SAC <span style="color: #e5780b;"><?= $ventana['nombre'] ?></span></h6>
+                    <!-- <h6 class="card-title m-0" style="padding-left: 10px;">Pantalla de trabajo <?= $desiredPart ?> <span style="color: #e5780b;"><?= $ventana['nombre'] ?> </span> <?= isset($_SESSION['usuario']['razon_social']) || $_SESSION['usuario']['razon_social'] !== ""  ? ' - Proveedor -   <span style="color: #e5780b;">' . $_SESSION['usuario']['razon_social'] . '</span>'  : "" ?></h6> -->
+                    <h6 class="card-title m-0" style="padding-left: 10px;">Pantalla de trabajo <?= $desiredPart ?> <span style="color: #e5780b;"><?= $ventana['nombre'] ?> </span></h6>
                     <div id="contenedor-campo-<?= $ventana['id'] ?>" class="d-flex flex-nowrap gap-2">
                     </div>
                   </div>

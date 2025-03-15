@@ -29,7 +29,6 @@ class parametroModel extends Model
 		}
 	}
 
-
 	public function consulte_munipios_punto()
 	{
 		try {
@@ -400,5 +399,62 @@ class parametroModel extends Model
 		}
 
 		return $response;
+	}
+
+	/* Funcioesn de privedor */
+
+	public function Insertar_Proveedor_Torre_Control($datos)
+	{
+		try {
+			// session_start();
+			$empresa_id = $_SESSION['usuario']['empresa_id'] ?? null;
+			$nom_usuario = $_SESSION['usuario']['nom_usuario'] ?? null;
+
+			if (!$empresa_id) {
+				return ['status' => false, 'message' => 'No se encontró empresa_id en la sesión'];
+			}
+
+			// Iniciar la transacción
+			$this->_db3->beginTransaction();
+
+			// Validar si el NIT ya existe
+			$sqlVerificar = "SELECT COUNT(*) FROM cmx_proveedor_torre_control WHERE documento = :documento AND empresa_id = :empresa_id";
+			$stmtVerificar = $this->_db3->prepare($sqlVerificar);
+			$stmtVerificar->execute([
+				'documento' => $datos['documento'],
+				'empresa_id' => $empresa_id
+			]);
+
+			if ($stmtVerificar->fetchColumn() > 0) {
+				$this->_db3->rollBack(); // Deshacer cambios
+				return ['status' => false, 'message' => 'El NIT ya está registrado para esta empresa'];
+			}
+
+			// Insertar el proveedor
+			$sql = "INSERT INTO cmx_proveedor_torre_control 
+																	(tipo_documento, regimen, razon_social, documento, digito_verificacion, ciudad_id, direccion, telefono, correo, contacto, numero_contacto, estado_proveedor, usuario, fecha, hora, empresa_id) 
+																	VALUES 
+																	(:tipo_documento, :regimen, :razon_social, :documento, :digito_verificacion, :ciudad_id, :direccion, :telefono, :correo, :contacto, :numero_contacto, :estado_proveedor, :usuario, :fecha, :hora, :empresa_id)";
+
+			$stmt = $this->_db3->prepare($sql);
+
+			// Corregir asignación de usuario y empresa_id
+			$datos['usuario'] = $nom_usuario;
+			$datos['empresa_id'] = $empresa_id;
+
+			if ($stmt->execute($datos)) {
+				$this->_db3->commit(); // Confirmar la transacción
+				return ['status' => true, 'message' => 'Proveedor registrado exitosamente'];
+			} else {
+				$this->_db3->rollBack(); // Deshacer cambios si algo falla
+				return ['status' => false, 'message' => 'Error al registrar el proveedor'];
+			}
+		} catch (PDOException $e) {
+			$this->_db3->rollBack(); // Deshacer cambios en caso de error
+			return ['status' => false, 'message' => 'Error en la base de datos: ' . $e->getMessage()];
+		} catch (Exception $e) {
+			$this->_db3->rollBack();
+			return ['status' => false, 'message' => 'Error inesperado: ' . $e->getMessage()];
+		}
 	}
 }

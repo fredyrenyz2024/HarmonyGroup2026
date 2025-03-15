@@ -1629,27 +1629,27 @@ switch ($_REQUEST['action']) {
         }
         break;
 
-    // case 'solicitud_servicio':  
-    //     $soli_servi = $_REQUEST["soli_servi"];
-    //     $sql = "SELECT s.*, a.nombre,pe.fecha_estimada_entrega AS fecha_cargue,pe.hora_estimada AS hora_cargue,
-    //     rm.nombre AS remitente, des.nombre AS destinatario, ds.fecha_estimada_entrega AS fecha_descargue,
-    //      ds.hora_estimada AS hora_descargue, pe.id_punto AS punto_rem, ds.id_punto AS punto_des,s.numero_contenedor,s.agrupable,ds.observacion,s.escenario_id
-    //     FROM cmx_solicitud_vehiculo2  s
-    //     INNER JOIN cmx_agencias a ON s.agencia=a.id
-    //     INNER JOIN cmx_ruta_puntosentrega pe ON s.nundoc_solicitud=pe.cod_ini_ruta
-    //     INNER JOIN cmx_remitente_destinatario rm ON pe.cliente=rm.id
-    //     LEFT JOIN  cmx_destinatarios_ss ds ON pe.cod_ini_ruta=ds.solicitud_servicio
-    //    -- AND  pe.id_punto=ds.id_punto
-    //     LEFT JOIN cmx_remitente_destinatario des ON ds.cliente=des.id
-        
-    //     WHERE s.nundoc_solicitud=" . $soli_servi;
-    //     $result = $Data->getConsulta($sql);
-    //     if ($result > 1) {
-    //         $return["result"] = $result["rowsData"];
-    //     } else {
-    //         $return["result"] = $result;
-    //     }
-    //     break;
+        // case 'solicitud_servicio':  
+        //     $soli_servi = $_REQUEST["soli_servi"];
+        //     $sql = "SELECT s.*, a.nombre,pe.fecha_estimada_entrega AS fecha_cargue,pe.hora_estimada AS hora_cargue,
+        //     rm.nombre AS remitente, des.nombre AS destinatario, ds.fecha_estimada_entrega AS fecha_descargue,
+        //      ds.hora_estimada AS hora_descargue, pe.id_punto AS punto_rem, ds.id_punto AS punto_des,s.numero_contenedor,s.agrupable,ds.observacion,s.escenario_id
+        //     FROM cmx_solicitud_vehiculo2  s
+        //     INNER JOIN cmx_agencias a ON s.agencia=a.id
+        //     INNER JOIN cmx_ruta_puntosentrega pe ON s.nundoc_solicitud=pe.cod_ini_ruta
+        //     INNER JOIN cmx_remitente_destinatario rm ON pe.cliente=rm.id
+        //     LEFT JOIN  cmx_destinatarios_ss ds ON pe.cod_ini_ruta=ds.solicitud_servicio
+        //    -- AND  pe.id_punto=ds.id_punto
+        //     LEFT JOIN cmx_remitente_destinatario des ON ds.cliente=des.id
+
+        //     WHERE s.nundoc_solicitud=" . $soli_servi;
+        //     $result = $Data->getConsulta($sql);
+        //     if ($result > 1) {
+        //         $return["result"] = $result["rowsData"];
+        //     } else {
+        //         $return["result"] = $result;
+        //     }
+        //     break;
 
     case 'Consultar_grupo':
 
@@ -2056,122 +2056,80 @@ switch ($_REQUEST['action']) {
 
         break;
 
-    case 'consulta_datos_subasta':
+        // case 'consulta_datos_subasta':
 
-        $n_servicio = $_POST["n_servicio"];
+        //     $n_servicio = $_POST["n_servicio"];
 
-        $sql = "
+        //     $sql = "
 
-			SELECT a.num_estudioseguridad, a.placa, a.flete_sugerido, a.flete_propuesto,
+        // 		SELECT a.num_estudioseguridad, a.placa, a.flete_sugerido, a.flete_propuesto,
 
-			ss.numer_solservicio, ser.nombre_cliente, d.total_tarifa, b.estado,a.id_suba, a.id as idflete, b.id as idestadoflete,
+        // 		ss.numer_solservicio, ser.nombre_cliente, d.total_tarifa, b.estado,a.id_suba, a.id as idflete, b.id as idestadoflete,
 
-			d.id as parejaorigen, b.acepta_flete, a.tarifa_promedio
+        // 		d.id as parejaorigen, b.acepta_flete, a.tarifa_promedio
 
-			FROM cmx_subasta_flete a
+        // 		FROM cmx_subasta_flete a
 
-			INNER JOIN cmx_estado_subasta_flete b
+        // 		INNER JOIN cmx_estado_subasta_flete b
 
-			ON a.id=b.id_suba_flete
+        // 		ON a.id=b.id_suba_flete
 
-			AND b.estado IN('pendiente_aprobacion','aprueba_flete_sac','no_aprueba_ge')
+        // 		AND b.estado IN('pendiente_aprobacion','aprueba_flete_sac','no_aprueba_ge')
 
-			INNER JOIN cmx_subasta_solicitud_servicio ss
+        // 		INNER JOIN cmx_subasta_solicitud_servicio ss
 
-			ON a.id_suba_servicio=ss.id
+        // 		ON a.id_suba_servicio=ss.id
 
-			LEFT JOIN cmx_solicitud_vehiculo2 ser
+        // 		LEFT JOIN cmx_solicitud_vehiculo2 ser
 
-			ON ss.numer_solservicio=ser.nundoc_solicitud
+        // 		ON ss.numer_solservicio=ser.nundoc_solicitud
 
-			LEFT JOIN cmx_detalle_mercancia2 d
+        // 		LEFT JOIN cmx_detalle_mercancia2 d
 
-			ON ser.idpareja_origen_destino=d.id
+        // 		ON ser.idpareja_origen_destino=d.id
 
-			WHERE ss.numer_solservicio=" . $n_servicio;
+        // 		WHERE ss.numer_solservicio=" . $n_servicio;
 
-        $result = $Data->getConsulta($sql);
+        //     $result = $Data->getConsulta($sql);
 
-        if ($result > 1) {
-            $return["result"] = $result["rowsData"];
-        } else {
-            $return["result"] = $result;
-        }
+        //     if ($result > 1) {
+        //         $return["result"] = $result["rowsData"];
+        //     } else {
+        //         $return["result"] = $result;
+        //     }
 
-        break;
+        //     break;
 
     case 'Aprueba_Sac':
 
-        $user = $_SESSION["usuario"]["nom_usuario"];
-
-        $hora = date('H:i:s');
-
-        $fecha = date('Y-m-d');
-
-        $sidflete = $_POST["sidflete"];
-
-        $subasta = $_POST["subasta"];
-
-        $tarifa = $_POST["tarifa"];
-
-        $estado = $_POST["estado"];
-
-        $idpareja = $_POST["idpareja"];
-
-        $responsable = $fecha . ' ' . $hora . ' ' . $user;
+        // $user = $_SESSION["usuario"]["nom_usuario"];
+        // $hora = date('H:i:s');
+        // $fecha = date('Y-m-d');
+        // $sidflete = $_POST["sidflete"];
+        // $subasta = $_POST["subasta"];
+        // $tarifa = $_POST["tarifa"];
+        // $estado = $_POST["estado"];
+        // $idpareja = $_POST["idpareja"];
+        // $responsable = $fecha . ' ' . $hora . ' ' . $user;
 
         //update en el campo nuevo de estado estado_sac
-
         //insert en el campo nuevo de detalle de mercancia
-
         // tarifa_subasta  responsable
 
         if ($_POST["estado"] == 'aprobado_sac') {
-
             $sql8 = "INSERT INTO cmx_operacion_subasta(id,n_subasta,flete_ganador,tarifa_ganador,fecha,hora,usuario,area,estado_letra)
-
 				VALUES(null,$subasta,'" . $sidflete . "','" . $tarifa . "','" . $fecha . "','" . $hora . "','" . $user . "','SAC','Ganador')";
-
             $resultm = $Data->ejecuteRegistro($sql8);
-
             $sql = "UPDATE cmx_estado_subasta_flete ef
-
-			INNER JOIN cmx_subasta_flete sf
-
-			ON ef.id_suba_flete=sf.id
-
-			SET
-
-			ef.estado_sac='aprobado_sac',
-
-			ef.estado_final='Ganador',
-
-			ef.estado='Ganador',
-
-			sf.tarifa_promedio='" . $tarifa . "'
-
-			WHERE ef.id_suba_flete=" . $sidflete;
+			INNER JOIN cmx_subasta_flete sf ON ef.id_suba_flete=sf.id
+			SET ef.estado_sac='aprobado_sac', ef.estado_final='Ganador', ef.estado='Ganador', sf.tarifa_promedio='" . $tarifa . "' WHERE ef.id_suba_flete=" . $sidflete;
 
             $result3 = $Data->ejecuteRegistro($sql);
 
             if ($result3) {
-
-                $sql2 = "UPDATE cmx_detalle_mercancia2
-
-				SET tarifa_subasta='" . $tarifa . "',
-
-				responsable_ts='" . $responsable . "'
-
-				WHERE id=" . $idpareja;
-
+                $sql2 = "UPDATE cmx_detalle_mercancia2 SET tarifa_subasta='" . $tarifa . "', responsable_ts='" . $responsable . "' WHERE id=" . $idpareja;
                 $result = $Data->ejecuteRegistro($sql2);
-
-                $sql4 = "UPDATE cmx_solicitud_vehiculo2
-
-				SET estado_secundario='Ganador'
-
-				WHERE idpareja_origen_destino=" . $idpareja;
-
+                $sql4 = "UPDATE cmx_solicitud_vehiculo2 SET estado_secundario='Ganador' WHERE idpareja_origen_destino=" . $idpareja;
                 $result4 = $Data->ejecuteRegistro($sql4);
             }
         }
@@ -2179,45 +2137,19 @@ switch ($_REQUEST['action']) {
         if ($_POST["estado"] == 'no_aprobado_sac') {
 
             $sql8 = "INSERT INTO cmx_operacion_subasta(id,n_subasta,flete_ganador,tarifa_ganador,fecha,hora,usuario,area,estado_letra)
-
-				VALUES(null,$subasta,'" . $sidflete . "','" . $tarifa . "','" . $fecha . "','" . $hora . "','" . $user . "','SAC','pendiente_aprobacion_ge')";
-
+				    VALUES(null,$subasta,'" . $sidflete . "','" . $tarifa . "','" . $fecha . "','" . $hora . "','" . $user . "','SAC','pendiente_aprobacion_ge')";
             $resultm = $Data->ejecuteRegistro($sql8);
 
             $sql = "UPDATE cmx_estado_subasta_flete ef
-
-			INNER JOIN cmx_subasta_flete sf
-
-			ON ef.id_suba_flete=sf.id
-
-			SET ef.estado_sac='no_aprobado_sac',
-
-			ef.estado='pendiente_aprobacion_ge',
-
-			sf.tarifa_promedio='" . $tarifa . "'
-
-			WHERE ef.id_suba_flete=" . $sidflete;
+			INNER JOIN cmx_subasta_flete sf ON ef.id_suba_flete=sf.id
+			SET ef.estado_sac='no_aprobado_sac', ef.estado='pendiente_aprobacion_ge', sf.tarifa_promedio='" . $tarifa . "' WHERE ef.id_suba_flete=" . $sidflete;
 
             $result3 = $Data->ejecuteRegistro($sql);
 
             if ($result3) {
-
-                $sql2 = "UPDATE cmx_detalle_mercancia2
-
-				SET tarifa_subasta='" . $tarifa . "',
-
-				responsable_ts='" . $responsable . "'
-
-				WHERE id=" . $idpareja;
-
+                $sql2 = "UPDATE cmx_detalle_mercancia2 SET tarifa_subasta='" . $tarifa . "', responsable_ts='" . $responsable . "' WHERE id=" . $idpareja;
                 $result = $Data->ejecuteRegistro($sql2);
-
-                $sql4 = "UPDATE cmx_solicitud_vehiculo2
-
-					SET estado_secundario='pendiente_aprobacion_gerencia'
-
-					WHERE idpareja_origen_destino=" . $idpareja;
-
+                $sql4 = "UPDATE cmx_solicitud_vehiculo2 SET estado_secundario='pendiente_aprobacion_gerencia' WHERE idpareja_origen_destino=" . $idpareja;
                 $result4 = $Data->ejecuteRegistro($sql4);
             }
         }
@@ -2435,76 +2367,76 @@ switch ($_REQUEST['action']) {
 
         break;
 
-    case 'respuesta_flete':
+        // case 'respuesta_flete':
 
-        $flete_propu = $_POST["flete_propu"];
+        //     $flete_propu = $_POST["flete_propu"];
 
-        $tarifa_pro = $_POST["tarifa_pro"];
+        //     $tarifa_pro = $_POST["tarifa_pro"];
 
-        $utilidad = $_POST["utilidad"];
+        //     $utilidad = $_POST["utilidad"];
 
-        $rentabili = $_POST["rentabili"];
+        //     $rentabili = $_POST["rentabili"];
 
-        $subasta = $_POST["subasta"];
+        //     $subasta = $_POST["subasta"];
 
-        $estado = $_POST["estado"];
+        //     $estado = $_POST["estado"];
 
-        $sidflete = $_POST["sidflete"];
+        //     $sidflete = $_POST["sidflete"];
 
-        $user = $_SESSION["usuario"]["nom_usuario"];
+        //     $user = $_SESSION["usuario"]["nom_usuario"];
 
-        $servicio = $_POST["nservicio"];
+        //     $servicio = $_POST["nservicio"];
 
-        $hora = date('H:i:s');
+        //     $hora = date('H:i:s');
 
-        $fecha = date('Y-m-d');
+        //     $fecha = date('Y-m-d');
 
-        if ($_POST["estado"] == 1) {
+        //     if ($_POST["estado"] == 1) {
 
-            $statu = 'Aceptado';
+        //         $statu = 'Aceptado';
 
-            $estado = 'aprueba_flete_sac';
-        } else {
+        //         $estado = 'aprueba_flete_sac';
+        //     } else {
 
-            $statu = 'No aceptado';
+        //         $statu = 'No aceptado';
 
-            $estado = 'no_aprueba_flete_sac';
-        }
+        //         $estado = 'no_aprueba_flete_sac';
+        //     }
 
-        $sql = "INSERT INTO cmx_operacion_subasta(id,n_subasta,flete_ganador,tarifa_ganador,rentabilidad,utilidad,estado,fecha,hora,usuario,area,estado_letra)
+        //     $sql = "INSERT INTO cmx_operacion_subasta(id,n_subasta,flete_ganador,tarifa_ganador,rentabilidad,utilidad,estado,fecha,hora,usuario,area,estado_letra)
 
-		VALUES(null,'" . $subasta . "','" . $flete_propu . "','" . $tarifa_pro . "','" . $rentabili . "','" . $utilidad . "','" . $estado . "','" . $fecha . "','" . $hora . "','" . $user . "','SAC','" . $estado . "')";
+        // 	VALUES(null,'" . $subasta . "','" . $flete_propu . "','" . $tarifa_pro . "','" . $rentabili . "','" . $utilidad . "','" . $estado . "','" . $fecha . "','" . $hora . "','" . $user . "','SAC','" . $estado . "')";
 
-        $result = $Data->ejecuteRegistro($sql);
+        //     $result = $Data->ejecuteRegistro($sql);
 
-        if ($result) {
+        //     if ($result) {
 
-            //actualizar estado en subasta
+        //         //actualizar estado en subasta
 
-            $sql2 = "UPDATE cmx_estado_subasta_flete
+        //         $sql2 = "UPDATE cmx_estado_subasta_flete
 
-				SET acepta_flete='" . $statu . "',
+        // 			SET acepta_flete='" . $statu . "',
 
-				estado='" . $estado . "'
+        // 			estado='" . $estado . "'
 
-			WHERE id_suba='" . $subasta . "' AND
+        // 		WHERE id_suba='" . $subasta . "' AND
 
-			id_suba_flete=" . $sidflete;
+        // 		id_suba_flete=" . $sidflete;
 
-            $result2 = $Data->ejecuteRegistro($sql2);
+        //         $result2 = $Data->ejecuteRegistro($sql2);
 
-            //Actualizar estado en sac
+        //         //Actualizar estado en sac
 
-            $sql3 = "UPDATE cmx_solicitud_vehiculo2
+        //         $sql3 = "UPDATE cmx_solicitud_vehiculo2
 
-			SET estado_secundario='" . $estado . "'
+        // 		SET estado_secundario='" . $estado . "'
 
-			WHERE nundoc_solicitud=" . $servicio;
+        // 		WHERE nundoc_solicitud=" . $servicio;
 
-            $result3 = $Data->ejecuteRegistro($sql3);
-        }
+        //         $result3 = $Data->ejecuteRegistro($sql3);
+        //     }
 
-        break;
+        //     break;
 
     case 'cantidad_solicitud':
 

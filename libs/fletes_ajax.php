@@ -528,9 +528,6 @@ switch ($_GET["action"]) {
 		$fecha = date('Y-m-d');
 		$hora = date('G:i:s');
 		try {
-			// Suponiendo que aquí ya tienes tu conexión en la variable $PDO:
-			// $PDO = $Data2->conectar();
-
 			// 1) Leemos el JSON
 			$data = file_get_contents("php://input");
 			$rows = json_decode($data, true);

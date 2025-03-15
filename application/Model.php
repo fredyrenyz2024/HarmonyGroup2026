@@ -1287,47 +1287,86 @@ class Model
 	}
 
 	/***** Funciones con monedas internacionales *****/
+	// public function getTrmHoy()
+	// {
+	// 	$sql = 'SELECT * FROM cmx_monedas cm
+	// 					INNER JOIN cmx_monedas_trm cmt ON cmt.id_moneda = cm.id
+	// 					WHERE cmt.fecha = "' . date("Y-m-d", time()) . '"';
+	// 	// $result = $this->_db->getConsulta($sql);
+	// 	$result = $this->_db3->prepare($sql);
+	// 	$result->execute();
+	// 	$result = $result->fetch(PDO::FETCH_ASSOC);
+
+	// 	$return = '<h4 class="text-danger text-center">No hay TRM registradas para hoy.</h4>';
+	// 	if ($result) {
+	// 		$return = '
+	// 				<table class="table table-striped table-hover">
+	// 					<thead>
+	// 						<tr>
+	// 							<th colspan="2" class="text-center">TRM - ' . date("Y-m-d", time()) . '</th>
+	// 						</tr>
+	// 					</thead>
+	// 					<tbody>
+	// 			';
+
+	// 		foreach ($result as $key => $value) {
+	// 			$return .= '
+	// 					<tr>
+	// 						<td class="cell-detail">
+	// 							<span>' . $value["nom_moneda"] . ' (' . $value["codigo"] . ')</span>
+	// 						</td>
+	// 						<td class="cell-detail text-right">
+	// 							<span>$' . number_format($value["valor"], 2, ',', '.') . '</span>
+	// 						</td>
+	// 					</tr>
+	// 				';
+	// 		}
+	// 		$return .= '
+	// 					</tbody>
+	// 				</table>
+	// 			';
+	// 	}
+	// 	return $return;
+	// }
+
+
 	public function getTrmHoy()
 	{
 		$sql = 'SELECT * FROM cmx_monedas cm
-						INNER JOIN cmx_monedas_trm cmt ON cmt.id_moneda = cm.id
-						WHERE cmt.fecha = "' . date("Y-m-d", time()) . '"';
-		// $result = $this->_db->getConsulta($sql);
-		$result = $this->_db3->prepare($sql);
-		$result->execute();
-		$result = $result->fetch(PDO::FETCH_ASSOC);
+                INNER JOIN cmx_monedas_trm cmt ON cmt.id_moneda = cm.id
+                WHERE cmt.fecha = :fecha';
 
-		$return = '<h4 class="text-danger text-center">No hay TRM registradas para hoy.</h4>';
-		if ($result) {
-			$return = '
-					<table class="table table-striped table-hover">
-						<thead>
-							<tr>
-								<th colspan="2" class="text-center">TRM - ' . date("Y-m-d", time()) . '</th>
-							</tr>
-						</thead>
-						<tbody>
-				';
+		$stmt = $this->_db3->prepare($sql);
+		$stmt->execute(['fecha' => date("Y-m-d")]);
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC); // Obtiene todas las filas
 
-			foreach ($result as $key => $value) {
-				$return .= '
-						<tr>
-							<td class="cell-detail">
-								<span>' . $value["nom_moneda"] . ' (' . $value["codigo"] . ')</span>
-							</td>
-							<td class="cell-detail text-right">
-								<span>$' . number_format($value["valor"], 2, ',', '.') . '</span>
-							</td>
-						</tr>
-					';
-			}
-			$return .= '
-						</tbody>
-					</table>
-				';
+		if (!$result) {
+			return '<h4 class="text-danger text-center">No hay TRM registradas para hoy.</h4>';
 		}
+
+		$return = '<table class="table table-striped table-hover">
+                   <thead>
+                       <tr>
+                           <th colspan="2" class="text-center">TRM - ' . date("Y-m-d") . '</th>
+                       </tr>
+                   </thead>
+                   <tbody>';
+
+		foreach ($result as $row) {
+			$return .= '<tr>
+                        <td class="cell-detail">
+                            <span>' . htmlspecialchars($row["nom_moneda"]) . ' (' . htmlspecialchars($row["codigo"]) . ')</span>
+                        </td>
+                        <td class="cell-detail text-right">
+                            <span>$' . number_format($row["valor"], 2, ',', '.') . '</span>
+                        </td>
+                    </tr>';
+		}
+
+		$return .= '</tbody></table>';
 		return $return;
 	}
+
 
 	public function getTrmHoyFacturas()
 	{

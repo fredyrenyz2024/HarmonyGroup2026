@@ -813,12 +813,8 @@ class validacionparametrosController extends Controller
                     if ($_POST["poseedor_check"] === "true") {
                         $poseedor_check = true;
                         $tipo_posee = true;
-                        //$tipo_posee = "";
-                        //$poseedor_check = false;
                         $nombre_poseedor = $_POST["nombre_poseedor"];
-                        // $nombre_poseedor = "";
                         $docu_posee = $_POST["docu_posee"];
-                        //$docu_posee = "";
                     } else {
                         $tipo_posee = false;
                         $nombre_poseedor = "";
@@ -826,151 +822,31 @@ class validacionparametrosController extends Controller
                     }
                     //conductor
                     if ($_POST["conductor_check"] === "true") {
-
-                        if (isset($_POST["conductor_check"]) == true) {
-                            $conductor_check = $_POST["conductor_check"];
-                        } else {
-                            $conductor_check = false;
-                        }
-
-                        $tipo_condu = $_POST["tipo_condu"];
-                        if (isset($_POST["nombre_conductor"])) {
-                            $nombre_conductor = $_POST["nombre_conductor"];
-                        } else {
-                            $nombre_conductor = "";
-                        }
-
-                        if (isset($_POST["docu_condu"])) {
-                            $docu_condu = $_POST["docu_condu"];
-                        } else {
-                            $docu_condu = "";
-                        }
-
-                        if (isset($_POST["refe1"])) {
-                            $refe1 = $_POST["refe1"];
-                        } else {
-                            $refe1 = "";
-                        }
-
-                        if (isset($_POST["contacto1"])) {
-                            $contacto1 = $_POST["contacto1"];
-                        } else {
-                            $contacto1 = "";
-                        }
-
-                        if (isset($_POST["celular1"])) {
-                            $celular1 = $_POST["celular1"];
-                        } else {
-                            $celular1 = "";
-                        }
-
-                        if (isset($_POST["cargo1"])) {
-                            $cargo1 = $_POST["cargo1"];
-                        } else {
-                            $cargo1 = "";
-                        }
-
-                        if (isset($_POST["fechaa1"])) {
-                            $fechaa1 = $_POST["fechaa1"];
-                        } else {
-                            $fechaa1 = "";
-                        }
-
-                        if (isset($_POST["fechaa2"])) {
-                            $fechaa2 = $_POST["fechaa2"];
-                        } else {
-                            $fechaa2 = "";
-                        }
-
-                        if (isset($_POST["anti1"])) {
-                            $anti1 = $_POST["anti1"];
-                        } else {
-                            $anti1 = "";
-                        }
-
-                        if (isset($_POST["refe2"])) {
-                            $refe2 = $_POST["refe2"];
-                        } else {
-                            $refe2 = "";
-                        }
-
-                        if (isset($_POST["contacto2"])) {
-                            $contacto2 = $_POST["contacto2"];
-                        } else {
-                            $contacto2 = "";
-                        }
-
-                        if (isset($_POST["celular2"])) {
-                            $celular2 = $_POST["celular2"];
-                        } else {
-                            $celular2 = "";
-                        }
-
-                        if (isset($_POST["cargo2"])) {
-                            $cargo2 = $_POST["cargo2"];
-                        } else {
-                            $cargo2 = "";
-                        }
-
-                        if (isset($_POST["fechab1"])) {
-                            $fechab1 = $_POST["fechab1"];
-                        } else {
-                            $fechab1 = "";
-                        }
-
-                        if (isset($_POST["fechab2"])) {
-                            $fechab2 = $_POST["fechab2"];
-                        } else {
-                            $fechab2 = "";
-                        }
-
-                        if (isset($_POST["anti2"])) {
-                            $anti2 = $_POST["anti2"];
-                        } else {
-                            $anti2 = "";
-                        }
-
-                        if (isset($_POST["refe3"])) {
-                            $refe3 = $_POST["refe3"];
-                        } else {
-                            $refe3 = "";
-                        }
-
-                        if (isset($_POST["contacto3"])) {
-                            $contacto3 = $_POST["contacto3"];
-                        } else {
-                            $contacto3 = "";
-                        }
-
-                        if (isset($_POST["celular3"])) {
-                            $celular3 = $_POST["celular3"];
-                        } else {
-                            $celular3 = "";
-                        }
-
-                        if (isset($_POST["cargo3"])) {
-                            $cargo3 = $_POST["cargo3"];
-                        } else {
-                            $cargo3 = "";
-                        }
-
-                        if (isset($_POST["fechac1"])) {
-                            $fechac1 = $_POST["fechac1"];
-                        } else {
-                            $fechac1 = "";
-                        }
-
-                        if (isset($_POST["fechac2"])) {
-                            $fechac2 = $_POST["fechac2"];
-                        } else {
-                            $fechac2 = "";
-                        }
-
-                        if (isset($_POST["anti3"])) {
-                            $anti3 = $_POST["anti3"];
-                        } else {
-                            $anti3 = "";
-                        }
+                        $conductor_check = isset($_POST["conductor_check"]) ? $_POST["conductor_check"] : false;
+                        $tipo_condu = $_POST["tipo_condu"] ?? "";
+                        $nombre_conductor = $_POST["nombre_conductor"] ?? "";
+                        $docu_condu = $_POST["docu_condu"] ?? "";
+                        $refe1 = $_POST["refe1"] ?? "";
+                        $contacto1 = $_POST["contacto1"] ?? "";
+                        $celular1 = $_POST["celular1"] ?? "";
+                        $cargo1 = $_POST["cargo1"] ?? "";
+                        $fechaa1 = $_POST["fechaa1"] ?? "";
+                        $fechaa2 = $_POST["fechaa2"] ?? "";
+                        $anti1 = $_POST["anti1"] ?? "";
+                        $refe2 = $_POST["refe2"] ?? "";
+                        $contacto2 = $_POST["contacto2"] ?? "";
+                        $celular2 = $_POST["celular2"] ?? "";
+                        $cargo2 = $_POST["cargo2"] ?? "";
+                        $fechab1 = $_POST["fechab1"] ?? "";
+                        $fechab2 = $_POST["fechab2"] ?? "";
+                        $anti2 = $_POST["anti2"] ?? "";
+                        $refe3 = $_POST["refe3"] ?? "";
+                        $contacto3 = $_POST["contacto3"] ?? "";
+                        $celular3 = $_POST["celular3"] ?? "";
+                        $cargo3 = $_POST["cargo3"] ?? "";
+                        $fechac1 = $_POST["fechac1"] ?? "";
+                        $fechac2 = $_POST["fechac2"] ?? "";
+                        $anti3 = $_POST["anti3"] ?? "";
                     } else {
                         $conductor_check = false;
                         $tipo_condu = "";
@@ -1000,36 +876,12 @@ class validacionparametrosController extends Controller
                     }
                     //vehiculo
                     if (isset($_POST["vehi_check"]) === "true") {
-                        if (isset($_POST["vehi_check"]) == true) {
-                            $vehi_check = $_POST["vehi_check"];
-                        } else {
-                            $vehi_check = false;
-                        }
-                        if (isset($_POST["tipo_veh"])) {
-                            $tipo_veh = $_POST["tipo_veh"];
-                        } else {
-                            $tipo_veh = "";
-                        }
-                        if (isset($_POST["placa_vehiculo"])) {
-                            $placa_vehiculo = $_POST["placa_vehiculo"];
-                        } else {
-                            $placa_vehiculo = "";
-                        }
-                        if (isset($_POST["satelital"])) {
-                            $satelital = $_POST["satelital"];
-                        } else {
-                            $satelital = "";
-                        }
-                        if (isset($_POST["url_satelital"])) {
-                            $url_satelital = $_POST["url_satelital"];
-                        } else {
-                            $url_satelital = "";
-                        }
-                        if (isset($_POST["clave_satelital"])) {
-                            $clave_satelital = $_POST["clave_satelital"];
-                        } else {
-                            $clave_satelital = "";
-                        }
+                        $vehi_check = isset($_POST["vehi_check"]) ? $_POST["vehi_check"] : false;
+                        $tipo_veh = $_POST["tipo_veh"] ?? "";
+                        $placa_vehiculo = $_POST["placa_vehiculo"] ?? "";
+                        $satelital = $_POST["satelital"] ?? "";
+                        $url_satelital = $_POST["url_satelital"] ?? "";
+                        $clave_satelital = $_POST["clave_satelital"] ?? "";
                     } else {
                         $vehi_check = false;
                         $tipo_veh = "";
@@ -1041,26 +893,10 @@ class validacionparametrosController extends Controller
 
                     //trailer
                     if ($_POST["trailer_check"] === "true") {
-                        if (isset($_POST["trailer_check"]) == true) {
-                            $trailer_check = $_POST["trailer_check"];
-                        } else {
-                            $trailer_check = false;
-                        }
-                        if (isset($_POST["placa_trailer"])) {
-                            $placa_trailer = $_POST["placa_trailer"];
-                        } else {
-                            $placa_trailer = "";
-                        }
-                        if (isset($_POST["propi_trailer"])) {
-                            $propi_trailer = $_POST["propi_trailer"];
-                        } else {
-                            $propi_trailer = "";
-                        }
-                        if (isset($_POST["propidoc_trailer"])) {
-                            $propidoc_trailer = $_POST["propidoc_trailer"];
-                        } else {
-                            $propidoc_trailer = "";
-                        }
+                        $trailer_check = isset($_POST["trailer_check"]) ? $_POST["trailer_check"] : false;
+                        $placa_trailer = $_POST["placa_trailer"] ?? "";
+                        $propi_trailer = $_POST["propi_trailer"] ?? "";
+                        $propidoc_trailer = $_POST["propidoc_trailer"] ?? "";
                     } else {
                         $trailer_check = false;
                         $placa_trailer = "";
@@ -1068,7 +904,7 @@ class validacionparametrosController extends Controller
                         $propidoc_trailer = "";
                     }
 
-                    $datos_nuevos = array(
+                    $datos_nuevos = [
                         "propietario_check" => $propietario_check,
                         "tipo_propi" => $tipo_propi,
                         "nombre_propietario" => $nombre_propietario,
@@ -1111,7 +947,7 @@ class validacionparametrosController extends Controller
                         "placa_trailer" => $placa_trailer,
                         "propi_trailer" => $propi_trailer,
                         "propidoc_trailer" => $propidoc_trailer,
-                    );
+                    ];
                 }
             }
         } else {
@@ -1137,7 +973,6 @@ class validacionparametrosController extends Controller
             "nuevo_recurso" => isset($_POST["nuevos_recursos"]) ? $_POST["nuevos_recursos"] : "",
             "papeles" => isset($papeles) ? $papeles : $_POST["papeles"],
             'archivos' => isset($archivos) ? $archivos : '',
-            // 'archivos' => $archivos
         );
         $this->crear_estudio = $this->_modelo->Insert_estudio($datos, $datos_nuevos);
         echo json_encode($this->crear_estudio);

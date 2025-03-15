@@ -872,7 +872,7 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 
 						// Filtro del vista del las fechas de ejecucion del modulo
 						$celda_fechas = '
-								<td data-toggle="modal" data-target="#info_tiempo_' . $value[0] . '" class="cell-detail md-trigger">
+								<td data-toggle="modal" data-target="#info_tiempo_' . $value['id'] . '" class="cell-detail md-trigger">
 									<span>Creado</span>
 									<span class="cell-detail-description">' . $value["fecha_creacion"] . '</span>
 								</td>
@@ -3621,6 +3621,10 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 									// Busco los Seguimeintos de la actividad 
 									$array_seguimientos = $this->importacion->getSeguimientoActividad($id_actividad);
 
+									// print_r("<pre>");
+									// print_r($array_seguimientos);
+									// print_r("</pre>");
+
 									$inicial_seguimientos = '
 											<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
 												<div class="icon">
@@ -3657,6 +3661,11 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 																<tbody>
 											';
 										foreach ($array_seguimientos["seguimientos"] as $key_seguimientos => $value_seguimientos) {
+
+											// print_r("<pre>");
+											// print_r($value_seguimientos);
+											// print_r("</pre>");
+
 											$_url_seguimiento = '';
 											if ($value_seguimientos["url"]) {
 												$_url_seguimiento = '
@@ -3669,8 +3678,8 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 											}
 
 											$cant_comentarios = 0;
-											if (isset($array_seguimientos["comentarios"][$value_seguimientos[0]])) {
-												$cant_comentarios = COUNT($array_seguimientos["comentarios"][$value_seguimientos[0]]);
+											if (isset($array_seguimientos["comentarios"][$value_seguimientos["id"]])) {
+												$cant_comentarios = COUNT($array_seguimientos["comentarios"][$value_seguimientos["id"]]);
 											}
 
 
@@ -3741,7 +3750,7 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 																		<input type="hidden" name="tipo_actividad" value="' . $value["tipo_actividad"] . '">
 																		<input type="hidden" name="id_usuario" value="' . $ssn_id_usuario . '">
 																		<input type="hidden" name="id_actividad" value="' . $value_seguimientos["id_actividad"] . '">
-																		<input type="hidden" name="id_seguimiento" value="' . $value_seguimientos[0] . '">
+																		<input type="hidden" name="id_seguimiento" value="' . $value_seguimientos['id'] . '">
 																		<div class="form-group col-xs-12">
 																			<label class="control-label">Comentario:</label>
 																			<textarea name="seguimiento" id="seguimiento" class="form-control input-xs"></textarea>
@@ -3756,8 +3765,8 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 														</div>
 													</li>
 												';
-											if (isset($array_seguimientos["comentarios"][$value_seguimientos[0]])) {
-												foreach ($array_seguimientos["comentarios"][$value_seguimientos[0]] as $key_comentarios => $value_comentarios) {
+											if (isset($array_seguimientos["comentarios"][$value_seguimientos['id']])) {
+												foreach ($array_seguimientos["comentarios"][$value_seguimientos['id']] as $key_comentarios => $value_comentarios) {
 													$_seguimientos .= '
 															<li class="timeline-item timeline-item-detailed right">
 																<div class="timeline-content timeline-type comment">
@@ -4637,7 +4646,7 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 																	<input type="hidden" name="tipo_actividad" value="' . $value["tipo_actividad"] . '">
 																	<input type="hidden" name="id_usuario" value="' . $ssn_id_usuario . '">
 																	<input type="hidden" name="id_actividad" value="' . $value_seguimientos["id_actividad"] . '">
-																	<input type="hidden" name="id_seguimiento" value="' . $value_seguimientos[0] . '">
+																	<input type="hidden" name="id_seguimiento" value="' . $value_seguimientos['id'] . '">
 																	<div class="form-group col-xs-12">
 																		<label class="control-label">Comentario:</label>
 																		<textarea name="seguimiento" id="seguimiento" class="form-control input-xs"></textarea>
@@ -4652,8 +4661,8 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 													</div>
 												</li>
 											';
-										if (isset($array_seguimientos["comentarios"][$value_seguimientos[0]])) {
-											foreach ($array_seguimientos["comentarios"][$value_seguimientos[0]] as $key_comentarios => $value_comentarios) {
+										if (isset($array_seguimientos["comentarios"][$value_seguimientos['id']])) {
+											foreach ($array_seguimientos["comentarios"][$value_seguimientos['id']] as $key_comentarios => $value_comentarios) {
 												$_seguimientos .= '
 														<li class="timeline-item timeline-item-detailed right">
 															<div class="timeline-content timeline-type comment">
@@ -5902,11 +5911,11 @@ function datosClienteEncabezado($array)
 
 <script type="text/javascript">
 	/***** FUNCIONES DE CARGA DE FORMULARIO DE COSTOS *****/
-	$("#slct_servicio_adicional").change(function () {
+	$("#slct_servicio_adicional").change(function() {
 		$("#nexos_messages_costos").empty();
 		$("#contenidoadicionarcosto").empty();
 		let content = "";
-		$(this).find("option:selected").each(function () {
+		$(this).find("option:selected").each(function() {
 			let id = $(this).val();
 			let text = $(this).text();
 			content += `
@@ -5954,11 +5963,11 @@ function datosClienteEncabezado($array)
 		if ($(".tt-input").length > 0) {
 			let proveedores = cargarProveedores();
 			let servicio_proveedores = [];
-			proveedores.content.forEach(function (element, index) {
+			proveedores.content.forEach(function(element, index) {
 				servicio_proveedores.push(element.nombre);
 			});
 
-			$(".tt-input").each(function () {
+			$(".tt-input").each(function() {
 				let id = $(this).data("id");
 				let element_id = $(this).attr("id");
 				let id_elemet_proveedor = "e_id_proveedor_servicio_" + id;
@@ -5973,12 +5982,12 @@ function datosClienteEncabezado($array)
 				$.ajaxSetup({
 					async: false
 				});
-				$('#' + caja_id).bind('typeahead:selected', function (obj, datum, name) {
+				$('#' + caja_id).bind('typeahead:selected', function(obj, datum, name) {
 					var params = {
 						accion: 'obtenerdatosproveedor',
 						numero_documento: datum.split(" - ")[0]
 					};
-					$.post(url, params, function (data) {
+					$.post(url, params, function(data) {
 						// console.log(data);
 						if (data.success) {
 							$("#" + id_elemet_proveedor).val(data.content.id);
@@ -5988,7 +5997,7 @@ function datosClienteEncabezado($array)
 				$.ajaxSetup({
 					async: true
 				});
-				$("#" + element_id).focusout(function () {
+				$("#" + element_id).focusout(function() {
 					// console.log($.inArray($("#" + element_id).val(), servicio_proveedores));
 					if ($.inArray($("#" + element_id).val(), servicio_proveedores) == (-1)) {
 						$("#" + id_elemet_proveedor).val("");
@@ -6006,7 +6015,7 @@ function datosClienteEncabezado($array)
 		$.ajaxSetup({
 			async: false
 		});
-		$.post(url, params, function (data) {
+		$.post(url, params, function(data) {
 			result = data;
 		}, 'json');
 		return result;
@@ -6015,7 +6024,7 @@ function datosClienteEncabezado($array)
 		});
 	}
 
-	var substringMatcher = function (strs) {
+	var substringMatcher = function(strs) {
 		return function findMatches(q, cb) {
 			var matches, substringRegex;
 			// an array that will be populated with substring matches
@@ -6026,7 +6035,7 @@ function datosClienteEncabezado($array)
 
 			// iterate through the pool of strings and for any string that
 			// contains the substring `q`, add it to the `matches` array
-			$.each(strs, function (i, str) {
+			$.each(strs, function(i, str) {
 				if (substrRegex.test(str)) {
 					matches.push(str);
 				}
@@ -6037,7 +6046,7 @@ function datosClienteEncabezado($array)
 	/***** FIN - FUNCIONES DE CARGA DE FORMULARIO DE COSTOS *****/
 
 	/***** FUNCIONES DE ADICIÓN DE COSTOS DEL PROYECTO *****/
-	$("#btn_adicionar_costo").click(function () {
+	$("#btn_adicionar_costo").click(function() {
 		$("#nexos_messages_costos").empty();
 		var msg_error = "";
 
@@ -6045,7 +6054,7 @@ function datosClienteEncabezado($array)
 		let options = $("#slct_servicio_adicional").find("option:selected");
 		if (options.length > 0) {
 			var costos = new Array();
-			options.each(function () {
+			options.each(function() {
 				let id = $(this).val();
 				let text = $(this).text();
 				let valor_venta = $("#e_valor_venta_servicio_" + id);
@@ -6099,21 +6108,21 @@ function datosClienteEncabezado($array)
 				data: params,
 				cache: false,
 				dataType: 'json',
-				beforeSend: function (jqXHR, settings) {
+				beforeSend: function(jqXHR, settings) {
 					$(".nexos-messages").html(
 						'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
 						$("#id_url_ajax").val() +
 						'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>'
 					);
 				},
-				error: function (jqXHR, textStatus, errorThrown) {
+				error: function(jqXHR, textStatus, errorThrown) {
 					$("#nexos_messages_costos").html('');
 					msg_error += "<p>" + jqXHR.responseText + "</p>";
 					console.log(jqXHR);
 					console.log(textStatus);
 					console.log(errorThrown);
 				},
-				success: function (data, textStatus, jqXHR) {
+				success: function(data, textStatus, jqXHR) {
 					// console.log(data);
 					$("#nexos_messages_costos").html(
 						'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! </strong>Se ha creado el registro con éxito.</div></div>'
@@ -6121,7 +6130,7 @@ function datosClienteEncabezado($array)
 					$("#adicionar_costo").animate({
 						scrollTop: 0
 					}, 600);
-					setTimeout(function () {
+					setTimeout(function() {
 						location.reload(false);
 					}, 800);
 				}
@@ -6143,14 +6152,14 @@ function datosClienteEncabezado($array)
 
 	/***** FUNCIONES DE LA ACTIVIDAD TIPO intr_oferta_comercial *****/
 	// Funcion que calcula el valor en pesos de la oferta comercial 
-	$(".oferta-comercial").change(function () {
+	$(".oferta-comercial").change(function() {
 		$("#msg_trm_oferta").empty();
 		var msg_error = "";
 		var content = "";
 		let data = $(this).parents(".modal-body").find(".oferta-comercial");
 		let flag = true;
 		let array = new Array();
-		data.each(function () {
+		data.each(function() {
 			if (!$(this).val()) {
 				flag = false;
 			}
@@ -6177,19 +6186,19 @@ function datosClienteEncabezado($array)
 				data: params,
 				cache: false,
 				dataType: 'json',
-				beforeSend: function (jqXHR, settings) {
+				beforeSend: function(jqXHR, settings) {
 					$(".nexos-messages").html(
 						`<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="${$("#id_url_ajax").val()}public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>`
 					);
 				},
-				error: function (jqXHR, textStatus, errorThrown) {
+				error: function(jqXHR, textStatus, errorThrown) {
 					$("#msg_trm_oferta").empty();
 					msg_error += "<p>" + jqXHR.responseText + "</p>";
 					console.log(jqXHR);
 					console.log(textStatus);
 					console.log(errorThrown);
 				},
-				success: function (data, textStatus, jqXHR) {
+				success: function(data, textStatus, jqXHR) {
 					// console.log(data);
 					$(".nexos-messages").empty();
 					if (!data.error) {

@@ -486,9 +486,6 @@ echo $vista;
 	});
 
 	function editarCotizacion(id, id_perfil) {
-
-		//alert('edita dos');
-
 		// console.log("Entro en función editarCotizacion");
 		$("#edita_cotizacion_title").empty();
 		$("#nexos_messages_popup_cotizacion").empty();
@@ -776,13 +773,10 @@ echo $vista;
 		// console.log("Entro en función flag_cotizacion");
 		var id_panel_header = id.replace("check", "div_header");
 		var class_panel_header = clase.replace("check", "div_header");
-		// console.log(id_panel_header);
-		// console.log(class_panel_header);
-
 		// Se busca la posición del check en la tabla
 		var arrayId = id.split("_");
 		var id_cotizacion = arrayId[(arrayId.length - 1)];
-
+	
 		// Se verifica si el check queda activo
 		var flag_checked = false;
 		if ($("#" + id).prop('checked')) {
