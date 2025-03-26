@@ -15,7 +15,12 @@ class torrecontrolController extends Controller
   private $_insertar_prioridad;
   private $_iniciar_pedido;
   private $_subastar_pedido;
-
+  private $_clientes;
+  private $_cancelar_asignacion;
+  private $_insertar_pedido_torre_control;
+  private $_listar_recrusos_administrador;
+  private $_listar_servicios_recursos;
+  private $_listar_detalle_proveedores_servicio;
   public function __construct()
   {
     parent::__construct();
@@ -57,6 +62,11 @@ class torrecontrolController extends Controller
   {
     $this->_view->titulo = 'Completadas Torre de Control';
     $this->_view->renderizar_ventana('completadas_torre_control', 'torrecontrol'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+  }
+  public function recursos()
+  {
+    $this->_view->titulo = 'Completadas Torre de Control';
+    $this->_view->renderizar_ventana('recurso_torre_control', 'torrecontrol'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
   }
 
   /* CARGAR LA VISTA DE LOS PROVEEDORES EN LA TORRE DE CONTROL */
@@ -118,17 +128,17 @@ class torrecontrolController extends Controller
 
   public   function insertar_asignacion()
   {
-    $numdocSolicitud = $_POST['numdocSolicitud'] ?? null;
-    $asignaciones = json_decode($_POST['asignaciones'], true) ?? [];
-    $fecha_vencimiento = $_POST['fecha_vencimiento'] ?? null;
-    $hora_vencimiento = $_POST['hora_vencimiento'] ?? null;
 
-    if (!$numdocSolicitud || empty($asignaciones)) {
+    $asignaciones = json_decode($_POST['asignaciones'], true) ?? [];
+    $solicitudes = json_decode($_POST['solicitudes'], true) ?? [];
+    $ClienteId = $_POST['ClienteId'] ?? null;
+
+    if (!$solicitudes || empty($asignaciones) || $ClienteId == null) {
       echo json_encode(["status" => false, "message" => "Faltan datos para la inserción"]);
       return;
     }
 
-    $resultado = $this->_modelo->insertar_asignacion_proveedor($numdocSolicitud, $asignaciones, $fecha_vencimiento, $hora_vencimiento);
+    $resultado = $this->_modelo->insertar_asignacion_proveedor($solicitudes, $asignaciones, $ClienteId);
     echo json_encode($resultado);
   }
 
@@ -148,19 +158,19 @@ class torrecontrolController extends Controller
 
   public function publicar_pedido()
   {
-    $numdocSolicitud = $_POST['numdocSolicitud'] ?? null;
+    // $numdocSolicitud = $_POST['numdocSolicitud'] ?? null;
     $seleccionados = json_decode($_POST['seleccionados'], true) ?? [];
-    $fecha_vencimiento = $_POST['fecha_vencimiento'] ?? null;
-    $hora_vencimiento = $_POST['hora_vencimiento'] ?? null;
     $Proveedoresseleccionados = json_decode($_POST['Proveedoresseleccionados'], true) ?? [];
+    $solicitudes = json_decode($_POST['solicitudes'], true) ?? [];
     $proceso = $_POST['proceso'] ?? null;
+    $ClienteId = $_POST['ClienteId'] ?? null;
 
-    if (!$numdocSolicitud || empty($seleccionados)) {
+    if (!$solicitudes || empty($seleccionados)) {
       echo json_encode(["status" => false, "message" => "Faltan datos para la inserción"]);
       return;
     }
 
-    $this->_insertar_publicacion_proveedor = $this->_modelo->publicar_pedido_proveedor($numdocSolicitud, $seleccionados, $fecha_vencimiento, $hora_vencimiento, $Proveedoresseleccionados, $proceso);
+    $this->_insertar_publicacion_proveedor = $this->_modelo->publicar_pedido_proveedor($seleccionados, $solicitudes, $Proveedoresseleccionados, $proceso, $ClienteId);
     echo json_encode($this->_insertar_publicacion_proveedor);
   }
 
@@ -225,5 +235,67 @@ class torrecontrolController extends Controller
     $numdocSolicitud = $_POST['numdocSolicitud'];
     $this->_subastar_pedido = $this->_modelo->Subastar_pedido($numdocSolicitud);
     echo json_encode($this->_subastar_pedido);
+  }
+
+  public function Listar_clientes()
+  {
+    $this->_clientes = $this->_modelo->Listar_clientes();
+    echo json_encode($this->_clientes);
+  }
+  /* Insertar pedidos de la torre de control uno a uno */
+  public function cancelar_asignacion()
+  {
+    $numdocSolicitud = $_POST['numdocSolicitud'];
+    $this->_cancelar_asignacion = $this->_modelo->Cancelar_Asignacion($numdocSolicitud);
+    echo json_encode($this->_cancelar_asignacion);
+  }
+
+  /* Insertar pedidos de la torre de control uno a uno */
+  public function insertar_pedido_torre_control()
+  {
+    if (!isset($_POST['mercancias'])) {
+      echo json_encode(["success" => false, "message" => "No se recibieron datos"]);
+      return;
+    }
+
+    $mercancias = json_decode($_POST['mercancias'], true);
+    $cliente = $_POST['cliente'];
+
+    if (!is_array($mercancias)) {
+      echo json_encode(["success" => false, "message" => "Formato de datos incorrecto"]);
+      return;
+    }
+
+    $this->_insertar_pedido_torre_control = $this->_modelo->Insertar_pedido_torre_control($mercancias, $cliente);
+    echo json_encode($this->_insertar_pedido_torre_control);
+  }
+
+  public function listar_recrusos_administrador()
+  {
+    $this->_listar_recrusos_administrador = $this->_modelo->Listar_recrusos_administrador();
+    echo json_encode($this->_listar_recrusos_administrador);
+  }
+
+  public function listar_servicios_recursos()
+  {
+    $MaestroId = $_POST['MaestroId'] ?? null;
+    $this->_listar_servicios_recursos = $this->_modelo->Listar_pedidos_recrusos($MaestroId);
+    echo json_encode($this->_listar_servicios_recursos);
+  }
+
+  public function Listar_servicios_pedidos_recursos()
+  {
+    $MaestroId = $_POST['MaestroId'] ?? null;
+    $this->_listar_servicios_recursos = $this->_modelo->Listar_servicios_pedidos_recursos($MaestroId);
+    echo json_encode($this->_listar_servicios_recursos);
+  }
+
+
+  public function listar_detalle_proveedores_servicio()
+  {
+    $recurso = $_POST['recurso'] ?? null;
+    $numdoc = $_POST['numdoc'] ?? null;
+    $this->_listar_detalle_proveedores_servicio = $this->_modelo->Listar_detalle_proveedores_servicio($recurso, $numdoc);
+    echo json_encode($this->_listar_detalle_proveedores_servicio);
   }
 }

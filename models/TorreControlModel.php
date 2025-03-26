@@ -22,10 +22,11 @@ class TorreControlModel extends Model
       $this->_db3->beginTransaction();
 
       // Preparamos la consulta de inserción
+      // -- (cliente, numdoc_solicitud, referencia_pedido, ciudad_origen, codigo_origen, sitio_cargue, ciudad_destino, codigo_destino, sitio_descargue, cod_producto, referencia, modalidad, peso_neto, peso_bruto, unidades, tipo_vehiculo, costo, tarifa, observaciones, usuario, fecha, hora) 
       $sql_insert = "INSERT INTO cmx_pedido_torre_control 
-          (cliente, numdoc_solicitud, referencia_pedido, ciudad_origen, codigo_origen, sitio_cargue, ciudad_destino, codigo_destino, sitio_descargue, cod_producto, referencia, modalidad, peso_neto, peso_bruto, unidades, tipo_vehiculo, costo, tarifa, observaciones, usuario, fecha, hora) 
-          VALUES 
-          (:cliente, :numdoc_solicitud, :referencia_pedido ,:ciudad_origen, :codigo_origen, :sitio_cargue, :ciudad_destino, :codigo_destino, :sitio_descargue, :cod_producto, :referencia, :modalidad, :peso_neto, :peso_bruto, :unidades, :tipo_vehiculo, :costo, :tarifa, :observaciones, :usuario, :fecha, :hora)";
+          	(cliente, numdoc_solicitud, referencia_pedido, ciudad_origen, remitente, ciudad_destino, destinatario, cod_producto, producto, peso_neto_kg, peso_bruto_kg, presentacion, unidades, lote, num_estibas, fecha_cargue, fecha_entrega, usuario, fecha, hora)
+          VALUES (:cliente, :numdoc_solicitud, :referencia_pedido, :ciudad_origen, :remitente, :ciudad_destino, :destinatario, :cod_producto, :producto, :peso_neto_kg, :peso_bruto_kg, :presentacion, :unidades, :lote, :num_estibas, :fecha_cargue, :fecha_entrega, :usuario, :fecha, :hora)";
+      //(:cliente, :numdoc_solicitud, :referencia_pedido ,:ciudad_origen, :codigo_origen, :sitio_cargue, :ciudad_destino, :codigo_destino, :sitio_descargue, :cod_producto, :referencia, :modalidad, :peso_neto, :peso_bruto, :unidades, :tipo_vehiculo, :costo, :tarifa, :observaciones, :usuario, :fecha, :hora)";
       $stmt_insert = $this->_db3->prepare($sql_insert);
 
       foreach ($rows as $row) {
@@ -53,23 +54,21 @@ class TorreControlModel extends Model
           // ":cliente"        => $row["CLIENTE"] ?? $_SESSION['usuario']['id_cliente'],
           ":cliente"          => $row["cliente"] ?? $_SESSION['usuario']['id_cliente'],
           ":numdoc_solicitud" => $numdoc_cabecera,
-          ":referencia_pedido" => $row["REFERENCIA PEDIDO"] ?? "",
-          ":ciudad_origen"  => $row["CIUDAD ORIGEN"] ?? "",
-          ":codigo_origen"  => $row["CODIGO ORIGEN"] ?? "",
-          ":sitio_cargue"   => $row["SITIO CARGUE"] ?? "",
-          ":ciudad_destino" => $row["CIUDAD DESTINO"] ?? "",
-          ":codigo_destino" => $row["CODIGO DESTINO"] ?? "",
-          ":sitio_descargue" => $row["SITIO DESCARGUE"] ?? "",
-          ":cod_producto"   => $row["COD. PRODUCTO"] ?? "",
-          ":referencia"     => $row["REFERENCIA"] ?? "",
-          ":modalidad"      => $row["MODALIDAD"] ?? "",
-          ":peso_neto"      => $row["PESO NETO"] ?? "",
-          ":peso_bruto"     => $row["PESO BRUTO"] ?? "",
-          ":unidades"       => $row["UNIDADES"] ?? "",
-          ":tipo_vehiculo"  => $row["TIPO DE VH"] ?? "",
-          ":costo"          => $row["COSTO"] ?? "",
-          ":tarifa"         => $row["TARIFA"] ?? "",
-          ":observaciones"  => $row["OBSERVACIONES"] ?? "",
+          ":referencia_pedido" => $row["Pedido"] ?? "",
+          ":ciudad_origen"  => $row["Ciudad Origen"] ?? "",
+          ":remitente"   => $row["Remitente"] ?? "",
+          ":ciudad_destino" => $row["Ciudad Destino"] ?? "",
+          ":destinatario" => $row["Destinatario"] ?? "",
+          ":cod_producto"   => $row["Codigo Producto"] ?? "",
+          ":producto"     => $row["Producto"] ?? "",
+          ":peso_neto_kg"      => $row["Kg Neto"] ?? "",
+          ":peso_bruto_kg"     => $row["Kg Bruto"] ?? "",
+          ":presentacion"  => $row["Presentacion"] ?? "",
+          ":unidades"       => $row["Unidades"] ?? "",
+          ":lote"       => $row["Lote"] ?? "",
+          ":num_estibas"         => $row["Nro.Estibas"] ?? "",
+          ":fecha_cargue"  => $row["Fecha Cargue"] ?? "",
+          ":fecha_entrega"  => $row["Fecha Entrega"] ?? "",
           ":usuario"        => $row["usuario"] ?? $_SESSION["usuario"]["nom_usuario"],
           ":fecha"          => $fecha,
           ":hora"           => $hora
@@ -112,12 +111,16 @@ class TorreControlModel extends Model
 
 
         // Iniciar la consulta como string, no como objeto PDOStatement
-        $sql = "SELECT DISTINCT pt.numdoc_solicitud, pt.id, pt.cliente, pt.ciudad_origen, pt.codigo_origen, 
-        pt.sitio_cargue, pt.ciudad_destino, pt.codigo_destino, pt.sitio_descargue, 
-        pt.cod_producto, pt.referencia, pt.modalidad, pt.peso_neto, pt.peso_bruto, 
-        pt.unidades, pt.tipo_vehiculo, pt.costo, pt.tarifa, pt.observaciones, 
-        pt.estado_publicaion, pt.estado_asignacion, pt.usuario, pt.fecha, pt.hora, 
-        cl.nombre AS 'nombre_cliente', pt.estado_prioridad, pt.referencia_pedido,ppes.estado_proceso_pedido
+        // $sql = "SELECT DISTINCT pt.numdoc_solicitud, pt.id, pt.cliente, pt.ciudad_origen, pt.codigo_origen, 
+        // pt.sitio_cargue, pt.ciudad_destino, pt.codigo_destino, pt.sitio_descargue, 
+        // pt.cod_producto, pt.referencia, pt.modalidad, pt.peso_neto, pt.peso_bruto, 
+        // pt.unidades, pt.tipo_vehiculo, pt.costo, pt.tarifa, pt.observaciones, 
+        // pt.estado_publicaion, pt.estado_asignacion, pt.usuario, pt.fecha, pt.hora, 
+        // cl.nombre AS 'nombre_cliente', pt.estado_prioridad, pt.referencia_pedido,ppes.estado_proceso_pedido
+        $sql = "SELECT DISTINCT pt.numdoc_solicitud,pt.id, pt.referencia_pedido ,pt.cliente, pt.ciudad_origen, pt.remitente, 
+               pt.ciudad_destino, pt.destinatario, pt.cod_producto, pt.producto,pt.peso_neto_kg, pt.peso_bruto_kg, pt.presentacion, 
+               pt.unidades, pt.lote, pt.num_estibas, pt.fecha_cargue, pt.fecha_entrega, pt.estado_publicaion, pt.estado_asignacion, 
+               pt.usuario, pt.fecha, pt.hora, cl.nombre AS 'nombre_cliente', pt.estado_prioridad, pt.referencia_pedido,ppes.estado_proceso_pedido
         FROM cmx_pedido_torre_control pt
         INNER JOIN cmx_clientes cl ON pt.cliente=cl.id
         INNER JOIN cmx_cliente_proveedor_servicio cps ON pt.numdoc_solicitud=cps.pedido_id
@@ -189,15 +192,22 @@ class TorreControlModel extends Model
 
       case '27':
         // Iniciar la consulta como string, no como objeto PDOStatement
-        $sql = "SELECT DISTINCT pt.numdoc_solicitud, pt.id, pt.cliente, pt.ciudad_origen, pt.codigo_origen, 
-        pt.sitio_cargue, pt.ciudad_destino, pt.codigo_destino, pt.sitio_descargue, 
-        pt.cod_producto, pt.referencia, pt.modalidad, pt.peso_neto, pt.peso_bruto, 
-        pt.unidades, pt.tipo_vehiculo, pt.costo, pt.tarifa, pt.observaciones, 
-        pt.estado_publicaion, pt.estado_asignacion, pt.usuario, pt.fecha, pt.hora, 
-        cl.nombre AS 'nombre_cliente', pt.estado_prioridad, pt.referencia_pedido/*,ppes.estado_proceso_pedido*/
+        $sql = "SELECT DISTINCT pt.numdoc_solicitud,pt.id, pt.referencia_pedido ,pt.cliente, pt.ciudad_origen, pt.remitente, 
+               pt.ciudad_destino, pt.destinatario, pt.cod_producto, pt.producto,pt.peso_neto_kg, pt.peso_bruto_kg, pt.presentacion, 
+               pt.unidades, pt.lote, pt.num_estibas, pt.fecha_cargue, pt.fecha_entrega, pt.estado_publicaion, pt.estado_asignacion, 
+               pt.usuario, pt.fecha, pt.hora, cl.nombre AS 'nombre_cliente', pt.estado_prioridad, pt.referencia_pedido
         FROM cmx_pedido_torre_control pt
         INNER JOIN cmx_clientes cl ON pt.cliente=cl.id
         ";
+        // $sql = "SELECT DISTINCT pt.numdoc_solicitud, pt.id, pt.cliente, pt.ciudad_origen, pt.codigo_origen, 
+        // pt.sitio_cargue, pt.ciudad_destino, pt.codigo_destino, pt.sitio_descargue, 
+        // pt.cod_producto, pt.referencia, pt.modalidad, pt.peso_neto, pt.peso_bruto, 
+        // pt.unidades, pt.tipo_vehiculo, pt.costo, pt.tarifa, pt.observaciones, 
+        // pt.estado_publicaion, pt.estado_asignacion, pt.usuario, pt.fecha, pt.hora, 
+        // cl.nombre AS 'nombre_cliente', pt.estado_prioridad, pt.referencia_pedido/*,ppes.estado_proceso_pedido*/
+        // FROM cmx_pedido_torre_control pt
+        // INNER JOIN cmx_clientes cl ON pt.cliente=cl.id
+        // ";
         // INNER JOIN cmx_cliente_proveedor_servicio cps ON pt.numdoc_solicitud=cps.pedido_id
         // INNER JOIN cmx_proveedor_torre_control ptc ON cps.proveedor_id=ptc.id
         // --INNER JOIN cmx_pedido_proveedor_estado ppes ON pt.numdoc_solicitud=ppes.pedido_id AND ppes.estado_visualizar = 1
@@ -265,11 +275,10 @@ class TorreControlModel extends Model
 
       default:
         // Base de la consulta
-        $sql = "SELECT pt.numdoc_solicitud, pt.id, pt.cliente, pt.ciudad_origen, pt.codigo_origen, pt.sitio_cargue, 
-               pt.ciudad_destino, pt.codigo_destino, pt.sitio_descargue, pt.cod_producto, pt.referencia, 
-               pt.modalidad, pt.peso_neto, pt.peso_bruto, pt.unidades, pt.tipo_vehiculo, pt.costo, pt.tarifa, 
-               pt.observaciones, pt.estado_publicaion, pt.estado_asignacion, pt.usuario, pt.fecha, pt.hora, 
-               cl.nombre AS 'nombre_cliente', pt.estado_prioridad, pt.referencia_pedido 
+        $sql = "SELECT  pt.id, pt.numdoc_solicitud, pt.referencia_pedido ,pt.cliente, pt.ciudad_origen, pt.remitente, 
+               pt.ciudad_destino, pt.destinatario, pt.cod_producto, pt.producto,pt.peso_neto_kg, pt.peso_bruto_kg, pt.presentacion, 
+               pt.unidades, pt.lote, pt.num_estibas, pt.fecha_cargue, pt.fecha_entrega, pt.estado_publicaion, pt.estado_asignacion, 
+               pt.usuario, pt.fecha, pt.hora, cl.nombre AS 'nombre_cliente', pt.estado_prioridad, pt.referencia_pedido
         FROM cmx_pedido_torre_control pt
         INNER JOIN cmx_clientes cl ON pt.cliente = cl.id";
 
@@ -362,7 +371,7 @@ class TorreControlModel extends Model
     }
   }
 
-  public function insertar_asignacion_proveedor($numdocSolicitud, $asignaciones, $fecha_vencimiento, $hora_vencimiento)
+  public function insertar_asignacion_proveedor($solicitudes, $asignaciones, $ClienteId)
   {
     try {
       $this->_db3->beginTransaction(); // Iniciar transacción para evitar inserciones incompletas
@@ -374,27 +383,71 @@ class TorreControlModel extends Model
       // Contador de inserciones exitosas
       $totalInsertados = 0;
 
-      foreach ($asignaciones as $asignacion) {
-        $sql = "INSERT INTO cmx_cliente_proveedor_servicio (pedido_id, proveedor_id, serivicio_id, fecha_vencimiento, hora_vencimiento, estado_pedido_asignado, proceso, usuario, fecha, hora, empresa_id) 
-                    VALUES (:pedido_id, :proveedor_id, :serivicio_id, :fecha_vencimiento, :hora_vencimiento, 'Activo', 'Asignación', :usuario, CURDATE(), CURTIME(), :empresa_id)";
+      /* Insetar en la tabla de recursos para saber cual es el recurso que se ejecuta */
 
-        $stmt = $this->_db3->prepare($sql);
-        $stmt->execute([
-          ':pedido_id' => $numdocSolicitud,
-          ':proveedor_id' => $asignacion['proveedor_id'],
-          ':serivicio_id' => $asignacion['servicio_id'],
-          ':fecha_vencimiento' => $fecha_vencimiento,
-          ':hora_vencimiento' => $hora_vencimiento,
-          ':usuario' => $nom_usuario,
-          ':empresa_id' => $session_empresa_id
-        ]);
+      // 1. Obtener el número actual de `cmx_maestro`
+      $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='PEDIDO_RECURSO' AND numero_actual>numero_inicial AND empresa_id=:empresa_id FOR UPDATE");
+      $sql_consecutivo->bindParam(':empresa_id', $session_empresa_id, PDO::PARAM_STR);
+      $sql_consecutivo->execute();
+      $resultado_consecutivo = $sql_consecutivo->fetch(PDO::FETCH_ASSOC);
 
-        // Verificar que se haya insertado al menos una fila
-        if ($stmt->rowCount() === 0) {
-          throw new Exception("Error al insertar la asignación para el proveedor {$asignacion['proveedor_id']}");
+      if (!$resultado_consecutivo) {
+        throw new Exception("No se encontró un número de pedido válido.");
+      }
+
+      $numdoc_cabecera = $resultado_consecutivo['numero_actual'];
+      $numdoc_actualizar_cabecera = $numdoc_cabecera + 1;
+
+      // 2. Actualizar `numero_actual` en `cmx_maestro`
+      $sql_update_maestro = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=:numdoc_actualizar_cabecera WHERE tipo='PEDIDO_RECURSO' AND empresa_id=:empresa_id");
+      $sql_update_maestro->bindParam(':numdoc_actualizar_cabecera', $numdoc_actualizar_cabecera, PDO::PARAM_INT);
+      $sql_update_maestro->bindParam(':empresa_id', $session_empresa_id, PDO::PARAM_STR);
+      $sql_update_maestro->execute();
+
+      if (!$sql_update_maestro) {
+        throw new Exception("No se encontró un número de pedido válido.");
+      }
+      $estado_recurso = "Activo";
+
+      /* Insertar en la tabla de recursos */
+      $sql_insert_recirso = $this->_db3->prepare("INSERT INTO cmx_recurso_pedido (maestro_id,cliente_id,fecha,hora,usuario,estado,empresa_id) VALUES (:maestro_id,:cliente_id,CURDATE(),CURTIME(),:usuario,:estado,:empresa_id)");
+      $sql_insert_recirso->bindParam(':maestro_id', $numdoc_cabecera, PDO::PARAM_INT);
+      $sql_insert_recirso->bindParam(':cliente_id', $ClienteId, PDO::PARAM_INT);
+      $sql_insert_recirso->bindParam(':usuario', $nom_usuario, PDO::PARAM_STR);
+      $sql_insert_recirso->bindParam(':estado', $estado_recurso, PDO::PARAM_STR);
+      $sql_insert_recirso->bindParam(':empresa_id', $session_empresa_id, PDO::PARAM_STR);
+      $sql_insert_recirso->execute();
+
+      if (!$sql_insert_recirso) {
+        throw new Exception("No se pudo insertar el recurso.");
+      }
+
+      foreach ($solicitudes as $key => $value) {
+        foreach ($asignaciones as $index => $asignacion) {
+          $sql = "INSERT INTO cmx_cliente_proveedor_servicio (pedido_id, proveedor_id, serivicio_id, fecha_vencimiento, hora_vencimiento, estado_pedido_asignado, proceso, tipo_vehiculo, recurso_id ,usuario, fecha, hora, empresa_id) 
+                    VALUES (:pedido_id, :proveedor_id, :serivicio_id, :fecha_vencimiento, :hora_vencimiento, 'Activo', 'Asignación', :tipo_vehiculo, :recurso_id ,:usuario, CURDATE(), CURTIME(), :empresa_id)";
+
+          $stmt = $this->_db3->prepare($sql);
+
+          $stmt->bindParam(':pedido_id', $value['id']);
+          $stmt->bindParam(':proveedor_id', $asignacion['proveedor_id']);
+          $stmt->bindParam(':serivicio_id', $asignacion['servicio_id']);
+          $stmt->bindParam(':fecha_vencimiento', $asignacion['fecha_vencimiento']);
+          $stmt->bindParam(':hora_vencimiento', $asignacion['hora_vencimiento']);
+          $stmt->bindParam(':tipo_vehiculo', $asignacion['tipo_vehiculo']);
+          $stmt->bindParam(':recurso_id', $numdoc_cabecera);
+          $stmt->bindParam(':usuario', $nom_usuario);
+          $stmt->bindParam(':empresa_id', $session_empresa_id);
+
+          $stmt->execute();
+
+          // Verificar que se haya insertado al menos una fila
+          if ($stmt->rowCount() === 0) {
+            throw new Exception("Error al insertar la asignación para el proveedor {$asignacion['proveedor_id']}");
+          }
+
+          $totalInsertados++;
         }
-
-        $totalInsertados++;
       }
 
       // Si no se insertó ninguna fila, lanzar error
@@ -403,12 +456,35 @@ class TorreControlModel extends Model
       }
 
       // Actualizar el estado solo si hubo inserciones exitosas
-      $sql_update = $this->_db3->prepare("UPDATE cmx_pedido_torre_control SET estado_publicaion='Publicado', estado_asignacion='Asignado' WHERE numdoc_solicitud=:numdoc_solicitud");
-      $sql_update->execute([':numdoc_solicitud' => $numdocSolicitud]);
+      foreach ($solicitudes as $key => $solicitud) {
+        $sql_update = $this->_db3->prepare("UPDATE cmx_pedido_torre_control SET estado_publicaion='Publicado', estado_asignacion='Asignado' WHERE numdoc_solicitud=:numdoc_solicitud");
+        $sql_update->execute([':numdoc_solicitud' => $solicitud['id']]);
+      }
 
       // Verificar si el `UPDATE` afectó filas
       if ($sql_update->rowCount() === 0) {
         throw new Exception("Error al actualizar el estado de asignación para el pedido.");
+      }
+
+      /* Insertar el estado de pedido por proveedor */
+      $sql_insert_estado_proveedor = $this->_db3->prepare("INSERT INTO cmx_pedido_proveedor_estado (pedido_id,proveedor_id,estado_proceso_pedido,estado_visualizar,usuario ,fecha,hora,empresa_id)
+      VALUES (:pedido_id,:proveedor_id,:estado_proceso_pedido,:estado_visualizar,:usuario,CURDATE(),CURTIME(),:empresa_id)");
+
+      foreach ($solicitudes as $key => $value) {
+        foreach ($asignaciones as $index => $asignacion) {
+          $sql_insert_estado_proveedor->execute([
+            ':pedido_id' => $value['id'],
+            ':proveedor_id' => $asignacion['proveedor_id'],
+            ':estado_proceso_pedido' => 'Pendiente Iniciar',
+            ':estado_visualizar' => 1,
+            ':usuario' => $nom_usuario,
+            ':empresa_id' => $session_empresa_id
+          ]);
+        }
+      }
+
+      if ($sql_insert_estado_proveedor->rowCount() === 0) {
+        throw new Exception("Error al insertar el estado de pedido por proveedor.");
       }
 
       $this->_db3->commit(); // Confirmar la transacción
@@ -418,7 +494,6 @@ class TorreControlModel extends Model
       return ["status" => false, "message" => $e->getMessage()];
     }
   }
-
 
   public function Listar_servicios_proveedores($dataId2)
   {
@@ -451,7 +526,7 @@ class TorreControlModel extends Model
     }
   }
 
-  public function publicar_pedido_proveedor($numdocSolicitud, $seleccionados, $fecha_vencimiento, $hora_vencimiento, $Proveedoresseleccionados, $proceso)
+  public function publicar_pedido_proveedor($seleccionados, $solicitudes, $Proveedoresseleccionados, $proceso, $ClienteId)
   {
     try {
       $this->_db3->beginTransaction(); // Iniciar la transacción
@@ -467,9 +542,48 @@ class TorreControlModel extends Model
       // Contador de inserciones exitosas
       $totalInsertados = 0;
 
+      /* Insetar en la tabla de recursos para saber cual es el recurso que se ejecuta */
+
+      // 1. Obtener el número actual de `cmx_maestro`
+      $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='PEDIDO_RECURSO' AND numero_actual>numero_inicial AND empresa_id=:empresa_id FOR UPDATE");
+      $sql_consecutivo->bindParam(':empresa_id', $session_empresa_id, PDO::PARAM_STR);
+      $sql_consecutivo->execute();
+      $resultado_consecutivo = $sql_consecutivo->fetch(PDO::FETCH_ASSOC);
+
+      if (!$resultado_consecutivo) {
+        throw new Exception("No se encontró un número de pedido válido.");
+      }
+
+      $numdoc_cabecera = $resultado_consecutivo['numero_actual'];
+      $numdoc_actualizar_cabecera = $numdoc_cabecera + 1;
+
+      // 2. Actualizar `numero_actual` en `cmx_maestro`
+      $sql_update_maestro = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual=:numdoc_actualizar_cabecera WHERE tipo='PEDIDO_RECURSO' AND empresa_id=:empresa_id");
+      $sql_update_maestro->bindParam(':numdoc_actualizar_cabecera', $numdoc_actualizar_cabecera, PDO::PARAM_INT);
+      $sql_update_maestro->bindParam(':empresa_id', $session_empresa_id, PDO::PARAM_STR);
+      $sql_update_maestro->execute();
+
+      if (!$sql_update_maestro) {
+        throw new Exception("No se encontró un número de pedido válido.");
+      }
+      $estado_recurso = "Activo";
+
+      /* Insertar en la tabla de recursos */
+      $sql_insert_recirso = $this->_db3->prepare("INSERT INTO cmx_recurso_pedido (maestro_id,cliente_id,fecha,hora,usuario,estado,empresa_id) VALUES (:maestro_id,:cliente_id,CURDATE(),CURTIME(),:usuario,:estado,:empresa_id)");
+      $sql_insert_recirso->bindParam(':maestro_id', $numdoc_cabecera, PDO::PARAM_INT);
+      $sql_insert_recirso->bindParam(':cliente_id', $ClienteId, PDO::PARAM_INT);
+      $sql_insert_recirso->bindParam(':usuario', $nom_usuario, PDO::PARAM_STR);
+      $sql_insert_recirso->bindParam(':estado', $estado_recurso, PDO::PARAM_STR);
+      $sql_insert_recirso->bindParam(':empresa_id', $session_empresa_id, PDO::PARAM_STR);
+      $sql_insert_recirso->execute();
+
+      if (!$sql_insert_recirso) {
+        throw new Exception("No se pudo insertar el recurso.");
+      }
+
       // Preparar la consulta de inserción
-      $sql_insert = $this->_db3->prepare("INSERT INTO cmx_cliente_proveedor_servicio (pedido_id, proveedor_id, serivicio_id, fecha_vencimiento, hora_vencimiento, estado_pedido_asignado, proceso, usuario, fecha, hora, empresa_id) 
-            VALUES (:pedido_id, :proveedor_id, :serivicio_id, :fecha_vencimiento, :hora_vencimiento, 'Activo', 'Publicación', :usuario, CURDATE(), CURTIME(), :empresa_id)");
+      $sql_insert = $this->_db3->prepare("INSERT INTO cmx_cliente_proveedor_servicio (pedido_id, proveedor_id, serivicio_id, fecha_vencimiento, hora_vencimiento, estado_pedido_asignado, proceso, tipo_vehiculo, recurso_id, usuario, fecha, hora, empresa_id) 
+            VALUES (:pedido_id, :proveedor_id, :serivicio_id, :fecha_vencimiento, :hora_vencimiento, 'Activo', 'Publicación', :tipo_vehiculo, :recurso_id, :usuario, CURDATE(), CURTIME(), :empresa_id)");
 
       // Recorrer los servicios seleccionados
       foreach ($seleccionados as $item) {
@@ -482,16 +596,20 @@ class TorreControlModel extends Model
 
         // Insertar cada proveedor asociado al servicio
         foreach ($proveedores as $proveedor_id) {
-          $sql_insert->execute([
-            ':pedido_id' => $numdocSolicitud,
-            ':proveedor_id' => $proveedor_id,
-            ':serivicio_id' => $servicio_id,
-            ':fecha_vencimiento' => $fecha_vencimiento,
-            ':hora_vencimiento' => $hora_vencimiento,
-            ':usuario' => $nom_usuario,
-            ':empresa_id' => $session_empresa_id
-          ]);
-          $totalInsertados++;
+          foreach ($solicitudes as $solicitud) {
+            $sql_insert->execute([
+              ':pedido_id' => $solicitud['id'],
+              ':proveedor_id' => $proveedor_id,
+              ':serivicio_id' => $servicio_id,
+              ':fecha_vencimiento' => $item['fecha_vencimiento'],
+              ':hora_vencimiento' => $item['hora_vencimiento'],
+              ':tipo_vehiculo' => $item['tipo_vehiculo'],
+              ':recurso_id' => $numdoc_cabecera,
+              ':usuario' => $nom_usuario,
+              ':empresa_id' => $session_empresa_id
+            ]);
+            $totalInsertados++;
+          }
         }
       }
 
@@ -500,12 +618,11 @@ class TorreControlModel extends Model
       }
 
       // Actualizar el estado del pedido en `cmx_pedido_torre_control`
-      $sql_update = $this->_db3->prepare("
-            UPDATE cmx_pedido_torre_control 
-            SET estado_publicaion='Publicado', estado_asignacion='Pendiente' 
-            WHERE numdoc_solicitud=:numdoc_solicitud
-        ");
-      $sql_update->execute([':numdoc_solicitud' => $numdocSolicitud]);
+      foreach ($solicitudes as $solicitud) {
+        $sql_update = $this->_db3->prepare(" UPDATE cmx_pedido_torre_control SET estado_publicaion='Publicado', estado_asignacion='Pendiente' WHERE numdoc_solicitud=:numdoc_solicitud ");
+
+        $sql_update->execute([':numdoc_solicitud' => $solicitud['id']]);
+      }
 
       if ($sql_update->rowCount() === 0) {
         throw new Exception("Error al actualizar el estado del pedido.");
@@ -516,16 +633,18 @@ class TorreControlModel extends Model
       VALUES (:pedido_id,:proveedor_id,:estado_proceso_pedido,:estado_visualizar,:usuario,CURDATE(),CURTIME(),:empresa_id)");
 
       foreach ($Proveedoresseleccionados as $proveedor_id) {
-        $sql_insert_estado_proveedor->execute([
-          ':pedido_id' => $numdocSolicitud,
-          ':proveedor_id' => $proveedor_id,
-          ':estado_proceso_pedido' => 'Pendiente Iniciar',
-          ':estado_visualizar' => 1,
-          ':usuario' => $nom_usuario,
-          ':empresa_id' => $session_empresa_id
-        ]);
+        foreach ($solicitudes as $solicitud) {
+          $numdocSolicitud = $solicitud['id'];
+          $sql_insert_estado_proveedor->execute([
+            ':pedido_id' => $numdocSolicitud,
+            ':proveedor_id' => $proveedor_id,
+            ':estado_proceso_pedido' => 'Pendiente Iniciar',
+            ':estado_visualizar' => 1,
+            ':usuario' => $nom_usuario,
+            ':empresa_id' => $session_empresa_id
+          ]);
+        }
       }
-
 
       if ($sql_insert_estado_proveedor->rowCount() === 0) {
         throw new Exception("Error al insertar el estado de pedido por proveedor.");
@@ -538,50 +657,6 @@ class TorreControlModel extends Model
       return ["status" => false, "message" => $th->getMessage()];
     }
   }
-
-  // public function Detalle_proceso_pedido($Solicitud)
-  // {
-  //   try {
-  //     // $proveedor = isset($_SESSION['usuario']['proveedor_id']) ? $_SESSION['usuario']['proveedor_id'] : null;
-  //     $proveedor = isset($_SESSION['usuario']['proveedor_id']);
-
-  //     if ($_SESSION['usuario']['tipo_perfil'] == "PROVEEDOR") {
-  //       $sql = $this->_db3->prepare("SELECT cs.proceso, st.tipo_servicio, pt.razon_social, cs.fecha_vencimiento, cs.hora_vencimiento,pt.id AS proveedor_id, st.id AS servicio_id,cs.pedido_id,
-  //       COALESCE(etp.estado_pedido, 'SIN ESTADO') AS estado_pedido
-  //       FROM cmx_cliente_proveedor_servicio cs 
-  //       INNER JOIN cmx_servicio_torre_control st ON cs.serivicio_id = st.id
-  //       INNER JOIN cmx_proveedor_torre_control pt ON cs.proveedor_id = pt.id
-  //       LEFT JOIN cmx_estados_pedidos_tr etp ON cs.pedido_id = etp.pedido_id AND cs.proveedor_id = etp.proveedor_id AND cs.serivicio_id=etp.servicio_id AND etp.estado_previsualizar=1
-  //       WHERE cs.pedido_id = :Solicitud AND cs.proveedor_id = :Proveedor");
-  //       $sql->bindParam(':Solicitud', $Solicitud, PDO::PARAM_INT);
-  //       $sql->bindParam(':Proveedor', $proveedor, PDO::PARAM_INT);
-  //     } else {
-  //       $sql = $this->_db3->prepare("SELECT cs.proceso, st.tipo_servicio, pt.razon_social, cs.fecha_vencimiento, cs.hora_vencimiento,pt.id AS proveedor_id, st.id AS servicio_id,cs.pedido_id,
-  //       COALESCE(etp.estado_pedido, 'SIN ESTADO') AS estado_pedido
-  //       FROM cmx_cliente_proveedor_servicio cs 
-  //       INNER JOIN cmx_servicio_torre_control st ON cs.serivicio_id = st.id
-  //       INNER JOIN cmx_proveedor_torre_control pt ON cs.proveedor_id = pt.id
-  //       LEFT JOIN cmx_estados_pedidos_tr etp ON cs.pedido_id = etp.pedido_id AND cs.proveedor_id = etp.proveedor_id AND cs.serivicio_id=etp.servicio_id AND etp.estado_previsualizar=1
-  //       WHERE cs.pedido_id = :Solicitud");
-  //       $sql->bindParam(':Solicitud', $Solicitud, PDO::PARAM_INT);
-
-  //       /* Consulta para subasta */
-  //       $sql1 = $this->_db3->prepare("SELECT cps.valor_servicio,cps.referencia,cps.fecha_inicio,cps.hora_inicio,pt.razon_social,st.tipo_servicio,cps.fecha_actualizacion,cps.hora_actualizacion
-  //       FROM cmx_cliente_proveedor_servicio cps
-  //       -- INNER JOIN cmx_estados_pedidos_tr ept ON cps.pedido_id=ept.pedido_id AND cps.serivicio_id=ept.servicio_id AND ept.estado_pedido='Completado' AND ept.estado_previsualizar=1
-  //       INNER JOIN cmx_proveedor_torre_control pt ON cps.proveedor_id=pt.id
-  //       INNER JOIN cmx_servicio_torre_control st on cps.serivicio_id=st.id
-  //       WHERE cps.pedido_id=:Solicitud AND cps.valor_servicio IS NOT NULL");
-  //       $sql1->bindParam(':Solicitud', $Solicitud, PDO::PARAM_INT);
-  //     }
-
-  //     // Ejecutar la consulta
-  //     $sql->execute();
-  //     return $sql->fetchAll(PDO::FETCH_ASSOC);
-  //   } catch (PDOException $e) {
-  //     return ['error' => $e->getMessage()];
-  //   }
-  // }
 
   public function Detalle_proceso_pedido($Solicitud)
   {
@@ -672,7 +747,6 @@ class TorreControlModel extends Model
       return ['error' => $e->getMessage()];
     }
   }
-
 
   public function Iniciar_gestion($datos)
   {
@@ -1050,5 +1124,189 @@ class TorreControlModel extends Model
       error_log("Error en Subastar_pedido: " . $e->getMessage());
       return ['error' => $e->getMessage()];
     }
+  }
+
+  public function Listar_clientes()
+  {
+    try {
+      $stmt = $this->_db3->prepare("SELECT * FROM cmx_clientes");
+      $stmt->execute();
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      $error = $e->getMessage();
+      // $this->_db3->rollBack();
+    }
+  }
+
+  /* Canelar asignacion de pedido */
+  public function Cancelar_asignacion($pedido_id)
+  {
+    $asignacion = "Pendiente";
+    $publicacion = "Pendiente";
+    try {
+      $stmt = $this->_db3->prepare("UPDATE cmx_pedido_torre_control SET estado_asignacion = :estado_asignacion, estado_publicaion = :estado_publicaion WHERE numdoc_solicitud = :pedido_id");
+      $stmt->bindParam(':estado_asignacion', $asignacion, PDO::PARAM_STR);
+      $stmt->bindParam(':estado_publicaion', $publicacion, PDO::PARAM_STR);
+      $stmt->bindParam(':pedido_id', $pedido_id, PDO::PARAM_INT);
+      $stmt->execute();
+      // return true;
+
+      return [
+        'status' => true,
+        'message' => 'Pedido iniciado correctamente.'
+      ];
+    } catch (PDOException $e) {
+      $error = $e->getMessage();
+      // $this->_db3->rollBack();
+      return [
+        'status' => false,
+        'message' => $error
+      ];
+    }
+  }
+
+  public function Insertar_pedido_torre_control($mercancias, $cliente)
+  {
+    $fecha = date('Y-m-d');
+    $hora = date('G:i:s');
+    $session_empresa_id = $_SESSION['usuario']['empresa_id'];
+    try {
+      // Iniciar transacción
+      $this->_db3->beginTransaction();
+
+      // Preparar la consulta de inserción
+      $sql_insert = "INSERT INTO cmx_pedido_torre_control 
+              (cliente, numdoc_solicitud, referencia_pedido, ciudad_origen, remitente, 
+              ciudad_destino, destinatario, cod_producto, producto, peso_neto_kg, 
+              peso_bruto_kg, presentacion, unidades, lote, num_estibas, 
+              fecha_cargue, fecha_entrega, usuario, fecha, hora) 
+              VALUES 
+              (:cliente, :numdoc_solicitud, :referencia_pedido, :ciudad_origen, :remitente, 
+              :ciudad_destino, :destinatario, :cod_producto, :producto, :peso_neto_kg, 
+              :peso_bruto_kg, :presentacion, :unidades, :lote, :num_estibas, 
+              :fecha_cargue, :fecha_entrega, :usuario, NOW(), NOW())";
+
+      $stmt = $this->_db3->prepare($sql_insert);
+
+      // Obtener el número de elementos en los arrays
+      $numElementos = count($mercancias['referencia_pedido']);
+
+      // Validar que todos los arrays tengan la misma cantidad de elementos
+      foreach ($mercancias as $key => $value) {
+        if (count($value) !== $numElementos) {
+          throw new Exception("Inconsistencia en la cantidad de elementos de '$key'");
+        }
+      }
+
+      for ($i = 0; $i < $numElementos; $i++) {
+        // 1. Obtener el número actual de `cmx_maestro`
+        $sql_consecutivo = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro 
+                    WHERE tipo='PEDIDOS_TORRE_CONTROL' 
+                    AND numero_actual > numero_inicial 
+                    AND empresa_id=:empresa_id 
+                    FOR UPDATE");
+
+        $sql_consecutivo->bindParam(':empresa_id', $session_empresa_id, PDO::PARAM_STR);
+        $sql_consecutivo->execute();
+        $resultado_consecutivo = $sql_consecutivo->fetch(PDO::FETCH_ASSOC);
+
+        if (!$resultado_consecutivo) {
+          throw new Exception("No se encontró un número de pedido válido.");
+        }
+
+        $numdoc_cabecera = $resultado_consecutivo['numero_actual'];
+        $numdoc_actualizar_cabecera = $numdoc_cabecera + 1;
+
+        // 2. Actualizar `numero_actual` en `cmx_maestro`
+        $sql_update_maestro = $this->_db3->prepare("UPDATE cmx_maestro 
+                    SET numero_actual=:numdoc_actualizar_cabecera 
+                    WHERE tipo='PEDIDOS_TORRE_CONTROL' 
+                    AND empresa_id=:empresa_id");
+
+        $sql_update_maestro->bindParam(':numdoc_actualizar_cabecera', $numdoc_actualizar_cabecera, PDO::PARAM_INT);
+        $sql_update_maestro->bindParam(':empresa_id', $session_empresa_id, PDO::PARAM_STR);
+        $sql_update_maestro->execute();
+
+        // 3. Insertar en `cmx_pedido_torre_control`
+        $stmt->execute([
+          ':cliente'          => $cliente ?? NULL,
+          ':numdoc_solicitud' => $numdoc_cabecera ?? NULL,
+          ':referencia_pedido' => $mercancias['referencia_pedido'][$i] ?? NULL,
+          ':ciudad_origen'    => $mercancias['ciudad_origen'][$i] ?? NULL,
+          ':remitente'        => $mercancias['sitio_cargue'][$i] ?? NULL,
+          ':ciudad_destino'   => $mercancias['ciudad_destino'][$i] ?? NULL,
+          ':destinatario'     => $mercancias['sitio_descargue'][$i] ?? NULL,
+          ':cod_producto'     => $mercancias['cod_producto'][$i] ?? NULL,
+          ':producto'         => $mercancias['producto'][$i] ?? NULL,
+          ':peso_neto_kg'     => $mercancias['peso_neto'][$i] ?? NULL,
+          ':peso_bruto_kg'    => $mercancias['peso_bruto'][$i] ?? NULL,
+          ':presentacion'     => $mercancias['presentacion'][$i] ?? NULL,
+          ':unidades'         => $mercancias['unidades'][$i] ?? NULL,
+          ':lote'             => $mercancias['lote'][$i] ?? NULL,
+          ':num_estibas'      => $mercancias['num_estibas'][$i] ?? NULL,
+          ':fecha_cargue'     => $mercancias['fecha_cargue'][$i] ?? NULL,
+          ':fecha_entrega'    => $mercancias['fecha_entrega'][$i] ?? NULL,
+          ':usuario'          => $_SESSION['usuario_id'] ?? $_SESSION["usuario"]["nom_usuario"] // Usuario de sesión o por defecto
+        ]);
+      }
+
+      // Confirmar transacción
+      $this->_db3->commit();
+      return ["success" => true, "message" => "Pedidos insertados correctamente"];
+    } catch (Exception $e) {
+      $this->_db3->rollBack();
+      return ["success" => false, "message" => "Error al insertar: " . $e->getMessage()];
+    }
+  }
+
+  public function Listar_recrusos_administrador()
+  {
+    try {
+      $stmt = $this->_db3->prepare("SELECT DISTINCT rp.maestro_id,CONCAT(rp.fecha,'-',rp.hora) AS fecha, rp.usuario,rp.estado, cl.nombre,cps.proceso FROM cmx_recurso_pedido rp 
+      INNER JOIN cmx_clientes cl ON cl.id=rp.cliente_id
+      INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id");
+      $stmt->execute();
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      $error = $e->getMessage();
+      // $this->_db3->rollBack();
+    }
+  }
+
+  public function Listar_pedidos_recrusos($MaestroId)
+  {
+    $sql = $this->_db3->prepare("SELECT pt.numdoc_solicitud,rp.maestro_id,pt.cod_producto,pt.referencia_pedido,pt.ciudad_origen,pt.ciudad_destino,pt.producto,pt.peso_bruto_kg,pt.presentacion,
+    pt.unidades,pt.fecha_cargue,pt.fecha_entrega
+    FROM cmx_recurso_pedido rp 
+    INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id
+    INNER JOIN cmx_pedido_torre_control pt ON cps.pedido_id=pt.id
+    WHERE rp.maestro_id=:maestro_id GROUP BY pt.numdoc_solicitud");
+    $sql->bindParam('maestro_id', $MaestroId, PDO::PARAM_INT);
+    $sql->execute();
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function Listar_servicios_pedidos_recursos($MaestroId)
+  {
+    $sql = $this->_db3->prepare("SELECT st.id AS servicio_id, st.tipo_servicio FROM cmx_recurso_pedido rp
+    INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id
+    INNER JOIN cmx_servicio_torre_control st ON cps.serivicio_id=st.id
+    WHERE rp.maestro_id=:maestro_id GROUP BY st.tipo_servicio");
+    $sql->bindParam('maestro_id', $MaestroId, PDO::PARAM_INT);
+    $sql->execute();
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function Listar_detalle_proveedores_servicio($recurso, $numdoc)
+  {
+    $sql = $this->_db3->prepare("SELECT pt.numdoc_solicitud,rp.maestro_id,pt.cod_producto,pt.referencia_pedido,pt.ciudad_origen,pt.ciudad_destino,pt.producto,pt.peso_bruto_kg,pt.presentacion,
+    pt.unidades,pt.fecha_cargue,pt.fecha_entrega
+    FROM cmx_recurso_pedido rp 
+    INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id
+    INNER JOIN cmx_pedido_torre_control pt ON cps.pedido_id=pt.id
+    WHERE rp.maestro_id=:maestro_id GROUP BY pt.numdoc_solicitud");
+    $sql->bindParam('maestro_id', $MaestroId, PDO::PARAM_INT);
+    $sql->execute();
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
   }
 }

@@ -96,6 +96,12 @@
           ];
           break;
 
+        case '7':
+          scripts = ['<?= BASE_URL ?>views/serviciocliente/js/completadas.js',
+            '<?= BASE_URL ?>public/helpers/helpers.js',
+          ];
+          break;
+
         case '8':
           scripts = ['<?= BASE_URL ?>/views/prefiltro_nacional/js/prefiltro_nacional.js',
             '<?= BASE_URL ?>public/helpers/helpers.js',
@@ -225,9 +231,40 @@
           ];
           break;
 
+        case '33':
+          scripts = [
+            '<?= BASE_URL ?>views/parametros/proveedor/js/listar_proeevores.js'
+          ];
+          break;
+
         case '35':
           scripts = [
             '<?= BASE_URL ?>views/parametros/proveedor/js/asignar_proveedor.js'
+          ];
+          break;
+
+        case '37':
+          scripts = [
+            '<?= BASE_URL ?>views/parametros/servicios/js/nuevo_servicio.js'
+          ];
+          break;
+
+        case '36':
+          scripts = [
+            '<?= BASE_URL ?>views/parametros/servicios/js/listar_servicio.js'
+          ];
+          break;
+
+        case '38':
+          scripts = [
+            '<?= BASE_URL ?>views/parametros/servicios/js/nuevo_servicio.js'
+          ];
+          break;
+
+        case '39':
+          scripts = [
+            '<?= BASE_URL ?>views/torrecontrol/js/recurso_torre_control.js',
+            '<?= BASE_URL ?>views/torrecontrol/js/helper_torre_control.js',
           ];
           break;
 
@@ -238,92 +275,6 @@
 
       cargarScripts(scripts, id);
     }
-
-    // Función para cargar scripts dinámicamente y ejecutar en $(document).ready()
-    /*     function cargarScripts(scripts, id) {
-          const loadScript = (url) => {
-            return new Promise((resolve, reject) => {
-              const script = document.createElement('script');
-              script.src = url;
-              // script.type = 'text/javascript';
-              script.type = 'module';
-              script.async = true;
-              script.onload = () => {
-                console.log(`Cargado: ${url} con ID: ${id}`);
-                resolve();
-              };
-              script.onerror = () => {
-                console.error(`Error al cargar: ${url}`);
-                reject();
-              };
-              document.body.appendChild(script);
-            });
-          };
-
-          let promise = Promise.resolve();
-
-          scripts.forEach(url => {
-            promise = promise.then(() => loadScript(url));
-          });
-
-          // Ejecutar lógica en $(document).ready()
-          promise.then(() => {
-            $(document).ready(function() {
-              if (typeof window.initScript === 'function') {
-                window.initScript(parseInt(id)); // Ejecuta initScript en los archivos cargados
-              }
-            });
-          });
-        } */
-
-    // function cargarScripts(scripts, id) {
-    //   // Cache para scripts ya cargados (evita duplicados)
-    //   const loadedScripts = new Set();
-
-    //   const loadScript = (url) => {
-    //     if (loadedScripts.has(url)) {
-    //       return Promise.resolve(); // Ya está cargado
-    //     }
-
-    //     return new Promise((resolve, reject) => {
-    //       const script = document.createElement('script');
-    //       script.src = url;
-    //       // script.type = 'module';
-    //       script.type = 'text/javascript';
-    //       script.async = true;
-
-    //       // Guardar el ID en el script como atributo de datos
-    //       script.setAttribute('data-ventana-id', id);
-
-    //       script.onload = () => {
-    //         loadedScripts.add(url);
-    //         console.log(`Script cargado: ${url} con ID: ${id}`);
-    //         resolve();
-    //       };
-
-    //       script.onerror = () => {
-    //         console.error(`Error cargando: ${url}`);
-    //         reject();
-    //       };
-
-    //       document.body.appendChild(script);
-    //     });
-    //   };
-
-    //   // Capturar el ID actual en el contexto
-    //   const currentId = parseInt(id);
-
-    //   // Cargar scripts en secuencia y ejecutar initScript
-    //   scripts.reduce((promise, url) => {
-    //     return promise.then(() => loadScript(url));
-    //   }, Promise.resolve()).then(() => {
-    //     // Ejecutar initScript con el ID capturado
-    //     if (typeof window.initScript === 'function') {
-    //       window.initScript(currentId);
-    //     }
-    //   });
-    // }
-
 
     function cargarScripts(scripts, id) {
       // Eliminar los scripts existentes con el mismo data-ventana-id
@@ -428,12 +379,44 @@
 
       if (tipo === "button") {
         const button = document.createElement('button');
+        // button.type = "button";
+        // button.setAttribute('name', label);
+        // button.setAttribute('id', elementoID);
+        // button.setAttribute('class', 'btn btn-phoenix-success btn-sm');
+        // button.textContent = nombre === "CARRITO" ? '' : nombre || "Botón";
+        // button.style.fontSize = "10px";
+        // contenedor.appendChild(button);
         button.type = "button";
         button.setAttribute('name', label);
         button.setAttribute('id', elementoID);
         button.setAttribute('class', 'btn btn-phoenix-success btn-sm');
-        button.textContent = nombre || "Botón";
         button.style.fontSize = "10px";
+
+        // Crear un ícono en lugar de texto si el nombre es "CARRITO"
+        if (nombre === "CARRITO") {
+          button.setAttribute('class', 'btn btn-phoenix-primary btn-sm');
+          const icono = document.createElement("i");
+          icono.setAttribute("class", "uil uil-shopping-cart-alt");
+
+          // Crear el contador dentro del botón
+          const contador = document.createElement("span");
+          contador.setAttribute("id", "contadorCarrito");
+          contador.textContent = "0"; // Inicializar en 0
+          contador.style.marginLeft = "5px"; // Espaciado entre icono y número
+
+          button.appendChild(icono);
+          button.appendChild(contador);
+
+          // Aplicar estilos adicionales
+          button.style.fontSize = "10px";
+          button.style.display = "flex";
+          button.style.alignItems = "center";
+          button.style.gap = "5px"; // Espaciado entre icono y número
+          button.style.display = "none";
+        } else {
+          button.textContent = nombre || "Botón";
+        }
+
         contenedor.appendChild(button);
       } else if (tipo === "select") {
         const select = document.createElement('select');
