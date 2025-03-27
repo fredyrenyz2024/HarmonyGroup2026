@@ -6,40 +6,42 @@
   <!-- <div class="d-flex justify-content-center"></div> -->
   <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
     <div class="row">
-      <!-- <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'></div> -->
-      <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:10px;">
-        <thead class="p-1">
-          <tr>
-            <!-- <th></th> -->
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>SOLICITUD</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>REFERENCIA PEDIDO</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CLIENTE</th>
-            <!-- <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>SITIO CARGUE</th> -->
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CIUDAD ORIGEN</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CIUDAD DESTINO</th>
-            <!-- <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>SITIO DESCARGUE</th> -->
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>COD. PRODUCTO</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>MODALIDAD</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PESO NETO</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PESO BRUTO</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>UNIDADES</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>TIPO DE VH </th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>COSTO</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>TARIFA</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>FECHA HORA</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PRIORIDAD</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PUBLICACION</th>
-            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>ASIGNACION</th>
-          </tr>
-        </thead>
-        <tbody id='tbl_administrar_pedidos' class='text-center'>
-          <tr id="load_info" style="display: none;">
-            <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
-              <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25"> Esperando Información
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive scrollbar">
+        <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
+          <thead>
+            <tr>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'><input class="form-check-input" id="selectAll" type="checkbox" value="" style="scale: 1.2;"></th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Solicitud</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Pedido</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cliente</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Ciudad Origen</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Remitente</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Ciudad Destino</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Destinatario</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Codigo Producto</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Producto</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Kg Neto</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Kg Bruto</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Presentacion</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Unidades</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Lote</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Nro.Estibas</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha Cargue</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha Entrega</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Prioridad</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Publicación</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Asignación</th>
+            </tr>
+          </thead>
+          <tbody id='tbl_administrar_pedidos' class='text-center'>
+            <tr>
+              <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+                <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info" style="display: none;"> Esperando Información
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>

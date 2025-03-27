@@ -487,6 +487,26 @@ class TorreControlModel extends Model
         throw new Exception("Error al insertar el estado de pedido por proveedor.");
       }
 
+      /*Insertar los estados de los recursos por proveedor*/
+      $sql_insert_estado_recurso = $this->_db3->prepare("INSERT INTO cmx_estado_historico_recurso (recurso_id,proveedor_id,estado_recurso,estado_actual,usuario,fecha,hora,empresa_id)
+      VALUES (:recurso_id,:proveedor_id,:estado_recurso,:estado_actual,:usuario,CURDATE(),CURTIME(),:empresa_id)");
+
+      // foreach ($solicitudes as $key => $value) {}
+      foreach ($asignaciones as $index => $asignacion) {
+        $sql_insert_estado_recurso->execute([
+          ':recurso_id' => $numdoc_cabecera,
+          ':proveedor_id' => $asignacion['proveedor_id'],
+          ':estado_recurso' => 'Pendiente Iniciar',
+          ':estado_actual' => 1,
+          ':usuario' => $nom_usuario,
+          ':empresa_id' => $session_empresa_id
+        ]);
+      }
+
+      if ($sql_insert_estado_recurso->rowCount() === 0) {
+        throw new Exception("Error al insertar el estado del recurso por proveedor.");
+      }
+
       $this->_db3->commit(); // Confirmar la transacción
       return ["status" => true, "message" => "Asignaciones insertadas y estado actualizado correctamente"];
     } catch (Exception $e) {
@@ -629,7 +649,7 @@ class TorreControlModel extends Model
       }
 
       /* Insertar el estado de pedido por proveedor */
-      $sql_insert_estado_proveedor = $this->_db3->prepare("INSERT INTO cmx_pedido_proveedor_estado (pedido_id,proveedor_id,estado_proceso_pedido,estado_visualizar,usuario ,fecha,hora,empresa_id)
+      $sql_insert_estado_proveedor = $this->_db3->prepare("INSERT INTO cmx_pedido_proveedor_estado (pedido_id,proveedor_id,estado_proceso_pedido,estado_visualizar,usuario,fecha,hora,empresa_id)
       VALUES (:pedido_id,:proveedor_id,:estado_proceso_pedido,:estado_visualizar,:usuario,CURDATE(),CURTIME(),:empresa_id)");
 
       foreach ($Proveedoresseleccionados as $proveedor_id) {
@@ -648,6 +668,28 @@ class TorreControlModel extends Model
 
       if ($sql_insert_estado_proveedor->rowCount() === 0) {
         throw new Exception("Error al insertar el estado de pedido por proveedor.");
+      }
+
+      /*Insertar los estados de los recursos por proveedor*/
+      $sql_insert_estado_recurso = $this->_db3->prepare("INSERT INTO cmx_estado_historico_recurso (recurso_id,proveedor_id,estado_recurso,estado_actual,usuario,fecha,hora,empresa_id)
+      VALUES (:recurso_id,:proveedor_id,:estado_recurso,:estado_actual,:usuario,CURDATE(),CURTIME(),:empresa_id)");
+
+      foreach ($Proveedoresseleccionados as $proveedor_id) {
+        foreach ($solicitudes as $solicitud) {
+          $numdocSolicitud = $solicitud['id'];
+          $sql_insert_estado_recurso->execute([
+            ':recurso_id' => $numdocSolicitud,
+            ':proveedor_id' => $proveedor_id,
+            ':estado_recurso' => 'Pendiente Iniciar',
+            ':estado_actual' => 1,
+            ':usuario' => $nom_usuario,
+            ':empresa_id' => $session_empresa_id
+          ]);
+        }
+      }
+
+      if ($sql_insert_estado_recurso->rowCount() === 0) {
+        throw new Exception("Error al insertar el estado del recurso por proveedor.");
       }
 
       $this->_db3->commit(); // Confirmar la transacción
@@ -1259,31 +1301,61 @@ class TorreControlModel extends Model
     }
   }
 
-  public function Listar_recrusos_administrador()
+  public function Listar_recrusos_administrador($ventana, $proveedor_id)
   {
-    try {
-      $stmt = $this->_db3->prepare("SELECT DISTINCT rp.maestro_id,CONCAT(rp.fecha,'-',rp.hora) AS fecha, rp.usuario,rp.estado, cl.nombre,cps.proceso FROM cmx_recurso_pedido rp 
-      INNER JOIN cmx_clientes cl ON cl.id=rp.cliente_id
-      INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id");
-      $stmt->execute();
-      return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-      $error = $e->getMessage();
-      // $this->_db3->rollBack();
+    //Separacion por proveedor y ventanas
+    $response = [];
+    if (isset($ventana) && isset($proveedor_id)) {
+      try {
+        $stmt = $this->_db3->prepare("SELECT DISTINCT rp.maestro_id,CONCAT(rp.fecha,'-',rp.hora) AS fecha, rp.usuario,rp.estado, cl.nombre,cps.proceso FROM cmx_recurso_pedido rp 
+        INNER JOIN cmx_clientes cl ON cl.id=rp.cliente_id
+        INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id
+				WHERE cps.proveedor_id=:proveedor_id");
+        $stmt->bindParam(':proveedor_id', $proveedor_id);
+        $stmt->execute();
+        $response = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      } catch (PDOException $e) {
+        $error = $e->getMessage();
+        // $this->_db3->rollBack();
+      }
+    } else {
+      # code...
+      try {
+        $stmt = $this->_db3->prepare("SELECT DISTINCT rp.maestro_id,CONCAT(rp.fecha,'-',rp.hora) AS fecha, rp.usuario,rp.estado, cl.nombre,cps.proceso FROM cmx_recurso_pedido rp 
+        INNER JOIN cmx_clientes cl ON cl.id=rp.cliente_id
+        INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id");
+        $stmt->execute();
+        $response = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      } catch (PDOException $e) {
+        $error = $e->getMessage();
+        // $this->_db3->rollBack();
+      }
     }
+
+    return $response;
   }
 
   public function Listar_pedidos_recrusos($MaestroId)
   {
     $sql = $this->_db3->prepare("SELECT pt.numdoc_solicitud,rp.maestro_id,pt.cod_producto,pt.referencia_pedido,pt.ciudad_origen,pt.ciudad_destino,pt.producto,pt.peso_bruto_kg,pt.presentacion,
-    pt.unidades,pt.fecha_cargue,pt.fecha_entrega
+    pt.unidades,pt.fecha_cargue,pt.fecha_entrega,pt.peso_neto_kg,ppe.estado_proceso_pedido
     FROM cmx_recurso_pedido rp 
     INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id
-    INNER JOIN cmx_pedido_torre_control pt ON cps.pedido_id=pt.id
-    WHERE rp.maestro_id=:maestro_id GROUP BY pt.numdoc_solicitud");
+    INNER JOIN cmx_pedido_torre_control pt ON cps.pedido_id=pt.numdoc_solicitud
+    INNER JOIN cmx_pedido_proveedor_estado ppe ON cps.pedido_id=pt.numdoc_solicitud AND cps.proveedor_id=ppe.proveedor_id
+    WHERE rp.maestro_id=:maestro_id AND ppe.estado_visualizar=1 GROUP BY pt.numdoc_solicitud");
     $sql->bindParam('maestro_id', $MaestroId, PDO::PARAM_INT);
     $sql->execute();
     return $sql->fetchAll(PDO::FETCH_ASSOC);
+    // $sql = $this->_db3->prepare("SELECT pt.numdoc_solicitud,rp.maestro_id,pt.cod_producto,pt.referencia_pedido,pt.ciudad_origen,pt.ciudad_destino,pt.producto,pt.peso_bruto_kg,pt.presentacion,
+    // pt.unidades,pt.fecha_cargue,pt.fecha_entrega,pt.peso_neto_kg
+    // FROM cmx_recurso_pedido rp 
+    // INNER JOIN cmx_cliente_proveedor_servicio cps ON rp.maestro_id=cps.recurso_id
+    // INNER JOIN cmx_pedido_torre_control pt ON cps.pedido_id=pt.numdoc_solicitud
+    // WHERE rp.maestro_id=:maestro_id GROUP BY pt.numdoc_solicitud");
+    // $sql->bindParam('maestro_id', $MaestroId, PDO::PARAM_INT);
+    // $sql->execute();
+    // return $sql->fetchAll(PDO::FETCH_ASSOC);
   }
 
   public function Listar_servicios_pedidos_recursos($MaestroId)

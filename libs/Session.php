@@ -344,7 +344,7 @@ class Session
         INNER JOIN cmx_modulos_perfil mp ON mp.id_perfil = p.id
         INNER JOIN cmx_modulos mo ON mo.id = mp.id_modulo
         INNER JOIN cmx_pantallas pt ON mo.id = pt.modulo_id
-        INNER JOIN cmx_pantallas_menu ptm ON pt.id = ptm.pantalla_id
+        INNER JOIN cmx_pantallas_menu ptm ON pt.id = ptm.pantalla_id AND estado_ventana='Activo' /*Nuevo Validacion*/
         INNER JOIN cmx_ventanas v ON ptm.ventana_id = v.id
     WHERE
         u.user_log = :user_log

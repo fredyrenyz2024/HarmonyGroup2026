@@ -1,15 +1,33 @@
 $(document).ready(function () {
 
+  // Inicializar sessionStorage si no existe
+  if (!sessionStorage.getItem("carrito")) {
+    sessionStorage.setItem("carrito", JSON.stringify([]));
+  }
+
   document.addEventListener("click", async (e) => {
     if (e.target.matches("#btn_asignar_proveedor") || e.target.matches("#btn_asignar_proveedor *")) {
       let enlace = e.target.closest("#btn_asignar_proveedor");
       let dataId = enlace.getAttribute("data-id");
       let dataId2 = enlace.getAttribute("data-id2");
+      let titulo_opcion = enlace.getAttribute("data-title");
 
-      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Asignar proveedor solicitud de servicio`);
+      /* Colcoar titulo a la opcion que se va a ejecutar */
+      document.getElementById("titulo_opcion").innerHTML = titulo_opcion;
 
-      // Mostrar un indicador de carga mientras se obtienen los datos
-      myOffcanvas.updateContent(`
+      document.getElementById("acciones_asignacion").innerHTML = `
+        <div class="col-12">
+          <div class="row g-3 justify-content-end">
+            <div class="col-auto">
+              <button class="btn btn-primary btn-sm py-1" id="btn_asignacion_proveedor" type="button" data-numdoc_solicitud="${dataId}" data-ClienteId="${dataId2}">
+                <span class="uil uil-save"></span> Asignar
+              </button>
+            </div>
+          </div>
+        </div>`;
+
+      /* Colcoar contenido a la opcion que se va a ejecutar */
+      document.getElementById("contenido_opcion").innerHTML = `
         <div class="col-12">
           <div class="row">
             <table class="table table-sm" style="font-size: 12px;">
@@ -25,40 +43,9 @@ $(document).ready(function () {
                 <tr><td colspan="4" class="text-center">Cargando proveedores...</td></tr>
               </tbody>
             </table>
-
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-              <div class="mb-3">
-                <label class="control-label">(*) Fecha Vencimiento:</label>
-                <input type="date" class="form-control form-control-sm" id="fecha_vencimiento" name="fecha_vencimiento">
-              </div>
-            </div>
-
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-              <div class="mb-3">
-                <label class="control-label">(*) Hora Vencimiento:</label>
-                <input type="time" class="form-control form-control-sm" id="hora_vencimiento" name="hora_vencimiento">
-              </div>
-            </div>
-
-            <div class="col-12 gy-6 my-3">
-              <div class="row g-3 justify-content-end">
-                <div class="col-auto">
-                  <button class="btn btn-phoenix-primary btn-sm text-danger" type="button" id="btn-cancelar">
-                    <span class="text-danger" data-feather="x"></span> Cancelar
-                  </button>
-                </div>
-
-                <div class="col-auto">
-                  <button class="btn btn-primary btn-sm" id="btn_asignacion_proveedor" type="button" data-numdoc_solicitud="${dataId}">
-                    <span class="uil uil-save"></span> Guardar Asignación
-                  </button>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
-      `);
+      `;
 
       try {
         let formData = new FormData();
@@ -102,8 +89,9 @@ $(document).ready(function () {
         console.error("Error al obtener proveedores:", error);
         document.getElementById("tbody_proveedor_torre_control").innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error al cargar proveedores</td></tr>`;
       }
-
-      myOffcanvas.show();
+      // Obtener el contenido actual y agregar el nuevo contenido sin reemplazarlo
+      let contenidoActual = myOffcanvas.getContent(); // Asegúrate de que `getContent()` existe en tu implementación
+      myOffcanvas.updateContent(contenidoActual);
     }
 
     // 🚀 Evento para listar servicios cuando se haga clic en "Servicios"
@@ -131,13 +119,40 @@ $(document).ready(function () {
 
             if (data) {
               let serviciosHTML = '<ul class="list-group">';
-              data.forEach((servicio) => {
+              let TipoServicio = "";
+              data.forEach((servicio, index) => {
+                TipoServicio = servicio.tipo_servicio;
                 serviciosHTML += `
-                  <li class="list-group-item d-flex align-items-center p-1">
-                    <!--<i class="uil uil-folder text-warning me-2"></i>-->
-                    <div class="form-check form-switch">
-                      <input class="form-check-input me-2" type="checkbox" name="servicioProveedor" id="servicio_${servicio.id}" value="${servicio.id}" data-idProveedor="${proveedorId}">
-                      <label for="servicio_${servicio.id}" class="flex-grow-1">${servicio.tipo_servicio}</label>
+                  <li class="list-group-item d-flex align-items-center px-1 py-0 bg-gray-100" id="servicios_proveedor${index}">
+                    <div class="container">
+                      <div class="row align-items-center mb-2 gap-2">
+                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 d-flex justify-content-start mt-4">
+                          <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" name="servicioProveedor" id="servicio_${proveedorId}_${servicio.id}" value="${servicio.id}" data-idProveedor="${proveedorId}" data-index="${index}"
+                            onchange="accionesServicio(${proveedorId}, this.value, this.id,'${TipoServicio}', ${index})">
+                            <label class="form-label">${servicio.tipo_servicio}</label>
+                          </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3" id="contenido_fecha_vencimiento_${proveedorId}_${index}" style="display:none;">
+                          <div class="mb-1">
+                            <label class="form-label">(*) Fecha Vencimiento:</label>
+                            <input type="date" class="form-control form-control-sm" id="fecha_vencimiento_${proveedorId}_${index}" name="fecha_vencimiento">
+                          </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3" id="contenido_hora_vencimiento_${proveedorId}_${index}" style="display:none;">
+                          <div class="mb-1">
+                            <label class="form-label">(*) Hora Vencimiento:</label>
+                            <input type="time" class="form-control form-control-sm" id="hora_vencimiento_${proveedorId}_${index}" name="hora_vencimiento">
+                          </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3" id="contenido_tipo_vehiculo_${proveedorId}_${index}" style="display:none;">
+                          <div class="mb-1">
+                            <label class="form-label">(*) Tipo de Vehiculo:</label>
+                            <select class="form-select form-select-sm fs-9" id="tipo_vehiculo_${proveedorId}_${index}" name="tipo_vehiculo" style="width: 100%;font-size: 10px;">
+                            </select>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </li>
                 `;
@@ -159,18 +174,24 @@ $(document).ready(function () {
     }
 
     if (e.target.matches("#btn_asignacion_proveedor") || e.target.matches("#btn_asignacion_proveedor *")) {
-      let enlace = e.target.closest("#btn_asignacion_proveedor");
-      let numdocSolicitud = enlace.getAttribute("data-numdoc_solicitud");
-
+      // let enlace = e.target.closest("#btn_asignacion_proveedor");
+      let ClienteId = e.target.getAttribute("data-ClienteId");
       let asignaciones = [];
 
       document.querySelectorAll('input[name="servicioProveedor"]:checked').forEach((checkbox) => {
         let servicioId = checkbox.value;
         let proveedorId = checkbox.getAttribute("data-idProveedor");
+        let Index = checkbox.getAttribute("data-index");
+        let fecha_vencimiento = document.getElementById(`fecha_vencimiento_${proveedorId}_${Index}`).value.trim();
+        let hora_vencimiento = document.getElementById(`hora_vencimiento_${proveedorId}_${Index}`).value.trim();
+        let tipo_vehiculo = document.getElementById(`tipo_vehiculo_${proveedorId}_${Index}`).value.trim();
 
         asignaciones.push({
           servicio_id: servicioId,
-          proveedor_id: proveedorId
+          proveedor_id: proveedorId,
+          fecha_vencimiento: fecha_vencimiento,
+          hora_vencimiento: hora_vencimiento,
+          tipo_vehiculo: tipo_vehiculo ? (tipo_vehiculo || 0) : 0,// Evita valores undefined
         });
       });
 
@@ -200,10 +221,9 @@ $(document).ready(function () {
         btn.innerHTML = "Asignando Proveedor... ⏳";
 
         let formData = new FormData();
-        formData.append("numdocSolicitud", numdocSolicitud);
         formData.append("asignaciones", JSON.stringify(asignaciones));
-        formData.append("fecha_vencimiento", document.getElementById("fecha_vencimiento").value);
-        formData.append("hora_vencimiento", document.getElementById("hora_vencimiento").value);
+        formData.append("solicitudes", sessionStorage.getItem("carrito"));
+        formData.append("ClienteId", ClienteId);
 
         try {
           const response = await fetch($('#base_url').val() + 'torrecontrol/insertar_asignacion', {
@@ -221,8 +241,9 @@ $(document).ready(function () {
             draggable: true
           }).then((result) => {
             if (result.isConfirmed) {
-              // location.reload(); // Recargar la página
               myOffcanvas.hide();
+              sessionStorage.clear();
+              actualizarContadorCarrito();
               listar_pedidos_administrador(fechaColombia, fechaColombia);
             }
           });
@@ -241,62 +262,42 @@ $(document).ready(function () {
       let enlace = e.target.closest("#btn_publicar_pedido");
       let dataId = enlace.getAttribute("data-id");
       let dataId2 = enlace.getAttribute("data-id2");
+      let titulo_opcion = enlace.getAttribute("data-title");
 
-      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Publicar Pedido ${dataId}`);
+      /* Colcoar titulo a la opcion que se va a ejecutar */
+      document.getElementById("titulo_opcion").innerHTML = titulo_opcion;
 
-      // Mostrar un indicador de carga mientras se obtienen los datos
-      myOffcanvas.updateContent(`
-        <div class="col-12">
-          <div class="row">
-            <table class="table table-sm" style="font-size: 12px;">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Servicio</th>
-                  <th scope="col">Estado</th>
-                  <th scope="col">Acción</th>
-                  <th scope="col">Seleccionar</th>
-                </tr>
-              </thead>
-              <tbody id="tbody_servicio_torre_control">
-                <tr><td colspan="4" class="text-center">Cargando servicios...</td></tr>
-              </tbody>
-            </table>
-
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-              <div class="mb-3">
-                <label class="control-label">(*) Fecha Vencimiento:</label>
-                <input type="date" class="form-control form-control-sm" id="fecha_vencimiento" name="fecha_vencimiento">
-              </div>
-            </div>
-
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-              <div class="mb-3">
-                <label class="control-label">(*) Hora Vencimiento:</label>
-                <input type="time" class="form-control form-control-sm" id="hora_vencimiento" name="hora_vencimiento">
-              </div>
-            </div>
-
-            <div class="col-12 gy-6 my-3">
-              <div class="row g-3 justify-content-end">
-                <div class="col-auto">
-                  <button class="btn btn-phoenix-primary btn-sm text-danger" type="button" id="btn-cancelar">
-                    <span class="text-danger" data-feather="x"></span> Cancelar
-                  </button>
-                </div>
-
-                <div class="col-auto">
-                  <button class="btn btn-primary btn-sm" id="btn_publicacion_pedido" type="button" data-numdoc_solicitud="${dataId}">
-                    <span class="uil uil-save"></span> Publicar Pedido
-                  </button>
-                </div>
-              </div>
-            </div>
-
+      document.getElementById("acciones_asignacion").innerHTML = `
+      <div class="col-12">
+        <div class="row g-3 justify-content-end">
+          <div class="col-auto">
+            <button class="btn btn-primary btn-sm py-1" id="btn_publicacion_pedido" type="button" data-numdoc_solicitud="${dataId}" data-ClienteId="${dataId2}">
+              <span class="uil uil-save"></span> Publicar
+            </button>
           </div>
         </div>
-      `);
+      </div>`;
 
+      document.getElementById("contenido_opcion").innerHTML = `
+          <div class="col-12">
+            <div class="row">
+              <table class="table table-sm" style="font-size: 12px;">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Servicio</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acción</th>
+                    <th scope="col">Seleccionar</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody_servicio_torre_control">
+                  <tr><td colspan="4" class="text-center">Cargando servicios...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+       `;
 
       try {
         let formData = new FormData();
@@ -341,8 +342,6 @@ $(document).ready(function () {
         console.error("Error al obtener proveedores:", error);
         document.getElementById("tbody_servicio_torre_control").innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error al cargar proveedores</td></tr>`;
       }
-
-      myOffcanvas.show();
     }
 
     if (e.target.matches("#btn_listar_proveedores") || e.target.matches("#btn_listar_proveedores *")) {
@@ -355,46 +354,80 @@ $(document).ready(function () {
 
     if (e.target.matches("#btn_publicacion_pedido") || e.target.matches("#btn_publicacion_pedido *")) {
       let enlace = e.target.closest("#btn_publicacion_pedido");
-      let numdocSolicitud = enlace.getAttribute("data-numdoc_solicitud");
+      let ClienteId = enlace.getAttribute("data-clienteid");
 
       let seleccionados = [];
       let ArrayProveedoresseleccionados = [];
 
+      // document.querySelectorAll("input[name='ProveedorServicio']:checked").forEach((checkbox) => {
+      //   let servicioId = checkbox.value;
+      //   let proveedores = document.querySelectorAll(`#proveedores_${servicioId} input[name='ServiciosProveedores']`);
+      //   let fechaVencimiento = document.getElementById(`fecha_vencimiento_${servicioId}`).value.trim();
+      //   let horaVencimiento = document.getElementById(`hora_vencimiento_${servicioId}`).value.trim();
+      //   let tipoVehiculo = document.getElementById(`tipo_vehiculo_${servicioId}`).value.trim();
+      //   let proveedoresSeleccionados = [];
+
+      //   proveedores.forEach((input) => {
+      //     // Si el proveedor no está en el array, lo agregamos
+      //     proveedoresSeleccionados.push(input.value);
+      //     if (!ArrayProveedoresseleccionados.includes(input.value)) {
+      //       ArrayProveedoresseleccionados.push(input.value); // Guardamos en el array global
+      //     }
+      //   });
+
+      //   seleccionados.push({
+      //     servicio_id: servicioId,
+      //     fecha_vencimiento: fechaVencimiento,
+      //     hora_vencimiento: horaVencimiento,
+      //     tipo_vehiculo: tipoVehiculo,
+      //     proveedores: proveedoresSeleccionados
+      //   });
+      // });
+
+
       document.querySelectorAll("input[name='ProveedorServicio']:checked").forEach((checkbox) => {
         let servicioId = checkbox.value;
         let proveedores = document.querySelectorAll(`#proveedores_${servicioId} input[name='ServiciosProveedores']`);
+
+        let fechaVencimientoElem = document.getElementById(`fecha_vencimiento_${servicioId}`);
+        let horaVencimientoElem = document.getElementById(`hora_vencimiento_${servicioId}`);
+        let tipoVehiculoElem = document.getElementById(`tipo_vehiculo_publicacion${servicioId}`);
+
+        let fechaVencimiento = fechaVencimientoElem ? fechaVencimientoElem.value.trim() : "";
+        let horaVencimiento = horaVencimientoElem ? horaVencimientoElem.value.trim() : "";
+        let tipoVehiculo = tipoVehiculoElem ? (tipoVehiculoElem.value.trim() || 0) : 0; // Evita valores undefined
+
         let proveedoresSeleccionados = [];
 
         proveedores.forEach((input) => {
-          // Si el proveedor no está en el array, lo agregamos
           proveedoresSeleccionados.push(input.value);
           if (!ArrayProveedoresseleccionados.includes(input.value)) {
-            ArrayProveedoresseleccionados.push(input.value); // Guardamos en el array global
+            ArrayProveedoresseleccionados.push(input.value);
           }
         });
 
         seleccionados.push({
           servicio_id: servicioId,
+          fecha_vencimiento: fechaVencimiento,
+          hora_vencimiento: horaVencimiento,
+          tipo_vehiculo: tipoVehiculo,
           proveedores: proveedoresSeleccionados
         });
+
       });
-
-      // console.log(seleccionados);
-      // console.log(ArrayProveedoresseleccionados); // Muestra la lista global sin duplicados
-
 
       if (seleccionados.length === 0) {
         Swal.fire("Error", "Debe seleccionar al menos un servicio y un proveedor.", "error");
         return;
       }
 
-      let fechaVencimiento = document.getElementById("fecha_vencimiento").value.trim();
-      let horaVencimiento = document.getElementById("hora_vencimiento").value.trim();
+      // let fechaVencimiento = document.getElementById("fecha_vencimiento").value.trim();
+      // let horaVencimiento = document.getElementById("hora_vencimiento").value.trim();
 
-      if (!fechaVencimiento || !horaVencimiento) {
-        Swal.fire("Error", "Debe seleccionar fecha y hora de vencimiento.", "error");
-        return;
-      }
+      // if (!fechaVencimiento || !horaVencimiento) {
+      //   Swal.fire("Error", "Debe seleccionar fecha y hora de vencimiento.", "error");
+      //   return;
+      // }
 
       const result = await Swal.fire({
         title: "¿Seguro?",
@@ -415,12 +448,11 @@ $(document).ready(function () {
         btn.innerHTML = "Publicando Pedido... ⏳";
 
         let formData = new FormData();
-        formData.append("numdocSolicitud", numdocSolicitud);
         formData.append("seleccionados", JSON.stringify(seleccionados));
-        formData.append("fecha_vencimiento", fechaVencimiento);
-        formData.append("hora_vencimiento", horaVencimiento);
+        formData.append("solicitudes", sessionStorage.getItem("carrito"));
         formData.append("Proveedoresseleccionados", JSON.stringify(ArrayProveedoresseleccionados));
         formData.append("proceso", 'Publicación');
+        formData.append("ClienteId", ClienteId);
 
         try {
           const response = await fetch($('#base_url').val() + "torrecontrol/publicar_pedido", {
@@ -446,6 +478,8 @@ $(document).ready(function () {
           }).then((result) => {
             if (result.isConfirmed) {
               myOffcanvas.hide();
+              sessionStorage.clear();
+              actualizarContadorCarrito();
               listar_pedidos_administrador(fechaColombia, fechaColombia);
             }
           });
@@ -455,7 +489,7 @@ $(document).ready(function () {
           Swal.fire("Error", "Error al enviar datos al servidor.", "error");
         } finally {
           btn.disabled = false;
-          btn.innerHTML = "<span class='uil uil-save'></span> Publicar Pedido";
+          btn.innerHTML = "<span class='uil uil-save'></span> Publicar";
         }
       }
     }
@@ -769,6 +803,71 @@ $(document).ready(function () {
       }
     }
 
+    if (e.target.matches("#btn_cacnelar_asignacion") || e.target.matches("#btn_cacnelar_asignacion *")) {
+      let enlace = e.target.closest("#btn_cacnelar_asignacion");
+      let dataId = enlace.getAttribute("data-id");
+
+      const result = await Swal.fire({
+        title: "Seguro",
+        text: "¿Desea cancelar la asignación del pedido " + dataId + "?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3B71CA",
+        cancelButtonColor: "#9FA6B2",
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+          popup: "swal2-custom-font",
+        },
+      });
+
+      if (result.isConfirmed) {
+        const btn = document.querySelector("#btn_cacnelar_asignacion");
+
+        btn.disabled = true;
+        btn.innerHTML = "Cancelando asignación... ⏳";
+
+        let formData = new FormData();
+        formData.append("numdocSolicitud", dataId);
+
+        try {
+          const response = await fetch($('#base_url').val() + 'torrecontrol/cancelar_asignacion', {
+            method: 'POST',
+            body: formData,
+            cache: 'no-cache',
+          });
+
+          const data = await response.json();
+
+          Swal.fire({
+            title: "Mensaje!",
+            text: data.message,
+            icon: data.status ? "success" : "error",
+            draggable: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // location.reload(); // Recargar la página
+              myOffcanvas.hide();
+              listar_pedidos_administrador(fechaColombia, fechaColombia);
+            }
+          });
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire("Error", "Error al enviar datos al servidor.", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "Cancelar Asignación";
+        }
+      }
+
+    }
+
+    /* Cerrar el offcanvas y limpiar el carrito */
+    if (e.target.matches(".btn-close") || e.target.matches(".btn-close *")) {
+      sessionStorage.clear();
+      actualizarContadorCarrito();
+    }
   });
 
   // Evento para mostrar/ocultar proveedores con el checkbox y hacer la petición AJAX
@@ -780,7 +879,98 @@ $(document).ready(function () {
       await mostrarProveedores(clienId, ServicioId);
     }
   });
+
+  // Evento para seleccionar/deseleccionar todos los checkboxes
+  $('#selectAll').on('change', function () {
+    let isChecked = $(this).prop('checked');
+    $('.pedido-checkbox').prop('checked', isChecked);
+    let carrito = isChecked ? obtenerTodosLosPedidos() : [];
+    sessionStorage.setItem("carrito", JSON.stringify(carrito));
+    document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = isChecked ? "" : "none";
+    actualizarContadorCarrito();
+  });
+
+  // Evento para manejar cambios en los checkboxes individuales
+  $(document).on('change', '.pedido-checkbox', function () {
+    let carrito = JSON.parse(sessionStorage.getItem("carrito")) || [];
+    let pedido = {
+      id: $(this).val(),
+      dataId: $(this).data('id'),  // Obtiene el atributo data-id
+      dataId2: $(this).data('id2'),
+      dataId3: $(this).data('id3'),
+      dataId4: $(this).data('id4'),
+      dataId5: $(this).data('id5'),
+      dataId6: $(this).data('id6'),
+      dataId7: $(this).data('id7'),
+      dataId8: $(this).data('id8'),
+      dataId9: $(this).data('id9'),
+      dataId10: $(this).data('id10'),
+      dataId11: $(this).data('id11'),
+      dataId12: $(this).data('id12'),
+      dataId13: $(this).data('id13'),
+      dataId14: $(this).data('id14'),
+    };
+
+    if ($(this).prop('checked')) {
+      // Agregar solo si no existe en el carrito
+      if (!carrito.some(item => item.id === pedido.id)) {
+        carrito.push(pedido);
+      }
+    } else {
+      // Filtrar para eliminar el elemento
+      carrito = carrito.filter(item => item.id !== pedido.id);
+    }
+
+    // Si todos los checkboxes están seleccionados, marcar el selectAll
+    $('#selectAll').prop('checked', $('.pedido-checkbox:checked').length === $('.pedido-checkbox').length);
+    sessionStorage.setItem("carrito", JSON.stringify(carrito));
+    // Mostrar o ocultar el campo del carrito
+    carrito.length > 0 ? document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = "" : document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = "none";
+    document.getElementById(`campo-${window.VENTANA}-carrito`).setAttribute("data-idPedido", pedido.id);
+    document.getElementById(`campo-${window.VENTANA}-carrito`).setAttribute("data-idCliente", pedido.dataId14);
+    actualizarContadorCarrito();
+  });
 });
+
+function obtenerTodosLosPedidos() {
+  return $('.pedido-checkbox').map(function () {
+    return {
+      id: $(this).val(),          // Obtiene el valor del checkbox
+      dataId: $(this).data('id'),
+      dataId2: $(this).data('id2'),
+      dataId3: $(this).data('id3'),
+      dataId4: $(this).data('id4'),
+      dataId5: $(this).data('id5'),
+      dataId6: $(this).data('id6'),
+      dataId7: $(this).data('id7'),
+      dataId8: $(this).data('id8'),
+      dataId9: $(this).data('id9'),
+      dataId10: $(this).data('id10'),
+      dataId11: $(this).data('id11'),
+      dataId12: $(this).data('id12'),
+      dataId13: $(this).data('id13'),
+      dataId14: $(this).data('id14'),
+    };
+  }).get();
+}
+
+// Función para actualizar el contador del carrito
+function actualizarContadorCarrito() {
+  let carrito = JSON.parse(sessionStorage.getItem("carrito")) || [];
+  $("#contadorCarrito").text(carrito.length);
+
+  if (carrito.length === 0) {
+    // Ocultar el campo del carrito
+    document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = "none";
+
+    // Deseleccionar todos los checkboxes de pedidos
+    $('.pedido-checkbox').prop('checked', false);
+
+    // Deseleccionar el checkbox "Seleccionar todos"
+    $('#selectAll').prop('checked', false);
+  }
+}
+
 // Construir un OffCanvas
 // Constructor del Offcanvas Dinámico
 function DynamicOffcanvas(options) {
@@ -812,7 +1002,7 @@ DynamicOffcanvas.prototype.createOffcanvas = function () {
         data-bs-scroll="${this.settings.scroll}" 
         data-bs-backdrop="${this.settings.backdrop}" 
         tabindex="-1" 
-        aria-labelledby="${this.settings.id}-label" style="width: 800px;">
+        aria-labelledby="${this.settings.id}-label" style="width: 1000px;">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title fw-bold" id="${this.settings.id}-label">
             ${this.settings.title}
@@ -849,6 +1039,11 @@ DynamicOffcanvas.prototype.hide = function () {
   this.bsOffcanvas.hide();
 };
 
+DynamicOffcanvas.prototype.getContent = function () {
+  var body = this.offcanvasElement.querySelector('.offcanvas-body');
+  return body.innerHTML; // Devuelve el contenido actual
+};
+
 // Función para obtener y mostrar proveedores
 async function mostrarProveedores(clienId, ServicioId) {
   let filaProveedores = document.getElementById(`proveedores_${ServicioId}`);
@@ -873,14 +1068,47 @@ async function mostrarProveedores(clienId, ServicioId) {
           method: "POST",
           body: formData
         });
-
         let data = await response.json();
-
+        let tipo_vehiculo = ``;
         if (data) {
+
+          if (ServicioId === '2') {
+            tipo_vehiculo = `
+              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                <div class="mb-1">
+                  <label class="form-label">(*) Tipo de Vehiculo:</label>
+                  <select class="form-select form-select-sm fs-9" id="tipo_vehiculo_publicacion${ServicioId}" name="tipo_vehiculo" style="width: 100%;font-size: 10px;">
+                  </select>
+                </div>
+              </div>
+            `;
+          } else {
+            tipo_vehiculo = ``;
+          }
+
+          let control_servicio = `
+            <div class="row">
+              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                <div class="mb-3">
+                  <label class="control-label">(*) Fecha Vencimiento:</label>
+                  <input type="date" class="form-control form-control-sm" id="fecha_vencimiento_${ServicioId}" name="fecha_vencimiento">
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                <div class="mb-3">
+                  <label class="control-label">(*) Hora Vencimiento:</label>
+                  <input type="time" class="form-control form-control-sm" id="hora_vencimiento_${ServicioId}" name="hora_vencimiento">
+                </div>
+              </div>
+              ${tipo_vehiculo}
+            </div>
+          `;
+
           let serviciosHTML = '<ul class="list-group">';
           data.forEach((proveedor) => {
             serviciosHTML += `
-              <li class="list-group-item d-flex align-items-center p-1">
+              <li class="list-group-item d-flex align-items-center p-1  bg-gray-100">
                 <div class="form-check form-switch">
                   <input class="form-check-input me-2" type="hidden" name="ServiciosProveedores" id="proveedor_${proveedor.id}" value="${proveedor.id}" data-ServicioId="${proveedor.servicio_id}">
                   <label for="servicio_${proveedor.id}" class="flex-grow-1">${proveedor.razon_social}</label>
@@ -890,16 +1118,97 @@ async function mostrarProveedores(clienId, ServicioId) {
           });
           serviciosHTML += '</ul>';
 
-          filaProveedores.querySelector(".lista-proveedores").innerHTML = serviciosHTML;
+          filaProveedores.querySelector(".lista-proveedores").innerHTML = control_servicio + serviciosHTML;
+
         } else {
           filaProveedores.querySelector(".lista-proveedores").innerHTML = `<p class="text-danger">${data.message}</p>`;
         }
       } catch (error) {
         console.error("Error al obtener servicios:", error);
         filaProveedores.querySelector(".lista-proveedores").innerHTML = `<p class="text-danger">Error al cargar proveedores</p>`;
+      } finally {
+        if (ServicioId === '2') {
+          $(`#tipo_vehiculo_publicacion${ServicioId}`).html('');
+          $.ajax({
+            url: $('#base_url').val() + 'serviciocliente/Tipo_Vehiculos',
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+              //traer el tipo de vehiculo
+              $(`#tipo_vehiculo_publicacion${ServicioId}`).append('<option value="">Seleccione</option>');
+              data.forEach(function (element, index1) {
+                $(`#tipo_vehiculo_publicacion${ServicioId}`).append('<option value="' + element.id + '" style="width: 100%;font-size: 10px;"   >' + element.nombre + '</option>');
+              });
+              // Inicializar los selects con Select2
+              $(`#tipo_vehiculo_publicacion${ServicioId}`).select2({
+                placeholder: 'Seleccione una opción',
+                allowClear: true,
+                width: '100%',
+              });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log('no entro ');
+              console.log(jqXHR);
+              console.log(textStatus);
+              console.log(errorThrown);
+            },
+          });
+        }
       }
     }
   } else {
     filaProveedores.style.display = "none";
+  }
+}
+
+/* Funcion para obtener y mostrar proveedores */
+async function accionesServicio(proveedorId, servicioId, pedidoId, tipoServicio, index) {
+  let pedidoCheckbox = document.getElementById(pedidoId);
+  let fechaVencimiento = document.getElementById(`contenido_fecha_vencimiento_${proveedorId}_${index}`);
+  let horaVencimiento = document.getElementById(`contenido_hora_vencimiento_${proveedorId}_${index}`);
+  let tipoVehiculo = document.getElementById(`contenido_tipo_vehiculo_${proveedorId}_${index}`);
+
+  if (!pedidoCheckbox || !fechaVencimiento || !horaVencimiento || !tipoVehiculo) {
+    console.error("Algunos elementos no fueron encontrados.");
+    return;
+  }
+
+  if (pedidoCheckbox.checked) {
+    console.log(`✅ Mostrando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
+    fechaVencimiento.style.display = "";
+    horaVencimiento.style.display = "";
+    if (tipoServicio === "Despachos") {
+      tipoVehiculo.style.display = "";
+      $(`#tipo_vehiculo_${proveedorId}_${index}`).html('');
+      $.ajax({
+        url: $('#base_url').val() + 'serviciocliente/Tipo_Vehiculos',
+        type: 'POST',
+        dataType: 'json',
+        success: function (data) {
+          //traer el tipo de vehiculo
+          $(`#tipo_vehiculo_${proveedorId}_${index}`).append('<option value="">Seleccione</option>');
+          data.forEach(function (element, index1) {
+            $(`#tipo_vehiculo_${proveedorId}_${index}`).append('<option value="' + element.id + '" style="width: 100%;font-size: 10px;"   >' + element.nombre + '</option>');
+          });
+          // Inicializar los selects con Select2
+          $(`#tipo_vehiculo_${proveedorId}_${index}`).select2({
+            placeholder: 'Seleccione una opción',
+            allowClear: true,
+            width: '100%',
+          });
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log('no entro ');
+          console.log(jqXHR);
+          console.log(textStatus);
+          console.log(errorThrown);
+        },
+      });
+    }
+  } else {
+    console.log(`❌ Ocultando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
+    fechaVencimiento.style.display = "none";
+    tipoVehiculo.style.display = "none";
+    horaVencimiento.style.display = "none";
   }
 }

@@ -1,0 +1,316 @@
+window.VENTANA = null; // Variable global para almacenar el ID
+// Definir la función initScript globalmente
+window.initScript = function (id) {
+  window.VENTANA = id; // Asigna el ID recibido a la variable global
+
+  // Crear instancia
+  // Usar una variable global o una propiedad en el objeto window
+  if (!window.myOffcanvas) {
+    window.myOffcanvas = new DynamicOffcanvas({
+      id: `customOffcanvas${id}`,
+      title: '<span class="text-dark uil uil-car"></span> Consultar vehículo',
+      content: '<p>Contenido inicial</p>',
+      scroll: true,
+      backdrop: false
+    });
+  } else {
+    console.log('El offcanvas ya está creado.');
+  }
+
+  const hoy = new Date();
+  const opciones = { timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit" };
+
+  // Formatear la fecha a "YYYY-MM-DD"
+  const fechaColombia = new Intl.DateTimeFormat("es-CO", opciones)
+    .format(hoy)
+    .split("/")
+    .reverse()
+    .join("-");
+
+  listar_recursos_proveedor(fechaColombia, fechaColombia, window.VENTANA);
+
+
+  document.addEventListener("click", async (e) => {
+    if (e.target.matches("#btn_detalle_proceso_servicio") || e.target.matches("#btn_detalle_proceso_servicio *")) {
+      let Enlace = e.target.closest("#btn_detalle_proceso_servicio");
+      let MaestroId = Enlace.getAttribute("data-id");
+      let ClienteId = Enlace.getAttribute("data-id2");
+      let Proceso = Enlace.getAttribute("data-proceso");
+      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Detalle de solicitud de servicio N°` + MaestroId);
+      myOffcanvas.updateContent(`
+          <div class="col-12">
+            <div class="row">
+              <div class="container d-flex justify-content-center align-items-center">
+                <div class="row text-black fw-bold text-center d-flex flex-wrap">
+                  <div class="col-auto mx-3">Peso Neto total: <span  class="badge badge-phoenix badge-phoenix-primary" id="pesoNeto">0</span></div>
+                  <div class="col-auto mx-3">Peso Bruto total: <span class="badge badge-phoenix badge-phoenix-primary" id="pesoBruto">0</span></div>
+                  <div class="col-auto mx-3">Total Unidades: <span   class="badge badge-phoenix badge-phoenix-primary" id="totalUnidades">0</span></div>
+                </div>
+              </div>
+              <hr class="my-1 text-dark">
+               <h6 class="mb-0 text-body-highlight me-2">Pedidos</h6>
+              <hr class="my-1 text-dark">
+              <div class="table-responsive scrollbar">
+                <table class="table table-sm text-center" style="font-size: 11px;">
+                  <thead>
+                    <tr>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>#</th>
+                      <!--<th scope="col" style='color:black;width: auto; white-space: nowrap;'>Recurso</th>-->
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Ref.Pedido</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Cod.Producto</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Producto</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Peso Bruto</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Empaque</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Cantidad</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Origen</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Destino</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Fecha Cargue</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Fecha Descargue</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody_servicios_pedidos_recurso" class="text-center">
+                    <tr><td colspan="12" class="text-center">Cargando servicios...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <hr class="my-1 text-dark">
+               <h6 class="mb-0 text-body-highlight me-2">Servicios</h6>
+              <hr class="my-1 text-dark">
+            </div>
+          </div>
+      `);
+
+      try {
+        let formData = new FormData();
+        formData.append("MaestroId", MaestroId);
+
+        let response = await fetch($('#base_url').val() + 'torrecontrol/listar_servicios_recursos', {
+          method: "POST",
+          body: formData
+        });
+
+        let data = await response.json();
+        if (data) {
+          let rows = "";
+          let totalPesoNeto = 0;
+          let totalPesoBruto = 0;
+          let totalUnidades = 0;
+          let col_estatus_publicacion = '';
+          data.forEach((servicio, index) => {
+            if (servicio.peso_neto_kg) {
+              totalPesoNeto += parseFloat(servicio.peso_neto_kg);
+            }
+
+            if (servicio.peso_bruto_kg) {
+              totalPesoBruto += parseFloat(servicio.peso_bruto_kg);
+            }
+
+            if (servicio.unidades) {
+              totalUnidades += parseFloat(servicio.unidades);
+            }
+
+            $('#pesoNeto').text(totalPesoNeto);
+            $('#pesoBruto').text(totalPesoBruto);
+            $('#totalUnidades').text(totalUnidades);
+
+            if (servicio.estado_proceso_pedido === 'Pendiente Iniciar') {
+              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+            } else if (servicio.estado_proceso_pedido === 'Iniciado') {
+              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+            } else if (servicio.estado_proceso_pedido === 'Cancelado') {
+              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+              btn_publicacion = `<a class="dropdown-item fw-bold" href="#" id="btn_publicar_pedido" data-id="${servicio.numdoc_solicitud}" data-id2="${servicio.cliente}"><span class="uil uil-feedback"></span> Publicar Pedido</a>`;
+            } else if (servicio.estado_proceso_pedido === 'Completado') {
+              col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+            } else if (servicio.estado_proceso_pedido === 'Rechazado') {
+              col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+            }
+            rows += `
+                <tr>
+                  <th scope="row">${servicio.numdoc_solicitud}</th>
+                  <!--<td class='text-center' style='color:black;width: auto; white-space: nowrap;'>
+                    N° ${servicio.maestro_id}
+                  </td>-->
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.referencia_pedido}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.cod_producto}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.producto}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.peso_bruto_kg}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.presentacion}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.unidades}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.ciudad_origen}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.ciudad_destino}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.fecha_cargue}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.fecha_entrega}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${col_estatus_publicacion}</td>
+                </tr>
+                <tr id="Recurso_proveedores_${servicio.numdoc_solicitud}" style="display: none;">
+                  <td colspan="12">
+                    <div class="lista-proceso-proveedores"></div>
+                  </td>
+                </tr>
+              `;
+          });
+
+          document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = rows;
+        } else {
+          document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">${data.message}</td></tr>`;
+        }
+      } catch (error) {
+        console.error("Error al obtener proveedores:", error);
+        document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">Error al cargar pedidos del recurso</td></tr>`;
+      }
+
+      myOffcanvas.show();
+    }
+
+    if (e.target.matches("#btn_proceso_servicios_recurso") || e.target.matches("#btn_proceso_servicios_recurso *")) {
+      let recurso = e.target.getAttribute("data-recurso");
+      let numdoc = e.target.getAttribute("data-numdoc_solicitud");
+
+      let filaProveedores = document.getElementById(`Recurso_proveedores_${numdoc}`);
+
+      if (!filaProveedores) {
+        console.error(`No se encontró el <tr> con id #Recurso_proveedores_${numdoc}`);
+        return;
+      }
+
+      // Mostrar u ocultar la fila de servicios
+      if (filaProveedores.style.display === "none") {
+        filaProveedores.style.display = "table-row";
+
+        // Obtener servicios si aún no se han cargado
+        if (filaProveedores.querySelector(".lista-proceso-proveedores").innerHTML.trim() === "") {
+
+          try {
+            let formData = new FormData();
+            formData.append("MaestroId", recurso);
+            // formData.append("numdoc", numdoc);
+
+            // let response = await fetch($('#base_url').val() + 'torrecontrol/listar_detalle_proveedores_servicio', {
+            let response = await fetch($('#base_url').val() + 'torrecontrol/Listar_servicios_pedidos_recursos', {
+              method: "POST",
+              body: formData
+            });
+            let data = await response.json();
+            if (data) {
+              let serviciosHTML = ' <div class="accordion" id="accordionExample">';
+              data.forEach((proveedor) => {
+                serviciosHTML += `
+                  <div class="accordion-item border-top">
+                    <h2 class="accordion-header" id="TipoServicio${proveedor.tipo_servicio}">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#TipoServicio_${proveedor.servicio_id}" aria-expanded="false" aria-controls="TipoServicio_${proveedor.servicio_id}">
+                        ${proveedor.tipo_servicio}
+                      </button>
+                    </h2>
+                    <div class="accordion-collapse collapse" id="TipoServicio_${proveedor.servicio_id}" aria-labelledby="TipoServicio${proveedor.tipo_servicio}" data-bs-parent="#accordionExample" style="">
+                      <div class="accordion-body pt-0" id="contenido${proveedor.servicio_id}"></div>
+                    </div>
+                  </div>
+                `;
+              });
+              serviciosHTML += '</div>';
+              filaProveedores.querySelector(".lista-proceso-proveedores").innerHTML = serviciosHTML;
+            } else {
+              filaProveedores.querySelector(".lista-proceso-proveedores").innerHTML = `<p class="text-danger">${data.message}</p>`;
+            }
+          } catch (error) {
+            console.error("Error al obtener servicios:", error);
+            filaProveedores.querySelector(".lista-proceso-proveedores").innerHTML = `<p class="text-danger">Error al cargar proveedores</p>`;
+          } finally { }
+        }
+      }
+    }
+  });
+
+}
+
+async function listar_recursos_proveedor(fecha_inicial, fecha_final, ventana) {
+  /* Funcion para enviar los datos */
+  let dato = new FormData();
+  dato.append('fecha_inicial', fecha_inicial);
+  dato.append('fecha_final', fecha_final);
+  dato.append('ventana', ventana);
+  dato.append('proveedor_id', document.getElementById('proveedor_id').value);
+  try {
+    const response = await fetch($('#base_url').val() + 'torrecontrol/listar_recrusos_administrador', {
+      method: 'POST',
+      body: dato,
+      cache: 'no-cache',
+    });
+    const data = await response.json();
+    if (data) {
+      let tbody = document.getElementById('tbl_administrador_recurso_pedidos');
+      tbody.innerHTML = '';
+      let esatdo_autorizado = '';
+      let col_estatus_publicacion = '';
+      let col_estatus_asignacion = '';
+      let btn_Asignacion = "";
+      let btn_publicacion = "";
+      let btn_cancelacion = "";
+      let col_prioridad = "";
+      let btn_removeAsignacion = "";
+      let checkbox_carrito = "";
+
+      data.forEach(element => {
+        const fila = document.createElement('tr');
+
+        const columnaNundocSolicitud = document.createElement('td');
+        columnaNundocSolicitud.innerHTML = `
+        <div class="dropdown">
+          <a class="btn btn-sm btn-link dropdown-toggle py-0 text-decoration-none" id="dropdownMenuLink" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> N°${element.maestro_id}</a>
+          <div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="dropdownMenuLink" style="">
+            <a class="dropdown-item fw-bold" href="#" id="btn_detalle_proceso_servicio" data-proceso="${element.proceso}" data-id="${element.maestro_id}" data-id2="${element.cliente}"><span class="uil uil-transaction"></span> Detalle Proceso</a>
+            <!--<a class="dropdown-item fw-bold" href="#" id="btn_observacion_solicitud_servicio"  data-id="${element.observaciones}" data-id2="${element.maestro_id}" data-id3="${element.sitio_cargue}" data-id4="${element.sitio_descargue}" data-id5="${element.referencia}"><span class="uil-wrap-text"></span> Detalle solicitud servicio</a>
+           ${btn_removeAsignacion}
+            <div class="dropdown-divider"></div> 
+            ${btn_cancelacion}
+            <a class="dropdown-item fw-bold" id="btn_marcar_prioridad" href="#" data-id="${element.maestro_id}" data-id2="${element.cliente}"> <span class="uil uil-bell"></span> Marcar como Prioridad</a>-->
+          </div>
+        </div>
+        `;
+
+        const columnaCliente = document.createElement('td');
+        columnaCliente.innerHTML = element.nombre;
+        columnaCliente.style.width = 'auto';
+        columnaCliente.style.whiteSpace = 'nowrap';
+
+        const columnaProceso = document.createElement('td');
+        columnaProceso.innerHTML = element.proceso === 'Asignación' ? `<span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">${element.proceso}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>` : `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">${element.proceso}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        columnaProceso.style.width = 'auto';
+        columnaProceso.style.whiteSpace = 'nowrap';
+
+        const columnaFecha = document.createElement('td');
+        columnaFecha.innerHTML = element.fecha;
+        columnaFecha.style.width = 'auto';
+        columnaFecha.style.whiteSpace = 'nowrap';
+
+        const columnaUsuario = document.createElement('td');
+        columnaUsuario.innerHTML = element.usuario;
+        columnaUsuario.style.width = 'auto';
+        columnaUsuario.style.whiteSpace = 'nowrap';
+
+        const columnaEstado = document.createElement('td');
+        columnaEstado.innerHTML = element.estado;
+        columnaEstado.style.width = 'auto';
+        columnaEstado.style.whiteSpace = 'nowrap';
+
+        fila.appendChild(columnaNundocSolicitud);
+        fila.appendChild(columnaCliente);
+        fila.appendChild(columnaProceso);
+        fila.appendChild(columnaFecha);
+        fila.appendChild(columnaUsuario);
+        fila.appendChild(columnaEstado);
+        tbody.appendChild(fila);
+      });
+    } else {
+      console.log('else');
+    }
+  } catch (error) {
+    console.error('Error en la primera solicitud:', error);
+    console.log('error no inserta');
+    throw error;
+  } finally {
+    // d.getElementById('loading-overlay-mensaje_carga').style.display = 'none';
+  }
+}
