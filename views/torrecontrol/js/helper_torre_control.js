@@ -5,6 +5,16 @@ $(document).ready(function () {
     sessionStorage.setItem("carrito", JSON.stringify([]));
   }
 
+  const hoy = new Date();
+  const opciones = { timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit" };
+
+  // Formatear la fecha a "YYYY-MM-DD"
+  const fechaColombia = new Intl.DateTimeFormat("es-CO", opciones)
+    .format(hoy)
+    .split("/")
+    .reverse()
+    .join("-");
+
   document.addEventListener("click", async (e) => {
     if (e.target.matches("#btn_asignar_proveedor") || e.target.matches("#btn_asignar_proveedor *")) {
       let enlace = e.target.closest("#btn_asignar_proveedor");
@@ -502,7 +512,6 @@ $(document).ready(function () {
 
       myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Destalle Proceso del pedido N°` + Solicitud);
       myOffcanvas.updateContent(`
-
         <ul class="list-group d-flex flex-row gap-3">
           <li class="list-group-item d-flex justify-content-between align-items-center gap-2" style="font-size:13px;">
             Total Servicios Gestionados
@@ -721,9 +730,59 @@ $(document).ready(function () {
       }
     }
 
-    if (e.target.matches("#btn_subastar") || e.target.matches("#btn_subastar *")) {
-      let enlace = e.target.closest("#btn_subastar");
-      let numdocSolicitud = enlace.getAttribute("data-id");
+    // if (e.target.matches("#btn_subastar") || e.target.matches("#btn_subastar *")) {
+    if (e.target.matches("#btn_asignar_recurso") || e.target.matches("#btn_asignar_recurso *")) {
+      let enlace = e.target.closest("#btn_asignar_recurso");
+      // let ServiciosId = enlace.getAttribute("data-ServiciosId");
+      let Proceso = enlace.getAttribute("data-Proceso");
+      let MaestroId = enlace.getAttribute("data-MaestroId");
+      let ClienteId = enlace.getAttribute("data-ClienteId");
+      let ReferenciaPedidos = JSON.parse(enlace.getAttribute("data-ReferenciaPedidos"));
+
+      // let SolicitudesId = enlace.getAttribute("data-SolicitudesId");
+      let ServiciosId = JSON.parse(enlace.getAttribute("data-serviciosid"));
+      let SolicitudesId = JSON.parse(enlace.getAttribute("data-solicitudesid"));
+      let ProveedoresId = JSON.parse(enlace.getAttribute("data-proveedoresid"));
+      let ValoresServicio = JSON.parse(enlace.getAttribute("data-ValoresServicio"));
+      let FechaInicio = JSON.parse(enlace.getAttribute("data-FechaInicio"));
+      let FechaActualizacion = JSON.parse(enlace.getAttribute("data-FechaActualizacion"));
+      let Placa = JSON.parse(enlace.getAttribute("data-Placa"));
+
+      let solicitudes = [];
+
+      // Verificamos que todos los arrays tengan la misma cantidad de elementos
+      if (
+        ServiciosId.length !== ProveedoresId.length ||
+        ServiciosId.length !== ValoresServicio.length ||
+        ServiciosId.length !== FechaInicio.length ||
+        ServiciosId.length !== FechaActualizacion.length ||
+        ServiciosId.length !== Placa.length
+      ) {
+        console.error("Error: Las longitudes de los arrays no coinciden.");
+      } else {
+        // Generar la combinación de servicios, solicitudes y proveedores
+        ServiciosId.forEach((servicio, index) => {
+          let proveedor_id = ProveedoresId[index];
+          let valor_servicio = ValoresServicio[index];
+          let fecha_inicio = FechaInicio[index];
+          let fecha_actualizacion = FechaActualizacion[index];
+          let placa = Placa[index];
+
+          SolicitudesId.forEach(solicitud => {
+            solicitudes.push({
+              servicio_id: servicio,
+              solicitud_id: solicitud,
+              proveedor_id: proveedor_id,
+              valor_servicio: valor_servicio,
+              fecha_inicio: fecha_inicio,
+              fecha_actualizacion: fecha_actualizacion,
+              placa: placa,
+            });
+          });
+        });
+
+        console.log(solicitudes);
+      }
 
       const result = await Swal.fire({
         title: "Seguro",
@@ -740,13 +799,17 @@ $(document).ready(function () {
       });
 
       if (result.isConfirmed) {
-        const btn = document.querySelector("#btn_subastar");
+        const btn = document.querySelector("#btn_asignar_recurso");
 
         btn.disabled = true;
         btn.innerHTML = "Subastando... ⏳";
 
         let formData = new FormData();
-        formData.append("numdocSolicitud", numdocSolicitud);
+        formData.append("solicitudes", JSON.stringify(solicitudes));
+        formData.append("proceso", Proceso);
+        formData.append("MaestroId", MaestroId);
+        formData.append("ClienteId", ClienteId);
+        formData.append("ReferenciaPedidos", JSON.stringify(ReferenciaPedidos));
 
         try {
           const response = await fetch($('#base_url').val() + 'torrecontrol/Subastar_Pedido', {
@@ -757,18 +820,73 @@ $(document).ready(function () {
 
           const data = await response.json();
 
-          // Swal.fire({
-          //   title: "Mensaje!",
-          //   text: data.message,
-          //   icon: data.status ? "success" : "error",
-          //   draggable: true
-          // }).then((result) => {
-          //   if (result.isConfirmed) {
-          //     // location.reload(); // Recargar la página
-          //     myOffcanvas.hide();
-          //     listar_pedidos_administrador(fechaColombia, fechaColombia);
-          //   }
-          // });
+          /* LLenar tabla de subasta */
+          if (data.length > 0) {
+            let rows = "";
+            data.forEach((proveedor, index) => {
+              rows += `
+                <tr>
+                  <th scope="row">${index + 1}</th>
+                  <td>${proveedor.tipo_servicio}</td>
+                  <td>${proveedor.valor_ganador}</td>
+                  <td>${proveedor.razon_social}</td>
+                  <td>${proveedor.Fecha_registro}</td>
+                  <td>${proveedor.Fecha_Inicio}</td>
+                </tr>
+              `;
+            });
+            document.getElementById("tbody_subasta_resultados").innerHTML = rows;
+          } else {
+            document.getElementById("tbody_subasta_resultados").innerHTML = `<tr><td colspan="8" class="text-center text-danger">${data.message}</td></tr>`;
+          }
+        } catch (err) {
+          console.error(err);
+          Swal.fire("Error", "Error al enviar datos al servidor.", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<span class="uil uil-play-circle"></span> Asignar Servicios`;
+        }
+      }
+    }
+
+    /* Subastar servicios en publicacion */
+    if (e.target.matches("#btn_subastar_recurso") || e.target.matches("#btn_subastar_recurso *")) {
+      let enlace = e.target.closest("#btn_subastar_recurso");
+      let MaestroId = enlace.getAttribute("data-MaestroId");
+      let Criterio = document.getElementById("slct_criterio").value;
+
+      const result = await Swal.fire({
+        title: "Seguro",
+        text: "¿Desea Autorizar la subasta?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3B71CA",
+        cancelButtonColor: "#9FA6B2",
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+          popup: "swal2-custom-font",
+        },
+      });
+
+      if (result.isConfirmed) {
+        const btn = document.querySelector("#btn_subastar_recurso");
+
+        btn.disabled = true;
+        btn.innerHTML = "Subastando... ⏳";
+
+        let formData = new FormData();
+        formData.append("MaestroId", MaestroId);
+        formData.append("Criterio", Criterio);
+
+        try {
+          const response = await fetch($('#base_url').val() + 'torrecontrol/Subastar_Pedido', {
+            method: 'POST',
+            body: formData,
+            cache: 'no-cache',
+          });
+
+          const data = await response.json();
 
           /* LLenar tabla de subasta */
           if (data.length > 0) {
@@ -778,27 +896,23 @@ $(document).ready(function () {
                 <tr>
                   <th scope="row">${index + 1}</th>
                   <td>${proveedor.tipo_servicio}</td>
-                  <td>${proveedor.menor_valor}</td>
+                  <td>${proveedor.valor_ganador}</td>
                   <td>${proveedor.razon_social}</td>
-                  <td>${proveedor.fecha_inicio}</td>
-                  <td>${proveedor.hora_inicio}</td>
-                  <td>${proveedor.fecha_actualizacion}</td>
-                  <td>${proveedor.hora_actualizacion}</td>
+                  <td>${proveedor.Fecha_registro}</td>
+                  <td>${proveedor.Fecha_Inicio}</td>
                 </tr>
               `;
             });
             document.getElementById("tbody_subasta_resultados").innerHTML = rows;
-
           } else {
             document.getElementById("tbody_subasta_resultados").innerHTML = `<tr><td colspan="8" class="text-center text-danger">${data.message}</td></tr>`;
           }
-
         } catch (err) {
           console.error(err);
           Swal.fire("Error", "Error al enviar datos al servidor.", "error");
         } finally {
           btn.disabled = false;
-          btn.innerHTML = "Subastar Servicios";
+          btn.innerHTML = `<span class="uil uil-play-circle"></span> Asignar Servicios`;
         }
       }
     }
@@ -875,9 +989,23 @@ $(document).ready(function () {
     if (e.target.matches("input[name='ProveedorServicio']")) {
       let ServicioId = e.target.value;
       let clienId = e.target.getAttribute("data-clienId");
-
       await mostrarProveedores(clienId, ServicioId);
     }
+
+
+    // let ArrayDespachos = [];
+
+    // if (e.target.matches("input[name='servicioProveedor']")) {
+    //   let ServicioId = e.target.value;
+    //   // Verifica si el ID ya existe antes de agregarlo
+    //   if (!ArrayDespachos.includes(ServicioId)) {
+    //     ArrayDespachos.push(ServicioId);
+    //   } else {
+    //     console.log("El servicio ya está agregado:", ServicioId);
+    //   }
+    // }
+
+
   });
 
   // Evento para seleccionar/deseleccionar todos los checkboxes
@@ -886,7 +1014,7 @@ $(document).ready(function () {
     $('.pedido-checkbox').prop('checked', isChecked);
     let carrito = isChecked ? obtenerTodosLosPedidos() : [];
     sessionStorage.setItem("carrito", JSON.stringify(carrito));
-    document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = isChecked ? "" : "none";
+    document.getElementById(`campo-16-carrito`).style.display = isChecked ? "" : "none";
     actualizarContadorCarrito();
   });
 
@@ -1162,6 +1290,7 @@ async function mostrarProveedores(clienId, ServicioId) {
 }
 
 /* Funcion para obtener y mostrar proveedores */
+let ArrayDespachos = [];
 async function accionesServicio(proveedorId, servicioId, pedidoId, tipoServicio, index) {
   let pedidoCheckbox = document.getElementById(pedidoId);
   let fechaVencimiento = document.getElementById(`contenido_fecha_vencimiento_${proveedorId}_${index}`);
@@ -1175,40 +1304,52 @@ async function accionesServicio(proveedorId, servicioId, pedidoId, tipoServicio,
 
   if (pedidoCheckbox.checked) {
     console.log(`✅ Mostrando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
-    fechaVencimiento.style.display = "";
-    horaVencimiento.style.display = "";
-    if (tipoServicio === "Despachos") {
-      tipoVehiculo.style.display = "";
-      $(`#tipo_vehiculo_${proveedorId}_${index}`).html('');
-      $.ajax({
-        url: $('#base_url').val() + 'serviciocliente/Tipo_Vehiculos',
-        type: 'POST',
-        dataType: 'json',
-        success: function (data) {
-          //traer el tipo de vehiculo
-          $(`#tipo_vehiculo_${proveedorId}_${index}`).append('<option value="">Seleccione</option>');
-          data.forEach(function (element, index1) {
-            $(`#tipo_vehiculo_${proveedorId}_${index}`).append('<option value="' + element.id + '" style="width: 100%;font-size: 10px;"   >' + element.nombre + '</option>');
-          });
-          // Inicializar los selects con Select2
-          $(`#tipo_vehiculo_${proveedorId}_${index}`).select2({
-            placeholder: 'Seleccione una opción',
-            allowClear: true,
-            width: '100%',
-          });
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          console.log('no entro ');
-          console.log(jqXHR);
-          console.log(textStatus);
-          console.log(errorThrown);
-        },
-      });
+    // Verifica si el ID ya existe antes de agregarlo
+    if (!ArrayDespachos.includes(servicioId)) {
+      ArrayDespachos.push(servicioId);
+      fechaVencimiento.style.display = "";
+      horaVencimiento.style.display = "";
+      if (tipoServicio === "Despachos") {
+        tipoVehiculo.style.display = "";
+        $(`#tipo_vehiculo_${proveedorId}_${index}`).html('');
+        $.ajax({
+          url: $('#base_url').val() + 'serviciocliente/Tipo_Vehiculos',
+          type: 'POST',
+          dataType: 'json',
+          success: function (data) {
+            //traer el tipo de vehiculo
+            $(`#tipo_vehiculo_${proveedorId}_${index}`).append('<option value="">Seleccione</option>');
+            data.forEach(function (element, index1) {
+              $(`#tipo_vehiculo_${proveedorId}_${index}`).append('<option value="' + element.id + '" style="width: 100%;font-size: 10px;"   >' + element.nombre + '</option>');
+            });
+            // Inicializar los selects con Select2
+            $(`#tipo_vehiculo_${proveedorId}_${index}`).select2({
+              placeholder: 'Seleccione una opción',
+              allowClear: true,
+              width: '100%',
+            });
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log('no entro ');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+          },
+        });
+      }
+    } else {
+      console.log("El servicio ya está agregado:", servicioId);
+      pedidoCheckbox.checked = false; // Desmarcar el checkbox si ya está en el array
     }
+    console.log("🚀 ~ accionesServicio ~ ArrayDespachos:", ArrayDespachos)
+
   } else {
     console.log(`❌ Ocultando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
     fechaVencimiento.style.display = "none";
     tipoVehiculo.style.display = "none";
     horaVencimiento.style.display = "none";
+    // Si se desmarca, eliminarlo del array
+    ArrayDespachos = ArrayDespachos.filter(id => id !== servicioId);
+    console.log(`❌ Eliminado ${servicioId} de ArrayDespachos`);
   }
 }

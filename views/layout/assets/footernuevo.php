@@ -271,7 +271,8 @@
           case '41':
           scripts = [
             '<?= BASE_URL ?>views/torrecontrol/proveedor/js/recurso_proveedor_torre_control.js',
-            '<?= BASE_URL ?>views/torrecontrol/js/helper_torre_control.js',
+            // '<?= BASE_URL ?>views/torrecontrol/js/helper_torre_control.js',
+            // '<?= BASE_URL ?>views/torrecontrol/proveedor/js/helper_proveedor_torre_control.js',
           ];
           break;
 

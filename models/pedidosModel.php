@@ -336,6 +336,7 @@ class pedidosModel extends Model
                                 $sql_detalle1->bindParam(':fecha_creacion', $fecha, PDO::PARAM_STR);
                                 $resultados_detalle = $sql_detalle1->execute();
                             }
+                            
                             if ($resultados_detalle) {
                                 $tiempo = 0;
                                 for ($i = 0; $i < count($usuarios_responsable->usuario); $i++) {

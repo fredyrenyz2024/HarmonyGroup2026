@@ -213,8 +213,9 @@ class View
             $url == '/mvcLuisMiguel/torrecontrol/index?idmenu=16&submenu=207' ||
             $url == "/mvcLuisMiguel/torrecontrol/proveedor_torre_control?idmenu=16&submenu=208" ||
             $url == '/mvcLuisMiguel/torrecontrol/cliente_torre_control?idmenu=16&submenu=209' ||
-            $url = '/mvcLuisMiguel/index/index1/?idmenu=3' ||
-            $url = '/mvcLuisMiguel/parametros/crear_proveedor?idmenu=3&submenu=211'
+            $url == '/mvcLuisMiguel/index/index1/?idmenu=3' ||
+            $url == '/mvcLuisMiguel/parametros/crear_proveedor?idmenu=3&submenu=211'||
+            $url == '/mvcLuisMiguel/torrecontrol/crear_plantilla?idmenu=3&submenu=212'
         ) {
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headernuevo.php';
             require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headertop.php';

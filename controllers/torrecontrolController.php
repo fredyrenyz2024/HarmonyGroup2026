@@ -21,6 +21,7 @@ class torrecontrolController extends Controller
   private $_listar_recrusos_administrador;
   private $_listar_servicios_recursos;
   private $_listar_detalle_proveedores_servicio;
+  private $_buscar_usuario;
   public function __construct()
   {
     parent::__construct();
@@ -65,8 +66,13 @@ class torrecontrolController extends Controller
   }
   public function recursos()
   {
-    $this->_view->titulo = 'Completadas Torre de Control';
+    $this->_view->titulo = 'Recursos Torre de Control';
     $this->_view->renderizar_ventana('recurso_torre_control', 'torrecontrol'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+  }
+  public function crear_plantilla()
+  {
+    $this->_view->titulo = 'Plantillas Torre de Control';
+    $this->_view->renderizar('pantilla_pedido', 'torrecontrol'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
   }
 
   /* CARGAR LA VISTA DE LOS PROVEEDORES EN LA TORRE DE CONTROL */
@@ -80,7 +86,6 @@ class torrecontrolController extends Controller
   {
     $ventana = $_POST['param1'];
     $this->_filtros = $this->_view->Cargar_Filtros_ventana($ventana);
-    // $this->_filtros = $this->_modelo->Cargar_Filtros_ventana($ventana);
     echo json_encode($this->_filtros);
   }
 
@@ -201,13 +206,14 @@ class torrecontrolController extends Controller
     $dato = [
       "proveedorId" => $_POST['proveedorId'],
       "servicioId" => $_POST['servicioId'],
-      "pedidoId" => $_POST['pedidoId'],
+      "PedidosId" => json_decode($_POST['PedidosId']),
       "placa" => isset($_POST['placa']) ? $_POST['placa'] : null,
       // "flete" => isset($_POST['flete']) ? $_POST['flete'] : null,
       "costo_servicio" => isset($_POST['costo_servicio']) ? $_POST['costo_servicio'] : $_POST['flete'],
       "fecha_inicio" => $_POST['fecha_inicio'],
       "hora_inicio" => $_POST['hora_inicio'],
       "Proceso" => $_POST['Proceso'],
+      "RecursoId" => $_POST['RecursoId'],
       "fecha" => date("Y-m-d"),
       "hora" => date('H:i:s')
     ];
@@ -232,8 +238,14 @@ class torrecontrolController extends Controller
 
   public function Subastar_Pedido()
   {
-    $numdocSolicitud = $_POST['numdocSolicitud'];
-    $this->_subastar_pedido = $this->_modelo->Subastar_pedido($numdocSolicitud);
+    $solicitudes = isset($_POST['solicitudes']) ? json_decode($_POST['solicitudes'], true) : null;
+    $proceso = $_POST['proceso'] ?? 'Publicación';
+    $MaestroId = $_POST['MaestroId'] ?? null;
+    $ClienteId = $_POST['ClienteId'] ?? null;
+    $Criterio = $_POST['Criterio'] ?? null;
+    $ReferenciaPedidos = isset($_POST['ReferenciaPedidos']) ? json_decode($_POST['ReferenciaPedidos'], true) : null;
+
+    $this->_subastar_pedido = $this->_modelo->Subastar_pedido($solicitudes, $proceso, $MaestroId, $ClienteId, $ReferenciaPedidos, $Criterio);
     echo json_encode($this->_subastar_pedido);
   }
 
@@ -281,7 +293,9 @@ class torrecontrolController extends Controller
   public function listar_servicios_recursos()
   {
     $MaestroId = $_POST['MaestroId'] ?? null;
-    $this->_listar_servicios_recursos = $this->_modelo->Listar_pedidos_recrusos($MaestroId);
+    $proveedor_id = $_POST['proveedor_id'] ?? null;
+    $VentanaId = $_POST['VentanaId'] ?? null;
+    $this->_listar_servicios_recursos = $this->_modelo->Listar_pedidos_recrusos($MaestroId, $proveedor_id, $VentanaId);
     echo json_encode($this->_listar_servicios_recursos);
   }
 
@@ -299,5 +313,39 @@ class torrecontrolController extends Controller
     $numdoc = $_POST['numdoc'] ?? null;
     $this->_listar_detalle_proveedores_servicio = $this->_modelo->Listar_detalle_proveedores_servicio($recurso, $numdoc);
     echo json_encode($this->_listar_detalle_proveedores_servicio);
+  }
+
+  public function listar_servicios_recursos_proveedor()
+  {
+    $RecursoId = $_POST['RecursoId'] ?? null;
+    $proveedor_id = $_POST['proveedor_id'] ?? null;
+    $proceso = $_POST['proceso'] ?? null;
+    // $SolicitudesId = json_decode($_POST['SolicitudesId'], true) ?? null;
+    $SolicitudesId = isset($_POST['SolicitudesId']) ? json_decode($_POST['SolicitudesId'], true) : null;
+    $VentanaId = $_POST['VentanaId'] ?? null;
+    $this->_listar_servicios_recursos = $this->_modelo->Listar_recursos_proveedor($RecursoId, $proveedor_id, $proceso, $SolicitudesId, $VentanaId);
+    echo json_encode($this->_listar_servicios_recursos);
+  }
+
+  public function Listar_proveedores_torre_control()
+  {
+    $this->_listar_servicios_recursos = $this->_modelo->Listar_proveedores_torre_control();
+    echo json_encode($this->_listar_servicios_recursos);
+  }
+
+  public function Buscar_usuario()
+  {
+    $this->_buscar_usuario = $this->_modelo->Buscar_usaurio_responsable();
+    echo json_encode($this->_buscar_usuario);
+  }
+
+  public function importar_trazabilidad()
+  {
+    $ServicioId = $_POST["ServicioId"];
+    $RecursoId = $_POST["RecursoId"];
+    $datos = json_decode($_POST["globalData"], true);
+
+    $trazabilidad = $this->_modelo->Importar_trazabilidad($ServicioId, $RecursoId, $datos);
+    echo json_encode($trazabilidad);
   }
 }

@@ -236,14 +236,6 @@ function leerExcel() {
 
     previewTable.appendChild(tbody);
 
-    // Convertimos los datos a JSON para usarlos más tarde
-    // globalData = sheetData.slice(1).map(row => {
-    //   let obj = {};
-    //   headers.forEach((header, index) => {
-    //     obj[header] = row[index] || "";
-    //   });
-    //   return obj;
-    // });
     globalData = sheetData.slice(1).map(row => {
       let obj = {};
       headers.forEach((header, index) => {
@@ -264,7 +256,6 @@ function leerExcel() {
 
   reader.readAsArrayBuffer(file);
 }
-
 
 async function Listar_clientes() {
   // Vaciar el contenido de los selects específicos usando el identificador dinámico

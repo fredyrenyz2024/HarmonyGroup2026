@@ -142,98 +142,97 @@ $(document).ready(function () {
     }
 
     // 🚀 Evento para listar servicios cuando se haga clic en "Servicios"
-    if (e.target.matches("#btn_postular_gestion_servicio") || e.target.matches("#btn_postular_gestion_servicio *")) {
-      let enlace = e.target.closest("#btn_postular_gestion_servicio");
-      let proveedorId = enlace.getAttribute("data-id");
-      let servicioId = enlace.getAttribute("data-id2");
-      let pedidoId = enlace.getAttribute("data-id3");
-      let tipoServicio = enlace.getAttribute("data-id4");
-      let Porceso = enlace.getAttribute("data-id5");
-      let filaServicios = document.getElementById(`postular_${servicioId}`);
+    // if (e.target.matches("#btn_postular_gestion_servicio") || e.target.matches("#btn_postular_gestion_servicio *")) {
+    //   let enlace = e.target.closest("#btn_postular_gestion_servicio");
+    //   let proveedorId = enlace.getAttribute("data-id");
+    //   let servicioId = enlace.getAttribute("data-id2");
+    //   let pedidoId = enlace.getAttribute("data-id3");
+    //   let tipoServicio = enlace.getAttribute("data-id4");
+    //   let Porceso = enlace.getAttribute("data-id5");
+    //   let filaServicios = document.getElementById(`postular_${servicioId}`);
 
-      // Mostrar u ocultar la fila de servicios
-      if (filaServicios.style.display === "none") {
-        filaServicios.style.display = "table-row";
+    //   // Mostrar u ocultar la fila de servicios
+    //   if (filaServicios.style.display === "none") {
+    //     filaServicios.style.display = "table-row";
 
-        // Obtener servicios si aún no se han cargado
-        if (filaServicios.querySelector(".lista-servicios").innerHTML.trim() === "") {
+    //     // Obtener servicios si aún no se han cargado
+    //     if (filaServicios.querySelector(".lista-servicios").innerHTML.trim() === "") {
 
-          filaServicios.querySelector(".lista-servicios").innerHTML = `
-            <div class="container-fluid pt-3">
-              <!-- <div class="d-flex justify-content-center"> -->
-              <div class="row">
+    //       filaServicios.querySelector(".lista-servicios").innerHTML = `
+    //         <div class="container-fluid pt-3">
+    //           <!-- <div class="d-flex justify-content-center"> -->
+    //           <div class="row">
 
-                <div id="despachos" style="display: none;">
-                  <div class="row">
-                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-                      <div class="mb-3">
-                        <label style="font-size: 12px;">Placa</label>
-                        <input type="text" id="placa" name="placa" class="form-control form-control-sm" placeholder="Placa" oninput="this.value = this.value.toUpperCase();">
-                      </div>
-                    </div>
-                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-                      <div class="mb-3">
-                        <label style="font-size: 12px;">Flete</label>
-                        <input type="text" id="flete" name="flete" class="form-control form-control-sm" placeholder="Flete">
-                      </div>
-                    </div>
-                  </div>
-                </div>
+    //             <div id="despachos" style="display: none;">
+    //               <div class="row">
+    //                 <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+    //                   <div class="mb-3">
+    //                     <label style="font-size: 12px;">Placa</label>
+    //                     <input type="text" id="placa" name="placa" class="form-control form-control-sm" placeholder="Placa" oninput="this.value = this.value.toUpperCase();">
+    //                   </div>
+    //                 </div>
+    //                 <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+    //                   <div class="mb-3">
+    //                     <label style="font-size: 12px;">Flete</label>
+    //                     <input type="text" id="flete" name="flete" class="form-control form-control-sm" placeholder="Flete">
+    //                   </div>
+    //                 </div>
+    //               </div>
+    //             </div>
 
-                <div id="otros" style="display: none;">
-                  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-                    <div class="mb-3">
-                      <label style="font-size: 12px;">Valor Servicio</label>
-                      <input type="text" id="costo_servicio" name="costo_servicio" class="form-control form-control-sm" placeholder="Valor Servicio">
-                    </div>
-                  </div>
-                </div>
+    //             <div id="otros" style="display: none;">
+    //               <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    //                 <div class="mb-3">
+    //                   <label style="font-size: 12px;">Valor Servicio</label>
+    //                   <input type="text" id="costo_servicio" name="costo_servicio" class="form-control form-control-sm" placeholder="Valor Servicio">
+    //                 </div>
+    //               </div>
+    //             </div>
 
-                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-                  <div class="mb-3">
-                    <label style="font-size: 12px;">Fecha Inicio del servicio</label>
-                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control form-control-sm">
-                  </div>
-                </div>
+    //             <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+    //               <div class="mb-3">
+    //                 <label style="font-size: 12px;">Fecha Inicio del servicio</label>
+    //                 <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control form-control-sm">
+    //               </div>
+    //             </div>
 
-                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-                  <div class="mb-3">
-                    <label style="font-size: 12px;">Hora Inicio del servicio</label>
-                    <input type="time" id="hora_inicio" name="hora_inicio" class="form-control form-control-sm">
-                  </div>
-                </div>
+    //             <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+    //               <div class="mb-3">
+    //                 <label style="font-size: 12px;">Hora Inicio del servicio</label>
+    //                 <input type="time" id="hora_inicio" name="hora_inicio" class="form-control form-control-sm">
+    //               </div>
+    //             </div>
 
-                <div class="col-12 gy-6 my-3" id="btn-acciones">
-                  <div class="row g-3 justify-content-end">
-                    <div class="col-auto">
-                      <button class="btn btn-phoenix-primary btn-sm text-danger" type="button" id="btn-cancelar">
-                        <span class="text-danger" data-feather="x"></span> Cancelar
-                      </button>
-                    </div>
-                    <div class="col-auto">
-                      <button class="btn btn-success btn-sm" id="btn_guardar_postulacion" type="button" data-id="${proveedorId}" data-id2="${servicioId}" data-id3="${pedidoId}" data-id4="${tipoServicio}" data-id5="${Porceso}">
-                        <span class="uil uil-file-import"></span> Guardar Postulación
-                      </button>
-                    </div>
-                  </div>
-                </div>
+    //             <div class="col-12 gy-6 my-3" id="btn-acciones">
+    //               <div class="row g-3 justify-content-end">
+    //                 <div class="col-auto">
+    //                   <button class="btn btn-phoenix-primary btn-sm text-danger" type="button" id="btn-cancelar">
+    //                     <span class="text-danger" data-feather="x"></span> Cancelar
+    //                   </button>
+    //                 </div>
+    //                 <div class="col-auto">
+    //                   <button class="btn btn-success btn-sm" id="btn_guardar_postulacion" type="button" data-id="${proveedorId}" data-id2="${servicioId}" data-id3="${pedidoId}" data-id4="${tipoServicio}" data-id5="${Porceso}">
+    //                     <span class="uil uil-file-import"></span> Guardar Postulación
+    //                   </button>
+    //                 </div>
+    //               </div>
+    //             </div>
 
-              </div>
-            </div>
-          `;
+    //           </div>
+    //         </div>
+    //       `;
 
-          /* Validar el tipo de servicio */
-
-          if (tipoServicio === "Despachos") {
-            document.getElementById("despachos").style.display = "";
-          } else {
-            document.getElementById("otros").style.display = "";
-          }
-        }
-      } else {
-        filaServicios.style.display = "none";
-      }
-    }
+    //       /* Validar el tipo de servicio */
+    //       if (tipoServicio === "Despachos") {
+    //         document.getElementById("despachos").style.display = "";
+    //       } else {
+    //         document.getElementById("otros").style.display = "";
+    //       }
+    //     }
+    //   } else {
+    //     filaServicios.style.display = "none";
+    //   }
+    // }
 
     if (e.target.matches("#btn_iniciar_gestion") || e.target.matches("#btn_iniciar_gestion *")) {
       let enlace = e.target.closest("#btn_iniciar_gestion");
@@ -431,119 +430,125 @@ $(document).ready(function () {
     }
 
     /* Guardar la posulacion de los pedidos o servicios */
-    if (e.target.matches("#btn_guardar_postulacion") || e.target.matches("#btn_guardar_postulacion *")) {
-      let enlace = e.target.closest("#btn_guardar_postulacion");
-      let proveedorId = enlace.getAttribute("data-id");
-      let servicioId = enlace.getAttribute("data-id2");
-      let pedidoId = enlace.getAttribute("data-id3");
-      let TipoServicio = enlace.getAttribute("data-id4");
-      let Porceso = enlace.getAttribute("data-id5");
-      let fecha_inicio = document.getElementById("fecha_inicio").value.trim();
-      let hora_inicio = document.getElementById("hora_inicio").value.trim();
+    // if (e.target.matches("#btn_guardar_postulacion") || e.target.matches("#btn_guardar_postulacion *")) {
+    //   let enlace = e.target.closest("#btn_guardar_postulacion");
+    //   let proveedorId = enlace.getAttribute("data-id");
+    //   let servicioId = enlace.getAttribute("data-id2");
+    //   let PedidosId = enlace.getAttribute("data-id3");
+    //   // console.log("🚀 ~ PedidosId:", typeof JSON.stringify(PedidosId));
+    //   let SolicitudesArray = PedidosId.split(",").map(Number);
+    //   // let SolicitudesArray = PedidosId.split(","); 
 
-      let formData = new FormData();
-      let errores = [];
+    //   let TipoServicio = enlace.getAttribute("data-id4");
+    //   let Porceso = enlace.getAttribute("data-id5");
+    //   let RecursoId = enlace.getAttribute("data-id6");
+    //   let fecha_inicio = document.getElementById("fecha_inicio").value.trim();
+    //   let hora_inicio = document.getElementById("hora_inicio").value.trim();
 
-      if (TipoServicio === "Despachos") {
-        let placa = document.getElementById("placa").value.trim();
-        let flete = document.getElementById("flete").value.trim();
+    //   let formData = new FormData();
+    //   let errores = [];
 
-        if (!placa) errores.push("El campo Placa es obligatorio.");
-        if (!flete) errores.push("El campo Flete es obligatorio.");
-        if (!fecha_inicio) errores.push("El campo Fecha Inicio es obligatorio.");
-        if (!hora_inicio) errores.push("El campo Hora Inicio es obligatorio.");
+    //   if (TipoServicio === "Despachos" || TipoServicio === "Transporte") {
+    //     let placa = document.getElementById("placa").value.trim();
+    //     let flete = document.getElementById("flete").value.trim();
 
-        if (errores.length > 0) {
-          alert(errores.join("\n"));
-          return;
-        }
+    //     if (!placa) errores.push("El campo Placa es obligatorio.");
+    //     if (!flete) errores.push("El campo Flete es obligatorio.");
+    //     if (!fecha_inicio) errores.push("El campo Fecha Inicio es obligatorio.");
+    //     if (!hora_inicio) errores.push("El campo Hora Inicio es obligatorio.");
 
-        formData.append("proveedorId", proveedorId);
-        formData.append("servicioId", servicioId);
-        formData.append("pedidoId", pedidoId);
-        formData.append("placa", placa);
-        formData.append("flete", flete);
-        formData.append("fecha_inicio", fecha_inicio);
-        formData.append("hora_inicio", hora_inicio);
-        formData.append("Proceso", Porceso);
-      } else {
-        let costo_servicio = document.getElementById("costo_servicio").value.trim();
-        let fecha_inicio = document.getElementById("fecha_inicio").value.trim();
-        let hora_inicio = document.getElementById("hora_inicio").value.trim();
+    //     if (errores.length > 0) {
+    //       alert(errores.join("\n"));
+    //       return;
+    //     }
 
-        if (!costo_servicio) errores.push("El campo Costo del Servicio es obligatorio.");
-        if (!fecha_inicio) errores.push("El campo Fecha Inicio es obligatorio.");
-        if (!hora_inicio) errores.push("El campo Hora Inicio es obligatorio.");
+    //     formData.append("proveedorId", proveedorId);
+    //     formData.append("servicioId", servicioId);
+    //     formData.append("PedidosId", JSON.stringify(PedidosId));
+    //     formData.append("placa", placa);
+    //     formData.append("flete", flete);
+    //     formData.append("fecha_inicio", fecha_inicio);
+    //     formData.append("hora_inicio", hora_inicio);
+    //     formData.append("Proceso", Porceso);
+    //     formData.append("RecursoId", RecursoId);
+    //   } else {
+    //     let costo_servicio = document.getElementById("costo_servicio").value.trim();
+    //     let fecha_inicio = document.getElementById("fecha_inicio").value.trim();
+    //     let hora_inicio = document.getElementById("hora_inicio").value.trim();
 
-        if (errores.length > 0) {
-          alert(errores.join("\n"));
-          return;
-        }
+    //     if (!costo_servicio) errores.push("El campo Costo del Servicio es obligatorio.");
+    //     if (!fecha_inicio) errores.push("El campo Fecha Inicio es obligatorio.");
+    //     if (!hora_inicio) errores.push("El campo Hora Inicio es obligatorio.");
 
-        formData.append("proveedorId", proveedorId);
-        formData.append("servicioId", servicioId);
-        formData.append("pedidoId", pedidoId);
-        formData.append("costo_servicio", costo_servicio);
-        formData.append("fecha_inicio", fecha_inicio);
-        formData.append("hora_inicio", hora_inicio);
-        formData.append("Proceso", Porceso);
-      }
+    //     if (errores.length > 0) {
+    //       alert(errores.join("\n"));
+    //       return;
+    //     }
+    //     formData.append("proveedorId", proveedorId);
+    //     formData.append("servicioId", servicioId);
+    //     formData.append("PedidosId", JSON.stringify(SolicitudesArray));
+    //     formData.append("costo_servicio", costo_servicio);
+    //     formData.append("fecha_inicio", fecha_inicio);
+    //     formData.append("hora_inicio", hora_inicio);
+    //     formData.append("Proceso", Porceso);
+    //     formData.append("RecursoId", RecursoId);
+    //   }
 
-      if (errores.length === 0) {
-        const result = await Swal.fire({
-          title: "Seguro",
-          text: "¿Desea guardar la respuesta?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3B71CA",
-          cancelButtonColor: "#9FA6B2",
-          confirmButtonText: "Aceptar",
-          cancelButtonText: "Cancelar",
-          customClass: {
-            popup: "swal2-custom-font",
-          },
-        });
+    //   if (errores.length === 0) {
+    //     const result = await Swal.fire({
+    //       title: "Seguro",
+    //       text: "¿Desea guardar la respuesta?",
+    //       icon: "warning",
+    //       showCancelButton: true,
+    //       confirmButtonColor: "#3B71CA",
+    //       cancelButtonColor: "#9FA6B2",
+    //       confirmButtonText: "Aceptar",
+    //       cancelButtonText: "Cancelar",
+    //       customClass: {
+    //         popup: "swal2-custom-font",
+    //       },
+    //     });
 
-        if (result.isConfirmed) {
-          const btn = document.querySelector("#btn_guardar_postulacion");
+    //     if (result.isConfirmed) {
+    //       const btn = document.querySelector("#btn_guardar_postulacion");
 
-          btn.disabled = true;
-          btn.innerHTML = "Guardando Posulación... ⏳";
+    //       btn.disabled = true;
+    //       btn.innerHTML = "Guardando Posulación... ⏳";
 
-          try {
-            const response = await fetch($('#base_url').val() + 'torrecontrol/insertar_postulacion', {
-              method: 'POST',
-              body: formData,
-              cache: 'no-cache',
-            });
+    //       try {
+    //         const response = await fetch($('#base_url').val() + 'torrecontrol/insertar_postulacion', {
+    //           method: 'POST',
+    //           body: formData,
+    //           cache: 'no-cache',
+    //         });
 
-            const data = await response.json();
+    //         const data = await response.json();
 
-            Swal.fire({
-              title: "Mensaje!",
-              text: data.message,
-              icon: data.status ? "success" : "error",
-              draggable: true
-            }).then((result) => {
-              if (result.isConfirmed) {
-                // location.reload(); // Recargar la página
-                myOffcanvas.hide();
-                listar_pedidos_proveedor(fechaColombia, fechaColombia);
-              }
-            });
+    //         Swal.fire({
+    //           title: "Mensaje!",
+    //           text: data.message,
+    //           icon: data.status ? "success" : "error",
+    //           draggable: true
+    //         }).then((result) => {
+    //           if (result.isConfirmed) {
+    //             // location.reload(); // Recargar la página
+    //             // myOffcanvas.hide();
+    //             listar_pedidos_proveedor(fechaColombia, fechaColombia);
+    //           }
+    //         });
 
-          } catch (err) {
-            console.error(err);
-            Swal.fire("Error", "Error al enviar datos al servidor.", "error");
-          } finally {
-            btn.disabled = false;
-            btn.innerHTML = " <span class='uil uil-file-import'></span> Guardar Postulación";
-          }
+    //       } catch (err) {
+    //         console.error(err);
+    //         Swal.fire("Error", "Error al enviar datos al servidor.", "error");
+    //       } finally {
+    //         btn.disabled = false;
+    //         btn.innerHTML = " <span class='uil uil-file-import'></span> Guardar Postulación";
+    //       }
 
-        }
+    //     }
 
-      }
-    }
+    //   }
+    // }
 
     if (e.target.matches("#btn_observacion_solicitud_servicio") || e.target.matches("#btn_observacion_solicitud_servicio *")) {
       let enlace = e.target.closest("#btn_observacion_solicitud_servicio");
@@ -622,18 +627,18 @@ $(document).ready(function () {
     }
   });
 
-  document.addEventListener("change", async (e) => {
-    // e.preventDefault();
-    if (e.target.matches("#costo_servicio") || e.target.matches("#costo_servicio *")) {
-      let costo_servicio = document.getElementById("costo_servicio").value.trim();
-      $('#costo_servicio').val(parseFloat(costo_servicio, 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-    }
+  // document.addEventListener("change", async (e) => {
+  //   // e.preventDefault();
+  //   if (e.target.matches("#costo_servicio") || e.target.matches("#costo_servicio *")) {
+  //     let costo_servicio = document.getElementById("costo_servicio").value.trim();
+  //     $('#costo_servicio').val(parseFloat(costo_servicio, 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
+  //   }
 
-    if (e.target.matches("#flete") || e.target.matches("#flete *")) {
-      let flete = document.getElementById("flete").value.trim();
-      $('#flete').val(parseFloat(flete, 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-    }
-  });
+  //   if (e.target.matches("#flete") || e.target.matches("#flete *")) {
+  //     let flete = document.getElementById("flete").value.trim();
+  //     $('#flete').val(parseFloat(flete, 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
+  //   }
+  // });
 });
 // Construir un OffCanvas
 // Constructor del Offcanvas Dinámico

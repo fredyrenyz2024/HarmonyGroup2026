@@ -36,6 +36,7 @@ window.initScript = function (id) {
       let MaestroId = Enlace.getAttribute("data-id");
       let ClienteId = Enlace.getAttribute("data-id2");
       let Proceso = Enlace.getAttribute("data-proceso");
+      let proveedor_id = document.getElementById("proveedor_id").value;
       myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Detalle de solicitud de servicio N°` + MaestroId);
       myOffcanvas.updateContent(`
           <div class="col-12">
@@ -75,91 +76,89 @@ window.initScript = function (id) {
                 </table>
               </div>
               <hr class="my-1 text-dark">
-               <h6 class="mb-0 text-body-highlight me-2">Servicios</h6>
+               <div class="d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 me-2 d-flex align-items-center justify-content-center">Servicios</h6>
+                  <div class="col-11">
+                    <div class="row justify-content-end">
+                      <div class="col-auto">
+                        <button class="btn btn-primary btn-sm py-1" id="btn_iniciar_recurso" type="button" data-RecursoId=${MaestroId} data-procesoId=${Proceso}>
+                          <span class="uil uil-save"></span> Iniciar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+               </div>
               <hr class="my-1 text-dark">
+              <div class="table-responsive scrollbar" style="display: none;" id="tbl_recursos_proveedor">
+                <table class="table table-sm text-center" style="font-size: 11px;">
+                  <thead>
+                    <tr>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Proveedor</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Servicio</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Vehiculo</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Fecha Registro</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Fecha Limite</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Estado</th>
+                      <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody_servicios_recurso" class="text-center">
+                    <tr><td colspan="12" class="text-center">Cargando servicios...</td></tr>
+                  </tbody>
+                </table>
+                  <hr class="my-1 text-dark">
+                    <h6 class="mb-0 me-2 d-flex align-items-center justify-content-start">Valores Propuestos</h6>
+                  <hr class="my-1 text-dark">
+                  <table class="table table-sm text-center" style="font-size: 11px;">
+                    <thead>
+                      <tr>
+                        <th scope="col" style='color:black;width: auto; white-space: nowrap;'>#</th>
+                        <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Valor Propuesto</th>
+                        <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Fecha Inicio</th>
+                        <th scope="col" style='color:black;width: auto; white-space: nowrap;'>Placa</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbody_propuestos_proveedor" class="text-center">
+                      <tr><td colspan="12" class="text-center">Cargando servicios...</td></tr>
+                    </tbody>
+                  </table>
+              </div>
+
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12" id="cargue_masivo" style="display:none;">
+                <!-- 1) Input para seleccionar el archivo de Excel -->
+                <div class="mb-3">
+                  <label class="form-label" for="customFileSm">Subir Archivo</label>
+                  <input type="file" class="form-control form-control-sm" id="excelFile" accept=".xls, .xlsx" onchange="leerExcel()" placeholder="Seleccionar Archivo">
+                </div>
+              </div>
+
+              <!-- 3) Área de previsualización -->
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12" id="visualizar_pedidos"
+                style="display:none;">
+                <h6>Vista Previa</h6>
+                <div class="form-group col-xs-12">
+                  <div class="table-responsive">
+                    <table class="table table-striped table-sm" id="previewTable" cellpadding="0" border="1"
+                      style="width: 100%; border: #332D2D;">
+                      <!-- Aquí se generarán dinámicamente las filas -->
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                <div class="row justify-content-end">
+                  <div class="col-auto">
+                    <button class="btn btn-success btn-sm py-1" id="btn_guardar_trazabilidad" type="button" style="display: none;"> 
+                      <span class="uil uil-import"></span> Importar Trazabilidad
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
       `);
 
-      try {
-        let formData = new FormData();
-        formData.append("MaestroId", MaestroId);
-
-        let response = await fetch($('#base_url').val() + 'torrecontrol/listar_servicios_recursos', {
-          method: "POST",
-          body: formData
-        });
-
-        let data = await response.json();
-        if (data) {
-          let rows = "";
-          let totalPesoNeto = 0;
-          let totalPesoBruto = 0;
-          let totalUnidades = 0;
-          let col_estatus_publicacion = '';
-          data.forEach((servicio, index) => {
-            if (servicio.peso_neto_kg) {
-              totalPesoNeto += parseFloat(servicio.peso_neto_kg);
-            }
-
-            if (servicio.peso_bruto_kg) {
-              totalPesoBruto += parseFloat(servicio.peso_bruto_kg);
-            }
-
-            if (servicio.unidades) {
-              totalUnidades += parseFloat(servicio.unidades);
-            }
-
-            $('#pesoNeto').text(totalPesoNeto);
-            $('#pesoBruto').text(totalPesoBruto);
-            $('#totalUnidades').text(totalUnidades);
-
-            if (servicio.estado_proceso_pedido === 'Pendiente Iniciar') {
-              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-            } else if (servicio.estado_proceso_pedido === 'Iniciado') {
-              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-            } else if (servicio.estado_proceso_pedido === 'Cancelado') {
-              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-              btn_publicacion = `<a class="dropdown-item fw-bold" href="#" id="btn_publicar_pedido" data-id="${servicio.numdoc_solicitud}" data-id2="${servicio.cliente}"><span class="uil uil-feedback"></span> Publicar Pedido</a>`;
-            } else if (servicio.estado_proceso_pedido === 'Completado') {
-              col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-            } else if (servicio.estado_proceso_pedido === 'Rechazado') {
-              col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-            }
-            rows += `
-                <tr>
-                  <th scope="row">${servicio.numdoc_solicitud}</th>
-                  <!--<td class='text-center' style='color:black;width: auto; white-space: nowrap;'>
-                    N° ${servicio.maestro_id}
-                  </td>-->
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.referencia_pedido}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.cod_producto}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.producto}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.peso_bruto_kg}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.presentacion}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.unidades}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.ciudad_origen}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.ciudad_destino}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.fecha_cargue}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.fecha_entrega}</td>
-                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${col_estatus_publicacion}</td>
-                </tr>
-                <tr id="Recurso_proveedores_${servicio.numdoc_solicitud}" style="display: none;">
-                  <td colspan="12">
-                    <div class="lista-proceso-proveedores"></div>
-                  </td>
-                </tr>
-              `;
-          });
-
-          document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = rows;
-        } else {
-          document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">${data.message}</td></tr>`;
-        }
-      } catch (error) {
-        console.error("Error al obtener proveedores:", error);
-        document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">Error al cargar pedidos del recurso</td></tr>`;
-      }
+      Listar_pedidos_recursos(MaestroId, proveedor_id, Proceso);
 
       myOffcanvas.show();
     }
@@ -221,8 +220,387 @@ window.initScript = function (id) {
         }
       }
     }
+
+    if (e.target.matches("#btn_iniciar_recurso") || e.target.matches("#btn_iniciar_recurso *")) {
+      let enlace = e.target.closest("#btn_iniciar_recurso");
+      let RecursoId = enlace.getAttribute("data-RecursoId");
+      let proceso = enlace.getAttribute("data-procesoId");
+      let SolicitudesId = enlace.getAttribute("data-SolicitudesId");
+      let proveedor_id = document.getElementById("proveedor_id").value;
+
+      try {
+        let formData = new FormData();
+        formData.append("RecursoId", RecursoId);
+        formData.append("proveedor_id", proveedor_id);
+        formData.append("proceso", proceso);
+        formData.append("SolicitudesId", SolicitudesId);
+
+        let response = await fetch($('#base_url').val() + 'torrecontrol/listar_servicios_recursos_proveedor', {
+          method: "POST",
+          body: formData
+        });
+
+        let data = await response.json();
+        if (data) {
+          document.getElementById("tbl_recursos_proveedor").style.display = "";
+          let rows = "";
+          let col_estatus_publicacion = '';
+          let btn_postular_gestion_servicio = '';
+          data.forEach((servicio, index) => {
+            if (servicio.estado_servicio === 'Pendiente Iniciar') {
+              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+              btn_postular_gestion_servicio = `
+              <div class="form-check form-switch text-center">
+                <input class="form-check-input me-2" type="checkbox" name="ProveedorServiciodetalle" data-proveedorId="${servicio.proveedorId}" data-TipoServicio="${servicio.tipo_servicio}" data-pedidosId="${SolicitudesId}" data-recursoId="${RecursoId}" id="servicio_${servicio.servicioId}" value="${servicio.servicioId}">
+              </div>`;
+            } else if (servicio.estado_servicio === 'Iniciado') {
+              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+              btn_postular_gestion_servicio = ``;
+            } else if (servicio.estado_servicio === 'Cancelado') {
+              col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+              // btn_publicacion = `<a class="dropdown-item fw-bold" href="#" id="btn_publicar_pedido" data-id="${servicio.numdoc_solicitud}" data-id2="${servicio.cliente}"><span class="uil uil-feedback"></span> Publicar Pedido</a>`;
+              btn_postular_gestion_servicio = ``;
+            } else if (servicio.estado_servicio === 'Completado') {
+              col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+              btn_postular_gestion_servicio = ``;
+            } else if (servicio.estado_servicio === 'Rechazado') {
+              col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+              btn_postular_gestion_servicio = ``;
+            } else if (servicio.estado_servicio === 'Postulado') {
+              col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+              btn_postular_gestion_servicio = ``;
+            }
+
+            rows += `
+                <tr>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.razon_social}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.tipo_servicio}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.vehiculo}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.Fecha_registro}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.fecha_limite}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${col_estatus_publicacion}</td>
+                  <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>
+                    ${btn_postular_gestion_servicio}
+                  </td>
+                </tr>
+                <tr id="detalle_recurso_proveedores_asignados_${servicio.servicioId}" style="display: none;">
+                  <td colspan="12">
+                    <div class="lista-detalle-accion-proveedores"></div>
+                  </td>
+                </tr>
+              `;
+          });
+
+          document.getElementById("tbody_servicios_recurso").innerHTML = rows;
+          Listar_pedidos_recursos(RecursoId, proveedor_id, proceso);
+          listar_recursos_proveedor(fechaColombia, fechaColombia, window.VENTANA);
+        } else {
+          document.getElementById("tbody_servicios_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">${data.message}</td></tr>`;
+        }
+      } catch (error) {
+        console.error("Error al obtener proveedores:", error);
+        document.getElementById("tbody_servicios_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">Error al cargar pedidos del recurso</td></tr>`;
+      }
+    }
+
+    if (e.target.matches("#btn_guardar_postulacion") || e.target.matches("#btn_guardar_postulacion *")) {
+      let enlace = e.target.closest("#btn_guardar_postulacion");
+      let proveedorId = enlace.getAttribute("data-id");
+      let servicioId = enlace.getAttribute("data-id2");
+      let PedidosId = enlace.getAttribute("data-id3");
+      // console.log("🚀 ~ PedidosId:", typeof JSON.stringify(PedidosId));
+      let SolicitudesArray = PedidosId.split(",").map(Number);
+      // let SolicitudesArray = PedidosId.split(","); 
+
+      let TipoServicio = enlace.getAttribute("data-id4");
+      let Porceso = enlace.getAttribute("data-id5");
+      let RecursoId = enlace.getAttribute("data-id6");
+      let fecha_inicio = document.getElementById("fecha_inicio").value.trim();
+      let hora_inicio = document.getElementById("hora_inicio").value.trim();
+
+      let formData = new FormData();
+      let errores = [];
+
+      if (TipoServicio === "Despachos" || TipoServicio === "Transporte") {
+        let placa = document.getElementById("placa").value.trim();
+        let flete = document.getElementById("flete").value.trim();
+
+        if (!placa) errores.push("El campo Placa es obligatorio.");
+        if (!flete) errores.push("El campo Flete es obligatorio.");
+        if (!fecha_inicio) errores.push("El campo Fecha Inicio es obligatorio.");
+        if (!hora_inicio) errores.push("El campo Hora Inicio es obligatorio.");
+
+        if (errores.length > 0) {
+          alert(errores.join("\n"));
+          return;
+        }
+
+        formData.append("proveedorId", proveedorId);
+        formData.append("servicioId", servicioId);
+        formData.append("PedidosId", JSON.stringify(SolicitudesArray));
+        formData.append("placa", placa);
+        formData.append("flete", flete);
+        formData.append("fecha_inicio", fecha_inicio);
+        formData.append("hora_inicio", hora_inicio);
+        formData.append("Proceso", Porceso);
+        formData.append("RecursoId", RecursoId);
+      } else {
+        let costo_servicio = document.getElementById("costo_servicio").value.trim();
+        let fecha_inicio = document.getElementById("fecha_inicio").value.trim();
+        let hora_inicio = document.getElementById("hora_inicio").value.trim();
+
+        if (!costo_servicio) errores.push("El campo Costo del Servicio es obligatorio.");
+        if (!fecha_inicio) errores.push("El campo Fecha Inicio es obligatorio.");
+        if (!hora_inicio) errores.push("El campo Hora Inicio es obligatorio.");
+
+        if (errores.length > 0) {
+          alert(errores.join("\n"));
+          return;
+        }
+        formData.append("proveedorId", proveedorId);
+        formData.append("servicioId", servicioId);
+        formData.append("PedidosId", JSON.stringify(SolicitudesArray));
+        formData.append("costo_servicio", costo_servicio);
+        formData.append("fecha_inicio", fecha_inicio);
+        formData.append("hora_inicio", hora_inicio);
+        formData.append("Proceso", Porceso);
+        formData.append("RecursoId", RecursoId);
+      }
+
+      if (errores.length === 0) {
+        const result = await Swal.fire({
+          title: "Seguro",
+          text: "¿Desea guardar la respuesta?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3B71CA",
+          cancelButtonColor: "#9FA6B2",
+          confirmButtonText: "Aceptar",
+          cancelButtonText: "Cancelar",
+          customClass: {
+            popup: "swal2-custom-font",
+          },
+        });
+
+        if (result.isConfirmed) {
+          const btn = document.querySelector("#btn_guardar_postulacion");
+
+          btn.disabled = true;
+          btn.innerHTML = "Guardando Posulación... ⏳";
+
+          try {
+            const response = await fetch($('#base_url').val() + 'torrecontrol/insertar_postulacion', {
+              method: 'POST',
+              body: formData,
+              cache: 'no-cache',
+            });
+
+            const data = await response.json();
+
+            Swal.fire({
+              title: "Mensaje!",
+              text: data.message,
+              icon: data.status ? "success" : "error",
+              draggable: true
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // location.reload(); // Recargar la página
+                // myOffcanvas.hide();
+                // listar_recursos_proveedor(fechaColombia, fechaColombia);
+                Listar_servicios(RecursoId, Porceso, SolicitudesArray, proveedorId);
+              }
+            });
+
+          } catch (err) {
+            console.error(err);
+            Swal.fire("Error", "Error al enviar datos al servidor.", "error");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = " <span class='uil uil-file-import'></span> Guardar Postulación";
+          }
+
+        }
+
+      }
+    }
+
+    const buttonCargarTrazabilidad = e.target.closest('[id^="btn_cargar_trazabilidad_"]');
+    if (buttonCargarTrazabilidad) {
+      let ServicioId = buttonCargarTrazabilidad.getAttribute("data-ServicioId");
+      let RecursoId = buttonCargarTrazabilidad.getAttribute("data-RecursoId");
+      document.getElementById("cargue_masivo").style.display = "";
+      document.getElementById("visualizar_pedidos").style.display = "";
+      document.getElementById("btn_guardar_trazabilidad").style.display = "";
+      // CargarTrazabilidad(ServicioId, RecursoId);
+      document.getElementById("btn_guardar_trazabilidad").setAttribute("data-ServicioId", ServicioId);
+      document.getElementById("btn_guardar_trazabilidad").setAttribute("data-RecursoId", RecursoId);
+    }
+
+    if (e.target.matches("#btn_guardar_trazabilidad") || e.target.matches("#btn_guardar_trazabilidad *")) {
+      let ServicioId = e.target.closest("[data-ServicioId]").getAttribute("data-ServicioId");
+      let RecursoId = e.target.closest("[data-RecursoId]").getAttribute("data-RecursoId");
+
+      if (globalData.length === 0) {
+        Swal.fire({
+          title: "Mensaje!",
+          text: "No hay datos para enviar. Primero carga y previsualiza un archivo de Excel.",
+          icon: "warning",
+          draggable: true
+        });
+        return;
+      }
+
+      const result = await Swal.fire({
+        title: 'Seguro',
+        text: '¿Desea aprobar la solicitud?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3B71CA',
+        cancelButtonColor: '#9FA6B2',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar',
+        customClass: {
+          popup: 'swal2-custom-font',
+        },
+      });
+
+      if (result.isConfirmed) {
+        const btn = document.querySelector("#btn_guardar_trazabilidad");
+        btn.disabled = true;
+        btn.innerHTML = "Importando... ⏳";
+
+        try {
+          // Crear objeto FormData
+          let formData = new FormData();
+          formData.append("ServicioId", ServicioId);
+          formData.append("RecursoId", RecursoId);
+          formData.append("globalData", JSON.stringify(globalData));  // Convertimos globalData a JSON
+
+          const response = await fetch($('#base_url').val() + 'torrecontrol/importar_trazabilidad', {
+            method: 'POST',
+            body: formData
+          });
+
+          const data = await response.json();
+
+          Swal.fire({
+            title: "Mensaje!",
+            text: data.message,
+            icon: data.status === true ? "success" : "error",
+            draggable: true
+          });
+
+        } catch (err) {
+          console.error(err);
+          alert("Error al enviar datos al servidor.");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "<span class='uil uil-file-import'></span> Importar Trazabilidad";
+        }
+      }
+    }
+
+
   });
 
+  // Evento para mostrar/ocultar proveedores con el checkbox y hacer la petición AJAX
+  document.addEventListener("change", async (e) => {
+    if (e.target.matches("input[name='ProveedorServiciodetalle']")) {
+      let ServicioId = e.target.value;
+      let proveedorId = e.target.getAttribute("data-proveedorId");
+      let TipoServicio = e.target.getAttribute("data-TipoServicio");
+      let PedidosId = e.target.getAttribute("data-pedidosId");
+      let RecursoId = e.target.getAttribute("data-recursoId");
+
+      let filaServicios = document.getElementById(`detalle_recurso_proveedores_asignados_${ServicioId}`);
+      // Mostrar u ocultar la fila de servicios
+      if (filaServicios.style.display === "none") {
+        filaServicios.style.display = "table-row";
+        // Obtener servicios si aún no se han cargado
+        if (filaServicios.querySelector(".lista-detalle-accion-proveedores").innerHTML.trim() === "") {
+          filaServicios.querySelector(".lista-detalle-accion-proveedores").innerHTML = `
+            <div class="container-fluid pt-3">
+              <!-- <div class="d-flex justify-content-center"> -->
+              <div class="row">
+
+                <div id="despachos" style="display: none;">
+                  <div class="row">
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                      <div class="mb-3">
+                        <label style="font-size: 12px;">Placa</label>
+                        <input type="text" id="placa" name="placa" class="form-control form-control-sm" placeholder="Placa" oninput="this.value = this.value.toUpperCase();">
+                      </div>
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                      <div class="mb-3">
+                        <label style="font-size: 12px;">Flete</label>
+                        <input type="text" id="flete" name="flete" class="form-control form-control-sm" placeholder="Flete">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="otros" style="display: none;">
+                  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <div class="mb-3">
+                      <label style="font-size: 12px;">Valor Servicio</label>
+                      <input type="text" id="costo_servicio" name="costo_servicio" class="form-control form-control-sm" placeholder="Valor Servicio">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                  <div class="mb-3">
+                    <label style="font-size: 12px;">Fecha Inicio del servicio</label>
+                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control form-control-sm">
+                  </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                  <div class="mb-3">
+                    <label style="font-size: 12px;">Hora Inicio del servicio</label>
+                    <input type="time" id="hora_inicio" name="hora_inicio" class="form-control form-control-sm">
+                  </div>
+                </div>
+
+                <div class="col-12 gy-6 my-3" id="btn-acciones">
+                  <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                      <button class="btn btn-success btn-sm" id="btn_guardar_postulacion" type="button" data-id="${proveedorId}" data-id2="${ServicioId}" data-id3="${PedidosId}" data-id4="${TipoServicio}" data-id5="${ServicioId}" data-id6="${RecursoId}">
+                        <span class="uil uil-file-import"></span> Guardar Postulación
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          `;
+
+          /* Validar el tipo de servicio */
+
+          if (TipoServicio === "Despachos") {
+            document.getElementById("despachos").style.display = "";
+          } else {
+            document.getElementById("otros").style.display = "";
+          }
+        }
+      } else {
+        filaServicios.style.display = "none";
+      }
+      // await mostrarProveedores(clienId, ServicioId);
+    }
+
+    if (e.target.matches("#costo_servicio") || e.target.matches("#costo_servicio *")) {
+      let costo_servicio = document.getElementById("costo_servicio").value.trim();
+      $('#costo_servicio').val(parseFloat(costo_servicio, 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
+    }
+
+    if (e.target.matches("#flete") || e.target.matches("#flete *")) {
+      let flete = document.getElementById("flete").value.trim();
+      $('#flete').val(parseFloat(flete, 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
+    }
+  });
 }
 
 async function listar_recursos_proveedor(fecha_inicial, fecha_final, ventana) {
@@ -242,18 +620,24 @@ async function listar_recursos_proveedor(fecha_inicial, fecha_final, ventana) {
     if (data) {
       let tbody = document.getElementById('tbl_administrador_recurso_pedidos');
       tbody.innerHTML = '';
-      let esatdo_autorizado = '';
-      let col_estatus_publicacion = '';
-      let col_estatus_asignacion = '';
-      let btn_Asignacion = "";
-      let btn_publicacion = "";
+      let esatdo_recurso = '';
       let btn_cancelacion = "";
-      let col_prioridad = "";
       let btn_removeAsignacion = "";
-      let checkbox_carrito = "";
 
       data.forEach(element => {
         const fila = document.createElement('tr');
+
+        if (element.estado_recurso === 'Pendiente Iniciar') {
+          esatdo_recurso = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">${element.estado_recurso}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        } else if (element.estado_recurso === 'Iniciado') {
+          esatdo_recurso = `<span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">${element.estado_recurso}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        } else if (element.estado_recurso === 'Completado') {
+          esatdo_recurso = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${element.estado_recurso}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        } else if (element.estado_recurso === 'Cancelado') {
+          esatdo_recurso = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${element.estado_recurso}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        } else if (element.estado_recurso === 'Rechazado') {
+          esatdo_recurso = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">${element.estado_recurso}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        }
 
         const columnaNundocSolicitud = document.createElement('td');
         columnaNundocSolicitud.innerHTML = `
@@ -291,7 +675,7 @@ async function listar_recursos_proveedor(fecha_inicial, fecha_final, ventana) {
         columnaUsuario.style.whiteSpace = 'nowrap';
 
         const columnaEstado = document.createElement('td');
-        columnaEstado.innerHTML = element.estado;
+        columnaEstado.innerHTML = esatdo_recurso;
         columnaEstado.style.width = 'auto';
         columnaEstado.style.whiteSpace = 'nowrap';
 
@@ -313,4 +697,413 @@ async function listar_recursos_proveedor(fecha_inicial, fecha_final, ventana) {
   } finally {
     // d.getElementById('loading-overlay-mensaje_carga').style.display = 'none';
   }
+}
+
+async function Listar_pedidos_recursos(MaestroId, proveedor_id, Proceso) {
+  try {
+    let formData = new FormData();
+    formData.append("MaestroId", MaestroId);
+    formData.append("proveedor_id", proveedor_id);
+
+    let response = await fetch($('#base_url').val() + 'torrecontrol/listar_servicios_recursos', {
+      method: "POST",
+      body: formData
+    });
+
+    let data = await response.json();
+    console.log("🚀 ~ Listar_pedidos_recursos ~ data:", data)
+    if (data) {
+      let miArray = [];
+
+      let rows = "";
+
+      let totalPesoNeto = 0;
+      let totalPesoBruto = 0;
+      let totalUnidades = 0;
+      let col_estatus_publicacion = '';
+      data.forEach((servicio, index) => {
+        if (servicio.peso_neto_kg) {
+          totalPesoNeto += parseFloat(servicio.peso_neto_kg);
+        }
+
+        if (servicio.peso_bruto_kg) {
+          totalPesoBruto += parseFloat(servicio.peso_bruto_kg);
+        }
+
+        if (servicio.unidades) {
+          totalUnidades += parseFloat(servicio.unidades);
+        }
+
+        $('#pesoNeto').text(totalPesoNeto);
+        $('#pesoBruto').text(totalPesoBruto);
+        $('#totalUnidades').text(totalUnidades);
+
+        miArray.push(servicio.numdoc_solicitud);
+
+        if (servicio.estado_proceso_pedido === 'Pendiente Iniciar') {
+          col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        } else if (servicio.estado_proceso_pedido === 'Iniciado') {
+          col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        } else if (servicio.estado_proceso_pedido === 'Cancelado') {
+          col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_publicacion = `<a class="dropdown-item fw-bold" href="#" id="btn_publicar_pedido" data-id="${servicio.numdoc_solicitud}" data-id2="${servicio.cliente}"><span class="uil uil-feedback"></span> Publicar Pedido</a>`;
+        } else if (servicio.estado_proceso_pedido === 'Completado') {
+          col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        } else if (servicio.estado_proceso_pedido === 'Rechazado') {
+          col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_proceso_pedido}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+        }
+
+        rows += `
+            <tr>
+              <th scope="row">${servicio.numdoc_solicitud}</th>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.referencia_pedido}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.cod_producto}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.producto}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.peso_bruto_kg}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.presentacion}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.unidades}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.ciudad_origen}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.ciudad_destino}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.fecha_cargue}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.fecha_entrega}</td>
+              <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${col_estatus_publicacion}</td>
+            </tr>
+            <tr id="Recurso_proveedores_${servicio.numdoc_solicitud}" style="display: none;">
+              <td colspan="12">
+                <div class="lista-proceso-proveedores"></div>
+              </td>
+            </tr>
+          `;
+      });
+
+      if (data.every(servicio => servicio.estado_proceso_pedido === 'Iniciado')) {
+        Listar_servicios(MaestroId, Proceso, miArray, proveedor_id);
+        document.getElementById("btn_iniciar_recurso").style.display = "none";
+      }
+
+      /* Colcoar Array de las solicitudes de servicio para inicar proceso */
+      document.getElementById("btn_iniciar_recurso").setAttribute("data-SolicitudesId", JSON.stringify(miArray));
+
+      document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = rows;
+    } else {
+      document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">${data.message}</td></tr>`;
+    }
+  } catch (error) {
+    console.error("Error al obtener proveedores:", error);
+    document.getElementById("tbody_servicios_pedidos_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">Error al cargar pedidos del recurso</td></tr>`;
+  }
+}
+
+async function Listar_servicios(RecursoId, proceso, SolicitudesId, proveedor_id) {
+  try {
+    let formData = new FormData();
+    formData.append("RecursoId", RecursoId);
+    formData.append("proveedor_id", proveedor_id);
+    formData.append("proceso", proceso);
+    formData.append("SolicitudesId", JSON.stringify(SolicitudesId));
+
+    let response = await fetch($('#base_url').val() + 'torrecontrol/listar_servicios_recursos_proveedor', {
+      method: "POST",
+      body: formData
+    });
+
+    let data = await response.json();
+    if (data) {
+      document.getElementById("tbl_recursos_proveedor").style.display = "";
+      let rows = "";
+      let rows2 = "";
+      //   <div class="form-check form-switch text-center">
+      //   <input class="form-check-input me-2" type="checkbox" name="ProveedorServiciodetalle" data-proveedorId="${servicio.proveedorId}" data-TipoServicio="${servicio.tipo_servicio}" data-pedidosId="${SolicitudesId}" data-recursoId="${RecursoId}" id="servicio_${servicio.servicioId}" value="${servicio.servicioId}">
+      // </div>
+      let col_estatus_publicacion = '';
+      let btn_cargar_trazabilidad = '';
+      let btn_postular_gestion_servicio = '';
+      data.forEach((servicio, index) => {
+
+        if (servicio.estado_servicio === 'Pendiente Iniciar') {
+          col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_postular_gestion_servicio = `
+          <div class="form-check form-switch text-center">
+            <input class="form-check-input me-2" type="checkbox" name="ProveedorServiciodetalle" data-proveedorId="${servicio.proveedorId}" data-TipoServicio="${servicio.tipo_servicio}" data-pedidosId="${SolicitudesId}" data-recursoId="${RecursoId}" id="servicio_${servicio.servicioId}" value="${servicio.servicioId}">
+          </div>`;
+          btn_cargar_trazabilidad = ``;
+        } else if (servicio.estado_servicio === 'Iniciado') {
+          col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_postular_gestion_servicio = ``;
+          btn_cargar_trazabilidad = ``;
+        } else if (servicio.estado_servicio === 'Cancelado') {
+          col_estatus_publicacion = ` <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_postular_gestion_servicio = ``;
+          btn_cargar_trazabilidad = ``;
+        } else if (servicio.estado_servicio === 'Completado') {
+          col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_postular_gestion_servicio = ``;
+          btn_cargar_trazabilidad = ``;
+        } else if (servicio.estado_servicio === 'Rechazado') {
+          col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_postular_gestion_servicio = ``;
+          btn_cargar_trazabilidad = ``;
+        } else if (servicio.estado_servicio === 'Postulado') {
+          col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_postular_gestion_servicio = ``;
+          btn_cargar_trazabilidad = ``;
+        } else if (servicio.estado_servicio === 'Ganador') {
+          col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_postular_gestion_servicio = ``;
+          btn_cargar_trazabilidad = `
+          <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group">
+            <button class="btn btn-subtle-primary btn-sm me-1 px-1 py-0" type="button" id="btn_cargar_trazabilidad_" style="font-size:12px;" data-ServicioId="${servicio.servicioId}" data-RecursoId="${RecursoId}">
+              <span class="uil uil-file-edit-alt" data-fa-transform="shrink-3"></span> Trazabilidad
+            </button>
+          </div>
+          `;
+        } else if (servicio.estado_servicio === 'No Asignada') {
+          col_estatus_publicacion = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${servicio.estado_servicio}</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+          btn_postular_gestion_servicio = ``;
+          btn_cargar_trazabilidad = ``;
+        }
+
+        rows += `
+          <tr>
+            <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.razon_social}</td>
+            <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.tipo_servicio}</td>
+            <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.vehiculo}</td>
+            <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.Fecha_registro}</td>
+            <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.fecha_limite}</td>
+            <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${col_estatus_publicacion}</td>
+            <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>
+                ${btn_postular_gestion_servicio}
+                ${btn_cargar_trazabilidad}
+            </td>
+          </tr>
+          <tr id="detalle_recurso_proveedores_asignados_${servicio.servicioId}" style="display: none;">
+            <td colspan="12">
+              <div class="lista-detalle-accion-proveedores"></div>
+            </td>
+          </tr>
+        `;
+
+        rows2 += `
+        <tr>
+          <th scope="row">${index + 1}</th>
+          <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.Valor_Servicio}</td>
+          <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${servicio.Fecha_Inicio}</td>
+          <td class='text-center' style='color:black;width: auto; white-space: nowrap;'>${(servicio.Placa) ? servicio.Placa : 'No Aplica'}</td>
+        </tr>
+      `;
+      });
+
+      document.getElementById("tbody_servicios_recurso").innerHTML = rows;
+      document.getElementById("tbody_propuestos_proveedor").innerHTML = rows2;
+    } else {
+      document.getElementById("tbody_servicios_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">${data.message}</td></tr>`;
+      document.getElementById("tbody_propuestos_proveedor").innerHTML = `<tr><td colspan="12" class="text-center text-danger">${data.message}</td></tr>`;
+    }
+  } catch (error) {
+    console.error("Error al obtener proveedores:", error);
+    document.getElementById("tbody_servicios_recurso").innerHTML = `<tr><td colspan="12" class="text-center text-danger">Error al cargar pedidos del recurso</td></tr>`;
+    document.getElementById("tbody_propuestos_proveedor").innerHTML = `<tr><td colspan="12" class="text-center text-danger">Error al cargar pedidos del recurso</td></tr>`;
+  }
+}
+
+function DynamicOffcanvas(options) {
+  // Configuración predeterminada
+  var defaults = {
+    id: 'dynamicOffcanvas',
+    title: 'Default Title',
+    content: 'Default Content',
+    scroll: true,
+    backdrop: false
+  };
+
+  // Fusionar opciones con defaults
+  this.settings = Object.assign({}, defaults, options);
+
+  // Inicializar
+  this.initialize();
+}
+
+DynamicOffcanvas.prototype.initialize = function () {
+  this.createOffcanvas();
+  this.bsOffcanvas = new bootstrap.Offcanvas(this.offcanvasElement);
+};
+
+DynamicOffcanvas.prototype.createOffcanvas = function () {
+  var offcanvasHTML = `
+    <div class="offcanvas offcanvas-end" 
+        id="${this.settings.id}" 
+        data-bs-scroll="${this.settings.scroll}" 
+        data-bs-backdrop="${this.settings.backdrop}" 
+        tabindex="-1" 
+        aria-labelledby="${this.settings.id}-label" style="width: 900px;">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title fw-bold" id="${this.settings.id}-label">
+            ${this.settings.title}
+          </h5>
+          <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas"></button>
+        </div>
+      <div class="offcanvas-body">
+        ${this.settings.content}
+      </div>
+    </div>
+`;
+
+  var container = document.createElement('div');
+  container.innerHTML = offcanvasHTML;
+  this.offcanvasElement = container.firstElementChild;
+  document.body.appendChild(this.offcanvasElement);
+};
+
+DynamicOffcanvas.prototype.updateContent = function (newContent) {
+  var body = this.offcanvasElement.querySelector('.offcanvas-body');
+  body.innerHTML = newContent;
+};
+
+DynamicOffcanvas.prototype.updateTitle = function (newTitle) {
+  var title = this.offcanvasElement.querySelector('.offcanvas-title');
+  title.innerHTML = newTitle;
+};
+
+DynamicOffcanvas.prototype.show = function () {
+  this.bsOffcanvas.show();
+};
+
+DynamicOffcanvas.prototype.hide = function () {
+  this.bsOffcanvas.hide();
+};
+
+if (!window.globalData) {
+  window.globalData = [];
+} else {
+  console.log('El offcanvas ya está creado.');
+}
+
+function leerExcel() {
+  const fileInput = document.getElementById('excelFile');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert("Por favor selecciona un archivo de Excel primero.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    const sheetData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+    if (sheetData.length === 0) {
+      alert("El archivo está vacío o no tiene datos.");
+      return;
+    }
+
+    const previewTable = document.getElementById("previewTable");
+    previewTable.innerHTML = "";
+
+    // Crear encabezados de la tabla
+    const thead = document.createElement("thead");
+    thead.style.fontSize = "10px";
+    thead.style.color = "#332D2D";
+
+    const headerRow = document.createElement("tr");
+    headerRow.classList.add("text-center");
+    const headers1 = sheetData[0].filter(header => header.trim() !== ""); // Filtra vacíos
+    headers1.forEach(headerText => {
+      const th = document.createElement("th");
+      th.textContent = headerText;
+      headerRow.appendChild(th);
+    });
+
+    // Agregar una columna adicional para el botón de eliminar
+    const thEliminar = document.createElement("th");
+    thEliminar.textContent = "ACCIONES";
+    headerRow.appendChild(thEliminar);
+
+    thead.appendChild(headerRow);
+    previewTable.appendChild(thead);
+
+    // Crear cuerpo de la tabla con las filas
+    const tbody = document.createElement("tbody");
+    tbody.style.fontSize = "10px";
+    tbody.style.textAlign = "center";
+
+    const headers = sheetData[0]; // Definir headers antes del bucle
+
+    sheetData.slice(1).forEach((rowData, rowIndex) => {
+      const row = document.createElement("tr");
+
+      rowData.forEach((cellData, index) => {
+        const td = document.createElement("td");
+
+        // Convertir fechas en formato numérico a fecha legible
+        if (typeof cellData === "number" && headers[index].toLowerCase().includes("fecha")) {
+          let date = new Date((cellData - 25569) * 86400 * 1000);
+          td.textContent = date.toISOString().split("T")[0];
+        } else {
+          td.textContent = (cellData !== undefined && cellData !== null) ? cellData : "";
+        }
+
+        row.appendChild(td);
+      });
+      // Agregar botón de eliminar
+      const tdEliminar = document.createElement("td");
+      const btnEliminar = document.createElement("button");
+      // btnEliminar.textContent = "Eliminar";
+      btnEliminar.innerHTML = `<span class="uil-trash-alt"></span>`;
+      btnEliminar.classList.add("btn", "btn-subtle-danger", "btn-sm", "me-1", "px-1", "py-0");
+      // btnEliminar.onclick = function () {
+      //   if (confirm("¿Estás seguro de que quieres eliminar esta fila?")) {
+      //     row.remove(); // Eliminar la fila del DOM
+      //     globalData.splice(rowIndex, 1); // Eliminar del array global
+      //   }
+      // };
+
+      btnEliminar.onclick = function () {
+        if (confirm("¿Estás seguro de que quieres eliminar esta fila?")) {
+          row.remove(); // Eliminar del DOM
+
+          // Buscar el índice correcto en globalData
+          let indexToRemove = globalData.findIndex(item =>
+            Object.values(item).join("") === row.innerText.replace(/\s/g, "")
+          );
+
+          if (indexToRemove > -1) {
+            globalData.splice(indexToRemove, 1); // Eliminar del array global
+          }
+        }
+      };
+
+      tdEliminar.appendChild(btnEliminar);
+      row.appendChild(tdEliminar);
+
+      tbody.appendChild(row);
+    });
+
+    previewTable.appendChild(tbody);
+
+    globalData = sheetData.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((header, index) => {
+        let cellData = row[index] || "";
+
+        // Convertir fechas si el header contiene "fecha"
+        if (typeof cellData === "number" && header.toLowerCase().includes("fecha")) {
+          let date = new Date((cellData - 25569) * 86400 * 1000);
+          cellData = date.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+        }
+
+        obj[header] = cellData;
+      });
+      return obj;
+    });
+
+  };
+
+  reader.readAsArrayBuffer(file);
 }
