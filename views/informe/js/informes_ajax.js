@@ -1,5 +1,5 @@
-$(document).ready(function() {
-  $('#aplicar_filtro').click(function() {
+$(document).ready(function () {
+  $('#aplicar_filtro').click(function () {
     Swal.fire({
       title: 'Informe',
       text: '¿Está seguro de continuar?',
@@ -20,7 +20,7 @@ $(document).ready(function() {
   });
 
   // Capturar el evento keydown o keypress
-  $('#num_remesa').on('keydown', function(event) {
+  $('#num_remesa').on('keydown', function (event) {
     // Verificar si la tecla presionada es Enter (código 13)
     if (event.keyCode === 13) {
       // Realizar la acción deseada al presionar Enter
@@ -46,9 +46,8 @@ $(document).ready(function() {
     }
   });
 
-  $('#num_remision').on('keydown', function(event) {
+  $('#num_remision').on('keydown', function (event) {
     if (event.keyCode === 13) {
-      event.preventDefault(); // Si se desea evitar el comportamiento predeterminado del Enter
       Swal.fire({
         title: 'Informe',
         text: '¿Está seguro de continuar?',
@@ -78,13 +77,19 @@ $(document).ready(function() {
   //   XLSX.writeFile(wb, nombreArchivo);
   // });
 
-  document.getElementById('exportar_excel').addEventListener('click', function() {
+  document.getElementById('exportar_excel').addEventListener('click', function () {
     var table = document.getElementById('informe_remesas');
 
     // Preprocesar la tabla para asegurar que los valores con formato de moneda sean tratados como texto
-    Array.from(table.getElementsByTagName('td')).forEach(function(td) {
-      if (td.innerText.includes('$') || td.innerText.includes(',')) {
-        td.setAttribute('data-t', 's'); // Marcar como texto
+    // Preprocesar la tabla: evitar que fechas se interpreten mal
+    Array.from(table.getElementsByTagName('td')).forEach(function (td) {
+      const text = td.innerText.trim();
+
+      // Detectar valores con $ o formatos de fecha ISO
+      const esFecha = /^\d{4}-\d{2}-\d{2}$/.test(text); // Formato YYYY-MM-DD
+
+      if (esFecha) {
+        td.setAttribute('data-t', 's'); // Marcar como texto para Excel
       }
     });
 

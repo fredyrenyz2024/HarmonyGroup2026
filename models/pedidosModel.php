@@ -336,7 +336,7 @@ class pedidosModel extends Model
                                 $sql_detalle1->bindParam(':fecha_creacion', $fecha, PDO::PARAM_STR);
                                 $resultados_detalle = $sql_detalle1->execute();
                             }
-                            
+
                             if ($resultados_detalle) {
                                 $tiempo = 0;
                                 for ($i = 0; $i < count($usuarios_responsable->usuario); $i++) {
@@ -406,13 +406,23 @@ class pedidosModel extends Model
             $sql = $this->_db3->prepare("SELECT tp.numdoc,tp.referencia,tp.estado,tp.fecha_creacion,tp.hora_creacion,c.nombre FROM cmx_trazabilidad_proceso tp 
             INNER JOIN cmx_clientes c ON c.id=tp.cliente WHERE tp.cliente=:Cliente AND tp.estado='ACTIVO'");
             $sql->bindParam(':Cliente', $_SESSION["usuario"]["id_cliente"], PDO::PARAM_INT);
-            // $sql->bindParam(':Estado', $estado, PDO::PARAM_INT);
             $sql->execute();
             $resultados = $sql->fetchAll(PDO::FETCH_ASSOC);
         } else {
-            $sql = $this->_db3->prepare("SELECT tp.numdoc,tp.referencia,tp.estado,tp.fecha_creacion,tp.hora_creacion,c.nombre FROM cmx_trazabilidad_proceso tp 
-            INNER JOIN cmx_clientes c ON c.id=tp.cliente WHERE tp.estado='ACTIVO'");
-            // $sql->bindParam(':Estado', $estado, PDO::PARAM_INT);
+            $sql = $this->_db3->prepare("SELECT
+                tp.numdoc,
+                tp.referencia,
+                tp.estado,
+                tp.fecha_creacion,
+                tp.hora_creacion,
+                c.nombre,
+                IFNULL(sp.solicitud_id,'-') AS Solicitud
+            FROM
+                cmx_trazabilidad_proceso tp
+                INNER JOIN cmx_clientes c ON c.id = tp.cliente
+                LEFT JOIN cmx_solicitudes_pedidos sp ON tp.numdoc=sp.pedido_id
+            WHERE
+                tp.estado = 'ACTIVO'");
             $sql->execute();
             $resultados = $sql->fetchAll(PDO::FETCH_ASSOC);
         }
@@ -477,7 +487,7 @@ class pedidosModel extends Model
         INNER JOIN cmx_tipo_trazabilidad t ON t.id=tt.tipo_trazabilidad
         INNER JOIN cmx_usuarios u ON u.id=dt.usuario_responsable
         LEFT JOIN  cmx_dependencia_actividad da ON tt.id=da.actividad
-        WHERE dt.numdoc_detalle_opcion=:numdoc AND dt.usuario_responsable=:Usuario  GROUP BY dt.posicion ORDER BY dt.posicion ASC");
+        WHERE dt.numdoc_detalle_opcion=:numdoc AND dt.usuario_responsable=:Usuario GROUP BY dt.posicion ORDER BY dt.posicion ASC");
         $sql->bindParam(':numdoc', $numdoc, PDO::PARAM_STR);
         $sql->bindParam(':Usuario', $user, PDO::PARAM_STR);
         $sql->execute();
@@ -705,7 +715,7 @@ class pedidosModel extends Model
                 if ($resultado_update) {
                     // Se inserta sin eveidencia la gestion
                     $sql = $this->_db3->prepare("INSERT INTO cmx_pedidos_solicitudes_detalles(num_pedido,parametro_id,punto_opcion_id,observacion,documento,nombre_archivo,se_publica,fecha,usuario,estado)
-                VALUES(:num_pedido,:parametro_id,:punto_opcion_id,:observacion,:documento,:nombre_archivo,:se_publica,:fecha,:usuario,:estado)");
+                    VALUES(:num_pedido,:parametro_id,:punto_opcion_id,:observacion,:documento,:nombre_archivo,:se_publica,:fecha,:usuario,:estado)");
                     $sql->bindParam(':num_pedido', $datos["nundoc"], PDO::PARAM_STR);
                     $sql->bindParam(':parametro_id', $datos["parametros_pedido"], PDO::PARAM_STR);
                     $sql->bindParam(':punto_opcion_id', $datos["parametros_punto_pedido_opcion"], PDO::PARAM_STR);
@@ -829,18 +839,114 @@ class pedidosModel extends Model
         return $resultados;
     }
 
-    public function Detalle_gestion_actividad($nundoc, $actividad)
+    public function Detalle_gestion_actividad_Pedidos($nundoc, $actividad)
     {
-        $sql = $this->_db3->prepare("SELECT *,psd.id AS detalle_id,psd.num_pedido  FROM cmx_pedidos_solicitudes_detalles psd
+        $sql = $this->_db3->prepare("SELECT *,psd.id AS detalle_id,psd.num_pedido,dot.costo_actividad,dot.costo_promedio  FROM cmx_pedidos_solicitudes_detalles psd
         INNER JOIN cmx_tipo_trazabilidad tp ON tp.id=psd.parametro_id
         INNER JOIN cmx_tipo_opcion_trazabilidad tpt ON tpt.id=psd.punto_opcion_id
-        WHERE psd.num_pedido=:Nundoc AND psd.punto_opcion_id=:Actividad");
+        INNER JOIN cmx_detalle_opcion_trazabilidad dot ON dot.numdoc_detalle_opcion=psd.num_pedido
+        WHERE psd.num_pedido=:Nundoc AND psd.punto_opcion_id=:Actividad GROUP BY psd.num_pedido");
         $sql->bindParam(':Nundoc', $nundoc, PDO::PARAM_STR);
         $sql->bindParam(':Actividad', $actividad, PDO::PARAM_STR);
         $sql->execute();
         $resultados = $sql->fetchAll(PDO::FETCH_ASSOC);
         return $resultados;
     }
+
+    // public function Detalle_gestion_actividad($nundoc, $actividad)
+    // {
+    //     $sql = $this->_db3->prepare("
+    //         SELECT 
+    //             MAX(psd.id) AS detalle_id,
+    //             psd.num_pedido,
+    //             psd.punto_opcion_id,
+    //             tp.nombre_tipo AS tipo_trazabilidad,
+    //             tpt.nombre_opcion AS tipo_opcion,
+    //             MAX(dot.costo_actividad) AS costo_actividad,
+    //             MAX(dot.costo_promedio) AS costo_promedio,
+    //             MAX(psd.fecha) AS fecha,
+    //             -- Solo concatena evidencias reales (omite 'Sin_evidencia' y NULL)
+    //             GROUP_CONCAT(CASE WHEN psd.nombre_archivo <> 'Sin_evidencia' THEN psd.documento END 
+    //                             ORDER BY psd.id SEPARATOR '||') AS rutas_documento,
+    //             GROUP_CONCAT(CASE WHEN psd.nombre_archivo <> 'Sin_evidencia' THEN psd.nombre_archivo END 
+    //                             ORDER BY psd.id SEPARATOR '||') AS nombres_archivo,
+    //             MIN(psd.observacion) AS observacion,  -- elige una; si quieres todas usa GROUP_CONCAT
+    //             MIN(psd.usuario)     AS usuario       -- elige uno
+    //         FROM cmx_pedidos_solicitudes_detalles psd
+    //         INNER JOIN cmx_tipo_trazabilidad tp 
+    //             ON tp.id = psd.parametro_id
+    //         INNER JOIN cmx_tipo_opcion_trazabilidad tpt 
+    //             ON tpt.id = psd.punto_opcion_id
+    //         INNER JOIN cmx_detalle_opcion_trazabilidad dot 
+    //             ON dot.numdoc_detalle_opcion = psd.num_pedido
+    //         AND dot.detalle_proceso       = psd.punto_opcion_id
+    //         WHERE psd.num_pedido     = :Nundoc
+    //         AND psd.punto_opcion_id = :Actividad
+    //         GROUP BY 
+    //             psd.num_pedido, psd.punto_opcion_id, tp.nombre_tipo, tpt.nombre_opcion
+    //     ");
+
+    //     $sql->bindParam(':Nundoc', $nundoc, PDO::PARAM_STR);
+    //     $sql->bindParam(':Actividad', $actividad, PDO::PARAM_STR);
+    //     $sql->execute();
+
+    //     return $sql->fetchAll(PDO::FETCH_ASSOC); // array con 1 fila
+    // }
+
+
+    public function Detalle_gestion_actividad($nundoc, $actividad)
+    {
+        $sql = $this->_db3->prepare("
+        SELECT 
+            MAX(psd.id) AS detalle_id,
+            psd.num_pedido,
+            psd.punto_opcion_id,
+            tp.nombre_tipo AS tipo_trazabilidad,
+            tpt.nombre_opcion AS tipo_opcion,
+            MAX(dot.costo_actividad) AS costo_actividad,
+            MAX(dot.costo_promedio) AS costo_promedio,
+            MAX(psd.fecha) AS fecha,
+            -- Concatena rutas y nombres de archivo por observación
+            GROUP_CONCAT(
+                CASE WHEN psd.nombre_archivo <> 'Sin_evidencia' 
+                     THEN psd.documento END 
+                ORDER BY psd.id SEPARATOR '||'
+            ) AS rutas_documento,
+            GROUP_CONCAT(
+                CASE WHEN psd.nombre_archivo <> 'Sin_evidencia' 
+                     THEN psd.nombre_archivo END 
+                ORDER BY psd.id SEPARATOR '||'
+            ) AS nombres_archivo,
+            psd.observacion,   -- ahora sí, cada observación queda en su fila
+            MIN(psd.usuario) AS usuario
+        FROM cmx_pedidos_solicitudes_detalles psd
+        INNER JOIN cmx_tipo_trazabilidad tp 
+            ON tp.id = psd.parametro_id
+        INNER JOIN cmx_tipo_opcion_trazabilidad tpt 
+            ON tpt.id = psd.punto_opcion_id
+        INNER JOIN cmx_detalle_opcion_trazabilidad dot 
+            ON dot.numdoc_detalle_opcion = psd.num_pedido
+           AND dot.detalle_proceso       = psd.punto_opcion_id
+        WHERE psd.num_pedido     = :Nundoc
+          AND psd.punto_opcion_id = :Actividad
+        GROUP BY 
+            psd.num_pedido, 
+            psd.punto_opcion_id, 
+            tp.nombre_tipo, 
+            tpt.nombre_opcion,
+            psd.observacion  -- 👈 clave: también agrupamos por observación
+        ORDER BY psd.fecha DESC 
+
+    ");
+
+        $sql->bindParam(':Nundoc', $nundoc, PDO::PARAM_STR);
+        $sql->bindParam(':Actividad', $actividad, PDO::PARAM_STR);
+        $sql->execute();
+
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
 
     public function Actualizar_publicado($estado, $id)
     {
@@ -888,11 +994,11 @@ class pedidosModel extends Model
         $sql_estado_actividades->execute();
         $resultado_estado_actividades = $sql_estado_actividades->fetchAll(PDO::FETCH_ASSOC);
 
-        $response = array(
+        $response = [
             "cantidad_actividades" => $resultado_cantidad_actividades,
             "cantidad_actividades_completas" => $resultado_cantidad_actividades_completas,
             "estado_actividades" => $resultado_estado_actividades,
-        );
+        ];
 
         return $response;
     }
@@ -959,7 +1065,6 @@ class pedidosModel extends Model
     }
 
     /* Listar responsables de activadaes para caambiar */
-
     public function Listar_usaurio_responsable()
     {
         $sql = $this->_db3->prepare("SELECT user_log,id,nom_usuario,email FROM cmx_usuarios WHERE estado=1 ORDER BY nom_usuario ASC");

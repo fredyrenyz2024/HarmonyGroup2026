@@ -61,47 +61,7 @@ if (isset($this->bodega)/*  && count($this->bodega) */) {
 			$_btn_editar = '';
 			$_btn_habiilitar = '';
 			$_btn_inhabiilitar = '';
-			// switch ($value["estado"]) {
-			// 	case '0':
-			// 		// se asigna contenido de la columna de estado
-			// 		$col_status = '<td class="nexos-txt-danger"><center><span class="mdi mdi-dot-circle icon"></span></center></td>';
-
-			// 		if ($_permisos["eliminar"]) {
-			// 			// Verifica si la clave 0 existe en $value
-			// 			if (isset($value[0])) {
-			// 				$_popupHabilita = $alert->_alert_modal_mod_success($value[0], "Realmente desea habilitar este elemento?", $_dbTable);
-			// 				$vista .= $_popupHabilita[0];
-			// 				$_jsScripts .= $_popupHabilita[1];
-
-			// 				// se asigna contenudo de la columna de acciones
-			// 				$_btn_habiilitar = '<button type="button" id="#habilita_' . $value[0] . '" class="btn btn-success" data-toggle="modal" data-target="#habilita_' . $value[0] . '" ><i class="far fa-check-circle"></i></button>';
-			// 			}
-			// 		}
-			// 		break;
-
-			// 	case '1':
-			// 		// se asigna contenido de la columna de estado
-			// 		$col_status = '<td class="nexos-txt-success"><center><span class="mdi mdi-dot-circle icon"></span></center></td>';
-			// 		if ($_permisos["editar"]) {
-			// 			// Verifica si la clave 0 existe en $value
-			// 			if (isset($value[0])) {
-			// 				$_btn_editar = '<button type="button" onclick="cargardatosRemiDest(' . $value[0] . ')" class="btn btn-warning" data-toggle="modal" data-target="#editar_remi_dest"><i class="fas fa-pencil-alt"></i></button>';
-			// 			}
-			// 		}
-			// 		if ($_permisos["eliminar"]) {
-			// 			// Verifica si la clave 0 existe en $value
-			// 			if (isset($value[0])) {
-			// 				$_popupElimina = $alert->_alert_modal_mod_danger($value[0], "Realmente desea inhabilitar este remitente?", $_dbTable);
-			// 				$vista .= $_popupElimina[0];
-			// 				$_jsScripts .= $_popupElimina[1];
-
-			// 				// se asigna contenudo de la columna de acciones
-			// 				$_btn_inhabiilitar = '<button type="button" id="elimina_' . $value[0] . '" class="btn btn-danger" data-toggle="modal" data-target="#elimina_' . $value[0] . '"><i class="fas fa-trash-alt"></i></button>';
-			// 			}
-			// 		}
-			// 		break;
-			// }
-
+			
 			switch ($value["estado"]) {
 				case '0':
 					// se asigna contenido de la columna de estado
@@ -192,98 +152,6 @@ if (isset($this->bodega)/*  && count($this->bodega) */) {
 					</tr>
 			';
 		}
-
-		// foreach ($bodega['rowsData'] as $key => $value) {
-
-		// 	/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
-		// 	$_btn_editar = '';
-		// 	$_btn_habiilitar = '';
-		// 	$_btn_inhabiilitar = '';
-		// 	switch ($value["estado"]) {
-		// 		case '0':
-		// 			// se asigna contenido de la columna de estado
-		// 			$col_status = '<td class="nexos-txt-danger"><center><span class="mdi mdi-dot-circle icon"></span></center></td>';
-
-		// 			if ($_permisos["eliminar"]) {
-		// 				$_popupHabilita = $alert->_alert_modal_mod_success($value[0], "Realmente desea habilitar este elemento?", $_dbTable);
-		// 				$vista .= $_popupHabilita[0];
-		// 				$_jsScripts .= $_popupHabilita[1];
-
-		// 				// se asigna contenudo de la columna de acciones
-		// 				// $_btn_habiilitar = '<span id="#habilita_' . $value[0] . '" data-toggle="modal" data-target="#habilita_' . $value[0] . '" class="icon mdi mdi-check-circle"></span>';
-		// 				$_btn_habiilitar = '<button type="button" id="#habilita_' . $value[0] . '" class="btn btn-success" data-toggle="modal" data-target="#habilita_' . $value[0] . '" ><i class="far fa-check-circle"></i></button>';
-		// 			}
-		// 			break;
-
-		// 		case '1':
-		// 			// se asigna contenido de la columna de estado
-		// 			$col_status = '<td class="nexos-txt-success"><center><span class="mdi mdi-dot-circle icon"></span></center></td>';
-		// 			if ($_permisos["editar"]) {
-		// 				// $_btn_editar = '<a href="javascript:" onclick="cargardatosRemiDest(' . $value[0] . ')" class="cell-detail hint--top-left" data-hint="Editar proveedor"><span class="icon mdi mdi-edit" data-toggle="modal" data-target="#editar_remi_dest"></span></a>';
-		// 				$_btn_editar = '<button type="button" onclick="cargardatosRemiDest(' . $value[0] . ')" class="btn btn-warning" data-toggle="modal" data-target="#editar_remi_dest"><i class="fas fa-pencil-alt"></i></button> 
-		// 				';
-		// 			}
-		// 			if ($_permisos["eliminar"]) {
-		// 				$_popupElimina = $alert->_alert_modal_mod_danger($value[0], "Realmente desea inhabilitar este remitente?", $_dbTable);
-		// 				$vista .= $_popupElimina[0];
-		// 				$_jsScripts .= $_popupElimina[1];
-		// 				// se asigna contenudo de la columna de acciones
-		// 				// $_btn_inhabiilitar = '<span id="elimina_' . $value[0] . '"data-toggle="modal" data-target="#elimina_' . $value[0] . '" class="icon mdi mdi-close-circle"></span>';
-		// 				$_btn_inhabiilitar = '<button type="button"id="elimina_' . $value[0] . '" class="btn btn-danger" data-toggle="modal" data-target="#elimina_' . $value[0] . '"><i class="fas fa-trash-alt"></i></button> ';
-		// 			}
-		// 			break;
-		// 	}
-		// 	/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
-
-		// 	$col_action = '
-		// 				<td class="actions">
-		// 					<div class="info_cliente" data-nombre="' . $value["NOM_CLIENTE"] . '" data-sigla="' . $value["SIGLA_CLIENTE"] . '" data-direccion="' . $value["DIRECCION_CLIENTE"] . '" data-telefono="' . $value["TELEFONO_CLIENTE"] . '" data-email="' . $value["EMAIL_CLIENTE"] . '" data-llegada="' . $value["LLEGADA_CLIENTE"] . '"></div>
-		// 					<div class="info_remitente"data-nombre = "' . $value["nombre"] . '" data-documento = "' . $value["documento"] . '" data-digito_verificacion = "' . $value["digito_verificacion"] . '" data-sigla = "' . $value["sigla"] . '" data-direccion = "' . $value["direccion"] . '" data-municipio = "' . $value["municipio"] . '" data-depto = "' . $value["depto"] . '" data-pais = "' . $value["pais"] . '" data-codigo_postal = "' . $value["codigo_postal"] . '" data-como_llegar = "' . $value["como_llegar"] . '" data-descripcion_actividad = "' . $value["descripcion_actividad"] . '" data-latitud = "' . $value["latitud"] . '" data-longitud = "' . $value["longitud"] . '" data-tipodoc="' . $value['tipo_documento'] . '"><div>
-
-		// 					<!--<a href="javascript:" onclick="verDatosRemDest(this)" data-id="' . $value[0] . '" class="cell-detail hint--top-left" data-hint="Ver información del Remitente - Destinatario""><span class="icon mdi mdi-eye" data-toggle="modal" data-target="#ver_remi_dest"></span></a>-->
-
-		// 					<div class="btn-group btn-group-xs" role="group" aria-label="...">
-		// 					<button type="button"  onclick="verDatosRemDest(this)" data-id="' . $value[0] . '"  class="btn btn-info hint--top-left" data-hint="Ver información del Remitente - Destinatario"" data-toggle="modal" data-target="#ver_remi_dest"><i class="far fa-eye"></i></button> 
-		// 						' . $_btn_editar . $_btn_inhabiilitar . $_btn_habiilitar . '
-		// 					</div>
-		// 				</td>
-		// 			';
-
-		// 	// Se maqueta contenido de la tabla 
-		// 	$documento = $value["documento"];
-		// 	if ($value["tipo_documento"] == "NIT") {
-		// 		$documento = $value["documento"] . "-" . $value["digito_verificacion"];
-		// 	}
-
-		// 	$_flag_rndc = '';
-		// 	if ($value["rndc_id"]) {
-		// 		$_flag_rndc = '<strong class="text-success">RNDC</strong>';
-		// 	}
-
-		// 	$table_bodega .= '
-		// 				<tr>
-		// 					' . $col_status . '
-		// 					<td class="cell-detail">
-		// 						<span>' . $_flag_rndc . ' ' . $value["NOM_CLIENTE"] . '</span>
-		// 						<span class="cell-detail-description">' . $value["CIUDAD_CLIENTE"] . '</span>
-		// 					</td>
-		// 					<td class="cell-detail">
-		// 						<span>' . $value["nombre"] . '</span>
-		// 						<span class="cell-detail-description">' . $value["sigla"] . '</span>
-		// 						<span class="cell-detail-description">' . $documento . '</span>
-		// 					</td>
-		// 					<td class="cell-detail">
-		// 						<span>' . $value["direccion"] . '</span>
-		// 						<span class="cell-detail-description">' . $value["CIUDAD_REMITENTE"] . '</span>
-		// 					</td>
-		// 					<td class="cell-detail">
-		// 						<span>' . $value["dias_atencion"] . '</span>
-		// 						<span class="cell-detail-description">' . $value["horario_atencion"] . '</span>
-		// 					</td>
-		// 					' . $col_action . '
-		// 				</tr>
-		// 			';
-		// }
 		$table_bodega .= '
 									</tbody>
 								</table>
@@ -292,97 +160,6 @@ if (isset($this->bodega)/*  && count($this->bodega) */) {
 					</div>
 				';
 	}
-
-	// if ($bodega['rowsData']) {
-	// 	foreach ($bodega['rowsData'] as $key => $value) {
-
-	// 		/*** SE FILTRA CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
-	// 		$_btn_editar = '';
-	// 		$_btn_habiilitar = '';
-	// 		$_btn_inhabiilitar = '';
-	// 		switch ($value["estado"]) {
-	// 			case '0':
-	// 				// se asigna contenido de la columna de estado
-	// 				$col_status = '<td class="nexos-txt-danger"><center><span class="mdi mdi-dot-circle icon"></span></center></td>';
-
-	// 				if ($_permisos["eliminar"]) {
-	// 					$_popupHabilita = $alert->_alert_modal_mod_success( $value[0] , "Realmente desea habilitar este elemento?" , $_dbTable );
-	// 					$vista.= $_popupHabilita[0];
-	// 					$_jsScripts.=$_popupHabilita[1];
-
-	// 					// se asigna contenudo de la columna de acciones
-	// 					$_btn_habiilitar = '<span id="#habilita_' . $value[0] . '" data-toggle="modal" data-target="#habilita_' . $value[0] . '" class="icon mdi mdi-check-circle"></span>';
-	// 				}
-	// 				break;
-
-	// 			case '1':
-	// 				// se asigna contenido de la columna de estado
-	// 				$col_status = '<td class="nexos-txt-success"><center><span class="mdi mdi-dot-circle icon"></span></center></td>';
-
-	// 				if ($_permisos["editar"]) {
-	// 					$_btn_editar = '<a href="javascript:" onclick="cargardatosRemiDest(' . $value[0] . ')" class="cell-detail hint--top-left" data-hint="Editar proveedor"><span class="icon mdi mdi-edit" data-toggle="modal" data-target="#editar_remi_dest"></span></a>';
-	// 				}
-	// 				if ($_permisos["eliminar"]) {
-	// 					$_popupElimina = $alert->_alert_modal_mod_danger($value[0], "Realmente desea inhabilitar este remitente?",$_dbTable);
-	// 					$vista.= $_popupElimina[0];
-	// 					$_jsScripts.=$_popupElimina[1];
-	// 					// se asigna contenudo de la columna de acciones
-	// 					$_btn_inhabiilitar = '<span id="elimina_' . $value[0] . '"data-toggle="modal" data-target="#elimina_' . $value[0] . '" class="icon mdi mdi-close-circle"></span>';
-	// 				}
-	// 				break;
-	// 		}
-	// 		/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
-
-	// 		$col_action = '
-	// 			<td class="actions">
-	// 				<div class="info_cliente" data-nombre="' . $value["NOM_CLIENTE"] . '" data-sigla="' . $value["SIGLA_CLIENTE"] . '" data-direccion="' . $value["DIRECCION_CLIENTE"] . '" data-telefono="' . $value["TELEFONO_CLIENTE"] . '" data-email="' . $value["EMAIL_CLIENTE"] . '" data-llegada="' . $value["LLEGADA_CLIENTE"] . '"></div>
-	// 				<div class="info_remitente"data-nombre = "' . $value["nombre"] . '" data-documento = "' . $value["documento"] . '" data-digito_verificacion = "' . $value["digito_verificacion"] . '" data-sigla = "' . $value["sigla"] . '" data-direccion = "' . $value["direccion"] . '" data-municipio = "' . $value["municipio"] . '" data-depto = "' . $value["depto"] . '" 							data-pais = "' . $value["pais"] . '" data-codigo_postal = "' . $value["codigo_postal"] . '" data-como_llegar = "' . $value["como_llegar"] . '" data-descripcion_actividad = "' . $value["descripcion_actividad"] . '" data-latitud = "' . $value["latitud"] . '" data-longitud = "' . $value["longitud"] . '" data-tipodoc="'.$value['tipo_documento'].'"><div>
-	// 				<a href="javascript:" onclick="verDatosRemDest(this)" data-id="' . $value[0] . '" class="cell-detail hint--top-left" data-hint="Ver información del Remitente - Destinatario" "><span class="icon mdi mdi-eye" data-toggle="modal" data-target="#ver_remi_dest"></span></a>
-	// 				' . $_btn_editar . $_btn_inhabiilitar . $_btn_habiilitar . '
-	// 			</td>
-	// 		';
-
-	// 		// Se maqueta contenido de la tabla 
-	// 		$documento = $value["documento"];
-	// 		if ( $value["tipo_documento"] == "NIT" ) {
-	// 			$documento = $value["documento"] . "-" . $value["digito_verificacion"];
-	// 		}
-
-	// 		$_flag_rndc = '';
-	// 		if ($value["rndc_id"]) { $_flag_rndc = '<strong class="text-success">RNDC</strong>'; }
-
-	// 		$table_bodega.= '
-	// 			<tr>
-	// 				' . $col_status . '
-	// 				<td class="cell-detail">
-	// 					<span>' . $_flag_rndc . ' ' . $value["NOM_CLIENTE"] . '</span>
-	// 					<span class="cell-detail-description">' . $value["CIUDAD_CLIENTE"] . '</span>
-	// 				</td>
-	// 				<td class="cell-detail">
-	// 					<span>' . $value["nombre"] . '</span>
-	// 					<span class="cell-detail-description">' . $value["sigla"] . '</span>
-	// 					<span class="cell-detail-description">' . $documento . '</span>
-	// 				</td>
-	// 				<td class="cell-detail">
-	// 					<span>' . $value["direccion"] . '</span>
-	// 					<span class="cell-detail-description">' . $value["CIUDAD_REMITENTE"] . '</span>
-	// 				</td>
-	// 				<td class="cell-detail">
-	// 					<span>' . $value["dias_atencion"] . '</span>
-	// 					<span class="cell-detail-description">' . $value["horario_atencion"] . '</span>
-	// 				</td>
-	// 				' . $col_action . '
-	// 			</tr>
-	// 		';
-	// 	}
-	// 	$table_bodega.= '
-	// 						</tbody>
-	// 					</table>
-	// 				</div>
-	// 			</div>
-	// 		</div>
-	// 	';
-	// }
 }
 
 /*** FIN CREACION DE TABLA DE CONTENIDO ***/
@@ -1900,9 +1677,9 @@ echo $vista;
 				$("#editar_remi_dest").animate({
 					scrollTop: 0
 				}, 600);
-				setTimeout(function() {
-					location.reload(false);
-				}, 1800);
+				// setTimeout(function() {
+				// 	location.reload(false);
+				// }, 1800);
 			}
 		});
 		/***** FIN - FUNCIONES DEL FORMUALRIO DE EDICION DE REMITENTE - DESTINATARIO *****/

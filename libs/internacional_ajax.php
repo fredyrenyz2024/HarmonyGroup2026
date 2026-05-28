@@ -212,23 +212,50 @@ switch ($_GET["action"]) {
 		$_msg_control .= "Entro en la acción actualiza_oferta.\n";
 
 		$id_intr_protecto = $_POST["id_intr_proyecto"];
+		$estado = 1;
 
 		// Se busca las ofertas comerciales anteriores 
-		$sql = 'SELECT cioc.id FROM cmx_intr_oferta_comercial cioc 
-		WHERE cioc.id_intr_proyecto = :id_intr_proyecto';
+		$sql = 'SELECT cioc.id FROM cmx_intr_oferta_comercial cioc WHERE cioc.id_intr_proyecto = :id_intr_proyecto AND cioc.estado = :estado';
 		$stmt = $Pdo->prepare($sql);
 		$stmt->bindParam(':id_intr_proyecto', $id_intr_protecto, PDO::PARAM_INT);
+		$stmt->bindParam(':estado', $estado, PDO::PARAM_STR); // <<< ¡Aquí también había un typo en :estado!
 		$stmt->execute();
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 		// Si existen ofertas comerciales se anulan 
-		if ($resul) {
-			foreach ($resul as $key => $value) {
-				$array = [];
-				$array["estado"] = 0;
-				$Data->updateRegistro("cmx_intr_oferta_comercial", $array, (int)$value[0]);
+		if (!empty($result)) {
+			foreach ($result as $key => $value) { // <<< También corregido aquí
+				$estado_nuevo = 0;
+				$sql_update =  $Pdo->prepare("UPDATE cmx_intr_oferta_comercial SET estado = :estado WHERE id = :id");
+				$sql_update->bindParam(':estado', $estado_nuevo, PDO::PARAM_INT);
+				$sql_update->bindParam(':id', $value['id'], PDO::PARAM_INT);
+				$sql_update->execute();
 			}
+		} else {
+			// var_dump($result); // Esto mostrará array(0) { } si no hay resultados
+			// exit();
 		}
+
+		// Se busca las ofertas comerciales anteriores 
+		// $sql = 'SELECT cioc.id FROM cmx_intr_oferta_comercial cioc WHERE cioc.id_intr_proyecto = :id_intr_proyecto AND cioc.estado = :estado';
+		// $stmt = $Pdo->prepare($sql);
+		// $stmt->bindParam(':id_intr_proyecto', $id_intr_protecto, PDO::PARAM_INT);
+		// $stmt->bindParam(':estado', $esatdo, PDO::PARAM_STR);
+		// $stmt->execute();
+		// $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		// // Si existen ofertas comerciales se anulan 
+		// if (!empty($result)) {
+		// 	foreach ($result as $key => $value) {
+		// 		// $array = [];
+		// 		$estado_nuevo = 0;
+		// 		// $Data->updateRegistro("cmx_intr_oferta_comercial", $array, (int)$value['id']);
+		// 		$sql_update =  $Pdo->prepare("UPDATE cmx_intr_oferta_comercial SET estado = :estado WHERE id_intr_proyecto = :id");
+		// 		$sql_update->bindParam(':estado', $estado_nuevo, PDO::PARAM_INT);
+		// 		$sql_update->bindParam(':id', $value['id'], PDO::PARAM_INT);
+		// 		$sql_update->execute();
+		// 	}
+		// }
 
 		// Se guarda la información de la nueva oferta comercial
 		$array = [];
@@ -876,10 +903,6 @@ switch ($_GET["action"]) {
 						<div id="accordion2" class="panel-group accordion">
 							<input type="hidden" name="id_intr_proyecto" id="id_intr_proyecto" value="' . $_POST["id"] . '">
 				';
-
-			// print_r($info["proveedores"]);
-			// exit();
-
 
 			foreach ($info["proveedores"] as $key => $value) {
 				$arrayProveedores[$value['id_proveedor']][] = $value;
@@ -2903,6 +2926,10 @@ switch ($_GET["action"]) {
 		$return["destinos"] = $arrayDestinos;
 
 		$general = $arrayDestinos["general"][0];
+
+		// print_r('<pre>');
+		// print_r($general);
+		// print_r('</pre>');
 		$_msg_content["title"] = "Registrar Materiales - Proyecto (" . $general["numero_importacion"] . ")";
 
 		/***** Encabezado del formulario *****/
@@ -4866,7 +4893,18 @@ switch ($_GET["action"]) {
 						$_flag_varios_destino = false;
 						$_guias = ' | Guías: [ ';
 						$_flag_guias = false;
+							// print_r('<pre>');
+							// print_r($info_factura["tramos"][$value['ID_PROYECTO_INTERNACIONAL']]["tramos"]);
+							// print_r('</pre>');
+							// echo "------------------------------------------------------------------------";
+							// echo "<br>";
+
 						foreach ($info_factura["tramos"][$value['ID_PROYECTO_INTERNACIONAL']]["tramos"] as $key_01 => $value_01) {
+
+							// print_r('<pre>');
+							// print_r($value_01);
+							// print_r('</pre>');
+
 							if ($value_01["tipo_tramo"] == "Cargue") {
 								if ($_flag_varios_origen) {
 									$_tramo_origen .= ' | ' . $value_01["municipio"] . ' ';
@@ -4889,12 +4927,19 @@ switch ($_GET["action"]) {
 									$_flag_guias = true;
 								}
 
+								// $valores = array_values($info_factura["tramos"][$value['ID_PROYECTO_INTERNACIONAL']]["material"][$value_01[0]][0]);
+
+								// print_r('<pre>');
+								// print_r($info_factura["tramos"][$value['ID_PROYECTO_INTERNACIONAL']]["material"][$value_01['id']][0]);
+								// print_r('</pre>');
+
+
 								// // Se buscan los deliveries de la guía 
 								$_deliveries = '';
-								if (isset($info_factura["tramos"][$value['ID_PROYECTO_INTERNACIONAL']]["material"][$value_01[0]][0]["rowsData"])) {
+								if (isset($info_factura["tramos"][$value['ID_PROYECTO_INTERNACIONAL']]["material"][$value_01['id']][0])) {
 									$_flag_varios_delivery = false;
 									$_delivery_content = '';
-									foreach ($info_factura["tramos"][$value['ID_PROYECTO_INTERNACIONAL']]["material"][$value_01[0]][0]["rowsData"] as $key_02 => $value_02) {
+									foreach ($info_factura["tramos"][$value['ID_PROYECTO_INTERNACIONAL']]["material"][$value_01['id']][0] as $key_02 => $value_02) {
 										if ($value_02["delivery"]) {
 											if ($_flag_varios_delivery) {
 												$_delivery_content .= ' | ' . $value_02["delivery"] . ' ';

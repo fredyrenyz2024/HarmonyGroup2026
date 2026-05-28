@@ -1475,7 +1475,8 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 															$_aprobados_content = '
 																	<div class="panel panel-default panel-border-color panel-border-color-success">
 																		<div class="panel-heading">
-																			<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion_' . $value['id'] . '" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" aria-expanded="false" class="collapsed"><i class="icon mdi mdi-chevron-down"></i> Aprobadas <strong>(' . $cant_cotizaciones . ')</strong></a></h4>
+																			<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion_' . $value['id'] . '" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" 
+																			aria-expanded="false" class="collapsed"><i class="icon mdi mdi-chevron-down"></i> Aprobadas <strong>(' . $cant_cotizaciones . ')</strong></a></h4>
 																		</div>
 																		<div id="collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 																			<div class="panel-body">
@@ -2228,7 +2229,8 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 															$_aprobados_content = '
 																	<div class="panel panel-default panel-border-color panel-border-color-success">
 																		<div class="panel-heading">
-																			<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion_' . $value['id'] . '" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" aria-expanded="false" class="collapsed"><i class="icon mdi mdi-chevron-down"></i> Aprobadas <strong>(' . $cant_cotizaciones . ')</strong></a></h4>
+																			<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion_' . $value['id'] . '" href="#collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" 
+																			aria-expanded="false" class="collapsed"><i class="icon mdi mdi-chevron-down"></i> Aprobadas <strong>(' . $cant_cotizaciones . ')</strong> - Fecha Aprobación: <strong>' . $value['FECHA_HORA_FINAL'] . '</strong> </a></h4>
 																		</div>
 																		<div id="collapse_' . $value['id'] . '_' . $key_cotizaciones_data . '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 																			<div class="panel-body">
@@ -5408,7 +5410,7 @@ if (isset($this->importacion) /* && count($this->importacion) */) {
 							<div class="col-sm-4">
 								<span>' . $value1["nombre"] . '</span>
 								<span class="cell-detail-description">Código: <strong>' . $value1["codigo"] . '</strong> - Cantidad: <strong>' . $value1["cantidad"] . '</strong></span>
-								<br />
+								<br/>
 							</div>
 						';
 					if ($_control_fila == 3) {

@@ -1,0 +1,99 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 fw-bold"><!-- Órdenes de Cargue --></h5>
+        <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvaBodegas" aria-controls="offcanvaBodegas">
+            <i class="fa-solid fa-plus me-1"></i> Nueva bodega
+        </button>
+    </div>
+
+    <!-- Tabla paera listar las remesas en el sistema -->
+    <div class="row" id="tabla_datos">
+        <div class="col-12">
+            <div class="table-responsive shadow-sm rounded">
+                <!-- <div class="table-responsive shadow-sm rounded" style="overflow: hidden;"> -->
+                <table id="ordenes_manifiesto_export" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style='width:auto; white-space: nowrap;'>#</th>
+                            <th style='width:auto; white-space: nowrap;'>Cliente</th>
+                            <th style='width:auto; white-space: nowrap;'>Bodega</th>
+                            <th style='width:auto; white-space: nowrap;'>Responsable</th>
+                            <th style='width:auto; white-space: nowrap;'>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tarifa_bodegas_body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvaBodegas" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvaBodegasServiciosEspecialesLabel" style="width: 900px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Crear Bodega</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="msg_editar"></div>
+        <div id="content_editar">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-1">
+                        <label style="font-size: 12px;">Cliente</label>
+                        <select id="cliente_bodega" class="form-select form-select-sm">
+                            <option value="" selected>Seleccione</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-1">
+                        <label style="font-size: 12px;">Responsable</label>
+                        <select id="responsable_bodega" class="form-select form-select-sm">
+                            <option value="" selected>Seleccione</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-1">
+                        <label style="font-size: 12px;">Nombre Bodega</label>
+                        <input type="text" id="nombre_bodega" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-1">
+                        <label style="font-size: 12px;">Estado</label>
+                        <select id="estado" class="form-control form-control-sm">
+                            <option value="">Seleccione</option>
+                            <option value="Activo" selected>Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Input para tomar el id para actualiar -->
+                <input type="hidden" name="servicio_id" id="servicio_id">
+
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <div class="border-top border-translucent border-dashed pt-2" id="footer_botones">
+                        <div class="row justify-content-end">
+                            <div class="col-auto">
+                                <button class="btn btn-success btn-sm py-1" id="btn_agregar_bodega" type="button">
+                                    <span class="uil uil-save"></span> Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

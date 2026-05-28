@@ -87,7 +87,7 @@ class iniciar_rutaModel extends Model
         LEFT JOIN cmx_trailer tra ON ti.id_trailer = tra.numdoc_trailer
         LEFT JOIN cmx_inicio_ruta b ON mn.id = b.num_manifiesto
         LEFT JOIN cmx_asigancio_cita ac ON mn.id = ac.manifiesto AND ac.confirmacion = 'No Confirmada'
-        WHERE me.estado = 1 AND b.num_manifiesto IS NULL AND mn.manifiesto_itr = 'NO'
+        -- WHERE me.estado = 1 AND b.num_manifiesto IS NULL AND mn.manifiesto_itr = 'NO'
         GROUP BY mn.id
         ORDER BY mn.id ASC";
         $result = $this->_db->getConsulta($sql);
@@ -128,10 +128,7 @@ class iniciar_rutaModel extends Model
         LEFT JOIN cmx_trailer tra ON ti.id_trailer = tra.numdoc_trailer
         LEFT JOIN cmx_inicio_ruta b ON mn.id = b.num_manifiesto
         LEFT JOIN cmx_asigancio_cita ac ON mn.id = ac.manifiesto AND ac.confirmacion = 'Confirmada'
-        WHERE me.estado = 1
-        AND b.num_manifiesto IS NULL
-        AND ac.esatdo_cita = 'ACTIVO'
-        AND mn.manifiesto_itr = 'SI'
+        -- WHERE me.estado = 1 AND b.num_manifiesto IS NULL AND ac.esatdo_cita = 'ACTIVO' AND mn.manifiesto_itr = 'SI'
         GROUP BY mn.id
         ORDER BY mn.id ASC
 ";

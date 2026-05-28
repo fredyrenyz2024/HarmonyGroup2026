@@ -1,0 +1,44 @@
+{
+    "object": "whatsapp_business_account",
+    "entry": [
+        {
+            "id": "731688113356903",
+            "changes": [
+                {
+                    "value": {
+                        "messaging_product": "whatsapp",
+                        "metadata": {
+                            "display_phone_number": "15556336846",
+                            "phone_number_id": "680101161858808"
+                        },
+                        "contacts": [
+                            {
+                                "profile": {
+                                    "name": "Fredy Renyz Suarez"
+                                },
+                                "wa_id": "573133354074"
+                            }
+                        ],
+                        "messages": [
+                            {
+                                "context": {
+                                    "from": "15556336846",
+                                    "id": "wamid.HBgMNTczMTMzMzU0MDc0FQIAERgSODgzREVFNjM0RkFEREVCMUQ0AA=="
+                                },
+                                "from": "573133354074",
+                                "id": "wamid.HBgMNTczMTMzMzU0MDc0FQIAEhggRUI2NUM3OTZCNTM2QkU3ODc0QzNDQTdDMDI1OEI4NzQA",
+                                "timestamp": "1752619370",
+                                "type": "button",
+                                "button": {
+                                    "payload": "rechazar_8706_9030",
+                                    "text": "Rechazar"
+                                }
+                            }
+                        ]
+                    },
+                    "field": "messages"
+                }
+            ]
+        }
+    ]
+}

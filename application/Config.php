@@ -40,14 +40,11 @@ define('CIPHER_METHOD', 'AES-256-CBC'); // Método de cifrado
 //BD LOCAL pc
 
 define('DB_HOST', 'localhost');
-// define('DB_HOST', '192.168.0.160');
 define('DB_USER', 'root');
-define('DB_PASS', '1234567891.123');
-// define('DB_PASS', '');
-// define('DB_NAME', 'cmx_nexos');
+define('DB_PASS', 'Sistemas100*');
 define('DB_NAME', 'nexosapp_principal');
-// define('DB_NAME', 'nexosapp_principal');
-define('DB_CHAR', 'utf8');
+// define('DB_CHAR', 'utf8');
+define('DB_CHAR', 'utf8mb4');
 
 /***** Parametros de conexion al correo de envio de notificaciones *****/
 define('mailhost', "smtp.gmail.com");
@@ -73,11 +70,21 @@ define('VIGENCIA_CLAVES', 180);
 /***** Se define los parámteros de uso del Web Service del Ministerio de Transporte *****/
 // define('MINTRANS_URL', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
 define('MINTRANS_URL', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
-define('MINTRANS_URL2', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
-define('MINTRANS_USER', "NEXOSCAR@1622"); //PRUEBAS
-define('MINTRANS_PASS', "12345678"); //PRUEBAS
+define('MINTRANS_URL_2', "http://plc.mintransporte.gov.co:8080/wsdl/IBPMServices"); // URL de simulación 2019
+define('MINTRANS_USER', "SISTEMAS@1622"); //PRUEBAS
+define('MINTRANS_PASS', "Sistemas2024*"); //PRUEBAS
 define('MINTRANS_NIT', 9000625968); // PRUEBAS
 define('MINTRANS_SIMULACION', "S"); // "S" Para el entono de simulación | "R" Para el entono de producción
+
+define('TOKEN_WHATSAPP', 'EAAVdEoBN12sBPzpvaBd2IjboB335UxwXWtsWat3EVBUN5LlAZBlsltnGykTH7g7ZAWJKxA7uWXDDIzKSiDE9q1BAKYAZBX876s7zm623jYafBjRn2gKMWgOMLyhDC7uqK9GWGDCwmq8azOE4oTHY86I5hTrBkcxAsJ7JkTCit4dHkUMS1hqEVWfe2AS9p7ZBNiMz2u3EjmzEZCE1itThbY7B9ZB7LgxnZBEclk8ZBrTuye5QVTaNi9KuD888LVGycVTxZAWlsFxUbfw0FzQ7ZClxZBH');
+
+define('VAPID_PUBLIC_KEY', 'BOMxPoaRizk1WBuQl7FEbazjA67BGoOsBhlicyNYfy3mdN_o3WNiALrbdLMh8vvlmO4eylBO8TTlqaOXn7TgLBU');
+define('VAPID_PRIVATE_KEY', 'kwvBhx2efRtX4PodQ92ghKpI0uFI9ElYVLoeXvQPyqY');
+define('VAPID_SUBJECT', 'mailto:liucasda@gmail.com');
+
+define('URLAPI_NEXOS', 'http://127.0.0.1:8000/api/v1/nexos/');
+define('URLAPI_NEXOS_TORRE_CONTROL', 'http://127.0.0.1:8000/api/v1/torrecontrol/');
+define('URLAPI_DSNUBE', 'http://127.0.0.1:8000/api/v1/dsnube/');
 
 // Ambiente de Produccion
 // define('MINTRANS_USER', "NEXOSCAR@1622"); //PRODUCCION
@@ -105,11 +112,27 @@ function encrypt($data)
 }
 
 // Función para descifrar
+// function decrypt($data)
+// {
+//   $data = base64_decode($data ? $data : '');
+//   $iv_length = openssl_cipher_iv_length(CIPHER_METHOD);
+//   $iv = substr($data, 0, $iv_length); // Extraer el IV
+//   $encrypted = substr($data, $iv_length); // Extraer los datos cifrados
+//   return openssl_decrypt($encrypted, CIPHER_METHOD, SECRET_KEY, 0, $iv);
+// }
+
 function decrypt($data)
 {
-  $data = base64_decode($data);
+  $data = base64_decode($data ?: '');
   $iv_length = openssl_cipher_iv_length(CIPHER_METHOD);
-  $iv = substr($data, 0, $iv_length); // Extraer el IV
-  $encrypted = substr($data, $iv_length); // Extraer los datos cifrados
+
+  // Validación: asegurar que los datos tengan al menos el tamaño del IV
+  if (strlen($data) < $iv_length) {
+    return false; // o lanza una excepción personalizada
+  }
+
+  $iv = substr($data, 0, $iv_length);
+  $encrypted = substr($data, $iv_length);
+
   return openssl_decrypt($encrypted, CIPHER_METHOD, SECRET_KEY, 0, $iv);
 }

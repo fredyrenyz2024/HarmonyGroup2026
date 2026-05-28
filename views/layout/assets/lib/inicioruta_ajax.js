@@ -1,11 +1,11 @@
-$(document).ready(function() {
+$(document).ready(function () {
   manifiestos_pendientes();
   //cargarorigen();
   $('.mnf').hide();
   $('.fec').hide();
   $('.butnn').hide();
 
-  $('#filtro').change(function() {
+  $('#filtro').change(function () {
     var valor = $('#filtro').val();
     if (valor == '') {
       $('#num_mnf').val('');
@@ -25,7 +25,7 @@ $(document).ready(function() {
     }
   });
   var c = 0;
-  $('#agregar_fila').click(function() {
+  $('#agregar_fila').click(function () {
     var mensaje = '';
     if (!$('#maximo_entrega').val()) {
       mensaje += '<p>Por favor ingrese la <strong>cantidad de puntos de entrega</strong> que requiere para asignar</p>';
@@ -44,20 +44,20 @@ $(document).ready(function() {
     } else {
       $('#msg_crear').html(
         '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-          mensaje +
-          '</div></div>',
+        mensaje +
+        '</div></div>',
       );
-      $('#crear_inicio').animate({scrollTop: 0}, 600);
+      $('#crear_inicio').animate({ scrollTop: 0 }, 600);
     }
   });
 
-  $('#btn_cancelar_asignacion').click(function() {
+  $('#btn_cancelar_asignacion').click(function () {
     // window.confirm()
     document.getElementById('tabla-manifiestos').style.display = 'block';
     document.getElementById('asignar-planruta').style.display = 'none';
   });
 
-  $('#guarda_inicio').click(function() {
+  $('#guarda_inicio').click(function () {
     if (window.confirm('¿Seguro desea gaurdar la asosiacion del manifiesto con el plan de ruta actual?')) {
       var msg_error = '';
       if (!$('#n_manifies').val()) {
@@ -84,15 +84,15 @@ $(document).ready(function() {
       } else {
         $('#msg_crear').html(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-            msg_error +
-            '</div></div>',
+          msg_error +
+          '</div></div>',
         );
-        $('#crear_inicio').animate({scrollTop: 0}, 600);
+        $('#crear_inicio').animate({ scrollTop: 0 }, 600);
       }
     }
   });
 
-  $('#buscar_inicio').click(function() {
+  $('#buscar_inicio').click(function () {
     buscar_ini();
   });
 });
@@ -100,7 +100,7 @@ $(document).ready(function() {
 var url2 = $('#id_url_ajax').val() + 'libs/trafico2_ajax.php';
 var url = $('#id_url_ajax').val() + 'libs/trafico_ajax.php';
 
-$('#cedula').blur(function() {
+$('#cedula').blur(function () {
   var msg_erro = '';
   var cc = $('#cedula').val();
   var condu = {
@@ -112,7 +112,7 @@ $('#cedula').blur(function() {
     type: 'POST',
     data: condu,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       console.log('trajo conductor');
       console.log(data);
       if (data.result != null) {
@@ -123,13 +123,13 @@ $('#cedula').blur(function() {
         msg_erro += '<p>No existe un conductor con ese número de identificación</p>';
         $('#msg_crear').html(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-            msg_erro +
-            '</div></div>',
+          msg_erro +
+          '</div></div>',
         );
-        $('#crear_inicio').animate({scrollTop: 0}, 600);
+        $('#crear_inicio').animate({ scrollTop: 0 }, 600);
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no trajoconducto ');
       console.log(jqXHR);
       console.log(textStatus);
@@ -138,7 +138,7 @@ $('#cedula').blur(function() {
   });
 });
 
-$('#placa').blur(function() {
+$('#placa').blur(function () {
   var msg_erro = '';
   var plak = $('#placa').val();
   var car = {
@@ -151,7 +151,7 @@ $('#placa').blur(function() {
     type: 'POST',
     data: car,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data.result != null) {
         // console.log('carro');
         $('#tcarro').val(data.result[0].nombre);
@@ -161,13 +161,13 @@ $('#placa').blur(function() {
         msg_erro += '<p>No existe un vehículo con esa placa</p>';
         $('#msg_crear').html(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-            msg_erro +
-            '</div></div>',
+          msg_erro +
+          '</div></div>',
         );
-        $('#crear_inicio').animate({scrollTop: 0}, 600);
+        $('#crear_inicio').animate({ scrollTop: 0 }, 600);
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no trajocarro ');
       console.log(jqXHR);
       console.log(textStatus);
@@ -177,7 +177,7 @@ $('#placa').blur(function() {
 });
 
 //validat tipo carga y tipo trans
-$('#trans').change(function() {
+$('#trans').change(function () {
   var c, t;
   c = $('#carga').val();
   t = $('#trans').val();
@@ -200,15 +200,15 @@ $('#trans').change(function() {
       type: 'POST',
       data: cargue,
       dataType: 'json',
-      success: function(data) {
+      success: function (data) {
         console.log('trajo muni');
         if (data.result) {
-          data.result.forEach(function(element, index) {
+          data.result.forEach(function (element, index) {
             $('#mun').append('<option value="' + element.id + '">' + element.t + '</option>');
           });
         }
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.log('no trajo muni');
         console.log(jqXHR);
         console.log(textStatus);
@@ -238,13 +238,13 @@ function pentrega() {
     type: 'POST',
     data: ciudad,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       console.log('trajo ciudad plan');
-      data.result.forEach(function(element, index) {
+      data.result.forEach(function (element, index) {
         $('#p_ciudad' + cont + '').append('<option value="' + element.id + '">' + element.municipio + '-' + element.depto + '</option>');
       });
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no trajo ciudad plan ');
       console.log(jqXHR);
       console.log(textStatus);
@@ -265,13 +265,13 @@ function pentrega() {
     type: 'POST',
     data: cliente,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       console.log('trajo cliente');
-      data.result.forEach(function(element, index) {
+      data.result.forEach(function (element, index) {
         $('#clientea' + cont + '').append('<option value="' + element.id + '">' + element.nombre + '</option>');
       });
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no trajocliente ');
       console.log(jqXHR);
       console.log(textStatus);
@@ -324,8 +324,57 @@ function pentrega() {
   $('#tabla_pentrega').append(pentrega);
 }
 
+// function crear_inicio_ruta() {
+//   var inicioData = new FormData();
+//   inicioData.append('mani', $('#n_manifies').val());
+//   inicioData.append('cedula', $('#cedula').val());
+//   inicioData.append('placa', $('#placa').val());
+//   inicioData.append('Plan', $('#Plan').val());
+//   inicioData.append('calvetj', $('#clavetj').val());
+//   inicioData.append('id_estudio', 0);
+//   inicioData.append('fechasalida', $('#fechasalida').val());
+//   inicioData.append('horasalida', $('#horasalida').val());
+//   inicioData.append('obse', $('#obse').val());
+//   inicioData.append('cab', $('#cab').val());
+//   // inicioData.append('cod_ini', num_inicioruta);
+//   var maximo = $('#maximo_entrega').val();
+//   var i = 0;
+//   for (i = 1; i <= maximo; i++) {
+//     inicioData.append('mentrega', $('#p_ciudad' + i).val());
+//     inicioData.append('dire', $('#dire' + i).val());
+//     inicioData.append('clientea', $('#clientea' + i).val());
+//     inicioData.append('remesa', $('#remesa' + i).val());
+//     inicioData.append('fentrega', $('#fecha' + i).val());
+//     inicioData.append('obs', $('#observa' + i).val());
+//     inicioData.append('hora', $('#hora' + i).val());
+//     inicioData.append('tipo', $('#tipo' + i).val());
+//     inicioData.append('orden', $('#orden' + i).val());
+//     inicioData.append('pun', $('#pun').val());
+//     inicioData.append('cab', $('#cab').val(5));
+//     // inicioData.append('maximo', $('#maximo_entrega').val());
+//   }
+//   $.ajax({
+//     // url: url2,
+//     url: $('#id_url_ajax').val() + 'trafico/crear_inicio',
+//     type: 'POST',
+//     data: inicioData,
+//     cache: false,
+//     processData: false,
+//     contentType: false,
+//     dataType: 'json',
+//     success: function (data) {
+//       console.log('si guardo inicio');
+//       alert('Ok!! Inicio Registrado Exitosamente!!');
+//       location.reload();
+//     },
+//     error: function () {
+//       console.log('no guardo inicio');
+//     },
+//   });
+// }
+
 function crear_inicio_ruta() {
-  var inicioData = new FormData();
+  const inicioData = new FormData();
   inicioData.append('mani', $('#n_manifies').val());
   inicioData.append('cedula', $('#cedula').val());
   inicioData.append('placa', $('#placa').val());
@@ -336,22 +385,24 @@ function crear_inicio_ruta() {
   inicioData.append('horasalida', $('#horasalida').val());
   inicioData.append('obse', $('#obse').val());
   inicioData.append('cab', $('#cab').val());
-  // inicioData.append('cod_ini', num_inicioruta);
-  inicioData.append('mentrega', $('#p_ciudad' + i).val());
-  inicioData.append('dire', $('#dire' + i).val());
-  inicioData.append('clientea', $('#clientea' + i).val());
-  inicioData.append('remesa', $('#remesa' + i).val());
-  inicioData.append('fentrega', $('#fecha' + i).val());
-  inicioData.append('obs', $('#observa' + i).val());
-  inicioData.append('hora', $('#hora' + i).val());
-  inicioData.append('tipo', $('#tipo' + i).val());
-  inicioData.append('orden', $('#orden' + i).val());
   inicioData.append('pun', $('#pun').val());
-  inicioData.append('maximo', $('#maximo_entrega').val());
-  //   entregaData.append('cab', $('#cab').val(5));
+
+  const maximo = $('#maximo_entrega').val();
+  inicioData.append('maximo', maximo);
+
+  for (let i = 1; i <= maximo; i++) {
+    inicioData.append('mentrega[]', $('#p_ciudad' + i).val());
+    inicioData.append('dire[]', $('#dire' + i).val());
+    inicioData.append('cliente[]', $('#clientea' + i).val());
+    inicioData.append('remesa[]', $('#remesa' + i).val());
+    inicioData.append('fentrega[]', $('#fecha' + i).val());
+    inicioData.append('obs[]', $('#observa' + i).val());
+    inicioData.append('hora_estimada[]', $('#hora' + i).val());
+    inicioData.append('tipo[]', $('#tipo' + i).val());
+    inicioData.append('orden[]', $('#orden' + i).val());
+  }
 
   $.ajax({
-    // url: url2,
     url: $('#id_url_ajax').val() + 'trafico/crear_inicio',
     type: 'POST',
     data: inicioData,
@@ -359,13 +410,13 @@ function crear_inicio_ruta() {
     processData: false,
     contentType: false,
     dataType: 'json',
-    success: function(data) {
-      console.log('si guardo inicio');
-      alert('Ok!! Inicio Registrado Exitosamente!!');
+    success: function (data) {
+      console.log('Inicio registrado exitosamente:', data);
+      alert('Inicio Registrado Exitosamente');
       location.reload();
     },
-    error: function() {
-      console.log('no guardo inicio');
+    error: function () {
+      console.error('Error al registrar el inicio');
     },
   });
 }
@@ -394,10 +445,10 @@ function buscar_ini() {
       type: 'POST',
       data: tabla,
       dataType: 'json',
-      success: function(data) {
+      success: function (data) {
         var cont = 0;
         if (data.result) {
-          data.result.forEach(function(element, index) {
+          data.result.forEach(function (element, index) {
             cont++;
             var cinicio = element.cod_inicio;
             var codplan = element.cod_plan;
@@ -466,35 +517,35 @@ function buscar_ini() {
             }
             $('#body_esconder').append(
               '<tr>' +
-                col_status2 +
-                '<td>' +
-                element.cod_inicio +
-                '</td>' +
-                '<td>' +
-                element.num_manifiesto +
-                '</td>' +
-                '<td>' +
-                element.placa +
-                '</td>' +
-                '<td>' +
-                element.nombre +
-                ' ' +
-                element.apellido1 +
-                ' ' +
-                element.apellido2 +
-                '</td>' +
-                '<td>' +
-                punto_entrega +
-                '&nbsp;' +
-                status +
-                '&nbsp;' +
-                impresion +
-                '</td>' +
-                '</tr>',
+              col_status2 +
+              '<td>' +
+              element.cod_inicio +
+              '</td>' +
+              '<td>' +
+              element.num_manifiesto +
+              '</td>' +
+              '<td>' +
+              element.placa +
+              '</td>' +
+              '<td>' +
+              element.nombre +
+              ' ' +
+              element.apellido1 +
+              ' ' +
+              element.apellido2 +
+              '</td>' +
+              '<td>' +
+              punto_entrega +
+              '&nbsp;' +
+              status +
+              '&nbsp;' +
+              impresion +
+              '</td>' +
+              '</tr>',
             );
             var urlu = $('#id_url_ajax').val() + 'libs/trafico_ajax.php';
             //desarrollo de los botones
-            $('#imprim' + cont + '').click(function() {
+            $('#imprim' + cont + '').click(function () {
               var codini = $(this).attr('data-id');
               var idplan = $(this).attr('data-id2');
               var num_mnf = $(this).attr('data-id3');
@@ -503,7 +554,7 @@ function buscar_ini() {
               window.open(url, '_blank');
             });
 
-            $('#btnc' + cont + '').click(function() {
+            $('#btnc' + cont + '').click(function () {
               var codini = $(this).attr('data-id');
               var idplan = $(this).attr('data-id2');
               // alert('punto control');
@@ -517,36 +568,36 @@ function buscar_ini() {
                 type: 'POST',
                 data: con,
                 dataType: 'json',
-                success: function(data) {
+                success: function (data) {
                   console.log('trajo los puntos');
-                  data.result.forEach(function(element, index) {
+                  data.result.forEach(function (element, index) {
                     $('#origen_c').val(element.origen);
                     $('#destino_c').val(element.destino);
                     $('#plan_c').val(element.nombre_plan);
                     $('#body_puntos').append(
                       '<tr>' +
-                        '<td>' +
-                        element.municipio +
-                        '-' +
-                        element.depto +
-                        '</td>' +
-                        '<td>' +
-                        element.nombre_punto +
-                        '</td>' +
-                        '<td>' +
-                        element.tiempo_estimacion +
-                        '</td>' +
-                        '<td>' +
-                        element.descripcion_punto +
-                        '</td>' +
-                        '<td>' +
-                        element.observaciones +
-                        '</td>' +
-                        '</tr>',
+                      '<td>' +
+                      element.municipio +
+                      '-' +
+                      element.depto +
+                      '</td>' +
+                      '<td>' +
+                      element.nombre_punto +
+                      '</td>' +
+                      '<td>' +
+                      element.tiempo_estimacion +
+                      '</td>' +
+                      '<td>' +
+                      element.descripcion_punto +
+                      '</td>' +
+                      '<td>' +
+                      element.observaciones +
+                      '</td>' +
+                      '</tr>',
                     );
                   });
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
+                error: function (jqXHR, textStatus, errorThrown) {
                   console.log('no trajo los planes');
                   console.log(jqXHR);
                   console.log(textStatus);
@@ -555,7 +606,7 @@ function buscar_ini() {
               });
             });
 
-            $('#btne' + cont + '').click(function() {
+            $('#btne' + cont + '').click(function () {
               var codini = $(this).attr('data-id');
               var idplan = $(this).attr('data-id2');
               var num_mnf = $(this).attr('data-id3');
@@ -580,7 +631,7 @@ function buscar_ini() {
                 type: 'POST',
                 data: ini,
                 dataType: 'json',
-                success: function(data) {
+                success: function (data) {
                   console.log('trajo los puntos');
                   if (data.result != null) {
                     $('#vplanilla').val(data.result[0].id);
@@ -592,7 +643,7 @@ function buscar_ini() {
                   //plan
                   if (data.result3 != null) {
                     var c;
-                    data.result3.forEach(function(element, index) {
+                    data.result3.forEach(function (element, index) {
                       c++;
                       $('#name_plan').html('<h4>' + element.nombre_plan + '</h4>');
                       var m =
@@ -624,76 +675,76 @@ function buscar_ini() {
                   if (data.result6 != null) {
                     var t = 0;
                     var d = 1;
-                    data.result6.forEach(function(element, index) {
+                    data.result6.forEach(function (element, index) {
                       d++;
                       $('#panel_entrega').append(
                         ' <div class="col-xs-8 col-sm-8 col-md-8"><div class="panel panel-border-color panel-border-color-warning">' +
-                          '<div class="panel-heading">' +
-                          d +
-                          '</div>' +
-                          '<div class="panel-body">' +
-                          '<p>N° Solicitud: ' +
-                          element.id +
-                          '</p>' +
-                          '<p>Municipio:  ' +
-                          element.municipio +
-                          '-' +
-                          element.depto +
-                          '</p>' +
-                          '<p>Dirección:  ' +
-                          element.direccion_entrega +
-                          '</p>' +
-                          '<p>Cliente:  ' +
-                          element.cliente +
-                          '</p>' +
-                          '<p>Fecha estimada:  ' +
-                          element.fecha_estimada_entrega +
-                          '</p>' +
-                          '<p>Hora estimada:  ' +
-                          element.hora_estimada +
-                          '</p>' +
-                          '<p>Punto:  Punto Entrega - Lugar: ' +
-                          element.lugar +
-                          '  </p>' +
-                          '<p>Observación:  ' +
-                          element.observacion +
-                          '</p>' +
-                          '<p>Teléfono:  ' +
-                          element.telefono +
-                          '</p>' +
-                          '</div></div></div>',
+                        '<div class="panel-heading">' +
+                        d +
+                        '</div>' +
+                        '<div class="panel-body">' +
+                        '<p>N° Solicitud: ' +
+                        element.id +
+                        '</p>' +
+                        '<p>Municipio:  ' +
+                        element.municipio +
+                        '-' +
+                        element.depto +
+                        '</p>' +
+                        '<p>Dirección:  ' +
+                        element.direccion_entrega +
+                        '</p>' +
+                        '<p>Cliente:  ' +
+                        element.cliente +
+                        '</p>' +
+                        '<p>Fecha estimada:  ' +
+                        element.fecha_estimada_entrega +
+                        '</p>' +
+                        '<p>Hora estimada:  ' +
+                        element.hora_estimada +
+                        '</p>' +
+                        '<p>Punto:  Punto Entrega - Lugar: ' +
+                        element.lugar +
+                        '  </p>' +
+                        '<p>Observación:  ' +
+                        element.observacion +
+                        '</p>' +
+                        '<p>Teléfono:  ' +
+                        element.telefono +
+                        '</p>' +
+                        '</div></div></div>',
                       );
                     });
                   }
                   //remesas & orden de cargue
                   if (data.result4 != null) {
-                    data.result4.forEach(function(element, index) {
+                    data.result4.forEach(function (element, index) {
                       $('#panel_remesaa').append(
                         '<div class="col-xs-3 col-sm-3 col-md-3"><div class="panel panel-border-color panel-border-color-warning">' +
-                          '<div class="panel-heading">Orden/Remesa ' +
-                          element.id +
-                          '/' +
-                          element.idrem +
-                          '</div>' +
-                          '<div class="panel-body">' +
-                          '<p>Remitente: ' +
-                          element.remite +
-                          '</p>' +
-                          '<p>Destinatario:  ' +
-                          element.destino +
-                          '</p>' +
-                          '<p>Producto:  ' +
-                          element.mer_producto +
-                          '</p>' +
-                          '<p>Peso:  ' +
-                          element.ca_pesocargue +
-                          ' Kg</p>' +
-                          '</div></div></div>',
+                        '<div class="panel-heading">Orden/Remesa ' +
+                        element.id +
+                        '/' +
+                        element.idrem +
+                        '</div>' +
+                        '<div class="panel-body">' +
+                        '<p>Remitente: ' +
+                        element.remite +
+                        '</p>' +
+                        '<p>Destinatario:  ' +
+                        element.destino +
+                        '</p>' +
+                        '<p>Producto:  ' +
+                        element.mer_producto +
+                        '</p>' +
+                        '<p>Peso:  ' +
+                        element.ca_pesocargue +
+                        ' Kg</p>' +
+                        '</div></div></div>',
                       );
                     });
                   }
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
+                error: function (jqXHR, textStatus, errorThrown) {
                   console.log('no trajo los planes');
                   console.log(jqXHR);
                   console.log(textStatus);
@@ -702,7 +753,7 @@ function buscar_ini() {
               });
             });
 
-            $('#btnsta' + cont + '').click(function() {
+            $('#btnsta' + cont + '').click(function () {
               var codini = $(this).attr('data-id');
               var idplan = $(this).attr('data-id2');
               $('#codi').val(codini);
@@ -717,15 +768,15 @@ function buscar_ini() {
                 type: 'POST',
                 data: st,
                 dataType: 'json',
-                success: function(data) {
+                success: function (data) {
                   console.log('trajo los estados');
-                  data.result.forEach(function(element, index) {
+                  data.result.forEach(function (element, index) {
                     $('#body_status').append(
                       '<tr>' + '<td>' + element.estado + '</td>' + '<td>' + element.fecha + '</td>' + '<td>' + element.hora + '</td>' + '<td>' + element.usuario + '</td>' + '</tr>',
                     );
                   });
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
+                error: function (jqXHR, textStatus, errorThrown) {
                   console.log('no trajo los estados');
                   console.log(jqXHR);
                   console.log(textStatus);
@@ -736,7 +787,7 @@ function buscar_ini() {
           }); //cierre del result principal
         }
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.log('no tabla ');
         console.log(jqXHR);
         console.log(textStatus);
@@ -756,15 +807,15 @@ async function manifiestos_pendientes() {
     const data = await response.json();
 
     if (data) {
-      console.log('🚀 ~ manifiestos_pendientes ~ data:', data.result);
+      // console.log('🚀 ~ manifiestos_pendientes ~ data:', data.result);
 
       // let template = '';
       // let tipo_manifiesto, plan, color;
       // let c = 0;
 
-      // for (let m = 0; m < data.data.length; m++) {
+      // for (let m = 0; m < data.result.length; m++) {
       //   c++;
-      //   const item = data.data[m];
+      //   const item = data.result[m];
       //   // tipo_manifiesto = getTipoManifiesto(item['tipo_manifiesto']);
       //   // ({plan, color} = getPlanInfo(item['cod_ini_ruta']));
 
@@ -793,7 +844,7 @@ async function manifiestos_pendientes() {
       //   }
       // }
 
-      // $('#tablero').html(template);
+      // $('#tbody_manifiestos_pendientes').html(template);
 
       // new DataTable('#tbl_Manifiestos_seguimiento', {
       //   destroy: true,

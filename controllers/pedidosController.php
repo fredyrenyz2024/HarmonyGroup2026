@@ -133,9 +133,6 @@ class pedidosController extends Controller
 
     public function Listar_pedidos()
     {
-        // $fecha_inicial = $_POST["fecha_inicial"];
-        // $fecha_final = $_POST["fecha_final"];
-        // $this->_listar_pedidos = $this->_modelo->Listar_Pedidos($fecha_inicial, $fecha_final);
         $this->_listar_pedidos = $this->_modelo->Listar_Pedidos();
         echo json_encode($this->_listar_pedidos);
     }
@@ -223,7 +220,7 @@ class pedidosController extends Controller
 
     public function Insertar_gestion_pedido()
     {
-        $datos = array(
+        $datos = [
             "nundoc" => $_POST["nundoc"],
             "parametros_pedido" => $_POST["parametros_pedido"],
             "parametros_punto_pedido_opcion" => $_POST["parametros_punto_pedido_opcion"],
@@ -233,7 +230,7 @@ class pedidosController extends Controller
             // "publicar" => (isset($_POST["publicar"])) ? "SI" : "NO",
             "estado" => "ACTIVO",
             "estado_actividad" => $_POST["estado_actividad"],
-        );
+        ];
         $this->_insertar_gestion_pedido = $this->_modelo->Insertar_gestion($datos);
         echo json_encode($this->_insertar_gestion_pedido);
     }
@@ -304,14 +301,6 @@ class pedidosController extends Controller
     }
 
     /* Funcion para la consulta de validaciones de las dependencias */
-
-    // public function validar_dependencias()
-    // {
-    //     $datos = $_POST['actvidad_id'];
-    //     $this->_validar_dependencias = $this->_modelo->Validar_dependencias($datos);
-    //     echo json_encode($this->_validar_dependencias);
-    // }
-
     public function actualizar_costo()
     {
         $actvidad_id = $_POST['actvidad_id'];

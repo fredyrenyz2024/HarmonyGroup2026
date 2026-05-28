@@ -1,0 +1,1170 @@
+<!-- Variables ocultas de sesión -->
+<input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+<input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --navy: #0f1f3d;
+    --navy2: #1a3c6b;
+    /* ── VENTAS: acento verde esmeralda en lugar de dorado ── */
+    --accent: #059669;
+    --accent2: #10b981;
+    --green: #16a34a;
+    --red: #dc2626;
+    --yellow: #d97706;
+    --bg: #f0f4f9;
+    --card: #ffffff;
+    --border: #dde3ef;
+    --text: #1e293b;
+    --muted: #64748b;
+    --shadow: 0 2px 14px rgba(15, 31, 61, .09);
+    --radius: 10px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+/* 
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    min-height: 100vh;
+  } */
+
+  /* .container {
+    padding: 20px 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  } */
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: linear-gradient(135deg, #0f2b1e 0%, #065f46 60%, #047857 100%);
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, .03);
+    border-radius: 50%;
+  }
+
+  .page-header::after {
+    content: '';
+    position: absolute;
+    right: 80px;
+    bottom: -70px;
+    width: 160px;
+    height: 160px;
+    background: rgba(5, 150, 105, .08);
+    border-radius: 50%;
+  }
+
+  .ph-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(5, 150, 105, .22);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    border: 1px solid rgba(5, 150, 105, .3);
+  }
+
+  .ph-info {
+    flex: 1;
+  }
+
+  .ph-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.01em;
+  }
+
+  .ph-sub {
+    font-size: .72rem;
+    color: rgba(255, 255, 255, .55);
+    margin-top: 3px;
+  }
+
+  .ph-badge {
+    background: rgba(5, 150, 105, .2);
+    border: 1px solid rgba(5, 150, 105, .35);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: .7rem;
+    color: var(--accent);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ── 2-col layout ── */
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+
+  /* ── PARAM CARD ── */
+  .param-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .param-header {
+    background: linear-gradient(135deg, #0f2b1e 0%, #065f46 100%);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .param-header-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(5, 150, 105, .2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: .85rem;
+  }
+
+  .param-header-text {
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+  }
+
+  .param-header-sub {
+    color: rgba(255, 255, 255, .5);
+    font-size: .65rem;
+  }
+
+  .param-body {
+    padding: 16px 18px;
+  }
+
+  /* ── SLIDER ── */
+  .slider-wrap {
+    margin: 16px 0;
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: .62rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  input[type=range] {
+    width: 100%;
+    height: 6px;
+    border-radius: 4px;
+    appearance: none;
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 80%), #e2e8f0 var(--pct, 80%), #e2e8f0 100%);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 6px rgba(5, 150, 105, .4);
+    cursor: pointer;
+  }
+
+  .slider-display {
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .slider-val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .slider-unit {
+    font-size: .75rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .preset-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .preset-btn {
+    flex: 1;
+    min-width: 40px;
+    padding: 5px 0;
+    border-radius: 6px;
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .15s;
+  }
+
+  .preset-btn:hover,
+  .preset-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #0f2b1e, #065f46);
+    padding: 12px 16px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-header-icon {
+    width: 28px;
+    height: 28px;
+    background: rgba(5, 150, 105, .2);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: .8rem;
+  }
+
+  .card-header-text {
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 700;
+  }
+
+  .card-body {
+    padding: 14px 16px;
+  }
+
+  /* ── FORM CONTROLS ── */
+  .form-label {
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .form-control,
+  .form-select {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: .82rem;
+    background: #fff;
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, .1);
+  }
+
+  /* ── BOTONES ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: .8rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: .15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: #047857;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-danger {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .btn-warning {
+    background: var(--yellow);
+    color: #fff;
+  }
+
+  .btn-sm {
+    padding: 5px 12px;
+    font-size: .74rem;
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-label {
+    font-size: .6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .stat-val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .stat-card.danger .stat-val {
+    color: var(--red);
+  }
+
+  .stat-card.warning .stat-val {
+    color: var(--yellow);
+  }
+
+  .stat-card.success .stat-val {
+    color: var(--green);
+  }
+
+  .stat-card.info .stat-val {
+    color: #0ea5e9;
+  }
+
+  /* ── PARETO BAR ── */
+  .pareto-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    display: none;
+    box-shadow: var(--shadow);
+  }
+
+  .pareto-label {
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .pareto-bar {
+    height: 14px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .pareto-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    transition: width .6s ease;
+    width: 0%;
+  }
+
+  /* ── TABLA WRAP ── */
+  .results-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .results-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .table-count {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+
+  #table-wrap {
+    overflow-x: auto;
+    min-height: 160px;
+  }
+
+  /* ── EMPTY / LOADING ── */
+  .empty-state {
+    padding: 48px 20px;
+    text-align: center;
+  }
+
+  .empty-icon {
+    font-size: 2.2rem;
+    color: #cbd5e1;
+    margin-bottom: 10px;
+  }
+
+  .empty-text {
+    font-size: .8rem;
+    color: var(--muted);
+  }
+
+  .loading-state {
+    padding: 48px 20px;
+    text-align: center;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e2e8f0;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ── TABLA ── */
+  table.main-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .78rem;
+  }
+
+  table.main-table thead th {
+    background: linear-gradient(135deg, #0f2b1e, #065f46);
+    color: #fff;
+    padding: 9px 10px;
+    text-align: left;
+    white-space: nowrap;
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  table.main-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .12s;
+  }
+
+  table.main-table tbody tr:hover {
+    background: #f0fdf4;
+  }
+
+  table.main-table tbody td {
+    padding: 8px 10px;
+    vertical-align: middle;
+  }
+
+  table.main-table tfoot td {
+    background: #f8fafc;
+    border-top: 2px solid var(--border);
+    padding: 8px 10px;
+    font-size: .7rem;
+    color: var(--muted);
+  }
+
+  /* ── SEMÁFORO BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: .65rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .badge-rojo {
+    background: #fef2f2;
+    color: var(--red);
+    border: 1px solid #fecaca;
+  }
+
+  .badge-amarillo {
+    background: #fffbeb;
+    color: var(--yellow);
+    border: 1px solid #fed7aa;
+  }
+
+  .badge-verde {
+    background: #f0fdf4;
+    color: var(--green);
+    border: 1px solid #bbf7d0;
+  }
+
+  .badge-info {
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+  }
+
+  /* ── BARRA VIAJES ── */
+  .trip-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .trip-bar-track {
+    flex: 1;
+    height: 5px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .trip-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+  }
+
+  .trip-bar-num {
+    font-family: 'DM Mono', monospace;
+    font-size: .72rem;
+    color: var(--navy);
+    font-weight: 700;
+    min-width: 24px;
+  }
+
+  /* ── ESTADO TARIFA TAGS ── */
+  .st-sin {
+    background: #fef2f2;
+    color: var(--red);
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: .62rem;
+    font-weight: 700;
+  }
+
+  .st-venc {
+    background: #fef2f2;
+    color: var(--red);
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: .62rem;
+    font-weight: 700;
+  }
+
+  .st-porv {
+    background: #fffbeb;
+    color: var(--yellow);
+    border: 1px solid #fed7aa;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: .62rem;
+    font-weight: 700;
+  }
+
+  .st-vig {
+    background: #f0fdf4;
+    color: var(--green);
+    border: 1px solid #bbf7d0;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: .62rem;
+    font-weight: 700;
+  }
+
+  /* ── TABS ── */
+  .tab-row {
+    display: flex;
+    gap: 4px;
+    padding: 10px 14px 0;
+  }
+
+  .tab-btn {
+    padding: 6px 14px;
+    font-size: .72rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 7px 7px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: #f8fafc;
+    color: var(--muted);
+    transition: .15s;
+  }
+
+  .tab-btn.active {
+    background: #fff;
+    color: var(--accent);
+    border-color: var(--border);
+  }
+
+  /* ── ACTIONS BAR ── */
+  .actions-bar {
+    display: none;
+    padding: 10px 14px;
+    background: #f0fdf4;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .sel-count {
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  /* ── CHECKBOX ── */
+  input[type=checkbox] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  /* ── STATUS SAVED ── */
+  .param-status {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    font-size: .66rem;
+    color: var(--green);
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 5px 10px;
+  }
+
+  /* ── TARIFA VALOR ── */
+  .tv {
+    font-family: 'DM Mono', monospace;
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  .tv-null {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: .72rem;
+  }
+
+  @media (max-width: 1024px) {
+    .layout-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stats-row {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .stats-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+
+<div class="container">
+
+  <!-- ═══ PAGE HEADER ═══ -->
+  <div class="page-header">
+    <div class="ph-icon"><i class="fas fa-tags"></i></div>
+    <div class="ph-info">
+      <div class="ph-title">Generación Automática de Rutas — Tarifas de <strong>Ventas</strong></div>
+      <div class="ph-sub">Priorización de rutas frecuentes para actualización de tarifas de venta al cliente · Análisis Pareto</div>
+    </div>
+    <div class="ph-badge">⚡ REQ 19v — VENTAS</div>
+  </div>
+
+  <!-- ═══ 2-COL LAYOUT ═══ -->
+  <div class="layout-grid">
+
+    <!-- ── COLUMNA IZQUIERDA: Parámetro + Filtros ── -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+      <!-- PARÁMETRO TOP % -->
+      <div class="param-card">
+        <div class="param-header">
+          <div class="param-header-icon"><i class="fas fa-sliders-h"></i></div>
+          <div>
+            <div class="param-header-text">Parámetro TOP %</div>
+            <div class="param-header-sub">Mínimo de viajes para priorización — Ventas</div>
+          </div>
+        </div>
+        <div class="param-body">
+          <div class="slider-labels"><span>1</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <div class="slider-wrap">
+            <input type="range" id="top-slider" min="1" max="100" value="80"
+              oninput="ventasRP.onSlider(this.value)">
+          </div>
+          <div class="slider-display">
+            <div class="slider-val" id="top-display-val">80</div>
+            <div class="slider-unit">Mínimo de viajes requeridos en el período</div>
+          </div>
+          <input type="hidden" id="top-input" value="80">
+          <div class="preset-row">
+            <button class="preset-btn" onclick="ventasRP.setPreset(5)">5</button>
+            <button class="preset-btn" onclick="ventasRP.setPreset(10)">10</button>
+            <button class="preset-btn" onclick="ventasRP.setPreset(20)">20</button>
+            <button class="preset-btn active" onclick="ventasRP.setPreset(80)">80</button>
+          </div>
+          <div class="param-status" id="param-status">
+            <i class="fas fa-check-circle"></i>
+            <span id="param-status-text">—</span>
+          </div>
+          <div style="margin-top:12px;">
+            <button class="btn btn-primary" style="width:100%" onclick="ventasRP.guardarParametro()">
+              <i class="fas fa-save"></i> Guardar Parámetro
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon"><i class="fas fa-filter"></i></div>
+          <div class="card-header-text">Filtros de Búsqueda</div>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label class="form-label">Fecha Desde</label>
+              <input type="date" id="g-desde" class="form-control">
+            </div>
+            <div>
+              <label class="form-label">Fecha Hasta</label>
+              <input type="date" id="g-hasta" class="form-control">
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Cliente</label>
+            <select id="g-cliente" class="form-select">
+              <option value="">Todos los clientes</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Zona</label>
+            <select id="g-zona" class="form-select">
+              <option value="">Todas las zonas</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="ventasRP.generarLista()">
+            <i class="fas fa-bolt"></i> Generar Lista Priorizada
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── COLUMNA DERECHA: Stats ── -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Rutas</div>
+          <div class="stat-val" id="st-rutas">—</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Sin Tarifa</div>
+          <div class="stat-val" id="st-sin">—</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Vencidas</div>
+          <div class="stat-val" id="st-venc">—</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Por Vencer</div>
+          <div class="stat-val" id="st-porv">—</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Vigentes</div>
+          <div class="stat-val" id="st-vig">—</div>
+        </div>
+      </div>
+
+      <!-- PARETO BAR -->
+      <div class="pareto-wrap" id="pareto-wrap">
+        <div class="pareto-label">
+          <span><i class="fas fa-chart-bar" style="color:var(--accent);margin-right:4px"></i> Distribución de estado — Rutas Tarifas Venta</span>
+          <span id="pareto-rutas-total" style="font-weight:700;color:var(--navy)">—</span>
+        </div>
+        <div class="pareto-bar">
+          <div class="pareto-fill" id="pareto-fill" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:.65rem;color:var(--muted);">
+          <span id="pareto-fill-label">—</span>
+          <span id="pareto-info" style="font-weight:700;color:var(--accent)">—</span>
+        </div>
+      </div>
+
+      <!-- INFO VENTAS vs COSTOS -->
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;">
+        <i class="fas fa-info-circle" style="color:var(--accent);margin-top:2px;flex-shrink:0"></i>
+        <div style="font-size:.72rem;color:#065f46;line-height:1.5;">
+          <strong>Tarifas de VENTAS:</strong> Esta herramienta cruza las rutas frecuentes con
+          <code style="background:#d1fae5;padding:1px 4px;border-radius:3px">cmx_tarifas_ventas</code>
+          (tarifa al cliente), a diferencia del módulo de Costos que usa
+          <code style="background:#d1fae5;padding:1px 4px;border-radius:3px">cmx_flete_nacional</code>.
+          Puede filtrar por cliente para ver tarifas específicas por cliente.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RESULTADOS ═══ -->
+  <div class="results-card">
+
+    <!-- Tabs -->
+    <div style="border-bottom:1px solid var(--border);">
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-todas" onclick="ventasRP.setTab('todas')">
+          Todas <span id="cnt-todas" style="margin-left:4px;font-size:.65rem;opacity:.7"></span>
+        </button>
+        <button class="tab-btn" id="tab-sin" onclick="ventasRP.setTab('sin')">
+          <i class="fas fa-circle" style="color:var(--red);font-size:.5rem"></i> Sin Tarifa
+        </button>
+        <button class="tab-btn" id="tab-vencida" onclick="ventasRP.setTab('vencida')">
+          <i class="fas fa-circle" style="color:var(--red);font-size:.5rem"></i> Vencidas
+        </button>
+        <button class="tab-btn" id="tab-pv" onclick="ventasRP.setTab('pv')">
+          <i class="fas fa-circle" style="color:var(--yellow);font-size:.5rem"></i> Por Vencer
+        </button>
+        <button class="tab-btn" id="tab-vig" onclick="ventasRP.setTab('vig')">
+          <i class="fas fa-circle" style="color:var(--green);font-size:.5rem"></i> Vigentes
+        </button>
+      </div>
+    </div>
+
+    <!-- Header resultados -->
+    <div class="results-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="card-header-icon" style="background:rgba(5,150,105,.1);color:var(--accent);width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-route"></i>
+        </div>
+        <span style="font-weight:700;font-size:.82rem;color:var(--navy)">Rutas Priorizadas — Tarifas de Venta</span>
+        <div class="table-count" id="table-count">
+          <i class="fas fa-list" style="color:var(--accent)"></i>
+          <span id="count-txt">0 rutas</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="tbl-filter" class="form-control" placeholder="🔍 Filtrar rutas..." style="width:200px;height:32px;font-size:.75rem;">
+        <button class="btn btn-outline btn-sm" onclick="ventasRP.exportarExcel()">
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- Actions bar (selección masiva) -->
+    <div class="actions-bar" id="actions-bar">
+      <button class="btn btn-primary btn-sm" onclick="ventasRP.actualizarSeleccionadas()">
+        <i class="fas fa-sync-alt"></i> Actualizar Seleccionadas
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="ventasRP.deseleccionarTodo()">
+        <i class="fas fa-times"></i> Deseleccionar
+      </button>
+      <span class="sel-count" id="sel-count">0 seleccionadas</span>
+    </div>
+
+    <!-- Tabla -->
+    <div id="table-wrap">
+      <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-tags"></i></div>
+        <div class="empty-text">Configure los filtros y presione <strong>Generar Lista Priorizada</strong> para ver las rutas de ventas que requieren actualización de tarifa.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+ MODAL EDICIÓN — Tarifa de Venta
+ ══════════════════════════════════════════════════ -->
+<div id="modal-editar" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(15,31,61,.5);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)ventasRP.cerrarModal()">
+  <div style="background:#fff;border-radius:14px;width:100%;max-width:640px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(15,31,61,.3);">
+
+    <!-- Modal header -->
+    <div style="background:linear-gradient(135deg,#0f2b1e,#065f46);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-weight:700;color:#fff;font-size:.95rem;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-tags" style="color:var(--accent)"></i>
+          <span id="modal-title">Actualizar Tarifa de Venta</span>
+        </div>
+        <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:2px;" id="modal-ruta-info">—</div>
+      </div>
+      <button onclick="ventasRP.cerrarModal()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+
+    <!-- Modal body -->
+    <div style="overflow-y:auto;flex:1;padding:20px;">
+
+      <!-- Info ruta -->
+      <div id="modal-ruta-card" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:.6rem;text-transform:uppercase;font-weight:700;color:var(--muted);letter-spacing:.05em">Origen</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.85rem" id="m-origen">—</div>
+        </div>
+        <div style="font-size:1.2rem;color:var(--accent)">→</div>
+        <div>
+          <div style="font-size:.6rem;text-transform:uppercase;font-weight:700;color:var(--muted);letter-spacing:.05em">Destino</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.85rem" id="m-destino">—</div>
+        </div>
+        <div>
+          <div style="font-size:.6rem;text-transform:uppercase;font-weight:700;color:var(--muted);letter-spacing:.05em">Vehículo</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.85rem" id="m-vehiculo">—</div>
+        </div>
+        <div>
+          <div style="font-size:.6rem;text-transform:uppercase;font-weight:700;color:var(--muted);letter-spacing:.05em">Viajes</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.85rem" id="m-viajes">—</div>
+        </div>
+        <div>
+          <div style="font-size:.6rem;text-transform:uppercase;font-weight:700;color:var(--muted);letter-spacing:.05em">Estado</div>
+          <div id="m-estado-badge">—</div>
+        </div>
+      </div>
+
+      <!-- Referencia SICETAC / Mercado -->
+      <div id="modal-refs" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:7px;padding:10px 12px;">
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;color:#0369a1;margin-bottom:3px">Referencia SICETAC</div>
+          <div style="font-size:1rem;font-weight:800;color:#0369a1;font-family:'DM Mono',monospace" id="m-sicetac">N/A</div>
+        </div>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:10px 12px;">
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;color:#15803d;margin-bottom:3px">Referencia Mercado</div>
+          <div style="font-size:1rem;font-weight:800;color:#15803d;font-family:'DM Mono',monospace" id="m-mercado">N/A</div>
+        </div>
+      </div>
+
+      <!-- Cliente (solo ventas) -->
+      <div style="background:#f0fdf4;border:1px solid #a7f3d0;border-radius:8px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+        <i class="fas fa-user-tie" style="color:var(--accent);font-size:.9rem"></i>
+        <div style="flex:1;">
+          <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;color:var(--muted)">Tarifa de Venta para Cliente</div>
+          <div style="font-size:.8rem;color:var(--navy);font-weight:600;margin-top:2px">
+            <span id="m-cliente-label">General (aplica a todos)</span>
+          </div>
+        </div>
+        <input type="hidden" id="m-cliente-id" value="">
+      </div>
+
+      <!-- Tarifa Plena -->
+      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+          <i class="fas fa-dollar-sign" style="color:var(--accent)"></i> Tarifa Plena Venta <span style="color:var(--red)">*</span>
+        </div>
+        <div style="position:relative;">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.72rem;color:var(--muted);font-weight:700;">$</span>
+          <input type="number" id="m-plena" class="form-control" min="0" step="1000" placeholder="0" style="padding-left:22px;font-family:'DM Mono',monospace;font-size:.9rem;height:38px;">
+        </div>
+        <div id="var-plena-info" style="display:none;margin-top:6px;font-size:.67rem;"></div>
+      </div>
+
+      <!-- Componentes Simples -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;">
+          <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:5px;">
+            <i class="fas fa-map-marker-alt" style="color:var(--navy2)"></i> Multi Recogida
+          </div>
+          <div style="position:relative;">
+            <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.7rem;color:var(--muted);font-weight:700;">$</span>
+            <input type="number" id="m-multi-recogida" class="form-control" min="0" step="1000" value="0" style="padding-left:20px;font-family:'DM Mono',monospace;font-size:.82rem;" placeholder="0">
+          </div>
+          <div style="font-size:.62rem;color:var(--muted);margin-top:4px">Valor único para múltiples recogidas</div>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;">
+          <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:5px;">
+            <i class="fas fa-map-pin" style="color:var(--navy2)"></i> Multi Entrega
+          </div>
+          <div style="position:relative;">
+            <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.7rem;color:var(--muted);font-weight:700;">$</span>
+            <input type="number" id="m-multi-entrega" class="form-control" min="0" step="1000" value="0" style="padding-left:20px;font-family:'DM Mono',monospace;font-size:.82rem;" placeholder="0">
+          </div>
+          <div style="font-size:.62rem;color:var(--muted);margin-top:4px">Valor único para múltiples entregas</div>
+        </div>
+      </div>
+
+      <!-- Multi Origen -->
+      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+          <span><i class="fas fa-location-arrow" style="color:#0ea5e9"></i> Multi Origen — por Municipio</span>
+          <button onclick="ventasRP.addMultiOrigenRow()" style="height:24px;padding:0 10px;background:var(--navy);color:#fff;border:none;border-radius:5px;font-size:.63rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">
+            <i class="fas fa-plus"></i> Agregar
+          </button>
+        </div>
+        <div style="font-size:.65rem;color:var(--muted);margin-bottom:8px">Rate 1 = tarifa base desde ese origen · Rate 2 = recargo adicional</div>
+        <div id="multi-origen-rows"></div>
+        <div id="multi-origen-empty" style="text-align:center;padding:10px;font-size:.7rem;color:var(--muted);background:#fff;border-radius:6px;border:1px dashed var(--border)">
+          <i class="fas fa-plus-circle" style="margin-right:4px"></i> Agregar municipios de origen con sus tarifas
+        </div>
+      </div>
+
+      <!-- Multi Destino -->
+      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+          <span><i class="fas fa-map-marked-alt" style="color:#7c3aed"></i> Multi Destino — por Municipio</span>
+          <button onclick="ventasRP.addMultiDestinoRow()" style="height:24px;padding:0 10px;background:var(--navy);color:#fff;border:none;border-radius:5px;font-size:.63rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">
+            <i class="fas fa-plus"></i> Agregar
+          </button>
+        </div>
+        <div style="font-size:.65rem;color:var(--muted);margin-bottom:8px">Rate 1 = tarifa base hasta ese destino · Rate 2 = recargo adicional</div>
+        <div id="multi-destino-rows"></div>
+        <div id="multi-destino-empty" style="text-align:center;padding:10px;font-size:.7rem;color:var(--muted);background:#fff;border-radius:6px;border:1px dashed var(--border)">
+          <i class="fas fa-plus-circle" style="margin-right:4px"></i> Agregar municipios de destino con sus tarifas
+        </div>
+      </div>
+
+      <!-- Vigencia -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label class="form-label">Año Vigencia</label>
+          <input type="number" id="m-anio" class="form-control" min="2024" max="2030" value="2025" disabled>
+        </div>
+        <div>
+          <label class="form-label">Mes Vigencia</label>
+          <select id="m-mes" class="form-select" disabled>
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal footer -->
+    <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:#f0fdf4;">
+      <button class="btn btn-outline" onclick="ventasRP.cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="ventasRP.guardarEdicion()">
+        <i class="fas fa-save"></i> Guardar Tarifa de Venta
+      </button>
+    </div>
+
+  </div>
+</div>

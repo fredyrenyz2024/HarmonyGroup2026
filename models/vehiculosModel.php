@@ -39,7 +39,7 @@ class vehiculosModel extends Model
 		$formatoFecha = 'Y-m-d H:i:s';
 
 		$sql = $this->_db3->prepare("SELECT se.id_solicitud,se.token,sp.placa, se.token_valido FROM cmx_solicitudes_estados se
-    INNER JOIN cmx_solicitudes_preestudio sp ON sp.id_preestudio=se.id_solicitud WHERE se.estado=:estado AND se.token=:token AND sp.placa=:placa AND sp.id_preestudio=:prefiltro");
+    	INNER JOIN cmx_solicitudes_preestudio sp ON sp.id_preestudio=se.id_solicitud WHERE se.estado=:estado AND se.token=:token AND sp.placa=:placa AND sp.id_preestudio=:prefiltro");
 		$sql->bindParam(':estado', 	$estado, PDO::PARAM_STR);
 		$sql->bindParam(':token', $token, PDO::PARAM_STR);
 		$sql->bindParam(':placa', $placa, PDO::PARAM_STR);
@@ -640,7 +640,7 @@ class vehiculosModel extends Model
 
 		$this->_db3->beginTransaction();
 		try {
-			$sql = $this->_db3->prepare("SELECT v.id AS elid,  v.*,v2.*,d.*,
+			$sql = $this->_db3->prepare("SELECT v.id AS elid, v.*,v2.*,d.*,
 			b.estado_proceso, g.nombre AS 'v_confi', g.descripcion AS 'v_descri',ase.nombre AS 'Aseguradora',
 			CONCAT(pr.nombre,' ',IFNULL(pr.apellido1, ''),' ',IFNULL(pr.apellido2, '')) AS 'Propietario',CONCAT(ps.nombre,' ',IFNULL(pr.apellido1, ''),' ',IFNULL(pr.apellido2, '')) AS 'Poseedor',
 			CONCAT(pc.nombre,' ',pc.apellido1,' ',pc.apellido2) AS 'Conductor',trv.id_trailer AS 'Trailer',col.color,col.id AS 'Color_id',col.rndc_id AS 'Col_Rncd_id',g.id AS 'config_id',g.rndc_id,ase.id AS 'Aseg_id',ase.rndc_id AS 'Aseg_Rdnc_id',

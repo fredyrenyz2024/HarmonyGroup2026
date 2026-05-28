@@ -8,191 +8,397 @@ window.docutene = document.querySelector('#docutene');
 window.nomcondu = document.querySelector('#nomcondu');
 window.docucondu = document.querySelector('#docucondu');
 window.VENTANA = null;
+window.SELECTFILTRO = 'todos';
 
 window.initScript = function (id) {
-  window.VENTANA = id; // Asigna el ID de la ventana a la variable global
-  // Crear instancia
-  // Usar una variable global o una propiedad en el objeto window
-  if (!window.myOffcanvas) {
-    window.myOffcanvas = new DynamicOffcanvas({
-      id: `customOffcanvas${id}`,
-      title: '<span class="text-dark uil uil-car"></span> Consultar vehículo',
-      content: '<p>Contenido inicial</p>',
-      scroll: true,
-      backdrop: false
-    });
-  } else {
-    console.log('El offcanvas ya está creado.');
-  }
+    window.VENTANA = id; // Asigna el ID de la ventana a la variable global
+    Filtro();
 
-  const SELECTFILTRO = "todos";
-  Filtro(window.VENTANA);
-
-  let datosnuevos = {
-    web: '',
-    user_satelite: '',
-    clave: '',
-    // nompro: '',
-    docupro: '',
-    // nomtene: '',
-    docutene: '',
-    // nomcondu: '',
-    docucondu: '',
-  };
-
-  let numero = 0;
-
-  const hoy = new Date(); // Obtener la fecha actual
-  const fechaHoy = hoy.toISOString().split('T')[0]; // Formatear como YYYY-MM-DD
-  document.addEventListener("click", async e => {
-    if (e.target.matches(`#campo-${window.VENTANA}-buscar`) || e.target.matches(`#campo-${window.VENTANA}-buscar *`)) {
-      Filtro();
+    // Crear instancia
+    // Usar una variable global o una propiedad en el objeto window
+    if (!window.myOffcanvas) {
+        window.myOffcanvas = new DynamicOffcanvas({
+            id: `customOffcanvas${id}`,
+            title: '<span class="text-dark uil uil-car"></span> Consultar vehículo',
+            content: '<p>Contenido inicial</p>',
+            scroll: true,
+            backdrop: false,
+        });
+    } else {
+        console.log('El offcanvas ya está creado.');
     }
-  });
 
-  if (window.VENTANA === 8) {
+    window.datosnuevos = {
+        web: '',
+        user_satelite: '',
+        clave: '',
+        docupro: '',
+        docutene: '',
+        docucondu: '',
+    };
+
+    const hoy = new Date(); // Obtener la fecha actual
+    document.addEventListener('click', async (e) => {
+        if (e.target.matches(`#campo-${window.VENTANA}-buscar`) || e.target.matches(`#campo-${window.VENTANA}-buscar *`)) {
+            Filtro();
+        }
+
+        if (e.target.matches('.btn-manifestos-vehiculo') || e.target.matches('.btn-manifestos-vehiculo *')) {
+            const placa = e.target.getAttribute('data-placa');
+
+            if (!placa) {
+                Swal.fire('Error', 'No se pudo obtener la placa del vehículo.', 'error');
+                return;
+            }
+
+            // 1. Mostrar carga y obtener el tbody
+            const tbodyDetalle = document.getElementById('tbody-manifiestos-encontrados');
+            const h6Title = document.querySelector('.col-12.d-flex h6'); // El título de la columna de la tabla
+
+            if (tbodyDetalle) {
+                tbodyDetalle.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Cargando manifiestos...</td></tr>';
+            }
+            if (h6Title) {
+                h6Title.textContent = `Viajes del Vehículo ${placa}`;
+            }
+
+            // 2. Realizar la petición Fetch
+            const formData = new URLSearchParams();
+            formData.append('placa', placa);
+
+            fetch($('#base_url').val() + 'controlt/getManifiestosByPlaca', {
+                method: 'POST',
+                body: formData,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            })
+                .then((response) => response.json())
+                .then((result) => {
+                    if (result.status && result.data.length > 0) {
+                        document.getElementById('placa-text').innerHTML = placa;
+
+                        // 3. Renderizar la tabla de Manifiestos
+                        let html = '';
+                        result.data.forEach((item) => {
+                            const totalManifiesto = parseFloat(item.Total_Manifiesto || 0).toLocaleString('es-CO');
+                            const anticipo = item.Anticipo || '$0.00';
+
+                            html += `
+                      <tr>
+                          <td>${item.Manifiesto}</td>
+                          <td>${item.remesa}</td>
+                          <td>${item.Orden_Cargue}</td>
+                          <td>${item.fecha_expedicion}</td>
+                          <td>${item.Origen}</td>
+                          <td>${item.Destino}</td>
+                          <td>$${totalManifiesto}</td>
+                          <td>${anticipo}</td>
+                          <td>${item.Lugar_Expedicion}</td>
+                          <td>
+                              <button class="btn btn-sm btn-outline-info px-1 py-0" type="button" data-manifiesto-id="${item.Manifiesto}" onclick="ImprimirManifiesto(${item.Manifiesto})"><i class="far fa-eye"></i></button>
+                          </td>
+                      </tr>
+                  `;
+                        });
+
+                        tbodyDetalle.innerHTML = html;
+                    } else {
+                        tbodyDetalle.innerHTML =
+                            '<tr><td colspan="10" class="text-center text-info">No se encontraron viajes activos para esta placa.</td></tr>';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error al obtener manifiestos:', error);
+                    tbodyDetalle.innerHTML = '<tr><td colspan="10" class="text-center text-danger">Fallo de conexión al servidor.</td></tr>';
+                });
+        }
+
+        if (e.target.matches('.btn-seleccionar-vehiculo') || e.target.matches('.btn-seleccionar-vehiculo *')) {
+            const Placa = e.target.getAttribute('data-placa');
+            const NudocSolicitud = e.target.getAttribute('data-NudocSolicitud');
+            const ConductorId = e.target.getAttribute('data-ConductorId');
+            const NombreConductor = e.target.getAttribute('data-NombreConductor');
+            const CelularConductor = e.target.getAttribute('data-CelularConductor');
+            const LugarVehiculo = e.target.getAttribute('data-lugar');
+            const Origen = e.target.getAttribute('data-origen');
+            const Destino = e.target.getAttribute('data-destino');
+            const FechCargue = e.target.getAttribute('data-fechcargue');
+            const HoraCargue = e.target.getAttribute('data-horacargue');
+            const Peso = e.target.getAttribute('data-peso');
+            // Mostrar Swal con logo y spinner
+
+            Swal.fire({
+                title: 'Enviando mensaje...',
+                html: `
+                    <div style="display: flex; align-items: center; flex-direction: column; justify-content: center;">
+                        <img src="${$('#base_url').val()}public/img/788.gif" alt="Logo" width="100" style="margin-bottom: 10px;" />
+                        <p style="font-size: 16px; font-weight: 500; color: #333;">
+                            Estamos enviando el mensaje al conductor. <br>
+                            Por favor, espere un momento...
+                        </p>
+                    </div>
+                `,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                backdrop: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            const datos = new FormData();
+            datos.append('TelefonoConductor', CelularConductor);
+            datos.append('Conductor', NombreConductor);
+            datos.append('Origen', Origen);
+            datos.append('Destino', Destino);
+            datos.append('FechCargue', FechCargue);
+            datos.append('HoraCargue', HoraCargue);
+            datos.append('NudocSolicitud', NudocSolicitud);
+            datos.append('ConductorId', ConductorId);
+            datos.append('Placa', Placa);
+            datos.append('Lugar', LugarVehiculo);
+            datos.append('Peso', Peso);
+
+            try {
+                const response = await fetch($('#base_url').val() + 'prefiltro_nacional/Enviar_mensaje_conductor', {
+                    method: 'POST',
+                    body: datos,
+                    cache: 'no-cache',
+                });
+                const data = await response.json();
+
+                Swal.fire({
+                    // icon: data.estado === 200 ? 'success' : 'info',
+                    icon: data.status === "queued" ? 'success' : 'info',
+                    // title: data.estado === 200 ? 'Mensaje enviado con éxito' : 'Mensaje procesado',
+                    title: data.status === "queued" ? 'Mensaje enviado con éxito' : 'Mensaje procesado',
+                    html: `
+                  <p style="font-size: 14px;">${data.mensaje || 'El sistema ha procesado su solicitud.'}</p>
+              `,
+                    confirmButtonColor: '#3085d6',
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al enviar',
+                    html: `<p style="font-size:14px;">Ocurrió un error al enviar el mensaje. Intente nuevamente más tarde.</p>`,
+                });
+                console.error('Error en la solicitud:', error);
+            }
+        }
+    });
+
+    document.addEventListener('change', function (e) {
+        if (e.target.classList.contains('checkbox-vehiculo')) {
+            const placa = e.target.dataset.placa;
+            const btn = document.getElementById(`btnGestionar-${placa}`);
+
+            if (!btn) return; // por si algo falla
+
+            if (e.target.checked) {
+                btn.setAttribute('disabled', true);
+            } else {
+                btn.removeAttribute('disabled');
+            }
+        }
+    });
+
     /* Validaciones de los filtros a mostrar */
-    $(`#campo-${window.VENTANA}-filtro`).off("change").on("change", function () {
-      let valorSeleccionado = $(this).val();
+    $(`#campo-${window.VENTANA}-filtro`)
+        .off('change')
+        .on('change', function () {
+            let valorSeleccionado = $(this).val();
 
-      // Verifica si los elementos existen antes de manipularlos
-      let $clientes = $(`#campo-${window.VENTANA}-clientes`);
-      let $empresas = $(`#campo-${window.VENTANA}-empresas`);
+            let $clientes = $(`#campo-${window.VENTANA}-clientes`);
+            let $estados = $(`#campo-${window.VENTANA}-estados`);
 
-      if (valorSeleccionado === "Clientes") {
-        // Si Empresas está visible, la ocultamos
-        if ($empresas.is(":visible")) {
-          $empresas.hide().val(""); // Ocultar y resetear selección
-        }
+            // Función para ocultar un select con Select2
+            function ocultarSelect2($el) {
+                if ($el.hasClass('select2-hidden-accessible')) {
+                    $el.select2('destroy');
+                }
+                $el.val('').hide();
+            }
 
-        if ($clientes.is(":visible")) {
-          $clientes.hide().val(""); // Ocultar y resetear selección
-        }
-        // Mostramos el select de Clientes
-        $clientes.show();
+            // Reset inicial de ambos
+            ocultarSelect2($clientes);
+            ocultarSelect2($estados);
 
-        // Cargar clientes por AJAX
-        $.ajax({
-          url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
-          type: "POST",
-          dataType: "json",
-          success: function (data) {
-            $clientes.empty().append('<option value="">Seleccione</option>');
-            $.each(data, function (index, item) {
-              $clientes.append(`<option value="${item.id}">${item.nombre}</option>`);
-            });
+            // -------- CLIENTES --------
+            if (valorSeleccionado === 'Clientes') {
+                $clientes.show();
 
-            // Inicializa Select2 en el select de clientes
-            $clientes.select2({
-              placeholder: 'Seleccione una opción',
-              allowClear: true,
-            });
-          },
-          error: function (xhr, status, error) {
-            console.error("Error en AJAX:", status, error);
-            alert("Error al cargar los datos.");
-          }
+                $.ajax({
+                    url: $('#base_url').val() + 'serviciocliente/Listar_Clientes',
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (data) {
+                        $clientes.empty().append('<option value="">Seleccione</option>');
+
+                        $.each(data, function (index, item) {
+                            $clientes.append(`<option value="${item.id}">${item.nombre}</option>`);
+                        });
+
+                        $clientes.select2({
+                            placeholder: 'Seleccione una opción',
+                            allowClear: true,
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error en AJAX:', status, error);
+                        alert('Error al cargar los datos.');
+                    },
+                });
+            }
+
+            // -------- ESTADOS --------
+            else if (valorSeleccionado === 'Estados') {
+                const listaDeEstados = [
+                    { value: '1', texto: 'Placas asignadas' },
+                    { value: '0', texto: 'Sin asignar' },
+                    { value: 'Propuesta', texto: 'Propuesta' },
+                    { value: 'Aprobada', texto: 'Prioritarias' },
+                ];
+
+                $estados.show().empty().append('<option value="">Seleccione un Estado</option>');
+
+                $.each(listaDeEstados, function (i, item) {
+                    $estados.append(`<option value="${item.value}">${item.texto}</option>`);
+                });
+
+                $estados.select2({
+                    placeholder: 'Seleccione un estado',
+                    allowClear: true,
+                });
+            }
         });
 
-      } else if (valorSeleccionado === "Empresas") {
-        // Si Clientes está visible, lo ocultamos
-        if ($clientes.is(":visible")) {
-          $clientes.hide().val(""); // Ocultar y resetear selección
-        }
+    //Solicitar prioridad para solicitudes
+    document.addEventListener('click', async function (e) {
+        // 🔹 Escuchamos eventos de clic en toda la página
+        // if (e.target.matches('#btn_aprobar_solicitud') || e.target.closest('#btn_aprobar_solicitud')) {
+        //     let enlace = e.target.closest('#btn_aprobar_solicitud');
+        //     let dataId = enlace.getAttribute('data-id');
 
-        if ($empresas.is(":visible")) {
-          $empresas.hide().val(""); // Ocultar y resetear selección
-        }
-        // Mostramos el select de Empresas
-        $empresas.show();
+        //     const result = await Swal.fire({
+        //         title: 'Seguro',
+        //         text: '¿Desea aprobar la solicitud?',
+        //         icon: 'warning',
+        //         showCancelButton: true,
+        //         confirmButtonColor: '#3B71CA',
+        //         cancelButtonColor: '#9FA6B2',
+        //         confirmButtonText: 'Aceptar',
+        //         cancelButtonText: 'Cancelar',
+        //         customClass: {
+        //             popup: 'swal2-custom-font',
+        //         },
+        //     });
 
-        // Cargar empresas por AJAX
-        $.ajax({
-          url: $('#base_url').val() + 'serviciocliente/Listar_Empresas',
-          type: "POST",
-          dataType: "json",
-          success: function (data) {
-            $empresas.empty().append('<option value="">Seleccione</option>');
-            $.each(data, function (index, item) {
-              $empresas.append(`<option value="${item.id}">${item.nombre_empresa}</option>`);
+        //     if (result.isConfirmed) {
+        //         var datos = new FormData();
+        //         datos.append('solicitud', dataId);
+        //         datos.append('estado', 'Aprobada');
+
+        //         try {
+        //             const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
+        //                 method: 'POST',
+        //                 body: datos,
+        //                 cache: 'no-cache',
+        //             });
+        //             const data = await response.json();
+
+        //             Swal.fire({
+        //                 title: 'Mensaje!',
+        //                 text: data.message,
+        //                 icon: data.status === 200 ? 'success' : 'error',
+        //                 draggable: true,
+        //             });
+        //             Filtro(window.VENTANA);
+
+        //             if (data.ststus === 200) resetAll();
+        //         } catch (error) {
+        //             console.error('Error en la solicitud:', error);
+        //         }
+        //     }
+        // }
+
+        if (e.target.matches("#btn_aprobar_solicitud") || e.target.closest("#btn_aprobar_solicitud")) {
+            const enlace = e.target.closest('#btn_aprobar_solicitud');
+
+            const dataId = enlace.getAttribute('data-id');
+            const dataNivel = enlace.getAttribute('data-nivel');
+            const dataMotivo = enlace.getAttribute('data-motivo');
+            const dataUsuario = enlace.getAttribute('data-usuario');
+            const dataFechaPrioridad = enlace.getAttribute('data-FechaPrioridad');
+
+            const result = await Swal.fire({
+                title: 'Confirmar aprobación',
+                icon: 'warning',
+                html: `
+            <div class="text-start">
+              <p><strong>Solicitud:</strong> ${dataId}</p>
+              <p><strong>Nivel:</strong> ${dataNivel ?? 'N/A'}</p>
+              <p><strong>Motivo:</strong> ${dataMotivo ?? 'N/A'}</p>
+              <p><strong>Usuario:</strong> ${dataUsuario ?? 'N/A'}</p>
+              <p><strong>Fecha prioridad:</strong> ${dataFechaPrioridad ?? 'N/A'}</p>
+              <hr>
+              <p class="text-danger fw-semibold mb-0">
+                ¿Está seguro de aprobar esta solicitud?
+              </p>
+            </div>
+          `,
+                showCancelButton: true,
+                confirmButtonColor: '#3B71CA',
+                cancelButtonColor: '#9FA6B2',
+                confirmButtonText: 'Sí, aprobar',
+                cancelButtonText: 'Cancelar',
+                customClass: {
+                    popup: 'swal2-custom-font',
+                },
             });
 
-            // Inicializa Select2 en el select de empresas
-            $empresas.select2({
-              placeholder: 'Seleccione una opción',
-              allowClear: true,
-            });
-          },
-          error: function (xhr, status, error) {
-            console.error("Error en AJAX:", status, error);
-            alert("Error al cargar los datos.");
-          }
-        });
-      }
-    });
+            if (!result.isConfirmed) return;
 
-  } else {
-    //Colcoar otra ventana
-  }
+            const datos = new FormData();
+            datos.append('solicitud', dataId);
+            datos.append('estado', 'Aprobada');
 
-  //Solicitar prioridad para solicitudes
-  document.addEventListener('click', async function (e) {  // 🔹 Escuchamos eventos de clic en toda la página
-    if (e.target.matches("#btn_aprobar_solicitud") || e.target.closest("#btn_aprobar_solicitud")) {
-      let enlace = e.target.closest('#btn_aprobar_solicitud');
-      let dataId = enlace.getAttribute('data-id');
+            try {
+                const response = await fetch(
+                    $('#base_url').val() + 'serviciocliente/Aprobar_Prioridad',
+                    {
+                        method: 'POST',
+                        body: datos,
+                        cache: 'no-cache',
+                    }
+                );
 
-      const result = await Swal.fire({
-        title: 'Seguro',
-        text: '¿Desea aprobar la solicitud?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3B71CA',
-        cancelButtonColor: '#9FA6B2',
-        confirmButtonText: 'Aceptar',
-        cancelButtonText: 'Cancelar',
-        customClass: {
-          popup: 'swal2-custom-font',
-        },
-      });
+                const data = await response.json();
 
-      if (result.isConfirmed) {
-        var datos = new FormData();
-        datos.append('solicitud', dataId);
-        datos.append('estado', "Aprobada");
+                Swal.fire({
+                    title: 'Mensaje',
+                    text: data.message,
+                    icon: data.status === 200 ? 'success' : 'error',
+                });
 
-        try {
-          const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
-            method: 'POST',
-            body: datos,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
+                listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, cliente);
 
-          Swal.fire({
-            title: "Mensaje!",
-            text: data.message,
-            icon: data.status === 200 ? "success" : "error",
-            draggable: true
-          });
-          Filtro(window.VENTANA);
+                if (data.status === 200) resetAll();
 
-          if (data.ststus === 200) resetAll();
-        } catch (error) {
-          console.error('Error en la solicitud:', error);
+            } catch (error) {
+                console.error('Error en la solicitud:', error);
+            }
         }
-      }
-    }
 
-    if (e.target.matches("#btn-solicitar-prioridad") || e.target.matches("#btn-solicitar-prioridad *")) {
-      // Buscar el elemento padre con el id, en caso de que se haya clickeado un hijo
-      const btn = e.target.closest("#btn-solicitar-prioridad");
-      // Obtener el atributo 'data-id2'
-      const numdoc_sol = btn.getAttribute('data-id2');
+        if (e.target.matches('#btn-solicitar-prioridad') || e.target.matches('#btn-solicitar-prioridad *')) {
+            // Buscar el elemento padre con el id, en caso de que se haya clickeado un hijo
+            const btn = e.target.closest('#btn-solicitar-prioridad');
+            // Obtener el atributo 'data-id2'
+            const numdoc_sol = btn.getAttribute('data-id2');
 
-      /* Titulo del offcanva */
-      myOffcanvas.updateTitle(`<span class="text-danger uil uil-bell"></span> Solicitar prioridad de solicitud de servicio`);
+            /* Titulo del offcanva */
+            myOffcanvas.updateTitle(`<span class="text-danger uil uil-bell"></span> Solicitar prioridad de solicitud de servicio`);
 
-      myOffcanvas.updateContent(`
+            myOffcanvas.updateContent(`
             <div class="d-flex justify-content-center">
               <h4>Solicitud de servicio: ${numdoc_sol}</h4>
             </div>
@@ -236,124 +442,119 @@ window.initScript = function (id) {
               </div>
             </div>
           `);
-      myOffcanvas.show();
-    }
-
-    /* Guardar la solicitud de prioridad en operaciones */
-    if (e.target.matches("#btn_save_propuesta") || e.target.matches("#btn_save_propuesta *")) {
-      let enlace = e.target.closest('#btn_save_propuesta');
-      // // Obtener el valor del atributo data-id
-      let Numdoc_solicitud = enlace.getAttribute('data-NumdocSolicitud');
-      const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: '¿Quieres cambiar el estado?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, cambiar',
-        cancelButtonText: 'Cancelar'
-      });
-
-      if (result.isConfirmed) {
-        // Aplica el cambio solo si se confirma
-        datos = new FormData();
-        datos.append('estado', "Propuesta");
-        datos.append('numdoc_solicitud', Numdoc_solicitud);
-        datos.append('nivel_prioridad', document.getElementById('nivel_prioridad').value);
-        datos.append('motivo_prioridad', document.getElementById('motivo_prioridad').value);
-
-        try {
-          const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
-            method: 'POST',
-            body: datos,
-            cache: 'no-cache',
-          });
-          const data = await response.json();
-          if (data.status === 200) {
-            Swal.fire({
-              title: "Mensaje!",
-              text: data.message,
-              icon: "success",
-              draggable: true
-            });
-            tipo = 2;
-            fecha_inicial = $(`#campo-${id}-fecha_inicial`).val();
-            fecha_final = $(`#campo-${id}-fecha_final`).val();
-            cliente = $(`#campo-${id}-clientes`).val() === "" ? "" : $(`#campo-${id}-clientes`).val();
-            empresa = $(`#campo-${id}-empresas`).val() === '' ? "" : $(`#campo-${id}-empresas`).val();
-            estado = "Todas";
-            Filtro();
-            myOffcanvas.hide();
-          } else {
-            Swal.fire({
-              title: "Mensaje!",
-              text: data.message,
-              icon: "error",
-              draggable: true
-            });
-          }
-        } catch (error) {
-          console.error('Error en la primera solicitud:', error);
+            myOffcanvas.show();
         }
-      } else {
-        // Revierte el cambio si se cancela
-      }
-    }
 
-    if (e.target.matches("#btn-detalle-solicitud-servicio") || e.target.matches("#btn-detalle-solicitud-servicio *")) {
+        /* Guardar la solicitud de prioridad en operaciones */
+        if (e.target.matches('#btn_save_propuesta') || e.target.matches('#btn_save_propuesta *')) {
+            let enlace = e.target.closest('#btn_save_propuesta');
+            // // Obtener el valor del atributo data-id
+            let Numdoc_solicitud = enlace.getAttribute('data-NumdocSolicitud');
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¿Quieres cambiar el estado?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cambiar',
+                cancelButtonText: 'Cancelar',
+            });
 
-      // let padre = e.target.parentElement.parentElement;
-      // Obtener el enlace (el elemento con el data-id)
-      let enlace = e.target.closest('#btn-detalle-solicitud-servicio');
-      // // Obtener el valor del atributo data-id
-      let dataId = enlace.getAttribute('data-id');
-      let dataId2 = enlace.getAttribute('data-id2');
-      let dataId3 = enlace.getAttribute('data-id3');
-      // Visualizar(dataId, dataId2, dataId3);
+            if (result.isConfirmed) {
+                // Aplica el cambio solo si se confirma
+                datos = new FormData();
+                datos.append('estado', 'Propuesta');
+                datos.append('numdoc_solicitud', Numdoc_solicitud);
+                datos.append('nivel_prioridad', document.getElementById('nivel_prioridad').value);
+                datos.append('motivo_prioridad', document.getElementById('motivo_prioridad').value);
 
-      // Definir dimensiones de la nueva ventana
-      // const w = 1000;
-      // const h = 1000;
+                try {
+                    const response = await fetch($('#base_url').val() + 'serviciocliente/Actualizar_Prioridad', {
+                        method: 'POST',
+                        body: datos,
+                        cache: 'no-cache',
+                    });
+                    const data = await response.json();
+                    if (data.status === 200) {
+                        Swal.fire({
+                            title: 'Mensaje!',
+                            text: data.message,
+                            icon: 'success',
+                            draggable: true,
+                        });
+                        tipo = 2;
+                        fecha_inicial = $(`#campo-${id}-fecha_inicial`).val();
+                        fecha_final = $(`#campo-${id}-fecha_final`).val();
+                        cliente = $(`#campo-${id}-clientes`).val() === '' ? '' : $(`#campo-${id}-clientes`).val();
+                        empresa = $(`#campo-${id}-empresas`).val() === '' ? '' : $(`#campo-${id}-empresas`).val();
+                        estado = 'Todas';
+                        Filtro();
+                        myOffcanvas.hide();
+                    } else {
+                        Swal.fire({
+                            title: 'Mensaje!',
+                            text: data.message,
+                            icon: 'error',
+                            draggable: true,
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error en la primera solicitud:', error);
+                }
+            } else {
+                // Revierte el cambio si se cancela
+            }
+        }
 
-      // Fixes dual-screen position                         Most browsers      Firefox
-      // var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
-      // var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+        if (e.target.matches("#btn_detalle_prioritaria") || e.target.closest("#btn_detalle_prioritaria")) {
+            const enlace = e.target.closest('#btn_detalle_prioritaria');
 
-      // var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-      // var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+            const dataId = enlace.getAttribute('data-id');
+            const dataNivel = enlace.getAttribute('data-nivel');
+            const dataMotivo = enlace.getAttribute('data-motivo');
+            const dataUsuario = enlace.getAttribute('data-usuario');
+            const dataFechaPrioridad = enlace.getAttribute('data-FechaPrioridad');
+            const dataUsuarioAprueba = enlace.getAttribute('data-usuario_aprueba');
+            const dataFechaAprueba = enlace.getAttribute('data-FechaAprueba');
 
-      // var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-      // var top = ((height / 2) - (h / 2)) + dualScreenTop;
-      // var newWindow = window.open($('#base_url').val() + "serviciocliente/canvas?cotizacion=" + encodeURIComponent(dataId) + "&solicitud_servicio=" + encodeURIComponent(dataId2) + "&ventana=" + encodeURIComponent(dataId3), "ventanaCentrada", 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
-      // // Puts focus on the newWindow
-      // if (window.focus) {
-      //   newWindow.focus();
-      // }
+            const result = await Swal.fire({
+                title: 'Confirmación aprobación',
+                // icon: 'info',
+                html: `
+            <div class="text-start">
+              <p><strong>Solicitud:</strong> ${dataId}</p>
+              <p><strong>Nivel:</strong> ${dataNivel ?? 'N/A'}</p>
+              <p><strong>Motivo:</strong> ${dataMotivo ?? 'N/A'}</p>
+              <p><strong>Usuario:</strong> ${dataUsuario ?? 'N/A'}</p>
+              <p><strong>Fecha prioridad:</strong> ${dataFechaPrioridad ?? 'N/A'}</p>
+              <hr>
+              <p><strong>Usuario Aprobación:</strong> ${dataUsuarioAprueba ?? 'N/A'}</p>
+              <p><strong>Fecha Aprobación:</strong> ${dataFechaAprueba ?? 'N/A'}</p>
+            </div>
+          `,
+                showCancelButton: false,
+                // confirmButtonColor: '#3B71CA',
+                cancelButtonColor: '#9FA6B2',
+                // confirmButtonText: 'Sí, aprobar',
+                cancelButtonText: 'Cerrar',
+                customClass: {
+                    popup: 'swal2-custom-font',
+                },
+            });
+        }
 
-      // myOffcanvas.updateContent(`
-      //   <h4>Contenido Actualizados: ${window.VENTANA}</h4> hola lucas solo contenido ventana
+        if (e.target.matches('#btn-detalle-solicitud-servicio') || e.target.matches('#btn-detalle-solicitud-servicio *')) {
+            // let padre = e.target.parentElement.parentElement;
+            // Obtener el enlace (el elemento con el data-id)
+            let enlace = e.target.closest('#btn-detalle-solicitud-servicio');
+            // // Obtener el valor del atributo data-id
+            let dataId = enlace.getAttribute('data-id');
+            let dataId2 = enlace.getAttribute('data-id2');
+            let dataId3 = enlace.getAttribute('data-id3');
 
-      //   <div class="container-fluid">
-      //     <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-      //       <div class="row">
-      //           <!-- Mostrar datos del cliente -->
-      //         <div class="d-flex flex-wrap justify-content-start mt-2">
-      //           <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
-      //             <h6 class="mb-0 text-body-highlight me-2">Cliente</h6>
-      //           </div>
-      //         </div>
-      //         <hr class="my-1 text-dark">
-      //         <div id="cuerpo_cliente"><!-- Datos desde Javascript --></div>
+            /* Titulo del offcanva */
+            myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Datos solicitud de servicio`);
 
-      //       </div>
-      //     </div>
-      //   </div>
-      //   `);
-      // myOffcanvas.show();
-
-      /* Titulo del offcanva */
-      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Datos solicitud de servicio`);
-
-      myOffcanvas.updateContent(`
+            myOffcanvas.updateContent(`
           <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
             <div class="row">
               <div class="d-flex justify-content-end" id="check_prioridad">
@@ -569,1642 +770,1417 @@ window.initScript = function (id) {
           </div>
         `);
 
-      myOffcanvas.show();
-      Visualizar(dataId, dataId2, dataId3);
-    }
-  });
+            myOffcanvas.show();
+            Visualizar(dataId, dataId2, dataId3);
+        }
 
-  async function Filtro() {
-    if (SELECTFILTRO !== '') {
-      $('#loading-overlay-nexosapp ').css('display', 'flex'); // Mostrar mensaje de carga
-      try {
-        let data = new FormData();
-        data.append('filtro', SELECTFILTRO);
-        data.append('fecha_inicial', document.getElementById(`campo-${window.VENTANA}-fecha_inicial`).value);
-        data.append('fecha_final', document.getElementById(`campo-${window.VENTANA}-fecha_final`).value);
-        data.append('estado', "Todas");
-        // data.append('cliente', document.getElementById(`campo-${window.VENTANA}-clientes`).value ? document.getElementById(`campo-${window.VENTANA}-clientes`).value === "" : '');
-        data.append('cliente', $(`#campo-${window.VENTANA}-clientes`).length > 0 ? $(`#campo-${window.VENTANA}-clientes`).val() || "" : "");
-        // data.append('empresa', document.getElementById(`campo-${window.VENTANA}-empresas`).value ? document.getElementById(`campo-${window.VENTANA}-empresas`).value === "" : '');
-        data.append('empresa', $(`#campo-${window.VENTANA}-empresas`).length > 0 ? $(`#campo-${window.VENTANA}-empresas`).val() || "" : "");
-        // await fetch($('#base_url').val() + 'prefiltro_nacional/Consultar_Solicitudes', {
-        await fetch($('#base_url').val() + 'prefiltro_nacional/Consultar_Solicitudes', {
-          method: 'POST',
-          body: data,
-        })
-          .then(response => {
-            if (!response.ok) throw new Error(response.statusText);
-            return response.json();
-          })
-          .then(function (data) {
-            let tbody = document.getElementById('tbl-solicitudes');
-            let clase_btn = '';
-            let estado = '';
-            let template = '';
-            let toltip = '';
-            let estadobtn = '';
-            let itr = '';
-            let Prioridad = '';
-            let perfil = document.getElementById("perfil_id").value;
-            if (data) {
-              // console.log(data);
-              template.innerHTML = '';
-              data.forEach(element => {
-                if (element.esoli === 'Realizada') {
-                  clase_btn = 'success';
-                  estado = 'Realizada';
-                  toltip = 'Realizada';
-                  estadobtn = 'disabled';
-                } else if (element.esoli === 'En_subasta') {
-                  clase_btn = 'info';
-                  estado = 'Subasta';
-                  toltip = 'Subasta';
-                  estadobtn = '';
-                } else if (element.esoli === 'Pendiente') {
-                  // Se usar el estado pendiente porque este proviene de la tabla de solicitudes de servicio.
-                  // } else if (element.esoli === null) {
-                  clase_btn = 'warning';
-                  estado = 'Pendiente';
-                  toltip = 'Pendiente';
-                  estadobtn = '';
-                } else if (element.esoli === 'asignada') {
-                  clase_btn = 'warning';
-                  estado = 'Asignada';
-                  toltip = 'Asignada Solicitud Prefiltro';
-                  estadobtn = '';
-                } else if (element.esoli === 'en_tramite') {
-                  clase_btn = 'warning';
-                  estado = 'En tramite';
-                  toltip = 'En tramite solicitud prefiltro';
-                  estadobtn = '';
-                } else if (element.esoli === 'aprobado_prefiltro') {
-                  clase_btn = 'success';
-                  estado = 'Aprobado prefiltro';
-                  toltip = 'Aprobado prefiltro';
-                  estadobtn = '';
+        if (e.target.matches(`#btn-enturnar`) || e.target.matches(`#btn-enturnar *`)) {
+            let enlace = e.target.closest('#btn-enturnar');
+            // // Obtener el valor del atributo data-id
+            let origenEnturnar = enlace.getAttribute('data-origenEnturnar');
+            let Origen = enlace.getAttribute('data-Origen');
+            let Destino = enlace.getAttribute('data-Destino');
+            let FechCargue = enlace.getAttribute('data-FechCargue');
+            let HoraCargue = enlace.getAttribute('data-HoraCargue');
+            let NudocSolicitud = enlace.getAttribute('data-NudocSolicitud');
+
+            /* Titulo del offcanva */
+            myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Enturnar`);
+            myOffcanvas.updateContent(`
+                <!-- REFERENCIAS-->
+                    <table class='table table-bordered table-striped table-sm' style=" font-size:12px;">
+                        <thead>
+                            <tr>
+                            <td class="text-center" colspan='6'>
+                                <b>Candidatos para enturnar</b>
+                            </td>
+                            </tr>
+                            <tr>
+                            <th class="text-center" style="width: auto; white-space: nowrap; color:black;">Placa</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap; color:black;">Conductor</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap; color:black;">Ruta</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap; color:black;">Telefono</th>
+                            <!--<th class="text-center" style="width: auto; white-space: nowrap; color:black;">Acción</th>-->
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-enturnar"></tbody>
+                    </table>
+            `);
+
+            datos = new FormData();
+            datos.append('origenEnturnar', origenEnturnar);
+
+            try {
+                const response = await fetch($('#base_url').val() + 'prefiltro_nacional/Listar_Recursos_Enturnar', {
+                    method: 'POST',
+                    body: datos,
+                    cache: 'no-cache',
+                });
+                const data = await response.json();
+
+                if (data) {
+                    const tbody = document.getElementById('tbody-enturnar');
+                    tbody.innerHTML = ''; // Limpia contenido previo por si acaso
+
+                    data.forEach((item) => {
+                        const tr = document.createElement('tr');
+
+                        tr.innerHTML = `
+              <td class="text-center" style="width: auto; white-space: nowrap; color:black;">
+                  <div class="dropdown">
+                      <a class="btn btn-sm btn-link dropdown-toggle py-0 text-decoration-none" id="dropdownMenuLink" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${item.placa}</a>
+                      <div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="dropdownMenuLink">
+                      <a class="dropdown-item fw-bold" href="#" id='btn-enturnar-recurso' data-TelefonoConductor='${item.Celular}' data-Conductor='${item.Conductor}' 
+                      data-Origen='${Origen}' data-Destino='${Destino}' data-FechCargue='${FechCargue}' data-HoraCargue='${HoraCargue}' data-NudocSolicitud='${NudocSolicitud}' 
+                      data-ConductorId='${item.numdoc_nexos}' data-Placa='${item.placa}'>Enturnar</a>
+
+                      <a class="dropdown-item fw-bold" href="#" id='btn-notificar-recurso' data-TelefonoConductor='${item.Celular}'>Notificar</a>
+                      <!--<a class="dropdown-item fw-bold" href="#">Another action</a>
+                      <a class="dropdown-item fw-bold" href="#">Something else here</a>
+
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item fw-bold" href="#">Separated link</a>
+                      </div>-->
+                  </div>
+              </td>
+              <td class="text-center" style="width: auto; white-space: nowrap; color:black;">${item.Conductor}</td>
+              <td class="text-center" style="width: auto; white-space: nowrap; color:black;">${item.Ruta}</td>
+              <td class="text-center" style="width: auto; white-space: nowrap; color:black;">${item.Celular}</td>
+              <!--<td class="text-center" style="width: auto; white-space: nowrap; color:black;">
+                <button class="btn btn-sm btn-primary" onclick="enturnarVehiculo(${item.Numero_Manifiesto})">
+                  Enturnar
+                </button>
+              </td>-->
+            `;
+
+                        tbody.appendChild(tr);
+                    });
                 }
-                if (element.itr === 'Si') {
-                  itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">SI</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>';
-                } else {
-                  itr = '<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">NO</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>';
-                }
-
-                if (element.prioritaria === 'Propuesta') {
-                  if (perfil === '1') {
-                    Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label"><a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-primary" title="Aprobar solicitud">${element.prioritaria}</a></span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
-                  } else {
-                    Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">${element.prioritaria}</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
-                  }
-                } else if (element.prioritaria === 'Aprobada') {
-                  Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">${element.prioritaria}</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
-                } else {
-                  Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Sin proponer</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
-                }
-
-                template += `
-              <tr>
-                <!--<td class='text-${clase_btn}'>
-                   <center>
-                    <span class="mdi mdi-dot-circle icon" data-toggle="tooltip" title="${element.esoli !== null ? element.esoli : 'Pendiente'}"></span>
-                   </center> data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop"
-                </td>-->
-
-                  <td class="cell-detail">
-                      <div class="dropdown">
-                        <a class="btn btn-sm btn-link dropdown-toggle py-0 text-decoration-none fw-bold" id="dropdownMenuLink" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">N°${element.elid}</a>
-                        <div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="dropdownMenuLink">
-                          <a class="dropdown-item fw-bold" href="#" id="solicitar_estudio_seguridads" onclick="preestudio(this);" data-id="${element.n_cotizacion}" 
-                          data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item}" data-id5="${element.tipo_mercancia}"
-                          data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer}"  data-id9="${element.total_tarifa}"
-                          data-id10=""${element.origen_rndc}"  data-id11="${element.itr}" data-id12="${element.empresa}" onclick="reiniciar_contador();" ${estadobtn}><span class="uil uil-envelope-send"></span> Solicitar Estudio Seguridad</a>
-                          <a class="dropdown-item fw-bold" href="#" id="btn-detalle-solicitud-servicio" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}" data-id3="${id}"><span class="uil uil-file-search-alt"></span> Detalle Solicitud</a>
-                          ${(element.prioritaria === "Propuesta" || element.prioritaria === "Aprobada") ? '' : `<a class="dropdown-item fw-bold" id="btn-solicitar-prioridad" href="#" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}"> <span class="uil uil-bell"></span> Solicitar Prioridad </a>`}
-                          <!--<div class="dropdown-divider"></div> 
-                          <a class="dropdown-item" href="#">Separated link</a>-->
-                        </div>
-                      </div>
-                          <!--COT-SS-BN
-                    <span>${element.n_cotizacion} - ${element.elid} - ${element.item} </span>
-                    <span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer}</span>-->
-                </td>
-                <td>
-                  <span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer}</span>   
-                </td>
-
-                <td>
-                  <span>${itr}</span>
-                </td>
-
-                <td style="width: auto; white-space: nowrap; color:black;">
-                    <span> ${element.nombre_cliente} ${element.nit}</span>
-                </td>
-
-                <td style="width: auto; white-space: nowrap; color:black;">
-                    <span>${element.tipo_mercancia}</span>
-                </td>
-
-                <td style="width: auto; white-space: nowrap; color:black;">
-                    <span>${element.nombre}</span>
-                </td>
-
-                <td style="width: auto; white-space: nowrap; color:black;">
-                  <span title="Peso Neto kg">${formatNum(element.peso_kg)} kg</span>
-                </td>
-
-                <td style="width: auto; white-space: nowrap; color:black;">
-                  <span><b>Origén:</b> ${element.origen_solicitud} - <b>Destino:</b> ${element.destino_solicitud}</span>
-                </td>
-
-                <td class="cell-detail text-center" style="width: auto; white-space: nowrap; color:black;">
-                  <span>${element.fecha} ${element.hora_creacion} </span>
-                </td>
-                
-                <td class="cell-detail text-center" style="width: auto; white-space: nowrap; color:black;">
-                    ${Prioridad}
-                </td>
-              
-                <td style="width: auto; white-space: nowrap; color:black;">
-                     <!--<span class="badge badge-phoenix badge-phoenix-${clase_btn}" title="${toltip}">${element.numero_placas > 0 ? 'Placas asignadas' : 'Sin asignar'}</span>-->
-                     ${element.numero_placas > 0 ? '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Placas asignadas</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>' : '<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Sin asignar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>'}
-                </td>
-
-                <!--<td   style="text-align: center;vertical-align: middle;width: auto;white-space: nowrap;">
-                    <div class="btn-group btn-group-sm">
-                      <button class="btn btn-success" type="button" onclick="preestudio(this);" data-id="${element.n_cotizacion}" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop"
-                        data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item}" data-id5="${element.tipo_mercancia}"
-                        data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer}"  data-id9="${element.total_tarifa}"
-                        data-id10=""${element.origen_rndc}"  data-id11="${element.itr}" onclick="reiniciar_contador();" ${estadobtn}>
-                        <span class="text-white uil uil-plus-square"></span>
-                      </button>
-
-                     <button class="btn btn-info" type="button" onclick="consulta_coti(this)"; data-hint="" data-id="${element.n_cotizacion}"  data-id2="${element.nundoc_solicitud}"  
-                      data-id3="${element.idnegocio}" data-id4="${element.cant_vehiculo}" data-id5="${element.cant_disponible}">
-                        <span class="icon mdi mdi-eye input-md" data-toggle="modal"data-target="#consulta_solicitud" title="Consultar solicitud de servicio"></span>
-                     </button>
-
-                     <button type="button" class="btn btn-warning mdi mdi-edit" data-placement="top" onclick="status(this)"; data-hint="" data-id="${element.n_cotizacion}"  data-id2="${element.nundoc_solicitud}">
-                        <span class="icon mdi mdi-balance input-md"data-toggle="modal" data-target="#status" title="status"></span>
-                    </button>
-                    </div>
-                </td>-->
-            </tr>`;
-                tbody.innerHTML = template;
-              });
-            } else {
-              tbody.innerHTML = '';
+            } catch (error) {
+                console.error('Error en la primera solicitud:', error);
             }
-          })
-          .catch(error => {
-            alert(error);
-          });
-      } catch (error) {
-        alert('Error de trucaht' + error);
-      } finally {
-        $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
-      }
+
+            myOffcanvas.show();
+        }
+
+        // if (e.target.matches('#btn-gestionar-seleccionados') || e.target.matches('#btn-gestionar-seleccionados *')) {
+        //     // let placas = getVehiculosSeleccionados();
+        //     // console.log('Vehículos seleccionados:', placas);
+        //     let vehiculosSeleccionados = getVehiculosSeleccionados();
+        //     console.log('Vehículos seleccionados:', vehiculosSeleccionados);
+        // }
+
+        if (e.target.matches('#btn-gestionar-seleccionados') || e.target.matches('#btn-gestionar-seleccionados *')) {
+            let vehiculosSeleccionados = getVehiculosSeleccionados();
+
+            fetch($('#base_url').val() + 'prefiltro_nacional/Enviar_multiples_vehiculos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ vehiculos: vehiculosSeleccionados }),
+            })
+                .then((r) => r.json())
+                .then((data) => {
+                    console.log('Respuesta del servidor:', data);
+                    Swal.fire('OK', data.mensaje, 'success');
+                })
+                .catch((err) => {
+                    console.error('ERROR:', err);
+                    Swal.fire('Error', 'No se pudo enviar la solicitud', 'error');
+                });
+        }
+    });
+
+    /**
+     * Script para gestionar el evento de clic en el botón "Buscar Vehiculo",
+     * extraer los parámetros necesarios y realizar una petición POST AJAX/Fetch
+     * al controlador PHP para buscar vehículos, mostrando los resultados en el mapa de Google Maps.
+     */
+
+    // Variable global para mantener la instancia del mapa de Google Maps
+    window.googleMap = null;
+
+    // La URL base debe ser accesible globalmente si se usa $('#base_url').val()
+    // Asegúrate de que este elemento existe en tu HTML, sino, cámbialo a la URL fija.
+    const BASE_URL = $('#base_url').length ? $('#base_url').val() : '';
+
+    // 🛑 VARIABLES GLOBALES (Asegurar accesibilidad)
+    let googleMap = null;
+    window.searchData = null; // Almacena las coordenadas de origen
+    window.searchDatosEnturnar = []; // Almacena las coordenadas de origen
+    window.globalNudocConductor = []; // Almacena las coordenadas de origen
+
+    // 🛑 FUNCIONES DE UTILIDAD PARA EL MAPA (Geocoding y Renderizado de Marcadores)
+
+    /**
+     * Función auxiliar para realizar el Geocoding inverso.
+     */
+    async function obtenerNombreLugar(geocoder, lat, lng) {
+        return new Promise((resolve, reject) => {
+            geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    resolve(results[0].formatted_address);
+                } else {
+                    console.warn('No se pudo obtener el nombre del lugar:', status);
+                    resolve('Lugar desconocido');
+                }
+            });
+        });
     }
-  }
+
+    /**
+     * Inicializa/Actualiza el mapa de Google Maps y coloca los marcadores.
+     */
+    async function initGoogleMapAndShowVehicles(positions, centerLat, centerLng) {
+        const mapId = 'map-container';
+        const container = document.getElementById(mapId);
+
+        if (!container) {
+            console.error('Contenedor del mapa no encontrado.');
+            return;
+        }
+
+        // Reinicialización del mapa
+        if (googleMap) {
+            googleMap = null;
+        }
+
+        // 🛑 Importación de Librerías (requiere que la API Key esté cargada correctamente)
+        const { Map } = await google.maps.importLibrary('maps');
+        const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+        const { Geocoder } = await google.maps.importLibrary('geocoding');
+
+        const geocoder = new Geocoder();
+        const centerCoords = { lat: parseFloat(centerLat), lng: parseFloat(centerLng) };
+
+        // Creación del mapa
+        googleMap = new Map(container, {
+            center: centerCoords,
+            zoom: 13,
+            gestureHandling: 'greedy',
+            mapId: 'db5350020424d6c4',
+        });
+
+        const bounds = new google.maps.LatLngBounds();
+        bounds.extend(centerCoords);
+
+        // Marcador de Origen
+        new AdvancedMarkerElement({
+            map: googleMap,
+            position: centerCoords,
+            title: 'Punto de Búsqueda (Origen)',
+        });
+
+        // Marcadores de Vehículos
+        for (const pos of positions) {
+            const coords = { lat: parseFloat(pos.latitude), lng: parseFloat(pos.longitude) };
+            bounds.extend(coords);
+
+            const nombreLugar = await obtenerNombreLugar(geocoder, coords.lat, coords.lng);
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'vehicle-marker-content';
+            contentDiv.style.cssText =
+                'background: #007bff; color: white; padding: 4px 8px; border-radius: 4px; border: 2px solid white; font-size: 10px; font-weight: bold; white-space: nowrap; cursor: pointer;';
+            contentDiv.innerHTML = `${pos.plate} (${nombreLugar.split(',')[0].trim()})`;
+
+            new AdvancedMarkerElement({
+                map: googleMap,
+                position: coords,
+                title: `Placa: ${pos.plate}\nUbicación: ${nombreLugar}`,
+                content: contentDiv,
+            });
+
+            // 3️⃣ Buscar el botón correspondiente a esta placa
+            const botonGestionar = document.querySelector(`.btn-seleccionar-vehiculo[data-placa="${pos.plate}"]`);
+
+            if (botonGestionar) {
+                // 4️⃣ Guardar la ubicación en el botón
+                botonGestionar.dataset.lugar = nombreLugar;
+
+                // 🔥 Opcional: actualizar el texto del botón o tooltip
+                botonGestionar.title = `Gestionar (${nombreLugar.split(',')[0].trim()})`;
+            } else {
+                console.warn(`⚠️ No se encontró botón para la placa ${pos.plate}`);
+            }
+        }
+
+        // Ajustar el zoom
+        if (positions.length > 0) {
+            googleMap.fitBounds(bounds);
+        } else {
+            googleMap.setZoom(13);
+            googleMap.setCenter(centerCoords);
+        }
+
+        console.log(`[MAPA] Google Maps inicializado y ${positions.length} vehículos colocados.`);
+    }
+
+    /**
+     * Controla la visibilidad del overlay/radar.
+     */
+    function toggleMapLoading(show, message = 'Consultando...') {
+        const loadingOverlay = document.getElementById('map-loading-overlay');
+        const titleElement = document.getElementById('offcanvasBottomLabel');
+
+        if (loadingOverlay) {
+            // Muestra u oculta el overlay completo (El efecto radar está dentro del overlay en el HTML)
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+            const messageDiv = loadingOverlay.querySelector('.fw-bold');
+            if (messageDiv) {
+                messageDiv.textContent = show ? message : 'Búsqueda Finalizada.';
+            }
+        }
+
+        if (titleElement) {
+            titleElement.textContent = show ? `Resultados: ${message}` : titleElement.textContent;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------------
+    // 🛑 FUNCIÓN CENTRAL: Ejecuta el Fetch y Renderiza el Mapa
+    // --------------------------------------------------------------------------------------------------
+
+    // JS (Función executeSearchAndRenderMap Finalizada)
+    async function executeSearchAndRenderMap(latitude, longitude, tipologia, carroceria) {
+        const url = BASE_URL + 'controlt/searchVehiclesAction';
+        const titleElement = document.getElementById('offcanvasBottomLabel');
+        const tbody = document.getElementById('tbody-vehiculos-encontrados');
+        const tbody1 = document.getElementById('tbody-manifiestos-encontrados');
+        tbody1.innerHTML = ''; // Limpia contenido previo por si acaso
+        const contenedor = document.getElementById('tbl_totalizados_configuracion');
+        contenedor.innerHTML = ''; // Limpia contenido previo por si acaso
+        const Select = $('#select-tipologia-local').select2();
+        Select.empty();
+
+        // $('#select-tipologia-local').select2();
+
+        toggleMapLoading(true, 'Iniciando radar y consulta de vehículos...');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Consultando API...</td></tr>';
+
+        // 🛑 Paso 1: Captura de datos (asumiendo que window.searchData ya fue llenado)
+        const NudocSolicitud = window.searchData?.NudocSolicitud;
+        const OrigenEnturnar = window.searchData?.OrigenEnturnar;
+        const ClienteEnturnar = window.searchData?.ClienteEnturnar;
+        const DestinoEnturnar = window.searchData?.DestinoEnturnar;
+        const ClienteNombre = window.searchData?.ClienteNombre;
+        const TipoMercancia = window.searchData?.TipoMercancia;
+        const Ruta = window.searchData?.Ruta;
+        const Origen = window.searchData?.Origen;
+        const Destino = window.searchData?.Destino;
+        const FechaCargue = window.searchData?.FechaCargue;
+        const HoraCargue = window.searchData?.HoraCargue;
+        const Peso = window.searchData?.Peso;
+
+        // 🛑 Paso 2: Crear el objeto con los pares clave-valor correctos de JS
+        const nuevoRegistro = {
+            NudocSolicitud: NudocSolicitud,
+            OrigenEnturnar: OrigenEnturnar,
+            ClienteEnturnar: ClienteEnturnar,
+            DestinoEnturnar: DestinoEnturnar,
+            ClienteNombre: ClienteNombre,
+            TipoMercancia: TipoMercancia,
+            Ruta: Ruta,
+            Origen: Origen,
+            Destino: Destino,
+            FechaCargue: FechaCargue,
+            HoraCargue: HoraCargue,
+            Peso: Peso,
+        };
+
+        // 🛑 Paso 3: Agregar el objeto al array global
+        window.searchDatosEnturnar.push(nuevoRegistro);
+
+        // 1. Preparar parámetros de búsqueda
+        const formData = new URLSearchParams();
+        formData.append('latitude', latitude);
+        formData.append('longitude', longitude);
+        formData.append('clienteid', ClienteEnturnar);
+        formData.append('destinoid', DestinoEnturnar);
+
+        // Filtros dinámicos
+        if (tipologia || carroceria) {
+            let filterArray = [];
+            if (carroceria) filterArray.push({ name: 'BodyWork', value: carroceria });
+            if (tipologia) filterArray.push({ name: 'Typology', value: tipologia });
+            formData.append('Filter', JSON.stringify(filterArray));
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP Error ${response.status}: ${errorText.substring(0, 100)}...`);
+            }
+            const data = await response.json();
+
+            // 🛑 OBTENER EL MAPA DE VIAJES
+            const viajesPorPlaca = data.Viajes || {};
+            const viajesPorDestino = data.Destino || {};
+            const viajesPorCliente = data.Cliente || {};
+            const CodigoConductor = data.Codigo || {};
+            const CelularesConductor = data.Celulares || {};
+
+            // 🛑 CORRECCIÓN: Asignar directamente el objeto de mapeo.
+            window.globalNudocConductor = CodigoConductor;
+
+            // 🛑 Manejo de la Respuesta
+            if (data.success && Array.isArray(data.data)) {
+                const vehiclesFound = data.data;
+                const totalVehicles = vehiclesFound.length;
+
+                // 🛑 CLAVE: ALMACENAR LOS DATOS CRUDOS PARA FILTRADO LOCAL
+                window.globalVehicleData = vehiclesFound;
+
+                // 🛑 LLAMADA CRÍTICA: LLENAR EL SELECT DE TIPOLOGÍAS CON LOS RESULTADOS OBTENIDOS
+                populateSelectTipologias(vehiclesFound);
+
+                // // 🛑 CLAVE: ALMACENAR LOS DATOS CRUDOS PARA FILTRADO LOCAL
+                // window.globalVehicleData = vehiclesFound;
+                let htmlRows = '';
+
+                // 🛑 1. Manejo de Cero Vehículos (Caso de éxito con 0 resultados)
+                if (totalVehicles === 0) {
+                    Swal.fire('Atención', 'No hay vehículos en este radio con los filtros aplicados.', 'info');
+                    titleElement.textContent = `Resultados: 0 Vehículo(s) Encontrado(s)`;
+                    await initGoogleMapAndShowVehicles([], latitude, longitude);
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-info">No se encontraron vehículos.</td></tr>';
+                    renderizarTotalesConfiguracion([]);
+                } else {
+                    // 🛑 1. CONTAR CONFIGURACIONES
+                    const conteoConfiguracion = contarPorConfiguracion(vehiclesFound);
+
+                    // 🛑 2. MOSTRAR TABLA DE TOTALES POR CONFIGURACIÓN
+                    renderizarTotalesConfiguracion(conteoConfiguracion);
+
+                    // 🛑 3. Caso: Éxito con Resultados (> 0)
+                    const vehiclePositions = vehiclesFound.map((item) => {
+                        // 🛑 PASO A: EXTRACCIÓN Y LIMPIEZA DE DATOS
+                        const placa = item.vehicle.licence_plate;
+                        const tipologia = item.vehicle.vehicle_typology || 'N/A';
+                        const nombreConductor = `${item.driver.name || ''} ${item.driver.last_name || ''}`.trim() || 'N/A';
+                        // const celularConductor = item.driver.cellphone || 'N/A';
+
+                        // 🛑 BUSCAR EL TOTAL DE VIAJES PARA ESTA PLACA
+                        const totalManifiestos = viajesPorPlaca[placa] || 0;
+                        window.globalManifiestos = totalManifiestos;
+                        const totalManifiestosDestino = viajesPorDestino[placa] || 0;
+                        window.globalManifiestosDestino = totalManifiestosDestino;
+                        const totalManifiestosCliente = viajesPorCliente[placa] || 0;
+                        window.globalManifiestosCliente = totalManifiestosCliente;
+
+                        // 🛑 BUSCAR EL NUDOC DEL CONDUCTOR
+                        const NudocConductor = CodigoConductor[placa] || 0;
+                        const CelularConductor = CelularesConductor[placa] || 0;
+
+                        let ownerName = 'N/A';
+                        let ownerPhone = 'N/A';
+                        try {
+                            const ownerData = JSON.parse(item.vehicle.vehicle_owner);
+                            ownerName = ownerData.name || 'N/A';
+                            ownerPhone = ownerData.phone || 'N/A';
+                        } catch (e) {
+                            console.warn(`Error al parsear owner data para placa ${placa}`);
+                        }
+
+                        // 🛑 PASO B: CONSTRUIR LA FILA HTML (Integrando TotalViajes)
+                        htmlRows += `
+                            <tr class="vehicle-row" data-placa="${placa}" data-latitud="${item.position.latitude}"  data-longitud="${item.position.longitude
+                            }">
+
+                                <!-- 🟩 Checkbox de selección múltiple -->
+                                <td  class="text-center d-flex justify-content-center" style="color:black;width:auto; white-space: nowrap;">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input checkbox-vehiculo" 
+                                            id="flexSwitchCheckPlacaSeleccionada-${placa}" 
+                                            data-placa="${placa}"
+                                            data-nudocsolicitud="${NudocSolicitud}"
+                                            data-origenenturnar="${OrigenEnturnar}"
+                                            data-conductorid="${NudocConductor}"
+                                            data-nombreconductor="${nombreConductor}"
+                                            data-celularconductor="${CelularConductor}"
+                                            data-origen="${Origen}"
+                                            data-destino="${Destino}"
+                                            data-fechacargue="${FechaCargue}"
+                                            data-horacargue="${HoraCargue}"
+                                            data-peso="${Peso}"
+                                            type="checkbox">
+                                    </div>
+                                </td>
+
+                                <td class="fw-bold text-danger">${placa}</td>
+                                <td style="font-size: 11px; text-align: left;">
+                                    ${tipologia}
+                                </td>
+
+                                <td>
+                                    <span class="badge badge-phoenix badge-phoenix-${totalManifiestos > 0 ? 'success' : 'secondary'}">
+                                        ${totalManifiestos} viajes
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="badge badge-phoenix badge-phoenix-${totalManifiestosDestino > 0 ? 'success' : 'secondary'}">
+                                        ${totalManifiestosDestino} viajes
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="badge badge-phoenix badge-phoenix-${totalManifiestosCliente > 0 ? 'success' : 'secondary'}">
+                                        ${totalManifiestosCliente} viajes
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                                        <!--<button class="btn btn-success px-1 py-0 btn-seleccionar-vehiculo me-2"
+                                            data-placa="${placa}"
+                                            data-NudocSolicitud="${NudocSolicitud}"
+                                            data-OrigenEnturnar="${OrigenEnturnar}"
+                                            data-ConductorId="${NudocConductor}"
+                                            data-NombreConductor="${nombreConductor}"
+                                            data-CelularConductor="${CelularConductor}"
+                                            data-origen="${Origen}"
+                                            data-destino="${Destino}"
+                                            data-fechcargue="${FechaCargue}"
+                                            data-horacargue="${HoraCargue}"
+                                            data-peso="${Peso}"
+                                            type="button">Gestionar</button>-->
+                                            <button id="btnGestionar-${placa}"
+                                                class="btn btn-success px-1 py-0 btn-seleccionar-vehiculo me-2"
+                                                data-placa="${placa}"
+                                                data-NudocSolicitud="${NudocSolicitud}"
+                                                data-OrigenEnturnar="${OrigenEnturnar}"
+                                                data-ConductorId="${NudocConductor}"
+                                                data-NombreConductor="${nombreConductor}"
+                                                data-CelularConductor="${CelularConductor}"
+                                                data-origen="${Origen}"
+                                                data-destino="${Destino}"
+                                                data-fechcargue="${FechaCargue}"
+                                                data-horacargue="${HoraCargue}"
+                                                data-peso="${Peso}"
+                                                type="button">Gestionar</button>
+
+                                        <button class="btn btn-info px-1 py-0 btn-manifestos-vehiculo"
+                                            data-placa="${placa}" type="button">Manifiestos</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td></td> <!-- 🟩 Celda vacía para alinear con checkbox -->
+                                <td colspan="6" class="p-0 border-0">
+                                    <div class="bg-light p-2 text-start" style="font-size: 11px;">
+                                        <p class="mb-0"><strong>Conductor:</strong> ${nombreConductor} (${CelularConductor})</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+
+                        return { plate: placa, latitude: item.position.latitude, longitude: item.position.longitude };
+                    });
+
+                    // 🛑 4. PINTAR LA TABLA COMPLETA
+                    tbody.innerHTML = htmlRows;
+
+                    // 5. Inicializar el mapa de Google
+                    await initGoogleMapAndShowVehicles(vehiclePositions, latitude, longitude);
+                    await DetalleVehiculos(OrigenEnturnar, DestinoEnturnar);
+                    titleElement.textContent = `Resultados: ${totalVehicles} Vehículo(s) Encontrado(s) | Radar en Lat: ${latitude} - Solicitud: #${NudocSolicitud} - Cliente: ${ClienteNombre} - Ruta: ${Ruta}`;
+                }
+            }
+            // 🛑 3. Manejo de Fallo de Lógica del Controlador (success: false)
+            else {
+                Swal.fire('Atención', data.message || 'Respuesta de la API no válida.', 'info');
+                titleElement.textContent = `Resultados: 0 Vehículo(s) Encontrado(s)`;
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-info">No se encontraron vehículos.</td></tr>';
+                await initGoogleMapAndShowVehicles([], latitude, longitude);
+                renderizarTotalesConfiguracion([]); // Limpiar la tabla si falla la API
+            }
+        } catch (error) {
+            console.error('[ERROR FETCH]:', error.message);
+            Swal.fire('Error de Búsqueda', `Ocurrió un error al buscar vehículos. Mensaje: ${error.message}`, 'error');
+            titleElement.textContent = `Error: Falló la búsqueda.`;
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error de conexión.</td></tr>';
+            await initGoogleMapAndShowVehicles([], latitude, longitude);
+            renderizarTotalesConfiguracion([]); // Limpiar la tabla si falla la conexión
+        } finally {
+            toggleMapLoading(false);
+        }
+    }
+
+    // function getVehiculosSeleccionados() {
+    //     let seleccionados = [];
+
+    //     document.querySelectorAll('.checkbox-vehiculo:checked').forEach((chk) => {
+    //         seleccionados.push(chk.dataset.placa);
+    //     });
+
+    //     return seleccionados;
+    // }
+
+    // function getVehiculosSeleccionados() {
+    //     let seleccionados = [];
+
+    //     document.querySelectorAll('.checkbox-vehiculo:checked').forEach((chk) => {
+    //         // Copia todo el dataset del input
+    //         const datos = { ...chk.dataset };
+
+    //         // Si quieres, puedes castear números aquí:
+    //         // datos.peso = Number(datos.peso || 0);
+
+    //         seleccionados.push(datos);
+    //     });
+
+    //     return seleccionados;
+    // }
+
+    // function getVehiculosSeleccionados() {
+    //     let seleccionados = [];
+
+    //     document.querySelectorAll('.checkbox-vehiculo:checked').forEach((chk) => {
+    //         const vehiculo = {
+    //             placa: chk.getAttribute('data-placa'),
+    //             nudocSolicitud: chk.getAttribute('data-nudocsolicitud'),
+    //             origenEnturnar: chk.getAttribute('data-origenenturnar'),
+    //             origen: chk.getAttribute('data-origen'),
+    //             destino: chk.getAttribute('data-destino'),
+    //             conductorId: chk.getAttribute('data-conductorid'),
+    //             nombreConductor: chk.getAttribute('data-nombreconductor'),
+    //             celularConductor: chk.getAttribute('data-celularconductor'),
+    //             fechaCargue: chk.getAttribute('data-fechacargue'),
+    //             horaCargue: chk.getAttribute('data-horacargue'),
+    //             peso: chk.getAttribute('data-peso'),
+    //         };
+
+    //         seleccionados.push(vehiculo);
+    //     });
+
+    //     return seleccionados;
+    // }
+
+    function getVehiculosSeleccionados() {
+        let seleccionados = [];
+
+        document.querySelectorAll('.checkbox-vehiculo:checked').forEach(chk => {
+
+            const vehiculo = {
+                placa: chk.getAttribute("data-placa"),
+                nudocSolicitud: chk.getAttribute("data-nudocsolicitud"),
+                origenEnturnar: chk.getAttribute("data-origenenturnar"),
+                origen: chk.getAttribute("data-origen"),
+                destino: chk.getAttribute("data-destino"),
+                conductorId: chk.getAttribute("data-conductorid"),
+                nombreConductor: chk.getAttribute("data-nombreconductor"),
+                celularConductor: chk.getAttribute("data-celularconductor"),
+                fechaCargue: chk.getAttribute("data-fechacargue"),
+                horaCargue: chk.getAttribute("data-horacargue"),
+                peso: chk.getAttribute("data-peso"),
+            };
+
+            console.log("CHECKBOX LEE:", vehiculo);
+
+            seleccionados.push(vehiculo);
+        });
+
+        return seleccionados;
+    }
+
+
+    /**
+     * Función auxiliar para escapar HTML y prevenir XSS simple.
+     * Esto evita que datos maliciosos (ej. <script>) se ejecuten.
+     */
+    function escapeHTML(str) {
+        if (str === null || str === undefined) return '';
+        return str.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    /**
+     * Busca los detalles de los vehículos (activos e históricos) para un origen
+     * y actualiza las tablas en el DOM.
+     *
+     * @param {string} Origen_Enturnar - El código RNDC de la ciudad (ej. '11001000').
+     */
+    async function DetalleVehiculos(Origen_Enturnar, Destino_Enturnar) {
+        const tbodyActivos = document.getElementById('tbody-viajes-activos');
+        const tbodyHistorico = document.getElementById('tbody-viajes-historico');
+
+        tbodyActivos.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
+        tbodyHistorico.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
+
+        try {
+            // 1️⃣ Preparamos los datos con FormData
+            const formData = new FormData();
+            formData.append('origen', Origen_Enturnar);
+            formData.append('destino', Destino_Enturnar);
+
+            // 2️⃣ Endpoint PHP real
+            const url = $('#base_url').val() + 'prefiltro_nacional/Vaijes_Vehiculos'; // tu punto de entrada principal (front controller)
+
+            // 3️⃣ Enviamos la solicitud POST
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            // 4️⃣ Validamos errores del servidor
+            if (data.error) {
+                throw new Error(`Error del servidor: ${data.error}`);
+            }
+
+            // 5️⃣ Rellenar tabla "Vehículos en Ruta" (activos)
+            tbodyActivos.innerHTML = '';
+            if (data.en_curso && data.en_curso.length > 0) {
+                data.en_curso.forEach((viaje) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+          <td>${escapeHTML(viaje.Conductor)}</td>
+          <td>${escapeHTML(viaje.celular)}</td>
+          <td>${escapeHTML(viaje.placa)}</td>
+          <td>${escapeHTML(viaje.Configuracion)}</td>
+          <td>${escapeHTML(viaje.Carroceria)}</td>
+          <td>${escapeHTML(viaje.Trailer)}</td>
+          <td>-</td>
+        `;
+                    tbodyActivos.appendChild(tr);
+                });
+            } else {
+                tbodyActivos.innerHTML = '<tr><td colspan="6">No se encontraron vehículos en ruta.</td></tr>';
+            }
+
+            // 6️⃣ Rellenar tabla "Histórico Ruta" (finalizados)
+            tbodyHistorico.innerHTML = '';
+            if (data.finalizados && data.finalizados.length > 0) {
+                data.finalizados.forEach((viaje) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+          <td>${escapeHTML(viaje.Conductor)}</td>
+          <td>${escapeHTML(viaje.celular)}</td>
+          <td>${escapeHTML(viaje.placa)}</td>
+          <td>${escapeHTML(viaje.Configuracion)}</td>
+          <td>${escapeHTML(viaje.Carroceria)}</td>
+          <td>${escapeHTML(viaje.Trailer)}</td>
+          <td>${escapeHTML(viaje.fecha_expedicion)}</td>
+        `;
+                    tbodyHistorico.appendChild(tr);
+                });
+            } else {
+                tbodyHistorico.innerHTML = '<tr><td colspan="6">No se encontraron viajes en el histórico.</td></tr>';
+            }
+        } catch (error) {
+            console.error('Error al cargar detalles de vehículos:', error);
+            const errorHtml = `<tr><td colspan="6" style="color: red;">Error al cargar datos: ${escapeHTML(error.message)}</td></tr>`;
+            tbodyActivos.innerHTML = errorHtml;
+            tbodyHistorico.innerHTML = errorHtml;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------------
+    // 🛑 LISTENERS (Disparadores de eventos)
+    // --------------------------------------------------------------------------------------------------
+
+    // 1. FUNCIÓN DE CARGA INICIAL (Activada por 'shown.bs.offcanvas')
+    async function initializeMapOnShow(e) {
+        if (!window.searchData || !window.searchData.latitude) return;
+
+        const { latitude, longitude } = window.searchData;
+
+        // 1. Inicializar el mapa AHORA con el punto de origen (para que esté cargado inmediatamente)
+        await initGoogleMapAndShowVehicles([], latitude, longitude);
+
+        // 2. Ejecutar la búsqueda inicial SIN filtros
+        await executeSearchAndRenderMap(latitude, longitude, '', '', true);
+        window.searchData = { latitude, longitude };
+    }
+
+    // 2. LISTENER DEL BOTÓN DE FILTRADO (Reejecuta la búsqueda con los nuevos filtros)
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('#btn-aplicar-filtros-mapa');
+
+        if (btn) {
+            e.preventDefault();
+
+            // Usar la posición de origen almacenada (de la búsqueda inicial)
+            const latitude = window.searchData?.latitude;
+            const longitude = window.searchData?.longitude;
+
+            if (!latitude || !longitude) {
+                Swal.fire('Error', 'No se encontraron las coordenadas de origen de la búsqueda inicial.', 'error');
+                return;
+            }
+
+            // Obtener los valores de los selects
+            const tipologia = $('#select-tipologia').val() || '';
+            const carroceria = $('#select-carroceria').val() || '';
+
+            // Reejecutar el fetch y el renderizado con los nuevos filtros
+            executeSearchAndRenderMap(latitude, longitude, tipologia, carroceria);
+        }
+    });
+
+    // 3. LISTENER DEL BOTÓN DE BÚSQUEDA INICIAL (Solo almacena posición y abre el offcanvas)
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('#btn-buscar-vehiculo');
+
+        if (btn) {
+            e.preventDefault();
+
+            // Almacenar la posición de origen
+            const latitude = btn.getAttribute(`data-latitudOrigen`);
+            const longitude = btn.getAttribute(`data-longitudOrigen`);
+            const NudocSolicitud = btn.getAttribute(`data-NudocSolicitud`);
+            const OrigenEnturnar = btn.getAttribute(`data-origenEnturnar`);
+            const ClienteEnturnar = btn.getAttribute(`data-ClienteId`);
+            const DestinoEnturnar = btn.getAttribute(`data-DestinoId`);
+            const ClienteNombre = btn.getAttribute(`data-nombre_cliente`);
+            const TipoMercancia = btn.getAttribute(`data-tipo_mercancia`);
+            const Ruta = btn.getAttribute(`data-ruta`);
+            const Origen = btn.getAttribute(`data-origen`);
+            const Destino = btn.getAttribute(`data-destino`);
+            const FechaCargue = btn.getAttribute(`data-fechcargue`);
+            const HoraCargue = btn.getAttribute(`data-horacargue`);
+            const Peso = btn.getAttribute(`data-peso`);
+
+            window.searchData = {
+                latitude,
+                longitude,
+                NudocSolicitud,
+                OrigenEnturnar,
+                ClienteEnturnar,
+                DestinoEnturnar,
+                ClienteNombre,
+                TipoMercancia,
+                Ruta,
+                Origen,
+                Destino,
+                FechaCargue,
+                HoraCargue,
+                Peso,
+            };
+
+            // Mostrar el offcanvas
+            const offcanvasElement = document.getElementById('offcanvasBottom');
+            const offcanvas = new bootstrap.Offcanvas(offcanvasElement);
+            offcanvas.show();
+        }
+    });
+
+    // 4. LISTENER DEL OFFCANVAS (Carga Inicial del mapa)
+    const offcanvasElement = document.getElementById('offcanvasBottom');
+    if (offcanvasElement) {
+        offcanvasElement.addEventListener('shown.bs.offcanvas', initializeMapOnShow);
+    }
+
+    // 🛑 1. REMOVER EL LISTENER DELEGADO QUE MONITOREA EL DOCUMENTO
+    /* document.addEventListener('change', function (e) { ... });
+     */
+
+    // 🛑 2. IMPLEMENTAR EL LISTENER DIRECTO CON JQUERY Y LA LÓGICA DE FILTRADO
+    $('#select-tipologia-local').on('change', function (e) {
+        e.preventDefault();
+
+        // 🛑 CLAVE 1: Obtener el array de valores seleccionados del Select2 Múltiple
+        // Si no se selecciona nada, .val() devuelve un array vacío [].
+        const seleccionadas = $(this).val() || [];
+
+        // 🛑 CLAVE 2: Asumir que la carrocería también está en un Select2 local
+        const carroceria = $('#select-carroceria-local').val() || ''; // Puede ser un string o un array si también es multiple
+
+        // Lógica de Filtro Local
+        if (window.globalVehicleData && window.globalVehicleData.length > 0) {
+            // 🛑 EJECUTAR LA FUNCIÓN DE FILTRADO LOCAL
+            // Enviamos el array de tipologías seleccionadas
+            filterAndRenderVehicles(
+                window.globalVehicleData,
+                seleccionadas, // Array de tipologías
+                carroceria, // Carrocería (String o Array)
+                window.searchDatosEnturnar
+            );
+        } else {
+            Swal.fire('Error', 'No hay datos de vehículos cargados para filtrar.', 'error');
+        }
+    });
+
+    // --------------------------------------------------------------------------------
+    // 🛑 NUEVA FUNCIÓN: Filtra los datos locales y renderiza
+    // --------------------------------------------------------------------------------
+
+    /**
+     * Filtra los datos locales por Tipología/Carrocería y renderiza la tabla y el mapa.
+     * * @param {Array} allVehicles - Todos los vehículos de la búsqueda inicial (globalVehicleData).
+     * @param {string} filterTypology - Valor de la tipología seleccionada.
+     * @param {string} filterBodyWork - Valor de la carrocería seleccionada.
+     * @param {object} searchData - Objeto simple con los datos de la solicitud (latitude, NudocSolicitud, etc.).
+     */
+    function filterAndRenderVehicles(allVehicles, filterTypologyArray, filterBodyWork, searchData) {
+        const tbody = document.getElementById('tbody-vehiculos-encontrados');
+        const tbody1 = document.getElementById('tbody-manifiestos-encontrados');
+        tbody1.innerHTML = ''; // Limpia contenido previo por si acaso
+
+        const titleElement = document.getElementById('offcanvasBottomLabel');
+        const latitude = window.searchData.latitude;
+        const longitude = window.searchData.longitude;
+
+        // Mostrar carga mínima mientras se procesa el DOM
+        toggleMapLoading(true, 'Aplicando filtros...');
+
+        // 🛑 CORRECCIÓN CLAVE 1: Asegurarse de que el input de filtro es tratado como un array
+        const tipologiasSeleccionadas = Array.isArray(filterTypologyArray) ? filterTypologyArray : [filterTypologyArray];
+
+        // Normalizar el filtro de carrocería (asumiendo que es single select, por ahora)
+        const filterBodyWorkNormalized = (filterBodyWork || '').toUpperCase().trim();
+
+        // 🛑 2. FILTRAR VEHÍCULOS CON NORMALIZACIÓN
+        const vehiclesFiltered = allVehicles.filter((item) => {
+            const itemTypology = (item.vehicle.vehicle_typology || '').toUpperCase().trim();
+            const itemBodyWork = (item.vehicle.bodywork || '').toUpperCase().trim();
+
+            // 🛑 LÓGICA MÚLTIPLE PARA TIPOLOGÍA:
+            // El vehículo coincide si NO hay filtros de tipología O si la tipología del vehículo
+            // está incluida en los filtros seleccionados (después de normalizarlos).
+            const tipologiasNormalizadas = tipologiasSeleccionadas.map((t) => (t || '').toUpperCase().trim()).filter((t) => t);
+            const tieneFiltroTipologia = tipologiasNormalizadas.length > 0;
+
+            const typologyMatch = !tieneFiltroTipologia || tipologiasNormalizadas.includes(itemTypology);
+
+            // Lógica de carrocería (Se mantiene single select con normalización)
+            const bodyWorkMatch = !filterBodyWorkNormalized || itemBodyWork === filterBodyWorkNormalized;
+
+            return typologyMatch && bodyWorkMatch;
+        });
+
+        const totalVehicles = vehiclesFiltered.length;
+        let htmlRows = '';
+        const vehiclePositions = [];
+
+        // 2. CONSTRUIR HTML Y POSICIONES
+        if (totalVehicles > 0) {
+            vehiclesFiltered.forEach((item) => {
+                // 🛑 Repetimos la lógica de extracción de datos complejos (JSON parse)
+                const placa = item.vehicle.licence_plate;
+                const tipologia = item.vehicle.vehicle_typology || 'N/A';
+                const nombreConductor = `${item.driver.name || ''} ${item.driver.last_name || ''}`.trim() || 'N/A';
+                const celularConductor = item.driver.cellphone || 'N/A';
+
+                // 🛑 NUEVA ASIGNACIÓN: Obtenemos datos de mapeo del objeto global Viajes
+                const totalManifiestos = window.Viajes?.[placa] || 0;
+                const totalManifiestosDestino = window.ViajesDestino?.[placa] || 0; // Asumo que tienes un mapeo global similar para Destino
+                const totalManifiestosCliente = window.ViajesCliente?.[placa] || 0; // Asumo que tienes un mapeo global similar para Cliente
+                const NudocConductorFiltro = window.globalNudocConductor?.[placa] || 0;
+
+                let ownerName = 'N/A';
+                let ownerPhone = 'N/A';
+                try {
+                    const ownerData = JSON.parse(item.vehicle.vehicle_owner);
+                    ownerName = ownerData.name || 'N/A';
+                    ownerPhone = ownerData.phone || 'N/A';
+                } catch (e) { }
+
+                htmlRows += `
+                <tr class="vehicle-row" data-placa="${placa}" data-latitud="${item.position.latitude}" data-longitud="${item.position.longitude}">
+                    <td class="fw-bold text-danger">${placa}</td>
+                    <td style="font-size: 11px; text-align: left;">${tipologia}</td>
+                    <td>
+                        <span class="badge badge-phoenix badge-phoenix-${totalManifiestos > 0 ? 'success' : 'secondary'}">
+                            ${totalManifiestos} viajes
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge badge-phoenix badge-phoenix-${totalManifiestosDestino > 0 ? 'success' : 'secondary'}">
+                            ${totalManifiestosDestino} viajes
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge badge-phoenix badge-phoenix-${totalManifiestosCliente > 0 ? 'success' : 'secondary'}">
+                            ${totalManifiestosCliente} viajes
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                            <button class="btn btn-success px-1 py-0 btn-seleccionar-vehiculo me-2" data-placa="${placa}" data-NombreConductor="${nombreConductor}" data-CelularConductor="${celularConductor}"
+                            data-NudocSolicitud="${searchData[0]['NudocSolicitud']}" data-OrigenEnturnar="${searchData[0]['OrigenEnturnar']
+                    }" data-ConductorId="${NudocConductorFiltro}" data-ClienteEnturnar="${searchData[0]['ClienteEnturnar']}"
+                            data-DestinoEnturnar="${searchData[0]['DestinoEnturnar']}" type="button">Enturnar</button>
+                            
+                            <button class="btn btn-info px-1 py-0 btn-manifestos-vehiculo" data-placa="${placa}" type="button">Manifiestos</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="p-0 border-0">
+                        <div class="bg-light p-2 text-start" style="font-size: 11px;">
+                            <p class="mb-0"><strong>Conductor:</strong> ${nombreConductor} (${celularConductor})</p>
+                            <p class="mb-0"><strong>Propietario:</strong> ${ownerName} (${ownerPhone})</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+                vehiclePositions.push({
+                    plate: placa,
+                    latitude: item.position.latitude,
+                    longitude: item.position.longitude,
+                });
+            });
+
+            // 3. PINTAR LA TABLA Y EL MAPA
+            tbody.innerHTML = htmlRows;
+            initGoogleMapAndShowVehicles(vehiclePositions, latitude, longitude);
+
+            // 🛑 CORRECCIÓN DE MENSAJE: Usa las variables de searchData
+            titleElement.textContent = `Resultados: ${totalVehicles} Vehículo(s) Encontrado(s) | Radar en Lat: ${latitude} (Filtro) - Solicitud: #${searchData[0]['NudocSolicitud']} - Cliente: ${searchData[0]['ClienteNombre']} - Ruta: ${searchData[0]['Ruta']}`;
+        } else {
+            // 4. CERO RESULTADOS
+            Swal.fire('Atención', 'Ningún vehículo coincide con los filtros.', 'info');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-info">Ningún vehículo coincide con el filtro.</td></tr>';
+
+            initGoogleMapAndShowVehicles([], latitude, longitude);
+            titleElement.textContent = `Resultados: 0 Vehículo(s) Encontrado(s)`;
+        }
+
+        toggleMapLoading(false);
+    }
+};
+
+async function Filtro() {
+    if (window.SELECTFILTRO !== '') {
+        $('#loading-overlay-nexosapp ').css('display', 'flex');
+        try {
+            let filtroActivo = 'Todos';
+
+            if ($(`#campo-${window.VENTANA}-clientes`).is(':visible')) filtroActivo = 'Clientes';
+            if ($(`#campo-${window.VENTANA}-estados`).is(':visible')) filtroActivo = 'Estados';
+
+            let data = new FormData();
+
+            data.append('filtro', SELECTFILTRO);
+            data.append('fecha_inicial', document.getElementById(`campo-${window.VENTANA}-fecha_inicial`).value);
+            data.append('fecha_final', document.getElementById(`campo-${window.VENTANA}-fecha_final`).value);
+            data.append('estado', 'Todas');
+            data.append('cliente', $(`#campo-${window.VENTANA}-clientes`).length > 0 ? $(`#campo-${window.VENTANA}-clientes`).val() || '' : '');
+            data.append('filtros', document.getElementById(`campo-${window.VENTANA}-estados`).value);
+
+            // IDs de los selects (Asumimos que $estados es 'empresas' y $clientes es 'clientes')
+            const selectorEmpresa = $(`#campo-${window.VENTANA}-empresas`);
+            const selectorCliente = $(`#campo-${window.VENTANA}-clientes`);
+
+            if (filtroActivo === 'Estados') {
+                // Si el filtro es por ESTADO, enviamos el valor del select de estados
+                data.append('estado', selectorEmpresa.length > 0 ? selectorEmpresa.val() || '' : 'Todas');
+                data.append('empresa', ''); // No enviar empresa
+            } else if (filtroActivo === 'Empresas') {
+                // Si el filtro es por EMPRESA
+                data.append('empresa', selectorEmpresa.length > 0 ? selectorEmpresa.val() || '' : '');
+                data.append('estado', 'Todas');
+            } else {
+                // Default (o si solo filtra por cliente)
+                data.append('estado', 'Todas');
+                data.append('empresa', '');
+            }
+
+            data.append('cliente', selectorCliente.length > 0 ? selectorCliente.val() || '' : '');
+
+            await fetch($('#base_url').val() + 'prefiltro_nacional/Consultar_Solicitudes', {
+                method: 'POST',
+                body: data,
+            })
+                .then((response) => {
+                    if (!response.ok) throw new Error(response.statusText);
+                    return response.json();
+                })
+                .then(function (data) {
+                    let tbody = document.getElementById('tbl-solicitudes');
+                    let template = '';
+
+                    // 🛑 CORRECCIÓN: Limpiar el tbody ANTES del bucle
+                    tbody.innerHTML = '';
+
+                    if (data && data.length > 0) {
+                        // let totalGeneral = data.length;
+                        // -------------------------------
+                        // 4. CONTADORES
+                        // -------------------------------
+                        let totalGeneral = data.length;
+                        let totalFiltro = 0;
+                        let totalVehiculos = 0;
+                        let totalTipoServicio = {};
+                        let totalPorEstado = {
+                            Realizada: 0,
+                            En_subasta: 0,
+                            Pendiente: 0,
+                            asignada: 0,
+                            en_tramite: 0,
+                            aprobado_prefiltro: 0,
+                        };
+
+                        data.forEach((e) => {
+                            if (e.numero_placas > 0) totalVehiculos++;
+
+                            if (!totalTipoServicio[e.tipo_servicio_mer]) {
+                                totalTipoServicio[e.tipo_servicio_mer] = 0;
+                            }
+                            totalTipoServicio[e.tipo_servicio_mer]++;
+
+                            if (totalPorEstado[e.esoli] !== undefined) {
+                                totalPorEstado[e.esoli]++;
+                            }
+                        });
+
+                        // ---- CALCULAR "totalFiltro" según filtro visible ----
+                        if (filtroActivo === 'Clientes') {
+                            totalFiltro = data.filter((e) => e.Cliente_Id == valCliente).length;
+                        } else if (filtroActivo === 'Estados') {
+                            totalFiltro = data.filter((e) => e.numero_placas > 0).length;
+                        } else {
+                            totalFiltro = totalGeneral;
+                        }
+
+                        // -------------------------------
+                        // 5. Cargar Contadores al HTML
+                        // -------------------------------
+                        $('#contador-general-solicitudes').text(totalGeneral);
+                        // $("#contador-solicitudes-filtro").text(totalFiltro);
+                        // $("#contador-vehiculos").text(totalVehiculos);
+
+                        // $("#contador-tipo-servicio").text(
+                        //     Object.keys(totalTipoServicio).length
+                        // );
+
+                        // $("#contador-estado").text(
+                        //     Object.values(totalPorEstado).reduce((a, b) => a + b, 0)
+                        // );
+                        // ------------------ FIN CONTADORES ------------------
+
+                        data.forEach((element) => {
+                            let clase_btn = '';
+                            let estado = '';
+                            let toltip = '';
+                            let estadobtn = '';
+                            let itr = '';
+                            let Prioridad = '';
+                            let perfil = document.getElementById('perfil_id').value;
+
+                            // --- Lógica de Badges (Se mantiene) ---
+                            if (element.esoli === 'Realizada') {
+                                clase_btn = 'success';
+                                estado = 'Realizada';
+                                toltip = 'Realizada';
+                                estadobtn = 'disabled';
+                            } else if (element.esoli === 'En_subasta') {
+                                clase_btn = 'info';
+                                estado = 'Subasta';
+                                toltip = 'Subasta';
+                                estadobtn = '';
+                            } else if (element.esoli === 'Pendiente') {
+                                clase_btn = 'warning';
+                                estado = 'Pendiente';
+                                toltip = 'Pendiente';
+                                estadobtn = '';
+                            } else if (element.esoli === 'asignada') {
+                                clase_btn = 'warning';
+                                estado = 'Asignada';
+                                toltip = 'Asignada Solicitud Prefiltro';
+                                estadobtn = '';
+                            } else if (element.esoli === 'en_tramite') {
+                                clase_btn = 'warning';
+                                estado = 'En tramite';
+                                toltip = 'En tramite solicitud prefiltro';
+                                estadobtn = '';
+                            } else if (element.esoli === 'aprobado_prefiltro') {
+                                clase_btn = 'success';
+                                estado = 'Aprobado prefiltro';
+                                toltip = 'Aprobado prefiltro';
+                                estadobtn = '';
+                            }
+
+                            if (element.itr === 'Si') {
+                                itr =
+                                    '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">SI</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>';
+                            } else {
+                                itr =
+                                    '<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">NO</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>';
+                            }
+
+                            if (element.prioritaria === 'Propuesta') {
+                                if (perfil === '1' || perfil === '8') {
+                                    // Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label"><a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
+                                    Prioridad = `<span class="badge badge-phoenix badge-phoenix-warning float-right"><a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" data-nivel="${element.nivel}" data-motivo="${element.motivo}" data-usuario="${element.usuario}" data-FechaPrioridad="${element.FechaPrioridad}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span>`;
+                                } else {
+                                    Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">${element.prioritaria}</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
+                                }
+                            } else if (element.prioritaria === 'Aprobada') {
+                                // Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">${element.prioritaria}</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
+                                Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right"><a href="#" id="btn_detalle_prioritaria" data-id="${element.nundoc_solicitud}" data-nivel="${element.nivel}" data-motivo="${element.motivo}" data-usuario="${element.usuario}" data-FechaPrioridad="${element.FechaPrioridad}" data-usuario_aprueba="${element.usuario_aprueba}" data-FechaAprueba="${element.FechaAprueba}" class="text-decoration-none text-primary" title="Detalle Prioridad">${element.prioritaria}</a></span>`;
+                            } else {
+                                Prioridad = `<span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">Sin proponer</span><span class="ms-1" data-feather="plus" style="height:12.8px;width:12.8px;"></span></span>`;
+                            }
+                            // --- Fin Lógica de Badges ---
+
+                            // Concatenar al string
+                            template += `
+                                    <tr>
+                                        <td class="cell-detail" style="color:black;width:auto; white-space: nowrap;">
+                                            <div class="dropdown">
+                                                <a class="btn btn-sm btn-link dropdown-toggle py-0 text-decoration-none fw-bold" id="dropdownMenuLink" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">N°${element.elid
+                                }</a>
+                                                <div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="dropdownMenuLink">
+                                                    <a class="dropdown-item fw-bold" href="#" id="solicitar_estudio_seguridads" onclick="preestudio(this);" data-id="${element.n_cotizacion
+                                }" 
+                                                    data-id2="${element.nundoc_solicitud}" data-id3="${element.nombre_cliente}" data-id4="${element.item
+                                }" data-id5="${element.tipo_mercancia}"
+                                                    data-id6="${element.flete}" data-id7="${element.peso_neto_tn}" data-id8="${element.tipo_servicio_mer
+                                }"  data-id9="${element.total_tarifa}"
+                                                    data-id10="${element.origen_rndc}" data-id11="${element.itr}" data-id12="${element.empresa
+                                }" data-id13='${element.escenario_id}' data-id14='${element.Rndc_Origen}'
+                                                    data-id15='${element.Rndc_Destino
+                                }' onclick="reiniciar_contador();" ${estadobtn}><span class="uil uil-envelope-send"></span> Solicitar Estudio Seguridad</a>
+                                                    <a class="dropdown-item fw-bold" href="#" id="btn-detalle-solicitud-servicio" data-id="${element.n_cotizacion
+                                }" data-id2="${element.nundoc_solicitud}" data-id3="${window.VENTANA}">
+                                                        <span class="uil uil-file-search-alt"></span> Detalle Solicitud
+                                                    </a>
+                                                    ${element.prioritaria === 'Propuesta' || element.prioritaria === 'Aprobada'
+                                    ? ''
+                                    : `<a class="dropdown-item fw-bold" id="btn-solicitar-prioridad" href="#" data-id="${element.n_cotizacion}" data-id2="${element.nundoc_solicitud}"> <span class="uil uil-bell"></span> Solicitar Prioridad </a>`
+                                }
+                                                    <div class="dropdown-divider"></div> 
+                                                    <a class="dropdown-item fw-bold" href="#" id='btn-buscar-vehiculo' data-origenEnturnar='${element.Origen_Enturnar
+                                }' data-Origen='${element.origen_solicitud}'
+                                                    data-Destino='${element.destino_solicitud}' data-NudocSolicitud='${element.nundoc_solicitud
+                                }' data-FechCargue='${element.fecha_cargue}' data-HoraCargue='${element.hora_cargue}' data-peso=${element.peso_neto_kg}
+                                                    data-LatitudOrigen="${element.latitud_origen}" data-LongitudOrigen=${element.longitud_origen
+                                } data-ClienteId='${element.Cliente_Id}' data-EmpresaId='${element.empresa_id}'
+                                                    data-DestinoId='${element.Rndc_Destino}' data-nombre_cliente="${element.nombre_cliente
+                                }" data-tipo_mercancia="${element.tipo_mercancia}" data-Ruta="Origén: ${element.origen_solicitud} - Destino: ${element.destino_solicitud
+                                }">
+                                                      Buscar Vehiculo
+                                                    </a>
+                                                    <a class="dropdown-item fw-bold" href="#" id='btn-enturnar' data-origenEnturnar='${element.Origen_Enturnar
+                                }' data-Origen='${element.origen_solicitud}'
+                                                    data-Destino='${element.destino_solicitud}' data-NudocSolicitud='${element.nundoc_solicitud
+                                }' data-FechCargue='${element.fecha_cargue}' data-HoraCargue='${element.hora_cargue}'>Enturnar</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="cell-detail text-center" style="width: auto; white-space: nowrap; color:black;">${Prioridad}</td>
+                                        <td style="color:black;width:auto; white-space: nowrap;"><span class="text-success" style="font-weight:800;">${element.tipo_servicio_mer
+                                }</span></td>
+                                        <td style="width: auto; white-space: nowrap; color:black;">
+                                            ${element.numero_placas > 0
+                                    ? '<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Placas asignadas</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>'
+                                    : '<span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">Sin asignar</span><span class="ms-1" data-feather="alert-octagon" style="height:12.8px;width:12.8px;"></span></span>'
+                                }
+                                        </td>
+                                        <td style="color:black;width:auto; white-space: nowrap;"><span>${itr}</span></td>
+                                        <td style="width: auto; white-space: nowrap; color:black;"><span> ${element.nombre_cliente} ${element.nit
+                                }</span></td>
+                                        <td style="width: auto; white-space: nowrap; color:black;"><span>${element.tipo_mercancia}</span></td>
+                                        <td style="width: auto; white-space: nowrap; color:black;"><span>${element.nombre}</span></td>
+                                        <td style="width: auto; white-space: nowrap; color:black;"><span title="Peso Neto kg">${formatNum(
+                                    element.peso_neto_kg
+                                )} kg</span></td>
+                                        <td style="width: auto; white-space: nowrap; color:black;"><span><b>Origén:</b> ${element.origen_solicitud
+                                } - <b>Destino:</b> ${element.destino_solicitud}</span></td>
+                                        <td class="cell-detail text-center" style="width: auto; white-space: nowrap; color:black;"><span>${element.fecha
+                                } ${element.hora_creacion} </span></td>
+                                      
+                                    </tr>`;
+                        });
+
+                        // ASIGNACIÓN FINAL: Asignar el HTML al tbody DESPUÉS del bucle
+                        tbody.innerHTML = template;
+                    } else {
+                        // Si no hay datos, mostrar mensaje de 'No hay resultados'
+                        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-info">No se encontraron solicitudes.</td></tr>';
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    tbody.innerHTML = '<tr><td colspan="10" class="text-danger">Error al cargar los datos.</td></tr>';
+                });
+        } catch (error) {
+            alert('Error de trucaht' + error);
+        } finally {
+            $('#loading-overlay-nexosapp ').css('display', 'none');
+        }
+    }
 }
 
-// function preestudio(element) {
-//   $('#cuerpo_lista2').html('');
-//   $('#totalfle').val('');
-//   $('#tottarifa').val('');
-//   // let offcanvas = new bootstrap.Offcanvas(document.getElementById('staticBackdrop'));
-//   var elemento = $(element);
-//   var cotiza = elemento.data('id');
-//   var num = elemento.data('id2');
-//   var cliente = elemento.data('id3');
-//   var item = elemento.data('id4');
-//   var pareja = elemento.data('id5');
-//   var flete = elemento.data('id6');
-//   var pesoneto = elemento.data('id7'); //peso bruto tonelada
-//   var tipo_servicio = elemento.data('id8');
-//   var tarifa = elemento.data('id9');
-//   var origen = elemento.data('id10');
-//   var itr = elemento.data('id11');
-//   var empresa = elemento.data('id12');
-//   $("#empresa_cliente").val(empresa);
-//   listar_responsables();
-
-//   /* Titulo del offcanva */
-//   myOffcanvas.updateTitle(`<span class="text-dark uil uil-car"></span> Consultar vehículo`);
-
-//   /* Contenido del offcanva */
-//   myOffcanvas.updateContent(`
-//     <div class="d-flex justify-content-center align-items-center w-100">
-//       <div class="row w-100">
-//         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-//           <label>N° solicitud</label>
-//           <input type="text" id="servicio_base" class="form-control form-control-sm text-center" disabled>
-//         </div>
-
-//         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-//           <label class="text-center">Tipo servicio</label>
-//           <input type="text" id="tipo_base" class="form-control form-control-sm text-center" disabled>
-//         </div>
-
-//         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-//           <label>Placa</label>
-//           <input type="text" id="placa" class="form-control form-control-sm text-center">
-//           <input type="hidden" id="proceso_itr" class="form-control form-control-sm text-center">
-//         </div>
-
-//         <div class="col-xs-3 col-md-3 col-sm-3 col-lg-3">
-//           <br>
-//           <button class="btn btn-primary btn-sm" onclick="ValidacionReglaNegocio();" style="width: 100%;">
-//             <span class="uil uil-search"></span> Buscar
-//           </button>
-//         </div>
-
-//         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//           <input type="hidden" id="origen_base" class="form-control form-control-sm" readonly="readonly" name="origen_de_base">
-//           <input type="hidden" id="empresa_cliente" class="form-control form-control-sm" readonly="readonly" name="empresa_cliente">
-//         </div>
-//       </div>
-//     </div>
-
-//       <div class="offcanvas-body">
-//     <div id="nexos_messages_popup"></div>
-//     <!--CABECERA-->
-//     <h4 id="nexos_messages_b1"></h4>
-//     <h4 id="nexos_messages_b2"></h4>
-//     <div id="historicos"></div>
-//     <div id="mensaje_itr"></div>
-
-//     <div class="row">
-//       <!-- <label id="historico" style="font-weight:700;"></label> -->
-//       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//         <div id="historico"></div>
-//         <div id="historico_vencido"></div>
-//       </div>
-//     </div>
-
-//     <div class="row pt-2" id="controles_tipo">
-//       <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12  thv" style="display:none;">
-//         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-//           <input type="hidden" id="estado_vehiculo">
-//           <label><b>Tipo de operación:</b>&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//         </div>
-//         <di class="d-flex justify-content-center">
-//           <div id="divnuevo" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="display:none;">
-//             <input type="radio" id="nuevo" class="tipo_hoja" name="gender" value="1" style="width: 20px; height: 20px;">
-//             <label for="nuevo" id="nuevo2">Nuevo</label>&nbsp;&nbsp;
-//           </div>
-
-//           <div id="divhabil" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="display:none;">
-//             <input type="radio" id="habil" class="tipo_hoja" name="gender" value="2" style="width: 20px; height: 20px;">
-//             <label for="habil" id="habil2">Habilitar</label>&nbsp;&nbsp;
-//           </div>
-
-//           <div id="divactualiza" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="display:none;">
-//             <input type="radio" id="update" class="tipo_hoja" name="gender" value="3" style="width: 20px; height: 20px;">
-//             <label for="update" id="update2">Actualizar</label>
-//           </div>
-//         </di>
-
-//       </div>
-//     </div>
-//     <!--estados de prefiltro -->
-//     <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
-//       <input type="hidden" id="tiporadio" class="form-control input-sm">
-//     </div>
-//     <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
-//       <label>Último estado (prefiltro):</label>
-//       <input type="text" id="estado_prefiltron" class="form-control text-danger input-sm" disabled="disabled" style="border:0px; background-color:white; font-weight:700; text-align:left;  ">
-//       <input type="hidden" id="solianterior" class="form-control input-sm">
-//     </div>
-
-//     <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12" id="mensaje_vehiculo_bloquear"></div>
-//     <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12" id="mensaje_inciado"></div>
-//     <!--CUERPO EDITAR PREESTUDIO-->
-//     <div class="row" style="padding-right:1px; padding-left:1px; padding-bottom:1px;  padding-top:1px;" id="diveditardatos">
-//       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//         <!--	<p class="text-left" style="font-size:10pt; font-weight:500; color:#2E2E2E;">Señor Usuario recuerde que podra actualizar datos siempre y cuando su solicitud  este en proceso por parte del área de seguridad</p> -->
-//       </div>
-//     </div>
-//     <!--CUERPO DEL VEHICULO PREESTUDIO CREAR PREESTUDIO-->
-//     <div class="row" id="divdatos">
-//       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//         <div id="accordion1" class="panel-group accordion">
-//           <!-- Acordeon Itr -->
-//           <div class="panel panel-default hello" id="datos_proveedores" style="display:none;">
-//             <div class="panel-heading">
-//               <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapseitr" class="collapsed"><i class="icon mdi mdi-chevron-down"></i>Datos ITR</a></h4>
-//             </div>
-//             <div id="collapseitr" class="panel-collapse collapse">
-//               <div class="panel-body" style="padding: 1px 1px 1px;">
-//                 <!-- Validar los datos del vehiculo para el otro servio itr -->
-//                 <div class="datos_proveedores">
-//                   <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
-//                     <tbody>
-//                       <tr>
-//                         <td class="celda_titulo2 text-center" style="margin:25px;">
-//                           <b>Datos del Vehículo</b>
-//                         </td>
-//                       </tr>
-//                       <tr>
-//                       </tr>
-//                     </tbody>
-//                   </table>
-//                   <table cellpadding="0" cellspacing="0" width="100%" id="tbl_datos_prefiltro">
-//                     <tbody>
-//                       <tr class="text-center active">
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Propietario</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Celular</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Acción</th>
-//                       </tr>
-//                       <tr>
-//                         <td id="vpropi" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="vpdocumento" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="cpropi" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="accion_propietario" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                       </tr>
-//                       <tr>
-//                       </tr>
-//                       <tr class="text-center active">
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Poseedor</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Celular</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Acción</th>
-//                       </tr>
-//                       <tr>
-//                         <td id="vtene" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="vtdocumento" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="ctene" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="accion_poseedor" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                       </tr>
-//                       <tr>
-//                       </tr>
-//                       <tr class="text-center active">
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Conductor</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Celular</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Acción</th>
-//                       </tr>
-//                       <tr>
-//                         <td id="vcondu" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="vcdocumento" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="ccondu" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="accion_conductor" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                       </tr>
-//                       <tr>
-//                       </tr>
-//                       <tr class="text-center active">
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Propietario Trailer</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento Propietarioi Trailer</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Celular</th>
-//                         <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Acción</th>
-//                       </tr>
-//                       <tr>
-//                         <td id="ptcondu" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="ptcdocumento" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                         <td id="cpropt" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
-//                         <td id="accion_propietario_trailer" class="text-left" style="border: 1px solid rgb(221, 221, 221); padding: 1px; width: auto; white-space: nowrap; background-color: rgb(255, 255, 255);"></td>
-//                       </tr>
-//                     </tbody>
-//                   </table>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           <div class="accordion" id="hvpreestudio" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingOne">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Datos del vehículo</button>
-//               </h2>
-//             </div>
-
-//             <div class="accordion-collapse collapse" aria-labelledby="headingOne" id="collapseOne">
-//               <div class="accordion-body pt-0">
-//                 <div class="row">
-//                   <div class="sms"></div>
-//                   <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Placa Vehiculo&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" id="placag" class="form-control input-xs" disabled="disabled">
-//                   </div>
-//                   <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Web Sátelital&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" id="web" name="web" class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Usuario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" id="user_satelite" name="user_satelite" class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Clave&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" id="clave" name="clave" class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Documento Propietario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="number" id="docupro" name="docupro" class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Nombre Propietario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" id="nompro" name="nompro" class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
-//                     <div id="mensaje_propietario_existe"></div>
-//                   </div>
-//                   <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Documento Poseedor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="number" id="docutene" name="docutene" class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Nombre Poseedor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" id="nomtene" name="nomtene" class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
-//                     <div id="mensaje_poseedor_existe"></div>
-//                   </div>
-//                   <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Documento Conductor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="number" id="docucondu" name="docucondu" class="form-control input-xs" onChange="javascript:referencias_prefiltro();">
-//                   </div>
-//                   <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
-//                     <label>Nombre Conductor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" id="nomcondu" name="nomcondu" class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
-//                     <div id="mensaje_conductor_existe"></div>
-//                   </div>
-//                   <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12 mt-2">
-//                     <div class="border border-1 p-2">
-//                       <h5 style="font-weight: bold;">Datos Trailer&nbsp;&nbsp;&nbsp;&nbsp; <input type="checkbox" id="propietario_obligatorio" style="transform: scale(1.5);"></h5>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
-//                     <label id="etiqueta_placa_trailer">Placa Trailer </label>
-//                     <input type="text" id="placat" name="placat" disabled class="form-control input-xs">
-//                   </div>
-//                   <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
-//                     <label id="etiqueta_documento_trailer">Documento Propietario Trailer</label>
-//                     <input type="number" id="docproptrailer" name="docproptrailer" class="form-control input-xs" disabled>
-//                   </div>
-//                   <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
-//                     <label id="estiqueta_propietario_trailer">Nombre Propietario Trailer</label>
-//                     <input type="text" id="nomproptrailer" name="nomproptrailer" class="form-control input-xs" disabled>
-//                   </div>
-//                   <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
-//                     <div id="mensaje_trailer_existe"></div>
-//                     <div id="mensaje_trailer_obligatorio" style="margin-top: 5px;"></div>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <input type="hidden" id="cab" value="1">
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           <!-- REFERENCIAS PARA VEHICULO NUEVO -->
-//           <div class="accordion" id="panel_referenciaNEW" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="collapsereferencianew">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwos" aria-expanded="true" aria-controls="collapseTwos">Referencias laborales</button>
-//               </h2>
-//             </div>
-//             <div id="collapseTwos" class="accordion-collapse collapse" aria-labelledby="collapsereferencianew">
-//               <div class="accordion-body pt-0">
-//                 <!--REFERENCIAS PARA VEHICULOS NUEVOS -->
-//                 <div class="col-xs-6 col-sm-2 col-md-2 col-lg-2" style="margin-top:10px; text-align:center; ">
-//                   <button class="btn btn-info btn-sm text-center" data-toggle="tooltip" data-placement="top" title="Agregar fila" id="agregar_fila">
-//                     <span class="uil uil-file-plus-alt"></span>
-//                   </button>
-//                 </div>
-//                 <hr />
-//                 <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                   <h3>
-//                     <p class="text-center text-info">Referencias laborales</p>
-//                   </h3><br>
-//                 </div>
-//                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                   <table class="table table-sm table-bordered" id="table_mercancia">
-//                     <thead style="border-color:blue;"></thead>
-//                     <tbody></tbody>
-//                   </table>
-//                 </div>
-//                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                   <input type="hidden" id="ref" value="2">
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//           <!--FIN REFERENCIA PARA VEHICULOS NUEVOS -->
-
-//           <!--REFERENCIAS PARA ACTUALIZAR y HABILITAR  -->
-//           <div class="accordion" id="panel_referenciahv" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingReferer">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsereferencia" aria-expanded="true" aria-controls="collapsereferencia">Referencias Empresariales</button>
-//               </h2>
-//             </div>
-//             <div id="collapsereferencia" class="accordion-collapse collapse" aria-labelledby="headingReferer">
-//               <div class="accordion-body pt-0">
-//                 <input type="hidden" id="idconductor">
-//                 <div class="row">
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <span class="badge badge-pill badge-primary">1</span>
-//                   </div>
-
-//                   <div class="col-xs-12 col-sm-12 col-md-12  REmpresarial8">
-//                     <label>Empresa 1:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" class="form-control input-sm" id="referencias_empresariales1" onblur="mayuscula(this);">
-//                     <label id="error_referencia_empresarial2"></label>
-//                   </div>
-
-//                   <div class="col-xs-6 col-sm-6 col-md-6">
-//                     <label>Fecha Ingreso:</label>
-//                     <input type="date" id="fingreso1" class="form-control input-sm">
-//                   </div>
-
-//                   <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                     <label>Fecha Retiro:</label>
-//                     <input type="date" id="fretiro1" class="form-control input-sm">
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label>Persona Contacto:</label>
-//                     <input type="text" id="contacto_ref1" placeholder="Nombre Contacto" class="form-control input-sm" onblur="mayuscula(this);">
-//                     <label id="error_contacto"></label>
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
-//                     <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="int" id="celular_ref1" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm">
-//                     <label id="error_celularref1"></label>
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
-//                     <label>Cargo:</label>
-//                     <input type="text" id="cargo_ref1" placeholder="Cargo" class="form-control input-sm" onblur="mayuscula(this);">
-//                     <label id="error_cargo"></label>
-//                   </div>
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
-//                     <label>Antiguedad</label>
-//                     <input type="number" id="anti_ref1" min="0" placeholder="Antiguedad1" class="form-control input-sm">
-//                   </div>
-//                   <input type="hidden" id="idrl1">
-//                 </div>
-//                 <div class="row">
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <span class="badge badge-pill badge-primary">2</span>
-//                   </div>
-
-//                   <div class="col-xs-12 col-sm-12 col-md-12  REmpresarial8">
-//                     <label>Empresa 2:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" class="form-control input-sm" id="referencias_empresariales2" onblur="mayuscula(this);">
-//                     <label id="error_referencia_empresarial2"></label>
-//                   </div>
-
-//                   <div class="col-xs-6 col-sm-6 col-md-6">
-//                     <label>Fecha Ingreso:</label>
-//                     <input type="date" id="fingreso2" class="form-control input-sm">
-//                   </div>
-
-//                   <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                     <label>Fecha Retiro:</label>
-//                     <input type="date" id="fretiro2" class="form-control input-sm">
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label>Persona Contacto:</label>
-//                     <input type="text" id="contacto_ref2" placeholder="Nombre Contacto" class="form-control input-sm" onblur="mayuscula(this);">
-//                     <label id="error_contacto"></label>
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
-//                     <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="int" id="celular_ref2" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm">
-//                     <label id="error_celularref1"></label>
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
-//                     <label>Cargo:</label>
-//                     <input type="text" id="cargo_ref2" placeholder="Cargo" class="form-control input-sm" onblur="mayuscula(this);">
-//                     <label id="error_cargo"></label>
-//                   </div>
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
-//                     <label>Antiguedad</label>
-//                     <input type="number" id="anti_ref2" min="0" placeholder="Antiguedad2" class="form-control input-sm">
-//                   </div>
-//                   <input type="hidden" id="idrl2">
-//                 </div>
-//                 <div class="row">
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <span class="badge badge-pill badge-primary">3</span>
-//                   </div>
-
-//                   <div class="col-xs-12 col-sm-12 col-md-12  REmpresarial8">
-//                     <label>Empresa 3:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" class="form-control input-sm" id="referencias_empresariales3" onblur="mayuscula(this);">
-//                     <label id="error_referencia_empresarial2"></label>
-//                   </div>
-
-//                   <div class="col-xs-6 col-sm-6 col-md-6">
-//                     <label>Fecha Ingreso:</label>
-//                     <input type="date" id="fingreso3" class="form-control input-sm">
-//                   </div>
-
-//                   <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                     <label>Fecha Retiro:</label>
-//                     <input type="date" id="fretiro3" class="form-control input-sm">
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label>Persona Contacto:</label>
-//                     <input type="text" id="contacto_ref3" placeholder="Nombre Contacto" class="form-control input-sm" onblur="mayuscula(this);">
-//                     <label id="error_contacto"></label>
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4">
-//                     <label>Celular Empresa:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="int" id="celular_ref3" placeholder="Celular Empresa" maxlength="10" class="form-control input-sm">
-//                     <label id="error_celularref1"></label>
-//                   </div>
-
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
-//                     <label>Cargo:</label>
-//                     <input type="text" id="cargo_ref3" placeholder="Cargo" class="form-control input-sm" onblur="mayuscula(this);">
-//                     <label id="error_cargo"></label>
-//                   </div>
-//                   <div class="form-group col-xs-12 col-sm-4 col-md-4  col-lg-4">
-//                     <label>Antiguedad</label>
-//                     <input type="number" id="anti_ref3" min="0" placeholder="Antiguedad3" class="form-control input-sm">
-//                   </div>
-//                   <input type="hidden" id="idrl3">
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           <!--REFERENCIAS PERSONALES solo para habilitar-actualizar -->
-//           <div class="accordion" id="panel_refepersonal" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingReferer">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsepersonal" aria-expanded="true" aria-controls="collapsepersonal">Persona Contacto y Referencia</button>
-//               </h2>
-//             </div>
-//             <div id="collapsepersonal" class="accordion-collapse collapse">
-//               <div class="accordion-body pt-0">
-//                 <div class="row">
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label><strong>Contacto en caso de emergencia</strong></label>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <span class="badge badge-pill badge-primary">1</span>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-3 col-md-3 REmpresarial2">
-//                     <label>Nombre Persona 1:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input class="form-control form-control-sm" id="referencias_personales1" onblur="mayuscula(this);">
-//                     <label id="error_referencias_personales"></label>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-3 col-md-3 FPersonal1">
-//                     <label>Fecha 1:</label>
-//                     <input type="date" id="fecha_personal1" class="form-control form-control-sm">
-//                   </div>
-//                   <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
-//                     <label>Parentezco:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <select class="form-select form-select-sm" id="parenp1">
-//                       <option value="" readonly="readonly">Seleccione una opción</option>
-//                       <option value="1">Amigo/a</option>
-//                       <option value="2">Hermano/a</option>
-//                       <option value="3">Padre</option>
-//                       <option value="4">Madre</option>
-//                       <option value="5">Tio/a</option>
-//                       <option value="6">Sobrino/a</option>
-//                       <option value="7">Hijo/a</option>
-//                       <option value="8">Espaso/a</option>
-//                     </select>
-//                     <label id="error_referencias_personales"></label>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
-//                     <label>Teléfono:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="number" id="telefonop1" min="0" class="form-control form-control-sm" maxlength="10">
-//                     <label id="error_referencias_personales"></label>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-3 col-md-3 REmpresarial2">
-//                     <input type="hidden" id="idrper1">
-//                   </div>
-//                 </div>
-//                 <!-- Referencias personales -->
-//                 <div class="row">
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label><strong>Referencia personal</strong></label>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <span class="badge badge-pill badge-primary">2</span>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-6 col-md-3 RPersonal2">
-//                     <label>Nombre Persona 2:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" class="form-control form-control-sm" id="referencias_personales2" onblur="mayuscula(this);">
-//                     <label id="error_referencias_personales"></label>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-6 col-md-3 FRpersonal2">
-//                     <label>Fecha Personal 2:</label>
-//                     <input type="date" id="fecha_personal2" class="form-control form-control-sm" value="">
-//                   </div>
-//                   <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
-//                     <label>Parentezco:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <select class="form-select form-select-sm" id="parenp2">
-//                       <option value="" readonly="readonly">Seleccione una opción</option>
-//                       <option value="1">Amigo/a</option>
-//                       <option value="2">Hermano/a</option>
-//                       <option value="3">Padre</option>
-//                       <option value="4">Madre</option>
-//                       <option value="5">Tio/a</option>
-//                       <option value="6">Sobrino/a</option>
-//                       <option value="7">Hijo/a</option>
-//                       <option value="8">Espaso/a</option>
-//                     </select>
-//                     <label id="error_referencias_personales"></label>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-6 col-md-3 REmpresarial2">
-//                     <label>Teléfono:&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="number" id="telefonop2" min="0" class="form-control form-control-sm" maxlength="10">
-//                     <label id="error_referencias_personales"></label>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-3 col-md-3 REmpresarial2">
-//                     <input type="hidden" id="idrper2">
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           <div class="accordion" id="panel_solicitudes" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingDatosSolicitud">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapsepersonal">Datos de la solicitud</button>
-//               </h2>
-//             </div>
-//             <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingDatosSolicitud">
-//               <div class="accordion-body pt-0">
-//                 <!--MODAL SOLICITUDES SERVICIO - cargarlas -->
-//                 <div id="solicitudservicio" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y:auto;">
-//                   <div class=".modal-dialog-modal-lg.modal-dialog ">
-//                     <div class="modal-content ">
-//                       <div class="modal-header">
-//                         <button type="button" id="cancel" class="close md-close"><span class="mdi mdi-close"></span></button>
-//                         <h3 class="modal-title">
-//                           <label style="font-weight:900; margin-top:20px;">
-//                             Solicitudes de servicio
-//                           </label>
-//                         </h3>
-//                       </div>
-//                       <div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
-//                         <div id="nexos_messages_popup"></div>
-//                         <div class="row">
-//                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                             <label>Listas seleccionadas</label>
-//                             <ul id="listamodal"></ul>
-//                           </div>
-//                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                             <table id='table2' class='table table-striped table-hover' data-page-length='100'>
-//                               <thead>
-//                                 <tr>
-//                                   <th>Solicitud</th>
-//                                   <th>Mercancía</th>
-//                                   <th>Item</th>
-//                                   <th>Origen</th>
-//                                   <th>Destino</th>
-//                                   <th>Peso(Kg) / Tipo vehiculo</th>
-//                                   <th>Cliente</th>
-//                                   <th>Tipo</th>
-//                                   <th>Acciones</th>
-//                                 </tr>
-//                               </thead>
-//                               <tbody id="tbl-solicitudes-consolidadas"></tbody>
-//                             </table>
-//                           </div>
-//                         </div>
-//                       </div>
-//                       <div class="modal-footer">
-//                         <button type="button" id="cancel" class="btn btn-default md-close">Cancelar</button>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-//                 <!--SOLICITUD DE PREESTUDIO -->
-//                 <div class="row">
-//                   <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-//                     <label style="font-weight:600; margin-top:20px;"> Solicitudes de servicio:
-//                     </label>&nbsp;&nbsp;
-//                     <button type="button" id="btn_soli" data-toggle="modal" class="btn btn-primary btn-sm"><span class="uil-shopping-cart-alt"></span></button>
-//                   </div>
-//                 </div>
-
-//                 <div class="row">
-//                   <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                     <label style="font-weight:800; margin-top:20px;">Solicitudes de servicio seleccionadas</label>
-//                     <input type="hidden" id="maxservi" value="1">
-//                   </div>
-
-//                   <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-//                     <input type="hidden" value="3" id="soli_total">
-//                   </div>
-//                   <style type="text/css">
-//                     .seleccionada {
-//                       background-color: #0585C0;
-//                       color: white;
-//                     }
-//                   </style>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <table class="table table-bordered table-sm" style="font-size: 12px;">
-//                       <thead>
-//                         <th>#</th>
-//                         <th>Servicio</th>
-//                         <th>Item-Mercancía</th>
-//                         <th>Cliente</th>
-//                         <th>Flete cot.</th>
-//                         <th style="display:none">Peso bruto(Tn)</th>
-//                         <!-- <th>Tarifa cot.</th> -->
-//                         <th>Acción</th>
-//                       </thead>
-//                       <tbody id="cuerpo_lista2">
-//                       </tbody>
-//                     </table>
-//                   </div>
-
-
-//                   <!-- <div class="row"></div> -->
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <table class="table table-bordered table-sm" style="font-size: 12px;">
-//                       <thead>
-//                         <th>Suma de Flete por solicitudes</th>
-//                         <th>Total peso Bruto(Tn)</th>
-//                       </thead>
-//                       <tbody id="totalizar"></tbody>
-//                     </table>
-//                   </div>
-
-//                   <!-- <div class="row"></div> -->
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <table class="table table-bordered table-sm">
-//                       <thead>
-//                         <th>N° - Remitente</th>
-//                         <th>Fecha</th>
-//                         <th>Peso(Kg)</th>
-//                         <th>Punto de cargue</th>
-//                       </thead>
-//                       <tbody id="cuerpo_fechas">
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                 </div>
-
-//                 <div class="row">
-//                   <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                     <label>Total sumatoria Peso(Kg)</label>
-//                     <input type="text" id="total_pesos" class="form-control form-control-sm" disabled>
-//                   </div>
-//                   <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                     <label>Capacidad carga vehículo(Kg)&nbsp;<span style="color:red;"><i>(*)</i></span></label>
-//                     <input type="text" id="capa_carga_vh" class="form-control form-control-sm">
-//                   </div>
-//                 </div>
-
-//                 <div class="row">
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Solicitud de Preestudio</label>
-//                   </div>
-//                   <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
-//                     <label>Fecha</label>
-//                     <input type="text" id="fpree" value="<?php echo date('Y-m-d'); ?>" class="form-control form-control-sm" disabled>
-//                   </div>
-//                   <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
-//                     <label>Hora</label>
-//                     <input type="text" id="hpree" value="<?php echo date('H:i:s'); ?>" class="form-control form-control-sm" disabled>
-//                   </div>
-//                   <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
-//                     <label>Usuario</label>
-//                     <input type="text" id="userpree" class="form-control form-control-sm" value="<?php echo $ssn_nombre; ?>" disabled>
-//                   </div>
-//                   <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
-//                     <label>Observaciones</label>
-//                     <textarea id="obserpree" class="form-control form-control-sm"></textarea>
-//                   </div>
-//                   <input type="hidden" id="id_consolidacion" class="form-control form-control-sm" disabled>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           <div class="accordion" id="panel_seguridad" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingUpdateData">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_update" aria-expanded="true" aria-controls="collapse_update">Actualiza Seguridad (hojas de vida)</button>
-//               </h2>
-//             </div>
-//             <div id="collapse_update" class="accordion-collapse collapse" aria-labelledby="headingUpdateData">
-//               <div class="accordion-body pt-0">
-//                 <div id="msg_alerta" class="py-2"></div>
-//                 <div class="row pt-3">
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-//                     <div class="row">
-//                       <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                         <h4><span class="uil-list-ui-alt"></span> Recursos actuales</h4>
-//                       </div>
-//                       <div class="col-sm-6 col-md-6 col-lg-6"></div>
-//                       <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-//                         <div class="mb-1">
-//                           <label>Vehículo</label>
-//                           <input type="text" class="form-control form-control-sm fs-10" id="veh_vehiculo" disabled>
-//                         </div>
-//                       </div>
-//                       <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-//                         <div class="mb-1">
-//                           <label>Conductor</label>
-//                           <input type="text" class="form-control form-control-sm fs-10" id="veh_conduc" disabled>
-//                         </div>
-//                       </div>
-//                       <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-//                         <div class="mb-1">
-//                           <label>Propietario</label>
-//                           <input type="text" class="form-control form-control-sm fs-10" id="veh_propiet" disabled>
-//                         </div>
-//                       </div>
-//                       <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
-//                         <div class="mb-1">
-//                           <label>Poseedor</label>
-//                           <input type="text" class="form-control form-control-sm fs-10" id="veh_poseed" disabled>
-//                         </div>
-//                       </div>
-//                     </div>
-//                     <hr class="my-1 text-dark">
-//                     <div class="d-flex justify-content-center">
-//                       <div class="form-check form-check-inline">
-//                         <input class="form-check-input recursos_checbox" id="cbox1" type="checkbox" value="nuevo_recurso" style="transform: scale(1.3);">
-//                         <label class="form-check-label fs-12" for="cbox1">Nuevo recurso</label>
-//                       </div>
-//                       <div class="form-check form-check-inline">
-//                         <input class="form-check-input recursos_checbox" id="cbox2" type="checkbox" value="datos_dinamicos" style="transform: scale(1.3);">
-//                         <label class="form-check-label fs-12" for="cbox2">Datos dinámicos</label>
-//                       </div>
-//                     </div>
-//                     <hr class="my-1 text-dark">
-//                   </div>
-//                 </div>
-
-//                 <!-- TABS INICIO -->
-//                 <div class="row panel_tabs_recursos pt-3">
-//                   <div class="col-sm-12 col-md-12 col-lg-12">
-//                     <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-//                       <li class="nav-item re_inexis"><a class="nav-link active" data-bs-toggle="tab" href="#home2" role="tab" aria-controls="home2" aria-selected="true" style="display: none;" id="creacion_nuevo_recuro">Creación de recursos nuevos</a></li>
-//                       <li class="nav-item re_dinamic"><a class="nav-link" data-bs-toggle="tab" href="#profile2" role="tab" aria-controls="profile2" aria-selected="false" style="display: none;" id="datos_dinamicos">Datos dinámicos</a></li>
-//                       <!-- <li class="nav-item"><a class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#tab-contact" role="tab" aria-controls="tab-contact" aria-selected="false">Contact</a></li> -->
-//                     </ul>
-
-//                     <div class="tab-content mt-3" id="myTabContent">
-//                       <div class="tab-pane fade show active re_inexis" id="home2" role="tabpanel" aria-labelledby="home2">
-//                         <div class="panel panel-border-color panel-border-color-dark" id="inexistente_actividades"><!-- recurso -->
-//                           <div class="panel-body text-center" style="padding: 1px 1px 1p;">
-
-//                             <div class="d-flex justify-content-center">
-//                               <div class="form-check form-check-inline">
-//                                 <input class="form-check-input chebox_recurso" id="cbpre1" type="checkbox" value="Propietario" style="transform: scale(1.3);">
-//                                 <label class="form-check-label fs-12" for="cbpre1">Propietario</label>
-//                               </div>
-//                               <div class="form-check form-check-inline">
-//                                 <input class="form-check-input chebox_recurso" id="cbpre2" type="checkbox" value="Poseedor" style="transform: scale(1.3);">
-//                                 <label class="form-check-label fs-12" for="cbpre2">Poseedor</label>
-//                               </div>
-//                               <div class="form-check form-check-inline">
-//                                 <input class="form-check-input chebox_recurso" id="cbpre3" type="checkbox" value="Conductor" style="transform: scale(1.3);">
-//                                 <label class="form-check-label fs-12" for="cbpre3">Conductor</label>
-//                               </div>
-//                               <div class="form-check form-check-inline">
-//                                 <input class="form-check-input chebox_recurso" id="cbpre4" type="checkbox" value="Trailer" style="transform: scale(1.3);">
-//                                 <label class="form-check-label fs-12" for="cbpre4">Tráiler</label>
-//                               </div>
-//                             </div>
-
-//                           </div>
-//                         </div>
-
-//                         <!-- propietario -->
-//                         <div id="inexistente_propietario">
-//                           <div class="row">
-//                             <!-- <div class="panel-body"> </div> -->
-//                             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-//                               <div class="mb-1">
-//                                 <label>Número Documento</label>
-//                                 <input type="number" class="form-control form-control-sm" id="number_propietario">
-//                               </div>
-//                             </div>
-//                             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-//                               <div class="mb-1">
-//                                 <label>Nombre completo propietario</label>
-//                                 <input type="text" class="form-control form-control-sm nombre_i" id="name_propietario">
-//                               </div>
-//                             </div>
-//                           </div>
-//                           <hr class="my-1 text-dark">
-//                         </div>
-
-//                         <!-- poseedor -->
-//                         <div id="inexistente_poseedor">
-//                           <div class="row">
-//                             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                               <label>Número Documento</label>
-//                               <input type="number" class="form-control form-control-sm" id="number_poseedor">
-//                             </div>
-//                             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                               <label>Nombre completo poseedor</label>
-//                               <input type="text" class="form-control form-control-sm nombrei" id="name_poseedor">
-//                             </div>
-//                           </div>
-//                           <hr class="my-1 text-dark">
-//                         </div>
-
-//                         <!-- conductor-->
-//                         <div id="inexistente_conductor">
-//                           <div class="panel-body">
-//                             <div class="row">
-//                               <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                                 <label>Número Documento</label>
-//                                 <input type="number" class="form-control form-control-sm" id="number_conductor">
-//                               </div>
-//                               <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-//                                 <label>Nombre completo conductor</label>
-//                                 <input type="text" class="form-control form-control-sm nombre_i" id="name_conductor">
-//                               </div>
-//                             </div><br>
-//                             <div class="row">
-//                               <!-- Primera referencia -->
-//                               <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4" style="border-right:1px solid gray">
-//                                 <span>Nombre Empresa</span>
-//                                 <input type="text" class="form-control form-control-sm" id="referencias_empresariales1pre" onblur="mayuscula(this);">
-//                                 <span>Persona Contacto</span>
-//                                 <input type="text" id="contacto_ref1pre" placeholder="Nombre Contacto" class="form-control form-control-sm" onblur="mayuscula(this);">
-//                                 <span>Celular Empresa</span>
-//                                 <input type="number" id="celular_ref1pre" placeholder="Celular Empresa" maxlength="10" class="form-control form-control-sm">
-//                                 <span>Cargo</span>
-//                                 <input type="text" id="cargo_ref1pre" placeholder="Cargo" class="form-control input-sm" onblur="mayuscula(this);">
-//                                 <span>Fecha ingreso 1</span>
-//                                 <input type="date" id="fingresoa1pre" class="form-control form-control-sm">
-//                                 <span>Fecha ingreso 2</span>
-//                                 <input type="date" id="fretiroa3pre" class="form-control form-control-sm">
-//                                 <span>Antiguedad</span>
-//                                 <input type="number" id="anti_ref1pre" min="0" class="form-control form-control-sm">
-//                               </div>
-//                               <!-- Segunda referencia -->
-//                               <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4" style="border-right:1px solid gray">
-//                                 <span>Nombre Empresa</span>
-//                                 <input type="text" class="form-control form-control-sm" id="referencias_empresariales2pre" onblur="mayuscula(this);">
-//                                 <span>Persona Contacto</span>
-//                                 <input type="text" id="contacto_ref2pre" placeholder="Nombre Contacto" class="form-control form-control-sm" onblur="mayuscula(this);">
-//                                 <span>Celular Empresa</span>
-//                                 <input type="number" id="celular_ref2pre" placeholder="Celular Empresa" maxlength="10" class="form-control form-control-sm">
-//                                 <span>Cargo</span>
-//                                 <input type="text" id="cargo_ref2pre" placeholder="Cargo" class="form-control form-control-sm" onblur="mayuscula(this);">
-//                                 <span>Fecha ingreso 1</span>
-//                                 <input type="date" id="fingresob1pre" class="form-control form-control-sm">
-//                                 <span>Fecha ingreso 2</span>
-//                                 <input type="date" id="fretirob3pre" class="form-control form-control-sm">
-//                                 <span>Antiguedad</span>
-//                                 <input type="number" id="anti_ref2pre" min="0" class="form-control form-control-sm">
-//                               </div>
-//                               <!-- tercera referencia  -->
-//                               <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
-//                                 <span>Nombre Empresa</span>
-//                                 <input type="text" class="form-control form-control-sm" id="referencias_empresariales3pre" onblur="mayuscula(this);">
-//                                 <span>Persona Contacto</span>
-//                                 <input type="text" id="contacto_ref3pre" placeholder="Nombre Contacto" class="form-control form-control-sm" onblur="mayuscula(this);">
-//                                 <span>Celular Empresa</span>
-//                                 <input type="number" id="celular_ref3pre" placeholder="Celular Empresa" maxlength="10" class="form-control form-control-sm">
-//                                 <span>Cargo</span>
-//                                 <input type="text" id="cargo_ref3pre" placeholder="Cargo" class="form-control form-control-sm" onblur="mayuscula(this);">
-//                                 <span>Fecha ingreso 1</span>
-//                                 <input type="date" id="fingresoc1pre" class="form-control form-control-sm">
-//                                 <span>Fecha ingreso 2</span>
-//                                 <input type="date" id="fretiroc3pre" class="form-control form-control-sm">
-//                                 <span>Antiguedad</span>
-//                                 <input type="number" id="anti_ref3pre" min="0" class="form-control form-control-sm">
-//                               </div>
-//                             </div>
-//                             <!--cierre del panel body -->
-//                           </div>
-//                           <hr class="my-1 text-dark">
-//                         </div>
-
-//                         <!-- vehiculo -->
-//                         <div class="panel panel-border-color panel-border-color-dark" id="inexistente_vehiculo">
-//                           <div class="panel-body">
-//                             <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-//                               <div class="mb-1">
-//                                 <label>Placa vehículo</label>
-//                                 <input type="text" class="form-control form-control-sm" id="placa_vehiculosat">
-//                               </div>
-//                             </div>
-//                             <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-//                               <div class="mb-1">
-//                                 <label>URL satélital</label>
-//                                 <input type="text" class="form-control form-control-sm" id="url_sat">
-//                               </div>
-//                             </div>
-//                             <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-//                               <div class="mb-1">
-//                                 <label>Usuario satélital</label>
-//                                 <input type="text" class="form-control form-control-sm" id="user_sat">
-//                               </div>
-//                             </div>
-//                             <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-//                               <div class="mb-1">
-//                                 <label>Clave satélital</label>
-//                                 <input type="text" class="form-control form-control-sm" id="pass_sat">
-//                               </div>
-//                             </div>
-//                           </div>
-//                           <hr class="my-1 text-dark">
-//                         </div>
-
-//                         <!--trailer -->
-//                         <div id="inexistente_trailer">
-//                           <div class="row">
-//                             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
-//                               <label>Placa tráiler</label>
-//                               <input type="text" class="form-control form-control-sm" id="placa_trailerpre">
-//                             </div>
-//                             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-//                               <label>Número documento propietario tráiler</label>
-//                               <input type="text" class="form-control form-control-sm" id="propidocu_trailer">
-//                             </div>
-//                             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-//                               <label>Nombre propietario tráiler</label>
-//                               <input type="text" class="form-control form-control-sm" id="propi_trailer">
-//                             </div>
-//                           </div>
-//                         </div>
-//                       </div>
-//                       <div class="tab-pane fade re_dinamic" id="profile2" role="tabpanel" aria-labelledby="profile2">
-//                         <div class="row">
-//                           <div class="col-xs-12 col-sm-412col-md-12 col-lg-12">
-//                             <div class="input-group input-group-sm mb-3">
-//                               <label class="input-group-text" for="inputGroupSelect01">Tipo hoja de vida</label>
-//                               <select id="thv" class="form-select form-select-sm text-center">
-//                                 <option value="">Seleccione</option>
-//                                 <option value="propietario">Propietario</option>
-//                                 <option value="conductor">Conductor</option>
-//                                 <option value="tenedor">Tenedor</option>
-//                                 <option value="vehiculo">Vehículo</option>
-//                                 <option value="trailer">Trailer</option>
-//                               </select>
-//                             </div>
-//                           </div>
-//                         </div>
-
-//                         <div class="row uno">
-//                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                             <div class="mb-1">
-//                               <input type="text" id="label" class="form-control form-control-sm" readonly="" style="font-size:12pt; text-align:center;">
-//                             </div>
-//                           </div>
-//                           <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4" id="elbtn">
-//                             <div class="mb-1">
-//                               <label>Campo actualizar: </label>
-//                               <input type='text' class='form-control form-control-sm' id='dato'>
-//                             </div>
-//                           </div>
-//                           <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4" id="elbtn">
-//                             <div class="mb-1">
-//                               <label>Información actualizar: </label>
-//                               <input type='text' class='form-control form-control-sm' id='detalle'>
-//                             </div>
-//                           </div>
-//                           <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 pt-4" id="elbtn">
-//                             <div class="mb-1">
-//                               <button id="agregue_tb" class="btn btn-phoenix-success btn-sm text-center"><span class="uil uil-plus-square"></span></button>
-//                             </div>
-//                           </div>
-//                         </div>
-//                       </div>
-//                       <!-- <div class="tab-pane fade" id="tab-contact" role="tabpanel" aria-labelledby="contact-tab">Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.</div> -->
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 <!-- TABS FIN -->
-//                 <!-- Tabla -->
-//                 <div class="row panel_total_recursos pt-3">
-//                   <div class="col-sm-12 col-md-12 col-lg-12">
-//                     <div class="panel panel-default">
-//                       <table class="table table-hover table-bordered table-sm text-center" style=" font-size:12px;">
-//                         <thead>
-//                           <tr>
-//                             <th>Código</th>
-//                             <th>Tipo HV</th>
-//                             <th>Dato actualizar</th>
-//                             <th>Detalle</th>
-//                             <th>Archivo</th>
-//                           </tr>
-//                         </thead>
-//                         <tbody id="cuerpo_actu">
-//                         <tbody>
-//                       </table>
-//                       <input type="hidden" id="valortb" readonly="readonly">
-//                     </div>
-//                   </div>
-//                 </div>
-
-//               </div>
-//             </div>
-//           </div>
-//           <!--DOCUMENTOS -->
-
-//           <!--documentos para actualizar-->
-//           <div class="accordion" id="panel_papeles_actualiza" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingUpdateData1">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doc_update" aria-expanded="true" aria-controls="doc_update"><i class="icon mdi mdi-chevron-down"></i>Documentos Para Actualizar</button>
-//               </h2>
-//             </div>
-//             <div id="doc_update" class="accordion-collapse collapse" aria-labelledby="headingUpdateData1">
-//               <div class="accordion-body pt-0">
-//               </div>
-//             </div>
-//           </div>
-
-//           <!--documentos para habilitar-->
-//           <div class="accordion" id="panel_papeles_habilitar" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingUpdateData2">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doc_habilitar" aria-expanded="true" aria-controls="doc_habilitar"><i class="icon mdi mdi-chevron-down"></i>Documentos Para Habilitar</a></button>
-//               </h2>
-//             </div>
-//             <div id="doc_habilitar" class="accordion-collapse collapse" aria-labelledby="headingUpdateData2">
-//               <div class="accordion-body pt-0">
-//                 <div class="row">
-//                   <input type="hidden" id="deta_condu">
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <p class="text-center text-primary" style="font-size:14pt; margin-top:20px;"><strong>Documentos
-//                         obligatorios:</strong></p>
-//                     <hr>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Fotos del Conductor</label>
-
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Fotos de Indumentaria</label>
-//                   </div>
-//                 </div>
-//                 <div class="row">
-//                   <p class="text-center text-primary" style="font-size:14pt; margin-top:20px;"><strong>Documentos
-//                       complementarios:</strong></p>
-//                   <hr>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Referencia laboral</label>
-//                     <table class="table">
-//                       <thead style="text-align:left;color:white; background-color:#FFA900;">
-//                         <tr>
-//                           <th style="width:3%;">#</th>
-//                           <th style="width:5%;">Documento/Img</th>
-//                           <th style="width:10%;">Nombre</th>
-//                           <th style="width:20%;">Actualice documento</th>
-//                         </tr>
-//                       </thead>
-//                       <tbody id="consulta_documentos">
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Referencia Personal</label>
-//                     <table class="table">
-//                       <thead style="text-align:left;color:white; background-color:#FFA900;">
-//                         <tr>
-//                           <th style="width:3%;">#</th>
-//                           <th style="width:5%;">Documento/Img</th>
-//                           <th style="width:10%;">Nombre</th>
-//                           <th style="width:20%;">Actualice documento</th>
-//                         </tr>
-//                       </thead>
-//                       <tbody id="documentos_personal">
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Licencia</label>
-//                     <table class="table">
-//                       <thead style="text-align:left;color:white; background-color:#FFA900;">
-//                         <tr>
-//                           <th style="width:3%;">#</th>
-//                           <th style="width:5%;">Documento/Img</th>
-//                           <th style="width:10%;">Nombre</th>
-//                           <th style="width:20%;">Actualice documento</th>
-//                         </tr>
-//                       </thead>
-//                       <tbody id="documentos_licencia">
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Rut</label>
-//                     <table class="table">
-//                       <thead style="text-align:left;color:white; background-color:#FFA900;">
-//                         <tr>
-//                           <th style="width:3%;">#</th>
-//                           <th style="width:5%;">Documento/Img</th>
-//                           <th style="width:10%;">Nombre</th>
-//                           <th style="width:20%;">Actualice documento</th>
-//                         </tr>
-//                       </thead>
-//                       <tbody id="documentos_rut">
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Eps</label>
-//                     <table class="table">
-//                       <thead style="text-align:left;color:white; background-color:#FFA900;">
-//                         <tr>
-//                           <th style="width:3%;">#</th>
-//                           <th style="width:5%;">Documento/Img</th>
-//                           <th style="width:10%;">Nombre</th>
-//                           <th style="width:20%;">Actualice documento</th>
-//                         </tr>
-//                       </thead>
-//                       <tbody id="documentos_eps">
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Arl</label>
-//                     <table class="table">
-//                       <thead style="text-align:left;color:white; background-color:#FFA900;">
-//                         <tr>
-//                           <th style="width:3%;">#</th>
-//                           <th style="width:5%;">Documento/Img</th>
-//                           <th style="width:10%;">Nombre</th>
-//                           <th style="width:20%;">Actualice documento</th>
-//                         </tr>
-//                       </thead>
-//                       <tbody id="documentos_arl">
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-//                     <label style="font-weight:800; margin-top:20px;">Curso Mercancías peligrosas</label>
-//                     <table class="table">
-//                       <thead style="text-align:left;color:white; background-color:#FFA900;">
-//                         <tr>
-//                           <th style="width:3%;">#</th>
-//                           <th style="width:5%;">Documento/Img</th>
-//                           <th style="width:10%;">Nombre</th>
-//                           <th style="width:20%;">Actualice documento</th>
-//                         </tr>
-//                       </thead>
-//                       <tbody id="documentos_peligro">
-//                       </tbody>
-//                     </table>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           <!--documentos nuevos-->
-//           <div class="accordion" id="panel_papeles" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingUpdateData3">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#documentos" aria-expanded="true" aria-controls="documentos"><i class="icon mdi mdi-chevron-down"></i>Documentos prefiltro</button>
-//               </h2>
-//             </div>
-//             <div id="documentos" class="accordion-collapse collapse" aria-labelledby="headingUpdateData3">
-//               <div class="accordion-body pt-0">
-//                 <div class="row">
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <label>¿Desea Agregar un documento?</label>
-//                   </div>
-//                   <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-//                     <button class=" form-control btn btn-info mdi mdi-plus input-sm text-center" data-toggle="tooltip" data-placement="top" title="Agregar" id="agregar_docu"> Agregar
-//                       Documentos</button>
-//                   </div>
-//                 </div><br>
-//                 <div class="row">
-//                   <table class="table table-bordered table-condensed">
-//                     <thead style="background-color:#332D2D;color:#fff;text-align:center;">
-//                       <th>#</th>
-//                       <th>Tipo Hoja Vida</th>
-//                       <th>Clase</th>
-//                       <th>Ruta</th>
-//                       <th>Subir</th>
-//                       <th>Nombre Archivo</th>
-//                       <th>Acción</th>
-//                     </thead>
-//                     <tbody id="tabla_papeles">
-//                     </tbody>
-//                   </table>
-//                 </div>
-//                 <input type="hidden" id="cont_papel">
-//                 <input type="hidden" id="valor_documento" class="form-control input-sm" readonly="readonly" value="6">
-//               </div>
-//             </div>
-//           </div>
-
-//           <!--documento flete-placa -->
-//           <div class="accordion" id="panel_fletepk" style="display:none;">
-//             <div class="accordion-item border-top">
-//               <h2 class="accordion-header" id="headingSubasta">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo"><i class="icon mdi mdi-chevron-down"></i>Subasta</button>
-//               </h2>
-//             </div>
-//             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingSubasta">
-//               <div class="accordion-body pt-0">
-//                 <div class="row">
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Placa</label>
-//                       <input type="text" id="su_placa" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Num. servicio</label>
-//                       <input type="text" id="su_servicio" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Flete sugerido</label>
-//                       <input type="text" id="su_fletecot" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Total flete propuesto</label>
-//                       <input type="text" id="su_propuesto" class="form-control form-control-sm" min="0">
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Total peso bruto(Tn)</label>
-//                       <input type="text" id="su_neto" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label title="sumatoria">Total peso Neto(Kg)</label>
-//                       <input type="text" id="su_sumatorianeto" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>estado creación</label>
-//                       <input type="text" id="su_estado" value="pendiente" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>usuario creación</label>
-//                       <input type="text" id="su_user" class="form-control form-control-sm" value="<?php echo $ssn_nombre; ?>" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Fecha creación</label>
-//                       <input type="text" id="su_fecha" value="<?php echo date('Y-m-d'); ?>" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Hora creación</label>
-//                       <input type="text" id="su_hora" value="<?php echo date('H:i:s'); ?>" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Número subasta</label>
-//                       <input type="text" id="su_numsubasta" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <label>Responsable VehÍculo <span style="color:red;"><i>(*)</i></span></label>
-//                       <select name="responsable_vehiculo" id="responsable_vehiculo" class="form-control form-control-sm "></select>
-//                     </div>
-//                   </div>
-//                   <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-//                     <div class="mb-1">
-//                       <input type="hidden" id="su_tarifacot" class="form-control form-control-sm" disabled>
-//                     </div>
-//                   </div>
-//                   <input type="hidden" id="su_valida" class="form-control form-control-sm" disabled value="1">
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//           <!--FIN DOCUMENTOS -->
-//         </div>
-//         <!--GUARDAR SOLO  -->
-//         <!-- <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12" id="divbotones">
-//               <button id="crear_preestudio" class="btn btn-success">Guardar</button>
-//             </div> -->
-//       </div>
-//     </div>
-//     <!--CUERPO DE LA SOLICITUD-->
-//     <div class="offcanvas-footer p-3 border-top text-center">
-//       <div class="d-flex justify-content-end align-content-between gap-3">
-//         <button type="button" id="btn_cerrar" data-bs-dismiss="offcanvas" aria-label="Close" class="btn btn-danger btn-sm" id="cierremodal"><i class="fas fa-times"></i> Cancelar</button>
-//         <button id="crear_preestudio" class="btn btn-success btn-sm"><i class="far fa-save"></i> Guardar Prefiltro</button>
-//       </div>
-//     </div>
-//   </div>
-// `);
-
-//   myOffcanvas.show();
-
-//   if (itr === 'Si') {
-//     document.getElementById('mensaje_itr').innerHTML = `
-//             <div class="alert alert-contrast alert-warning alert-dismissible" role="alert">
-//               <div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
-//               <div class="message">
-//                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button><strong>Advertencia!</strong> Este Vehiculo sera clasificada como proceso ITR esta seguro.
-//               </div>
-//             </div>`;
-//     document.getElementById('proceso_itr').value = itr;
-//   }
-
-//   $('#servicio_base').val(num);
-//   $('#tipo_base').val(tipo_servicio);
-//   $('#origen_base').val(origen);
-//   $('#su_fletecot').val(flete);
-//   $('#su_servicio').val(num);
-//   $('#su_neto').val(pesoneto);
-//   $('#su_tarifacot').val(tarifa);
-//   if (tipo_servicio === 'Expreso') {
-//     document.getElementById('btn_soli').disabled = true;
-//   } else if (tipo_servicio == 'Consolidado') {
-//     document.getElementById('btn_soli').disabled = false;
-//   }
-
-//   $('#listamodal').html('<span class="badge badge-primary badge-pill" >' + num + '</span>');
-//   $('#cuerpo_lista2').html(`
-//             <tr class="prin${num}">
-//                 <td>1</td>
-//                 <td>
-//                     <input type="hidden" id="servicio1" value="${num}" class="form-control form-control-sm fs-10 fserva" name="fserva[]">
-//                     ${num}
-//                 </td>
-//                 <td>${cotiza} (${item}) ${pareja}</td>
-//                 <td>${cliente}</td>
-//                 <td>
-//                     <input type="password" id="fl${num}" class="form-control form-control-sm fs-10 tflete" value="${flete}" readonly="readonly" onChange="javascript:currencyMask(this)">
-//                 </td>
-//                 <td style="display:none">
-//                     <input type="text" class="form-control form-control-sm fs-10 tneto2" value="${pesoneto}" readonly="readonly">
-//                 </td>
-//                 <td>
-//                     <input type="hidden" id="tari${num}" class="form-control form-control-sm fs-10 ttarifa" value="${tarifa}" readonly="readonly">
-//                 </td>
-//                 <td>${tipo_servicio}</td>
-//             </tr>
-//           `);
-
-//   $('#totalizar').html(`
-//           <tr>
-//               <td>
-//                   <input type="password" id="totalfle" class="form-control form-control-sm fs-10" value="${flete}" readonly="readonly">
-//               </td>
-//               <td style="display:none;">
-//                   <input type="text" id="totalneto" class="form-control form-control-sm fs-10"  value="${pesoneto}" readonly="readonly">
-//               </td>
-//               <td>
-//                   <input type="hidden" id="tottarifa" class="form-control form-control-sm fs-10"  value="${tarifa}" readonly="readonly">
-//               </td>
-//           </tr>
-//           `);
-
-//   //formatear
-//   $('#fl' + num).val(parseFloat($('#fl' + num).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//   $('#totalfle').val(parseFloat($('#totalfle').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//   $('#su_fletecot').val(parseFloat($('#su_fletecot').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//   $('#tari' + num).val(parseFloat($('#tari' + num).val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//   $('#tottarifa').val(parseFloat($('#tottarifa').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-//   $('#su_tarifacot').val(parseFloat($('#su_tarifacot').val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
-
-//   //VALIDAR SOLICITUD DE SERVICIO ANIDADAS
-//   let formdata = new FormData();
-//   formdata.append('solicitud_servicio_id', num);
-//   fetch($('#base_url').val() + 'validacionparametros/Validar_solicitud_agrupacion', {
-//     method: 'POST',
-//     cache: 'no-cache',
-//     body: formdata,
-//   })
-//     .then(response => response.json())
-//     .then(function (data) {
-//       if (data !== false) {
-//         document.getElementById('id_consolidacion').value = data.agrupacion;
-//         consulta_solicitudes_anidadas(data.agrupacion, num);
-//         fechas_cargue(data.agrupacion, num);
-//       } else {
-//         document.getElementById('id_consolidacion').value = '';
-//         fechas_cargue(0, num);
-//       }
-//     })
-//     .catch(error => {
-//       alert(error);
-//     });
-// }
+function ImprimirManifiesto(id_mnf) {
+    // ✅ REEMPLAZA TU CÓDIGO ACTUAL CON ESTE:
+    const urlCompleta = $('#base_url').val() + 'libs/manifiesto_pdf.php?' + 'id_mnf=' + codificarBase64(id_mnf);
+
+    // Configuración de ventana centrada
+    const ancho = 1000;
+    const alto = 700;
+    const left = (window.screen.width - ancho) / 2;
+    const top = (window.screen.height - alto) / 2;
+
+    window.open(
+        urlCompleta,
+        '_blank',
+        `width=${ancho},height=${alto},left=${left},top=${top},scrollbars=yes,resizable=yes,location=no,menubar=no,toolbar=no,status=no`
+    );
+}
+
+function codificarBase64(texto) {
+    return btoa(texto);
+}
+
+// Función para decodificar Base64
+function decodificarBase64(textoCodificado) {
+    return atob(textoCodificado);
+}
+
+/**
+ * Cuenta la cantidad de vehículos por Tipología y Carrocería.
+ * @param {Array} vehicles Array de objetos vehicle/position.
+ * @returns {object} Un objeto con el conteo de cada tipología encontrada.
+ */
+function contarPorConfiguracion(vehicles) {
+    const conteo = {};
+
+    vehicles.forEach((item) => {
+        // Usamos la Tipología como clave principal de conteo
+        const tipologia = (item.vehicle.vehicle_typology || 'SIN TIPOLOGÍA').trim();
+        const carroceria = (item.vehicle.bodywork || 'N/A').trim();
+
+        // 🛑 Mapeo de corrección antes de usar la variable:
+        const carroceriaLimpia = carroceria.replace('?', 'Ó');
+
+        // Crear una clave única (puedes usar solo tipologia si prefieres)
+        const clave = `${tipologia} [${carroceriaLimpia}]`;
+
+        if (conteo[clave]) {
+            conteo[clave].cantidad += 1;
+        } else {
+            conteo[clave] = {
+                tipologia: tipologia,
+                carroceria: carroceriaLimpia,
+                cantidad: 1,
+            };
+        }
+    });
+
+    // Convertir el objeto a array para facilitar la iteración en el renderizado
+    return Object.values(conteo);
+}
+
+/**
+ * Renderiza la tabla de conteo de Tipologías en la columna de filtros.
+ */
+function renderizarTotalesConfiguracion(conteoConfiguracion) {
+    const contenedor = document.getElementById('tbl_totalizados_configuracion');
+
+    if (!contenedor) return;
+
+    if (conteoConfiguracion.length === 0) {
+        contenedor.innerHTML = '<div class="alert alert-info">No hay configuraciones detectadas.</div>';
+        return;
+    }
+
+    let html = `
+        <h6 class="fw-bold mb-2 mt-3 text-dark">Total por Configuración</h6>
+        <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+            <table class='table table-striped table-sm mb-0' style="font-size:11px;">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Configuración</th>
+                        <th style="width: 50px;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    // Ordenar por cantidad descendente
+    conteoConfiguracion.sort((a, b) => b.cantidad - a.cantidad);
+
+    conteoConfiguracion.forEach((item) => {
+        html += `
+            <tr>
+                <td class="text-start">${item.tipologia} (${item.carroceria})</td>
+                <td class="fw-bold">${item.cantidad}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    contenedor.innerHTML = html;
+}
+
+/**
+ * Recolecta COMBINACIONES ÚNICAS de Tipología y Carrocería del conjunto de vehículos
+ * y llena el select de filtros.
+ * @param {Array} vehicles Array de objetos de vehículo de la API (vehiclesFound).
+ */
+function populateSelectTipologias(vehicles) {
+    const selectId = '#select-tipologia-local';
+    const select = $(selectId);
+
+    // Usamos un Map donde la clave de unicidad es la combinación TIPOLOGÍA + CARROCERÍA
+    // El valor (value) que se envía al filtro seguirá siendo solo la tipología base
+    const opcionesUnicas = new Map();
+
+    // 🛑 1. Recorrer los vehículos y construir la CLAVE ÚNICA DE COMBINACIÓN
+    vehicles.forEach((item) => {
+        // Normalizar y obtener Tipología y Carrocería
+        const tipologia = (item.vehicle.vehicle_typology || 'SIN TIPOLOGÍA').trim();
+        let carroceria = (item.vehicle.bodywork || 'SIN CARROCERÍA').trim();
+
+        // Mapeo de corrección del carácter (Ó)
+        const carroceriaLimpia = carroceria.replace('?', 'FURGÓN');
+
+        // 🛑 CLAVE ÚNICA DE LA COMBINACIÓN para evitar que la misma opción se repita 20 veces
+        const claveUnica = `${tipologia} [${carroceriaLimpia}]`; // Ej: "Camioneta de 2 ejes [FURGÓN]"
+
+        // El valor que se envía al controlador (value="") debe ser solo la tipología base
+        const optionValue = tipologia;
+
+        // El texto que el usuario verá (Texto visible)
+        const optionText = claveUnica; // Usamos la clave única para el texto visible
+
+        // 2. Almacenar la opción: Solo si la combinación COMPLETA es nueva.
+        if (tipologia && tipologia !== 'N/A' && !opcionesUnicas.has(claveUnica)) {
+            opcionesUnicas.set(claveUnica, { value: optionValue, text: optionText });
+        }
+    });
+
+    // 3. Limpiar el select y guardar selección anterior
+    const selectedValues = select.val() || [];
+    select.empty();
+    select.append('<option value="">-- Sin Filtro --</option>');
+
+    // 4. 🛑 Llenar con las COMBINACIONES ÚNICAS
+    opcionesUnicas.forEach((opcion) => {
+        // El value solo contiene la Tipología base para que la lógica de filtrado del Controller funcione
+        select.append(`<option value="${opcion.value}">${opcion.text}</option>`);
+    });
+
+    // 5. Re-seleccionar los valores anteriores (esencial para Select2 múltiple)
+    select.val(selectedValues);
+
+    // 6. Inicializar/Re-inicializar Select2
+    if (select.data('select2')) {
+        select.trigger('change');
+    } else {
+        inicializarSelect2(selectId, 'Filtrar por Tipología (Múltiple)');
+    }
+}

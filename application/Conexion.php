@@ -22,6 +22,7 @@ class Conexion
 
         return $conexion = new PDO("mysql:host=$host;dbname=$db", $usuario, $clave, array(PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
     }
+
     public static function conectar2()
     {
 
@@ -188,9 +189,11 @@ class Consultas
             return $arrayData;
         } catch (Exception $e) {
             if (isset($conex)) {
-                if ($conex->ping()) {
-                    $conex->close();
-                }
+                $conex->close();
+                // if ($conex->ping()) {}
+                // if ($conex->ping()) {
+                //     $conex->close();
+                // }
             }
             error_log("Error en getConsulta: " . $e->getMessage());
             return false;
@@ -398,33 +401,82 @@ class Consultas
     //     }
     // }
 
+    // public function updateRegistro($table, $array, $id)
+    // {
+    //     // $pdo = ConectarDb::getConexion(); // Asumiendo que retorna instancia PDO
+    //     $pdo = Conexion::conectar2();
+
+    //     try {
+    //         // Construir SET clause dinámicamente
+    //         $set = implode(', ', array_map(fn($k) => "`$k` = ?", array_keys($array)));
+    //         // Preparar y ejecutar query
+    //         $sql = "UPDATE `$table` SET $set WHERE id = ?";
+    //         $stmt = $pdo->prepare($sql);
+
+    //         // Unir valores en orden correcto (campos + id)
+    //         $valores = array_values($array);
+    //         $valores[] = $id;
+
+    //         // Ejecutar con parámetros
+    //         $stmt->execute($valores);
+
+    //         print_r([
+    //             'sql' => $sql,
+    //             'valores' => $valores
+    //         ]);
+
+    //         exit();
+
+    //         return $stmt->rowCount() > 0 ? 1 : 0;
+    //     } catch (PDOException $e) {
+    //         // Manejo de errores (opcional)
+    //         error_log("Error en updateRegistro: " . $e->getMessage());
+    //         return 0;
+    //     }
+    // }
+
+
     public function updateRegistro($table, $array, $id)
     {
-        // $pdo = ConectarDb::getConexion(); // Asumiendo que retorna instancia PDO
         $pdo = Conexion::conectar2();
 
         try {
-            // Construir SET clause dinámicamente
+            // Activar errores PDO si no está activado en la conexión
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            // Construir la cláusula SET dinámicamente
             $set = implode(', ', array_map(fn($k) => "`$k` = ?", array_keys($array)));
 
-            // Preparar y ejecutar query
+            // Preparar la consulta
             $sql = "UPDATE `$table` SET $set WHERE id = ?";
             $stmt = $pdo->prepare($sql);
 
-            // Unir valores en orden correcto (campos + id)
+            // Combinar valores de los campos con el ID al final
             $valores = array_values($array);
             $valores[] = $id;
 
-            // Ejecutar con parámetros
+            // Ejecutar la consulta
             $stmt->execute($valores);
 
-            return $stmt->rowCount() > 0 ? 1 : 0;
+            // Puedes imprimir si estás depurando (quítalo en producción)
+            /*
+            print_r([
+                'sql' => $sql,
+                'valores' => $valores
+            ]);
+            exit();
+            */
+
+            // Consideramos éxito si no hay errores (aunque rowCount() sea 0)
+            return 1;
         } catch (PDOException $e) {
-            // Manejo de errores (opcional)
+            // Log de error
             error_log("Error en updateRegistro: " . $e->getMessage());
             return 0;
         }
     }
+
+
 
     /**
      * borrar,actualizar, registrar registros desde un sql completo
@@ -432,21 +484,50 @@ class Consultas
      * @param string $sql
      * @return boolean
      */
-    public function ejecuteRegistro($sql)
+    // public function ejecuteRegistro($sql)
+    // {
+    //     $conex = ConectarDb::getConexion();
+
+    //     // Ejecutar la consulta
+    //     if ($conex->query($sql) === TRUE) {
+    //         $conex->close(); // Cierra la conexión después de ejecutar
+    //         return 1; // Éxito
+    //     } else {
+    //         error_log("Error en la consulta: " . $conex->error); // Registra el error en logs
+    //         $conex->close(); // Cierra la conexión en caso de fallo
+    //         return 0; // Falla
+    //     }
+    // }
+
+
+    // MODELO / BASE DE DATOS
+    // Asumiendo que esta función está en tu clase de manejo de datos ($Data en el ejemplo anterior)
+    public function ejecuteRegistro(string $sql): int
     {
-        $conex = ConectarDb::getConexion();
+        // Obtener la instancia PDO desde tu método estático
+        // Asumo que Conexion::conectar2() devuelve la instancia PDO
+        $pdo = Conexion::conectar2();
 
-        // Ejecutar la consulta
-        if ($conex->query($sql) === TRUE) {
-            $conex->close(); // Cierra la conexión después de ejecutar
-            return 1; // Éxito
-        } else {
-            error_log("Error en la consulta: " . $conex->error); // Registra el error en logs
-            $conex->close(); // Cierra la conexión en caso de fallo
-            return 0; // Falla
+        try {
+            // PDO usa exec() para consultas que no devuelven conjuntos de resultados (INSERT, UPDATE, DELETE)
+            $filas_afectadas = $pdo->exec($sql);
+
+            // Si no hubo error (exec() lanza una excepción si falla), devolvemos el número de filas afectadas.
+            // En el formato original, devuelve 1 (Éxito) si la consulta se ejecutó.
+            // Devolver 1 (o el número de filas) es una señal de éxito.
+            return $filas_afectadas >= 0 ? 1 : 0;
+        } catch (PDOException $e) {
+            // En PDO, los errores son manejados mediante excepciones.
+            // Si hay un error, lo registramos.
+            error_log("Error en ejecuteRegistro (SQL: " . $sql . "): " . $e->getMessage());
+
+            // Devolvemos 0 (Falla)
+            return 0;
         }
-    }
 
+        // NOTA: Con PDO, la conexión no se cierra después de cada consulta 
+        // (a diferencia de mysqli en tu código original) ya que se gestiona la única instancia.
+    }
 
     /****** Funciones de integración con Web Service Min-Transporte ******/
     private function getConectOptions()
@@ -561,7 +642,8 @@ class Consultas
     private function array2XML($data, $rootNodeName = 'root', $xml = null)
     {
         if ($xml == null) {
-            $xml = simplexml_load_string("<?xml version='1.0' encoding='utf-8'?><$rootNodeName />");
+            $xml = simplexml_load_string("<?xml version='1.0' encoding='utf-8'?>
+<$rootNodeName />");
         }
 
         foreach ($data as $key => $value) {
@@ -606,17 +688,17 @@ class Consultas
     public function Conexion_Oet()
     {
         /*$token = Array{
-    "Content-Type" => "application/json",
-    "Authorization" => "21b2e5c191e46165607c23cc48779c61e08972d5",
-    //token
-    "cod_usuari" => "InterfPrueba",
-    "nom_usuari" => "InterfPrueba",
-    "nom_usuari" => "",
-    "cod_perfil" => ""
-    };*/
+        "Content-Type" => "application/json",
+        "Authorization" => "21b2e5c191e46165607c23cc48779c61e08972d5",
+        //token
+        "cod_usuari" => "InterfPrueba",
+        "nom_usuari" => "InterfPrueba",
+        "nom_usuari" => "",
+        "cod_perfil" => ""
+        };*/
     }
 
-    /********* FIN-  Funciones de integración con avansat - Grupo OET* *******/
+    /********* FIN- Funciones de integración con avansat - Grupo OET* *******/
 }
 
 class Database2 extends PDO
@@ -628,7 +710,12 @@ class Database2 extends PDO
             "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME,
             DB_USER,
             DB_PASS,
-            array(PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING, PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES " . DB_CHAR)
+            array(
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET
+NAMES " . DB_CHAR
+            )
         );
     }
 }

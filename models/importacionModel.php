@@ -19,7 +19,7 @@ class importacionModel extends Model
 	public function consultar_clientes()
 	{
 		// $request = $this->_db->getConsulta("SELECT id,documento,nombre FROM cmx_clientes WHERE estado=1");
-		$request = $this->_db3->prepare("SELECT id,documento,nombre FROM cmx_clientes WHERE estado=1");
+		$request = $this->_db3->prepare("SELECT id,documento,nombre FROM cmx_clientes WHERE estado=1 ORDER BY nombre ASC");
 		$request->execute();
 		$result = $request->fetchAll(PDO::FETCH_ASSOC);
 		return $result;
@@ -40,7 +40,7 @@ class importacionModel extends Model
 
 		if ($usuario["id_perfil"] == 1 or $usuario["id_perfil"] == 13 or $usuario["id_perfil"] == 21 or $usuario["id_perfil"] == 29 or $usuario["id_perfil"] == 22 or $usuario["id_perfil"] == 32) {
 			$sql = '
-			SELECT cip.*,
+			SELECT cip.*,cip.id AS ID_IMPORTACION,
 				IF (cip.id_contrato IS NOT NULL,
 					IF((	SELECT ccc1.estado
 							FROM cmx_contrato_cliente ccc1
@@ -192,7 +192,7 @@ class importacionModel extends Model
 		} else {
 			$sql = '
 					SELECT 
-						cip.*,
+						cip.*,cip.id AS ID_IMPORTACION,
 						IF(	cip.id_contrato IS NOT NULL,
 							IF((	SELECT ccc1.estado
 									FROM cmx_contrato_cliente ccc1
@@ -217,7 +217,7 @@ class importacionModel extends Model
 							FROM cmx_tipo_contenedor ctc
 							WHERE ctc.id = cip.tipo_contenedor
 						) TARA_CONTENEDOR,
-						IF((	SELECT COUNT(cis1.id) CUANTOS 
+						IF((SELECT COUNT(cis1.id) CUANTOS 
 								FROM cmx_intr_solicitudes cis1
 								WHERE cis1.id_proyecto = cip.id
 							) > 0,
@@ -374,98 +374,6 @@ class importacionModel extends Model
 		if ($return["proyectos"]) {
 			$array = [];
 			$array_01 = [];
-			// foreach ($return["proyectos"] as $key => $value) {
-			// 	if ($value["ID_PROYECTO_INTERNACIONAL"]) {
-			// 		$sql = 'SELECT 
-			// 					IF((	SELECT COUNT(cioc1.id)
-			// 							FROM cmx_intr_oferta_comercial cioc1
-			// 							WHERE cioc1.id_intr_proyecto = cis.id
-			// 								AND cioc1.estado = 1),
-			// 						IF((	SELECT MIN(cia1.estado)
-			// 								FROM cmx_importacion_actividades cia1 
-			// 									INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
-			// 									INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
-			// 								WHERE cis1.id = cis.id
-			// 									AND cia1.tipo_actividad = "intr_cotizacion") = 1,
-			// 							"OCA", "OCP"
-			// 						), "OCN"
-			// 					) OFERTA_COMERCIAL,
-			// 					IF((	SELECT COUNT(cioc1.id)
-			// 							FROM cmx_intr_oferta_comercial cioc1
-			// 							WHERE cioc1.id_intr_proyecto = cis.id
-			// 								AND cioc1.estado = 1),
-			// 						(
-			// 							SELECT cioc1.valor 
-			// 							FROM cmx_intr_oferta_comercial cioc1
-			// 								INNER JOIN cmx_monedas cm1 ON cm1.id = cioc1.id_moneda
-			// 							WHERE cioc1.id_intr_proyecto = cis.id
-			// 								AND cioc1.estado = 1
-			// 						), NULL
-			// 					) VALOR_OFERTA,
-			// 					IF((	SELECT COUNT(cioc1.id)
-			// 							FROM cmx_intr_oferta_comercial cioc1
-			// 							WHERE cioc1.id_intr_proyecto = cis.id
-			// 								AND cioc1.estado = 1),
-			// 						(
-			// 							SELECT CONCAT("(",cm1.codigo,")") VALOR
-			// 							FROM cmx_intr_oferta_comercial cioc1
-			// 								INNER JOIN cmx_monedas cm1 ON cm1.id = cioc1.id_moneda
-			// 							WHERE cioc1.id_intr_proyecto = cis.id
-			// 								AND cioc1.estado = 1
-			// 						), NULL
-			// 					) MONEDA_OFERTA,
-			// 					IF((	SELECT COUNT(cic1.id)
-			// 							FROM cmx_intr_cotizaciones cic1
-			// 							WHERE cic1.id_intr_proyecto = cis.id
-			// 						),
-			// 						IF((	SELECT MIN(cia1.estado)
-			// 								FROM cmx_importacion_actividades cia1 
-			// 									INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
-			// 									INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
-			// 								WHERE cis1.id = cis.id
-			// 									AND cia1.tipo_actividad = "intr_cotizacion") != 1,
-			// 							IF((	SELECT COUNT( DISTINCT(cic1.id_concepto) )
-			// 									FROM cmx_intr_cotizaciones cic1
-			// 									WHERE cic1.id_intr_proyecto = cis.id
-			// 										AND cic1.estado = 1),
-			// 								"CPA", "CP"
-			// 							), "CA"
-			// 						), "SC"
-			// 					) COTIZACION_PROVEEDORES,
-			// 					IF((	SELECT COUNT(cisd1.id)
-			// 							FROM cmx_intr_solicitud_documentos cisd1
-			// 							WHERE cisd1.estado = 1
-			// 								AND cisd1.id_intr_proyecto = cis.id
-			// 								AND cisd1.id_tipo_documento = 20),
-			// 						"PEE", "PEP"
-			// 					) PRUEBA_ENTREGA,
-			// 					IF(((	SELECT MIN(cia1.estado)
-			// 							FROM cmx_importacion_actividades cia1 
-			// 								INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
-			// 								INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
-			// 							WHERE cis1.id = cis.id
-			// 								AND cia1.tipo_actividad = "intr_instruccion_factura") = 1) 
-			// 								AND cis.id_factura IS NOT NULL,
-			// 						"IFR", "IFP"
-			// 					) INSTRUCCION_FACTURA,
-			// 					IF(((	SELECT MIN(cia1.estado)
-			// 							FROM cmx_importacion_actividades cia1 
-			// 								INNER JOIN cmx_importacion_proyecto cip1 ON cip1.id = cia1.id_importacion
-			// 								INNER JOIN cmx_intr_solicitudes cis1 ON cis1.id_proyecto = cip1.id
-			// 							WHERE cis1.id = cis.id
-			// 								AND cia1.tipo_actividad = "intr_factura") = 1
-			// 								AND cis.id_factura IS NOT NULL ),
-			// 						"FR", "FP"
-			// 					) FACTURA
-			// 				FROM 
-			// 					cmx_intr_solicitudes cis
-			// 				WHERE cis.id = ' . $value["ID_PROYECTO_INTERNACIONAL"] . '';
-			// 		$result = $this->_db3->prepare($sql);
-			// 		$result->execute();
-			// 		$array_01 = $result->fetch(PDO::FETCH_ASSOC);
-			// 		$array[$value["ID_PROYECTO_INTERNACIONAL"]] = $array_01;
-			// 	}
-			// }
 			foreach ($return["proyectos"] as $key => $value) {
 				if ($value["ID_PROYECTO_INTERNACIONAL"]) {
 					$sql = 'SELECT 
@@ -576,8 +484,7 @@ class importacionModel extends Model
 	public function getProyectosImportacion($usuario)
 	{
 		if ($usuario["id_perfil"] == 1 or $usuario["id_perfil"] == 13 or $usuario["id_perfil"] == 21 or $usuario["id_perfil"] == 32) {
-			$sql = '
-					SELECT cip.*,
+			$sql = 'SELECT cip.*,
 						IF(	cip.id_contrato IS NOT NULL,
 							IF((	SELECT ccc1.estado
 									FROM cmx_contrato_cliente ccc1
@@ -918,6 +825,140 @@ class importacionModel extends Model
 		return $return;
 	}
 
+	// public function getEstadoActividades($id_proyecto)
+	// {
+	// 	$request["estado"] = "actions";
+	// 	$request["terminado"] = false;
+
+	// 	// Se cuenta cuantas actividades tiene el proyecto
+	// 	$sql = '
+	// 			SELECT 
+	// 				cip.id, cip.estado,
+	// 				COUNT(cia.id) CUANTOS,
+	// 				IF(
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 							AND cia1.id_material IS NOT NULL
+	// 					) > 0,
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 							AND cia1.id_material IS NOT NULL
+	// 					),
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 					)
+	// 				) ACTIVIDADES,
+	// 				IF(
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 							AND cia1.id_material IS NOT NULL
+	// 					) > 0,
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 							AND cia1.id_material IS NOT NULL
+	// 							AND cia1.estado = 2
+	// 					),
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 							AND cia1.estado = 2
+	// 					)
+	// 				) ACTIVIDADES_ACTIVAS,
+	// 				IF(
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 							AND cia1.id_material IS NOT NULL
+	// 					) > 0,
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 							AND cia1.id_material IS NOT NULL
+	// 							AND cia1.estado = 1
+	// 					),
+	// 					(	SELECT COUNT(cia1.id)
+	// 						FROM cmx_importacion_actividades cia1
+	// 						WHERE cia1.id_importacion = cip.id
+	// 							AND cia1.estado = 1
+	// 					)
+	// 				) ACTIVIDADES_TERMINADAS
+	// 			FROM 
+	// 				cmx_importacion_proyecto cip
+	// 				INNER JOIN cmx_importacion_actividades cia ON cia.id_importacion = cip.id
+	// 			WHERE 
+	// 				cip.id = ' . $id_proyecto . ';
+	// 		';
+	// 	// $result = $this->_db->getConsulta($sql);
+	// 	$result = $this->_db3->prepare($sql);
+	// 	$result->execute();
+	// 	$result = $result->fetchAll(PDO::FETCH_ASSOC);
+	// 	// $actividades = $result->fetchAll(PDO::FETCH_ASSOC);
+	// 	$actividades = $result[0];
+
+	// 	// $actividades = $result["rowsData"][0];
+	// 	$request["estado"] = "actions";
+	// 	if ($actividades["estado"] == 1) { //estado general del proyecto
+	// 		if ($actividades["ACTIVIDADES_ACTIVAS"] == 0 and $actividades["ACTIVIDADES_TERMINADAS"] == 0) {
+	// 			$request["estado"] = "actions";
+	// 		}
+
+	// 		if ($actividades["ACTIVIDADES"] == $actividades["ACTIVIDADES_TERMINADAS"]) {
+	// 			$request["terminado"] = true;
+	// 			$request["estado"] = "nexos-txt-success";
+	// 		}
+
+	// 		if ($actividades["ACTIVIDADES"] != $actividades["ACTIVIDADES_TERMINADAS"] and $actividades["ACTIVIDADES_ACTIVAS"] > 0) {
+	// 			$sql = '
+	// 					SELECT 
+	// 						cia.*
+	// 					FROM 
+	// 						cmx_importacion_proyecto cip
+	// 						INNER JOIN cmx_importacion_actividades cia ON cia.id_importacion = cip.id
+	// 					WHERE
+	// 						cip.id = ' . $id_proyecto . '
+	// 						AND cia.estado = 2
+	// 					ORDER BY cia.orden DESC;
+	// 				';
+	// 			// $request_10 = $this->_db->getConsulta($sql);
+	// 			$request_10 = $this->_db3->prepare($sql);
+	// 			$request_10->execute();
+	// 			$request_10 = $request_10->fetchAll(PDO::FETCH_ASSOC);
+
+	// 			if ($request_10) {
+	// 				foreach ($request_10 as $key => $value) {
+	// 					// foreach ($request_10["rowsData"] as $key => $value) {
+	// 					// Se buscan aplazamientos
+	// 					$aplazamientos = $this->getAplazamientos($value["id"]);
+
+	// 					$vencimiento_actividad = $value["fecha_hora_inicio"];
+	// 					if ($aplazamientos) {
+	// 						$vencimiento_actividad = $aplazamientos["rowsData"][$aplazamientos["rowsNum"] - 1]["fecha_hora_aplazamiento"];
+	// 					}
+
+	// 					// Se calcula el tiempo de plazo de la siguiente actividad
+	// 					$fecha_plazo = strtotime('+' . $value["tiempo_aprobado"] . ' minute', strtotime($vencimiento_actividad));
+	// 					$fecha_plazo = date("Y-m-d H:i:s", $fecha_plazo);
+
+	// 					// se define el color del borde de acuerdo si esta retrasada el desarrollo de la actividad
+	// 					if ($request["estado"] != "nexos-txt-danger") {
+	// 						if (date("Y-m-d H:i:s", time()) > $fecha_plazo) {
+	// 							$request["estado"] = "nexos-txt-danger";
+	// 						} else {
+	// 							$request["estado"] = "nexos-txt-warning";
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	return $request;
+	// }
+
 	public function getEstadoActividades($id_proyecto)
 	{
 		$request["estado"] = "actions";
@@ -925,78 +966,38 @@ class importacionModel extends Model
 
 		// Se cuenta cuantas actividades tiene el proyecto
 		$sql = '
-				SELECT 
-					cip.id, cip.estado,
-					COUNT(cia.id) CUANTOS,
-					IF(
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-								AND cia1.id_material IS NOT NULL
-						) > 0,
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-								AND cia1.id_material IS NOT NULL
-						),
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-						)
-					) ACTIVIDADES,
-					IF(
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-								AND cia1.id_material IS NOT NULL
-						) > 0,
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-								AND cia1.id_material IS NOT NULL
-								AND cia1.estado = 2
-						),
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-								AND cia1.estado = 2
-						)
-					) ACTIVIDADES_ACTIVAS,
-					IF(
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-								AND cia1.id_material IS NOT NULL
-						) > 0,
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-								AND cia1.id_material IS NOT NULL
-								AND cia1.estado = 1
-						),
-						(	SELECT COUNT(cia1.id)
-							FROM cmx_importacion_actividades cia1
-							WHERE cia1.id_importacion = cip.id
-								AND cia1.estado = 1
-						)
-					) ACTIVIDADES_TERMINADAS
-				FROM 
-					cmx_importacion_proyecto cip
-					INNER JOIN cmx_importacion_actividades cia ON cia.id_importacion = cip.id
-				WHERE 
-					cip.id = ' . $id_proyecto . ';
-			';
-		// $result = $this->_db->getConsulta($sql);
-		$result = $this->_db3->prepare($sql);
-		$result->execute();
-		$result = $result->fetchAll(PDO::FETCH_ASSOC);
-		// $actividades = $result->fetchAll(PDO::FETCH_ASSOC);
-		$actividades = $result[0];
+			SELECT 
+				cip.id, cip.estado,
+				COUNT(cia.id) CUANTOS,
+				IF(
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id AND cia1.id_material IS NOT NULL) > 0,
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id AND cia1.id_material IS NOT NULL),
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id)
+				) ACTIVIDADES,
+				IF(
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id AND cia1.id_material IS NOT NULL) > 0,
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id AND cia1.id_material IS NOT NULL AND cia1.estado = 2),
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id AND cia1.estado = 2)
+				) ACTIVIDADES_ACTIVAS,
+				IF(
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id AND cia1.id_material IS NOT NULL) > 0,
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id AND cia1.id_material IS NOT NULL AND cia1.estado = 1),
+					(SELECT COUNT(cia1.id) FROM cmx_importacion_actividades cia1 WHERE cia1.id_importacion = cip.id AND cia1.estado = 1)
+				) ACTIVIDADES_TERMINADAS
+			FROM 
+				cmx_importacion_proyecto cip
+				INNER JOIN cmx_importacion_actividades cia ON cia.id_importacion = cip.id
+			WHERE 
+				cip.id = ?
+		';
 
-		// $actividades = $result["rowsData"][0];
+		$result = $this->_db3->prepare($sql);
+		$result->execute([$id_proyecto]); // <- usando parámetro
+		$actividades = $result->fetch(PDO::FETCH_ASSOC);
+
 		$request["estado"] = "actions";
-		if ($actividades["estado"] == 1) { //estado general del proyecto
-			if ($actividades["ACTIVIDADES_ACTIVAS"] == 0 and $actividades["ACTIVIDADES_TERMINADAS"] == 0) {
+		if ($actividades && $actividades["estado"] == 1) { //estado general del proyecto
+			if ($actividades["ACTIVIDADES_ACTIVAS"] == 0 && $actividades["ACTIVIDADES_TERMINADAS"] == 0) {
 				$request["estado"] = "actions";
 			}
 
@@ -1005,27 +1006,25 @@ class importacionModel extends Model
 				$request["estado"] = "nexos-txt-success";
 			}
 
-			if ($actividades["ACTIVIDADES"] != $actividades["ACTIVIDADES_TERMINADAS"] and $actividades["ACTIVIDADES_ACTIVAS"] > 0) {
+			if ($actividades["ACTIVIDADES"] != $actividades["ACTIVIDADES_TERMINADAS"] && $actividades["ACTIVIDADES_ACTIVAS"] > 0) {
 				$sql = '
-						SELECT 
-							cia.*
-						FROM 
-							cmx_importacion_proyecto cip
-							INNER JOIN cmx_importacion_actividades cia ON cia.id_importacion = cip.id
-						WHERE
-							cip.id = ' . $id_proyecto . '
-							AND cia.estado = 2
-						ORDER BY cia.orden DESC;
-					';
-				// $request_10 = $this->_db->getConsulta($sql);
+					SELECT 
+						cia.*
+					FROM 
+						cmx_importacion_proyecto cip
+						INNER JOIN cmx_importacion_actividades cia ON cia.id_importacion = cip.id
+					WHERE
+						cip.id = ?
+						AND cia.estado = 2
+					ORDER BY cia.orden DESC
+				';
+
 				$request_10 = $this->_db3->prepare($sql);
-				$request_10->execute();
+				$request_10->execute([$id_proyecto]); // <- parámetro otra vez
 				$request_10 = $request_10->fetchAll(PDO::FETCH_ASSOC);
 
 				if ($request_10) {
-					foreach ($request_10 as $key => $value) {
-						// foreach ($request_10["rowsData"] as $key => $value) {
-						// Se buscan aplazamientos
+					foreach ($request_10 as $value) {
 						$aplazamientos = $this->getAplazamientos($value["id"]);
 
 						$vencimiento_actividad = $value["fecha_hora_inicio"];
@@ -1033,13 +1032,11 @@ class importacionModel extends Model
 							$vencimiento_actividad = $aplazamientos["rowsData"][$aplazamientos["rowsNum"] - 1]["fecha_hora_aplazamiento"];
 						}
 
-						// Se calcula el tiempo de plazo de la siguiente actividad
 						$fecha_plazo = strtotime('+' . $value["tiempo_aprobado"] . ' minute', strtotime($vencimiento_actividad));
 						$fecha_plazo = date("Y-m-d H:i:s", $fecha_plazo);
 
-						// se define el color del borde de acuerdo si esta retrasada el desarrollo de la actividad
 						if ($request["estado"] != "nexos-txt-danger") {
-							if (date("Y-m-d H:i:s", time()) > $fecha_plazo) {
+							if (date("Y-m-d H:i:s") > $fecha_plazo) {
 								$request["estado"] = "nexos-txt-danger";
 							} else {
 								$request["estado"] = "nexos-txt-warning";
@@ -1049,6 +1046,7 @@ class importacionModel extends Model
 				}
 			}
 		}
+
 		return $request;
 	}
 
@@ -1898,7 +1896,13 @@ class importacionModel extends Model
 						WHERE cp.id = cia.perfil_responsable) TIPO_PERFIL, 
 						IF ((SELECT COUNT('id') FROM cmx_importacion_aplazamientos ciap WHERE ciap.id_actividad = cia.id) > 0,
 						(SELECT MAX(ciap.fecha_hora_aplazamiento) FROM cmx_importacion_aplazamientos ciap WHERE ciap.id_actividad = cia.id),
-						cia.fecha_hora_inicio) FECHA_HORA_INICIAL
+						cia.fecha_hora_inicio) FECHA_HORA_INICIAL,
+					-- 🛑 CAMBIO SOLICITADO AQUÍ: Lógica condicional con DOBLE CRITERIO
+					CASE 
+						WHEN cia.tipo_actividad = 'intr_cotizacion' AND cia.estado = 1 
+						THEN 'Sin Registro'  -- Usar NOW() cuando la cotización existe Y el estado es 1 (ej. Terminado/Aprobado)
+						ELSE cia.fecha_hora_finalizacion 
+					END AS FECHA_HORA_FINAL
 				FROM 
 					cmx_importacion_proyecto cip
 					INNER JOIN cmx_importacion_actividades cia ON cia.id_importacion = cip.id

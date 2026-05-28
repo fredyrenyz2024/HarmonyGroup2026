@@ -1,0 +1,1157 @@
+<!-- Variables ocultas de sesión -->
+<input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="fecha_dia" value="<?= date('Y-m-d') ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --navy: #0f1f3d;
+    --navy2: #1a3c6b;
+    --accent: #e8a020;
+    --accent2: #f0b845;
+    --green: #16a34a;
+    --red: #dc2626;
+    --yellow: #d97706;
+    --bg: #f0f4f9;
+    --card: #ffffff;
+    --border: #dde3ef;
+    --text: #1e293b;
+    --muted: #64748b;
+    --shadow: 0 2px 14px rgba(15, 31, 61, .09);
+    --radius: 10px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  /* ── TAB SYSTEM — basado en clase, no en display inline ── */
+  .tab-content {
+    display: '';
+  }
+
+  .tab-content.ind-active {
+    display: block;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #1e4a82 100%);
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, .03);
+    border-radius: 50%;
+  }
+
+  .page-header::after {
+    content: '';
+    position: absolute;
+    right: 80px;
+    bottom: -70px;
+    width: 160px;
+    height: 160px;
+    background: rgba(232, 160, 32, .06);
+    border-radius: 50%;
+  }
+
+  .ph-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(232, 160, 32, .18);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    border: 1px solid rgba(232, 160, 32, .25);
+  }
+
+  .ph-info {
+    flex: 1;
+  }
+
+  .ph-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.01em;
+  }
+
+  .ph-sub {
+    font-size: .72rem;
+    color: rgba(255, 255, 255, .55);
+    margin-top: 3px;
+  }
+
+  .ph-badge {
+    background: rgba(232, 160, 32, .18);
+    border: 1px solid rgba(232, 160, 32, .3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: .7rem;
+    color: var(--accent);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ── TABS ── */
+  .tabs-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .73rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .2s;
+  }
+
+  .tab-btn:hover {
+    background: #f0f4f9;
+    border-color: var(--navy2);
+    color: var(--navy);
+  }
+
+  .tab-btn.active {
+    background: var(--navy);
+    color: #fff;
+    border-color: var(--navy);
+    box-shadow: 0 3px 10px rgba(15, 31, 61, .2);
+  }
+
+  /* ── FILTER CARD ── */
+  .filter-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .filter-header {
+    background: linear-gradient(135deg, var(--navy), var(--navy2));
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-header-icon {
+    width: 30px;
+    height: 30px;
+    background: rgba(232, 160, 32, .2);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: .8rem;
+  }
+
+  .filter-header-text {
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 700;
+  }
+
+  .filter-body {
+    padding: 16px 18px;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    align-items: end;
+  }
+
+  /* ── FORM ── */
+  .form-label {
+    font-size: .63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .form-control,
+  .form-select {
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .78rem;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: var(--navy2);
+    box-shadow: 0 0 0 3px rgba(26, 60, 107, .1);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 7px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--navy);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--navy2);
+  }
+
+  .btn-accent {
+    background: var(--accent);
+    color: var(--navy);
+    font-weight: 700;
+  }
+
+  .btn-accent:hover {
+    background: var(--accent2);
+  }
+
+  .btn-success {
+    background: var(--green);
+    color: #fff;
+  }
+
+  .btn-success:hover {
+    background: #15803d;
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--navy);
+    border: 1px solid var(--border);
+  }
+
+  .btn-outline:hover {
+    background: #f0f4f9;
+  }
+
+  .btn-sm {
+    height: 28px;
+    padding: 0 12px;
+    font-size: .7rem;
+    border-radius: 6px;
+  }
+
+  .btn-danger {
+    background: var(--red);
+    color: #fff;
+  }
+
+  /* ── STATS GRID ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform .2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(15, 31, 61, .03));
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .stat-val {
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: .6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+  }
+
+  .stat-sub {
+    font-size: .63rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .stat-ratio {
+    font-size: 1.1rem;
+    font-weight: 800;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: .62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .badge-vigente {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .badge-vencida {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .badge-por-vencer {
+    background: #fef9c3;
+    color: #a16207;
+  }
+
+  .badge-sin-tarifa {
+    background: #f1f5f9;
+    color: #64748b;
+  }
+
+  .badge-ahorro {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .badge-sobrecosto {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .badge-igual {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+
+  /* ── SEMAFORO ── */
+  .sem {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sem-verde {
+    background: var(--green);
+    box-shadow: 0 0 5px rgba(22, 163, 74, .5);
+  }
+
+  .sem-rojo {
+    background: var(--red);
+    box-shadow: 0 0 5px rgba(220, 38, 38, .5);
+  }
+
+  .sem-amarillo {
+    background: var(--yellow);
+    box-shadow: 0 0 5px rgba(217, 119, 6, .5);
+  }
+
+  /* ── MONEY ── */
+  .money {
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    font-size: .72rem;
+  }
+
+  .money-pos {
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+    font-weight: 700;
+  }
+
+  .money-neg {
+    color: var(--red);
+    font-family: 'DM Mono', monospace;
+    font-weight: 700;
+  }
+
+  /* ── BAR INLINE ── */
+  .bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 35px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--navy2), var(--navy));
+  }
+
+  .num-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .num-mono {
+    font-weight: 700;
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+    font-size: .69rem;
+    min-width: 28px;
+  }
+
+  /* ── TABLE CARD ── */
+  .table-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: #f8fafc;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .table-title {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .table-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .filter-input {
+    height: 28px;
+    padding: 0 10px 0 28px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: .72rem;
+    outline: none;
+    width: 180px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E") 8px center no-repeat;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .73rem;
+  }
+
+  thead th {
+    background: var(--navy);
+    color: rgba(255, 255, 255, .9);
+    padding: 8px 10px;
+    text-align: left;
+    font-size: .63rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  tbody td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  tbody tr:hover {
+    background: #f8faff;
+  }
+
+  /* ── INFO TAG ── */
+  .info-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: .63rem;
+    color: var(--muted);
+    background: #f1f5f9;
+    border-radius: 5px;
+    padding: 1px 6px;
+  }
+
+  /* ── FOOTER ── */
+  .table-footer {
+    padding: 10px 18px;
+    background: #f8fafc;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .footer-item {
+    font-size: .7rem;
+    color: var(--muted);
+  }
+
+  .footer-val {
+    font-weight: 700;
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── DRILL ── */
+  .drill-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-top: 14px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .drill-header {
+    background: linear-gradient(135deg, var(--navy), var(--navy2));
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .drill-title {
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── LOADING / EMPTY ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-icon {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+    opacity: .3;
+  }
+
+  .empty-text {
+    font-size: .85rem;
+    font-weight: 600;
+  }
+
+  .empty-sub {
+    font-size: .72rem;
+    margin-top: 5px;
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: 50px 20px;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<div id="ind-root-wrap" style="padding:20px 24px;background:#f0f4f9;min-height:100px;">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="ph-icon"><i class="fas fa-chart-line"></i></div>
+    <div class="ph-info">
+      <div class="ph-title">Indicadores e Informes de Costos</div>
+      <div class="ph-sub">REQ 26–35 · Tarifas actualizadas · Ahorros/Sobrecostos · Listados exportables</div>
+    </div>
+    <div class="ph-badge"><i class="fas fa-calendar-alt" style="margin-right:5px"></i> Análisis por corte de fecha</div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-row">
+    <button class="tab-btn" data-tab="ind-tarifas"><i class="fas fa-percent"></i> % Tarifas Actualizadas</button>
+    <button class="tab-btn" data-tab="ind-global"><i class="fas fa-balance-scale"></i> Ahorro/Sobrecosto Global</button>
+    <button class="tab-btn" data-tab="ind-ruta"><i class="fas fa-route"></i> Por Ruta</button>
+    <button class="tab-btn" data-tab="ind-vehiculo"><i class="fas fa-truck"></i> Por Vehículo</button>
+    <button class="tab-btn" data-tab="ind-despachador"><i class="fas fa-user-tie"></i> Por Despachador</button>
+    <button class="tab-btn" data-tab="ind-aprobaciones"><i class="fas fa-check-circle"></i> Aprobaciones</button>
+    <button class="tab-btn" data-tab="inf-vigentes"><i class="fas fa-list"></i> Tarifas Vigentes</button>
+    <button class="tab-btn" data-tab="inf-ahorros-ruta"><i class="fas fa-file-invoice-dollar"></i> Informe por Ruta</button>
+    <button class="tab-btn" data-tab="inf-ahorros-vehiculo"><i class="fas fa-file-invoice-dollar"></i> Informe por Vehículo</button>
+    <button class="tab-btn" data-tab="inf-ahorros-despachador"><i class="fas fa-file-invoice-dollar"></i> Informe por Despachador</button>
+  </div>
+
+  <!-- TAB 1 — REQ 26 -->
+  <div class="tab-content" id="tab-ind-tarifas">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-percent"></i></div>
+        <div class="filter-header-text">REQ 26 — Indicador: Porcentaje de Tarifas Actualizadas (semana actual)</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Empresa</label><input type="hidden" class="form-control" id="it-empresa" value=""></div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-accent" onclick="window.cargarTarifasActualizadas()" style="width:100%;justify-content:center;">
+              <i class="fas fa-sync-alt"></i> Calcular Indicador
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);max-width:600px">
+      <div class="stat-card">
+        <div class="stat-val" id="ita-pct" style="color:var(--navy)">—</div>
+        <div class="stat-label">% Actualizadas</div>
+        <div class="stat-sub">semana actual</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="ita-act" style="color:var(--green)">—</div>
+        <div class="stat-label">Actualizadas</div>
+        <div class="stat-sub" id="ita-semana">semana —</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="ita-req" style="color:var(--muted)">—</div>
+        <div class="stat-label">Requeridas</div>
+        <div class="stat-sub">total activas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2 — REQ 27 -->
+  <div class="tab-content" id="tab-ind-global">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-balance-scale"></i></div>
+        <div class="filter-header-text">REQ 27 — Indicador: Ahorro / Sobrecosto Global por Corte de Fecha</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Fecha Desde</label><input type="date" class="form-control" id="ig-desde"></div>
+          <div><label class="form-label">Fecha Hasta</label><input type="date" class="form-control" id="ig-hasta"></div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-accent" onclick="window.cargarIndicadorGlobal(false)" style="width:100%;justify-content:center;"><i class="fas fa-calculator"></i> Calcular</button>
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-outline" onclick="window.cargarIndicadorGlobal(true)" style="width:100%;justify-content:center;"><i class="fas fa-list-ul"></i> Ver Detalle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-grid" id="ig-stats" style="grid-template-columns:repeat(5,1fr)">
+      <div class="stat-card">
+        <div class="stat-ratio" id="ig-ratio" style="color:var(--navy)">—</div>
+        <div class="stat-label">Ratio P/E</div>
+        <div class="stat-sub" id="ig-interpretacion">Planif. / Ejecutado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="ig-planificado" style="color:var(--navy);font-size:1rem">—</div>
+        <div class="stat-label">Total Planificado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="ig-ejecutado" style="color:var(--navy);font-size:1rem">—</div>
+        <div class="stat-label">Total Ejecutado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="ig-diferencia" style="font-size:1rem">—</div>
+        <div class="stat-label">Diferencia (Monto)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="ig-operaciones" style="color:var(--navy)">—</div>
+        <div class="stat-label">Operaciones</div>
+      </div>
+    </div>
+    <div class="drill-panel" id="ig-drill">
+      <div class="drill-header">
+        <div class="drill-title"><i class="fas fa-table"></i> Detalle por Operación — Global</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-success" onclick="window.exportarDrill('ig-drill-table','ahorros_global')"><i class="fas fa-file-excel"></i> Excel</button>
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('ig-drill').style.display='none'" style="color:#fff;border-color:rgba(255,255,255,.3)">✕</button>
+        </div>
+      </div>
+      <div id="ig-drill-table"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3 — REQ 28 -->
+  <div class="tab-content" id="tab-ind-ruta">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-route"></i></div>
+        <div class="filter-header-text">REQ 28 — Indicador: Ahorro / Sobrecosto por Ruta</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Fecha Desde</label><input type="date" class="form-control" id="ir-desde"></div>
+          <div><label class="form-label">Fecha Hasta</label><input type="date" class="form-control" id="ir-hasta"></div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-accent" onclick="window.cargarIndicadorRuta()" style="width:100%;justify-content:center;"><i class="fas fa-route"></i> Calcular por Ruta</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title"><i class="fas fa-route"></i> Rutas — Ahorro / Sobrecosto</div>
+        <div class="table-actions">
+          <input type="text" class="filter-input" id="ir-filter" placeholder="Filtrar ruta...">
+          <button class="btn btn-sm btn-success" onclick="window.exportarTabla('ir-tbl','ahorros_ruta')"><i class="fas fa-file-excel"></i> Excel</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="ir-tbl">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-route"></i></div>
+          <div class="empty-text">Seleccione fechas y calcule</div>
+        </div>
+      </div>
+      <div class="table-footer" id="ir-footer" style="display:none">
+        <span class="footer-item">Total Planificado: <span class="footer-val" id="ir-tot-plan">—</span></span>
+        <span class="footer-item">Total Ejecutado: <span class="footer-val" id="ir-tot-ejec">—</span></span>
+        <span class="footer-item">Diferencia: <span class="footer-val" id="ir-tot-dif">—</span></span>
+      </div>
+    </div>
+    <div class="drill-panel" id="ir-drill">
+      <div class="drill-header">
+        <div class="drill-title"><i class="fas fa-table"></i> <span id="ir-drill-title">Detalle de Ruta</span></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-success" onclick="window.exportarDrill('ir-drill-table','detalle_ruta')"><i class="fas fa-file-excel"></i> Excel</button>
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('ir-drill').style.display='none'" style="color:#fff;border-color:rgba(255,255,255,.3)">✕</button>
+        </div>
+      </div>
+      <div id="ir-drill-table"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4 — REQ 29 -->
+  <div class="tab-content" id="tab-ind-vehiculo">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-truck"></i></div>
+        <div class="filter-header-text">REQ 29 — Indicador: Ahorro / Sobrecosto por Tipo de Vehículo</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Fecha Desde</label><input type="date" class="form-control" id="iv-desde"></div>
+          <div><label class="form-label">Fecha Hasta</label><input type="date" class="form-control" id="iv-hasta"></div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-accent" onclick="window.cargarIndicadorVehiculo()" style="width:100%;justify-content:center;"><i class="fas fa-truck"></i> Calcular por Vehículo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title"><i class="fas fa-truck"></i> Vehículos — Ahorro / Sobrecosto</div>
+        <div class="table-actions">
+          <button class="btn btn-sm btn-success" onclick="window.exportarTabla('iv-tbl','ahorros_vehiculo')"><i class="fas fa-file-excel"></i> Excel</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="iv-tbl">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-truck"></i></div>
+          <div class="empty-text">Seleccione fechas y calcule</div>
+        </div>
+      </div>
+      <div class="table-footer" id="iv-footer" style="display:none">
+        <span class="footer-item">Total Planificado: <span class="footer-val" id="iv-tot-plan">—</span></span>
+        <span class="footer-item">Total Ejecutado: <span class="footer-val" id="iv-tot-ejec">—</span></span>
+        <span class="footer-item">Diferencia: <span class="footer-val" id="iv-tot-dif">—</span></span>
+      </div>
+    </div>
+    <div class="drill-panel" id="iv-drill">
+      <div class="drill-header">
+        <div class="drill-title"><i class="fas fa-table"></i> <span id="iv-drill-title">Detalle por Vehículo</span></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-success" onclick="window.exportarDrill('iv-drill-table','detalle_vehiculo')"><i class="fas fa-file-excel"></i> Excel</button>
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('iv-drill').style.display='none'" style="color:#fff;border-color:rgba(255,255,255,.3)">✕</button>
+        </div>
+      </div>
+      <div id="iv-drill-table"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5 — REQ 30 -->
+  <div class="tab-content" id="tab-ind-despachador">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-user-tie"></i></div>
+        <div class="filter-header-text">REQ 30 — Indicador: Ahorro / Sobrecosto por Despachador</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Fecha Desde</label><input type="date" class="form-control" id="id-desde"></div>
+          <div><label class="form-label">Fecha Hasta</label><input type="date" class="form-control" id="id-hasta"></div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-accent" onclick="window.cargarIndicadorDespachador()" style="width:100%;justify-content:center;"><i class="fas fa-user-tie"></i> Calcular por Despachador</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title"><i class="fas fa-user-tie"></i> Despachadores — Ahorro / Sobrecosto</div>
+        <div class="table-actions">
+          <button class="btn btn-sm btn-success" onclick="window.exportarTabla('id-tbl','ahorros_despachador')"><i class="fas fa-file-excel"></i> Excel</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="id-tbl">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-user-tie"></i></div>
+          <div class="empty-text">Seleccione fechas y calcule</div>
+        </div>
+      </div>
+      <div class="table-footer" id="id-footer" style="display:none">
+        <span class="footer-item">Total Planificado: <span class="footer-val" id="id-tot-plan">—</span></span>
+        <span class="footer-item">Total Ejecutado: <span class="footer-val" id="id-tot-ejec">—</span></span>
+        <span class="footer-item">Diferencia: <span class="footer-val" id="id-tot-dif">—</span></span>
+      </div>
+    </div>
+    <div class="drill-panel" id="id-drill">
+      <div class="drill-header">
+        <div class="drill-title"><i class="fas fa-table"></i> <span id="id-drill-title">Detalle por Despachador</span></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-success" onclick="window.exportarDrill('id-drill-table','detalle_despachador')"><i class="fas fa-file-excel"></i> Excel</button>
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('id-drill').style.display='none'" style="color:#fff;border-color:rgba(255,255,255,.3)">✕</button>
+        </div>
+      </div>
+      <div id="id-drill-table"></div>
+    </div>
+  </div>
+
+  <!-- TAB 6 — REQ 31 -->
+  <div class="tab-content" id="tab-ind-aprobaciones">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="filter-header-text">REQ 31 — Indicador: % Solicitudes de Aprobación por Despachador</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Fecha Desde</label><input type="date" class="form-control" id="ia-desde"></div>
+          <div><label class="form-label">Fecha Hasta</label><input type="date" class="form-control" id="ia-hasta"></div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-accent" onclick="window.cargarAprobaciones()" style="width:100%;justify-content:center;"><i class="fas fa-check-circle"></i> Calcular</button>
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-outline" onclick="window.cargarAprobacionesDetalle()" style="width:100%;justify-content:center;"><i class="fas fa-list-ul"></i> Ver Detalle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title"><i class="fas fa-check-circle"></i> % Aprobaciones por Despachador</div>
+        <div class="table-actions">
+          <button class="btn btn-sm btn-success" onclick="window.exportarTabla('ia-tbl','aprobaciones_despachador')"><i class="fas fa-file-excel"></i> Excel</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="ia-tbl">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="empty-text">Seleccione fechas y calcule</div>
+        </div>
+      </div>
+    </div>
+    <div class="drill-panel" id="ia-drill">
+      <div class="drill-header">
+        <div class="drill-title"><i class="fas fa-table"></i> Detalle de Componentes con Aprobación</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-success" onclick="window.exportarDrill('ia-drill-table','detalle_aprobaciones')"><i class="fas fa-file-excel"></i> Excel</button>
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('ia-drill').style.display='none'" style="color:#fff;border-color:rgba(255,255,255,.3)">✕</button>
+        </div>
+      </div>
+      <div id="ia-drill-table"></div>
+    </div>
+  </div>
+
+  <!-- TAB 7 — REQ 32 -->
+  <div class="tab-content" id="tab-inf-vigentes">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-list"></i></div>
+        <div class="filter-header-text">REQ 32 — Informe: Listado de Tarifas de Costos Vigentes</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Origen</label><input type="text" class="form-control" id="inf-v-origen" placeholder="Código o nombre"></div>
+          <div><label class="form-label">Destino</label><input type="text" class="form-control" id="inf-v-destino" placeholder="Código o nombre"></div>
+          <div><label class="form-label">Tipo Vehículo</label><input type="text" class="form-control" id="inf-v-vehiculo" placeholder="Ej: 3S3"></div>
+          <div><label class="form-label">Estado Tarifa</label><select class="form-select" id="inf-v-estado">
+              <option value="">Todos</option>
+              <option value="Activa">Activa</option>
+              <option value="Inactiva">Inactiva</option>
+            </select></div>
+          <div><label class="form-label">Fuente</label><select class="form-select" id="inf-v-fuente">
+              <option value="">Todas</option>
+              <option value="SISETAC">SISETAC</option>
+              <option value="MERCADO">Mercado</option>
+            </select></div>
+          <div style="display:flex;align-items:flex-end;gap:6px">
+            <button class="btn btn-accent" onclick="window.cargarTarifasVigentes()" style="flex:1;justify-content:center;"><i class="fas fa-search"></i> Consultar</button>
+            <button class="btn btn-success" onclick="window.exportarInformeTarifas()" style="height:34px;padding:0 14px;"><i class="fas fa-file-excel"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title"><i class="fas fa-list"></i> Tarifas de Costos <span class="info-tag" id="inf-v-count" style="display:none"><i class="fas fa-layer-group"></i> <span id="inf-v-count-txt">0</span></span></div>
+        <div class="table-actions"><input type="text" class="filter-input" id="inf-v-filter" placeholder="Filtrar..."></div>
+      </div>
+      <div class="table-wrap" id="inf-v-tbl">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-list"></i></div>
+          <div class="empty-text">Use los filtros y presione Consultar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 8 — REQ 33 -->
+  <div class="tab-content" id="tab-inf-ahorros-ruta">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+        <div class="filter-header-text">REQ 33 — Informe: Ahorros / Sobrecostos por Ruta</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Fecha Desde</label><input type="date" class="form-control" id="infar-desde"></div>
+          <div><label class="form-label">Fecha Hasta</label><input type="date" class="form-control" id="infar-hasta"></div>
+          <div><label class="form-label">Origen (Opcional)</label><input type="text" class="form-control" id="infar-origen" placeholder="Código municipio"></div>
+          <div><label class="form-label">Destino (Opcional)</label><input type="text" class="form-control" id="infar-destino" placeholder="Código municipio"></div>
+          <div style="display:flex;align-items:flex-end;gap:6px">
+            <button class="btn btn-accent" onclick="window.cargarInformeAhorrosRuta()" style="flex:1;justify-content:center;"><i class="fas fa-search"></i> Generar</button>
+            <button class="btn btn-success" onclick="window.exportarTabla('infar-tbl','informe_ruta')" style="height:34px;padding:0 14px;"><i class="fas fa-file-excel"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title"><i class="fas fa-file-invoice-dollar"></i> Operaciones por Ruta</div>
+        <div class="table-actions"><input type="text" class="filter-input" id="infar-filter" placeholder="Filtrar..."></div>
+      </div>
+      <div class="table-wrap" id="infar-tbl">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+          <div class="empty-text">Seleccione rango de fechas y genere</div>
+        </div>
+      </div>
+      <div class="table-footer" id="infar-footer" style="display:none">
+        <span class="footer-item">Planificado: <span class="footer-val" id="infar-tot-plan">—</span></span>
+        <span class="footer-item">Ejecutado: <span class="footer-val" id="infar-tot-ejec">—</span></span>
+        <span class="footer-item">Diferencia: <span class="footer-val" id="infar-tot-dif">—</span></span>
+        <span class="footer-item">Operaciones: <span class="footer-val" id="infar-tot-op">—</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 9 — REQ 34 -->
+  <div class="tab-content" id="tab-inf-ahorros-vehiculo">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+        <div class="filter-header-text">REQ 34 — Informe: Ahorros / Sobrecostos por Tipo de Vehículo</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Fecha Desde</label><input type="date" class="form-control" id="infav-desde"></div>
+          <div><label class="form-label">Fecha Hasta</label><input type="date" class="form-control" id="infav-hasta"></div>
+          <div><label class="form-label">Tipo Vehículo (Opcional)</label><input type="text" class="form-control" id="infav-vehiculo" placeholder="Ej: 3S3, 2S3"></div>
+          <div style="display:flex;align-items:flex-end;gap:6px">
+            <button class="btn btn-accent" onclick="window.cargarInformeAhorrosVehiculo()" style="flex:1;justify-content:center;"><i class="fas fa-search"></i> Generar</button>
+            <button class="btn btn-success" onclick="window.exportarTabla('infav-tbl','informe_vehiculo')" style="height:34px;padding:0 14px;"><i class="fas fa-file-excel"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title"><i class="fas fa-truck"></i> Operaciones por Tipo Vehículo</div>
+        <div class="table-actions"><input type="text" class="filter-input" id="infav-filter" placeholder="Filtrar..."></div>
+      </div>
+      <div class="table-wrap" id="infav-tbl">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-truck"></i></div>
+          <div class="empty-text">Seleccione rango de fechas y genere</div>
+        </div>
+      </div>
+      <div class="table-footer" id="infav-footer" style="display:none">
+        <span class="footer-item">Planificado: <span class="footer-val" id="infav-tot-plan">—</span></span>
+        <span class="footer-item">Ejecutado: <span class="footer-val" id="infav-tot-ejec">—</span></span>
+        <span class="footer-item">Diferencia: <span class="footer-val" id="infav-tot-dif">—</span></span>
+        <span class="footer-item">Operaciones: <span class="footer-val" id="infav-tot-op">—</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 10 — REQ 35 -->
+  <div class="tab-content" id="tab-inf-ahorros-despachador">
+    <div class="filter-card">
+      <div class="filter-header">
+        <div class="filter-header-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+        <div class="filter-header-text">REQ 35 — Informe: Ahorros / Sobrecostos por Despachador</div>
+      </div>
+      <div class="filter-body">
+        <div class="filter-grid">
+          <div><label class="form-label">Fecha Desde</label><input type="date" class="form-control" id="infad-desde"></div>
+          <div><label class="form-label">Fecha Hasta</label><input type="date" class="form-control" id="infad-hasta"></div>
+          <div><label class="form-label">Despachador (Opcional)</label><input type="text" class="form-control" id="infad-despachador" placeholder="Usuario despachador"></div>
+          <div style="display:flex;align-items:flex-end;gap:6px">
+            <button class="btn btn-accent" onclick="window.cargarInformeAhorrosDespachador()" style="flex:1;justify-content:center;"><i class="fas fa-search"></i> Generar</button>
+            <button class="btn btn-success" onclick="window.exportarTabla('infad-tbl','informe_despachador')" style="height:34px;padding:0 14px;"><i class="fas fa-file-excel"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title"><i class="fas fa-user-tie"></i> Operaciones por Despachador</div>
+        <div class="table-actions"><input type="text" class="filter-input" id="infad-filter" placeholder="Filtrar..."></div>
+      </div>
+      <div class="table-wrap" id="infad-tbl">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-user-tie"></i></div>
+          <div class="empty-text">Seleccione rango de fechas y genere</div>
+        </div>
+      </div>
+      <div class="table-footer" id="infad-footer" style="display:none">
+        <span class="footer-item">Planificado: <span class="footer-val" id="infad-tot-plan">—</span></span>
+        <span class="footer-item">Ejecutado: <span class="footer-val" id="infad-tot-ejec">—</span></span>
+        <span class="footer-item">Diferencia: <span class="footer-val" id="infad-tot-dif">—</span></span>
+        <span class="footer-item">Operaciones: <span class="footer-val" id="infad-tot-op">—</span></span>
+      </div>
+    </div>
+  </div>
+
+</div>

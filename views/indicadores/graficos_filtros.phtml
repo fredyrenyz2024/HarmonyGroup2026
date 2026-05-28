@@ -1,0 +1,78 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-3 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4" id="origen_destino" style="display: none;">
+            <div class="row">
+                <div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-1">
+                        <label class="form-label" for="exampleFormControlInput">Origen </label>
+                        <select class="form-select form-select-sm" name="origen" id="origen">
+                            <option value="">Seleccionar Origen</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-1">
+                        <label class="form-label" for="exampleFormControlInput">Destino </label>
+                        <select class="form-select form-select-sm" name="destino" id="destino">
+                            <option value="">Seleccionar Destino</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4" id="seccion_configuracion" style="display: none;">
+            <div class="mb-1">
+                <label class="form-label" for="exampleFormControlInput">Configuración </label>
+                <select class="form-select form-select-sm" name="configuracion" id="configuracion">
+                    <option value="">Seleccionar Configuración</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-4 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4" id="seccion_cliente" style="display: none;">
+            <div class="mb-1">
+                <label class="form-label" for="exampleFormControlInput">Cliente </label>
+                <select class="form-select form-select-sm" name="cliente" id="cliente">
+                    <option value="">Seleccionar Cliente</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <!-- <span class="badge badge-phoenix badge-phoenix-info" style="font-size: 13px;">
+                    Número de órdenes de cargue: <span class="fw-bold badge-phoenix-info contador">0</span>
+                </span> -->
+                <a href="JavaScript:void(0);" id="exportar_excel" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="<?= BASE_URL ?>public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-gestion-operacion">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>#</th>
+                            <th>Manifiesto</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Placa</th>
+                            <th>Conductor</th>
+                            <th>Celular</th>
+                            <th>Cedula</th>
+                            <th>Configuración</th>
+                            <th>Clase</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -86,6 +86,132 @@ class tiempo_descargueModel extends Model
         $factual = date('Y-m-d');
         $horactual = date('H:i:s');
         $id_usuario = $_SESSION["usuario"]["nom_usuario"];
+
+        // Consulta de la última fecha y hora de salida registrada
+        // $sql_fecha_Salida = $this->_db3->prepare("SELECT tco.fecha_cargue AS fecha, tco.hora_cargue AS hora FROM cmx_tiempo_cargue tc 
+        //     INNER JOIN cmx_tiempo_cargue_ordenes tco ON tc.id=tco.id_cargue
+        //     WHERE tco.tipo_fecha = 'fec_salida' AND tc.num_manifiesto = :num_mani
+        //     ORDER BY tco.fecha_cargue DESC, tco.hora_cargue DESC LIMIT 1");
+
+        // var_dump($sql_fecha_Salida);
+
+
+        // $sql_fecha_Salida = $this->_db3->prepare("    SELECT tipo_fecha, fecha_cargue, hora_cargue
+        // FROM (
+        //     SELECT 
+        //         tco.tipo_fecha,
+        //         tco.fecha_cargue,
+        //         tco.hora_cargue,
+        //         ROW_NUMBER() OVER (
+        //             PARTITION BY tco.tipo_fecha 
+        //             ORDER BY tco.fecha_cargue DESC, tco.hora_cargue DESC
+        //         ) AS rn
+        //     FROM cmx_tiempo_cargue tc
+        //     INNER JOIN cmx_tiempo_cargue_ordenes tco ON tc.id = tco.id_cargue
+        //     WHERE tco.tipo_fecha IN ('fec_salida','fec_llegada','fec_entrada')
+        //     AND tc.num_manifiesto = :num_mani
+        // ) sub
+        // WHERE rn = 1");
+
+
+        // $sql_fecha_Salida->bindParam(':num_mani', $manifiesto, PDO::PARAM_INT);
+        // $sql_fecha_Salida->execute();
+        // $fecha_Salida = $sql_fecha_Salida->fetchAll(PDO::FETCH_ASSOC);
+
+        // print_r($fecha_Salida);
+        // exit();
+
+        // if ($fecha_Salida) {
+        //     $fecha_llegada = $fllegcargar;   // viene de tu POST / variable
+        //     $hora_llegada  = $hllegcargar;
+
+        //     // Comparar fecha y hora completas
+        //     if ($fecha_Salida['fecha'] === $fecha_llegada && $fecha_Salida['hora'] === $hora_llegada) {
+        //         return [
+        //             'numero'  => 400,
+        //             'mensaje' => ' La fecha y hora de llegada no pueden ser iguales a la última fecha y hora de salida de cargue.',
+        //         ];
+        //     }
+
+        //     // Comparar solo horas (si las fechas son diferentes pero la hora coincide)
+        //     if ($fecha_Salida['hora'] === $hora_llegada) {
+        //         return [
+        //             'numero'  => 401,
+        //             'mensaje' => 'La hora de llegada no puede ser igual a la última hora de salida',
+        //         ];
+        //     }
+        // }
+
+        $sql = $this->_db3->prepare("
+            SELECT tipo_fecha, fecha_cargue, hora_cargue
+            FROM (
+                SELECT 
+                    tco.tipo_fecha,
+                    tco.fecha_cargue,
+                    tco.hora_cargue,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY tco.tipo_fecha 
+                        ORDER BY tco.fecha_cargue DESC, tco.hora_cargue DESC
+                    ) AS rn
+                FROM cmx_tiempo_cargue tc
+                INNER JOIN cmx_tiempo_cargue_ordenes tco ON tc.id = tco.id_cargue
+                WHERE tco.tipo_fecha IN ('fec_salida','fec_llegada','fec_entrada')
+                AND tc.num_manifiesto = :num_mani
+            ) sub
+            WHERE rn = 1");
+        $sql->bindParam(':num_mani', $manifiesto, PDO::PARAM_INT);
+        $sql->execute();
+        $ultimos = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+        // Mapeamos todas las últimas fechas y horas
+        $ultimosData = [];
+        foreach ($ultimos as $row) {
+            $ultimosData[] = [
+                'tipo'  => $row['tipo_fecha'],
+                'fecha' => $row['fecha_cargue'],
+                'hora'  => $row['hora_cargue']
+            ];
+        }
+
+        // Variables nuevas (POST)
+        $nuevos = [
+            ['tipo' => 'fec_llegada', 'fecha' => $fllegcargar, 'hora' => $hllegcargar],
+            ['tipo' => 'fec_entrada', 'fecha' => $fentrocarga, 'hora' => $hentrocarga],
+            ['tipo' => 'fec_salida',  'fecha' => $fsalidacarga, 'hora' => $hsalidacarga],
+        ];
+
+        // Mapeo de nombres para mostrar al usuario
+        $labels = [
+            'fec_llegada' => 'Fecha Llegada',
+            'fec_salida'  => 'Fecha Salida',
+            'fec_entrada' => 'Fecha Entrada'
+        ];
+
+        $errores = [];
+
+        foreach ($nuevos as $nuevo) {
+            foreach ($ultimosData as $ult) {
+                $labelNuevo = $labels[$nuevo['tipo']] ?? $nuevo['tipo'];
+                $labelUlt   = $labels[$ult['tipo']] ?? $ult['tipo'];
+
+                // Comparar fecha y hora
+                if ($ult['fecha'] === $nuevo['fecha'] && $ult['hora'] === $nuevo['hora']) {
+                    $errores[] = " La <b>$labelNuevo Descargue</b> es igual a la última registrada de <b>$labelUlt Cargue</b> ({$ult['fecha']} {$ult['hora']}).";
+                }
+                // Comparar solo hora
+                elseif ($ult['hora'] === $nuevo['hora']) {
+                    $errores[] = " La hora de <b>$labelNuevo Descargue</b> es igual a la última registrada de <b>$labelUlt Cargue</b> ({$ult['hora']}).";
+                }
+            }
+        }
+
+        if (!empty($errores)) {
+            return [
+                'numero'  => 400,
+                'mensaje' => implode("<br>", $errores)
+            ];
+        }
+
         //
         $sqlm = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='TIM_DESCAR' AND numero_actual>=numero_inicial AND numero_actual<=numero_final");
         $sqlm->execute();

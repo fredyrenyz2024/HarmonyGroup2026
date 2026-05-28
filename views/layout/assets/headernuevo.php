@@ -31,6 +31,7 @@
   <!-- ===============================================-->
   <!--    Stylesheets-->
   <!-- ===============================================-->
+  <link href="<?php echo BASE_URL ?>public/vendors/glightbox/glightbox.min.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap"
@@ -63,6 +64,7 @@
       phoenixNavbarTopShape: 'slim'
     });
   </script>
+
   <link href="<?php echo BASE_URL ?>public/vendors/leaflet/leaflet.css" rel="stylesheet">
   <link href="<?php echo BASE_URL ?>public/vendors/leaflet.markercluster/MarkerCluster.css" rel="stylesheet">
   <link href="<?php echo BASE_URL ?>public/vendors/leaflet.markercluster/MarkerCluster.Default.css" rel="stylesheet">
@@ -84,7 +86,7 @@
       if (BASE_URL == ("http://" . $_url_preticion)) {
         header('location:' . BASE_URL . 'index/lanzador');
       }
-      ?>
+    ?>
       <?php if (isset($_layoutParams['menu'])):
         $_get = new Request(); ?>
         <nav class="navbar navbar-vertical navbar-expand-lg">
@@ -152,7 +154,7 @@
                         </ul>
                       </div>
                     <?php endforeach; ?>
-                  </div>
+                    </div>
                 </li>
               </ul>
             </div>
@@ -181,67 +183,3 @@
       <div class="pb-1">
         <div class="row g-4">
           <div class="col-12 col-xxl-12">
-
-            <!-- <div class="container mt-5">
-              <ul class="nav nav-tabs" id="myTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" id="form1-tab" data-bs-toggle="tab" data-bs-target="#form1"
-                    type="button" role="tab" aria-controls="form1" aria-selected="true">Formulario 1</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="form2-tab" data-bs-toggle="tab" data-bs-target="#form2" type="button"
-                    role="tab" aria-controls="form2" aria-selected="false">Formulario 2</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="form3-tab" data-bs-toggle="tab" data-bs-target="#form3" type="button"
-                    role="tab" aria-controls="form3" aria-selected="false">Formulario 3</button>
-                </li>
-              </ul>
-              <div class="tab-content" id="myTabContent">
-                Formulario 1
-                <div class="tab-pane fade show active" id="form1" role="tabpanel" aria-labelledby="form1-tab">
-                  <h3 class="mt-3">Formulario 1</h3>
-                  <form id="formulario1">
-                    <div class="mb-3">
-                      <label for="nombre1" class="form-label">Nombre</label>
-                      <input type="text" class="form-control" id="nombre1" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="email1" class="form-label">Email</label>
-                      <input type="email" class="form-control" id="email1" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Enviar</button>
-                  </form>
-                </div>
-                Formulario 2
-                <div class="tab-pane fade" id="form2" role="tabpanel" aria-labelledby="form2-tab">
-                  <h3 class="mt-3">Formulario 2</h3>
-                  <form id="formulario2">
-                    <div class="mb-3">
-                      <label for="direccion" class="form-label">Dirección</label>
-                      <input type="text" class="form-control" id="direccion" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="telefono" class="form-label">Teléfono</label>
-                      <input type="tel" class="form-control" id="telefono" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Enviar</button>
-                  </form>
-                </div>
-                Formulario 3
-                <div class="tab-pane fade" id="form3" role="tabpanel" aria-labelledby="form3-tab">
-                  <h3 class="mt-3">Formulario 3</h3>
-                  <form id="formulario3">
-                    <div class="mb-3">
-                      <label for="edad" class="form-label">Edad</label>
-                      <input type="number" class="form-control" id="edad" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="ciudad" class="form-label">Ciudad</label>
-                      <input type="text" class="form-control" id="ciudad" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Enviar</button>
-                  </form>
-                </div>
-              </div>
-            </div> -->

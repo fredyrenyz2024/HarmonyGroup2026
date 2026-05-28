@@ -1,0 +1,1252 @@
+<style>
+  /* ============================================================
+   VARIABLES Y RESET — Harmony 2026 (mismo sistema que aprobaciones)
+   ============================================================ */
+  :root {
+    --ap-navy: #0f1f3d;
+    --ap-blue: #1a3c6b;
+    --ap-accent: #e8a020;
+    --ap-green: #16a34a;
+    --ap-red: #dc2626;
+    --ap-orange: #f59e0b;
+    --ap-gray: #64748b;
+    --ap-light: #f0f4f8;
+    --ap-white: #ffffff;
+    --ap-border: #dde3ef;
+    --ap-card-shadow: 0 2px 12px rgba(15, 31, 61, 0.08);
+    --ap-radius: 10px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #e8edf5;
+    color: var(--ap-navy);
+    min-height: 100vh;
+    padding: 20px;
+  } */
+
+  /* ============================================================
+   HEADER DEL MÓDULO
+   ============================================================ */
+  .ap-header {
+    background: linear-gradient(135deg, var(--ap-navy) 0%, var(--ap-blue) 100%);
+    border-radius: var(--ap-radius);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    box-shadow: var(--ap-card-shadow);
+  }
+
+  .ap-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .ap-header-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(232, 160, 32, 0.2);
+    border: 2px solid var(--ap-accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--ap-accent);
+  }
+
+  .ap-header-title {
+    color: var(--ap-white);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin: 0;
+  }
+
+  .ap-header-sub {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.78rem;
+    margin: 0;
+  }
+
+  .ap-header-badge {
+    background: var(--ap-accent);
+    color: var(--ap-navy);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ============================================================
+   ESTADÍSTICAS RÁPIDAS
+   ============================================================ */
+  .ap-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .ap-stat-card {
+    background: var(--ap-white);
+    border: 1px solid var(--ap-border);
+    border-radius: var(--ap-radius);
+    padding: 14px 18px;
+    box-shadow: var(--ap-card-shadow);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .ap-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .ap-stat-icon.pendiente {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  .ap-stat-icon.hoy {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+
+  .ap-stat-icon.semana {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  .ap-stat-icon.rechazada {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .ap-stat-num {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--ap-navy);
+    line-height: 1;
+  }
+
+  .ap-stat-label {
+    font-size: 0.72rem;
+    color: var(--ap-gray);
+    margin-top: 2px;
+  }
+
+  /* ============================================================
+   PANEL DE FILTROS
+   ============================================================ */
+  .ap-filters {
+    background: var(--ap-white);
+    border: 1px solid var(--ap-border);
+    border-radius: var(--ap-radius);
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    box-shadow: var(--ap-card-shadow);
+  }
+
+  .ap-filters-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ap-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ap-form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ap-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .ap-input {
+    border: 1px solid var(--ap-border);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    width: 100%;
+    background: var(--ap-light);
+    color: var(--ap-navy);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+  }
+
+  .ap-input:focus {
+    outline: none;
+    border-color: var(--ap-blue);
+    box-shadow: 0 0 0 3px rgba(26, 60, 107, 0.12);
+    background: var(--ap-white);
+  }
+
+  .ap-select {
+    width: 100%;
+    border: 1px solid var(--ap-border);
+    border-radius: 7px;
+    padding: 9px 32px 9px 12px;
+    font-size: 0.85rem;
+    background: var(--ap-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+    color: var(--ap-navy);
+    appearance: none;
+    font-family: inherit;
+  }
+
+  .ap-select:focus {
+    outline: none;
+    border-color: var(--ap-blue);
+    box-shadow: 0 0 0 3px rgba(26, 60, 107, 0.12);
+  }
+
+  .filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+    min-width: 160px;
+    flex: 1;
+  }
+
+  .filter-field.w-auto {
+    flex: 0 0 auto;
+  }
+
+  .filter-field.w-sm {
+    flex: 0 0 130px;
+  }
+
+  .filter-field.w-md {
+    flex: 0 0 190px;
+  }
+
+  .filter-field.w-lg {
+    flex: 0 0 240px;
+  }
+
+  /* Modo tabs visuales */
+  .modo-tabs {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--ap-border);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+
+  .modo-tab {
+    flex: 1;
+    padding: 8px 12px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ap-gray);
+    background: var(--ap-light);
+    border: none;
+    transition: all 0.2s;
+    border-right: 1px solid var(--ap-border);
+    white-space: nowrap;
+  }
+
+  .modo-tab:last-child {
+    border-right: none;
+  }
+
+  .modo-tab.active {
+    background: var(--ap-blue);
+    color: white;
+  }
+
+  .modo-tab:hover:not(.active) {
+    background: #e2e8f0;
+    color: var(--ap-navy);
+  }
+
+  /* Multi-check configs */
+  .multi-check-wrap {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ap-border);
+    display: none;
+  }
+
+  .multi-check-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .check-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--ap-light);
+    border: 1px solid var(--ap-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    user-select: none;
+    transition: all 0.15s;
+  }
+
+  .check-pill input {
+    accent-color: var(--ap-blue);
+  }
+
+  .check-pill:has(input:checked) {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: var(--ap-blue);
+  }
+
+  /* ============================================================
+   BOTONES
+   ============================================================ */
+  .ap-btn-filtrar {
+    background: var(--ap-blue);
+    color: var(--ap-white);
+    border: none;
+    border-radius: 7px;
+    padding: 9px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .ap-btn-filtrar:hover {
+    background: var(--ap-navy);
+    transform: translateY(-1px);
+  }
+
+  .ap-btn-filtrar:active {
+    transform: translateY(0);
+  }
+
+  .ap-btn-filtrar:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .ap-btn-limpiar {
+    background: transparent;
+    color: var(--ap-gray);
+    border: 1px solid var(--ap-border);
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ap-btn-limpiar:hover {
+    background: var(--ap-light);
+  }
+
+  /* ============================================================
+   TABLA PRINCIPAL
+   ============================================================ */
+  .ap-table-wrapper {
+    background: var(--ap-white);
+    border: 1px solid var(--ap-border);
+    border-radius: var(--ap-radius);
+    box-shadow: var(--ap-card-shadow);
+    overflow: hidden;
+  }
+
+  .ap-table-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ap-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ap-table-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ap-navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ap-scroll-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 60vh;
+  }
+
+  .ap-scroll-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .ap-scroll-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+
+  .ap-scroll-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+
+  .ap-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  #tabla-sicetac {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.82rem;
+    min-width: 960px;
+  }
+
+  #tabla-sicetac thead th {
+    background: var(--ap-navy);
+    color: var(--ap-white);
+    padding: 11px 14px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  #tabla-sicetac thead th:last-child {
+    border-right: none;
+  }
+
+  #tabla-sicetac tbody tr {
+    transition: background 0.15s;
+  }
+
+  #tabla-sicetac tbody tr:hover {
+    background: #f0f4f8;
+  }
+
+  #tabla-sicetac tbody td {
+    padding: 11px 14px;
+    vertical-align: middle;
+    white-space: nowrap;
+    color: var(--ap-navy);
+    border-bottom: 1px solid var(--ap-border);
+  }
+
+  #tabla-sicetac tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  #tabla-sicetac tbody tr td:first-child {
+    border-left: 3px solid transparent;
+  }
+
+  #tabla-sicetac tbody tr.row-min td:first-child {
+    border-left-color: var(--ap-green);
+  }
+
+  #tabla-sicetac tbody tr.row-max td:first-child {
+    border-left-color: var(--ap-red);
+  }
+
+  /* BADGES */
+  .badge-config {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-block;
+  }
+
+  .badge-cargado {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-block;
+  }
+
+  .badge-vacio {
+    background: #fef9c3;
+    color: #854d0e;
+    border: 1px solid #fde68a;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-block;
+  }
+
+  .tag-min {
+    background: #dcfce7;
+    color: #166534;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: inline-block;
+    margin-top: 2px;
+  }
+
+  .valor-cell {
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .valor-sub {
+    font-size: 0.7rem;
+    color: var(--ap-gray);
+    font-weight: 400;
+    margin-top: 1px;
+  }
+
+  /* Botón ver detalle */
+  .btn-ap-ver {
+    background: var(--ap-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .btn-ap-ver:hover {
+    background: var(--ap-navy);
+    transform: translateY(-1px);
+  }
+
+  /* ============================================================
+   EMPTY / LOADING
+   ============================================================ */
+  .ap-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ap-gray);
+  }
+
+  .ap-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 14px;
+    opacity: 0.35;
+  }
+
+  .ap-empty-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ap-navy);
+    margin-bottom: 6px;
+  }
+
+  .ap-empty-sub {
+    font-size: 0.85rem;
+  }
+
+  .ap-skeleton {
+    background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+    background-size: 200% 100%;
+    animation: ap-shimmer 1.4s infinite;
+    border-radius: 4px;
+    height: 14px;
+    display: inline-block;
+    width: 100%;
+  }
+
+  @keyframes ap-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* ============================================================
+   OFFCANVAS DETALLE
+   ============================================================ */
+  .ap-offcanvas {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.97);
+    width: 92%;
+    max-width: 880px;
+    height: 88vh;
+    max-height: 88vh;
+    background: var(--ap-white);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    z-index: 1055;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .ap-offcanvas.show {
+    display: flex;
+  }
+
+  .ap-offcanvas-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 31, 61, 0.55);
+    backdrop-filter: blur(3px);
+    z-index: 1054;
+    display: none;
+  }
+
+  .ap-offcanvas-backdrop.show {
+    display: block;
+  }
+
+  .ap-oc-header {
+    background: linear-gradient(135deg, var(--ap-navy) 0%, var(--ap-blue) 100%);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .ap-oc-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .ap-oc-ribbon {
+    width: 44px;
+    height: 44px;
+    background: rgba(232, 160, 32, 0.2);
+    border: 2px solid var(--ap-accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--ap-accent);
+    flex-shrink: 0;
+  }
+
+  .ap-oc-title {
+    color: white;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .ap-oc-sub {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.78rem;
+    margin: 0;
+  }
+
+  .ap-oc-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 7px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background 0.2s;
+  }
+
+  .ap-oc-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .ap-oc-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 24px;
+  }
+
+  .ap-oc-body::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .ap-oc-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+
+  .ap-oc-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+
+  .ap-oc-footer {
+    border-top: 1px solid var(--ap-border);
+    padding: 14px 24px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    background: #f8fafc;
+    flex-shrink: 0;
+  }
+
+  /* Info grid en detalle */
+  .ap-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .ap-info-item {
+    background: var(--ap-light);
+    border-radius: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--ap-border);
+  }
+
+  .ap-info-label {
+    font-size: 0.7rem;
+    color: var(--ap-gray);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 3px;
+  }
+
+  .ap-info-value {
+    font-size: 0.92rem;
+    color: var(--ap-navy);
+    font-weight: 600;
+  }
+
+  .ap-info-value.big {
+    font-size: 1.1rem;
+    color: var(--ap-blue);
+  }
+
+  /* Tabla de componentes en detalle */
+  .ap-comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-bottom: 16px;
+  }
+
+  .ap-comp-table th {
+    background: var(--ap-navy);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .ap-comp-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--ap-border);
+    vertical-align: middle;
+  }
+
+  .ap-comp-table tbody tr:hover {
+    background: var(--ap-light);
+  }
+
+  .ap-comp-table .row-total td {
+    background: #f0f9ff;
+    font-weight: 700;
+    border-top: 2px solid #bae6fd;
+    color: #0369a1;
+  }
+
+  /* Calculadora de valor mínimo */
+  .ap-obs-section {
+    background: var(--ap-light);
+    border: 1px solid var(--ap-border);
+    border-radius: 9px;
+    padding: 18px 20px;
+    margin-top: 16px;
+  }
+
+  .ap-obs-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ap-blue);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .obs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .ap-valor-input {
+    width: 100%;
+    border: 1px solid var(--ap-border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 0.85rem;
+    background: white;
+    color: var(--ap-navy);
+    font-family: inherit;
+  }
+
+  .ap-valor-input:focus {
+    outline: none;
+    border-color: var(--ap-blue);
+    box-shadow: 0 0 0 2px rgba(26, 60, 107, 0.1);
+  }
+
+  .result-box {
+    background: var(--ap-navy);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+  }
+
+  .result-box-label {
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .result-box-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--ap-accent);
+    margin-top: 2px;
+  }
+
+  /* Validación */
+  .ap-validacion {
+    border-radius: 9px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 1px solid;
+  }
+
+  .ap-validacion.ok {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+
+  .ap-validacion.warn {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+  }
+
+  .ap-val-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .ap-val-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .ap-val-sub {
+    font-size: 0.78rem;
+    margin-top: 4px;
+    opacity: 0.85;
+  }
+
+  .ap-val-pactado-input {
+    border: 1px solid var(--ap-border);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 0.85rem;
+    background: white;
+    color: var(--ap-navy);
+    font-family: inherit;
+    width: 180px;
+  }
+
+  .ap-val-pactado-input:focus {
+    outline: none;
+    border-color: var(--ap-blue);
+    box-shadow: 0 0 0 2px rgba(26, 60, 107, 0.1);
+  }
+
+  /* Separador sección */
+  .sec-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ap-blue);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--ap-border);
+    padding-bottom: 8px;
+  }
+
+  /* ============================================================
+   ALERTAS FLASH
+   ============================================================ */
+  .ap-flash {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 380px;
+    border-radius: 10px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transform: translateX(420px);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-size: 0.85rem;
+  }
+
+  .ap-flash.show {
+    transform: translateX(0);
+  }
+
+  .ap-flash.success {
+    background: #f0fdf4;
+    border-left: 4px solid var(--ap-green);
+    color: #166534;
+  }
+
+  .ap-flash.error {
+    background: #fef2f2;
+    border-left: 4px solid var(--ap-red);
+    color: #991b1b;
+  }
+
+  .ap-flash.info {
+    background: #eff6ff;
+    border-left: 4px solid #2563eb;
+    color: #1d4ed8;
+  }
+
+  .ap-flash-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.6;
+    margin-left: auto;
+    font-size: 1rem;
+  }
+</style>
+
+<!-- <div style="max-width:1400px; margin:0 auto;" id="modulo-sicetac"> -->
+<input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+<input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+<div class="container-fluid">
+
+  <!-- FLASH -->
+  <div id="ap-flash" class="ap-flash">
+    <i id="ap-flash-icon" class="fas fa-check-circle" style="font-size:1.1rem;flex-shrink:0;"></i>
+    <div>
+      <div id="ap-flash-title" style="font-weight:700;margin-bottom:2px;"></div>
+      <div id="ap-flash-msg" style="opacity:0.85;"></div>
+    </div>
+    <button class="ap-flash-close" onclick="apFlashHide()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="ap-header">
+    <div class="ap-header-left">
+      <div class="ap-header-icon"><i class="fas fa-truck-moving"></i></div>
+      <div>
+        <p class="ap-header-title">Consulta de Tarifas SiceTac</p>
+        <p class="ap-header-sub">Valores mínimos de referencia · Transporte de carga por carretera · Guía Agosto 2025</p>
+      </div>
+    </div>
+    <div class="ap-header-badge">
+      <i class="fas fa-database"></i>
+      <span id="ap-badge-count">0</span> tarifas cargadas
+    </div>
+  </div>
+
+  <!-- ESTADÍSTICAS -->
+  <div class="ap-stats">
+    <div class="ap-stat-card">
+      <div class="ap-stat-icon pendiente"><i class="fas fa-route"></i></div>
+      <div>
+        <div class="ap-stat-num" id="cnt-total">—</div>
+        <div class="ap-stat-label">Tarifas encontradas</div>
+      </div>
+    </div>
+    <div class="ap-stat-card">
+      <div class="ap-stat-icon hoy"><i class="fas fa-arrow-down"></i></div>
+      <div>
+        <div class="ap-stat-num" id="cnt-menor">—</div>
+        <div class="ap-stat-label">Valor más bajo</div>
+      </div>
+    </div>
+    <div class="ap-stat-card">
+      <div class="ap-stat-icon semana"><i class="fas fa-arrow-up"></i></div>
+      <div>
+        <div class="ap-stat-num" id="cnt-mayor">—</div>
+        <div class="ap-stat-label">Valor más alto</div>
+      </div>
+    </div>
+    <div class="ap-stat-card">
+      <div class="ap-stat-icon rechazada"><i class="fas fa-road"></i></div>
+      <div>
+        <div class="ap-stat-num" id="cnt-km">—</div>
+        <div class="ap-stat-label">Distancia (km)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="ap-filters">
+    <div class="ap-filters-title"><i class="fas fa-filter"></i> Parámetros de consulta</div>
+
+    <!-- Selector de modo -->
+    <div style="margin-bottom:14px;">
+      <div class="ap-form-label" style="margin-bottom:6px;">Modo de consulta</div>
+      <div class="modo-tabs">
+        <button class="modo-tab active" data-modo="exacta" onclick="setModo('exacta',this)">
+          <i class="fas fa-crosshairs"></i> Exacta — 1 resultado
+        </button>
+        <!-- <button class="modo-tab" data-modo="ruta" onclick="setModo('ruta',this)">
+          <i class="fas fa-list"></i> Por Ruta — todas las configs
+        </button>
+        <button class="modo-tab" data-modo="multiconfig" onclick="setModo('multiconfig',this)">
+          <i class="fas fa-layer-group"></i> Multi-Config — comparar
+        </button> -->
+      </div>
+    </div>
+
+    <!-- Campos principales -->
+    <div class="filters-row">
+      <div class="filter-field w-md">
+        <label class="ap-form-label">Origen <span style="color:var(--ap-red);">*</span></label>
+        <!-- <input type="text" id="f-origen" class="ap-input" placeholder="ej: 11001000 · Bogotá" maxlength="8"> -->
+        <select id="f-origen" class="ap-select"> </select>
+      </div>
+      <div class="filter-field w-md">
+        <label class="ap-form-label">Destino <span style="color:var(--ap-red);">*</span></label>
+        <select id="f-destino" class="ap-select"> </select>
+        <!-- <input type="text" id="f-destino" class="ap-input" placeholder="ej: 05001000 · Medellín" maxlength="8"> -->
+      </div>
+      <div class="filter-field w-md" id="wrap-config">
+        <label class="ap-form-label">Configuración vehículo</label>
+        <select id="f-config" class="ap-select">
+          <option value="3S3">3S3 — Tractomula 3+3 ejes</option>
+          <option value="3S2">3S2 — Tractomula 3+2 ejes</option>
+          <option value="2S3">2S3 — Tractomula 2+3 ejes</option>
+          <option value="2S2">2S2 — Tractomula 2+2 ejes</option>
+          <option value="3">3 — Camión 3 ejes</option>
+          <option value="2">2 — Camión 2 ejes &gt;10.500 Kg</option>
+          <option value="2L1">2L1 — Liviano 9.001-10.500 Kg</option>
+          <option value="2L2">2L2 — Liviano 8.001-9.000 Kg</option>
+          <option value="2L3">2L3 — Liviano 7.500-8.000 Kg</option>
+          <option value="V2">V2 — Volqueta 2 ejes</option>
+          <option value="V3">V3 — Volqueta 3 ejes</option>
+          <option value="V4">V4 — Volqueta 4 ejes</option>
+        </select>
+      </div>
+      <div class="filter-field w-md" id="wrap-condicion">
+        <label class="ap-form-label">Condición de carga</label>
+        <select id="f-condicion" class="ap-select">
+          <option value="1">Cargado</option>
+          <option value="2">Vacío</option>
+        </select>
+      </div>
+      <div class="filter-field w-sm">
+        <label class="ap-form-label">Período (YYYYMM)</label>
+        <input type="text" id="f-periodo" class="ap-input" placeholder="Ej: 202504" maxlength="6">
+      </div>
+      <div class="filter-field w-auto" style="flex-direction:row; gap:8px; align-items:flex-end;">
+        <button class="ap-btn-filtrar" id="btn-consultar" onclick="sicetacConsultar()">
+          <i class="fas fa-search"></i> Consultar
+        </button>
+        <button class="ap-btn-limpiar" onclick="sicetacLimpiar()">
+          <i class="fas fa-eraser"></i> Limpiar
+        </button>
+      </div>
+    </div>
+
+    <!-- Multi-config checkboxes -->
+    <div id="wrap-multiconfig" class="multi-check-wrap">
+      <div class="ap-form-label">Selecciona las configuraciones a comparar:</div>
+      <div class="multi-check-list" id="multi-check-list"></div>
+    </div>
+  </div>
+
+  <!-- TABLA PRINCIPAL -->
+  <div class="ap-table-wrapper">
+    <div class="ap-table-header">
+      <div class="ap-table-title">
+        <i class="fas fa-table" style="color:var(--ap-blue);"></i>
+        Tarifas SiceTac
+        <span id="lbl-info-activo" style="font-weight:400; color:var(--ap-gray); font-size:0.78rem;"></span>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <span id="lbl-periodo-activo" style="font-size:0.78rem; color:var(--ap-gray); display:flex; align-items:center; gap:4px;">
+          <i class="fas fa-calendar-alt"></i> —
+        </span>
+        <input type="text" class="ap-input" style="width:200px;" placeholder="&#128269; Filtrar tabla..."
+          oninput="filtrarTabla(this.value)">
+        <button class="ap-btn-filtrar" style="padding:7px 12px;" onclick="sicetacConsultar()" title="Recargar">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <!-- Va junto al botón de recargar en .ap-table-header -->
+        <button id="btn-exportar-excel" class="ap-btn-filtrar"
+          style="display:none; background:#16a34a;padding:7px 12px;"
+          onclick="scExportarExcel()">
+          <i class="fas fa-file-excel"></i> Exportar Excel
+        </button>
+      </div>
+    </div>
+    <div class="ap-scroll-container">
+      <table id="tabla-sicetac">
+        <thead>
+          <tr>
+            <th style="width:36px;">#</th>
+            <th>Config.</th>
+            <!-- <th>Nombre Ruta</th> -->
+            <th>Via</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Condición</th>
+            <th>Unidad Transporte</th>
+            <th>Tipo Carga</th>
+            <th>Dist. km</th>
+            <th>Valor Movilización</th>
+            <!-- <th>Val. Tonelada</th> -->
+            <th>Val. Hora</th>
+            <th>Tiemp. Hora</th>
+            <th>Período</th>
+            <th style="min-width:110px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="sc-tbody">
+          <tr>
+            <td colspan="12">
+              <div class="ap-empty">
+                <div class="ap-empty-icon"><i class="fas fa-search"></i></div>
+                <div class="ap-empty-title">Ingresa origen y destino</div>
+                <div class="ap-empty-sub">Completa los filtros y presiona Consultar para ver las tarifas SiceTac</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /modulo-sicetac -->
+
+<!-- BACKDROP -->
+<div id="ap-backdrop" class="ap-offcanvas-backdrop" onclick="cerrarDetalle()"></div>
+
+<!-- OFFCANVAS DETALLE -->
+<div id="ap-offcanvas" class="ap-offcanvas" role="dialog" aria-modal="true">
+  <div class="ap-oc-header">
+    <div class="ap-oc-header-left">
+      <div class="ap-oc-ribbon"><i class="fas fa-file-invoice-dollar"></i></div>
+      <div>
+        <p class="ap-oc-title" id="oc-title">Detalle de Tarifa SiceTac</p>
+        <p class="ap-oc-sub" id="oc-sub">—</p>
+      </div>
+    </div>
+    <button class="ap-oc-close" onclick="cerrarDetalle()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="ap-oc-body" id="oc-body"></div>
+
+  <div class="ap-oc-footer">
+    <button class="ap-btn-limpiar" onclick="cerrarDetalle()">
+      <i class="fas fa-times"></i> Cerrar
+    </button>
+    <button class="ap-btn-filtrar" onclick="recalcular()">
+      <i class="fas fa-calculator"></i> Recalcular
+    </button>
+  </div>
+</div>

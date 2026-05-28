@@ -59,30 +59,219 @@ switch ($_GET["action"]) {
 		$return["response"] = $result;
 		break;
 
+	// case 'rndcGuardaRemitente': // RNDC NUEVO
+	// 	$_msg_control .= "Entro en la accion rndcGuardaRemitente.\n";
+
+	// 	// Se busca cual es el siguiente id del la tabla de cmx_remitentes_destinatarios para asignarlo como el codigo de sede
+	// 	//del tercero en el RNDC
+	// 	session_start();
+	// 	$sql = 'SELECT (MAX(id)+1) AS max_id FROM cmx_remitente_destinatario';
+	// 	$result = $Data->getConsulta($sql);
+	// 	$_CODSEDETERCERO = $result["rowsData"][0]['max_id'];
+	// 	//
+	// 	$fecha = date('Y-m-d');
+	// 	$hora = date('H:i:s');
+	// 	$user = $_SESSION["usuario"]["nom_usuario"];
+
+	// 	//INSERCION DE CONTENIDO DEL TERCERO EN EL RNDC
+	// 	$arrayMinTrans = array();
+	// 	// Solicitud
+	// 	$arrayMinTrans["solicitud"] = array(
+	// 		"tipo" => 3,
+	// 		"procesoid" => 11,
+	// 	);
+	// 	// Variable que se envían para la consulta
+	// 	$arrayMinTrans["variables"] = "INGRESOID";
+
+	// 	$documento_tercero = $_POST["documento"];
+	// 	if ($_POST["tipo_documento"] == "NIT") {
+	// 		$documento_tercero = $Model->limpiaTexto($_POST["documento"]) . $Model->limpiaTexto($_POST["digito_verificacion"]);
+	// 	} else {
+	// 		$documento_tercero = $Model->limpiaTexto($_POST["documento"]);
+	// 	}
+
+	// 	$arrayMinTrans["documento"] = array(
+	// 		"NUMNITEMPRESATRANSPORTE" => MINTRANS_NIT,
+	// 		"NUMIDTERCERO" => "'" . $documento_tercero . "'",
+	// 		"CODSEDETERCERO" => "'" . $_CODSEDETERCERO . "'",
+	// 	);
+	// 	$return["verifica_tercero_array"] = $arrayMinTrans;
+
+	// 	$result = $Data->getRNDCQueryArray($arrayMinTrans);
+	// 	$return["verifica_tercero_result"] = $result;
+
+	// 	// Se valida si la operación fue exitosa
+	// 	if (isset($result["ErrorMSG"])) {
+	// 		// Solicitud
+	// 		$arrayMinTrans["solicitud"] = array(
+	// 			"tipo" => 1,
+	// 			"procesoid" => 11,
+	// 		);
+	// 		// Variable que se envían para la realizació del proceso
+	// 		$arrayMinTrans["variables"] = array(
+	// 			"NUMNITEMPRESATRANSPORTE" => MINTRANS_NIT,
+	// 			"CODTIPOIDTERCERO" => $Data->getRNDCTipoDocumento($_POST["tipo_documento"]),
+	// 			"NUMIDTERCERO" => $Model->limpiaTexto($documento_tercero),
+	// 			"NOMIDTERCERO" => $Model->limpiaTexto($_POST["rndc_nombre"]),
+	// 			"NOMENCLATURADIRECCION" => $Model->limpiaTexto($_POST["direccion"]),
+	// 			"LATITUD" => substr($_POST["latitud"], 0, 15),
+	// 			"LONGITUD" => substr($_POST["longitud"], 0, 15),
+	// 			"CODMUNICIPIORNDC" => $_POST["rndc_id_municipio"],
+	// 		);
+	// 		$arrayMinTrans["variables"]["NUMIDTERCERO"] = $Model->limpiaTexto($documento_tercero);
+	// 		$arrayMinTrans["variables"]["CODSEDETERCERO"] = $_CODSEDETERCERO;
+	// 		$arrayMinTrans["variables"]["NOMSEDETERCERO"] = 'PRINCIPAL';
+	// 		if ($_POST["tipo_documento"] == "NIT") {
+	// 			$arrayMinTrans["variables"]["NUMIDTERCERO"] = $documento_tercero;
+	// 		}
+
+	// 		if (isset($_POST["primer_apellido"])) {
+	// 			$arrayMinTrans["variables"]["PRIMERAPELLIDOIDTERCERO"] = $Model->limpiaTexto($_POST["primer_apellido"]);
+	// 		}
+	// 		if (isset($_POST["segundo_apellido"]) and $_POST["segundo_apellido"] != "") {
+	// 			$arrayMinTrans["variables"]["SEGUNDOAPELLIDOIDTERCERO"] = $Model->limpiaTexto($_POST["segundo_apellido"]);
+	// 		}
+	// 		if (isset($_POST["contacto"]) and $_POST["contacto"] != "" and $_POST["contacto"] != 0) {
+	// 			$arrayMinTrans["variables"]["NUMTELEFONOCONTACTO"] = $_POST["contacto"];
+	// 		}
+	// 		if (isset($_POST["celular"]) and $_POST["celular"] != "" and $_POST["celular"] != 0) {
+	// 			$arrayMinTrans["variables"]["NUMCELULARPERSONA"] = $_POST["celular"];
+	// 		}
+	// 		$return["crea_tercero_array"] = $arrayMinTrans;
+	// 		//Guardar variables
+	// 		$cadena_xml = implode(" ", $arrayMinTrans["variables"]);
+	// 		//print_r($cadena_xml);
+	// 		$sql = "INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario)
+	// 				VALUES(null,'" . $documento_tercero . "','Tercero',1,1,'" . $cadena_xml . "','" . $fecha . "','" . $hora . "','" .
+	// 			$user . "')";
+	// 		$Data->ejecuteRegistro($sql);
+	// 		// Se ejecuta la consulta hacia el RNDC del ministerio de transporte
+	// 		$result = $Data->getRNDCQueryArray($arrayMinTrans);
+
+	// 		$return["crea_tercero_result"] = $result;
+
+	// 		// Se valida si la operación fue exitosa
+	// 		if (isset($result["ErrorMSG"])) {
+	// 			$_msg_error .= "<p><strong>Registro no actualizado en RNDC - Tercero.</strong></p>";
+	// 			$_msg_error .= $result["ErrorMSG"];
+	// 			$respuesta = $result["ErrorMSG"];
+	// 		} else {
+	// 			$rndc_ingresoid = $result["ingresoid"];
+	// 			$return["crea_tercero_id_crea"] = $rndc_ingresoid;
+	// 			$respuesta = $result["ingresoid"];
+	// 		}
+	// 		$sql2 = "INSERT INTO
+	// 		web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)
+	// 		VALUES(null,'" . $documento_tercero . "','Tercero',2,1,'" . $cadena_xml . "','" . $fecha . "','" . $hora . "','" .
+	// 			$user . "','" . $respuesta . "','Remitente','Crear')";
+	// 		$Data->ejecuteRegistro($sql2);
+	// 	} else {
+	// 		$_msg_error .= "<p><strong>Registro no actualizado en RNDC - Tercero.</strong></p>";
+	// 		$_msg_error .= "<p>Registro ya existe en el RNDC</p>";
+	// 	}
+	// 	break;
+
+
 	case 'rndcGuardaRemitente': // RNDC NUEVO
 		$_msg_control .= "Entro en la accion rndcGuardaRemitente.\n";
 
-		// Se busca cual es el siguiente id del la tabla de cmx_remitentes_destinatarios para asignarlo como el codigo de sede
-		//del tercero en el RNDC
-		session_start();
+		// $apiUrl = 'http://127.0.0.1:8000/api/v1/rndc/crear-remitente-destinatario';
+		// $apiKey = 'mi_super_api_key_ultra_secreta_123';
+
+		// $payload = [
+		// 	'tipo' => 2,
+		// 	'documento' => $_POST["documento"],
+		// ];
+
+		// $options = [
+		// 	'http' => [
+		// 		'method'  => 'POST',
+		// 		'header'  => "Content-Type: application/json\r\n" .
+		// 			"X-API-KEY: {$apiKey}\r\n",
+		// 		'content' => json_encode($payload),
+		// 		'timeout' => 30,
+		// 	],
+		// ];
+
+		// $context  = stream_context_create($options);
+		// $result   = file_get_contents($apiUrl, false, $context);
+
+		// if ($result === false) {
+		// 	// Manejar error de conexión
+		// 	var_dump('Error al conectar con API RNDC');
+		// } else {
+		// 	$data = json_decode($result, true);
+		// 	var_dump($data);
+		// }
+
+		$apiUrl = 'http://127.0.0.1:8000/api/v1/rndc/crear-remitente-destinatario';
+		$apiKey = 'mi_super_api_key_ultra_secreta_123';
+
+		$payload = [
+			'documento'  => $_POST["documento"],
+			'operacion' => 'Create'
+		];
+
+		// Inicializar cURL
+		$ch = curl_init($apiUrl);
+
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Content-Type: application/json',
+			"X-API-KEY: $apiKey"
+		]);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		$response = curl_exec($ch);
+		$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$error = curl_error($ch);
+
+		curl_close($ch);
+
+		// =============================================
+		// 1. SI CURL FALLA
+		// =============================================
+		if ($response === false || !empty($error)) {
+			echo json_encode([
+				"success" => false,
+				"message" => "Error de conexión con la API",
+				"error" => $error,
+				"httpcode" => $httpcode
+			]);
+			exit;
+		}
+
+		// =============================================
+		// 2. DECODIFICAR RESPUESTA JSON DEL API
+		// =============================================
+		$apiData = json_decode($response, true);
+
+		if ($apiData === null) {
+			echo json_encode([
+				"success" => false,
+				"message" => "La API devolvió una respuesta inválida",
+				"raw" => $response
+			]);
+			exit;
+		}
+
+		// =============================================
+		// 3. DEVOLVER DIRECTO AL JAVASCRIPT
+		// =============================================
+		echo json_encode($apiData);
+		exit;
+
+		/* 		session_start();
 		$sql = 'SELECT (MAX(id)+1) AS max_id FROM cmx_remitente_destinatario';
 		$result = $Data->getConsulta($sql);
 		$_CODSEDETERCERO = $result["rowsData"][0]['max_id'];
-		//
+
 		$fecha = date('Y-m-d');
 		$hora = date('H:i:s');
 		$user = $_SESSION["usuario"]["nom_usuario"];
 
-		//INSERCION DE CONTENIDO DEL TERCERO EN EL RNDC
-		$arrayMinTrans = array();
-		// Solicitud
-		$arrayMinTrans["solicitud"] = array(
-			"tipo" => 3,
-			"procesoid" => 11,
-		);
-		// Variable que se envían para la consulta
-		$arrayMinTrans["variables"] = "INGRESOID";
-
+		// Documento del tercero
 		$documento_tercero = $_POST["documento"];
 		if ($_POST["tipo_documento"] == "NIT") {
 			$documento_tercero = $Model->limpiaTexto($_POST["documento"]) . $Model->limpiaTexto($_POST["digito_verificacion"]);
@@ -90,25 +279,31 @@ switch ($_GET["action"]) {
 			$documento_tercero = $Model->limpiaTexto($_POST["documento"]);
 		}
 
-		$arrayMinTrans["documento"] = array(
+		// Solicitud inicial (verificación de tercero)
+		$arrayMinTrans = [];
+		$arrayMinTrans["solicitud"] = [
+			"tipo" => 3,
+			"procesoid" => 11
+		];
+		$arrayMinTrans["variables"] = "INGRESOID";
+		$arrayMinTrans["documento"] = [
 			"NUMNITEMPRESATRANSPORTE" => MINTRANS_NIT,
 			"NUMIDTERCERO" => "'" . $documento_tercero . "'",
 			"CODSEDETERCERO" => "'" . $_CODSEDETERCERO . "'",
-		);
-		$return["verifica_tercero_array"] = $arrayMinTrans;
+		];
 
+		$return["verifica_tercero_array"] = $arrayMinTrans;
 		$result = $Data->getRNDCQueryArray($arrayMinTrans);
 		$return["verifica_tercero_result"] = $result;
 
-		// Se valida si la operación fue exitosa
+		// Si no existe el tercero en RNDC, se crea
 		if (isset($result["ErrorMSG"])) {
-			// Solicitud
-			$arrayMinTrans["solicitud"] = array(
+			$arrayMinTrans["solicitud"] = [
 				"tipo" => 1,
-				"procesoid" => 11,
-			);
-			// Variable que se envían para la realizació del proceso
-			$arrayMinTrans["variables"] = array(
+				"procesoid" => 11
+			];
+			// Variables completas que irán al XML
+			$arrayMinTrans["variables"] = [
 				"NUMNITEMPRESATRANSPORTE" => MINTRANS_NIT,
 				"CODTIPOIDTERCERO" => $Data->getRNDCTipoDocumento($_POST["tipo_documento"]),
 				"NUMIDTERCERO" => $Model->limpiaTexto($documento_tercero),
@@ -117,40 +312,47 @@ switch ($_GET["action"]) {
 				"LATITUD" => substr($_POST["latitud"], 0, 15),
 				"LONGITUD" => substr($_POST["longitud"], 0, 15),
 				"CODMUNICIPIORNDC" => $_POST["rndc_id_municipio"],
-			);
-			$arrayMinTrans["variables"]["NUMIDTERCERO"] = $Model->limpiaTexto($documento_tercero);
-			$arrayMinTrans["variables"]["CODSEDETERCERO"] = $_CODSEDETERCERO;
-			$arrayMinTrans["variables"]["NOMSEDETERCERO"] = 'PRINCIPAL';
-			if ($_POST["tipo_documento"] == "NIT") {
-				$arrayMinTrans["variables"]["NUMIDTERCERO"] = $documento_tercero;
-			}
+				"CODSEDETERCERO" => $_CODSEDETERCERO,
+				"NOMSEDETERCERO" => "PRINCIPAL"
+			];
 
 			if (isset($_POST["primer_apellido"])) {
 				$arrayMinTrans["variables"]["PRIMERAPELLIDOIDTERCERO"] = $Model->limpiaTexto($_POST["primer_apellido"]);
 			}
-			if (isset($_POST["segundo_apellido"]) and $_POST["segundo_apellido"] != "") {
+			if (!empty($_POST["segundo_apellido"])) {
 				$arrayMinTrans["variables"]["SEGUNDOAPELLIDOIDTERCERO"] = $Model->limpiaTexto($_POST["segundo_apellido"]);
 			}
-			if (isset($_POST["contacto"]) and $_POST["contacto"] != "" and $_POST["contacto"] != 0) {
+			if (!empty($_POST["contacto"]) && $_POST["contacto"] != 0) {
 				$arrayMinTrans["variables"]["NUMTELEFONOCONTACTO"] = $_POST["contacto"];
 			}
-			if (isset($_POST["celular"]) and $_POST["celular"] != "" and $_POST["celular"] != 0) {
+			if (!empty($_POST["celular"]) && $_POST["celular"] != 0) {
 				$arrayMinTrans["variables"]["NUMCELULARPERSONA"] = $_POST["celular"];
 			}
-			$return["crea_tercero_array"] = $arrayMinTrans;
-			//Guardar variables
-			$cadena_xml = implode(" ", $arrayMinTrans["variables"]);
-			//print_r($cadena_xml);
-			$sql = "INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario)
-					VALUES(null,'" . $documento_tercero . "','Tercero',1,1,'" . $cadena_xml . "','" . $fecha . "','" . $hora . "','" .
-				$user . "')";
-			$Data->ejecuteRegistro($sql);
-			// Se ejecuta la consulta hacia el RNDC del ministerio de transporte
-			$result = $Data->getRNDCQueryArray($arrayMinTrans);
 
+			$return["crea_tercero_array"] = $arrayMinTrans;
+
+			// === Construir el XML correctamente ===
+			// $xml = new SimpleXMLElement('<root/>');
+			$xml = new SimpleXMLElement("<?xml version='1.0' encoding='ISO-8859-1' ?>");
+			$acceso = $xml->addChild('acceso');
+			$acceso->addChild('username', 'NEXOSCAR@1622');  // Ajusta usuario
+			$acceso->addChild('password', 'NexosSAS2024'); // Ajusta contraseña
+
+			foreach ($arrayMinTrans["variables"] as $key => $value) {
+				$xml->addChild($key, htmlspecialchars($value));
+			}
+			$cadena_xml = $xml->asXML();
+
+			// Guardar log
+			$sql = "INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario)
+                VALUES(null,'" . $documento_tercero . "','Tercero',1,1,'" . $cadena_xml . "','" . $fecha . "','" . $hora . "','" . $user . "')";
+			$Data->ejecuteRegistro($sql);
+
+			// Enviar al RNDC
+			$result = $Data->getRNDCQueryArray($arrayMinTrans);
 			$return["crea_tercero_result"] = $result;
 
-			// Se valida si la operación fue exitosa
+			// Validar respuesta
 			if (isset($result["ErrorMSG"])) {
 				$_msg_error .= "<p><strong>Registro no actualizado en RNDC - Tercero.</strong></p>";
 				$_msg_error .= $result["ErrorMSG"];
@@ -158,24 +360,84 @@ switch ($_GET["action"]) {
 			} else {
 				$rndc_ingresoid = $result["ingresoid"];
 				$return["crea_tercero_id_crea"] = $rndc_ingresoid;
-				$respuesta = $result["ingresoid"];
+				$respuesta = $rndc_ingresoid;
 			}
+
+			// Guardar log final
 			$sql2 = "INSERT INTO
-			web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)
-			VALUES(null,'" . $documento_tercero . "','Tercero',2,1,'" . $cadena_xml . "','" . $fecha . "','" . $hora . "','" .
-				$user . "','" . $respuesta . "','Remitente','Crear')";
+            web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)
+            VALUES(null,'" . $documento_tercero . "','Tercero',2,1,'" . $cadena_xml . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $respuesta . "','Remitente','Crear')";
 			$Data->ejecuteRegistro($sql2);
 		} else {
 			$_msg_error .= "<p><strong>Registro no actualizado en RNDC - Tercero.</strong></p>";
 			$_msg_error .= "<p>Registro ya existe en el RNDC</p>";
-		}
+		} */
 		break;
-
 
 	case 'rndcEditaRemitente':
 		$_msg_control .= "Entro en la accion rndcEditaRemitente.\n";
+		$apiUrl = 'http://127.0.0.1:8000/api/v1/rndc/crear-remitente-destinatario';
+		$apiKey = 'mi_super_api_key_ultra_secreta_123';
+
+		$payload = [
+			'documento'  => $_POST["documento"],
+			'tercero_id' => $_POST["id_remi_dest"],
+			'operacion' => 'Update'
+		];
+
+		// Inicializar cURL
+		$ch = curl_init($apiUrl);
+
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Content-Type: application/json',
+			"X-API-KEY: $apiKey"
+		]);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		$response = curl_exec($ch);
+		$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$error = curl_error($ch);
+
+		curl_close($ch);
+
+		// =============================================
+		// 1. SI CURL FALLA
+		// =============================================
+		if ($response === false || !empty($error)) {
+			echo json_encode([
+				"success" => false,
+				"message" => "Error de conexión con la API",
+				"error" => $error,
+				"httpcode" => $httpcode
+			]);
+			exit;
+		}
+
+		// =============================================
+		// 2. DECODIFICAR RESPUESTA JSON DEL API
+		// =============================================
+		$apiData = json_decode($response, true);
+
+		if ($apiData === null) {
+			echo json_encode([
+				"success" => false,
+				"message" => "La API devolvió una respuesta inválida",
+				"raw" => $response
+			]);
+			exit;
+		}
+
+		// =============================================
+		// 3. DEVOLVER DIRECTO AL JAVASCRIPT
+		// =============================================
+		echo json_encode($apiData);
+		exit;
+
+
 		/********* REGISTRAR DATO EN TABLA DE TRANSMISION *****************/
-		session_start();
+		/* 		session_start();
 		$fecha = date('Y-m-d');
 		$hora = date('H:i:s');
 		$user = $_SESSION["usuario"]["nom_usuario"];
@@ -183,10 +445,16 @@ switch ($_GET["action"]) {
 			$_POST["documento"] . "','Tercero',0,1,'" . $fecha . "','" . $hora . "','" . $user . "','Remitente','Actualizar')";
 		$Data->ejecuteRegistro($sql1);
 
-		$sqlsede = 'SELECT codigo_sede FROM cmx_remitente_destinatario WHERE documento=' . $_POST["documento"] . ' 
-			AND digito_verificacion=' . $_POST["digito_verificacion"] . ' ORDER BY id DESC LIMIT 1';
-		$resultidsede = $Data->getConsulta($sqlsede);
-		$_CODSEDE = $resultidsede["rowsData"][0]['codigo_sede'];
+		// $sqlsede = 'SELECT id FROM cmx_remitente_destinatario WHERE documento=' . $_POST["documento"] . ' 
+		// 	AND digito_verificacion=' . $_POST["digito_verificacion"] . ' id_cliente=' . $_POST["id_cliente"] . '';
+		// $resultidsede = $Data->getConsulta($sqlsede);
+		// var_dump($resultidsede);
+		// exit(0);
+
+
+
+		// $_CODSEDE = $resultidsede["rowsData"][0]['id'];
+		$_CODSEDE = $_POST['id_remi_dest'];
 
 		if ($Data) {
 			$array = array();
@@ -218,7 +486,7 @@ switch ($_GET["action"]) {
 			// $return["array_edita_1"] = $array_edita_remi_dest;
 			$Data->updateRegistro("cmx_remitente_destinatario", $array_edita_remi_dest, (int) $_POST["id_remi_dest"]);
 		}
-		/******** INSERCION DE CONTENIDO DEL TERCERO EN EL RNDC ********/
+		/******** INSERCION DE CONTENIDO DEL TERCERO EN EL RNDC ********
 		$rndc_ingresoid = NULL;
 		// Se filtra si el remitente está dentro de Colombia
 
@@ -258,6 +526,7 @@ switch ($_GET["action"]) {
 					"NUMIDTERCERO" => $Model->limpiaTexto($documento_tercero),
 					"NOMIDTERCERO" => $Model->limpiaTexto($_POST["rndc_nombre"]),
 					"NOMENCLATURADIRECCION" => $Model->limpiaTexto($_POST["direccion"]),
+					// "NUMTELEFONOCONTACTO" => $Model->limpiaTexto($_POST["contacto"]),
 					"LATITUD" => substr($_POST["latitud"], 0, 15),
 					"LONGITUD" => substr($_POST["longitud"], 0, 15),
 					"CODMUNICIPIORNDC" => $_POST["rndc_id_municipio"],
@@ -276,7 +545,7 @@ switch ($_GET["action"]) {
 					$arrayMinTrans["variables"]["SEGUNDOAPELLIDOIDTERCERO"] = $Model->limpiaTexto($_POST["segundo_apellido"]);
 				}
 				if (isset($_POST["contacto"]) and $_POST["contacto"] != "" and $_POST["contacto"] != 0) {
-					$arrayMinTrans["variables"]["NUMTELEFONOCONTACTO"] = $_POST["contacto"];
+					$arrayMinTrans["variables"]["NUMTELEFONOCONTACTO"] = '601' . $_POST["contacto"];
 				}
 				if (isset($_POST["celular"]) and $_POST["celular"] != "" and $_POST["celular"] != 0) {
 					$arrayMinTrans["variables"]["NUMCELULARPERSONA"] = $_POST["celular"];
@@ -291,6 +560,7 @@ switch ($_GET["action"]) {
 				// Se ejecuta la consulta hacia el RNDC del ministerio de transporte
 				$result = $Data->getRNDCQueryArray($arrayMinTrans);
 				// $return["edita_tercero_result"] = $result;
+
 				if (isset($result["ErrorMSG"])) {
 					//convertir string  a Array
 					$array_p2 = explode(" ", $result["ErrorMSG"]);
@@ -363,7 +633,7 @@ switch ($_GET["action"]) {
 					$arrayMinTrans["variables"]["SEGUNDOAPELLIDOIDTERCERO"] = $Model->limpiaTexto($_POST["segundo_apellido"]);
 				}
 				if (isset($_POST["contacto"]) and $_POST["contacto"] != "" and $_POST["contacto"] != 0) {
-					$arrayMinTrans["variables"]["NUMTELEFONOCONTACTO"] = $_POST["contacto"];
+					$arrayMinTrans["variables"]["NUMTELEFONOCONTACTO"] = '601' . $_POST["contacto"];
 				}
 				if (isset($_POST["celular"]) and $_POST["celular"] != "" and $_POST["celular"] != 0) {
 					$arrayMinTrans["variables"]["NUMCELULARPERSONA"] = $_POST["celular"];
@@ -409,7 +679,7 @@ switch ($_GET["action"]) {
 					//$return["edita_tercero_id_crea"] = $rndc_ingresoid;
 				}
 			}
-		}
+		} */
 		break;
 
 	case 'buscaDepto':

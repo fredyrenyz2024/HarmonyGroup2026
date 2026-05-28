@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
   let params1 = new URLSearchParams(location.search);
   let mnf = params1.get('manifiesto');
   let ocr = params1.get('orden_cargue');
@@ -7,7 +7,7 @@ $(document).ready(function() {
   var hirllegada = document.getElementById('hirllegada');
   var error = document.getElementById('error');
 
-  hirllegada.addEventListener('input', function() {
+  hirllegada.addEventListener('input', function () {
     var value = hirllegada.value.replace(/[^0-9]/g, ''); // Solo números
     if (value.length > 4) value = value.slice(0, 4); // Máximo 4 dígitos
     // Insertar ':'
@@ -45,7 +45,7 @@ $(document).ready(function() {
   var hirentrada = document.getElementById('hirentrada');
   var error2 = document.getElementById('error2');
 
-  hirentrada.addEventListener('input', function() {
+  hirentrada.addEventListener('input', function () {
     var value = hirentrada.value.replace(/[^0-9]/g, ''); // Solo números
     if (value.length > 4) value = value.slice(0, 4); // Máximo 4 dígitos
     // Insertar ':'
@@ -82,7 +82,7 @@ $(document).ready(function() {
   var hirsalida = document.getElementById('hirsalida');
   var error3 = document.getElementById('error3');
 
-  hirsalida.addEventListener('input', function() {
+  hirsalida.addEventListener('input', function () {
     var value = hirsalida.value.replace(/[^0-9]/g, ''); // Solo números
     if (value.length > 4) value = value.slice(0, 4); // Máximo 4 dígitos
     // Insertar ':'
@@ -106,7 +106,7 @@ $(document).ready(function() {
   $.post(
     $('#id_url_ajax').val() + 'tiempo_logistico_cargue/Verificar_ordenes',
     'orden_cargue=' + ocr + '&manifiesto=' + mnf,
-    function(data) {
+    function (data) {
       if (data) {
         data.forEach(element => {
           if (element.tipo_fecha === 'fec_llegada') {
@@ -139,7 +139,7 @@ $(document).ready(function() {
   $.post(
     $('#id_url_ajax').val() + 'tiempo_logistico_cargue/Selecciona_Ordenes_detalle',
     'manifiesto=' + mnf + '&orden_cargue=' + ocr,
-    function(data) {
+    function (data) {
       if (data) {
         localStorage.setItem('ordenes', JSON.stringify(data));
         var dato = JSON.parse(localStorage.getItem('ordenes'));
@@ -147,7 +147,7 @@ $(document).ready(function() {
         // Variables a llenar
         $('#idmanifiesto').val(mnf);
         $('#idordencargue').val(ocr);
-        $.each(dato, function(index, dato) {
+        $.each(dato, function (index, dato) {
           $('#placa').val(dato.placa);
         });
         for (var i = 0; i < data.length; i++) {
@@ -191,7 +191,7 @@ $(document).ready(function() {
   fechaInputsalida.setAttribute('max', fechaActualsalida);
 
   /* Valiar hora */
-  $('#hirllegada').on('change', function(event) {
+  $('#hirllegada').on('change', function (event) {
     event.preventDefault();
     // Obtén los valores de la fecha y la hora
     var fecha = $('#firllegada').val();
@@ -216,7 +216,7 @@ $(document).ready(function() {
       });
       let hora_llegada_cargue = $('#hirllegada');
       hora_llegada_cargue.focus();
-      $('.nexos-content').animate({scrollTop: 2}, 600);
+      $('.nexos-content').animate({ scrollTop: 2 }, 600);
       $('.nexos-messages').css('display', 'block');
       $('#hirllegada').val('');
       setTimeout(() => {
@@ -227,7 +227,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#hirentrada').change(function(event) {
+  $('#hirentrada').change(function (event) {
     event.preventDefault();
     // Obtén los valores de la fecha y la hora
     var fecha = $('#firentrada').val();
@@ -250,7 +250,7 @@ $(document).ready(function() {
         showConfirmButton: true,
         // timer: 1500,
       });
-      $('.nexos-content').animate({scrollTop: 2}, 600);
+      $('.nexos-content').animate({ scrollTop: 2 }, 600);
       $('.nexos-messages').css('display', 'block');
       $('#hirentrada').val('');
       setTimeout(() => {
@@ -261,7 +261,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#hirsalida').change(function(event) {
+  $('#hirsalida').change(function (event) {
     event.preventDefault();
     // Obtén los valores de la fecha y la hora
     var fecha = $('#firsalida').val();
@@ -284,7 +284,7 @@ $(document).ready(function() {
         showConfirmButton: true,
         // timer: 1500,
       });
-      $('.nexos-content').animate({scrollTop: 2}, 600);
+      $('.nexos-content').animate({ scrollTop: 2 }, 600);
       $('.nexos-messages').css('display', 'block');
       $('#hirsalida').val('');
       setTimeout(() => {
@@ -295,7 +295,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#busca_dato').click(function() {
+  $('#busca_dato').click(function () {
     $('.nexos-messages').html('');
     var msg_error = '';
     if (!$('#manifiestos').val()) {
@@ -309,15 +309,15 @@ $(document).ready(function() {
     } else {
       $('.nexos-messages').html(
         '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-          msg_error +
-          '</div></div>',
+        msg_error +
+        '</div></div>',
       );
-      $('.nexos-content').animate({scrollTop: 2}, 600);
+      $('.nexos-content').animate({ scrollTop: 2 }, 600);
       $('.nexos-messages').css('display', 'block');
     }
   });
 
-  $('#registrar_tiempo').click(function() {
+  $('#registrar_tiempo').click(function () {
     $('.nexos-messages').html('');
     var msg_error = '';
     if (!$('#firllegada').val()) {
@@ -390,10 +390,10 @@ $(document).ready(function() {
     } else {
       $('.nexos-messages').html(
         '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-          msg_error +
-          '</div></div>',
+        msg_error +
+        '</div></div>',
       );
-      $('.nexos-content').animate({scrollTop: 2}, 800);
+      $('.nexos-content').animate({ scrollTop: 2 }, 800);
       $('.nexos-messages').css('display', 'block');
     }
   });
@@ -423,7 +423,7 @@ function Registrar_Tiempo() {
     // var ob4 = $("#obs4").val();
     //construir paquete de datos
     /*paquete_tiempo="manifieso="+mnf+"&fircargar="+fircargar+"&hircargar="+hircargar+"&observair="+observair
-		+"&num_oden="+orden+"&placa="+placa_v+"&idtabla="+idprincipal;*/
+    +"&num_oden="+orden+"&placa="+placa_v+"&idtabla="+idprincipal;*/
     paquete_tiempo =
       'manifiesto=' +
       manifiesto +
@@ -455,25 +455,25 @@ function Registrar_Tiempo() {
       // ob4 +
       '&num_orden=' +
       orden;
-    $.post($('#id_url_ajax').val() + 'tiempo_logistico_cargue/Registro_Tiempo_Cargue', paquete_tiempo, function(data) {
+    $.post($('#id_url_ajax').val() + 'tiempo_logistico_cargue/Registro_Tiempo_Cargue', paquete_tiempo, function (data) {
       var da = JSON.parse(data);
       if (da.numero === 200) {
         $('.nexos-messages').html(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><i class="fas fa-check"></i></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Mensaje </strong>' +
-            da.mensaje +
-            '</div></div>',
+          da.mensaje +
+          '</div></div>',
         );
-        $('.nexos-content').animate({scrollTop: 2}, 600);
+        $('.nexos-content').animate({ scrollTop: 2 }, 600);
         $('.nexos-messages').css('display', 'block');
         location.reload();
       } else if (da.numero === 400) {
         // mensaje = "Datos No fueron Registrados!!";
         $('.nexos-messages').html(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-            da.mensaje +
-            '</div></div>',
+          da.mensaje +
+          '</div></div>',
         );
-        $('.nexos-content').animate({scrollTop: 2}, 600);
+        $('.nexos-content').animate({ scrollTop: 2 }, 600);
         $('.nexos-messages').css('display', 'block');
       }
     });
@@ -487,7 +487,7 @@ function Buscar_Dato(manifiesto) {
   $.post(
     $('#id_url_ajax').val() + 'tiempo_logistico_cargue/Selecciona_Manifiesto_Individual',
     'manifiesto=' + mnf,
-    function(data) {
+    function (data) {
       $('#datoa').html('');
       if (data) {
         $('#num_manifiesto').html(data['id']);

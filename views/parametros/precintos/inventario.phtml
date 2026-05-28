@@ -1,0 +1,122 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= $_SESSION['usuario']['proveedor_id'] ?>">
+<input type="hidden" name="cliente_id" id="cliente_id" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" name="ventana_id" class="ventana_id" value="<?= $_SESSION['usuario']['ventanas'] ?>">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-4 col-lg-5 col-xl-5 col-xxl-5">
+            <div class="d-flex flex-wrap justify-content-start mt-2">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <h5 class="mb-0 text-body-highlight me-2">Asignar Precintos a las agencias</h5>
+                </div>
+            </div>
+            <hr class="my-1 text-dark">
+
+            <div class="row mt-2">
+                <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 col-xl-4 col-xxl-4">
+                    <div class="mb-3">
+                        <label class="control-label">Agencia Origen:</label>
+                        <select class="form-select form-select-sm" name="agencia_origen" id="agencia_origen" required>
+                            <option value="" selected>Seleccione</option>
+                            <!-- <option value="Bogotá">Bogotá</option>
+                            <option value="Cartagena">Cartagena</option>
+                            <option value="Buenaventura">Buenaventura</option> -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 col-xl-4 col-xxl-4">
+                    <div class="mb-3">
+                        <label class="control-label">Agencia Destino:</label>
+                        <select class="form-select form-select-sm" name="agencia_destino" id="agencia_destino" required>
+                            <option value="" selected>Seleccione</option>
+                            <!-- <option value="Bogotá">Bogotá</option>
+                            <option value="Cartagena">Cartagena</option>
+                            <option value="Buenaventura">Buenaventura</option> -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 col-xl-4 col-xxl-4">
+                    <div class="mb-3">
+                        <label class="control-label">Tipo precinto:</label>
+                        <select class="form-select form-select-sm" name="tipo_precinto" id="tipo_precinto" required>
+                            <option value="" selected>Seleccione</option>
+                            <option value="Botella">Botella</option>
+                            <option value="Metalico" disabled>Metalico</option>
+                            <option value="Plastico" disabled>Plastico</option>
+                            <option value="Adhesivo">Adhesivo</option>
+                            <option value="Correilla">Correilla</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 col-xl-4 col-xxl-4">
+                    <div class="mb-3">
+                        <label class="control-label">Desde:</label>
+                        <input type="number" class="form-control form-control-sm" id="desde" placeholder="Desde (ej. 31301)">
+                    </div>
+                </div>
+                <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 col-xl-4 col-xxl-4">
+                    <div class="mb-3">
+                        <label class="control-label">Hasta:</label>
+                        <input type="number" class="form-control form-control-sm" id="hasta" placeholder="Hasta (ej. 31315)">
+                    </div>
+                </div>
+
+                <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 col-xl-4 col-xxl-4">
+                    <div class="mb-3 mt-4">
+                        <button class="btn btn-subtle-info btn-sm me-1 mb-1 w-100" onclick="verificarPrecintos()">Verificar Rango</button>
+                    </div>
+                </div>
+
+                <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <div class="mb-3">
+                        <label class="control-label">Observaci&oacute;n:</label>
+                        <textarea class="form-control form-control-sm" id="observacion" name="observacion" placeholder="Observación (opcional)" oninput="this.value = this.value.toUpperCase();"></textarea>
+                    </div>
+                </div>
+
+                <p id="resultado_validacion"></p>
+
+                <div class="border-top border-translucent border-dashed pt-2">
+                    <div class="row justify-content-end">
+                        <div class="col-auto">
+                            <button class="btn btn-success btn-sm py-1" id="btn_guardar_asignacion_precintos" type="button" style="display: none;">
+                                <span class="uil uil-save"></span> Guardar Asignaci&oacute;n de Precintos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7 col-xxl-7">
+            <div class="d-flex flex-wrap justify-content-start mt-2">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                    <h5 class="mb-0 text-body-highlight me-2">Listado de Precintos Asignados</h5>
+                </div>
+            </div>
+            <hr class="my-1 text-dark">
+            <div class="table-responsive scrollbar">
+                <table id="tablaDinamica" class="table table-striped table-hover table-fw-widget table-sm w-100 text-center" data-page-length="100" style="font-size:12px;">
+                    <thead>
+                        <tr id="encabezados">
+                            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">#</th>
+                            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Rango Precintos</th>
+                            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Cantidad</th>
+                            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Agencia Origen</th>
+                            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Agencia Destino</th>
+                            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Tipo Precinto</th>
+                            <!-- <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Desde</th> -->
+                            <!-- <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Hasta</th> -->
+                            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Movimiento</th>
+                            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Fecha Movimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody_precintos_asignados">
+                        <tr class="text-center img_load" id="img_load" style="display: none;">
+                            <td colspan="6"><img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25"> Esperando Información</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>

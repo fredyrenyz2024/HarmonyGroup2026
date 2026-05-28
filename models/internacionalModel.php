@@ -171,7 +171,6 @@ class internacionalModel extends Model
 						AND cic1.id_intr_proyecto = cis.id
 					)CANT_COTIZACINES_FLETE
 
-
 				FROM cmx_importacion_proyecto cip
 					INNER JOIN cmx_importacion_actividades cia ON cia.id_importacion = cip.id
 					INNER JOIN cmx_intr_solicitudes cis ON cis.id_proyecto = cip.id
@@ -2239,9 +2238,9 @@ class internacionalModel extends Model
               AND cia.estado = 2
               AND cip.estado = 1';
 
-		$stmt = $this->_db3->prepare($sql);
-		$stmt->execute(['id' => $id]);
-		$return["general"] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$stmt1 = $this->_db3->prepare($sql);
+		$stmt1->execute(['id' => $id]);
+		$return["general"] = $stmt1->fetchAll(PDO::FETCH_ASSOC);
 
 		// Segunda consulta
 		$sql = 'SELECT DISTINCT(cm.id), cm.municipio, cm.depto, cm.pais
@@ -2251,9 +2250,9 @@ class internacionalModel extends Model
             WHERE cit.id_intr_proyecto = :id
               AND cit.tipo_tramo = "Descargue"';
 
-		$stmt = $this->_db3->prepare($sql);
-		$stmt->execute(['id' => $id]);
-		$return["ciudades_destino"] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$stmt2 = $this->_db3->prepare($sql);
+		$stmt2->execute(['id' => $id]);
+		$return["ciudades_destino"] = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
 		// Tercera consulta para cada ciudad destino
 		$return["destinos"] = [];
@@ -2266,11 +2265,11 @@ class internacionalModel extends Model
             AND cm.id = :ciudad_id
             AND cit.tipo_tramo = "Descargue"';
 
-			$stmt = $this->_db3->prepare($sql);
-			$stmt->execute(['id' => $id, 'ciudad_id' => $value['id']]);
+			$stmt3 = $this->_db3->prepare($sql);
+			$stmt3->execute(['id' => $id, 'ciudad_id' => $value['id']]);
 
 			// Obtener los datos y el número de filas
-			$resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$resultados = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 			$numFilas = count($resultados);
 
 			// Mantener misma estructura que en tu función original
@@ -3133,7 +3132,7 @@ class internacionalModel extends Model
 
 		// Información de los proyectos pendientes de facturación del cliente
 		$sql = '
-			SELECT cis.id ID_PROYECTO_INTERNACIONAL, cip.id ID_PROYECTO,
+			SELECT cis.id AS ID_PROYECTO_INTERNACIONAL, cip.id ID_PROYECTO,
 				cip.tipo_operacion, cip.numero_importacion, cip.importacion, cip.contenedor,
 				ctc.nombre TIPO_CARGA,
 				cis.do, cis.tipo_transporte, cis.valor_facturado, cis.valor_agenciamiento, cis.comodin_facturacion,
@@ -3365,6 +3364,11 @@ class internacionalModel extends Model
 			}
 			$return["factura"] = $arrayFactura;
 		}
+
+		// print_r('<pre>');
+		// print_r($return['material']);
+		// print_r('</pre>');
+
 		return $return;
 	}
 	/********* FIN - FUNCIONES DEL MÓDULO DE REGISTRO DE FACTURACIÓN INTERNACIONAL *********/
@@ -3997,6 +4001,13 @@ class internacionalModel extends Model
 			}
 		}
 
+		// print_r('<pre>');
+		// print_r($return['tramos']);
+		// echo "<br>";
+		// echo "-------------------------------------------------------------------------------------------------";
+		// echo "<br>";
+		// print_r($return['material']);
+		// print_r('</pre>');
 		return $return;
 	}
 

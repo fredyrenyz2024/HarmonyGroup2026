@@ -1,9 +1,10 @@
-$(document).ready(function() {
+$(document).ready(function () {
   $('#contenedor_datos').hide();
   $('#tabla_datos').hide();
   $('.fec').hide();
   $('.num').hide();
-  $('#filtro').change(function() {
+
+  $('#filtro').change(function () {
     $filtro = $('#filtro').val();
     if ($filtro == '') {
       $('#contenedor_datos').hide();
@@ -25,7 +26,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#buscar_cumplido').click(function() {
+  $('#buscar_cumplido').click(function () {
     var enviar, fec1, fec2, numero, d;
     if ($('#filtro').val() == 1) {
       d = $('#filtro').val();
@@ -44,14 +45,14 @@ $(document).ready(function() {
     Tabla_Cumplido();
   });
 
-  $('#btn_imprimir').click(function() {
+  $('#btn_imprimir').click(function () {
     var cumplido = $('#c_cumpli').val();
     $.ajax({
       url: $('#id_url_ajax').val() + 'transporte/CumplidoPdf',
       method: 'POST',
-      data: {idcumplido: cumplido},
+      data: { idcumplido: cumplido },
       dataType: 'json',
-      success: function(data) {
+      success: function (data) {
         if (data) {
           cumplido = data[0]['id'];
           placa = data[0]['placa'];
@@ -73,6 +74,7 @@ $(document).ready(function() {
           pesototal = data[0]['total_peso'];
           pesovolumen = data[0]['total_volumen'];
           fecha_pago = data[0]['nueva_fecha'];
+          fecha_cumplido = data[0]['fecha_cumplido'];
 
           pdf_cumple =
             'numcumplido=' +
@@ -110,13 +112,15 @@ $(document).ready(function() {
             '&volumentotal=' +
             pesovolumen +
             '&fecha_pago=' +
-            fecha_pago;
+            fecha_pago +
+            '&fecha_cumplido=' +
+            fecha_cumplido;
 
           var url = $('#id_url_ajax').val() + 'libs/cumplido_pdf.php?' + pdf_cumple;
           window.open(url, '_blank');
         }
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.log(jqXHR);
         console.log(textStatus);
         console.log(errorThrown);
@@ -134,7 +138,7 @@ function ConsultaCumplido(id, manifiesto) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/ConsultaCumplido',
     'numma=' + manifiesto,
-    function(data) {
+    function (data) {
       console.log(data);
       if (data) {
         $('#c_cumpli').val(data['id']);
@@ -166,28 +170,28 @@ function ConsultaCumplido(id, manifiesto) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/ConsultaRemesas',
     'numcu=' + manifiesto,
-    function(datm) {
+    function (datm) {
       if (datm) {
         $('#tabla_remesas').html('');
         datm.forEach(element => {
           $('#tabla_remesas').append(
             '<tr>' +
-              '<td>' +
-              element['id_remesa'] +
-              '</td>' +
-              '<td>' +
-              element['fecha'] +
-              '</td>' +
-              '<td>' +
-              element['hora'] +
-              '</td>' +
-              '<td>' +
-              element['observacion'] +
-              '</td>' +
-              '<td>' +
-              element['tipo_fecha'] +
-              '</td>' +
-              '</tr>',
+            '<td>' +
+            element['id_remesa'] +
+            '</td>' +
+            '<td>' +
+            element['fecha'] +
+            '</td>' +
+            '<td>' +
+            element['hora'] +
+            '</td>' +
+            '<td>' +
+            element['observacion'] +
+            '</td>' +
+            '<td>' +
+            element['tipo_fecha'] +
+            '</td>' +
+            '</tr>',
           );
         });
       }
@@ -200,7 +204,7 @@ function AnularCumplido(idcumpli) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/AnuleCumplido',
     'numcu=' + idcumpli,
-    function(data) {
+    function (data) {
       if (data == 'true') {
         alert('Datos Anulados Exitosamente!!');
         Tabla_Cumplido();
@@ -232,7 +236,7 @@ function Tabla_Cumplido() {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Consultar_Tabla',
     enviar,
-    function(data) {
+    function (data) {
       if (data) {
         $('#cumplidobody').html('');
         for (var i = 0; i < data.length; i++) {
@@ -253,26 +257,26 @@ function Tabla_Cumplido() {
 
           $('#cumplidobody').append(
             '<tr>' +
-              '<td>' +
-              estado +
-              '</td>' +
-              '<td>' +
-              data[i]['id'] +
-              '</td>' +
-              '<td>' +
-              data[i]['manifiesto'] +
-              '</td>' +
-              '<td>' +
-              data[i]['placa'] +
-              '</td>' +
-              '<td>' +
-              btnconsultar +
-              '' +
-              btneditar +
-              '' +
-              btnanular +
-              '</td>' +
-              '</tr>',
+            '<td>' +
+            estado +
+            '</td>' +
+            '<td>' +
+            data[i]['id'] +
+            '</td>' +
+            '<td>' +
+            data[i]['manifiesto'] +
+            '</td>' +
+            '<td>' +
+            data[i]['placa'] +
+            '</td>' +
+            '<td>' +
+            btnconsultar +
+            '' +
+            btneditar +
+            '' +
+            btnanular +
+            '</td>' +
+            '</tr>',
           );
         }
       }

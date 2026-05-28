@@ -1,0 +1,73 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-5 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
+            <!-- Contenedor gráfica -->
+            <div id="IndicadoresGeneralEstudios" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-general-estudios">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total Estudios</th>
+                            <th id="total-general-estudios"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-3 col-sm-12 col-md-7 col-lg-7 col-xl-7 col-xxl-7">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                <div style="width: 250px;">
+                    <select class="form-select form-select-sm" id="analistas">
+                        <option value="">Seleccionar Analista</option>
+                    </select>
+                </div>
+
+                <a href="JavaScript:void(0);" id="exportar_excel_detalle" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="<?= BASE_URL ?>public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+
+            </div>
+
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-detalle-estudios">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>#</th>
+                            <th>Estudio</th>
+                            <th>Placa</th>
+                            <th>Conductor</th>
+                            <th>Cedula</th>
+                            <th>Estado</th>
+                            <th>Fecha Registro</th>
+                            <th>Fecha Respuesta</th>
+                            <th>Responsable</th>
+                            <th>Analista</th>
+                            <th>Tiempo Transcurrido</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

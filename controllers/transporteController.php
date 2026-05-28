@@ -42,6 +42,9 @@ class transporteController extends Controller
     private $buscarr;
     private $op;
     private $datosolicitud;
+    private $consultar_documento_manifiesto;
+    private $insertar_precinto_documento;
+    private $listar_precintos_tipo;
 
     public function __construct()
     {
@@ -151,19 +154,20 @@ class transporteController extends Controller
         $this->_view->renderizar('asignacion_cita', 'transporte');
     }
 
+    public function gestion_precinto()
+    {
+        $liquide = $this->loadModel('transporte');
+        // $this->_view->liquide = $liquide;
+        $this->_view->titulo = 'Gestion de precintos para asignar';
+        $this->_view->renderizar('gestion_precintos', 'transporte');
+    }
+
     //REGISTRO DE ORDEN DE CARGA
     public function Seleccione_Placa()
     { //placas con estudio aprobado
         //instanciar el objeto del módelo
         $this->dato = $this->_modelo->prueba();
         echo json_encode($this->dato);
-        //$this->dato=$this->$_modelo;
-        //echo 'CHECKEN LA SELECCION PLACA';
-        /*$this->_view->datos=$_modelo;
-			$datos->Seleccion_Placa();*/
-        /*$this->_view->dato=$_modelo;
-			$this->_view->titulo='Orden de cargue';
-			$this->_view->renderizar('orden_cargue','transporte');*/
     }
 
     //DATOS PARAMETRICOS
@@ -186,7 +190,6 @@ class transporteController extends Controller
         //print_r($this->datomuni);
         echo json_encode($this->datomuni);
     }
-
 
     //DATOS PDE CONFORMACION DE ORDEN-CARGUE
     public function Datos_Placa_Seleccionada()
@@ -219,14 +222,12 @@ class transporteController extends Controller
         echo json_encode($this->doc);
     }
 
-
     public function Eliminar_Dato()
     {
         $id_remitente = $_POST["id"];
         $this->dat = $this->_modelo->Eliminar_Remitente($id_remitente);
         echo json_encode($this->dat);
     }
-
 
     public function Registro_orden()
     {
@@ -531,13 +532,11 @@ class transporteController extends Controller
     public function Consulta_aprobacion()
     {
         $idsubasta = $_POST["idsubasta"];
-        $this->valide = $this->_modelo->Valida_aprobacion_flete($id_subasta);
+        $this->valide = $this->_modelo->Valida_aprobacion_flete($idsubasta);
         echo json_encode($this->valide);
     }
 
-
     //REMESA
-
     public function Seleccione_orden()
     {
         $this->dato2 = $this->_modelo->Consulta_orden_enremesa();
@@ -605,68 +604,120 @@ class transporteController extends Controller
     }
 
     //REMESA
-
-    public function Registro_remesa()
+    // Controlador TransporteController.php (ejemplo)
+    public function Registro_remesa(): void
     {
+        // Siempre respondemos JSON
+        header('Content-Type: application/json; charset=utf-8');
 
-        $num_orden = $_POST["num_orden"];
-        $id_remite = $_POST["id_remite"];
-        $id_dest = $_POST["id_dest"];
-        $sol_servicio = $_POST["sol_servicio"];
-        $r_contado = $_POST["r_contado"];
-        $rcontra_remesa = $_POST["rcontra_remesa"];
-        $valor = $_POST["valor"];
-        $seguro = $_POST["seguro"];
-        $hcargue = $_POST["hcargue"];
-        $fcargue = $_POST["fcargue"];
-        $hdescarga = $_POST["hdescarga"];
-        $fdescarga = $_POST["fdescarga"];
-        $cantidad_real = $_POST["cantidad_real"];
-        $tipo_nove = $_POST["tipo_nove"];
-        $desc_nove = $_POST["desc_nove"];
-        $facturara = $_POST["facturara"];
-        $fecha_creacion = $_POST["fecha_creacion"];
-        $hora_creacion = $_POST["hora_creacion"];
-        //$archivo=$_POST["archivo"];
-        //$archivo = $_FILES["archivo"];
-        $nomarchivo = $_POST["nomarchivo"];
-        $id_puntorem = $_POST["id_puntorem"];
-        $horaspactocargue = $_POST["horaspactocargue"];
-        $minutospactocargue = $_POST["minutospactocargue"];
-        $horaspactodescargue = $_POST["horaspactodescargue"];
-        $minutospactodescargue = $_POST["minutospactodescargue"];
-        $obsercliente = $_POST["obsercliente"];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode([
+                'status' => false,
+                'error'  => 'Método no permitido',
+            ]);
+            return;
+        }
 
-        $this->rem = $this->_modelo->Insertar_remesa(
-            $num_orden,
-            $id_remite,
-            $id_dest,
-            $sol_servicio,
-            $r_contado,
-            $rcontra_remesa,
-            $valor,
-            $seguro,
-            $hcargue,
-            $fcargue,
-            $hdescarga,
-            $fdescarga,
-            $cantidad_real,
-            $tipo_nove,
-            $desc_nove,
-            $facturara,
-            $fecha_creacion,
-            $hora_creacion,
-            $nomarchivo,
-            $id_puntorem,
-            $horaspactocargue,
-            $minutospactocargue,
-            $horaspactodescargue,
-            $minutospactodescargue,
-            $obsercliente
-        );
-        echo json_encode($this->rem);
+        // 🔹 Validar campos mínimos requeridos
+        $requiredFields = [
+            'num_orden',
+            'id_remite',
+            'id_dest',
+            'sol_servicio',
+            'r_contado',
+            'rcontra_remesa',
+            'valor',
+            'hcargue',
+            'fcargue',
+            'hdescarga',
+            'fdescarga',
+            'cantidad_real',
+            // 'facturara',
+            'fecha_creacion',
+            'hora_creacion',
+        ];
+
+        foreach ($requiredFields as $field) {
+            if (!isset($_POST[$field]) || $_POST[$field] === '') {
+                echo json_encode([
+                    'status' => false,
+                    'error'  => "El campo '{$field}' es obligatorio.",
+                ]);
+                return;
+            }
+        }
+
+        // 🔹 Sanitizar/castear datos
+        $num_orden             = (int) $_POST["num_orden"];
+        $id_remite             = (int) $_POST["id_remite"];
+        $id_dest               = (int) $_POST["id_dest"];
+        $sol_servicio          = (int) $_POST["sol_servicio"];
+        $r_contado             = (int) $_POST["r_contado"];
+        $rcontra_remesa        = (int) $_POST["rcontra_remesa"];
+        $valor                 = (float) ($_POST["valor"] ?? 0);
+        $seguro                = $_POST["seguro"] !== '' ? (float) $_POST["seguro"] : 0;
+        $hcargue               = trim($_POST["hcargue"] ?? '');
+        $fcargue               = trim($_POST["fcargue"] ?? '');
+        $hdescarga             = trim($_POST["hdescarga"] ?? '');
+        $fdescarga             = trim($_POST["fdescarga"] ?? '');
+        $cantidad_real         = (int) ($_POST["cantidad_real"] ?? 0);
+        $tipo_nove             = trim($_POST["tipo_nove"] ?? '');
+        $desc_nove             = trim($_POST["desc_nove"] ?? '');
+        $facturara             = trim($_POST["facturara"] ?? '');
+        $fecha_creacion        = trim($_POST["fecha_creacion"] ?? '');
+        $hora_creacion         = trim($_POST["hora_creacion"] ?? '');
+        $nomarchivo            = trim($_POST["nomarchivo"] ?? '');
+        $id_puntorem           = (int) ($_POST["id_puntorem"] ?? 0);
+        $horaspactocargue      = (int) ($_POST["horaspactocargue"] ?? 0);
+        $minutospactocargue    = (int) ($_POST["minutospactocargue"] ?? 0);
+        $horaspactodescargue   = (int) ($_POST["horaspactodescargue"] ?? 0);
+        $minutospactodescargue = (int) ($_POST["minutospactodescargue"] ?? 0);
+        $obsercliente          = trim($_POST["obsercliente"] ?? '');
+        $tarifa_remesa         = trim($_POST["tarifa_remesa"] ?? '');
+
+        try {
+            $resultado = $this->_modelo->Insertar_remesa(
+                $num_orden,
+                $id_remite,
+                $id_dest,
+                $sol_servicio,
+                $r_contado,
+                $rcontra_remesa,
+                $valor,
+                $seguro,
+                $hcargue,
+                $fcargue,
+                $hdescarga,
+                $fdescarga,
+                $cantidad_real,
+                $tipo_nove,
+                $desc_nove,
+                $facturara,
+                $fecha_creacion,
+                $hora_creacion,
+                $nomarchivo,
+                $id_puntorem,
+                $horaspactocargue,
+                $minutospactocargue,
+                $horaspactodescargue,
+                $minutospactodescargue,
+                $obsercliente,
+                $tarifa_remesa
+            );
+
+            // $resultado ya viene con [status, numero_documento, error]
+            echo json_encode($resultado);
+        } catch (Throwable $e) {
+            error_log('Error en Registro_remesa: ' . $e->getMessage());
+
+            echo json_encode([
+                'status'           => false,
+                'numero_documento' => null,
+                'error'            => 'Error interno al registrar la remesa',
+            ]);
+        }
     }
-
 
     public function Subir_Archivo()
     {
@@ -754,7 +805,6 @@ class transporteController extends Controller
         $this->dat = $this->_modelo->Dato_Id_Remesa($idorden, $remit, $dest);
         echo json_encode($this->dat);
     }
-
 
     //CUMPLIDO
     public function Buscar_Mnf_Cumplido()
@@ -997,5 +1047,39 @@ class transporteController extends Controller
             $this->_buscar_cita = $this->_modelo->Listar_citas_asignadas();
             echo json_encode($this->_buscar_cita);
         }
+    }
+
+    public function Consultar_Precintos()
+    {
+        $Agencia = $_POST['Agencia'];
+        $Cliente = $_POST['Cliente'];
+        $this->_buscar_cita = $this->_modelo->Listar_Precintos_Disponibles($Agencia, $Cliente);
+        echo json_encode($this->_buscar_cita);
+    }
+
+    public function consultar_documento_manifiesto()
+    {
+        $fecha_inicial = $_POST['fecha_inicial'] ?? null;
+        $fecha_final = $_POST['fecha_final'] ?? null;
+        $num_criterio = $_POST['num_criterio'] ?? null;
+        $this->consultar_documento_manifiesto = $this->_modelo->Listar_Documento_precintos($fecha_inicial, $fecha_final, $num_criterio);
+        echo json_encode($this->consultar_documento_manifiesto);
+    }
+
+    public function insertar_precintos_documento()
+    {
+        $precintos = json_decode($_POST['precintos']);
+        $Ordenescargue = $_POST['Ordenescargue'];
+        $this->insertar_precinto_documento = $this->_modelo->Actualizar_documento_precinto($precintos, $Ordenescargue);
+        echo json_encode($this->insertar_precinto_documento);
+    }
+
+
+    public function Listar_Precintos()
+    {
+        $Tipo_Precinto = $_POST['Tipo_Precinto'] ?? null;
+        $Agencia = $_POST['Agencia'] ?? null;
+        $this->listar_precintos_tipo = $this->_modelo->Listar_Tipo_Precintos($Tipo_Precinto, $Agencia);
+        echo json_encode($this->listar_precintos_tipo);
     }
 }

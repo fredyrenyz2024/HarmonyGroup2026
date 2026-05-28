@@ -1,0 +1,94 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+            <!-- Contenedor gráfica -->
+            <div id="IndicadoresInstruccionesFacturaicon" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive mt-5">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-general-tipo-vehiculos">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total Instrucciones</th>
+                            <th id="total-general-tipo-vehiculo"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Contenedor gráfica -->
+            <div id="IndicadoresFacturaiconComercial" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-general-facturacion-comercial">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Comercial</th>
+                            <th>Total Instrucción</th>
+                            <th>Total Servicio Especial</th>
+                            <th>Total Facturación</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Totales</th>
+                            <th id="total-general-instruccion-comercial"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-9 col-sm-12 col-md-9 col-lg-9 col-xl-9 col-xxl-9">
+            <!-- Contenedor gráfica -->
+            <div id="IndicadoresFacturacionClientes" style="min-height:500px"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <!-- <span class="badge badge-phoenix badge-phoenix-info" style="font-size: 13px;">
+                    Número de órdenes de cargue: <span class="fw-bold badge-phoenix-info contador">0</span>
+                </span> -->
+                <a href="JavaScript:void(0);" id="exportar_excel_instrucciones" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="http://principal.nexosapp.com/public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+            </div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style="font-size:12px;" id="tabla-facturacion-clientes">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Total Facturación</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total General</th>
+                            <th id="total-general-facturacion-clientes"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3"></div> -->
+    </div>
+</div>

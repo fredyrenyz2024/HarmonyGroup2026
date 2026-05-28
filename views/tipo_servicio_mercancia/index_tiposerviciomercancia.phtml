@@ -1,428 +1,431 @@
 <?php
-$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
-$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
-$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
-$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
-//variables del sistema
-$vista = '';
-$table_content='';
+// $ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+// $ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+// $ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+// $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+// //variables del sistema
+// $vista = '';
+// $table_content = '';
 
-$table_content.="<div class='row' >
-			<div class='col-sm-12'>
-				<div  class='table-responsive noSwipe'>
-					<table id='table1' class='table table-striped table-hover' data-page-length='100'>
-						<thead>
-							<tr class='nexos-encabezado'>
-								<th>#</th>
-								<th>Tipo Servicio</th>
-								<th>Tipificación</th>
-								<th style='width:10%;min-width: 10%;'>acciones</th>
-							</tr>
-						</thead>
-						<tbody>";
-						$array = $this->tipo_servicio->getTabla();
-						if ( $array ) {
-					foreach ($array["rowsData"] as $key => $value) {
+// $table_content .= "<div class='row' >
+// 			<div class='col-sm-12'>
+// 				<div  class='table-responsive noSwipe'>
+// 					<table id='table1' class='table table-striped table-hover' data-page-length='100'>
+// 						<thead>
+// 							<tr class='nexos-encabezado'>
+// 								<th>#</th>
+// 								<th>Tipo Servicio</th>
+// 								<th>Tipificación</th>
+// 								<th style='width:10%;min-width: 10%;'>acciones</th>
+// 							</tr>
+// 						</thead>
+// 						<tbody>";
+// $array = $this->tipo_servicio->getTabla();
+// if ($array) {
+// 	foreach ($array["rowsData"] as $key => $value) {
 
-						$id=$value['id'];
-						$nom=$value['nombre'];
-						$clase=$value['tipificacion'];
-						$estado=$value['estado'];
-						
-						 $costo=$value['costo'];
-					
-						
+// 		$id = $value['id'];
+// 		$nom = $value['nombre'];
+// 		$clase = $value['tipificacion'];
+// 		$estado = $value['estado'];
 
-						$_btn_editar='';
-						$_btn_editar='
-							<button type="button" class="btn-secondary btn btn-xs mdi "
-							<a href="javascript:" onclick="prueba_edite(this)" class="cell-detail hint--top-left" data-hint="" 
-										data-id="'.$id.'" data-id2="'.$nom.'" data-id3="'.$clase.'" data-id4="'.$estado.'" data-id5="'.$costo.'" >
-										<span class="icon mdi mdi-edit" data-toggle="modal" data-target="#editar_tipo_vehiculo" title="Editar Tipo Servicio">
-										</span>
-									</a></button>';
+// 		$costo = $value['costo'];
 
-						if($value['estado']=='activo'){
-							$_col_status='
-								<td class="text" style="color:blue;">
-									<center>
-									<span class="mdi mdi-dot-circle icon"></span>
-									</center>
-								</td>';
-						}
-						if($value['estado']=='inactivo'){
-							$_col_status='
-								<td class="text" style="color:black;">
-									<center>
-									<span class="mdi mdi-dot-circle icon"></span>
-									</center>
-								</td>';
-						}
-						$table_content.='
-							<tr>
-								'.$_col_status.'
-								<td>'.$value['nombre'].'</td>
-								<td>'.$value['tipificacion'].'</td>
-								<td>'.$_btn_editar.'</td>
-							</tr>
+// 		$_btn_editar = '';
+// 		$_btn_editar = '
+// 							<button type="button" class="btn-secondary btn btn-xs mdi "
+// 							<a href="javascript:" onclick="prueba_edite(this)" class="cell-detail hint--top-left" data-hint="" 
+// 										data-id="' . $id . '" data-id2="' . $nom . '" data-id3="' . $clase . '" data-id4="' . $estado . '" data-id5="' . $costo . '" >
+// 										<span class="icon mdi mdi-edit" data-toggle="modal" data-target="#editar_tipo_vehiculo" title="Editar Tipo Servicio">
+// 										</span>
+// 									</a></button>';
 
-						';
-					}
-				}
-							$table_content.="</tbody>
-					</table>
-				</div>
-			</div>
-		</div>";
-$vista.='
-		<div class="panel panel-border panel-contrast">
-			<div class="panel-heading panel-heading-contrast">
-				Tipo de Servicio
-				<div class="tools">
-					<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="Agregar" data-target="#crea_cotizacion_sercliente" ><span class="icon mdi mdi-plus"></span></a> 
-				</div>
-				<span class="panel-subtitle">
-				Listado de servicios adicionales que se pueden prestar conexos al transporte.
-				</span>
-				<div class=" col-xs-12 col-sm-4 col-md-12">
-					<input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="'. $ssn_nombre .'" >
-				</div>
-			</div>
-			<div class="panel-body">
-				<div class="nexos-messages"></div>
-				<div class="nexos-content">
-					%content%
-				</div>
-				<div class="row">
-				<div class="col-sm-12"></div>
-				</div>
-			</div>
-		</div>
-	'; 
+// 		if ($value['estado'] == 'activo') {
+// 			$_col_status = '
+// 								<td class="text" style="color:blue;">
+// 									<center>
+// 									<span class="mdi mdi-dot-circle icon"></span>
+// 									</center>
+// 								</td>';
+// 		}
+// 		if ($value['estado'] == 'inactivo') {
+// 			$_col_status = '
+// 								<td class="text" style="color:black;">
+// 									<center>
+// 									<span class="mdi mdi-dot-circle icon"></span>
+// 									</center>
+// 								</td>';
+// 		}
+// 		$table_content .= '
+// 							<tr>
+// 								' . $_col_status . '
+// 								<td>' . $value['nombre'] . '</td>
+// 								<td>' . $value['tipificacion'] . '</td>
+// 								<td>' . $_btn_editar . '</td>
+// 							</tr>
+
+// 						';
+// 	}
+// }
+// $table_content .= "</tbody>
+// 					</table>
+// 				</div>
+// 			</div>
+// 		</div>";
+// $vista .= '
+// 		<div class="panel panel-border panel-contrast">
+// 			<div class="panel-heading panel-heading-contrast">
+// 				Tipo de Servicio
+// 				<div class="tools">
+// 					<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="Agregar" data-target="#crea_cotizacion_sercliente" ><span class="icon mdi mdi-plus"></span></a> 
+// 				</div>
+// 				<span class="panel-subtitle">
+// 				Listado de servicios adicionales que se pueden prestar conexos al transporte.
+// 				</span>
+// 				<div class=" col-xs-12 col-sm-4 col-md-12">
+// 					<input type="hidden" id="ee_usuario" class="form-control input-sm" readonly="readonly" value="' . $ssn_nombre . '" >
+// 				</div>
+// 			</div>
+// 			<div class="panel-body">
+// 				<div class="nexos-messages"></div>
+// 				<div class="nexos-content">
+// 					%content%
+// 				</div>
+// 				<div class="row">
+// 				<div class="col-sm-12"></div>
+// 				</div>
+// 			</div>
+// 		</div>
+// 	';
 
 
-$vista.='<div id="crea_cotizacion_sercliente" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
-	<div class=".modal-dialog-modal-lg.modal-dialog ">
-		<div class="modal-content ">
-			<div class="modal-header">
-				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
-				<h3 class="modal-title">
-				<label style="font-size:19pt; color:white; text-align:center;">
-				Crear Tipos de Servicio
-				</label>
-				</h3>
-			</div>
-			<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
-			<div id="nexos_messages_popup"></div>
-			<div class="row">
-				<div class="col-md-12 col-sm-12 col-xs-12">
-					<span><label  id="cliente2" style="font-weight:800; margin-top:20px;"></label></span>
-				</div>	
-				<div class="col-md-12 col-xs-12 col-sm-12 col-lg-12">
-					<label style="font-weight:800; margin-top:20px;">Tipo Servicio:</label>
-					<input type="text" id="tipo" class="form-control input-sm"  >	
-				</div>
-				<div class="col-md-6 col-xs-12 col-sm-6 col-lg-12">
-					<label style="font-weight:800; margin-top:20px;">Estado</label>
-					<input type="text" id="estado" value="activo" class="form-control input-sm" readonly="readonly">
-				</div>
-				<div class="col-md-6 col-xs-12 col-sm-6 col-lg-12">
-					<label style="font-weight:800; margin-top:20px;">Tipificación:</label>
-					<select id="tipi" class="form-control input-sm" onchange="tipificar();" >
-						<option value="">Seleccione</option>
-						<option value="Especial">Especial</option>
-						<option value="Mercancia">Mercancia</option>
-					</select>	
-				</div>
-				<div class="col-md-6 col-xs-12 col-sm-6 col-lg-12">
-					<label style="font-weight:800; margin-top:20px;">Costo</label>
-					<input  type="number" id="costo" min="0" class="form-control input-sm" placeholder="$$$$" disabled="disabled"  >
-				</div>
+// $vista .= '<div id="crea_cotizacion_sercliente" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+// 	<div class=".modal-dialog-modal-lg.modal-dialog ">
+// 		<div class="modal-content ">
+// 			<div class="modal-header">
+// 				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+// 				<h3 class="modal-title">
+// 				<label style="font-size:19pt; color:white; text-align:center;">
+// 				Crear Tipos de Servicio
+// 				</label>
+// 				</h3>
+// 			</div>
+// 			<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+// 			<div id="nexos_messages_popup"></div>
+// 			<div class="row">
+// 				<div class="col-md-12 col-sm-12 col-xs-12">
+// 					<span><label  id="cliente2" style="font-weight:800; margin-top:20px;"></label></span>
+// 				</div>	
+// 				<div class="col-md-12 col-xs-12 col-sm-12 col-lg-12">
+// 					<label style="font-weight:800; margin-top:20px;">Tipo Servicio:</label>
+// 					<input type="text" id="tipo" class="form-control input-sm"  >	
+// 				</div>
+// 				<div class="col-md-6 col-xs-12 col-sm-6 col-lg-12">
+// 					<label style="font-weight:800; margin-top:20px;">Estado</label>
+// 					<input type="text" id="estado" value="activo" class="form-control input-sm" readonly="readonly">
+// 				</div>
+// 				<div class="col-md-6 col-xs-12 col-sm-6 col-lg-12">
+// 					<label style="font-weight:800; margin-top:20px;">Tipificación:</label>
+// 					<select id="tipi" class="form-control input-sm" onchange="tipificar();" >
+// 						<option value="">Seleccione</option>
+// 						<option value="Especial">Especial</option>
+// 						<option value="Mercancia">Mercancia</option>
+// 					</select>	
+// 				</div>
+// 				<div class="col-md-6 col-xs-12 col-sm-6 col-lg-12">
+// 					<label style="font-weight:800; margin-top:20px;">Costo</label>
+// 					<input  type="number" id="costo" min="0" class="form-control input-sm" placeholder="$$$$" disabled="disabled"  >
+// 				</div>
 
 
-		<div class="row"></div>
-		</div>
-		<div class="modal-footer">
-			<button type="button" data-dismiss="modal" id="btn_agregar_tipo" 
-			 onclick="creartipo();" class="btn btn-success md-close">Guardar</button>
-			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
-		</div>
-	</div>
-	</div>
-</div>';
-?>
+// 		<div class="row"></div>
+// 		</div>
+// 		<div class="modal-footer">
+// 			<button type="button" data-dismiss="modal" id="btn_agregar_tipo" 
+// 			 onclick="creartipo();" class="btn btn-success md-close">Guardar</button>
+// 			<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+// 		</div>
+// 	</div>
+// 	</div>
+// </div>';
+// ?>
 
 <div id="editar_tipo_vehiculo" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
-			<div class="modal-dialog custom-width">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
-						<h3 class="modal-title" id="editar_title">
-						<label id="titulo" style="font-size:19pt; color:white; text-align:center;">EDITAR TIPO SERVICIO</label>
-						</h3>
+	<div class="modal-dialog custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+				<h3 class="modal-title" id="editar_title">
+					<label id="titulo" style="font-size:19pt; color:white; text-align:center;">EDITAR TIPO SERVICIO</label>
+				</h3>
+			</div>
+			<div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+				<div id="msg_editar"></div><!-- id para manejar los mensajes de errordel popup -->
+				<div id="content_editar">
+					<div>
+						<label style="font-weight:800; margin-top:20px;">Tipo Servicio</label>
+						<input type="text" id="e_tipo" class="form-control input-sm">
 					</div>
-					<div class="modal-body"  style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
-						<div id="msg_editar"></div><!-- id para manejar los mensajes de errordel popup -->
-						<div id="content_editar">
-							<div>
-								<label style="font-weight:800; margin-top:20px;">Tipo Servicio</label>
-								<input type="text" id="e_tipo" class="form-control input-sm" >
-							</div>
-							<div>
-								<label style="font-weight:800; margin-top:20px;">Tipificación</label>
-								<select id="e_tipificar" class="form-control input-sm" onchange="editipificar();">
-								</select>
-							</div>
-							<div>
-								<label style="font-weight:800; margin-top:20px;">Estado</label>
-								<select id="e_estado" class="form-control input-sm">
-								</select>
-							</div>
-							<div>
-								<label style="font-weight:800; margin-top:20px;">Costo</label>
-								<input type="number" id="e_costo" class="form-control input-sm" disabled="disabled">
-							</div>
-							<div>
-								<input type="hidden" id="e_id" class="form-control input-sm">
-							</div>
-						</div>
-					<div class="modal-footer">
-						<button id="btn_actualizar" type="button" class="btn btn-success md-close" onclick="update();" >Actualizar</button>
-						<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
-						</div>
+					<div>
+						<label style="font-weight:800; margin-top:20px;">Tipificación</label>
+						<select id="e_tipificar" class="form-control input-sm" onchange="editipificar();">
+						</select>
 					</div>
+					<div>
+						<label style="font-weight:800; margin-top:20px;">Estado</label>
+						<select id="e_estado" class="form-control input-sm">
+						</select>
+					</div>
+					<div>
+						<label style="font-weight:800; margin-top:20px;">Costo</label>
+						<input type="number" id="e_costo" class="form-control input-sm" disabled="disabled">
+					</div>
+					<div>
+						<input type="hidden" id="e_id" class="form-control input-sm">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="btn_actualizar" type="button" class="btn btn-success md-close" onclick="update();">Actualizar</button>
+					<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
 				</div>
 			</div>
 		</div>
+	</div>
+</div>
 <?php
 
-	$vista.= '
-		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
-		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
-		<script src="%root_file%js/main.js" type="text/javascript"></script>
-		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
-		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+// $vista .= '
+// 		<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+// 		<script src="%root_file%js/main.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+// 		<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
 
-		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
-		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
-		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
-		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+// 		<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+// 		<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
 
-		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+// 		<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
 
 
-		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
-		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+// 		<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
 
-		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
-		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+// 		<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+// 		<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+// 		<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+// 		<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
 
-		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
-		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
-		<script type="text/javascript">
-			$.fn.niftyModal(\'setDefaults\',{
-				overlaySelector: \'.modal-overlay\',
-				closeSelector: \'.modal-close\',
-				classAddAfterOpen: \'modal-show\',
-			});
-			$(document).ready(function(){
-				//initialize the javascript
-				App.init();
-			});
-			$(document).ready(function(){
-				//initialize the javascript
-				App.init();
-				App.dataTables();
-			});
-			$(document).ready(function(){
-				//initialize the javascript
-				App.init();
-				App.wizard();
-			});
-		</script>
-	';
-	$vista = str_replace("%root_file%" , $_layoutParams["ruta_layout"] , $vista);
-	$vista = str_replace("%content%" , $table_content , $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
-	echo $vista;
+// 		<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+// 		<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+// 		<script type="text/javascript">
+// 			$.fn.niftyModal(\'setDefaults\',{
+// 				overlaySelector: \'.modal-overlay\',
+// 				closeSelector: \'.modal-close\',
+// 				classAddAfterOpen: \'modal-show\',
+// 			});
+// 			$(document).ready(function(){
+// 				//initialize the javascript
+// 				App.init();
+// 			});
+// 			$(document).ready(function(){
+// 				//initialize the javascript
+// 				App.init();
+// 				App.dataTables();
+// 			});
+// 			$(document).ready(function(){
+// 				//initialize the javascript
+// 				App.init();
+// 				App.wizard();
+// 			});
+// 		</script>
+// 	';
+// $vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+// $vista = str_replace("%content%", $table_content, $vista); //variable $table_content sirve para crear adentro de esta todo lo que se va a mostrar en el cuerpo del conetenedor 
+// echo $vista;
 ?>
 
-<script type="text/javascript">
-	function tipificar(){
+<!-- <script type="text/javascript">
+	function tipificar() {
 		//alert('cambio');
-		var t=$("#tipi").val();
-		if(t=='Especial'){
+		var t = $("#tipi").val();
+		if (t == 'Especial') {
 			$("#costo").prop('disabled', false);
-		}else{
+		} else {
 			$("#costo").prop('disabled', true);
 		}
 	}
 
-
-	function editipificar(){
+	function editipificar() {
 		alert('edicion');
-		var tipo=$("#e_tipificar").val();
-		if(tipo=='Mercancia'){
+		var tipo = $("#e_tipificar").val();
+		if (tipo == 'Mercancia') {
 			$("#e_costo").val('');
-		} 
-		if(tipo=='Especial'){
+		}
+		if (tipo == 'Especial') {
 			$("#e_costo").val(costoanterior);
 		}
-
 	}
 
-
-	function creartipo(){
+	function creartipo() {
 		// alert('kjdhsjkh');
-		var tipo=$("#tipo").val();
-		var estado=$("#estado").val();
-		var tipi=$("#tipi").val();
-		var costo=$("#costo").val();
-		var datos_verificar={
-		tipo:tipo,
-		estado:estado,
-		tipi:tipi,
-		costo:costo,
-		action:'consultar_tipo_servicio'
+		var tipo = $("#tipo").val();
+		var estado = $("#estado").val();
+		var tipi = $("#tipi").val();
+		var costo = $("#costo").val();
+		var datos_verificar = {
+			tipo: tipo,
+			estado: estado,
+			tipi: tipi,
+			costo: costo,
+			action: 'consultar_tipo_servicio'
 		};
 		$.ajax({
-		url:"http://localhost/mvcLuisMiguel/libs/index_tiposervicio_ajax.php",
-	 	type:'POST',
-	 	data:datos_verificar,
-	 	dataType:'json',
-	 	success: function(data){
-	 		
-	 		if(data.result){
-				alert('Este tipo de servicio con esa tipificación ya existe en el sistema, por favor ingrese uno diferente');
-				$("html, body").animate({ scrollTop: 0 }, 600);
-		 		setTimeout(function() { location.reload(false);  }, 800);
-	 		}else{
-	 			// alert('registren');
-	 			var datos={
-					tipo:tipo,
-					estado:estado,
-					tipi:tipi,
-					costo:costo,
-					action:'crear_tipo_vehiculo'
-				};
+			url: "http://localhost/mvcLuisMiguel/libs/index_tiposervicio_ajax.php",
+			type: 'POST',
+			data: datos_verificar,
+			dataType: 'json',
+			success: function(data) {
 
-				$.ajax({
-				url:"http://localhost/mvcLuisMiguel/libs/index_tiposervicio_ajax.php",
-			 	type:'POST',
-			 	data:datos,
-			 	dataType:'json',
-			 	success: function(data){
-			 		alert('Datos Registrados Exitosamente!!');
-			 		$("html, body").animate({ scrollTop: 0 }, 600);
-					setTimeout(function() { location.reload(false);  }, 800);
+				if (data.result) {
+					alert('Este tipo de servicio con esa tipificación ya existe en el sistema, por favor ingrese uno diferente');
+					$("html, body").animate({
+						scrollTop: 0
+					}, 600);
+					setTimeout(function() {
+						location.reload(false);
+					}, 800);
+				} else {
+					// alert('registren');
+					var datos = {
+						tipo: tipo,
+						estado: estado,
+						tipi: tipi,
+						costo: costo,
+						action: 'crear_tipo_vehiculo'
+					};
 
-			 	},
-			 	error: function(jqXHR, textStatus, errorThrown){
-			 		console.log('error insert mercancia');
-			 		console.log(jqXHR);
-					console.log(textStatus);
-					console.log(errorThrown);
-			 	}
-			 	});	
+					$.ajax({
+						url: "http://localhost/mvcLuisMiguel/libs/index_tiposervicio_ajax.php",
+						type: 'POST',
+						data: datos,
+						dataType: 'json',
+						success: function(data) {
+							alert('Datos Registrados Exitosamente!!');
+							$("html, body").animate({
+								scrollTop: 0
+							}, 600);
+							setTimeout(function() {
+								location.reload(false);
+							}, 800);
 
-	 		}
-	 	},
-	 	error: function(jqXHR, textStatus, errorThrown){
-	 		alert('error verificar');
-	 		console.log('error verificar');
-	 		console.log(jqXHR);
-			console.log(textStatus);
-			console.log(errorThrown);
-	 	}
- 		});
-	
-	}
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							console.log('error insert mercancia');
+							console.log(jqXHR);
+							console.log(textStatus);
+							console.log(errorThrown);
+						}
+					});
 
-
-function prueba_edite(element){
-	// alert('en un tetrico');
-	var elemento = $(element);
-	var id = elemento.data("id");
-	var nombre = elemento.data("id2");
-	var clase= elemento.data("id3");
-	var estado= elemento.data("id4");
-	var costo= elemento.data("id5");
-	$("#e_tipo").val(nombre);
-	$("#e_id").val(id);
-	if(clase=='Mercancia'){
-		$("#e_tipificar").html('<option value="'+clase+'">'+clase+'</option>'+
-			'<option value="Especial">Especial</option>');
-		$("#e_costo").val('');
-		$("#e_costo").prop('disabled', true);
-	}else if(clase=='Especial'){
-		$("#e_tipificar").html('<option value="'+clase+'">'+clase+'</option>'+
-			'<option value="Mercancia">Mercancia</option>');
-		$("#e_costo").val(costo);
-		$("#e_costo").prop('disabled', false);
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert('error verificar');
+				console.log('error verificar');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
 
 	}
 
-	if(estado=='activo'){
-		$("#e_estado").html('<option value="activo">activo</option>'+'<option value="inactivo">inactivo</option>');
+	function prueba_edite(element) {
+		// alert('en un tetrico');
+		var elemento = $(element);
+		var id = elemento.data("id");
+		var nombre = elemento.data("id2");
+		var clase = elemento.data("id3");
+		var estado = elemento.data("id4");
+		var costo = elemento.data("id5");
+		$("#e_tipo").val(nombre);
+		$("#e_id").val(id);
+		if (clase == 'Mercancia') {
+			$("#e_tipificar").html('<option value="' + clase + '">' + clase + '</option>' +
+				'<option value="Especial">Especial</option>');
+			$("#e_costo").val('');
+			$("#e_costo").prop('disabled', true);
+		} else if (clase == 'Especial') {
+			$("#e_tipificar").html('<option value="' + clase + '">' + clase + '</option>' +
+				'<option value="Mercancia">Mercancia</option>');
+			$("#e_costo").val(costo);
+			$("#e_costo").prop('disabled', false);
+
+		}
+
+		if (estado == 'activo') {
+			$("#e_estado").html('<option value="activo">activo</option>' + '<option value="inactivo">inactivo</option>');
+		}
+		if (estado == 'inactivo') {
+			$("#e_estado").html('<option value="inactivo">inactivo</option>' + '<option value="activo">activo</option>');
+		}
+
+
+
 	}
-	if(estado=='inactivo'){
-		$("#e_estado").html('<option value="inactivo">inactivo</option>'+'<option value="activo">activo</option>');
+
+	function update() {
+		// alert('hhelo');
+		var id_tb = $("#e_id").val();
+		var nom = $("#e_tipo").val();
+		var tipi = $("#e_tipificar").val();
+		var estado = $("#e_estado").val();
+		var ecosto = $("#e_costo").val();
+		// alert(id_tb);
+		// alert(nom);
+		// alert(tipi);
+
+		datos_editar = {
+			id: id_tb,
+			nom: nom,
+			tipi: tipi,
+			esta: estado,
+			ecosto: ecosto,
+			action: 'actualizar'
+		};
+
+		$.ajax({
+			url: "http://localhost/mvcLuisMiguel/libs/index_tiposervicio_ajax.php",
+			type: 'POST',
+			data: datos_editar,
+			dataType: 'json',
+			success: function(data) {
+				// console.log('sisi update');
+				alert('Datos Actualizados Exitosamente!!');
+				$("html, body").animate({
+					scrollTop: 0
+				}, 600);
+				setTimeout(function() {
+					location.reload(false);
+				}, 800);
+
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log('error update');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			}
+		});
 	}
-
-
-
-}
-
-function update(){
-	// alert('hhelo');
-	var id_tb=$("#e_id").val();
-	var nom=$("#e_tipo").val();
-	var tipi=$("#e_tipificar").val();
-	var estado=$("#e_estado").val();
-	var ecosto=$("#e_costo").val();
-	// alert(id_tb);
-	// alert(nom);
-	// alert(tipi);
-
-	datos_editar={
-		id:id_tb,
-		nom:nom,
-		tipi:tipi,
-		esta:estado,
-		ecosto:ecosto,
-		action:'actualizar'
-	};
-
-	$.ajax({
-	url:"http://localhost/mvcLuisMiguel/libs/index_tiposervicio_ajax.php",
- 	type:'POST',
- 	data:datos_editar,
- 	dataType:'json',
- 	success: function(data){
- 		// console.log('sisi update');
- 		alert('Datos Actualizados Exitosamente!!');
- 		$("html, body").animate({ scrollTop: 0 }, 600);
-		setTimeout(function() { location.reload(false);  }, 800);
-
- 	}, 
- 	error: function(jqXHR, textStatus, errorThrown){
- 		console.log('error update');
- 		console.log(jqXHR);
-		console.log(textStatus);
-		console.log(errorThrown);
- 	}
-});	
-}
-
-
-
-</script>
+</script> -->

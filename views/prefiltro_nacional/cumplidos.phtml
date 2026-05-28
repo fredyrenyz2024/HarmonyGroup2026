@@ -1,0 +1,365 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 fw-bold"><!-- Órdenes de Cargue --></h5>
+        <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvaExpedirCumplido" aria-controls="offcanvaExpedirCumplido">
+            <i class="fa-solid fa-plus me-1"></i> Nuevo Cumplido
+        </button>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form class="row g-3 align-items-center">
+                <div class="col-12 col-md-2 divfiltro">
+                    <label for="filtro_cumplido" class="form-label fw-bold mb-1">Filtrar por</label>
+                    <select id="filtro_cumplido" class="form-select form-select-sm">
+                        <option value="">Seleccionar</option>
+                        <option value="1">Número Manifiesto</option>
+                        <option value="2">Fecha</option>
+                    </select>
+                </div>
+
+                <div class="col-6 col-md-3 fec">
+                    <label class="form-label fw-bold">Fecha inicial</label>
+                    <input type="date" id="finicial" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="col-6 col-md-3 divfechas fec">
+                    <label class="form-label fw-bold">Fecha final</label>
+                    <input type="date" id="ffinal" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 num">
+                    <label>Número Manifiesto</label>
+                    <input type="number" id="numnani" class="form-control input-sm">
+                </div>
+
+                <div class="col-12 col-md-2 d-flex align-items-end pt-5 align-content-center btn">
+                    <button type="button" class="btn btn-primary btn-sm w-100" id="buscar_cumplido">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla paera listar las remesas en el sistema -->
+    <div class="row" id="tabla_datos">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge badge-phoenix badge-phoenix-info" style="font-size: 13px;">
+                    Numero de Manifiestos Cumplidos: <span class="fw-bold badge-phoenix-info contador">0</span>
+                </span>
+                <a href="JavaScript:void(0);" id="exportar_excel" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="http://principal.nexosapp.com/public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+            </div>
+
+            <div class="table-responsive shadow-sm rounded" style="overflow: hidden;">
+                <table id="ordenes_manifiesto_export" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style='width:auto; white-space: nowrap;'>Estado</th>
+                            <th style='width:auto; white-space: nowrap;'>Cumplido</th>
+                            <th style='width:auto; white-space: nowrap;'>Manifiesto</th>
+                            <th style='width:auto; white-space: nowrap;'>Placa</th>
+                            <th style='width:auto; white-space: nowrap;'>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cumplidobody">
+                        <tr>
+                            <td colspan="6" id="remload"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvasDetalleCumplido" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasDetalleCumplidoLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasDetalleCumplidoLabel">Detalle de Manifiesto</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <!-- Contenedor Datos -->
+        <div class="row" id="contenedor_datos">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="panel panel-border-color panel-border-color-dark">
+                    <div class="panel-heading">
+                        <p id="titulo"></p>
+                    </div>
+                    <div class="panel-body" id="bodycontenido">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <label class="form-label">N° cumplido</label>
+                                <input type="text" id="c_cumpli" class="form-control text-center form-control-sm text-white bg-dark campov" disabled>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <label class="form-label">Placa</label>
+                                <input type="text" id="c_placa" class="form-control form-control-sm text-white bg-dark campov" disabled>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <label class="form-label">Manifiesto</label>
+                                <input type="text" id="c_manifi" class="form-control form-control-sm campov" disabled>
+                            </div>
+
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <label class="form-label">Conductor</label>
+                                <input type="text" id="c_nombre" class="form-control form-control-sm text-white bg-dark  campov" disabled title="Nombre conductor">
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <label class="form-label">Número de identificación</label>
+                                <input type="text" id="c_numero" class="form-control form-control-sm text-white bg-dark campov" disabled title="Número de identificación">
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <label class="form-label">Propietario</label>
+                                <input type="text" id="c_propieta" class="form-control form-control-sm text-white bg-dark  campov" disabled title="Nombre conductor">
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <label class="form-label">Número de identificación</label>
+                                <input type="text" id="c_propinumero" class="form-control form-control-sm text-white bg-dark campov" disabled title="Número de identificación">
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <label class="form-label">Poseedor</label>
+                                <input type="text" id="c_posee" class="form-control form-control-sm text-white bg-dark  campov" disabled title="Nombre conductor">
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <label class="form-label">Número de identificación</label>
+                                <input type="text" id="c_poseenumero" class="form-control form-control-sm text-white bg-dark campov" disabled title="Número de identificación">
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <label class="form-label">Novedad</label>
+                                <input type="text" id="c_novedad" class="form-control form-control-sm text-white bg-dark campov" disabled title="Novedad">
+                            </div>
+                        </div>
+                        <!-- <div class="row"></div> -->
+                        <hr class="my-1">
+                        <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                            <thead>
+                                <tr>
+                                    <td style='width:auto; white-space: nowrap;'>Remesa</td>
+                                    <td style='width:auto; white-space: nowrap;'>Fecha</td>
+                                    <td style='width:auto; white-space: nowrap;'>Hora</td>
+                                    <td style='width:auto; white-space: nowrap;'>Observación</td>
+                                    <td style='width:auto; white-space: nowrap;'>Tipo</td>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla_remesas"></tbody>
+                        </table>
+
+                        <br>
+                        <div class="mt-3 text-end">
+                            <button id="btn_imprimir" class="btn btn-success btn-sm" title="Imprimir cumplido">Imprimir</button>
+                        </div>
+                    </div>s
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvaExpedirCumplido" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvaExpedirCumplidoLabel" style="width: 1200px;">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title" id="offcanvaExpedirCumplidoLabel">Detalle de Manifiesto</h5>
+        <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <form id="formCumplidosManifiesto">
+            <!-- DATOS BÁSICOS -->
+            <fieldset class="mb-4">
+                <!-- <legend class="fs-6 text-muted border-bottom pb-1">Datos Básicos</legend> -->
+                <hr class="my-0 text-dark">
+                <div class="d-flex flex-wrap justify-content-start my-1">
+                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                        <h6 class="mb-0 text-body-highlight me-2">Datos Básicos</h6>
+                    </div>
+                </div>
+                <hr class="my-0 text-dark">
+                <div class="row g-3">
+
+                    <div class="col-12">
+                        <label for="placao" class="form-label">Manifiesto (*)</label>
+                        <select id="placao" class="form-select form-select-sm js-example-basic-single">
+                            <option value="">Seleccione</option>
+                        </select>
+                        <input type="hidden" id="id_servicio">
+                        <input type="hidden" id="id_vehiculo">
+                        <input type="hidden" id="id_estudios">
+                        <input type="hidden" id="id_remitente">
+                    </div>
+
+                    <div class="col-md-5">
+                        <label for="id_manifiesto" class="form-label">Manifiesto Seleccionado</label>
+                        <input type="text" id="id_manifiesto" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="o_fecha_exedicion" class="form-label">Fecha de expedición</label>
+                        <input type="text" id="o_fecha_exedicion" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="tipo_manifiesto" class="form-label">Tipo Manifiesto</label>
+                        <input type="text" id="tipo_manifiesto" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="origen" class="form-label">Origen</label>
+                        <input type="text" id="origen" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="destino" class="form-label">Destino</label>
+                        <input type="text" id="destino" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="placa" class="form-label">Placa</label>
+                        <input type="text" id="placa" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="nameposee" class="form-label">Poseedor</label>
+                        <input type="text" id="nameposee" class="form-control form-control-sm mb-1" disabled>
+                        <input type="text" id="docposee" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="namepropi" class="form-label">Propietario</label>
+                        <input type="text" id="namepropi" class="form-control form-control-sm mb-1" disabled>
+                        <input type="text" id="docpropi" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="nameconduc" class="form-label">Conductor</label>
+                        <input type="text" id="nameconduc" class="form-control form-control-sm mb-1" disabled>
+                        <input type="text" id="docconduc" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="cant_multa" class="form-label">Cantidad Multas</label>
+                        <input type="number" id="cant_multa" class="form-control form-control-sm">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="tarif_multa" class="form-label">Tarifa Multa</label>
+                        <input type="text" id="tarif_multa" class="form-control form-control-sm" value="50.000" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="valor_multa" class="form-label">Valor Multa</label>
+                        <input type="text" id="valor_multa" class="form-control form-control-sm" disabled>
+                    </div>
+
+                </div>
+            </fieldset>
+
+            <!-- DATOS DE PAGOS -->
+            <fieldset class="mb-4">
+                <!-- <legend class="fs-6 text-muted border-bottom pb-1">Datos de Pagos</legend> -->
+                <hr class="my-0 text-dark">
+                <div class="d-flex flex-wrap justify-content-start my-1">
+                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                        <h6 class="mb-0 text-body-highlight me-2">Datos de Pagos</h6>
+                    </div>
+                </div>
+                <hr class="my-0 text-dark">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="fecha_pago" class="form-label">Fecha estimada de Pago</label>
+                        <input type="text" id="fecha_pago" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="agencia_pago" class="form-label">Agencia de Pago</label>
+                        <input type="text" id="agencia_pago" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- REMESAS Y ORDENES -->
+            <fieldset class="mb-4">
+                <!-- <legend class="fs-6 text-muted border-bottom pb-1">Remesas & Órdenes</legend> -->
+                <hr class="my-0 text-dark">
+                <div class="d-flex flex-wrap justify-content-start my-1">
+                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                        <h6 class="mb-0 text-body-highlight me-2">Remesas & Órdenes</h6>
+                    </div>
+                </div>
+                <hr class="my-0 text-dark">
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th>Orden - Remesa</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Observación</th>
+                                <th>Tipo Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla_cargue"></tbody>
+                    </table>
+                </div>
+
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th>Remesa</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Observación</th>
+                                <th>Tipo Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla_descargue"></tbody>
+                    </table>
+                </div>
+
+            </fieldset>
+
+            <!-- FECHA CUMPLIDO Y NOVEDAD -->
+            <fieldset>
+                <!-- <legend class="fs-6 text-muted border-bottom pb-1">Expedición</legend> -->
+                <hr class="my-0 text-dark">
+                <div class="d-flex flex-wrap justify-content-start my-1">
+                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                        <h6 class="mb-0 text-body-highlight me-2">Expedición</h6>
+                    </div>
+                </div>
+                <hr class="my-0 text-dark">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="expide_cumplido" class="form-label">Fecha de expedición cumplido</label>
+                        <input type="text" id="expide_cumplido" class="form-control form-control-sm" disabled value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="noveda" class="form-label">Novedad</label>
+                        <textarea id="noveda" class="form-control form-control-sm" rows="1"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+        <div class="row mt-2">
+            <div class="col-12 text-end">
+                <button id="Registrar_Cumplido" class="btn btn-success btn-xs offset-10"><i class="mdi mdi-check"></i> Cumplir</button>
+                <!--<button id="" class="btn-sm btn-secondary offset-10">Borrar</button>-->
+            </div>
+        </div>
+    </div>
+</div>
+</div>

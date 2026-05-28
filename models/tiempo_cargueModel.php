@@ -82,9 +82,8 @@ class tiempo_cargueModel extends Model
     public function Validar_Orden_Cargue($manifiesto)
     {
         // $fecha = date("Y-m-d");
-        $sqlm = $this->_db3->prepare("SELECT num_manifiesto FROM cmx_tiempo_cargue WHERE num_manifiesto=:manifiesto /*AND fecha=:fecha*/");
+        $sqlm = $this->_db3->prepare("SELECT num_manifiesto FROM cmx_tiempo_cargue WHERE num_manifiesto=:manifiesto");
         $sqlm->bindParam(":manifiesto", $manifiesto);
-        // $sqlm->bindParam(":fecha", $fecha);
         $sqlm->execute();
         $number_manifiesto = $sqlm->fetch(PDO::FETCH_ASSOC);
         if ($number_manifiesto) {
@@ -94,147 +93,335 @@ class tiempo_cargueModel extends Model
         }
     }
 
-    public function Insertar_Tiempo(
-        $manifiesto,
-        $placa,
-        $tipofechallega,
-        $fllegcargar,
-        $hllegcargar,
-        $tipofechaentro,
-        $fentrocarga,
-        $hentrocarga,
-        $tipofechasali,
-        $fsalidacarga,
-        $hsalidacarga,
-        $num_orden
-    ) {
-        $factual = date('Y-m-d');
-        $horactual = date('H:i:s');
-        $id_usuario = $_SESSION["usuario"]["nom_usuario"];
-        //Santizar
-        (int) $manifiesto;
+    // public function Insertar_Tiempo(
+    //     $manifiesto,
+    //     $placa,
+    //     $tipofechallega,
+    //     $fllegcargar,
+    //     $hllegcargar,
+    //     $tipofechaentro,
+    //     $fentrocarga,
+    //     $hentrocarga,
+    //     $tipofechasali,
+    //     $fsalidacarga,
+    //     $hsalidacarga,
+    //     $num_orden
+    // ) {
+    //     $factual = date('Y-m-d');
+    //     $horactual = date('H:i:s');
+    //     $id_usuario = $_SESSION["usuario"]["nom_usuario"];
+    //     //Santizar
+    //     (int) $manifiesto;
 
-        $sqlm = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='TIM_CAR' AND numero_actual>=numero_inicial AND numero_actual<=numero_final");
-        $sqlm->execute();
-        $number1 = $sqlm->fetch(PDO::FETCH_ASSOC);
-        $number2 = $number1['numero_actual'];
+    //     $sqlm = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='TIM_CAR' AND numero_actual>=numero_inicial AND numero_actual<=numero_final");
+    //     $sqlm->execute();
+    //     $number1 = $sqlm->fetch(PDO::FETCH_ASSOC);
+    //     $number2 = $number1['numero_actual'];
+
+    //     try {
+    //         $this->_db3->beginTransaction();
+
+    //         $valor = str_replace(',', ' ', $num_orden);
+    //         $datos = explode(' ', $valor);
+    //         $sql_tiempo = $this->_db3->prepare("INSERT INTO cmx_tiempo_cargue(id,num_manifiesto,placa,fecha,hora,usuario,estado) VALUES(:id,:num_mnf,:placa,:fec_registro,:hor_registro,:user,:estado)")
+    //             ->execute(array(':id' => $number2, ':num_mnf' => $manifiesto, ':fec_registro' => $factual, ':hor_registro' => $horactual, ':user' => $id_usuario, ':estado' => 1, ':placa' => $placa));
+    //         if ($sql_tiempo) {
+    //             $i = 0; //registrar ordenes
+    //             for ($i = 0; $i < count($datos); $i++) {
+    //                 $numero_orden = $datos[$i];
+    //                 //fecha para ir a cargar
+    //                 $sql_fecha1 = $this->_db3->prepare('INSERT INTO cmx_tiempo_cargue_ordenes (id,id_cargue,id_orden_cargue,fecha_cargue,hora_cargue,obs_cargue,tipo_fecha,fecha_registro,hora_registro,usuario,estado) VALUES(:id,:id_cargue,:id_orden,:fecha_ir_cargar,:hora_ir_cargar,:obs_ir,:clase,:fecregistro,:horaregistro,:user,:estado)')
+    //                     ->execute(array(':id' => null, ':id_cargue' => $number2, ':id_orden' => $numero_orden, ':estado' => 1, ':fecha_ir_cargar' => $fllegcargar, ':hora_ir_cargar' => $hllegcargar, ':obs_ir' => 'NULL', ':clase' => 'fecha_ircargue', ':fecregistro' => $factual, ':horaregistro' => $horactual, ':user' => $id_usuario));
+    //                 if ($sql_fecha1) {
+    //                     $f1 = 1;
+    //                     //fecha llegar a cargar
+    //                     $sql_fecha2 = $this->_db3->prepare('INSERT INTO cmx_tiempo_cargue_ordenes (id,id_cargue,id_orden_cargue,fecha_cargue,hora_cargue,obs_cargue,tipo_fecha,fecha_registro,hora_registro,usuario,estado) VALUES(:id,:id_cargue,:id_orden,:fecha_lleg_cargar,:hora_lleg_cargar,:obs_lleg,:clase,:fecregistro,:horaregistro,:user,:estado)')
+    //                         ->execute(array(':id' => null, ':id_cargue' => $number2, ':id_orden' => $numero_orden, ':estado' => 1, ':fecha_lleg_cargar' => $fllegcargar, ':hora_lleg_cargar' => $hllegcargar, ':obs_lleg' => 'NULL', ':clase' => 'fec_llegada', ':fecregistro' => $factual, ':horaregistro' => $horactual, ':user' => $id_usuario));
+    //                     if ($sql_fecha2) {
+    //                         $f2 = 1;
+    //                         //fecha entrada a cargar
+    //                         $sql_fecha3 = $this->_db3->prepare('INSERT INTO cmx_tiempo_cargue_ordenes (id,id_cargue,id_orden_cargue,fecha_cargue,hora_cargue,obs_cargue,tipo_fecha,fecha_registro,hora_registro,usuario,estado)VALUES(:id,:id_cargue,:id_orden,:fecha_ent_cargar,:hora_ent_cargar,:obs_entr,:clase,:fecregistro,:horaregistro,:user,:estado)')
+    //                             ->execute(array(':id' => null, ':id_cargue' => $number2, ':id_orden' => $numero_orden, ':estado' => 1, ':fecha_ent_cargar' => $fentrocarga, ':hora_ent_cargar' => $hentrocarga, ':obs_entr' => 'NULL', ':clase' => 'fec_entrada', ':fecregistro' => $factual, ':horaregistro' => $horactual, ':user' => $id_usuario));
+    //                         if ($sql_fecha3) {
+    //                             $f3 = 1;
+    //                             //fecha salida a cargar
+    //                             //fecha entrada a cargar
+    //                             $sql_fecha4 = $this->_db3->prepare('INSERT INTO cmx_tiempo_cargue_ordenes (id,id_cargue,id_orden_cargue,fecha_cargue,hora_cargue,obs_cargue,tipo_fecha,fecha_registro,hora_registro,usuario,estado)VALUES(:id,:id_cargue,:id_orden,:fecha_ent_sal,:hora_ent_sal,:obs_salida,:clase,:fecregistro,:horaregistro,:user,:estado)')
+    //                                 ->execute(array(':id' => null, ':id_cargue' => $number2, ':id_orden' => $numero_orden, ':estado' => 1, ':fecha_ent_sal' => $fsalidacarga, ':hora_ent_sal' => $hsalidacarga, ':obs_salida' => 'NULL', ':clase' => 'fec_salida', ':fecregistro' => $factual, ':horaregistro' => $horactual, ':user' => $id_usuario));
+    //                             if ($sql_fecha4) {
+    //                                 $f4 = 1;
+    //                                 //numero de salida
+    //                                 $sqlm1 = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='SAL' AND numero_actual>=numero_inicial AND numero_actual<=numero_final");
+    //                                 $sqlm1->execute();
+    //                                 $numbersalida = $sqlm1->fetch(PDO::FETCH_ASSOC);
+    //                                 $number3 = $numbersalida['numero_actual'];
+    //                                 if ($number3) {
+    //                                     //registro en tabla de salida
+    //                                     $sql_salida = $this->_db3->prepare("INSERT INTO cmx_salida_vehiculo (id,num_manifiesto,placa,fecha_salida,hora_salida,usuario,fecha,hora,estado)VALUES(:id,:manifi,:placa,:fecha_salida,:hora_salida,:usuario,:fecha,:hora,:estado)")
+    //                                         ->execute(array(':id' => $number3, ':manifi' => $manifiesto, ':placa' => $placa, ':fecha_salida' => $fsalidacarga, ':hora_salida' => $hsalidacarga, ':usuario' => $id_usuario, ':fecha' => $factual, ':hora' => $horactual, ':estado' => 1));
+    //                                     if ($sql_salida) {
+    //                                         //estado tabla de salida
+    //                                         $sql_estado_salida = $this->_db3->prepare("INSERT INTO cmx_estado_salida_vehiculo(id,id_salida,estado,fecha,hora,usuario)VALUES(:id,:num_salida,:estado,:fecha,:hora,:user)")
+    //                                             ->execute(array(':id' => $number3, ':num_salida' => $number3, ':estado' => 1, ':fecha' => $factual, ':hora' => $horactual, ':user' => $id_usuario));
+    //                                         if ($sql_estado_salida) {
+    //                                             $operacion_final = ($number3 + 1);
+    //                                             $sql_update_maestro = $this->_db3->prepare('UPDATE cmx_maestro SET numero_actual=:numero WHERE tipo=:tipo')->execute(array(':numero' => $operacion_final, ':tipo' => 'SAL'));
+    //                                             if ($sql_update_maestro) {
+    //                                                 $sql_ordenes = $this->_db3->prepare('INSERT INTO cmx_cargue_ordenes (id,orden,manifiesto,f_ir,f_ent,f_lleg,f_sal,proceso)VALUES(:id,:orden,:manifi,:f_ir,:f_ent,:f_lleg,:f_sal,:proceso)')
+    //                                                     ->execute(array(':id' => null, ':orden' => $numero_orden, ':manifi' => $manifiesto, ':f_ir' => $f1, ':f_ent' => $f2, ':f_lleg' => $f3, ':f_sal' => $f4, ':proceso' => 2));
+    //                                                 if ($sql_ordenes) {
+    //                                                     $operacion = ($number2 + 1);
+    //                                                     $sql_update_maestro_1 = $this->_db3->prepare('update cmx_maestro set numero_actual=:numero where tipo=:tipo')->execute(array(':numero' => $operacion, ':tipo' => 'TIM_CAR'));
+    //                                                     if ($sql_update_maestro_1) {
+    //                                                         $this->_db3->commit();
+    //                                                         $response = array(
+    //                                                             'numero' => 200,
+    //                                                             'mensaje' => 'Tiempos logisticos de cargue registrados exitosamente en el sistema',
+    //                                                         );
+    //                                                     } else {
+    //                                                         $this->_db3->commit();
+    //                                                         $response = array(
+    //                                                             'numero' => 400,
+    //                                                             'mensaje' => 'Tiempos logisticos de cargue no registrados en el sistema',
+    //                                                         );
+    //                                                     }
+    //                                                 } else {
+    //                                                     $mensajeError = "error al actualizar el maestro de salidas";
+    //                                                     error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                                                 }
+    //                                             } else {
+    //                                                 $mensajeError = "No se pudo insertar la tabla estado salida";
+    //                                                 error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                                             }
+    //                                         } else {
+    //                                             $mensajeError = "No se pudo insertar la tabla estado salida";
+    //                                             error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                                         }
+    //                                     } else {
+    //                                         $mensajeError = "No se pudo insertar la tabla salida";
+    //                                         error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                                     }
+    //                                 } else {
+    //                                     $mensajeError = "Error de consecutvo de salida";
+    //                                     error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                                 }
+    //                             } else {
+    //                                 $f4 = 0;
+    //                                 $mensajeError = "No se pudo insertar la fecha de salir al cargue";
+    //                                 error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                             }
+    //                         } else {
+    //                             $f3 = 0;
+    //                             $mensajeError = "No se pudo insertar la fecha de entrada al cargue";
+    //                             error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                         }
+    //                     } else {
+    //                         $f2 = 0;
+    //                         $mensajeError = "No se pudo insertar la fecha de llegar al cargue";
+    //                         error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                     }
+    //                 } else {
+    //                     $f1 = 0;
+    //                     $mensajeError = "No se pudo insertar la fecha de ir al cargue";
+    //                     error_log($mensajeError . "\n", 3, "error_log.txt");
+    //                 }
+    //             }
+    //         }
+    //         return $response;
+    //     } catch (Throwable $e) {
+    //         $this->_db3->rollBack();
+    //         echo $error = $e->getMessage();
+    //         error_log($error . "\n", 3, "error_log.txt");
+    //         // return 'false';
+    //     }
+    // }
+
+    public function Insertar_Tiempo(
+        int $manifiesto,
+        string $placa,
+        string $tipofechallega,
+        string $fllegcargar,
+        string $hllegcargar,
+        string $tipofechaentro,
+        string $fentrocarga,
+        string $hentrocarga,
+        string $tipofechasali,
+        string $fsalidacarga,
+        string $hsalidacarga,
+        string $num_orden
+    ) {
+        $fechaActual = date('Y-m-d');
+        $horaActual  = date('H:i:s');
+        $usuario     = $_SESSION["usuario"]["nom_usuario"];
 
         try {
+            // ============================================================
+            // 1. OBTENER CONSECUTIVO TIM_CAR
+            // ============================================================
+            $stmt = $this->_db3->prepare("
+            SELECT numero_actual 
+            FROM cmx_maestro 
+            WHERE tipo='TIM_CAR'
+            AND numero_actual BETWEEN numero_inicial AND numero_final
+        ");
+            $stmt->execute();
+
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row) {
+                throw new Exception("No existe consecutivo TIM_CAR disponible.");
+            }
+            $consecutivoTimCar = (int) $row['numero_actual'];
+
+            // ============================================================
+            // 2. INICIAR TRANSACCIÓN
+            // ============================================================
             $this->_db3->beginTransaction();
 
-            $valor = str_replace(',', ' ', $num_orden);
-            $datos = explode(' ', $valor);
-            $sql_tiempo = $this->_db3->prepare("INSERT INTO cmx_tiempo_cargue(id,num_manifiesto,placa,fecha,hora,usuario,estado) VALUES(:id,:num_mnf,:placa,:fec_registro,:hor_registro,:user,:estado)")
-                ->execute(array(':id' => $number2, ':num_mnf' => $manifiesto, ':fec_registro' => $factual, ':hor_registro' => $horactual, ':user' => $id_usuario, ':estado' => 1, ':placa' => $placa));
-            if ($sql_tiempo) {
-                $i = 0; //registrar ordenes
-                for ($i = 0; $i < count($datos); $i++) {
-                    $numero_orden = $datos[$i];
-                    //fecha para ir a cargar
-                    $sql_fecha1 = $this->_db3->prepare('INSERT INTO cmx_tiempo_cargue_ordenes (id,id_cargue,id_orden_cargue,fecha_cargue,hora_cargue,obs_cargue,tipo_fecha,fecha_registro,hora_registro,usuario,estado) VALUES(:id,:id_cargue,:id_orden,:fecha_ir_cargar,:hora_ir_cargar,:obs_ir,:clase,:fecregistro,:horaregistro,:user,:estado)')
-                        ->execute(array(':id' => null, ':id_cargue' => $number2, ':id_orden' => $numero_orden, ':estado' => 1, ':fecha_ir_cargar' => $fllegcargar, ':hora_ir_cargar' => $hllegcargar, ':obs_ir' => 'NULL', ':clase' => 'fecha_ircargue', ':fecregistro' => $factual, ':horaregistro' => $horactual, ':user' => $id_usuario));
-                    if ($sql_fecha1) {
-                        $f1 = 1;
-                        //fecha llegar a cargar
-                        $sql_fecha2 = $this->_db3->prepare('INSERT INTO cmx_tiempo_cargue_ordenes (id,id_cargue,id_orden_cargue,fecha_cargue,hora_cargue,obs_cargue,tipo_fecha,fecha_registro,hora_registro,usuario,estado) VALUES(:id,:id_cargue,:id_orden,:fecha_lleg_cargar,:hora_lleg_cargar,:obs_lleg,:clase,:fecregistro,:horaregistro,:user,:estado)')
-                            ->execute(array(':id' => null, ':id_cargue' => $number2, ':id_orden' => $numero_orden, ':estado' => 1, ':fecha_lleg_cargar' => $fllegcargar, ':hora_lleg_cargar' => $hllegcargar, ':obs_lleg' => 'NULL', ':clase' => 'fec_llegada', ':fecregistro' => $factual, ':horaregistro' => $horactual, ':user' => $id_usuario));
-                        if ($sql_fecha2) {
-                            $f2 = 1;
-                            //fecha entrada a cargar
-                            $sql_fecha3 = $this->_db3->prepare('INSERT INTO cmx_tiempo_cargue_ordenes (id,id_cargue,id_orden_cargue,fecha_cargue,hora_cargue,obs_cargue,tipo_fecha,fecha_registro,hora_registro,usuario,estado)VALUES(:id,:id_cargue,:id_orden,:fecha_ent_cargar,:hora_ent_cargar,:obs_entr,:clase,:fecregistro,:horaregistro,:user,:estado)')
-                                ->execute(array(':id' => null, ':id_cargue' => $number2, ':id_orden' => $numero_orden, ':estado' => 1, ':fecha_ent_cargar' => $fentrocarga, ':hora_ent_cargar' => $hentrocarga, ':obs_entr' => 'NULL', ':clase' => 'fec_entrada', ':fecregistro' => $factual, ':horaregistro' => $horactual, ':user' => $id_usuario));
-                            if ($sql_fecha3) {
-                                $f3 = 1;
-                                //fecha salida a cargar
-                                //fecha entrada a cargar
-                                $sql_fecha4 = $this->_db3->prepare('INSERT INTO cmx_tiempo_cargue_ordenes (id,id_cargue,id_orden_cargue,fecha_cargue,hora_cargue,obs_cargue,tipo_fecha,fecha_registro,hora_registro,usuario,estado)VALUES(:id,:id_cargue,:id_orden,:fecha_ent_sal,:hora_ent_sal,:obs_salida,:clase,:fecregistro,:horaregistro,:user,:estado)')
-                                    ->execute(array(':id' => null, ':id_cargue' => $number2, ':id_orden' => $numero_orden, ':estado' => 1, ':fecha_ent_sal' => $fsalidacarga, ':hora_ent_sal' => $hsalidacarga, ':obs_salida' => 'NULL', ':clase' => 'fec_salida', ':fecregistro' => $factual, ':horaregistro' => $horactual, ':user' => $id_usuario));
-                                if ($sql_fecha4) {
-                                    $f4 = 1;
-                                    //numero de salida
-                                    $sqlm1 = $this->_db3->prepare("SELECT numero_actual FROM cmx_maestro WHERE tipo='SAL' AND numero_actual>=numero_inicial AND numero_actual<=numero_final");
-                                    $sqlm1->execute();
-                                    $numbersalida = $sqlm1->fetch(PDO::FETCH_ASSOC);
-                                    $number3 = $numbersalida['numero_actual'];
-                                    if ($number3) {
-                                        //registro en tabla de salida
-                                        $sql_salida = $this->_db3->prepare("INSERT INTO cmx_salida_vehiculo (id,num_manifiesto,placa,fecha_salida,hora_salida,usuario,fecha,hora,estado)VALUES(:id,:manifi,:placa,:fecha_salida,:hora_salida,:usuario,:fecha,:hora,:estado)")
-                                            ->execute(array(':id' => $number3, ':manifi' => $manifiesto, ':placa' => $placa, ':fecha_salida' => $fsalidacarga, ':hora_salida' => $hsalidacarga, ':usuario' => $id_usuario, ':fecha' => $factual, ':hora' => $horactual, ':estado' => 1));
-                                        if ($sql_salida) {
-                                            //estado tabla de salida
-                                            $sql_estado_salida = $this->_db3->prepare("INSERT INTO cmx_estado_salida_vehiculo(id,id_salida,estado,fecha,hora,usuario)VALUES(:id,:num_salida,:estado,:fecha,:hora,:user)")
-                                                ->execute(array(':id' => $number3, ':num_salida' => $number3, ':estado' => 1, ':fecha' => $factual, ':hora' => $horactual, ':user' => $id_usuario));
-                                            if ($sql_estado_salida) {
-                                                $operacion_final = ($number3 + 1);
-                                                $sql_update_maestro = $this->_db3->prepare('UPDATE cmx_maestro SET numero_actual=:numero WHERE tipo=:tipo')->execute(array(':numero' => $operacion_final, ':tipo' => 'SAL'));
-                                                if ($sql_update_maestro) {
-                                                    $sql_ordenes = $this->_db3->prepare('INSERT INTO cmx_cargue_ordenes (id,orden,manifiesto,f_ir,f_ent,f_lleg,f_sal,proceso)VALUES(:id,:orden,:manifi,:f_ir,:f_ent,:f_lleg,:f_sal,:proceso)')
-                                                        ->execute(array(':id' => null, ':orden' => $numero_orden, ':manifi' => $manifiesto, ':f_ir' => $f1, ':f_ent' => $f2, ':f_lleg' => $f3, ':f_sal' => $f4, ':proceso' => 2));
-                                                    if ($sql_ordenes) {
-                                                        $operacion = ($number2 + 1);
-                                                        $sql_update_maestro_1 = $this->_db3->prepare('update cmx_maestro set numero_actual=:numero where tipo=:tipo')->execute(array(':numero' => $operacion, ':tipo' => 'TIM_CAR'));
-                                                        if ($sql_update_maestro_1) {
-                                                            $this->_db3->commit();
-                                                            $response = array(
-                                                                'numero' => 200,
-                                                                'mensaje' => 'Tiempos logisticos de cargue registrados exitosamente en el sistema',
-                                                            );
-                                                        } else {
-                                                            $this->_db3->commit();
-                                                            $response = array(
-                                                                'numero' => 400,
-                                                                'mensaje' => 'Tiempos logisticos de cargue no registrados en el sistema',
-                                                            );
-                                                        }
-                                                    } else {
-                                                        $mensajeError = "error al actualizar el maestro de salidas";
-                                                        error_log($mensajeError . "\n", 3, "error_log.txt");
-                                                    }
-                                                } else {
-                                                    $mensajeError = "No se pudo insertar la tabla estado salida";
-                                                    error_log($mensajeError . "\n", 3, "error_log.txt");
-                                                }
-                                            } else {
-                                                $mensajeError = "No se pudo insertar la tabla estado salida";
-                                                error_log($mensajeError . "\n", 3, "error_log.txt");
-                                            }
-                                        } else {
-                                            $mensajeError = "No se pudo insertar la tabla salida";
-                                            error_log($mensajeError . "\n", 3, "error_log.txt");
-                                        }
-                                    } else {
-                                        $mensajeError = "Error de consecutvo de salida";
-                                        error_log($mensajeError . "\n", 3, "error_log.txt");
-                                    }
-                                } else {
-                                    $f4 = 0;
-                                    $mensajeError = "No se pudo insertar la fecha de salir al cargue";
-                                    error_log($mensajeError . "\n", 3, "error_log.txt");
-                                }
-                            } else {
-                                $f3 = 0;
-                                $mensajeError = "No se pudo insertar la fecha de entrada al cargue";
-                                error_log($mensajeError . "\n", 3, "error_log.txt");
-                            }
-                        } else {
-                            $f2 = 0;
-                            $mensajeError = "No se pudo insertar la fecha de llegar al cargue";
-                            error_log($mensajeError . "\n", 3, "error_log.txt");
-                        }
-                    } else {
-                        $f1 = 0;
-                        $mensajeError = "No se pudo insertar la fecha de ir al cargue";
-                        error_log($mensajeError . "\n", 3, "error_log.txt");
-                    }
-                }
+            // ============================================================
+            // 3. INSERTAR REGISTRO PRINCIPAL EN cmx_tiempo_cargue
+            // ============================================================
+            $stmt = $this->_db3->prepare("
+            INSERT INTO cmx_tiempo_cargue(id, num_manifiesto, placa, fecha, hora, usuario, estado)
+            VALUES(:id, :manifiesto, :placa, :fecha, :hora, :usuario, 1)
+        ");
+
+            $stmt->execute([
+                ':id'         => $consecutivoTimCar,
+                ':manifiesto' => $manifiesto,
+                ':placa'      => $placa,
+                ':fecha'      => $fechaActual,
+                ':hora'       => $horaActual,
+                ':usuario'    => $usuario
+            ]);
+
+            // ============================================================
+            // 4. PROCESAR ÓRDENES
+            // ============================================================
+            $ordenes = preg_split('/[\s,]+/', trim($num_orden));
+
+            // Valores de estado de procesos
+            $f1 = $f2 = $f3 = $f4 = 0;
+
+            foreach ($ordenes as $orden) {
+                if (!$orden) continue;
+
+                // Registrar cada tiempo en helper
+                $f1 = $this->insertTiempoOrden($consecutivoTimCar, $orden, 'fecha_ircargue',  $fllegcargar, $hllegcargar, $usuario, $fechaActual, $horaActual);
+                $f2 = $this->insertTiempoOrden($consecutivoTimCar, $orden, 'fec_llegada',   $fllegcargar, $hllegcargar, $usuario, $fechaActual, $horaActual);
+                $f3 = $this->insertTiempoOrden($consecutivoTimCar, $orden, 'fec_entrada',   $fentrocarga, $hentrocarga, $usuario, $fechaActual, $horaActual);
+                $f4 = $this->insertTiempoOrden($consecutivoTimCar, $orden, 'fec_salida',    $fsalidacarga, $hsalidacarga, $usuario, $fechaActual, $horaActual);
             }
-            return $response;
+
+            // ============================================================
+            // 5. PROCESAR CONSECUTIVO DE SALIDA
+            // ============================================================
+            $stmt = $this->_db3->prepare("
+            SELECT numero_actual 
+            FROM cmx_maestro 
+            WHERE tipo='SAL'
+            AND numero_actual BETWEEN numero_inicial AND numero_final
+        ");
+            $stmt->execute();
+            $salidaRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$salidaRow) {
+                throw new Exception("No existe consecutivo para salida de vehículo.");
+            }
+
+            $consecutivoSalida = (int) $salidaRow['numero_actual'];
+
+            // ============================================================
+            // 6. REGISTRO DE SALIDA
+            // ============================================================
+            $stmt = $this->_db3->prepare("
+            INSERT INTO cmx_salida_vehiculo (id, num_manifiesto, placa, fecha_salida, hora_salida, usuario, fecha, hora, estado)
+            VALUES (:id, :manifiesto, :placa, :fsalida, :hsalida, :usuario, :fecha, :hora, 1)
+        ");
+
+            $stmt->execute([
+                ':id'         => $consecutivoSalida,
+                ':manifiesto' => $manifiesto,
+                ':placa'      => $placa,
+                ':fsalida'    => $fsalidacarga,
+                ':hsalida'    => $hsalidacarga,
+                ':usuario'    => $usuario,
+                ':fecha'      => $fechaActual,
+                ':hora'       => $horaActual
+            ]);
+
+            // Estado salida
+            $stmt = $this->_db3->prepare("
+            INSERT INTO cmx_estado_salida_vehiculo(id, id_salida, estado, fecha, hora, usuario)
+            VALUES(:id, :idsalida, 1, :fecha, :hora, :usuario)
+        ");
+            $stmt->execute([
+                ':id'       => $consecutivoSalida,
+                ':idsalida' => $consecutivoSalida,
+                ':fecha'    => $fechaActual,
+                ':hora'     => $horaActual,
+                ':usuario'  => $usuario
+            ]);
+
+            // Actualizar maestro SAL
+            $stmt = $this->_db3->prepare("
+            UPDATE cmx_maestro SET numero_actual = :num WHERE tipo = 'SAL'
+        ");
+            $stmt->execute([':num' => $consecutivoSalida + 1]);
+
+            // Actualizar maestro TIM_CAR
+            $stmt = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual = :num WHERE tipo = 'TIM_CAR'");
+            $stmt->execute([':num' => $consecutivoTimCar + 1]);
+
+            // =======================================================
+            //  ACTUALIZAR ESTADO DEL MANIFIESTO → "Cargado"
+            // =======================================================
+            $stmtUpdate = $this->_db3->prepare("UPDATE cmx_manifiesto SET estado_cargue = 'Cargado'
+                WHERE id = :manifiesto
+                AND estado_cargue = 'Pendiente'
+            ");
+            $stmtUpdate->execute([
+                ':manifiesto' => $manifiesto
+            ]);
+
+            // Confirmar transacción
+            $this->_db3->commit();
+
+            return [
+                'numero'  => 200,
+                'mensaje' => 'Tiempos logísticos registrados exitosamente.'
+            ];
         } catch (Throwable $e) {
             $this->_db3->rollBack();
-            echo $error = $e->getMessage();
-            error_log($error . "\n", 3, "error_log.txt");
-            // return 'false';
+            error_log("ERROR Insertar_Tiempo: " . $e->getMessage() . "\n", 3, "error_log.txt");
+
+            return [
+                'numero'  => 500,
+                'mensaje' => 'Error interno al registrar tiempos: ' . $e->getMessage()
+            ];
         }
+    }
+
+    /**
+     * Helper para insertar registros en cmx_tiempo_cargue_ordenes
+     */
+    private function insertTiempoOrden(int $idCargue, int $orden, string $tipo, string $fecha, string $hora, string $user, string $fechaReg, string $horaReg)
+    {
+        $stmt = $this->_db3->prepare("
+        INSERT INTO cmx_tiempo_cargue_ordenes
+        (id, id_cargue, id_orden_cargue, fecha_cargue, hora_cargue, obs_cargue, tipo_fecha, fecha_registro, hora_registro, usuario, estado)
+        VALUES (NULL, :cargue, :orden, :fecha, :hora, NULL, :tipo, :freg, :hreg, :user, 1)
+    ");
+
+        return $stmt->execute([
+            ':cargue' => $idCargue,
+            ':orden'  => $orden,
+            ':fecha'  => $fecha,
+            ':hora'   => $hora,
+            ':tipo'   => $tipo,
+            ':freg'   => $fechaReg,
+            ':hreg'   => $horaReg,
+            ':user'   => $user
+        ]) ? 1 : 0;
     }
 
     public function Id_Principal($manifies)

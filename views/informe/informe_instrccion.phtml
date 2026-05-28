@@ -1,0 +1,143 @@
+<!-- <div class="container-fluid">
+  <input type="hidden" name="ssn_id_cliente" id="ssn_id_cliente" value="<?= $_SESSION["usuario"]["id_cliente"] ?>">
+  <input type="hidden" name="ssn_id_usuario" id="ssn_id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"] ?>">
+  <input type="hidden" name="ssn_nombre" id="ssn_nombre" value="<?= $_SESSION["usuario"]["nom_usuario"] ?>">
+  <input type="hidden" name="ssn_id_perfil" id="ssn_id_perfil" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+  <input type="hidden" name="fecha_dia_solicitud" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+  <input type="hidden" name="hora_dia_solicitud" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <div class='table-responsive p-1'>
+        <table class='table table-bordered table-striped table-sm' style=" font-size:12px;">
+          <thead>
+            <tr>
+              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Cliente</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Remesa</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Manifiesto</th>
+              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Fecha Remesa</th>
+              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>N° Instrucción</th>
+              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Fecha Instrucción</th>
+              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Estado Instrucción</th>
+            </tr>
+          </thead>
+          <tbody id='tbl-instrucciones-facturacion' class='text-center'></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<div class="nexos-content">
+  <div class="row" style="margin:-25px -39px -10px -39px !important;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2 text-center" style="margin:25px;">
+              <b>Informe de Instrucción</b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" border="0"
+        style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+        <tbody>
+          <tr>
+            <td class="celda_titulo2" style="margin:25px;padding: 5px;">
+              <b>Seleccionar fechas o parmetro para crear el informe</b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 12px;">
+        <thead>
+          <tr>
+            <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">
+              Fecha Inicial:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <input type="date" id="fecha_inicial_instruccion" name="fecha_inicial_instruccion" style="width: 100%;"
+                value="<?php echo date("Y-m-d") ?>">
+            </td>
+
+            <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">
+              Fecha Final:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <input type="date" id="fecha_final_instruccion" name="fecha_final_instruccion" style="width: 100%;"
+                value="<?php echo date("Y-m-d") ?>">
+            </td>
+
+            <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">
+              Criterio de busqueda:</th>
+            <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+              <input type="text" id="criterio_busqueda" name="criterio_busqueda" style="width: 100%;height: 23px;" oninput="this.value = this.value.toUpperCase();">
+            </td>
+          </tr>
+        </thead>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0"
+        style="width:100%; border-collapse: collapse;font-size: 8px;margin-top: 5px;">
+        <thead>
+          <tr>
+            <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="4">
+              <button type="button" class="btn btn-primary btn-xs" id="aplicar_filtro_instruccion"><i class="fas fa-filter"></i>
+                Aplicar Filtro
+              </button>
+            </td>
+            <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="1">
+              <a href="JavaScript:void(0);" id="exportar_excel_instrucciones" style="text-decoration: none;cursor: pointer;color: #332D2D;">
+                <img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span>
+              </a>
+            </td>
+          </tr>
+        </thead>
+      </table>
+
+      <table class="table-striped" cellpadding="0" cellspacing="0" border="1" style="width: 100%; border: #332D2D; font-size:12px;"
+        id="informe_instrucciones">
+        <thead style="border-collapse: collapse; font-size: 14px; background-color: #332D2D; color: #fff;">
+          <tr>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Cliente</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">N° Remesa</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">N° Manifiesto</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Fecha Remesa</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">N° Instrucción</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Fecha Instrucción</th>
+            <th style="width: auto; white-space: nowrap; padding-left: 5px;" class="text-center">Estado Instrucción</th>
+          </tr>
+        </thead>
+        <tbody id='tbl-instrucciones-facturacion' class='text-center'></tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+  <div style="text-align: center;">
+    <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+    <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+    <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js
+  type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src=<?php echo BASE_URL; ?>/views/informe/js/informe_instruccion.js type="text/javascript"></script>
+
+<!-- js para creacion de formularios dinamicos -->
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    //initialize the javascript
+    App.init();
+  });
+</script>

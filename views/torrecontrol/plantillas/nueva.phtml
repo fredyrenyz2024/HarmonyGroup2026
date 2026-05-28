@@ -1,0 +1,336 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     nueva_plantilla.phtml  –  Módulo: Torre de Control / Crear Plantilla
+     Diseño mejorado con Bootstrap 5 + Select2 + Feather Icons
+     ═══════════════════════════════════════════════════════════════ -->
+
+<style>
+  /* ── Paleta de colores de cabecera ─────────────────────── */
+  .tc-header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #332D2D 100%);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 6px 6px 0 0;
+    font-weight: 700;
+    font-size: .92rem;
+    letter-spacing: .3px;
+  }
+
+  /* ── Card de sección ───────────────────────────────────── */
+  .tc-card {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .tc-card-body {
+    padding: 12px 14px;
+    background: #fff;
+  }
+
+  /* ── Accordion de parámetros ───────────────────────────── */
+  .accordion-button:not(.collapsed) {
+    background-color: #f0f0f0;
+    color: #332D2D;
+  }
+
+  /* ── Fila de actividad ─────────────────────────────────── */
+  .actividad-row {
+    border-bottom: 1px dashed #dee2e6;
+    padding: 8px 4px;
+    transition: background .15s;
+  }
+
+  .actividad-row:hover {
+    background: #f8f9fa;
+  }
+
+  /* ── Badges de tipo operación ──────────────────────────── */
+  .badge-cargue {
+    background: #0d6efd22;
+    color: #0d6efd;
+    border: 1px solid #0d6efd88;
+    font-size: .72rem;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .badge-descargue {
+    background: #dc354522;
+    color: #dc3545;
+    border: 1px solid #dc354588;
+    font-size: .72rem;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* ── Preview lateral ───────────────────────────────────── */
+  #secondaryList .preview-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: .82rem;
+  }
+
+  .preview-pos {
+    min-width: 22px;
+    height: 22px;
+    background: #332D2D;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: .72rem;
+  }
+
+  /* ── Etiqueta de campo obligatorio ────────────────────── */
+  .req {
+    color: #dc3545;
+  }
+
+  /* ── Botón guardar sticky ──────────────────────────────── */
+  .btn-save-sticky {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    border-top: 1px solid #dee2e6;
+    padding: 10px 0;
+    z-index: 10;
+  }
+</style>
+
+<input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+<input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS_TORRE_CONTROL ?>">
+<!-- ═══════════════ FORMULARIO PRINCIPAL ═════════════════════ -->
+<form id="form-nueva-plantilla" class="row g-3 mb-2">
+
+  <!-- ── Fila superior: Proveedor / Modalidad / Nombre ──── -->
+  <div class="col-12 col-sm-4">
+    <label class="form-label fw-semibold mb-1">Proveedor <span class="req">*</span></label>
+    <select class="form-select form-select-sm select2" id="slt_Proveedores" style="width:100%;"></select>
+  </div>
+
+  <div class="col-12 col-sm-4">
+    <label class="form-label fw-semibold mb-1">Modalidad <span class="req">*</span></label>
+    <select class="form-select form-select-sm select2" id="slt_Modalidad" style="width:100%;">
+      <option value="" disabled selected>Seleccione</option>
+      <option value="CARGA SECA">Carga Seca</option>
+      <option value="CARGA LIQUIDA">Carga Líquida</option>
+      <option value="IMPORTACION">Importación</option>
+      <option value="EXPORTACION">Exportación</option>
+      <option value="NACIONAL">Nacional</option>
+    </select>
+  </div>
+
+  <div class="col-12 col-sm-4">
+    <label class="form-label fw-semibold mb-1">Nombre Plantilla <span class="req">*</span></label>
+    <input type="text" class="form-control form-control-sm" id="nombre_plantilla"
+      placeholder="Ej: Plantilla Carga Seca Norte">
+  </div>
+
+  <!-- ── Cuerpo: Parámetros + Preview ─────────────────── -->
+  <div class="col-12">
+    <div class="row g-3">
+
+      <!-- Izquierda: Acordeón de trazabilidad + Visualizadores -->
+      <div class="col-12 col-lg-9">
+
+        <!-- Parámetros de trazabilidad -->
+        <div class="tc-card">
+          <div class="tc-header">
+            <i data-feather="sliders" style="width:15px;height:15px;vertical-align:-2px;"></i>
+            Parámetros de trazabilidad
+          </div>
+          <div class="tc-card-body p-0">
+            <div id="accordionExample">
+              <!-- Generado por JS → Listar_tipos_trazabilidad() -->
+              <div class="text-center text-muted p-4">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Cargando parámetros…
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visualizadores de actividades -->
+        <div class="tc-card mt-3">
+          <div class="tc-header">
+            <i data-feather="eye" style="width:15px;height:15px;vertical-align:-2px;"></i>
+            Visualización de actividades
+          </div>
+          <div class="tc-card-body">
+            <table class="table table-sm table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width:40px">#</th>
+                  <th>Usuario visualizador</th>
+                  <th>Actividades que puede ver</th>
+                  <th style="width:90px">
+                    <button class="btn btn-subtle-success btn-sm px-2 py-0" type="button" id="btn-agregar-fila">
+                      <span class="uil uil-plus-circle"></span> Agregar
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="tbody_visualizadores"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /col izquierda -->
+
+      <!-- Derecha: Preview de orden -->
+      <div class="col-12 col-lg-3">
+        <div class="tc-card h-100">
+          <div class="tc-header">
+            <i data-feather="list" style="width:15px;height:15px;vertical-align:-2px;"></i>
+            Orden de actividades
+          </div>
+          <div class="tc-card-body" style="max-height:520px;overflow-y:auto;padding:6px;">
+            <div id="secondaryList"></div>
+          </div>
+          <div class="px-3 py-2 border-top">
+            <small id="posicion" class="fw-bold text-muted"></small>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /row interna -->
+  </div>
+
+</form><!-- /form principal -->
+
+<!-- ── Botón guardar ─────────────────────────────────────── -->
+<div class="btn-save-sticky">
+  <div class="d-flex justify-content-end pe-1">
+    <button class="btn btn-primary btn-sm px-5" id="btn-create-plantilla" type="button">
+      <span data-feather="save" style="width:14px;height:14px;vertical-align:-2px;"></span>
+      Crear Plantilla
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TEMPLATE OCULTO: fila de actividad dentro de un acordeón
+     Se clona por JS cada vez que se carga un detalle de parámetro.
+     ═══════════════════════════════════════════════════════════ -->
+<template id="tpl-actividad-row">
+  <!--
+    Variables a reemplazar al clonar (JS):
+      {{ID}}       → element.id  (id de la opción de actividad)
+      {{NOMBRE}}   → element.nombre_opcion
+      {{POSICION}} → contador actual
+  -->
+  <div class="actividad-row row trazabilidad_detalle_{{ID}} g-1 align-items-center">
+
+    <!-- Checkbox + etiqueta -->
+    <div class="col-12 col-md-4 d-flex align-items-center gap-1">
+      <div class="form-check form-switch mb-0">
+        <input class="form-check-input chk_detalle" type="checkbox"
+          id="chk_detalle{{ID}}" name="chk_detalle[]"
+          value="{{ID}}" data-idvalor="{{ID}}" data-idposicion="">
+        <label class="form-check-label fw-semibold" for="chk_detalle{{ID}}">{{NOMBRE}}</label>
+      </div>
+    </div>
+
+    <!-- ── Tipo operación: CARGUE / DESCARGUE ── NUEVO ────── -->
+    <div class="col-6 col-md-2" id="tipo_op_wrap{{ID}}" style="display:none;">
+      <div class="d-flex gap-1 align-items-center flex-wrap">
+        <div class="form-check mb-0">
+          <input class="form-check-input tipo_operacion" type="radio" name="tipo_operacion_{{ID}}" id="rdo_cargue{{ID}}" value="CARGUE" data-idactividad="{{ID}}">
+          <label class="form-check-label" for="rdo_cargue{{ID}}">
+            <span class="badge-cargue">↑ Cargue</span>
+          </label>
+        </div>
+        <div class="form-check mb-0">
+          <input class="form-check-input tipo_operacion" type="radio" name="tipo_operacion_{{ID}}" id="rdo_descargue{{ID}}" value="DESCARGUE" data-idactividad="{{ID}}">
+          <label class="form-check-label" for="rdo_descargue{{ID}}">
+            <span class="badge-descargue">↓ Descargue</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Usuario responsable -->
+    <div class="col-6 col-md-3" id="form_asignacion{{ID}}" style="display:none;">
+      <select class="form-select form-select-sm slt_usuario_responsable select2" name="slt_usuario_responsable[]" id="slt_usuario_responsable{{ID}}" style="width:100%;"></select>
+    </div>
+
+    <!-- Criterio de cálculo + valor + medida -->
+    <div class="col-12 col-md-3" id="form_calculo{{ID}}" style="display:none;">
+      <div class="d-flex gap-1">
+        <select class="form-select form-select-sm select_detalle" id="select_detalle{{ID}}" name="select_detalle[]" data-ElementId="{{ID}}" style="min-width:120px;" disabled>
+          <option value="">Fecha Cálculo</option>
+          <!-- <option value="1">Fecha Inicial</option>
+          <option value="2">Fecha Actividad dependiente</option>
+          <option value="3">Fecha de ejecución</option> -->
+          <option value="4">Actividad dependiente</option>
+        </select>
+        <input type="number" class="form-control form-control-sm input_valor" id="input_valor{{ID}}" name="input_valor[]" placeholder="Valor" style="width:65px;" min="0" disabled>
+
+        <select class="form-select form-select-sm select_medida_tiempo"
+          id="select_medida_tiempo{{ID}}" name="select_medida_tiempo[]"
+          style="width:85px;" disabled>
+          <option value="">Medida</option>
+          <option value="1">Minutos</option>
+          <option value="2">Horas</option>
+          <option value="3">Días</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dependencia + Costo sugerido -->
+    <div class="col-12 col-md-12" id="form_dependencia{{ID}}" style="display:none;">
+      <div class="d-flex gap-1 flex-wrap mt-1">
+        <select class="form-select form-select-sm select_depende_ select2"
+          id="select_depende_{{ID}}" name="select_depende_[]"
+          style="min-width:180px;" disabled>
+          <option value="">Actividad dependiente</option>
+        </select>
+        <input type="number" class="form-control form-control-sm costo_sugerido"
+          id="costo_sugerido{{ID}}" name="costo_sugerido[]"
+          placeholder="Costo sugerido $" step="0.01" min="0"
+          style="max-width:140px;" disabled>
+        <div id="puesto_id{{ID}}" style="display:none;"></div>
+      </div>
+    </div>
+
+  </div><!-- /actividad-row -->
+</template>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TEMPLATE OCULTO: fila de visualizador en la tabla
+     ═══════════════════════════════════════════════════════════ -->
+<template id="tpl-visualizador-row">
+  <tr>
+    <td class="fila-num align-middle fw-bold text-muted"></td>
+    <td>
+      <select class="form-select form-select-sm personas_visualizar"
+        name="personas_visualizar[]" style="width:100%;"></select>
+    </td>
+    <td>
+      <select class="form-select form-select-sm actividades_visualizar"
+        name="actividades_visualizar[]" multiple style="width:100%;"></select>
+    </td>
+    <td class="align-middle">
+      <button type="button"
+        class="btn btn-subtle-danger btn-sm px-2 py-0 btn-eliminar-fila">
+        <span class="uil uil-trash"></span>
+      </button>
+    </td>
+  </tr>
+</template>

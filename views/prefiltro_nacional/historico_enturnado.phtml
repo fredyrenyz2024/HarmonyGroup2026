@@ -1,0 +1,41 @@
+<div class="container-fluid">
+    <input type="hidden" name="ssn_id_cliente" id="ssn_id_cliente" value="<?= $_SESSION["usuario"]["id_cliente"] ?>">
+    <input type="hidden" name="ssn_id_usuario" id="ssn_id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"] ?>">
+    <input type="hidden" name="ssn_nombre" id="ssn_nombre" value="<?= $_SESSION["usuario"]["nom_usuario"] ?>">
+    <input type="hidden" name="ssn_id_perfil" id="ssn_id_perfil" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+    <input type="hidden" name="fecha_dia_solicitud" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" name="hora_dia_solicitud" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+        <div class="row">
+            <div class='table-responsive p-1'>
+                <table class='table table-bordered table-striped table-sm' style=" font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Placa</th>
+                            <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Conductor</th>
+                            <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Celular</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Ubicación Actual</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Agencia</th>
+                            <!-- <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Solicitud Servicio</th> -->
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Origen</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Destino</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Quien Enturna</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Estado</th>
+                            <!-- <th class='text-center' style="color:black;width:auto; white-space: nowrap;">P.Neto Vacio</th> -->
+                        </tr>
+                    </thead>
+                    <tbody id='tbl-vehiculos-enturnado-historico' class='text-center'></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>

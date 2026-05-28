@@ -1,0 +1,44 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= isset($_SESSION['usuario']['proveedor_id']) ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="container-fluid">
+  <!-- <div class="d-flex justify-content-center"></div> -->
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <!-- <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'></div> -->
+      <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:10px;">
+        <thead class="p-1">
+          <tr>
+            <!-- <th></th> -->
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>SOLICITUD</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>REFERENCIA PEDIDO</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CLIENTE</th>
+            <!-- <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>SITIO CARGUE</th> -->
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CIUDAD ORIGEN</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CIUDAD DESTINO</th>
+            <!-- <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>SITIO DESCARGUE</th> -->
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>COD. PRODUCTO</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>MODALIDAD</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PESO NETO</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PESO BRUTO</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>UNIDADES</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>TIPO DE VH </th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>COSTO</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>TARIFA</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>FECHA HORA</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PRIORIDAD</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PUBLICACION</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>ASIGNACION</th>
+          </tr>
+        </thead>
+        <tbody id='tbl_prioritarias_pedidos' class='text-center'>
+          <tr id="load_info" style="display: none;">
+            <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+              <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25"> Esperando Información
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

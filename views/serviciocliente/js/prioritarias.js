@@ -24,7 +24,7 @@ window.initScript = function (id) {
     let fecha_inicial = $(`#campo-${id}-fecha_inicial`).val() || fechaHoy;
     let fecha_final = $(`#campo-${id}-fecha_final`).val() || fechaHoy;
 
-    listar_solicitudes_prioritarias(tipo, fecha_inicial, fecha_final, cliente,id);
+    listar_solicitudes_prioritarias(tipo, fecha_inicial, fecha_final, cliente, id);
 
     // Manejador para cambio en filtro
     const filtroHandler = function () {
@@ -51,44 +51,23 @@ window.initScript = function (id) {
     // Manejador para cambio en clientes
     const clientesHandler = function () {
       let valorSeleccionado = $(this).val();
-      listar_solicitudes_prioritarias(tipo, fecha_inicial, fecha_final, valorSeleccionado,id);
+      listar_solicitudes_prioritarias(tipo, fecha_inicial, fecha_final, valorSeleccionado, id);
     };
 
     // Manejador para clic en botones
     const clickHandler = async (e) => {
       if (e.target.matches("#btn_ver_solicitud_Prioritaria, #btn_ver_solicitud_Prioritaria *")) {
-      // // let padre = e.target.parentElement.parentElement;
-      // // Obtener el enlace (el elemento con el data-id)
-      let enlace = e.target.closest('#btn_ver_solicitud_Prioritaria');
-      // // // Obtener el valor del atributo data-id
-      let dataId = enlace.getAttribute('data-id');
-      let dataId2 = enlace.getAttribute('data-id2');
-      let dataId3 = enlace.getAttribute('data-id3');
-      // // Visualizar(dataId, dataId2, dataId3);
+        // // let padre = e.target.parentElement.parentElement;
+        // // Obtener el enlace (el elemento con el data-id)
+        let enlace = e.target.closest('#btn_ver_solicitud_Prioritaria');
+        // // // Obtener el valor del atributo data-id
+        let dataId = enlace.getAttribute('data-id');
+        let dataId2 = enlace.getAttribute('data-id2');
+        let dataId3 = enlace.getAttribute('data-id3');
 
-      // // // Definir dimensiones de la nueva ventana
-      // const w = 1000;
-      // const h = 1000;
+        myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Datos solicitud de servicio`);
 
-      // // Fixes dual-screen position                         Most browsers      Firefox
-      // var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
-      // var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
-
-      // var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-      // var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-      // var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-      // var top = ((height / 2) - (h / 2)) + dualScreenTop;
-      // var newWindow = window.open($('#base_url').val() + "serviciocliente/canvas?cotizacion=" + encodeURIComponent(dataId) + "&solicitud_servicio=" + encodeURIComponent(dataId2), "ventanaCentrada", 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
-
-      // // Puts focus on the newWindow
-      // if (window.focus) {
-      //   newWindow.focus();
-      // }
-
-      myOffcanvas.updateTitle(`<span class="text-primary-emphasis uil uil-file-alt"></span> Datos solicitud de servicio`);
-
-      myOffcanvas.updateContent(`
+        myOffcanvas.updateContent(`
         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
           <div class="row">
             <div class="d-flex justify-content-end" id="check_prioridad">
@@ -304,57 +283,167 @@ window.initScript = function (id) {
         </div>
       `);
 
-      myOffcanvas.show();
-      Visualizar(dataId, dataId2, dataId3);
+        myOffcanvas.show();
+        Visualizar(dataId, dataId2, dataId3);
       }
     };
 
     document.addEventListener('click', async function (e) {  // 🔹 Escuchamos eventos de clic en toda la página
+      // if (e.target.matches("#btn_aprobar_solicitud") || e.target.closest("#btn_aprobar_solicitud")) {
+      //   let enlace = e.target.closest('#btn_aprobar_solicitud');
+      //   let dataId = enlace.getAttribute('data-id');
+      //   let dataNivel = enlace.getAttribute('data-nivel');
+      //   let dataMotivo = enlace.getAttribute('data-motivo');
+      //   let dataUsuario = enlace.getAttribute('data-usuario');
+      //   let dataFechaPrioridad = enlace.getAttribute('data-FechaPrioridad');
+
+      //   const result = await Swal.fire({
+      //     title: 'Seguro',
+      //     text: '¿Desea aprobar la solicitud?',
+      //     icon: 'warning',
+      //     showCancelButton: true,
+      //     confirmButtonColor: '#3B71CA',
+      //     cancelButtonColor: '#9FA6B2',
+      //     confirmButtonText: 'Aceptar',
+      //     cancelButtonText: 'Cancelar',
+      //     customClass: {
+      //       popup: 'swal2-custom-font',
+      //     },
+      //   });
+
+      //   if (result.isConfirmed) {
+      //     var datos = new FormData();
+      //     datos.append('solicitud', dataId);
+      //     datos.append('estado', "Aprobada");
+
+      //     try {
+      //       const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
+      //         method: 'POST',
+      //         body: datos,
+      //         cache: 'no-cache',
+      //       });
+      //       const data = await response.json();
+
+      //       Swal.fire({
+      //         title: "Mensaje!",
+      //         text: data.message,
+      //         icon: data.status === 200 ? "success" : "error",
+      //         draggable: true
+      //       });
+      //       listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, cliente);
+
+      //       if (data.ststus === 200) resetAll();
+      //     } catch (error) {
+      //       console.error('Error en la solicitud:', error);
+      //     }
+      //   }
+      // }
+
       if (e.target.matches("#btn_aprobar_solicitud") || e.target.closest("#btn_aprobar_solicitud")) {
-        let enlace = e.target.closest('#btn_aprobar_solicitud');
-        let dataId = enlace.getAttribute('data-id');
+        const enlace = e.target.closest('#btn_aprobar_solicitud');
+
+        const dataId = enlace.getAttribute('data-id');
+        const dataNivel = enlace.getAttribute('data-nivel');
+        const dataMotivo = enlace.getAttribute('data-motivo');
+        const dataUsuario = enlace.getAttribute('data-usuario');
+        const dataFechaPrioridad = enlace.getAttribute('data-FechaPrioridad');
 
         const result = await Swal.fire({
-          title: 'Seguro',
-          text: '¿Desea aprobar la solicitud?',
+          title: 'Confirmar aprobación',
           icon: 'warning',
+          html: `
+            <div class="text-start">
+              <p><strong>Solicitud:</strong> ${dataId}</p>
+              <p><strong>Nivel:</strong> ${dataNivel ?? 'N/A'}</p>
+              <p><strong>Motivo:</strong> ${dataMotivo ?? 'N/A'}</p>
+              <p><strong>Usuario:</strong> ${dataUsuario ?? 'N/A'}</p>
+              <p><strong>Fecha prioridad:</strong> ${dataFechaPrioridad ?? 'N/A'}</p>
+              <hr>
+              <p class="text-danger fw-semibold mb-0">
+                ¿Está seguro de aprobar esta solicitud?
+              </p>
+            </div>
+          `,
           showCancelButton: true,
           confirmButtonColor: '#3B71CA',
           cancelButtonColor: '#9FA6B2',
-          confirmButtonText: 'Aceptar',
+          confirmButtonText: 'Sí, aprobar',
           cancelButtonText: 'Cancelar',
           customClass: {
             popup: 'swal2-custom-font',
           },
         });
 
-        if (result.isConfirmed) {
-          var datos = new FormData();
-          datos.append('solicitud', dataId);
-          datos.append('estado', "Aprobada");
+        if (!result.isConfirmed) return;
 
-          try {
-            const response = await fetch($('#base_url').val() + 'serviciocliente/Aprobar_Prioridad', {
+        const datos = new FormData();
+        datos.append('solicitud', dataId);
+        datos.append('estado', 'Aprobada');
+
+        try {
+          const response = await fetch(
+            $('#base_url').val() + 'serviciocliente/Aprobar_Prioridad',
+            {
               method: 'POST',
               body: datos,
               cache: 'no-cache',
-            });
-            const data = await response.json();
+            }
+          );
 
-            Swal.fire({
-              title: "Mensaje!",
-              text: data.message,
-              icon: data.status === 200 ? "success" : "error",
-              draggable: true
-            });
-            listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, cliente);
+          const data = await response.json();
 
-            if (data.ststus === 200) resetAll();
-          } catch (error) {
-            console.error('Error en la solicitud:', error);
-          }
+          Swal.fire({
+            title: 'Mensaje',
+            text: data.message,
+            icon: data.status === 200 ? 'success' : 'error',
+          });
+
+          listar_solicitudes_pendientes(tipo, fecha_inicial, fecha_final, cliente);
+
+          if (data.status === 200) resetAll();
+
+        } catch (error) {
+          console.error('Error en la solicitud:', error);
         }
       }
+
+      if (e.target.matches("#btn_detalle_prioritaria") || e.target.closest("#btn_detalle_prioritaria")) {
+        const enlace = e.target.closest('#btn_detalle_prioritaria');
+
+        const dataId = enlace.getAttribute('data-id');
+        const dataNivel = enlace.getAttribute('data-nivel');
+        const dataMotivo = enlace.getAttribute('data-motivo');
+        const dataUsuario = enlace.getAttribute('data-usuario');
+        const dataFechaPrioridad = enlace.getAttribute('data-FechaPrioridad');
+        const dataUsuarioAprueba = enlace.getAttribute('data-usuario_aprueba');
+        const dataFechaAprueba = enlace.getAttribute('data-FechaAprueba');
+
+        const result = await Swal.fire({
+          title: 'Confirmación aprobación',
+          // icon: 'info',
+          html: `
+            <div class="text-start">
+              <p><strong>Solicitud:</strong> ${dataId}</p>
+              <p><strong>Nivel:</strong> ${dataNivel ?? 'N/A'}</p>
+              <p><strong>Motivo:</strong> ${dataMotivo ?? 'N/A'}</p>
+              <p><strong>Usuario:</strong> ${dataUsuario ?? 'N/A'}</p>
+              <p><strong>Fecha prioridad:</strong> ${dataFechaPrioridad ?? 'N/A'}</p>
+              <hr>
+              <p><strong>Usuario Aprobación:</strong> ${dataUsuarioAprueba ?? 'N/A'}</p>
+              <p><strong>Fecha Aprobación:</strong> ${dataFechaAprueba ?? 'N/A'}</p>
+            </div>
+          `,
+          showCancelButton: false,
+          // confirmButtonColor: '#3B71CA',
+          cancelButtonColor: '#9FA6B2',
+          // confirmButtonText: 'Sí, aprobar',
+          cancelButtonText: 'Cerrar',
+          customClass: {
+            popup: 'swal2-custom-font',
+          },
+        });
+      }
+
     });
 
     // Asignar eventos usando delegación
@@ -373,7 +462,7 @@ window.initScript = function (id) {
   }
 };
 
-async function listar_solicitudes_prioritarias(tipo, fecha_inicial, fecha_final, cliente,id) {
+async function listar_solicitudes_prioritarias(tipo, fecha_inicial, fecha_final, cliente, id) {
   /* Funcion para enviar los datos */
   let dato = new FormData();
   dato.append('tipo', tipo);
@@ -423,7 +512,7 @@ async function listar_solicitudes_prioritarias(tipo, fecha_inicial, fecha_final,
             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Rechazado</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>`;
           } else if (element.estado_estudio === 'Aprobado') {
             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">Estudio Aprobado</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
-          }else if (element.estado_estudio === 'vencida') {
+          } else if (element.estado_estudio === 'vencida') {
             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">Estudio Vencido</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>`;
           } else if (element.estado_estudio === 'Sin Estado') {
             col_estatus = `<span class="badge badge-phoenix fs-10 badge-phoenix-primary"><span class="badge-label">Sin Estado</span><span class="ms-1" data-feather="package" style="height:12.8px;width:12.8px;"></span></span>`;
@@ -461,9 +550,10 @@ async function listar_solicitudes_prioritarias(tipo, fecha_inicial, fecha_final,
 
         if (perfil === '1') {
           if (element.prioritaria === 'Propuesta') {
-            Prioridad = `<span class="badge badge-phoenix badge-phoenix-warning float-right"><a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span>`;
+            Prioridad = `<span class="badge badge-phoenix badge-phoenix-warning float-right"><a href="#" id="btn_aprobar_solicitud" data-id="${element.nundoc_solicitud}" data-nivel="${element.nivel}" data-motivo="${element.motivo}" data-usuario="${element.usuario}" data-FechaPrioridad="${element.FechaPrioridad}" class="text-decoration-none text-warning" title="Aprobar solicitud">${element.prioritaria}</a></span>`;
           } else {
-            Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right">${element.prioritaria}</span>`;
+            // Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right">${element.prioritaria}</span>`;
+            Prioridad = `<span class="badge badge-phoenix badge-phoenix-primary float-right"><a href="#" id="btn_detalle_prioritaria" data-id="${element.nundoc_solicitud}" data-nivel="${element.nivel}" data-motivo="${element.motivo}" data-usuario="${element.usuario}" data-FechaPrioridad="${element.FechaPrioridad}" data-usuario_aprueba="${element.usuario_aprueba}" data-FechaAprueba="${element.FechaAprueba}" class="text-decoration-none text-primary" title="Detalle Prioridad">${element.prioritaria}</a></span>`;
           }
         }
 

@@ -1,0 +1,184 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+            <div class="table-responsive mt-5">
+                <table class='table table-bordered table-striped table-sm text-center' style="font-size:12px;" id="tabla-general-tipo-vehiculos">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style="width: auto; white-space: nowrap;">NIt o C.C</th>
+                            <th style="width: auto; white-space: nowrap;">Poseedor</th>
+                            <!-- <th style="width: auto; white-space: nowrap;">Conductor</th> -->
+                            <th style="width: auto; white-space: nowrap;">Dirección</th>
+                            <th style="width: auto; white-space: nowrap;">Telefono</th>
+                            <th style="width: auto; white-space: nowrap;">Ciudad</th>
+                            <th style="width: auto; white-space: nowrap;">Manifiesto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-pagos-liquidaciones"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="5" class="text-end fw-bold">Total General de Manifiestos:</th>
+                            <th id="total-manifiestos-liquidaciones"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end w-100" tabindex="-1" id="offcanvasDetalleManifiestosLiquidacion" aria-labelledby="offcanvasDetalleLabel">
+    <div class="offcanvas-header bg-primary text-white">
+        <h5 class="offcanvas-title text-white" id="offcanvasDetalleLabel">Detalle de Manifiestos</h5>
+        <button type="button" class="btn-close text-reset btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="detalleManifiestoContentLiquidacion"></div>
+
+        <div class="row">
+
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12" style="display: none;" id="bloque_liquidacion">
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                        <div class="mb-3">
+                            <label class="form-label" for="exampleFormControlInput">Valor Liquidacion</label>
+                            <input type="text" id="valor_liquidacion" class="form-control form-control-sm" onchange="currencyMask2(this);">
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                        <div class="mb-3">
+                            <label class="form-label" for="exampleFormControlInput">Fecha Liquidacion</label>
+                            <input type="date" id="fecha_liquidacion" class="form-control form-control-sm" value="<?= date('Y-m-d') ?>">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                        <div class="mb-3">
+                            <label class="form-label" for="exampleFormControlInput">Documento</label>
+                            <input type="file" id="documento_liquidacion" class="form-control form-control-sm">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                        <div class="mb-3">
+                            <label class="form-label" for="exampleFormControlInput">Beneficiario</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control form-control-sm" aria-label="Recipient’s username" aria-describedby="btn-buscar-beneficiario" id="beneficiario_liquidacion" disabled>
+                                <button class="btn btn-outline-secondary btn-sm px-1 py-1" type="button" id="btn-buscar-beneficiario-liquidacion">Certificado</button>
+                                <button class="btn btn-outline-primary btn-sm px-1 py-1" type="button" id="btn-buscar-beneficiario-liquidacion-rut">Rut</button>
+                                <button class="btn btn-outline-warning btn-sm px-1 py-1" type="button" id="btn-buscar-beneficiario-liquidacion-seguridad">Seguridad</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                        <div id="resumen_calculo_liquidacion" class="alert alert-subtle-info p-2" style="display: none; font-size: 0.9rem;">
+                        </div>
+                    </div>
+
+                    <!-- 🛑 BLOQUE PRINCIPAL DE OPCIONES DE PAGO (12 COLUMNAS) -->
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                        <div id="contenedor_opciones_pago_liquidacion" class=" p-3 border rounded mb-3">
+                            <label class="form-label fw-bold">Opciones de Pago</label>
+
+                            <div class="row">
+
+                                <!-- Select de MÉTODO DE PAGO -->
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-6 mb-3">
+                                    <label class="form-label" for="slct_metodo_pago_liquidacion">Método de Pago Activo</label>
+                                    <select class="form-select form-select-sm" id="slct_metodo_pago_liquidacion" required>
+                                        <option value="">Seleccione Método</option>
+                                        <!-- Opciones cargadas por JS -->
+                                    </select>
+                                </div>
+
+                                <!-- OPCIÓN 1: Tarjetas (Se muestra solo si se selecciona TARJETA) -->
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-6" style="display: none;" id="opcion_tarjetas_liquidacion">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="slct_tarjeta_disponible_liquidacion">Seleccionar Tarjeta</label>
+                                        <select class="form-select form-select-sm" id="slct_tarjeta_disponible_liquidacion">
+                                            <option value="">Cargando...</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- 🛑 OPCIÓN 2: CUENTAS BANCARIAS Y NUEVA INSCRIPCIÓN -->
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-6" style="display: none;" id="opcion_cuentas_liquidacion">
+                                    <!-- Selección de Cuenta Existente -->
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="slct_cuenta_bancaria_liquidacion">Seleccionar Cuenta Existente</label>
+                                            <select class="form-select form-select-sm" id="slct_cuenta_bancaria_liquidacion" disabled>
+                                                <option value="">Cargando...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12 my-3" id="contenedor_documentos_pago"></div>
+
+                                    <!-- Checkbox para HABILITAR INSCRIPCIÓN -->
+                                    <div class="form-check mt-2 mb-3">
+                                        <input class="form-check-input" type="checkbox" id="chk_inscribir_nueva_cuenta_liquidacion">
+                                        <label class="form-check-label text-primary fw-bold" for="chk_inscribir_nueva_cuenta_liquidacion">
+                                            Inscribir Nueva Cuenta (Si el pago va a una cuenta)
+                                        </label>
+                                    </div>
+
+                                    <!-- 🛑 CONTENEDOR DE CAMPOS DE LA NUEVA CUENTA 🛑 -->
+                                    <div id="inputs_nueva_cuenta_liquidacion" class="row border-top pt-3" style="display: none;">
+                                        <h6 class="text-secondary">Detalle de la Nueva Cuenta</h6>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label" for="txt_num_cuenta_nuevo_liquidacion">N° Cuenta Nuevo</label>
+                                            <input type="number" id="txt_num_cuenta_nuevo_liquidacion" class="form-control form-control-sm" disabled>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label" for="slct_banco_nuevo_liquidacion">Banco Nuevo</label>
+                                            <select class="form-select form-select-sm" id="slct_banco_nuevo_liquidacion" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label" for="slct_tipo_cuenta_nuevo_liquidacion">Tipo Cuenta Nuevo</label>
+                                            <select class="form-select form-select-sm" id="slct_tipo_cuenta_nuevo_liquidacion" disabled>
+                                                <option value="">Seleccione</option>
+                                                <option value="1">Ahorros</option>
+                                                <option value="2">Corriente</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!-- 🛑 FIN: CAMPOS NUEVA CUENTA -->
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 🛑 FIN: BLOQUE PRINCIPAL DE OPCIONES DE PAGO -->
+
+
+                    <div class="col-12 gy-3">
+                        <div class="row justify-content-end">
+                            <div class="col-auto">
+                                <button class="btn btn-phoenix-primary btn-sm px-5" type="button" id="btn-cancelar-liquidacion"> Cancelar</button>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-primary btn-sm px-5" id="btn-guardar-liquidacion" type="button"> Gurdar Liquidacion</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="bloque-pagos" style="display: none;">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12" id="detalle-pagos"></div>
+        </div>
+
+    </div>
+</div>

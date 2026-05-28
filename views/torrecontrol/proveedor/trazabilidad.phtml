@@ -1,0 +1,104 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= $_SESSION['usuario']['proveedor_id'] ?>">
+<input type="hidden" name="cliente_id" id="cliente_id" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="container-fluid">
+  <!-- <div class="d-flex justify-content-center"></div> -->
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row ">
+      <div class="table-responsive scrollbar">
+        <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
+          <thead>
+            <tr>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>#</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Modalidad</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Servicio</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Placa</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Cedula</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Nombre</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Nota</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Sitio</th>
+              <?php if ($_SESSION["usuario"]["id_perfil"] == 42): ?>
+                <th class='text-center' style='width: auto; white-space: nowrap;'>Proveedor</th>
+              <?php endif; ?>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha</th>
+            </tr>
+          </thead>
+          <tbody id='tbl_trazabilidad_recursos_tr' class='text-center'>
+            <tr>
+              <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+                <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info" style="display: none;"> Esperando Información
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- <div class="accordion" id="accordionExample">
+        <div class="accordion-item border-top">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Trazabilidad de los recursos
+            </button>
+          </h2>
+          <div class="accordion-collapse collapse show" id="collapseOne" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body pt-0">
+              <div class="table-responsive scrollbar">
+                <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
+                  <thead>
+                    <tr>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>#</th>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Recurso</th>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Servicio</th>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody id='tbl_trazabilidad_recursos_tr' class='text-center'>
+                    <tr>
+                      <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+                        <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info" style="display: none;"> Esperando Información
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              Trazabilidad de los pedidos
+            </button>
+          </h2>
+          <div class="accordion-collapse collapse" id="collapseTwo" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+            <div class="accordion-body pt-0">
+              <div class="table-responsive scrollbar">
+                <table id='table2' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
+                  <thead>
+                    <tr>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Referencia</th>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Tipo Trazabilidad</th>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Observación</th>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Usuario</th>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha</th>
+                      <th class='text-center' style='width: auto; white-space: nowrap;'>Soporte</th>
+                    </tr>
+                  </thead>
+                  <tbody id='tbl_trazabilidad_pedidos_tr' class='text-center'>
+                    <tr>
+                      <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+                        <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info2" style="display: none;"> Esperando Información
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+    </div>
+  </div>
+</div>
+
+<!-- <div id="map" style="height: 600px; width: 100%;"></div> -->

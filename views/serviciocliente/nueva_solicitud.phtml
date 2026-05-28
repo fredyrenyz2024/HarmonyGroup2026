@@ -1,13 +1,27 @@
 <div class="container-fluid pt-3">
+  <style>
+    #agregar_fila {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 9999;
+      border-radius: 50px;
+      padding: 12px 22px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.30);
+    }
+
+    .input-error {
+      border: 1px solid red !important;
+      background-color: #fff6f6 !important;
+    }
+  </style>
   <!-- <div class="d-flex justify-content-center"> -->
   <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-12 col-xxl-12">
     <!-- <div class="row"> </div> -->
+    <!-- <div id="bloque_formulario" class="scrollbar vh-100"> -->
     <div id="bloque_formulario">
-      <!-- <div class="card-body"> </div> -->
-      <!-- <div id="datos?s"></div> -->
-
       <!-- Seleccionar el escenario para la solicitud de servicio -->
-      <div class="d-flex flex-wrap justify-content-start mt-2">
+      <!-- <div class="d-flex flex-wrap justify-content-start mt-2">
         <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
           <h6 class="mb-0 text-body-highlight me-2">Escenarios solicitud de servicio</h6>
         </div>
@@ -21,7 +35,7 @@
             <option value="">Seleccione</option>
           </select>
         </div>
-      </div>
+      </div> -->
 
       <hr class="my-1 text-dark">
       <div class="d-flex flex-wrap justify-content-start mt-2">
@@ -33,6 +47,7 @@
         </div>
       </div>
       <hr class="my-1 text-dark">
+
       <div class="col-12 col-sm-12 col-md-12 col-lg-21 col-xl-12 col-xxl-12">
         <div class="row">
           <input type="hidden" name="id_cliente_seleccionado" id="id_cliente_seleccionado">
@@ -83,7 +98,7 @@
             <h6 class="mb-0 text-body-highlight me-2">Datos de la mercancía</h6>
           </div>
           <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4 d-flex justify-content-end">
-            <a class="fw-bold fs-9 text-decoration-none me-2" style="font-size: 10px;" href="#!" data-toggle="tooltip" data-placement="top" title="Agregar fila" id="agregar_fila"><span class="text-body uil-plus-square"></span></a>
+            <!-- <a class="fw-bold fs-9 text-decoration-none me-2" style="font-size: 10px;" href="#!" data-toggle="tooltip" data-placement="top" title="Agregar fila" id="agregar_fila"><span class="text-body uil-plus-square"></span></a> -->
             <a class="fw-bold fs-9 text-decoration-none" style="font-size: 10px;" href="#!" title="Fletes nacional" onclick="ir_modulofletes();"><i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
@@ -93,7 +108,7 @@
         <div id="table_mercancia"></div>
 
         <!-- Servicios especiales -->
-        <div class="d-flex flex-wrap justify-content-start mt-3">
+        <!-- <div class="d-flex flex-wrap justify-content-start mt-3">
           <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
             <h6 class="mb-0 text-body-highlight me-2">Servicios especiales</h6>
           </div>
@@ -101,10 +116,11 @@
             <a class="fw-bold fs-9 text-decoration-none me-2" style="font-size: 10px;" href="#!" data-toggle="tooltip" data-placement="top" title="Agregar fila" id="agregar_especial"><span class="text-body uil-plus-square"></span></a>
             <a class="fw-bold fs-9 text-decoration-none" style="font-size: 10px;" href="#!" title="Tipo servicio" onclick="ir_modulotiposervi();"><i class="fas fa-arrow-right"></i></a>
           </div>
-        </div>
-        <hr class="my-1 text-dark">
+        </div> -->
+
+        <hr class="mt-5 text-dark">
         <!-- Formulario de servicios especiales -->
-        <div id="table_especial"></div>
+        <!-- <div id="table_especial"></div> -->
 
         <!-- Solicitud de servicio -->
         <div class="row">
@@ -120,14 +136,14 @@
           <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
             <div class="mb-1">
               <label style="font-size: 12px;">Grupo&nbsp;<span style="color:red;"><i>(*)</i></label>
-              <select class="form-select form-select-sm mb-3 select2" aria-label="category" style="width:100%;" id="group" name="group[]" multiple="multiple"></select>
+              <select class="form-select form-select-sm mb-3 select2" aria-label="category" id="group" name="group[]" multiple style="width:100%;"></select>
             </div>
           </div>
 
           <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
             <div class="mb-1">
               <label style="font-size: 12px;">Hora Envio email</label>
-              <select class="form-select form-select-sm mb-3 select2" aria-label="category" style="width:100%;" id="houremail" name"houremail[]" multiple="multiple"></select>
+              <select class="form-select form-select-sm mb-3 select2" aria-label="category" id="houremail" name="houremail[]" multiple style="width:100%;"></select>
             </div>
           </div>
 
@@ -138,7 +154,7 @@
             </div>
           </div>
 
-          <div id="devolver_contenedor" style="display:none;">
+          <!-- <div id="devolver_contenedor" style="display:none;">
             <div class="row">
               <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
                 <span style="font-weight:500; margin-top:20px;"><strong>Datos de Contenedor</strong></span>
@@ -213,70 +229,7 @@
                 <input type="hidden" class="form-control input-xs" id="tip_transport">
               </div>
             </div>
-          </div>
-
-          <!-- DATOS DE LOS REMITENTES Y DESTINATARIOS -->
-          <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-            <div class="d-flex flex-wrap justify-content-start mt-3">
-              <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-                <h6 class="mb-0 text-body-highlight me-2"> Remitentes y Destinatarios</h6>
-              </div>
-            </div>
-            <hr class="my-1 text-dark">
-          </div>
-
-          <div class="d-flex justify-content-center align-items-center mb-5">
-            <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2">
-              <!-- <h6 class="mb-0 text-body-highlight me-2"> Remitentes y Destinatarios</h6> -->
-              <div class="input-group mb-3">
-                <input type="number" class="form-control form-control-sm text-center" placeholder="Cantidad Puntos" id="maximo_entregab">
-                <button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="tooltip" data-placement="top" title="Agregar punto" id="agregar_fila_entrega2">Agregar</button>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <input type="hidden" id="cabw" value="1">
-            <input type="hidden" id="pun" value="2">
-          </div>
-
-          <div class="row">
-            <!--Remitentes -->
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-              <div class="widgets-scrollspy-nav mt-n5 bg-body-emphasis z-5  border-bottom">
-                <nav class="navbar py-0" id="widgets-scrollspy">
-                  <ul class="nav flex-nowrap" id="remitentes_menu" style="overflow-x: auto;">
-                    <!-- Elementos del menú -->
-                  </ul>
-                </nav>
-              </div>
-
-              <!-- Cargar tabla para seleccionar los remitentes seun su cantidad -->
-              <div data-bs-spy="scroll" data-bs-target="#widgets-scrollspy">
-                <div class="tab-content bg-success-white" id="nav_contenedor">
-                  <!-- Elementos del tab -->
-                </div>
-              </div>
-            </div>
-
-
-            <!-- Destinatarios -->
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
-              <div class="widgets-scrollspy-nav mt-n5 bg-body-emphasis z-5 border-bottom">
-                <nav class="navbar py-0" id="widgets-scrollspy-destinatario">
-                  <ul class="nav flex-nowrap" id="destinatarios_menu" style="overflow-x: auto;">
-                    <!-- Elementos del menú -->
-                  </ul>
-                </nav>
-              </div>
-
-              <div data-bs-spy="scroll" data-bs-target="#widgets-scrollspy-destinatario">
-                <div class="tab-content bg-success-white" id="accordion_destinatario">
-                  <!-- Elementos del tab -->
-                </div>
-              </div>
-            </div>
-          </div>
+          </div> -->
 
           <!-- CAMPOR PARA LA VISUALISACION DE COSTOS DE LA SOLICITUD DE SERVICIO -->
 
@@ -314,38 +267,38 @@
             </div>
           </div>
 
-          <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+          <!-- <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
             <div class="d-flex flex-wrap justify-content-start mt-3">
               <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
                 <h6 class="mb-0 text-body-highlight me-2"> Costo Servicios Especiales</h6>
               </div>
             </div>
             <hr class="my-1 text-dark">
-          </div>
+          </div> -->
 
           <!-- Valores del servicio especial -->
           <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
             <div class="mb-1">
-              <label style="font-size: 12px;">Valor total Costo</label>
-              <input type="text" id="Tcosto_especial" disabled class="form-control form-control-sm">
+              <!-- <label style="font-size: 12px;">Valor total Costo</label> -->
+              <input type="hidden" id="Tcosto_especial" disabled class="form-control form-control-sm">
             </div>
           </div>
           <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
             <div class="mb-1">
-              <label style="font-size: 12px;">Valor Total tarifa</label>
-              <input type="text" id="Ttarifa_especial" disabled class="form-control form-control-sm">
+              <!-- <label style="font-size: 12px;">Valor Total tarifa</label> -->
+              <input type="hidden" id="Ttarifa_especial" disabled class="form-control form-control-sm">
             </div>
           </div>
           <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
             <div class="mb-1">
-              <label style="font-size: 12px;">Valor total Rentabilidad%</label>
-              <input type="text" id="Tutilidad_especial" disabled class="form-control form-control-sm">
+              <!-- <label style="font-size: 12px;">Valor total Rentabilidad%</label> -->
+              <input type="hidden" id="Tutilidad_especial" disabled class="form-control form-control-sm">
             </div>
           </div>
           <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
             <div class="mb-1">
-              <label style="font-size: 12px;">Valor total Utilidad</label>
-              <input type="text" id="Trenta_especial" disabled class="form-control form-control-sm">
+              <!-- <label style="font-size: 12px;">Valor total Utilidad</label> -->
+              <input type="hidden" id="Trenta_especial" disabled class="form-control form-control-sm">
             </div>
           </div>
 
@@ -358,7 +311,6 @@
             </div>
             <hr class="my-1 text-dark">
           </div>
-
 
           <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
             <div class="mb-1">
@@ -388,6 +340,11 @@
   </div>
 </div>
 
+<button id="agregar_fila" class="btn btn-primary rounded-circle p-3" style="margin-bottom: 55px;">
+  <i class="fas fa-plus"></i>
+</button>
+
+
 <!-- Modal para seleccionar clientes -->
 <div class="modal fade" id="staticBackdrop" tabindex="-1" data-bs-backdrop="static"
   aria-labelledby="scrollingLongModalLabel2" aria-hidden="true">
@@ -397,8 +354,8 @@
       <div class="modal-header bg-primary">
         <h5 class="modal-title text-white dark__text-gray-1100" id="staticBackdropLabel"><i class="far fa-user"></i>
           Seleccione cliente</h5>
-        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close"><span
-            class="fas fa-times fs-9 text-white dark__text-gray-1100"></span></button>
+        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+          <span class="fas fa-times fs-9 text-white dark__text-gray-1100"></span></button>
       </div>
       <div class="modal-body">
         <!--cuerpo inicio -->
@@ -438,8 +395,9 @@
                           <td class='cell-detail'><span><?= $value['nombre_empresa']; ?></span></td>
                           <td class='cell-detail text-center'>
                             <button id='btn_uno<?= $uno; ?>' class='btn btn-sm' type='button' title='Seleccionar Cliente' onclick='verVehiculo(this);'
-                              data-id='<?= $value['documento']; ?>' data-id2='<?= $value['digito_verificacion']; ?>' data-id3='<?= $value['telefono']; ?>' data-id4='<?= $value['nombre']; ?>' data-id5='<?= $value['direccion']; ?>' data-id6='<?= $value['id']; ?>' data-id7='<?= $value['email']; ?>' data-id8='<?= $value['tipo_documento']; ?>'
-                              data-id9='<?= $value['regimen']; ?>' data-id10="<?= $value['empresa_id']; ?>">
+                              data-id='<?= $value['documento']; ?>' data-id2='<?= $value['digito_verificacion']; ?>' data-id3='<?= $value['telefono']; ?>' data-id4='<?= $value['nombre']; ?>'
+                              data-id5='<?= $value['direccion']; ?>' data-id6='<?= $value['id']; ?>' data-id7='<?= $value['email']; ?>' data-id8='<?= $value['tipo_documento']; ?>'
+                              data-id9='<?= $value['regimen']; ?>' data-id10="<?= $value['empresa_id']; ?>" data-id11="<?= $value['capacidad_endeudamiento'] ?>" data-id12="<?= $value['saldo_cartera'] ?>">
                               <i class="far fa-check-circle"></i>
                             </button>
                           </td>

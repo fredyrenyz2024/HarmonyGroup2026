@@ -1,0 +1,189 @@
+<div class="container-fluid py-3">
+  <!-- Variables ocultas de sesión -->
+  <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+  <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+  <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+  <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+  <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+  <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+  <div class="row">
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+
+        <h5 class="card-title mb-3">Seleccione los Criterios de Búsqueda</h5>
+
+        <div class="nexos-messages"></div>
+        <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+        <div id="log_proceso" class="mt-3"></div>
+
+        <form class="row g-3 align-items-end">
+
+          <div class="col-md-3 col-lg-2">
+            <label for="filtro_no_manifiesto" class="form-label fw-bold">No Manifiesto</label>
+            <input type="text" id="filtro_no_manifiesto" class="form-control form-control-sm">
+          </div>
+
+          <div class="col-md-3 col-lg-2">
+            <label for="filtro_no_manifiesto" class="form-label fw-bold">Clientes</label>
+            <!-- <input type="text" id="filtro_no_manifiesto" class="form-control form-control-sm"> -->
+          </div>
+
+          <!-- <div class="col-md-3 col-lg-2 pt-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="check_fecha_programada">
+              <label class="form-check-label fw-bold" for="check_fecha_programada">
+                Fecha Programada
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-lg-2 pt-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="check_fecha_vencimiento">
+              <label class="form-check-label fw-bold" for="check_fecha_vencimiento">
+                Fecha Vencimiento
+              </label>
+            </div>
+          </div> -->
+
+          <div class="col-md-3 col-lg-2">
+            <label class="form-label fw-bold">Fecha inicial</label>
+            <input type="date" id="finicial" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+          </div>
+
+          <div class="col-md-3 col-lg-2">
+            <label class="form-label fw-bold">Fecha final</label>
+            <input type="date" id="ffinal" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+          </div>
+
+          <div class="col-md-3 col-lg-2">
+            <button type="button" class="btn btn-primary btn-sm w-100" id="buscar_manifies">
+              <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12" id="tbl_programacion">
+      <div class="table-responsive mt-5 vh-100">
+        <table class='table table-bordered table-striped table-sm text-center' style="font-size:12px;" id="tabla-general-facturas">
+          <thead class="table-primary">
+            <tr>
+              <th style="width: auto; white-space: nowrap;"></th>
+              <th style="width: auto; white-space: nowrap;">N° Factura</th>
+              <th style="width: auto; white-space: nowrap;">Estado</th>
+              <th style="width: auto; white-space: nowrap;">Estado Rndc</th>
+              <th style="width: auto; white-space: nowrap;">Nit ó Cc</th>
+              <th style="width: auto; white-space: nowrap;">Cliente</th>
+              <th style="width: auto; white-space: nowrap;">Agencia</th>
+              <th style="width: auto; white-space: nowrap;">Fecha Expedición</th>
+              <th style="width: auto; white-space: nowrap;">Fecha Facturación</th>
+              <th style="width: auto; white-space: nowrap;">Total Factura</th>
+              <th style="width: auto; white-space: nowrap;">Usuario Facturación</th>
+              <!-- <th style="width: auto; white-space: nowrap;">Valor a Pagar</th>
+              <th style="width: auto; white-space: nowrap;">Fecha Programada</th>
+              <th style="width: auto; white-space: nowrap;">Fecha Vencimiento</th> -->
+            </tr>
+          </thead>
+          <tbody id="tbody-facturas-dsnube"></tbody>
+          <!-- <tfoot>
+            <tr>
+              <th colspan="5" class="text-end fw-bold">Total Por Pagar:</th>
+              <th id="total-manifiestos-pagos"></th>
+            </tr>
+          </tfoot> -->
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-end w-100" tabindex="-1" id="offcanvasDetalleFactura">
+  <div class="offcanvas-header bg-dark">
+    <h5 class="offcanvas-title text-white">📄 Detalle de Factura</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+
+  <div class="offcanvas-body">
+
+    <!-- CABECERA -->
+    <div class="card mb-3">
+      <div class="card-header bg-light fw-bold">Información General</div>
+      <div class="card-body row g-2">
+        <div class="col-md-3"><b>Factura:</b> <span id="df-numero"></span></div>
+        <div class="col-md-3"><b>Fecha:</b> <span id="df-fecha"></span></div>
+        <div class="col-md-3"><b>Cliente:</b> <span id="df-cliente"></span></div>
+        <div class="col-md-3"><b>NIT:</b> <span id="df-nit"></span></div>
+        <div class="col-md-3"><b>Ciudad:</b> <span id="df-ciudad"></span></div>
+        <div class="col-md-3"><b>Teléfono:</b> <span id="df-telefono"></span></div>
+        <div class="col-md-3"><b>Vencimiento:</b> <span id="df-vencimiento"></span></div>
+        <div class="col-md-3"><b>Usuario:</b> <span id="df-usuario"></span></div>
+      </div>
+    </div>
+
+    <!-- DETALLE -->
+    <div class="card mb-3">
+      <div class="card-header bg-light fw-bold">Detalle de Servicios / Remesas</div>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead class="table-secondary">
+            <tr>
+              <th>#</th>
+              <th>Remesa</th>
+              <th>Fecha</th>
+              <th>Descripción</th>
+              <th class="text-end">Valor Unit.</th>
+              <th class="text-end">Cantidad</th>
+              <th class="text-end">Valor</th>
+            </tr>
+          </thead>
+          <tbody id="df-detalle"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TOTALES -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-light fw-bold">Observaciones</div>
+          <div class="card-body">
+            <div id="df-observaciones" class="text-muted"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <table class="table table-sm table-bordered">
+          <tr>
+            <th>Subtotal</th>
+            <td class="text-end" id="df-subtotal"></td>
+          </tr>
+          <tr>
+            <th>Retención</th>
+            <td class="text-end" id="df-retencion"></td>
+          </tr>
+          <tr>
+            <th>ICA</th>
+            <td class="text-end" id="df-ica"></td>
+          </tr>
+          <tr>
+            <th>IVA</th>
+            <td class="text-end" id="df-iva"></td>
+          </tr>
+          <tr>
+            <th>ReteIVA</th>
+            <td class="text-end" id="df-reteiva"></td>
+          </tr>
+          <tr class="table-success fw-bold">
+            <th>TOTAL</th>
+            <td class="text-end" id="df-total"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

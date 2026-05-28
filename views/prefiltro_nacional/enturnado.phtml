@@ -1,0 +1,275 @@
+<div class="container-fluid">
+    <input type="hidden" name="ssn_id_cliente" id="ssn_id_cliente" value="<?= $_SESSION["usuario"]["id_cliente"] ?>">
+    <input type="hidden" name="ssn_id_usuario" id="ssn_id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"] ?>">
+    <input type="hidden" name="ssn_nombre" id="ssn_nombre" value="<?= $_SESSION["usuario"]["nom_usuario"] ?>">
+    <input type="hidden" name="ssn_id_perfil" id="ssn_id_perfil" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+    <input type="hidden" name="fecha_dia_solicitud" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" name="hora_dia_solicitud" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+        <div class="row">
+            <div class='table-responsive p-1'>
+                <table class='table table-bordered table-striped table-sm' style=" font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Placa</th>
+                            <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Conductor</th>
+                            <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Celular</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Ubicación Actual</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Agencia</th>
+                            <!-- <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Solicitud Servicio</th> -->
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Origen</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Destino</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Quien Enturna</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Fecha Enturna</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Estado</th>
+                            <!-- <th class='text-center' style="color:black;width:auto; white-space: nowrap;">P.Neto Vacio</th> -->
+                        </tr>
+                    </thead>
+                    <tbody id='tbl-vehiculos-enturnado' class='text-center'></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<!-- Right Offcanvas-->
+
+<!-- <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Right Offcanvas</button> -->
+<div class="offcanvas offcanvas-end shadow-lg border-0" id="offcanvasRightEnturnados" tabindex="-1" aria-labelledby="offcanvasRightEnturnadosLabel" style="width: 40%;">
+    <div class="offcanvas-header bg-gradient text-white" style="background: linear-gradient(135deg, #004aad, #007bff);">
+        <div>
+            <h5 class="mb-0 fw-bold" id="offcanvasRightEnturnadosLabel">
+                <i class="bi bi-truck-front-fill me-2"></i> Enturnar Vehículo <span id="oc_placa" class="fw-semibold">---</span>
+            </h5>
+            <!-- <small class="text-white-50 d-block">Gestión de información del vehículo</small> -->
+        </div>
+        <button class="btn-close btn-close-dark" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+
+        <form id="form_enturnados">
+            <div class="row">
+                <div class="sms"></div>
+                <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="placag">Placa Vehiculo&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" id="placag" class="form-control form-control-sm" oninput="this.value = this.value.toUpperCase();">
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="placag">Configuración Vehiculo&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <select name="configuracion_vehiculo" id="configuracion_vehiculo" class="form-control form-control-sm">
+                            <option selected="selected" value=""> </option>
+                            <option value="2">Camión dos ejes - PBV mas de 10500 Kg </option>
+                            <option value="2_7_8">Camión dos ejes - Livianos PBV 7500-8000 Kg </option>
+                            <option value="2_8_9">Camión dos ejes - Livianos PBV 8001-9000 Kg </option>
+                            <option value="2_9_105">Camión dos ejes - Livianos PBV 9001-10500 Kg </option>
+                            <option value="2S2">Tractocamión dos ejes con semiremolque de dos ejes</option>
+                            <option value="2S3">Tractocamión dos ejes con semiremolque de tres ejes</option>
+                            <option value="3">Camión tres ejes </option>
+                            <option value="3S2">Tractocamión tres ejes con semiremolque de dos ejes</option>
+                            <option value="3S3">Tractocamión tres ejes con semiremolque de tres ejes</option>
+                            <option value="V2">Volqueta dos ejes </option>
+                            <option value="V3">Volqueta tres ejes </option>
+                            <option value="V4">Volqueta cuatro ejes </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="docupro">Documento Propietario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="number" id="docupro" name="docupro" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="nompro">Nombre Propietario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" id="nompro" name="nompro" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div id="mensaje_propietario_existe"></div>
+                </div>
+                <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="docutene">Documento Poseedor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="number" id="docutene" name="docutene" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="nomtene">Nombre Poseedor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" id="nomtene" name="nomtene" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div id="mensaje_poseedor_existe"></div>
+                </div>
+                <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="docucondu">Documento Conductor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="number" id="docucondu" name="docucondu" class="form-control form-control-sm" onchange="javascript:referencias_prefiltro();">
+                    </div>
+                </div>
+                <div class="col-xs-6 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="nomcondu">Nombre Conductor&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" id="nomcondu" name="nomcondu" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div id="mensaje_conductor_existe"></div>
+                </div>
+
+
+                <div class="col-xs-12 col-md-6 col-sm-6 col-lg-4">
+                    <div class="mb-2">
+                        <label class="form-label" for="web">Web Sátelital&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" id="web" name="web" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6 col-sm-6 col-lg-4">
+                    <div class="mb-2">
+                        <label class="form-label" for="user_satelite">Usuario&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" id="user_satelite" name="user_satelite" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6 col-sm-6 col-lg-4">
+                    <div class="mb-2">
+                        <label class="form-label" for="clave">Clave&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <input type="text" id="clave" name="clave" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12 mt-2">
+                    <div class="p-2">
+                        <!-- <h5 style="font-weight: bold;">Datos Trailer&nbsp;&nbsp;&nbsp;&nbsp;  <input type="checkbox" id="propietario_obligatorio" style="transform: scale(1.2);"> </h5>-->
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" id="propietario_obligatorio" type="checkbox">
+                            <label class="form-check-label" for="propietario_obligatorio">Datos Traile</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    <div class="mb-2">
+                        <label class="form-label" for="placat" id="etiqueta_placa_trailer">Placa Trailer </label>
+                        <input type="text" id="placat" name="placat" disabled class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    <div class="mb-2">
+                        <label class="form-label" for="docproptrailer" id="etiqueta_documento_trailer">Documento Propietario Trailer</label>
+                        <input type="number" id="docproptrailer" name="docproptrailer" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                    <div class="mb-2">
+                        <label class="form-label" for="nomproptrailer" id="estiqueta_propietario_trailer">Nombre Propietario Trailer</label>
+                        <input type="text" id="nomproptrailer" name="nomproptrailer" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="placag">Origen Enturnar&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <select name="origen_enturnar" id="origen_enturnar" class="form-control form-control-sm">
+                            <option selected="selected" value=""> </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-6 col-sm-6 col-lg-6">
+                    <div class="mb-2">
+                        <label class="form-label" for="placag">Destino Enturnar&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                        <select name="destino_enturnar" id="destino_enturnar" class="form-control form-control-sm">
+                            <option selected="selected" value=""> </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div class="mb-2">
+                        <label class="form-label" for="ubicaion_actual" id="estiqueta_propietario_trailer">Direccion Actual</label>
+                        <input type="text" id="ubicaion_actual" name="ubicaion_actual" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                    <div id="mensaje_trailer_existe"></div>
+                    <div id="mensaje_trailer_obligatorio" style="margin-top: 5px;"></div>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <input type="hidden" id="cab" value="1">
+                </div>
+            </div>
+        </form>
+
+        <div class="offcanvas-footer border-top p-3 d-flex justify-content-end bg-light">
+            <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="offcanvas" id="btnCancelarEnturnado">
+                Cancelar
+            </button>
+
+            <button type="submit" id="btnGuardarEnturnadoVehiculos" class="btn btn-success btn-sm ">
+                <i class="uil uil-save"></i> Guardar Entrurnado
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="staticBackdrop" tabindex="-1" data-bs-backdrop="static" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary p-1">
+                <h5 class="modal-title text-white dark__text-gray-1100" id="staticBackdropLabel">Modal title</h5>
+                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close"><span class="fas fa-times fs-9 text-white dark__text-gray-1100"></span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <input type="hidden" id="id_enturnamiento">
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label class="form-label" for="exampleFormControlInput">Estado Gestión </label>
+                            <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="select_estado" name="select_estado">
+                                <option selected>Seleccionar</option>
+                                <option value="Aprobado">Aprobado</option>
+                                <option value="Liberado">Liberado</option>
+                                <!-- <option value="3">Three</option> -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="exampleFormControlInput">Motivo Gestión</label>
+                        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="select_opcion" name="select_opcion">
+                            <option selected>Seleccionar</option>
+                            <option value="Opcion 1">Opción 1</option>
+                            <option value="Opcion 2">Opción 2</option>
+                            <option value="Opcion 3">Opción 3</option>
+                            <option value="Opcion 4">Opción 4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer p-1">
+                <button class="btn btn-primary btn-sm" id="btn_guardar_gestion" type="button">Guardar</button>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

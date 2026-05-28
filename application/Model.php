@@ -601,7 +601,7 @@ class Model
 	{
 		if ($name) {
 			$query = '
-					SELECT  DISTINCT(cm.depto)
+					SELECT DISTINCT(cm.depto)
 					FROM cmx_municipios cm 
 					WHERE cm.pais = "' . $pais . '"
 					ORDER BY cm.depto
@@ -937,7 +937,7 @@ class Model
 			$query = 'SELECT cue.id, cue.nom_unidad_empaque
 					FROM cmx_unidad_empaque cue
 					WHERE cue.estado = 1
-					ORDER BY cue.nom_unidad_empaque';
+					ORDER BY cue.nom_unidad_empaque ASC';
 			// $array = $this->_db->getConsulta($query);
 			$array = $this->_db3->prepare($query);
 			$array->execute();

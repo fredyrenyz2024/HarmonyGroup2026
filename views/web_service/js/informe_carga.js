@@ -1,10 +1,10 @@
-$(document).ready(function() {
+$(document).ready(function () {
   $('.opcion_filtro').hide();
   $('.divcliente').hide();
   $('.divfecha').hide();
   $('#contenedor_datos').hide();
 
-  $('#filtro').change(function() {
+  $('#filtro').change(function () {
     $('#numero_documento').val('');
     $('#fecha_doc').val('');
     var filtro = $('#filtro').val();
@@ -34,7 +34,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#opcion').change(function() {
+  $('#opcion').change(function () {
     $('#numero_documento').val('');
     $('#fecha_doc').val('');
     var opcion = $('#opcion').val();
@@ -48,7 +48,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#buscar_datos').click(function() {
+  $('#buscar_datos').click(function () {
     var msg_error = '';
     if (!$('#filtro').val()) {
       msg_error += '<p>Debe diligenciar el dato <strong>Documento Carga</strong> para realizar la consulta</p>';
@@ -67,10 +67,10 @@ $(document).ready(function() {
     } else {
       $('.nexos-messages').html(
         '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-          msg_error +
-          '</div></div>',
+        msg_error +
+        '</div></div>',
       );
-      $('.panel-body').animate({scrollTop: 0}, 600);
+      $('.panel-body').animate({ scrollTop: 0 }, 600);
     }
   });
 });
@@ -110,7 +110,7 @@ function Consulta_Datos() {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Consulta_Tabla_Retransmision',
     'filtro=' + filtro + '&opcion=' + opcion + '&num_docu=' + numero + '&fecha=' + fecha,
-    function(data) {
+    function (data) {
       if (data) {
         $('#cabecera_general').html('<tr><td>Documento carga</td><td>Número</td><td>Respuesta Rndc</td><td>Acción</td></tr>');
         for (var i = 0; i < data.length; i++) {
@@ -130,7 +130,7 @@ function Consulta_Datos() {
                 `<button id="ver'` +
                 i +
                 `" class="btn btn-space btn-success btn-sm mdi mdi-refresh" title="Retransmitir Rndc" onClick="transmitir_nuevamente('${data[0]
-                  .id_documento}','${opcion}','${filtro}');">Retransmitir</button>`;
+                  .manifiesto}','${opcion}','${filtro}');">Retransmitir</button>`;
             }
           } else {
             boton = "<button id='ver" + i + "' class='btn btn-sm btn-success mdi mdi-refresh-alt' title='Retransmitir''> Transmitido</button>";
@@ -154,92 +154,92 @@ function Retransmision(num_mnf, opcion, filtro) {
     $.post(
       $('#id_url_ajax').val() + 'web_service/Consulta_Rndc',
       'num_mnf=' + num_mnf + '&opcion=' + opcion,
-      function(data) {
+      function (data) {
         if (data) {
           mensaje = data[0]['rta_ministerio'];
           $('#respuesta_rndc').html(
             '<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Resultado RNDC! </strong> ' +
-              mensaje +
-              '</div></div>',
+            mensaje +
+            '</div></div>',
           );
-          $('#bodycontenido').animate({scrollTop: 0}, 900, 'swing');
+          $('#bodycontenido').animate({ scrollTop: 0 }, 900, 'swing');
 
           $('#etiqueta').html(
             '<label>Nitempresa</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['nitempresa'] +
-              '">' +
-              '<label>Manifiesto carga</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['nummanifiestocarga'] +
-              '">' +
-              '<label>Operación Transporte</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['codoperaciontransporte'] +
-              '">' +
-              '<label>Fecha Expedición Manifiesto</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['fechaexpedicionmanifiesto'] +
-              '">' +
-              '<label>Origen</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['codmunicipioorigenmanifiesto'] +
-              '">' +
-              '<label>Destino</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['codmunicipiodestinomanifiesto'] +
-              '">' +
-              '<label>Titular Manifiesto</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['codidtitularmanifiesto'] +
-              '">' +
-              '<label>Número del titulae</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['munidtitularmanifiesto'] +
-              '">',
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['nitempresa'] +
+            '">' +
+            '<label>Manifiesto carga</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['nummanifiestocarga'] +
+            '">' +
+            '<label>Operación Transporte</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['codoperaciontransporte'] +
+            '">' +
+            '<label>Fecha Expedición Manifiesto</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['fechaexpedicionmanifiesto'] +
+            '">' +
+            '<label>Origen</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['codmunicipioorigenmanifiesto'] +
+            '">' +
+            '<label>Destino</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['codmunicipiodestinomanifiesto'] +
+            '">' +
+            '<label>Titular Manifiesto</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['codidtitularmanifiesto'] +
+            '">' +
+            '<label>Número del titulae</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['munidtitularmanifiesto'] +
+            '">',
           );
 
           $('#etiqueta2').html(
             '<label>Placa</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['numplaca'] +
-              '">' +
-              '<label>Placa Remolque</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['numplacaremolque'] +
-              '">' +
-              '<label>Codidconductor</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['codidconductor'] +
-              '">' +
-              '<label>Número Conductor</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['munidconductor'] +
-              '">' +
-              '<label>Valor Flete</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['valorfletepactadoviaje'] +
-              '">' +
-              '<label>RetencionIca</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['retencionicamanifiestocarga'] +
-              '">' +
-              '<label>Retefuente</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['retencionfuentemanifiesto'] +
-              '">' +
-              '<label>Valor Anticipo</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['valoranticipomanifiesto'] +
-              '">' +
-              '<label>Fecha  Pago Saldo</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['fechapagosaldomanifiesto'] +
-              '">' +
-              '<label>Responsable Cargue</label>' +
-              '<input type="text" class="form-control input-xs" value="' +
-              data[0]['cosresponsablecargue'] +
-              '">',
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['numplaca'] +
+            '">' +
+            '<label>Placa Remolque</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['numplacaremolque'] +
+            '">' +
+            '<label>Codidconductor</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['codidconductor'] +
+            '">' +
+            '<label>Número Conductor</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['munidconductor'] +
+            '">' +
+            '<label>Valor Flete</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['valorfletepactadoviaje'] +
+            '">' +
+            '<label>RetencionIca</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['retencionicamanifiestocarga'] +
+            '">' +
+            '<label>Retefuente</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['retencionfuentemanifiesto'] +
+            '">' +
+            '<label>Valor Anticipo</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['valoranticipomanifiesto'] +
+            '">' +
+            '<label>Fecha  Pago Saldo</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['fechapagosaldomanifiesto'] +
+            '">' +
+            '<label>Responsable Cargue</label>' +
+            '<input type="text" class="form-control input-xs" value="' +
+            data[0]['cosresponsablecargue'] +
+            '">',
           );
         }
       },
@@ -249,12 +249,12 @@ function Retransmision(num_mnf, opcion, filtro) {
 
   if (filtro == 1) {
     //remesa
-    $.post($('#id_url_ajax').val() + 'web_service/Consulta_Rndc', 'num_mnf=' + num_mnf + '&opcion=' + opcion, function(data) {}, 'json');
+    $.post($('#id_url_ajax').val() + 'web_service/Consulta_Rndc', 'num_mnf=' + num_mnf + '&opcion=' + opcion, function (data) { }, 'json');
   }
 
   if (filtro == 3) {
     //cumplido
-    $.post($('#id_url_ajax').val() + 'web_service/Consulta_Rndc', 'num_mnf=' + num_mnf + '&opcion=' + opcion, function(data) {}, 'json');
+    $.post($('#id_url_ajax').val() + 'web_service/Consulta_Rndc', 'num_mnf=' + num_mnf + '&opcion=' + opcion, function (data) { }, 'json');
   }
 }
 
@@ -271,7 +271,6 @@ function transmitir_nuevamente(numero, opcion, filtro) {
   }
   if (filtro == 3) {
     //cumplido
-    //
     Crear_Cumplido_Rndc(numero);
   }
   if (filtro == 4) {
@@ -308,27 +307,27 @@ function Crear_Remesa_Rndc(num_remesa) {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Retransmite_Remesaindividual',
     paquete_transmite,
-    function(data) {
+    function (data) {
       if (data.status == 'true') {
         tablas_locales = 'Se Registro Remesa ' + num_remesa + ' Exitosamente RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="check" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       } else if (data.status == 'false') {
         tablas_locales = 'No se creo Remesa ' + num_remesa + ' en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       }
     },
     'json',
@@ -340,7 +339,7 @@ function Validar_Remesas_Rndc(num_mani) {
   $.post(
     $('#id_url_ajax').val() + 'manifiesto/Valida_Remesas',
     'manifiesto=' + num_mani,
-    function(data) {
+    function (data) {
       if (data[0]['can_remesa'] == data[0]['can_re_rndc']) {
         //cant remesas activas - cant remesas transmitidas
         Crear_Manifiesto_Rndc(num_mani);
@@ -350,10 +349,10 @@ function Validar_Remesas_Rndc(num_mani) {
         mensaje = 'No puede transmitir manifiesto porque hay remesas por crear en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! Resultado RNDC</strong> ' +
-            mensaje +
-            '</div></div>',
+          mensaje +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 900, 'swing');
+        $('.panel-body').animate({ scrollTop: 0 }, 900, 'swing');
       }
     },
     'json',
@@ -369,59 +368,134 @@ function Crear_Manifiesto_Rndc(num_mani) {
     // $('#id_url_ajax').val() + 'web_service/Transmite_Manifiesto',
     $('#id_url_ajax').val() + 'web_service/Retransmite_Manifiesto',
     paquete_transmite,
-    function(data) {
+    function (data) {
       //$.post($("#id_url_ajax").val()+'web_service/Transmite_Manifiesto',paquete_transmite,function(data){
       if (data.status == 'true') {
         tablas_locales = 'Se Registro Manifiesto ' + data.num_manifiesto;
         +' Exitosamente RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="check" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('#accordion1').animate({scrollTop: 0}, 600);
+        $('#accordion1').animate({ scrollTop: 0 }, 600);
       } else if (data.status == 'false') {
         tablas_locales = 'No se creo Manifiesto ' + data.num_manifiesto;
         +' en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('#accordion1').animate({scrollTop: 0}, 600);
+        $('#accordion1').animate({ scrollTop: 0 }, 600);
       }
     },
     'json',
   );
 }
 
-function Crear_Cumplido_Rndc(num_mani) {
-  //cumplido de manifiesto
-  var mensaje = '';
-  proceso = 3;
-  var paquete = 'num_manifiesto=' + num_mani + '&proceso=' + proceso + '&dato=3' + '&filtro=""' + '&tipopro=3';
-  $.post(
-    $('#id_url_ajax').val() + 'web_service/Retransmite_Cumplido_Rm',
-    paquete,
-    function(data) {
-      for (var z = 0; z < data.length; z++) {
-        mensaje = JSON.stringify(data[z]);
-        $('.nexos-messages').append(
-          '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="check" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! Resultado Remesa RNDC</strong> ' +
-            mensaje +
-            '</div></div>',
-        );
-        $('#accordion1').animate({scrollTop: 0}, 900, 'swing');
-      }
-      Cumplido_Manifiesto_Rndc(num_mani);
-    },
-    'json',
-  );
+async function Crear_Cumplido_Rndc(numManifiesto) {
+
+  const mensajes = [];
+  // $('#loading-overlay-rndc').show();
+
+  try {
+
+    const response = await fetch('http://127.0.0.1:8000/api/v1/rndc/transmitir-cumplido-inicial-manifiesto', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': 'mi_super_api_key_ultra_secreta_123',
+      },
+      body: JSON.stringify({
+        num_manifiesto: numManifiesto
+      }),
+    });
+
+    const res = await response.json();
+
+    /* =============================
+       1️⃣ Error general del servicio
+       ============================= */
+    if (!res.success) {
+      mensajes.push(
+        `<b>❌ Error RNDC</b><br>${res.error}`
+      );
+      return;
+    }
+
+    /* =============================
+       2️⃣ Resultados por remesa
+       ============================= */
+    if (Array.isArray(res.data)) {
+
+      res.data.forEach(item => {
+
+        if (item.status === true) {
+          mensajes.push(
+            `✅ <b>Remesa ${item.remesa}</b> transmitida correctamente<br>
+             <small>ID RNDC: ${item.ingresoid ?? 'N/D'}</small>`
+          );
+        } else {
+          mensajes.push(
+            `❌ <b>Remesa ${item.remesa}</b> falló<br>
+             <small>${item.error}</small>`
+          );
+        }
+
+      });
+
+    } else {
+      mensajes.push('⚠️ Respuesta inesperada del servidor');
+    }
+
+  } catch (error) {
+
+    mensajes.push(
+      `❌ <b>Error de red</b><br>${error.message}`
+    );
+
+  } finally {
+
+    // $('#loading-overlay-rndc').hide();
+
+    Swal.fire({
+      title: 'Resultado Cumplido RNDC',
+      html: mensajes.join('<hr>'),
+      icon: 'info',
+      width: '70%',
+      confirmButtonText: 'Cerrar'
+    });
+  }
 }
+
+// function Crear_Cumplido_Rndc(num_mani) {
+//   //cumplido de manifiesto
+//   var mensaje = '';
+//   proceso = 3;
+//   var paquete = 'num_manifiesto=' + num_mani + '&proceso=' + proceso + '&dato=3' + '&filtro=""' + '&tipopro=3';
+//   $.post(
+//     $('#id_url_ajax').val() + 'web_service/Retransmite_Cumplido_Rm',
+//     paquete,
+//     function(data) {
+//       for (var z = 0; z < data.length; z++) {
+//         mensaje = JSON.stringify(data[z]);
+//         $('.nexos-messages').append(
+//           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="check" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado! Resultado Remesa RNDC</strong> ' +
+//             mensaje +
+//             '</div></div>',
+//         );
+//         $('#accordion1').animate({scrollTop: 0}, 900, 'swing');
+//       }
+//       Cumplido_Manifiesto_Rndc(num_mani);
+//     },
+//     'json',
+//   );
+// }
 
 function Cumplido_Manifiesto_Rndc(num_manifiesto) {
   var mensaje = '';
@@ -430,27 +504,27 @@ function Cumplido_Manifiesto_Rndc(num_manifiesto) {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Retransmite_Cumplido_ma',
     paquete_transmite,
-    function(data) {
+    function (data) {
       if (data.status == 'true') {
         tablas_locales = 'Se Registro Cumplido ' + data.num_cumplido + ' Exitosamente RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('#accordion1').animate({scrollTop: 0}, 600);
+        $('#accordion1').animate({ scrollTop: 0 }, 600);
       } else if (data.status == 'false') {
         tablas_locales = 'No se creo Cumplido ' + data.num_cumplido + ' en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('#accordion1').animate({scrollTop: 0}, 600);
+        $('#accordion1').animate({ scrollTop: 0 }, 600);
       }
     },
     'json',
@@ -464,27 +538,27 @@ function Crear_Cliente_Rndc(doc_cliente) {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Retransmite_Cliente',
     paquete_transmite,
-    function(data) {
+    function (data) {
       if (data.status == 'true') {
         tablas_locales = 'Se Registro Cliente; ' + data.nombre + ', Exitosamente RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       } else if (data.status == 'false') {
         tablas_locales = 'No se creo Clientes ' + data.nombre + ' en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       }
     },
     'json',
@@ -498,27 +572,27 @@ function Crear_Remitente_Rndc(doc_remi) {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Retransmite_Remitente',
     paquete_transmite,
-    function(data) {
+    function (data) {
       if (data.status == 'true') {
         tablas_locales = 'Se Registro Remitente ' + data.nombre + ', Exitosamente RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       } else if (data.status == 'false') {
         tablas_locales = 'No se creo Remitente ' + data.nombre + ' en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       }
     },
     'json',
@@ -532,27 +606,27 @@ function CrearTerceros_Rndc(documento) {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Retransmite_Tercero',
     paquete_transmite,
-    function(data) {
+    function (data) {
       if (data.status == 'true') {
         tablas_locales = 'Se Registro Tercero ' + data.nombre + ', Exitosamente RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       } else if (data.status == 'false') {
         tablas_locales = 'No se creo Tercero ' + data.nombre + ' en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       }
     },
     'json',
@@ -566,27 +640,27 @@ function Crear_Trailer_Rndc(documento) {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Retransmite_Trailer',
     paquete_transmite,
-    function(data) {
+    function (data) {
       if (data.status == 'true') {
         tablas_locales = 'Se Registro Trailer ' + data.nombre + ', Exitosamente RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       } else if (data.status == 'false') {
         tablas_locales = 'No se creo Trailer ' + data.nombre + ' en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       }
     },
     'json',
@@ -600,27 +674,27 @@ function Crear_vehiculo_Rndc(documento) {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Retransmite_Vehiculo',
     paquete_transmite,
-    function(data) {
+    function (data) {
       if (data.status == 'true') {
         tablas_locales = 'Se Registro Vehiculo ' + data.nombre + ', Exitosamente RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       } else if (data.status == 'false') {
         tablas_locales = 'No se creo Vehiculo ' + data.nombre + ' en RNDC';
         $('.nexos-messages').append(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> ' +
-            tablas_locales +
-            ' - ' +
-            data.resultado +
-            '</div></div>',
+          tablas_locales +
+          ' - ' +
+          data.resultado +
+          '</div></div>',
         );
-        $('.panel-body').animate({scrollTop: 0}, 600);
+        $('.panel-body').animate({ scrollTop: 0 }, 600);
       }
     },
     'json',

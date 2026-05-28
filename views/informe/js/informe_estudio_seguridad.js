@@ -183,13 +183,12 @@ d.addEventListener('DOMContentLoaded', async e => {
     // }
   });
 
-  document.querySelectorAll('.btn_estados').forEach(function(button) {
+  document.querySelectorAll('.btn_estados').forEach(function (button) {
     // Obtiene el valor de data-id de cada botón
     const estadoId = button.getAttribute('data-id');
-    // console.log('Estado ID:', estadoId);
 
     // Agrega una acción para cuando se haga clic en el botón
-    button.addEventListener('click', async function() {
+    button.addEventListener('click', async function () {
       // console.log('Se ha hecho clic en el botón con estado:', estadoId);
       // Aquí puedes añadir el código para realizar una acción con el estadoId
       if (d.getElementById('estudios_aprobados').textContent === '0' || d.getElementById('estudios_pendientes').textContent === '0' || d.getElementById('estudios_rechazados').textContent === '0') {
@@ -202,6 +201,7 @@ d.addEventListener('DOMContentLoaded', async e => {
           },
         });
       } else {
+        $("#exportar_excel").attr("data-id", estadoId);
         $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
         /* Definir las variables para los filtros */
         let formdata = new FormData();
@@ -321,11 +321,15 @@ d.addEventListener('DOMContentLoaded', async e => {
   });
 
   // Botones para exportar las remesas
-  d.getElementById('exportar_excel').addEventListener('click', function() {
-    var table = d.getElementById('informe_de_servicios_especiales');
+  d.getElementById('exportar_excel').addEventListener('click', function () {
+
+    var estadoId = this.getAttribute('data-id'); // <--- Aquí obtienes el data-id del botón
+    // console.log('Estado ID:', estadoId); // Solo para que veas que se captura bien
+
+    var table = d.getElementById('informe_de_estudios_seguridad');
 
     // Preprocesar la tabla para asegurar que los valores con formato de moneda sean tratados como texto
-    Array.from(table.getElementsByTagName('td')).forEach(function(td) {
+    Array.from(table.getElementsByTagName('td')).forEach(function (td) {
       if (td.innerText.includes('$') || td.innerText.includes(',')) {
         td.setAttribute('data-t', 's'); // Marcar como texto
       }
@@ -340,11 +344,11 @@ d.addEventListener('DOMContentLoaded', async e => {
     // Definir estilo para el thead
     var rangoEncabezado = XLSX.utils.decode_range(ws['!ref']); // Obtener el rango de la tabla
     for (let C = rangoEncabezado.s.c; C <= rangoEncabezado.e.c; ++C) {
-      var cell = ws[XLSX.utils.encode_cell({r: 0, c: C})]; // Fila 0 es el thead
+      var cell = ws[XLSX.utils.encode_cell({ r: 0, c: C })]; // Fila 0 es el thead
       if (!cell.s) cell.s = {};
       cell.s.fill = {
         patternType: 'solid',
-        fgColor: {rgb: '3B71CA'}, // Color de fondo amarillo
+        fgColor: { rgb: '3B71CA' }, // Color de fondo
       };
     }
 
@@ -355,20 +359,22 @@ d.addEventListener('DOMContentLoaded', async e => {
 
     // Ajustar ancho de las columnas
     ws['!cols'] = [
-      {wpx: 120}, // Columna 1 ancho en píxeles
-      {wpx: 120}, // Columna 2 ancho en píxeles
-      {wpx: 320}, // Ajusta el tamaño de las columnas según el contenido
-      {wpx: 120}, // Columna 2 ancho en píxeles
-      {wpx: 120}, // Columna 2 ancho en píxeles
-      {wpx: 120}, // Columna 2 ancho en píxeles
-      {wpx: 120}, // Columna 2 ancho en píxeles
-      {wpx: 120}, // Columna 2 ancho en píxeles
-      {wpx: 120}, // Columna 2 ancho en píxeles
+      { wpx: 120 },
+      { wpx: 120 },
+      { wpx: 320 },
+      { wpx: 120 },
+      { wpx: 120 },
+      { wpx: 120 },
+      { wpx: 120 },
+      { wpx: 120 },
+      { wpx: 120 },
     ];
 
     // Crear contenido de archivo con fecha
     const fechaActual = new Date().toISOString().slice(0, 10);
-    const nombreArchivo = `Informe_de_servicios_especiales - ${fechaActual}.xlsx`;
+    const nombreArchivo = `Informe_de_estudios_seguridad_${estadoId} - ${fechaActual}.xlsx`;
     XLSX.writeFile(wb, nombreArchivo);
+
   });
+
 });

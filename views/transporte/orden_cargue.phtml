@@ -30,7 +30,7 @@
                         <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
                           <label>(*)Placa</label>
                           <select id="placao" class="form-control input-xs">
-                            <option value="">Seleccione</option>
+                            <option value="" selected>Seleccione</option>
                           </select>
                           <input type="hidden" id="id_servicio" class="form-control input-xs" readonly="readonly">
                           <input type="hidden" id="id_vehiculo" class="form-control input-xs" readonly="readonly">
@@ -228,19 +228,46 @@
                     </div>
                     <div id="collapseFive" class="panel-collapse collapse">
                       <div class="panel-body">
-                        <div class="row">
-                          <button id="adicione_precinto" class="btn btn-primary btn-xs"><i class="fa-solid fa-square-plus"></i> Agregar precinto</button>
-
-                          <table class="table table-condensed" id="tabla_precintos" style="margin-top: 15px;">
-                            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
-                              <th>#</th>
-                              <th>Código precinto</th>
-                              <th>Tipo precinto</th>
-                              <th>Acción</th>
+                        <!-- <div class="row">
+                          <table class="table-striped" cellpadding="0" cellspacing="0" id="tabla_precintos" style="margin-top: 15px;width: 50%; border: #332D2D;">
+                            <thead style="border-collapse: collapse; font-size: 12px; background-color: #332D2D; color: #fff;">
+                              <th style="width: auto; white-space: nowrap;">#</th>
+                              <th style="width: auto; white-space: nowrap;">Código precinto</th>
+                              <th style="width: auto; white-space: nowrap;">Tipo precinto</th>
+                              <th style="width: auto; white-space: nowrap;">Acción</th>
                             </thead>
                             <tbody></tbody>
                           </table>
+                          <div class="text-center">
+                            <button id="adicione_precinto" class="btn btn-primary btn-xs"><i class="fa-solid fa-square-plus"></i> Agregar precinto</button>
+                          </div>
+                        </div> -->
+
+                        <?php //print_r($_SESSION['usuario']['agencias']); 
+                        ?>
+
+                        <div class="row">
+                          <div style="display: flex; justify-content: center;">
+                            <table class="table-striped" id="tabla_precintos" style="width: 50%; border: #332D2D;">
+                              <thead style="border-collapse: collapse; font-size: 12px; background-color: #332D2D; color: #fff;">
+                                <tr>
+                                  <th class="text-center" style="white-space: nowrap;">#</th>
+                                  <th class="text-center" style="white-space: nowrap;">Código precinto</th>
+                                  <th class="text-center" style="white-space: nowrap;">Tipo precinto</th>
+                                  <th class="text-center" style="white-space: nowrap;">Acción</th>
+                                </tr>
+                              </thead>
+                              <tbody></tbody>
+                            </table>
+                          </div>
+                          <div class="text-center mt-2">
+                            <button class="btn btn-primary btn-xs" onclick="agregarFilaPrecinto()">
+                              <i class="fa-solid fa-square-plus"></i> Agregar precinto
+                            </button>
+                          </div>
                         </div>
+
+
                       </div>
                     </div>
                   </div>

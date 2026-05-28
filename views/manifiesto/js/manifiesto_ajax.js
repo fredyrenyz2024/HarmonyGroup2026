@@ -650,19 +650,6 @@ async function Validar_Tarifa() {
     const data = await response.json();
 
     if (data.status === 'true') {
-      // const tablas_locales = 'Se registró el manifiesto exitosamente en el RNDC.';
-      // $('#msg_present').append(
-      //   `<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible">
-      //     <div class="icon"><span class="mdi mdi-check"></span></div>
-      //     <div class="message">
-      //       <button type="button" data-dismiss="alert" aria-label="Close" class="close">
-      //         <span aria-hidden="true" class="mdi mdi-close"></span>
-      //       </button>
-      //       <strong>Proceso terminado!</strong> ${tablas_locales} - ${JSON.stringify(data.resultado)}
-      //     </div>
-      //   </div>`,
-      // );
-      // $('#accordion1').animate({scrollTop: 0}, 600);
       await procesarResultados(data);
     } else if (data.status === 'false') {
       // Mostrar mensaje de error
@@ -861,7 +848,7 @@ async function Crear_Manifiesto() {
   notanewitr = JSON.stringify(notanewitr);
 
   var numero_documento = 0;
-  $('#loading-overlay-nexosapp ').css('display', 'flex'); // Mostrar mensaje de carga
+  $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
 
   var datos = new FormData();
   datos.append('placa', placa);
@@ -922,7 +909,7 @@ async function Crear_Manifiesto() {
     console.error('Error en la primera solicitud:', error);
     throw error;
   } finally {
-    $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+    $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
     Crear_Remesa_Rndc(numero_documento);
   }
 }
@@ -1037,11 +1024,6 @@ async function Crear_Remesa_Rndc(num_mani) {
     } else {
       // Crear_Manifiesto_Rndc(num_mani);
     }
-    // if (response_rndc === true) {
-    //   Crear_Datorm_Oet(num_mani); // Solo se ejecuta después de todo el proceso
-    // } else {
-    //   Crear_Datorm_Oet(num_mani); // Solo se ejecuta después de todo el proceso
-    // }
   }
 }
 
@@ -1096,11 +1078,6 @@ async function Crear_Manifiesto_Rndc(num_mani) {
   } finally {
     $('#loading-overlay-rndc').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
     Crear_Datorm_Oet(num_mani);
-    // if (response_rndc === true) {
-    //   Crear_Datorm_Oet(num_mani); // Solo se ejecuta después de todo el proceso
-    // } else {
-    //   Crear_Datorm_Oet(num_mani); // Solo se ejecuta después de todo el proceso
-    // }
   }
 }
 

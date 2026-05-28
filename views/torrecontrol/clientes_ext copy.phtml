@@ -1,0 +1,1399 @@
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS_TORRE_CONTROL ?>">
+<input type="hidden" id="ssn_empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="ssn_usuario" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+
+<div class="container-fluid py-3">
+  <style>
+    :root {
+      --navy: #0f1f3d;
+      --navy-mid: #1a3260;
+      --blue: #1a5ce5;
+      --blue-soft: #dbeafe;
+      --amber: #f59e0b;
+      --amber-soft: #fef3c7;
+      --green: #10b981;
+      --green-soft: #d1fae5;
+      --red: #ef4444;
+      --red-soft: #fee2e2;
+      --cyan: #06b6d4;
+      --cyan-soft: #cffafe;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-600: #475569;
+      --slate-800: #1e293b;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 2px 4px rgba(0, 0, 0, .06);
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      border-radius: var(--radius-lg);
+      padding: 20px 28px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-header::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .ph-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(245, 158, 11, .15);
+      border: 2px solid rgba(245, 158, 11, .35);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--amber);
+      flex-shrink: 0;
+    }
+
+    .ph-title {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .ph-sub {
+      color: rgba(255, 255, 255, .55);
+      font-size: .78rem;
+      margin-top: 2px;
+    }
+
+    .mod-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--slate-100);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-bottom: 20px;
+      border: 1px solid var(--slate-200);
+    }
+
+    .mod-tab {
+      flex: 1;
+      padding: 9px 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--slate-600);
+      background: transparent;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .mod-tab:hover {
+      background: #fff;
+      color: var(--slate-800);
+    }
+
+    .mod-tab.active {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mod-tab.active i {
+      color: var(--blue);
+    }
+
+    .mod-panel {
+      display: none;
+    }
+
+    .mod-panel.active {
+      display: block;
+    }
+
+    .f-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--slate-600);
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .f-control {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      color: var(--slate-800);
+      background: #fff;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+
+    .f-control:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+    }
+
+    .f-control::placeholder {
+      color: var(--slate-400);
+    }
+
+    .f-control:disabled {
+      background: var(--slate-50);
+      color: var(--slate-400);
+      cursor: not-allowed;
+    }
+
+    select.f-control {
+      cursor: pointer;
+    }
+
+    .f-readonly {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      color: var(--slate-600);
+      background: var(--slate-50);
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-new {
+      height: 34px;
+      padding: 0 16px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+
+    .btn-new:hover {
+      background: #059669;
+    }
+
+    .btn-excel {
+      height: 34px;
+      padding: 0 14px;
+      background: #1d6f42;
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+
+    .btn-excel:hover:not(:disabled) {
+      background: #155232;
+    }
+
+    .btn-excel:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .btn-save {
+      height: 34px;
+      padding: 0 20px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .15s;
+    }
+
+    .btn-save:hover {
+      background: #1449c4;
+    }
+
+    .btn-cancel-form {
+      height: 34px;
+      padding: 0 16px;
+      background: #fff;
+      color: var(--slate-600);
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all .15s;
+    }
+
+    .form-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--slate-200);
+      margin-bottom: 16px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .form-card.visible {
+      display: block;
+    }
+
+    .form-card-header {
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-card-title {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-card-title i {
+      color: var(--blue);
+    }
+
+    .form-card-body {
+      padding: 20px;
+    }
+
+    .form-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--slate-200);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      background: var(--slate-50);
+    }
+
+    /* ── Horarios ── */
+    .horarios-section {
+      background: var(--slate-50);
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .horarios-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .horarios-section-title {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .horarios-section-title i {
+      color: var(--blue);
+      font-size: .85rem;
+    }
+
+    .btn-add-horario {
+      height: 28px;
+      padding: 0 12px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      border: 1.5px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      font-size: .75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all .15s;
+    }
+
+    .btn-add-horario:hover {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .horario-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .horario-row:hover {
+      border-color: #bfdbfe;
+      box-shadow: 0 0 0 3px rgba(26, 92, 229, .06);
+    }
+
+    .horario-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .horario-row .h-num {
+      width: 22px;
+      height: 22px;
+      background: var(--navy);
+      color: #fff;
+      border-radius: 50%;
+      font-size: .68rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .horario-row .h-label {
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      color: var(--slate-600);
+      white-space: nowrap;
+      min-width: 52px;
+    }
+
+    .horario-row .h-input {
+      height: 30px;
+      padding: 0 8px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      color: var(--slate-800);
+      background: #fff;
+      outline: none;
+      transition: border-color .15s;
+      flex: 1;
+    }
+
+    .horario-row .h-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26, 92, 229, .1);
+    }
+
+    .horario-row .h-sep {
+      color: var(--slate-400);
+      font-size: .8rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .btn-del-horario {
+      width: 28px;
+      height: 28px;
+      background: var(--red-soft);
+      color: var(--red);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      transition: all .15s;
+    }
+
+    .btn-del-horario:hover {
+      background: var(--red);
+      color: #fff;
+      transform: scale(1.08);
+    }
+
+    /* ── Tables ── */
+    .table-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--slate-200);
+      overflow: hidden;
+    }
+
+    .table-card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tc-title {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tc-title i {
+      color: var(--blue);
+    }
+
+    .tc-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .8rem;
+    }
+
+    .data-table thead th {
+      background: var(--navy);
+      color: rgba(255, 255, 255, .85);
+      font-weight: 600;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 10px 14px;
+      white-space: nowrap;
+      border: none;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .data-table tbody tr {
+      border-bottom: 1px solid var(--slate-100);
+      transition: background .1s;
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--slate-50);
+    }
+
+    .data-table tbody td {
+      padding: 10px 14px;
+      color: var(--slate-800);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .badge-st {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .bs-green {
+      background: var(--green-soft);
+      color: #065f46;
+    }
+
+    .bs-red {
+      background: var(--red-soft);
+      color: #991b1b;
+    }
+
+    .bs-blue {
+      background: var(--blue-soft);
+      color: #1e40af;
+    }
+
+    .bs-slate {
+      background: var(--slate-100);
+      color: var(--slate-600);
+    }
+
+    .bs-amber {
+      background: var(--amber-soft);
+      color: #92400e;
+    }
+
+    .action-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      transition: all .15s;
+    }
+
+    .action-btn:hover {
+      filter: brightness(.9);
+      transform: scale(1.08);
+    }
+
+    .ab-edit {
+      background: var(--amber-soft);
+      color: #d97706;
+    }
+
+    .ab-toggle {
+      background: var(--cyan-soft);
+      color: #0e7490;
+    }
+
+    .ab-delete {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .empty-state .es-icon {
+      font-size: 2.5rem;
+      color: var(--slate-200);
+      margin-bottom: 12px;
+    }
+
+    .empty-state .es-title {
+      font-weight: 700;
+      color: var(--slate-600);
+      font-size: .9rem;
+      margin-bottom: 4px;
+    }
+
+    .empty-state .es-sub {
+      font-size: .78rem;
+      color: var(--slate-400);
+    }
+
+    .form-alert {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 500;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .form-alert.error {
+      background: var(--red-soft);
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .form-alert.success {
+      background: var(--green-soft);
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+
+    .ciudad-info {
+      font-size: .72rem;
+      color: var(--slate-400);
+      margin-top: 4px;
+    }
+
+    thead tr.filters th {
+      padding: 5px !important;
+      background-color: var(--slate-50) !important;
+    }
+
+    thead tr.filters input {
+      border-radius: 4px;
+      border: 1px solid var(--slate-200);
+    }
+
+    /* ════════ TAB CONSULTAR ════════ */
+    .consulta-panel {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--slate-200);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .consulta-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .consulta-header-icon {
+      width: 38px;
+      height: 38px;
+      background: rgba(245, 158, 11, .2);
+      border: 1.5px solid rgba(245, 158, 11, .4);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--amber);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .consulta-header-title {
+      color: #fff;
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .consulta-header-sub {
+      color: rgba(255, 255, 255, .55);
+      font-size: .75rem;
+      margin-top: 1px;
+    }
+
+    .consulta-filtros {
+      padding: 20px;
+      border-bottom: 1px solid var(--slate-200);
+      background: var(--slate-50);
+    }
+
+    .btn-consultar {
+      height: 34px;
+      padding: 0 20px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .15s;
+    }
+
+    .btn-consultar:hover:not(:disabled) {
+      background: var(--navy-mid);
+    }
+
+    .btn-consultar:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .btn-limpiar {
+      height: 34px;
+      padding: 0 16px;
+      background: #fff;
+      color: var(--slate-600);
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s;
+    }
+
+    .btn-limpiar:hover {
+      border-color: var(--slate-400);
+    }
+
+    /* KPIs */
+    .kpi-row {
+      display: flex;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--slate-200);
+      flex-wrap: wrap;
+    }
+
+    .kpi-card {
+      flex: 1;
+      min-width: 150px;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .kpi-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .kpi-icon.ki-blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .kpi-icon.ki-green {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .kpi-icon.ki-amber {
+      background: var(--amber-soft);
+      color: #d97706;
+    }
+
+    .kpi-icon.ki-cyan {
+      background: var(--cyan-soft);
+      color: var(--cyan);
+    }
+
+    .kpi-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--slate-800);
+      line-height: 1;
+    }
+
+    .kpi-lbl {
+      font-size: .67rem;
+      color: var(--slate-400);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-top: 2px;
+    }
+
+    /* Resultado tabla consulta */
+    .consulta-result-header {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    .consulta-result-title {
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .consulta-result-title i {
+      color: var(--blue);
+    }
+
+    /* Loading spinner */
+    .consulta-placeholder {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--slate-400);
+    }
+
+    .consulta-placeholder .cp-icon {
+      font-size: 2.5rem;
+      color: var(--slate-200);
+      margin-bottom: 10px;
+    }
+
+    .consulta-placeholder .cp-txt {
+      font-size: .82rem;
+    }
+
+    .spinner-ring {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--slate-200);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Pills de horarios en tabla */
+    .horario-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      max-width: 200px;
+    }
+
+    .horario-pill {
+      background: var(--blue-soft);
+      color: #1e40af;
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: .65rem;
+      font-weight: 700;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .horario-pill i {
+      font-size: .58rem;
+    }
+  </style>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <div class="ph-icon"><i class="bi bi-geo-alt-fill"></i></div>
+      <div>
+        <div class="ph-title">Clientes · Remitentes · Geocercas</div>
+        <div class="ph-sub">Torre de Control · Administración de puntos y ubicaciones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="mod-tabs">
+    <button class="mod-tab active" data-tab="tab-clientes">
+      <i class="bi bi-building"></i> Remitentes / Destinatarios
+    </button>
+    <button class="mod-tab" data-tab="tab-remitentes">
+      <i class="bi bi-people"></i> Sedes
+    </button>
+    <button class="mod-tab" data-tab="tab-geocercas">
+      <i class="bi bi-geo"></i> Geocercas
+    </button>
+    <button class="mod-tab" data-tab="tab-consultar">
+      <i class="bi bi-search"></i> Consultar
+    </button>
+  </div>
+
+  <!-- ══ TAB 1 — CLIENTES EXTERNOS ══ -->
+  <div class="mod-panel active" id="tab-clientes">
+    <div class="form-card" id="form-card-clientes">
+      <div class="form-card-header">
+        <div class="form-card-title">
+          <i class="bi bi-building"></i>
+          <span id="form-clientes-titulo">Nuevo Remitentes / Destinatarios</span>
+        </div>
+        <button class="btn-cancel-form" id="btn-cancelar-cliente"><i class="bi bi-x-lg"></i> Cancelar</button>
+      </div>
+      <div class="form-card-body">
+        <div id="alert-clientes" class="form-alert"></div>
+        <input type="hidden" id="cli-id">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="f-label" for="cli-cliente">Cliente Interno *</label>
+            <select id="cli-cliente"></select>
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="cli-nit">NIT / Documento *</label>
+            <input type="text" id="cli-nit" class="f-control" placeholder="Ej: 900123456-1" maxlength="50">
+          </div>
+          <div class="col-md-3">
+            <label class="f-label" for="cli-razon">Razón Social *</label>
+            <input type="text" id="cli-razon" class="f-control" placeholder="Nombre de la empresa" maxlength="50">
+          </div>
+          <div class="col-md-3">
+            <label class="f-label" for="cli-ciudad">Ciudad *</label>
+            <select id="cli-ciudad"></select>
+          </div>
+          <div class="col-md-4">
+            <label class="f-label" for="cli-direccion">Dirección</label>
+            <input type="text" id="cli-direccion" class="f-control" placeholder="Ej: Cra 50 # 10-20" maxlength="50">
+          </div>
+          <div class="col-md-4">
+            <label class="f-label">Horario de Tránsito</label>
+            <div class="row g-2">
+              <div class="col"><input class="f-control" type="time" id="cli-hora-inicio"></div>
+              <div class="col"><input class="f-control" type="time" id="cli-hora-fin"></div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="cli-estado">Estado *</label>
+            <select id="cli-estado" class="f-control">
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn-cancel-form" id="btn-cancelar-cliente-2"><i class="bi bi-x-lg"></i> Cancelar</button>
+        <button class="btn-save" id="btn-guardar-cliente"><i class="bi bi-check-lg"></i> Guardar</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-header">
+        <div class="tc-title">
+          <i class="bi bi-building"></i> Remitentes / Destinatarios
+          <span id="badge-clientes" class="badge-st bs-blue">0 registros</span>
+        </div>
+        <div class="tc-actions">
+          <button class="btn-excel" id="btn-excel-clientes"><i class="bi bi-file-earmark-spreadsheet-fill"></i> Excel</button>
+          <button class="btn-new" id="btn-nuevo-cliente"><i class="bi bi-plus-lg"></i> Nuevo Remitente / Destinatario</button>
+        </div>
+      </div>
+      <div class="table-wrap p-2">
+        <table class="data-table" id="tbl-clientes-externos">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Cliente Interno</th>
+              <th>NIT</th>
+              <th>Razón Social</th>
+              <th>Ciudad</th>
+              <th>Dirección</th>
+              <th>Hora Inicio</th>
+              <th>Hora Fin</th>
+              <th>Estado</th>
+              <th>Usuario</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-clientes">
+            <tr>
+              <td colspan="12">
+                <div class="empty-state">
+                  <div class="es-icon"><i class="bi bi-building"></i></div>
+                  <div class="es-title">Sin clientes registrados</div>
+                  <div class="es-sub">Crea el primer cliente externo</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 2 — REMITENTES ══ -->
+  <div class="mod-panel" id="tab-remitentes">
+    <div class="form-card" id="form-card-remitentes">
+      <div class="form-card-header">
+        <div class="form-card-title">
+          <i class="bi bi-people"></i>
+          <span id="form-remitentes-titulo">Nuevo Remitente / Destinatario</span>
+        </div>
+        <button class="btn-cancel-form" id="btn-cancelar-remitente"><i class="bi bi-x-lg"></i> Cancelar</button>
+      </div>
+      <div class="form-card-body">
+        <div id="alert-remitentes" class="form-alert"></div>
+        <input type="hidden" id="rem-id">
+        <div class="row g-3 mb-3">
+          <div class="col-md-3">
+            <label class="f-label" for="rem-cliente">Remitente / Destinatario *</label>
+            <!-- <select id="rem-cliente" class="f-control"> -->
+            <select id="rem-cliente">
+              <option value="">— Seleccione cliente —</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="f-label" for="rem-nombre">Nombre *</label>
+            <input type="text" id="rem-nombre" class="f-control" placeholder="Nombre remitente o destinatario" maxlength="50">
+          </div>
+          <div class="col-md-3">
+            <label class="f-label" for="rem-ciudad">Ciudad *</label>
+            <!-- <select id="rem-ciudad" class="f-control"> -->
+            <select id="rem-ciudad">
+              <option value="">— Seleccione municipio —</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="rem-estado">Estado *</label>
+            <select id="rem-estado" class="f-control">
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="rem-lat">Latitud *</label>
+            <input type="text" id="rem-lat" class="f-control" placeholder="Ej: 4.7110" maxlength="50">
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="rem-lng">Longitud *</label>
+            <input type="text" id="rem-lng" class="f-control" placeholder="Ej: -74.0721" maxlength="50">
+          </div>
+        </div>
+        <div class="horarios-section">
+          <div class="horarios-section-header">
+            <div class="horarios-section-title"><i class="bi bi-clock"></i> Horarios de Entrada / Salida</div>
+            <button type="button" class="btn-add-horario" id="btn-agregar-horario">
+              <i class="bi bi-plus-lg"></i> Agregar horario
+            </button>
+          </div>
+          <div id="rem-horarios-container"></div>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn-cancel-form" id="btn-cancelar-remitente-2"><i class="bi bi-x-lg"></i> Cancelar</button>
+        <button class="btn-save" id="btn-guardar-remitente"><i class="bi bi-check-lg"></i> Guardar</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-header">
+        <div class="tc-title">
+          <i class="bi bi-people"></i> Sedes
+          <span id="badge-remitentes" class="badge-st bs-blue">0 registros</span>
+        </div>
+        <div class="tc-actions">
+          <button class="btn-excel" id="btn-excel-remitentes"><i class="bi bi-file-earmark-spreadsheet-fill"></i> Excel</button>
+          <button class="btn-new" id="btn-nuevo-remitente"><i class="bi bi-plus-lg"></i> Nuevo</button>
+        </div>
+      </div>
+      <div class="table-wrap p-2">
+        <table class="data-table w-100" id="tbl-remitentes">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Código</th>
+              <th>Cliente Interno</th>
+              <th>Cliente</th>
+              <th>Nombre</th>
+              <th>Ciudad</th>
+              <th>Latitud</th>
+              <th>Longitud</th>
+              <th>Horarios</th>
+              <th>Estado</th>
+              <th>Usuario</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-remitentes">
+            <tr>
+              <td colspan="12">
+                <div class="empty-state">
+                  <div class="es-icon"><i class="bi bi-people"></i></div>
+                  <div class="es-title">Sin remitentes registrados</div>
+                  <div class="es-sub">Crea el primer remitente o destinatario</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 3 — GEOCERCAS ══ -->
+  <div class="mod-panel" id="tab-geocercas">
+    <div class="form-card" id="form-card-geocercas">
+      <div class="form-card-header">
+        <div class="form-card-title">
+          <i class="bi bi-geo"></i>
+          <span id="form-geocercas-titulo">Nueva Geocerca</span>
+        </div>
+        <button class="btn-cancel-form" id="btn-cancelar-geocerca"><i class="bi bi-x-lg"></i> Cancelar</button>
+      </div>
+      <div class="form-card-body">
+        <div id="alert-geocercas" class="form-alert"></div>
+        <input type="hidden" id="geo-id">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="f-label" for="geo-remitente">Remitente / Destinatario *</label>
+            <!-- <select id="geo-remitente" class="f-control"> -->
+            <select id="geo-remitente">
+              <option value="">— Seleccione —</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="f-label" for="geo-nombre">Nombre del Punto *</label>
+            <input type="text" id="geo-nombre" class="f-control" placeholder="Ej: Bodega principal" maxlength="50">
+          </div>
+          <div class="col-md-2">
+            <label class="f-label">Ciudad</label>
+            <div class="f-readonly" id="geo-ciudad-display">—</div>
+            <input type="hidden" id="geo-ciudad">
+            <div class="ciudad-info"><i class="bi bi-info-circle"></i> Se toma del remitente</div>
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="geo-lat">Latitud *</label>
+            <input type="text" id="geo-lat" class="f-control" placeholder="Ej: 3.4516" maxlength="50">
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="geo-lng">Longitud *</label>
+            <input type="text" id="geo-lng" class="f-control" placeholder="Ej: -76.5320" maxlength="50">
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="geo-estado">Estado *</label>
+            <select id="geo-estado" class="f-control">
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn-cancel-form" id="btn-cancelar-geocerca-2"><i class="bi bi-x-lg"></i> Cancelar</button>
+        <button class="btn-save" id="btn-guardar-geocerca"><i class="bi bi-check-lg"></i> Guardar</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-header">
+        <div class="tc-title">
+          <i class="bi bi-geo"></i> Geocercas
+          <span id="badge-geocercas" class="badge-st bs-blue">0 registros</span>
+        </div>
+        <div class="tc-actions">
+          <button class="btn-excel" id="btn-excel-geocercas"><i class="bi bi-file-earmark-spreadsheet-fill"></i> Excel</button>
+          <button class="btn-new" id="btn-nueva-geocerca"><i class="bi bi-plus-lg"></i> Nueva Geocerca</button>
+        </div>
+      </div>
+      <div class="table-wrap p-2">
+        <table class="data-table w-100" id="tbl-geocercas">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Cliente Interno</th>
+              <th>Cliente</th>
+              <th>Remitente / Dest.</th>
+              <th>Punto</th>
+              <th>Ciudad</th>
+              <th>Latitud</th>
+              <th>Longitud</th>
+              <th>Estado</th>
+              <th>Usuario</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-geocercas">
+            <tr>
+              <td colspan="10">
+                <div class="empty-state">
+                  <div class="es-icon"><i class="bi bi-geo"></i></div>
+                  <div class="es-title">Sin geocercas registradas</div>
+                  <div class="es-sub">Crea la primera geocerca</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 4 — CONSULTAR ══ -->
+  <div class="mod-panel" id="tab-consultar">
+    <div class="consulta-panel">
+
+      <!-- Header -->
+      <div class="consulta-header">
+        <div class="consulta-header-icon"><i class="bi bi-funnel-fill"></i></div>
+        <div>
+          <div class="consulta-header-title">Consulta de Remitentes y Destinatarios</div>
+          <div class="consulta-header-sub">Filtra jerárquicamente: Cliente Interno → Externo → Remitente</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="consulta-filtros">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="f-label" for="cns-cliente-interno">
+              <i class="bi bi-building-fill" style="color:var(--blue)"></i> Cliente Interno
+            </label>
+            <!-- <select id="cns-cliente-interno" class="f-control"> -->
+            <select id="cns-cliente-interno">
+              <option value="">— Todos —</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="f-label" for="cns-cliente-externo">
+              <i class="bi bi-buildings" style="color:var(--blue)"></i> Cliente Externo
+            </label>
+            <!-- <select id="cns-cliente-externo" class="f-control" disabled> -->
+            <select id="cns-cliente-externo" disabled>
+              <option value="">— Seleccione cliente interno —</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="cns-remitente">
+              <i class="bi bi-person-fill" style="color:var(--blue)"></i> Remitente / Dest.
+            </label>
+            <select id="cns-remitente" class="f-control" disabled>
+              <option value="">— Todos —</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="cns-ciudad-filtro">Ciudad</label>
+            <input type="text" id="cns-ciudad-filtro" class="f-control" placeholder="Buscar ciudad...">
+          </div>
+          <div class="col-md-2">
+            <label class="f-label" for="cns-estado-filtro">Estado</label>
+            <select id="cns-estado-filtro" class="f-control">
+              <option value="">Todos</option>
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+          <div class="col-12 d-flex gap-2 pt-1 flex-wrap align-items-center">
+            <button class="btn-consultar" id="btn-consultar">
+              <i class="bi bi-search"></i> Consultar
+            </button>
+            <button class="btn-limpiar" id="btn-limpiar-consulta">
+              <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+            </button>
+            <button class="btn-excel" id="btn-excel-consulta" disabled style="margin-left:auto">
+              <i class="bi bi-file-earmark-spreadsheet-fill"></i> Exportar Excel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row" id="kpi-row" style="display:none">
+        <div class="kpi-card">
+          <div class="kpi-icon ki-blue"><i class="bi bi-buildings"></i></div>
+          <div>
+            <div class="kpi-val" id="kpi-clientes-ext">0</div>
+            <div class="kpi-lbl">Clientes Externos</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon ki-green"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="kpi-val" id="kpi-remitentes">0</div>
+            <div class="kpi-lbl">Remitentes / Dest.</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon ki-amber"><i class="bi bi-clock-fill"></i></div>
+          <div>
+            <div class="kpi-val" id="kpi-horarios">0</div>
+            <div class="kpi-lbl">Horarios Registrados</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon ki-cyan"><i class="bi bi-check-circle-fill"></i></div>
+          <div>
+            <div class="kpi-val" id="kpi-activos">0</div>
+            <div class="kpi-lbl">Activos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado inicial / spinner / tabla -->
+      <div id="cns-estado-inicial" class="consulta-placeholder">
+        <div class="cp-icon"><i class="bi bi-search"></i></div>
+        <div class="cp-txt">Selecciona los filtros y presiona <strong>Consultar</strong></div>
+      </div>
+      <div id="cns-spinner" class="consulta-placeholder" style="display:none">
+        <div class="spinner-ring"></div>
+        <div class="cp-txt">Cargando resultados…</div>
+      </div>
+
+      <div id="cns-tabla-wrapper" style="display:none">
+        <div class="consulta-result-header">
+          <div class="consulta-result-title">
+            <i class="bi bi-table"></i> Resultados
+            <span id="badge-consulta" class="badge-st bs-blue">0 registros</span>
+          </div>
+        </div>
+        <div class="table-wrap p-2">
+          <table class="data-table" id="tbl-consulta">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Cliente Interno</th>
+                <th>Cliente Externo</th>
+                <th>NIT</th>
+                <th>Remitente / Dest.</th>
+                <th>Ciudad</th>
+                <th>Latitud</th>
+                <th>Longitud</th>
+                <th>Horarios</th>
+                <th>Estado</th>
+                <th>Usuario</th>
+                <th>Fecha Registro</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-consulta"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /container-fluid -->

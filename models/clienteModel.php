@@ -31,8 +31,6 @@ class clienteModel extends Model
       $sql->bindParam(':fecha_final', $fecha_final);
       $sql->execute();
       $resultados = $sql->fetchAll(PDO::FETCH_ASSOC);
-      // var_dump($resultados);
-      // exit();
       if ($resultados) {
         $response = ['status' => 200, 'result' => $resultados];
       } else {

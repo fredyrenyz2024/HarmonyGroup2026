@@ -1,0 +1,416 @@
+<!-- <input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>"> -->
+
+<input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="fecha_dia" value="<?= date('Y-m-d') ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+<style>
+  /* --- ESTILOS GENERALES --- */
+
+  /* body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        } */
+
+  /* --- ESTILOS DEL OFFCANVAS --- */
+  .offcanvas-center {
+    /* Centrado y flotante */
+    bottom: auto !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+
+    width: 90% !important;
+    /* Ajuste responsive */
+    max-width: 1000px;
+    height: 800px !important;
+    max-height: 95vh;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    border: none;
+    overflow: hidden;
+    /* Para el border-radius */
+  }
+
+  .offcanvas-header-custom {
+    background-color: #f8fbff;
+    border-bottom: 1px solid #e3e8ef;
+    height: 70px;
+    /* Altura fija para el listón */
+    padding: 0;
+    /* Padding manejado internamente */
+    position: relative;
+  }
+
+  /* --- EL LISTÓN (RIBBON) --- */
+  .ribbon-box {
+    position: relative;
+    background-color: #1a73e8;
+    /* Azul Corporativo */
+    color: white;
+    width: 50px;
+    height: 70px;
+    /* Mismo alto que el header */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-left: 20px;
+    box-shadow: 0 4px 6px rgba(26, 115, 232, 0.2);
+  }
+
+  /* El recorte triangular inferior del listón */
+  .ribbon-box::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-left: 25px solid transparent;
+    /* Mitad del ancho */
+    border-right: 25px solid transparent;
+    border-bottom: 15px solid #f8fbff;
+    /* Color de fondo del header */
+  }
+
+  /* --- TEXTOS Y BADGES --- */
+  .text-primary-custom {
+    color: #1a73e8;
+    font-size: 1.1rem;
+    letter-spacing: -0.5px;
+  }
+
+  .badge-custom-light {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(26, 115, 232, 0.1);
+  }
+
+  .badge-custom-dark {
+    background-color: #5f6368;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* --- PRO TABS (TU SELECCIÓN CSS MEJORADA) --- */
+  .custom-tabs-container-venta {
+    margin-top: 1.5rem;
+  }
+
+  .nav-tabs-custom {
+    border-bottom: 2px solid #e9ecef;
+    display: flex;
+    gap: 15px;
+    /* Más espacio entre tabs */
+    padding-left: 10px;
+  }
+
+  .nav-tabs-custom .nav-link {
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 12px 10px;
+    position: relative;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-tabs-custom .nav-link:hover {
+    color: #1a73e8;
+  }
+
+  .nav-tabs-custom .nav-link.active {
+    color: #1a73e8 !important;
+    background: transparent;
+  }
+
+  /* Indicador de pestaña activa (Línea inferior) */
+  .nav-tabs-custom .nav-link.active::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #1a73e8;
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 -2px 5px rgba(26, 115, 232, 0.1);
+  }
+
+  .custom-tab-content {
+    background-color: #ffffff;
+    /* Eliminamos bordes para un look más limpio */
+    padding-top: 20px;
+    min-height: 150px;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 200px;
+    width: 100%;
+  }
+
+  /* --- FORMULARIOS --- */
+  .form-label-sm {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.25rem;
+  }
+
+  .req {
+    color: #dc3545;
+  }
+
+  .btn-save {
+    background-color: #1a73e8;
+    border-color: #1a73e8;
+    font-weight: 500;
+    padding: 8px 24px;
+  }
+
+  .btn-save:hover {
+    background-color: #1557b0;
+  }
+
+  /* Asegura que el contenedor de TomSelect use todo el espacio disponible */
+  .ts-wrapper {
+    width: 100% !important;
+  }
+
+  /* Ajusta la altura para que coincida con los inputs de Bootstrap */
+  .ts-control {
+    min-height: 31px !important;
+    /* Altura para form-control-sm */
+    padding: 0.25rem 0.5rem !important;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Ajuste para que la fila de filtros no sea tan alta */
+  thead tr.filters th {
+    padding: 5px !important;
+    background-color: #f8f9fa !important;
+  }
+
+  thead tr.filters input {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+
+  /* Estilos para el efecto "Hoja de Informe" */
+  #offcanvasDetalleTarifa {
+    border-left: 1px solid #e2e8f0;
+    box-shadow: -15px 0 45px rgba(0, 0, 0, 0.08);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  .report-header {
+    background: #0f172a;
+    /* Slate 900 */
+    color: white;
+    border-bottom: 4px solid #3b82f6;
+  }
+
+  .card-finance {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0;
+    margin-left: 10px;
+  }
+
+  .border-dashed-custom {
+    border: 2px dashed #cbd5e1 !important;
+    background-color: #f1f5f9;
+    border-radius: 12px;
+  }
+
+  .point-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+    transition: transform 0.2s;
+  }
+
+  .point-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .list-group-item-custom {
+    border-left: 4px solid #10b981;
+    margin-bottom: 8px;
+    border-radius: 8px !important;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+
+  .badge-price {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 0.7rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Ocultar elementos en la impresión excepto el reporte */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+
+    #offcanvasDetalleTarifa,
+    #offcanvasDetalleTarifa * {
+      visibility: visible;
+    }
+
+    #offcanvasDetalleTarifa {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+
+    .btn-close,
+    .offcanvas-footer {
+      display: none;
+    }
+
+    .resumen-card {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .resumen-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .resumen-card.active {
+      border: 2px solid #0d6efd;
+    }
+  }
+</style>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body p-3">
+    <div class="row align-items-end g-3">
+      <div class="d-flex justify-content-end align-items-center mb-1">
+        <button class="btn btn-success btn-sm me-1 mb-" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasImporteMasivo" aria-controls="offcanvasImporteMasivo"><span class="fas fa-file-import"></span> Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="container-fluid">
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <!-- <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'></div> -->
+      <table id='tabla-porcentaje-variacion' class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+        <thead class="table-primary">
+          <tr>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Codigo</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Nombre</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Valor</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Estado</th>
+            <!-- <th class='text-center' style='width: auto; white-space: nowrap;'>Descripcion</th> -->
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id='porcentajes_body' class='text-center'>
+          <tr id="load_info" style="display: none;">
+            <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+              <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25"> Esperando Información
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-end w-30" id="offcanvasImporteMasivo" tabindex="-1" aria-labelledby="offcanvasImporteMasivoLabel">
+  <div class="offcanvas-header">
+    <h5 id="offcanvasRightLabel">Crear Parametro</h5>
+    <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="col-md-12">
+      <label class="form-label-sm">Nombre de parametro <span class="req">*</span></label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text"></span>
+        <input type="text" class="form-control" name="nombre-parametro" id="nombre-parametro" oninput="this.value = this.value.toUpperCase();">
+      </div>
+    </div>
+    <div class="col-md-12">
+      <label class="form-label-sm">Valor Parametro<span class="req">*</span></label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text">$</span>
+        <input type="text" class="form-control" name="valor-parametro" id="valor-parametro" placeholder="0.00">
+      </div>
+    </div>
+    <div class="col-md-12">
+      <label class="form-label-sm">Estado <span class="req">*</span></label>
+      <div class="d-flex gap-2">
+        <select class="form-select form-select-sm" name="esatdo" id="estado-parametro">
+          <option value="Activa">Activo</option>
+          <option value="Inactiva">Inactivo</option>
+        </select>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-3">
+      <div class="col-md-12">
+        <div class="d-flex gap-2">
+          <!-- 1. Agrega este input oculto dentro del offcanvas (para guardar el ID al editar) -->
+          <input type="hidden" id="parametro-id-edit" value="">
+
+          <!-- 2. Cambia el botón del offcanvas por este (con ID controlable) -->
+          <button class="btn btn-success" id="btn-accion-parametro">
+            <i class="fas fa-upload"></i> Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -26,44 +26,12 @@ $tipodocp = $_GET["tipodocp"];
 $pesototal = $_GET["pesototal"];
 $volumentotal = $_GET["volumentotal"];
 $fecha_pago = $_GET["fecha_pago"];
-
+$fecha_cumplido = $_GET["fecha_cumplido"];
 //Construcción del PDF
 include('Nuevacarpeta/tcpdf.php');
 class MYPDF extends TCPDF
 {
-    public function Header()
-    {
-        // $fecha = date('Y-m-d');
-        // $ruta = 'Nuevacarpeta/examples/images/';
-        // //LOGOTIPO
-        // // $image_file = $ruta . 'logo_nexos3.PNG';
-        // $image_file = $ruta . 'logo-xx.png';
-        // $this->Image($image_file, 5, 5, 60, '', 'PNG', 'B', '', false, 400, '', false, false, 0, false, false, false);
-        // //DATOS DE EMPRESA
-        // $this->SetFont('helvetica', 'b', 10);
-        // $this->SetXY(120, 8);
-        // //$this->Cell('C', 0, 'TIQUETE DE CUMPLIDO', 0, false, '', 0, '', 0, false, 'M', 'M');
-        // $this->Cell(50, 0, 'TIQUETE DE CUMPLIDO', 0, false, '', 0, '', 0, false, 'M', 'M');
-        // $this->SetXY(110, 8);
-        // $this->SetFont('helvetica', '', 12);
-        // $this->Cell(50, 12, 'NEXOS CARGO SAS', 0, false, 'R');
-        // $this->SetXY(60, 14);
-        // $this->SetFont('helvetica', 'b', 8);
-        // $this->Cell(90, 9, 'Nit 9000062596-8', 0, false, 'R');
-        // $this->SetFont('helvetica', '', 8);
-        // $this->Cell(0.2, 20, 'CL 23 N 116 31', 0, false, 'R');
-        // $this->Cell(4, 30, '6017452882 - 3186061986', 0, false, 'R');
-
-        // //NUMERO MANIFISTO
-        // $this->SetFont('helvetica', '', 10);
-        // $this->SetXY(150, 3);
-        // $this->Cell(0, 15, 'Fecha ' . $fecha, 0, false, 'R');
-        // $this->Cell(1, 25, ("Lugar de Pago:"), 0, false, 'R');
-        // $this->Cell(1, 35, 'Origen: ' . $_GET["origen"], 0, false, 'R');
-        // $this->Cell(1, 45, 'Cumplido: ' . $_GET['numcumplido'], 0, false, 'R');
-
-        //QR  = $filename
-    }
+    public function Header() {}
 }
 //instanciar la clase
 $pdf = new MYPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -82,9 +50,6 @@ $pdf->Ln(-20);
 $pdf->SetFont('times', '', 9);
 $pdf->SetFontSize(10);
 
-/*$pdf->Cell(0, 14,'<img src="'.$filename.'" />', 0, false, 'R', 0, '', 0, false, 'B','M');*/
-//$pdf->Image($filename, 255, 0, 38,'', 'PNG', 'C', '', false, 200, '', false, false, 0, false, false, false); style="text-align:center;"
-//Tabla datos del cliente
 $ruta = 'Nuevacarpeta/examples/images/';
 
 $image_file = $ruta . 'logonexos.png';
@@ -115,8 +80,8 @@ $tabla2 = '
                 <td>
                     <table style="border: 0.7px solid #000000;">
                         <tr>
-                            <td style="border: 0.7px solid #000000;font-family: Arial, Helvetica, sans-serif;font-size:9px;font-weight: 900;text-align:center;"><b>FECHA</b></td>
-                            <td style="border: 0.7px solid #000000;font-family: Arial, Helvetica, sans-serif;font-size:9px;font-weight: 900;">' . date("Y-m-d") . '</td>
+                            <td style="border: 0.7px solid #000000;font-family: Arial, Helvetica, sans-serif;font-size:9px;font-weight: 900;text-align:center;"><b>FECHA CUMPLIDO</b></td>
+                            <td style="border: 0.7px solid #000000;font-family: Arial, Helvetica, sans-serif;font-size:9px;font-weight: 900;">' . $fecha_cumplido . '</td>
                         </tr>
                         <tr>
                             <td style="border: 0.7px solid #000000;font-family: Arial, Helvetica, sans-serif;font-size:9px;font-weight: 900;text-align:center;"><b>LUGAR DE PAGO</b></td>

@@ -1,0 +1,202 @@
+<div class="container-fluid">
+    <input type="hidden" name="ssn_id_cliente" id="ssn_id_cliente" value="<?= $_SESSION["usuario"]["id_cliente"] ?>">
+    <input type="hidden" name="ssn_id_usuario" id="ssn_id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"] ?>">
+    <input type="hidden" name="ssn_nombre" id="ssn_nombre" value="<?= $_SESSION["usuario"]["nom_usuario"] ?>">
+    <input type="hidden" name="ssn_id_perfil" id="ssn_id_perfil" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+    <input type="hidden" name="fecha_dia_solicitud" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" name="hora_dia_solicitud" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+        <div class="row vh-100">
+            <div class='table-responsive p-1'>
+                <table class='table table-bordered table-striped table-sm ' style=" font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Conductor</th>
+                            <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Celular</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Placa</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Ubicación Actual</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Agencia</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Solicitud Servicio</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Origen</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Destino</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Quien Solicita</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Estado</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Respuesta</th>
+                            <!-- <th class='text-center' style="color:black;width:auto; white-space: nowrap;">P.Neto Vacio</th> -->
+                        </tr>
+                    </thead>
+                    <tbody id='tbl-vehiculos-enturnado' class='text-center'></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<!-- Right Offcanvas-->
+<!-- <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Right Offcanvas</button> -->
+<div class="offcanvas offcanvas-end shadow-lg border-0" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel" style="width: 50%;">
+    <div class="offcanvas-header bg-gradient text-white" style="background: linear-gradient(135deg, #004aad, #007bff);">
+        <div>
+            <h5 class="mb-0 fw-bold" id="offcanvasRightLabel">
+                <i class="bi bi-truck-front-fill me-2"></i> Vehículo <span id="oc_placa" class="fw-semibold">---</span>
+            </h5>
+            <small class="text-white-50 d-block">Gestión de información del vehículo</small>
+        </div>
+        <button class="btn-close btn-close-white" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <ul class="list-group list-group-flush p-0" style="font-size: 12px;">
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Conductor:</span>
+                        <span id="oc_conductor" class="text-dark">---</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Celular:</span>
+                        <span id="oc_celular" class="text-dark">---</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Ubicación:</span>
+                        <span id="oc_ubicacion" class="text-dark">---</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Agencia:</span>
+                        <span id="oc_agencia" class="text-dark">---</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Solicitud:</span>
+                        <span id="oc_solicitud" class="text-dark">---</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Origen:</span>
+                        <span id="oc_origen" class="text-dark">---</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Destino:</span>
+                        <span id="oc_destino" class="text-dark">---</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Solicitante:</span>
+                        <span id="oc_solicitante" class="text-dark">---</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                        <span class="fw-semibold text-secondary">Estado:</span>
+                        <span id="oc_estado" class="badge bg-primary rounded-pill">---</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="estado_gestion_vehiculo">Estado gestión</label>
+                    <select name="estado_gestion_vehiculo" id="estado_gestion_vehiculo" class="form-select form-select-sm">
+                        <option value="" selected>Seleccionar...</option>
+                        <option value="Pendiente Iniciar Gestion">Pendiente Iniciar Gestion</option>
+                        <option value="Gestion Iniciada">Gestion Iniciada</option>
+                        <option value="Gestion Finzalida">Gestion Finzalida</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="obsrvacion_gestion_vehiculo">Observaciones</label>
+                    <textarea name="obsrvacion_gestion_vehiculo" id="obsrvacion_gestion_vehiculo" class="form-control form-control-sm" rows="1"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historilo de gestionados -->
+        <div class="mt-3">
+            <h6 class="fw-bold mb-2 text-primary">
+                <i class="bi bi-clock-history me-1"></i> Historial de gestiones
+            </h6>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-sm" id="tbl-historico-gestion" style=" font-size:12px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="color:black;width:auto; white-space: nowrap;">Fecha</th>
+                            <th style="color:black;width:auto; white-space: nowrap;">Hora</th>
+                            <th style="color:black;width:auto; white-space: nowrap;">Estado</th>
+                            <th style="color:black;width:auto; white-space: nowrap;">Observaciones</th>
+                            <th style="color:black;width:auto; white-space: nowrap;">Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-historico-gestion" class="small text-dark">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Sin registros aún</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="offcanvas-footer border-top p-3 d-flex justify-content-end bg-light">
+            <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="offcanvas">
+                Cancelar
+            </button>
+
+            <button type="submit" id="btnGuardarGestionVehiculos" class="btn btn-success btn-sm ">
+                <i class="uil uil-save"></i> Guardar Gestión
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end shadow-lg border-0" id="offcanvasChat" tabindex="-1" aria-labelledby="offcanvasRightLabel" style="width: 70%;">
+    <div class="offcanvas-header bg-gradient text-dark" style="background: linear-gradient(135deg, #004aad, #007bff);">
+        <div>
+            <h5 class="mb-0 fw-bold" id="offcanvasRightLabel">
+                <i class="bi bi-truck-front-fill me-2"></i> Chat <span id="oc_placa" class="fw-semibold">---</span>
+            </h5>
+            <small class="text-dark-50 d-block">Chat del vehículo</small>
+        </div>
+        <button class="btn-close btn-close-dark" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <div class="card flex-1 h-100 phoenix-offcanvas-container">
+            <div class="card-header p-1 p-md-1 d-flex flex-between-center">
+                <div class="d-flex align-items-center">
+                    <button class="btn ps-0 pe-2 text-body-tertiary d-sm-none" data-phoenix-toggle="offcanvas" data-phoenix-target="#chat-sidebar"><span class="fa-solid fa-chevron-left"></span></button>
+                    <div class="d-flex flex-column flex-md-row align-items-md-center">
+                        <button class="btn fs-9 fw-semibold text-body-emphasis d-flex align-items-center p-0 me-3 text-start" data-phoenix-toggle="offcanvas" data-phoenix-target="#thread-details-0"><span  id="placa-chat"> <span>&nbsp;</span> <!-- espacio --> </span><span id="title-chat"></span><!-- <span class="fa-solid fa-chevron-down ms-2 fs-10"></span> --></button>
+                        <!-- <p class="fs-9 mb-0 me-2"> <span class="fa-solid fa-circle text-success fs-11 me-2"></span>Active now</p> -->
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-3 p-sm-4 scrollbar card-body-chat"></div>
+            <div class="card-footer">
+                <div class="chat-textarea outline-none scrollbar mb-1" contenteditable="true" id="mensaje_texto"></div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <div>
+                        <button class="btn btn-link py-0 ps-0 pe-2 text-body fs-9 btn-emoji" data-picmo="data-picmo"><span class="fa-regular fa-face-smile"></span></button>
+                        <label class="btn btn-link py-0 px-2 text-body fs-9" for="chatPhotos-0"><span class="fa-solid fa-image"></span></label>
+                        <input class="d-none" type="file" accept="image/*" id="chatPhotos-0" />
+                        <label class="btn btn-link py-0 px-2 text-body fs-9" for="chatAttachment-0"> <span class="fa-solid fa-paperclip"></span></label>
+                        <input class="d-none" type="file" id="chatAttachment-0" />
+                        <button class="btn btn-link py-0 px-2 text-body fs-9"><span class="fa-solid fa-microphone"></span></button>
+                        <button class="btn btn-link py-0 px-2 text-body fs-9"><span class="fa-solid fa-ellipsis"></span></button>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary fs-10" type="button" id="btn-enviar-mesanje">Send<span class="fa-solid fa-paper-plane ms-1"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

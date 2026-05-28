@@ -1,0 +1,85 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= $_SESSION['usuario']['proveedor_id'] ?>">
+<input type="hidden" name="cliente_id" id="cliente_id" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" name="id_usuario" id="id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"]; ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="container-fluid">
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row vh-100">
+      <div class="table-responsive scrollbar">
+        <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
+          <thead>
+            <tr>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Pedidos</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Cliente</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Modalidad</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Proceso</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha reg. recurso</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha cargue</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Usuario</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Estado recurso</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Estado servicio (Transporte)</th>
+            </tr>
+          </thead>
+          <tbody id='tbl_administrador_recurso_pedidos' class='text-center'>
+            <tr>
+              <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+                <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info" style="display: none;"> Esperando Información
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">Launch basic modal</button> -->
+<div class="modal fade" id="ReasignarProveedorModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header p-1">
+        <h5 class="modal-title" id="ReasignarProveedorModalLabel">Reasignar Proveedor</h5>
+        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close"><svg class="svg-inline--fa fa-xmark fs-9" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="xmark" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg="">
+            <path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"></path>
+          </svg><!-- <span class="fas fa-times fs-9"></span> Font Awesome fontawesome.com --></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-reasignacion-proveedor">
+          <div class="row">
+            <div class="col-12">
+              <div class="mb-3">
+                <label class="form-label" for="proveedor_actual">Proveedor Actual</label>
+                <input class="form-control form-control-sm" id="proveedor_actual" type="text" placeholder="Proveedor" disabled>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="mb-3">
+                <label class="form-label" for="exampleFormControlInput">Nuevo Proveedor</label>
+                <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="nuevo_proveedor" name="nuevo_proveedor">
+                  <option selected="">Seleccionar</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="mb-3">
+                <label class="form-label" for="exampleFormControlInput">Motivo</label>
+                <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="motivo_cancelacion" name="motivo_cancelacion">
+                  <option selected>Seleccionar</option>
+                  <option value="No confirmación de vehículo en tiempo estimado">No confirmación de vehículo en tiempo estimado</option>
+                  <option value="vehículo no cumple con condiciones para el cargue">vehículo no cumple con condiciones para el cargue</option>
+                  <!-- <option selected="">Seleccionar</option> -->
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer p-1">
+        <button class="btn btn-primary btn-sm" type="button" id="btn_guardar_proveedor">Guardar Reasignación</button>
+        <button class="btn btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>

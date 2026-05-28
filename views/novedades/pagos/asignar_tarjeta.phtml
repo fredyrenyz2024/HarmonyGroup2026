@@ -1,0 +1,51 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <!-- <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"></h5>
+            <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNuevaRemesa" aria-controls="offcanvasNuevaRemesa">
+                <i class="fa-solid fa-plus me-1"></i> Nueva Remesa
+            </button>
+        </div> -->
+
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="mb-3">
+                    <label class="form-label" for="slct_conductor">Conductor</label>
+                    <select class="form-select form-select-sm" id="slct_conductor" required></select>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="mb-3">
+                    <label class="form-label" for="slct_tarjeta_disponible">Tarjeta Disponible</label>
+                    <select class="form-select form-select-sm" id="slct_tarjeta_disponible" required></select>
+                </div>
+            </div>
+            <div class="col-12 text-end mt-3">
+                <button class="btn btn-primary btn-sm" id="btn_asignar_tarjeta" type="button">Asignar Tarjeta</button>
+            </div>
+        </div>
+
+        <h5 class="mt-5">Historial de Tarjetas del Conductor Seleccionado</h5>
+        <div class="table-responsive">
+            <table class='table table-striped table-sm text-center' id="tbl_historial_tarjetas">
+                <thead class="table-primary">
+                    <tr>
+                        <th style="width: auto; white-space: nowrap;">Tarjeta</th>
+                        <th style="width: auto; white-space: nowrap;">Asignada Desde</th>
+                        <th style="width: auto; white-space: nowrap;">Retirado Desde</th>
+                        <th style="width: auto; white-space: nowrap;">Estado</th>
+                        <th style="width: auto; white-space: nowrap;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>

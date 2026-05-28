@@ -1,0 +1,35 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= $_SESSION['usuario']['proveedor_id'] ?>">
+<input type="hidden" name="cliente_id" id="cliente_id" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" name="id_usuario" id="id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"]; ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="container-fluid">
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row vh-100" >
+      <div class="table-responsive scrollbar">
+        <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;" >
+          <thead>
+            <tr>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Pedidos</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Cliente</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Modalidad</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Proceso</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha salida cargue</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Usuario</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Estado recurso</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Estado servicio (Transporte)</th>
+            </tr>
+          </thead>
+          <tbody id='tbl_administrador_recurso_pedidos' class='text-center'>
+            <tr>
+              <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+                <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info" style="display: none;"> Esperando Información
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

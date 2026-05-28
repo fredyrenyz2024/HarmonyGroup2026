@@ -1,31 +1,762 @@
 <input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
 <input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= $_SESSION['usuario']['proveedor_id'] ?>">
 <input type="hidden" name="cliente_id" id="cliente_id" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" name="id_usuario" id="id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"]; ?>">
 <input type="hidden" name="ventana_id" class="ventana_id">
-<div class="container-fluid">
-  <!-- <div class="d-flex justify-content-center"></div> -->
-  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-    <div class="row">
-      <div class="table-responsive scrollbar">
-        <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
-          <thead>
-            <tr>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Maestro</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cliente</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Proceso</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Usuario</th>
-              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Estado</th>
-            </tr>
-          </thead>
-          <tbody id='tbl_administrador_recurso_pedidos' class='text-center'>
-            <tr>
-              <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
-                <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info" style="display: none;"> Esperando Información
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+<div class="container-fluid py-3">
+  <style>
+    :root {
+      --navy: #0f1f3d;
+      --navy-mid: #1a3260;
+      --blue: #1a5ce5;
+      --blue-soft: #dbeafe;
+      --amber: #f59e0b;
+      --amber-soft: #fef3c7;
+      --green: #10b981;
+      --green-soft: #d1fae5;
+      --red: #ef4444;
+      --red-soft: #fee2e2;
+      --orange: #f97316;
+      --orange-soft: #ffedd5;
+      --cyan: #06b6d4;
+      --cyan-soft: #cffafe;
+      --purple: #8b5cf6;
+      --purple-soft: #ede9fe;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-600: #475569;
+      --slate-800: #1e293b;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 2px 4px rgba(0, 0, 0, .06);
+    }
+
+    /* PAGE HEADER */
+    .rc-page-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      border-radius: var(--radius-lg);
+      padding: 20px 28px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rc-page-header::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .rc-ph-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(245, 158, 11, .15);
+      border: 2px solid rgba(245, 158, 11, .35);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--amber);
+      flex-shrink: 0;
+    }
+
+    .rc-ph-title {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -.3px;
+      margin: 0;
+    }
+
+    .rc-ph-sub {
+      color: rgba(255, 255, 255, .55);
+      font-size: .78rem;
+      margin-top: 2px;
+    }
+
+    /* KPI GRID */
+    .rc-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .rc-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .rc-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .rc-kpi-card {
+      background: #fff;
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: box-shadow .2s, transform .2s, border-color .2s;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .rc-kpi-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    }
+
+    .rc-kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .rc-kpi-card.active {
+      box-shadow: var(--shadow-md);
+    }
+
+    .rc-kpi-card.c-slate::before {
+      background: var(--slate-400);
+    }
+
+    .rc-kpi-card.c-amber::before {
+      background: var(--amber);
+    }
+
+    .rc-kpi-card.c-cyan::before {
+      background: var(--cyan);
+    }
+
+    .rc-kpi-card.c-green::before {
+      background: var(--green);
+    }
+
+    .rc-kpi-card.c-red::before {
+      background: var(--red);
+    }
+
+    .rc-kpi-card.c-orange::before {
+      background: var(--orange);
+    }
+
+    .rc-kpi-card.c-purple::before {
+      background: var(--purple);
+    }
+
+    .rc-kpi-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .rc-kpi-card.c-slate .rc-kpi-icon {
+      background: var(--slate-100);
+      color: var(--slate-600);
+    }
+
+    .rc-kpi-card.c-amber .rc-kpi-icon {
+      background: var(--amber-soft);
+      color: #d97706;
+    }
+
+    .rc-kpi-card.c-cyan .rc-kpi-icon {
+      background: var(--cyan-soft);
+      color: var(--cyan);
+    }
+
+    .rc-kpi-card.c-green .rc-kpi-icon {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .rc-kpi-card.c-red .rc-kpi-icon {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .rc-kpi-card.c-orange .rc-kpi-icon {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .rc-kpi-card.c-purple .rc-kpi-icon {
+      background: var(--purple-soft);
+      color: var(--purple);
+    }
+
+    .rc-kpi-num {
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .rc-kpi-card.c-slate .rc-kpi-num {
+      color: var(--slate-600);
+    }
+
+    .rc-kpi-card.c-amber .rc-kpi-num {
+      color: #d97706;
+    }
+
+    .rc-kpi-card.c-cyan .rc-kpi-num {
+      color: var(--cyan);
+    }
+
+    .rc-kpi-card.c-green .rc-kpi-num {
+      color: var(--green);
+    }
+
+    .rc-kpi-card.c-red .rc-kpi-num {
+      color: var(--red);
+    }
+
+    .rc-kpi-card.c-orange .rc-kpi-num {
+      color: var(--orange);
+    }
+
+    .rc-kpi-card.c-purple .rc-kpi-num {
+      color: var(--purple);
+    }
+
+    .rc-kpi-label {
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--slate-400);
+      margin-top: 3px;
+    }
+
+    /* FILTER CARD */
+    .rc-filter-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--slate-200);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .rc-filter-header {
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rc-filter-header .rc-fc-title {
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--slate-600);
+    }
+
+    .rc-filter-header i {
+      color: var(--blue);
+      font-size: .9rem;
+    }
+
+    .rc-filter-body {
+      padding: 18px 20px;
+    }
+
+    .rc-f-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--slate-600);
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .rc-f-control {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      color: var(--slate-800);
+      background: #fff;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+
+    .rc-f-control:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+    }
+
+    .rc-f-control::placeholder {
+      color: var(--slate-400);
+    }
+
+    select.rc-f-control {
+      cursor: pointer;
+    }
+
+    .rc-btn-search {
+      height: 34px;
+      padding: 0 20px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+
+    .rc-btn-search:hover {
+      background: #1449c4;
+    }
+
+    .rc-btn-clear {
+      height: 34px;
+      padding: 0 16px;
+      background: #fff;
+      color: var(--slate-600);
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+
+    .rc-btn-clear:hover {
+      border-color: var(--slate-400);
+      color: var(--slate-800);
+    }
+
+    /* TABLE CARD */
+    .rc-table-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--slate-200);
+      overflow: hidden;
+    }
+
+    .rc-table-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rc-tc-title {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rc-tc-title i {
+      color: var(--blue);
+    }
+
+    .rc-table-wrap {
+      overflow-x: auto;
+    }
+
+    .rc-data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .8rem;
+    }
+
+    .rc-data-table thead th {
+      background: var(--navy);
+      color: rgba(255, 255, 255, .85);
+      font-weight: 600;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 10px 14px;
+      white-space: nowrap;
+      border: none;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .rc-data-table tbody tr {
+      border-bottom: 1px solid var(--slate-100);
+      transition: background .1s;
+    }
+
+    .rc-data-table tbody tr:hover {
+      background: var(--slate-50);
+    }
+
+    .rc-data-table tbody td {
+      padding: 10px 14px;
+      color: var(--slate-800);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    /* Badges */
+    .rc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .rc-bs-green {
+      background: var(--green-soft);
+      color: #065f46;
+    }
+
+    .rc-bs-amber {
+      background: var(--amber-soft);
+      color: #92400e;
+    }
+
+    .rc-bs-red {
+      background: var(--red-soft);
+      color: #991b1b;
+    }
+
+    .rc-bs-slate {
+      background: var(--slate-100);
+      color: var(--slate-600);
+    }
+
+    .rc-bs-blue {
+      background: var(--blue-soft);
+      color: #1e40af;
+    }
+
+    .rc-bs-cyan {
+      background: var(--cyan-soft);
+      color: #155e75;
+    }
+
+    .rc-bs-orange {
+      background: var(--orange-soft);
+      color: #9a3412;
+    }
+
+    .rc-bs-purple {
+      background: var(--purple-soft);
+      color: #5b21b6;
+    }
+
+    /* Pagination bar */
+    .rc-pagination-bar {
+      padding: 12px 20px;
+      border-top: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .78rem;
+      color: var(--slate-400);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .rc-pag-info strong {
+      color: var(--slate-800);
+    }
+  </style>
+
+  <!-- PAGE HEADER -->
+  <div class="rc-page-header">
+    <div class="d-flex align-items-center gap-3">
+      <div class="rc-ph-icon"><i class="bi bi-truck"></i></div>
+      <div>
+        <div class="rc-ph-title">Recursos — Torre de Control</div>
+        <div class="rc-ph-sub">Seguimiento y gestión de recursos de transporte</div>
+      </div>
+    </div>
+    <div style="z-index:1;">
+      <!-- Selector de acción rápida (cargue masivo) -->
+      <select id="rc-filtro-accion" class="rc-f-control" style="width:220px;"
+        onchange="
+                        if(this.value === 'cargue masivo pedidos') {
+                            const ev = new MouseEvent('click', {bubbles:true});
+                            document.getElementById('rc-trigger-filtro').dispatchEvent(ev);
+                        }
+                        this.value='';
+                    ">
+        <option value="">⚡ Acciones rápidas</option>
+        <option value="cargue masivo pedidos">📥 Cargue masivo pedidos</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="rc-kpi-grid">
+
+    <div class="rc-kpi-card c-slate rc-kpi-resumen" data-estado="todos">
+      <div class="rc-kpi-icon"><i class="bi bi-list-ul"></i></div>
+      <div>
+        <div class="rc-kpi-num" id="rc-kpi-total">0</div>
+        <div class="rc-kpi-label">Total</div>
+      </div>
+    </div>
+
+    <div class="rc-kpi-card c-amber rc-kpi-resumen" data-estado="Pendiente Iniciar">
+      <div class="rc-kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+      <div>
+        <div class="rc-kpi-num" id="rc-kpi-pendiente">0</div>
+        <div class="rc-kpi-label">Pendiente Iniciar</div>
+      </div>
+    </div>
+
+    <div class="rc-kpi-card c-cyan rc-kpi-resumen" data-estado="Iniciado">
+      <div class="rc-kpi-icon"><i class="bi bi-play-circle"></i></div>
+      <div>
+        <div class="rc-kpi-num" id="rc-kpi-iniciado">0</div>
+        <div class="rc-kpi-label">Iniciado</div>
+      </div>
+    </div>
+
+    <div class="rc-kpi-card c-green rc-kpi-resumen" data-estado="Completado">
+      <div class="rc-kpi-icon"><i class="bi bi-check-circle"></i></div>
+      <div>
+        <div class="rc-kpi-num" id="rc-kpi-completado">0</div>
+        <div class="rc-kpi-label">Completado</div>
+      </div>
+    </div>
+
+    <div class="rc-kpi-card c-red rc-kpi-resumen" data-estado="Cancelado">
+      <div class="rc-kpi-icon"><i class="bi bi-x-circle"></i></div>
+      <div>
+        <div class="rc-kpi-num" id="rc-kpi-cancelado">0</div>
+        <div class="rc-kpi-label">Cancelado</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FILTROS -->
+  <div class="rc-filter-card">
+    <div class="rc-filter-header">
+      <i class="bi bi-funnel-fill"></i>
+      <span class="rc-fc-title">Filtros de consulta</span>
+    </div>
+    <div class="rc-filter-body">
+      <div class="row g-3 align-items-end">
+
+        <div class="col-sm-6 col-md-3 col-lg-2">
+          <label class="rc-f-label" for="rc-fecha-inicial">Fecha inicial</label>
+          <input type="date" id="rc-fecha-inicial" class="rc-f-control" value="<?php echo date('Y-m-d'); ?>">
+        </div>
+
+        <div class="col-sm-6 col-md-3 col-lg-2">
+          <label class="rc-f-label" for="rc-fecha-final">Fecha final</label>
+          <input type="date" id="rc-fecha-final" class="rc-f-control" value="<?php echo date('Y-m-d'); ?>">
+        </div>
+
+        <div class="col-sm-6 col-md-3 col-lg-2">
+          <label class="rc-f-label" for="rc-estado-recurso">Estado recurso</label>
+          <select id="rc-estado-recurso" class="rc-f-control">
+            <option value="">Todos</option>
+            <option value="Pendiente Iniciar">Pendiente Iniciar</option>
+            <option value="Iniciado">Iniciado</option>
+            <option value="Completado">Completado</option>
+            <option value="Cancelado">Cancelado</option>
+            <option value="Rechazado">Rechazado</option>
+          </select>
+        </div>
+
+        <div class="col-sm-6 col-md-3 col-lg-2">
+          <label class="rc-f-label" for="rc-modalidad">Modalidad</label>
+          <select id="rc-modalidad" class="rc-f-control">
+            <option value="">Todas</option>
+            <option value="CARGA SECA">CARGA SECA</option>
+            <option value="CARGA LIQUIDA">CARGA LIQUIDA</option>
+            <option value="IMPORTACION">IMPORTACION</option>
+            <option value="EXPORTACION">EXPORTACION</option>
+          </select>
+        </div>
+
+        <div class="col-sm-6 col-md-3 col-lg-2">
+          <label class="rc-f-label" for="rc-proceso">Proceso</label>
+          <select id="rc-proceso" class="rc-f-control">
+            <option value="">Todos</option>
+            <option value="Asignación">Asignación</option>
+            <option value="Publicación">Publicación</option>
+          </select>
+        </div>
+
+        <div class="col-sm-12 col-md-auto ms-md-auto">
+          <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button class="rc-btn-clear" id="rc-btn-limpiar" type="button">
+              <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+            </button>
+            <button class="rc-btn-search" id="rc-btn-buscar" type="button">
+              <i class="bi bi-search"></i> Consultar
+            </button>
+            <!-- trigger oculto para el filtro offcanvas -->
+            <span id="rc-trigger-filtro" style="display:none;"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="rc-table-card">
+    <div class="rc-table-header">
+      <div class="rc-tc-title">
+        <i class="bi bi-table"></i>
+        Listado de Recursos
+        <span id="rc-badge-total" class="rc-badge rc-bs-blue" style="font-size:.7rem;">0 registros</span>
+      </div>
+    </div>
+
+    <div class="rc-table-wrap">
+      <table id="table1" class="rc-data-table">
+        <thead>
+          <tr>
+            <th>Pedidos</th>
+            <th>Cliente</th>
+            <th>Modalidad</th>
+            <th>Proceso</th>
+            <th>Fecha reg. recurso</th>
+            <th>Fecha cargue</th>
+            <th>Usuario</th>
+            <th>Estado recurso</th>
+            <th>Estado servicio (Transporte)</th>
+          </tr>
+        </thead>
+        <tbody id="tbl_administrador_recurso_pedidos">
+          <tr>
+            <td colspan="9" class="text-center" style="padding:50px; color:var(--slate-400);">
+              <i class="bi bi-inbox" style="font-size:2rem; display:block; margin-bottom:8px;"></i>
+              Esperando información — use los filtros para consultar
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="rc-pagination-bar" id="rc-pagination-bar" style="display:none;">
+      <div class="rc-pag-info">
+        Mostrando <strong id="rc-pag-desde">0</strong> a
+        <strong id="rc-pag-hasta">0</strong> de
+        <strong id="rc-pag-total">0</strong> registros
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container-fluid -->
+
+
+<!-- MODAL REASIGNAR PROVEEDOR -->
+<div class="modal fade" id="ReasignarProveedorModal" tabindex="-1"
+  data-bs-backdrop="static" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header p-2">
+        <h5 class="modal-title" id="ReasignarProveedorModalLabel" style="font-size:.9rem; font-weight:700;">
+          <i class="bi bi-arrow-repeat me-2" style="color:var(--blue);"></i>Reasignar Proveedor
+        </h5>
+        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="form-reasignacion-proveedor">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="rc-f-label" for="proveedor_actual">Proveedor Actual</label>
+              <input class="rc-f-control" id="proveedor_actual" type="text"
+                placeholder="Proveedor" disabled style="height:34px; background:var(--slate-50);">
+            </div>
+            <div class="col-12">
+              <label class="rc-f-label" for="nuevo_proveedor">Nuevo Proveedor</label>
+              <select class="rc-f-control" id="nuevo_proveedor" name="nuevo_proveedor"
+                style="height:34px;">
+                <option selected>Seleccionar</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="rc-f-label" for="motivo_cancelacion">Motivo</label>
+              <select class="rc-f-control" id="motivo_cancelacion" name="motivo_cancelacion"
+                style="height:34px;">
+                <option selected>Seleccionar</option>
+                <option value="No confirmación de vehículo en tiempo estimado">
+                  No confirmación de vehículo en tiempo estimado
+                </option>
+                <option value="vehículo no cumple con condiciones para el cargue">
+                  Vehículo no cumple con condiciones para el cargue
+                </option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer p-2">
+        <button class="rc-btn-search" type="button" id="btn_guardar_proveedor">
+          <i class="bi bi-floppy"></i> Guardar Reasignación
+        </button>
+        <button class="rc-btn-clear" type="button" data-bs-dismiss="modal">
+          Cancelar
+        </button>
       </div>
     </div>
   </div>

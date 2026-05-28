@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async e => {
   document.addEventListener('click', async e => {
     if (e.target.matches('#aplicar_filtro') || e.target.matches('#aplicar_filtro *')) {
       try {
+        $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
         let data = new FormData();
         data.append('fecha_inicial', document.getElementById('fecha_inicial').value);
         data.append('fecha_final', document.getElementById('fecha_final').value);
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async e => {
             if (!response.ok) throw new Error(response.statusText);
             return response.json();
           })
-          .then(function(data) {
+          .then(function (data) {
             const arrayData = Object.values(data);
 
             cont = 0;
@@ -170,12 +171,12 @@ document.addEventListener('DOMContentLoaded', async e => {
                   columnaCliente.style.whiteSpace = 'white-space';
                   columnaCliente.style.paddingLeft = '5px';
 
-                  const columnaSede = document.createElement('td'); //generador de carga
-                  columnaSede.innerHTML = element.remesas[b].nom_sede;
-                  columnaSede.style.textAlign = 'center';
-                  columnaSede.style.width = 'auto';
-                  columnaSede.style.whiteSpace = 'white-space';
-                  columnaSede.style.paddingLeft = '5px';
+                  // const columnaSede = document.createElement('td'); //generador de carga
+                  // columnaSede.innerHTML = element.remesas[b].nom_sede;
+                  // columnaSede.style.textAlign = 'center';
+                  // columnaSede.style.width = 'auto';
+                  // columnaSede.style.whiteSpace = 'white-space';
+                  // columnaSede.style.paddingLeft = '5px';
 
                   const columnaAgencia = document.createElement('td'); //generador de carga
                   columnaAgencia.innerHTML = element.remesas[b].Agencia;
@@ -184,40 +185,40 @@ document.addEventListener('DOMContentLoaded', async e => {
                   columnaAgencia.style.whiteSpace = 'white-space';
                   columnaAgencia.style.paddingLeft = '5px';
 
-                  const columnaEmpaque = document.createElement('td'); //generador de carga
-                  columnaEmpaque.innerHTML = element.remesas[b].mer_empaque;
-                  columnaEmpaque.style.textAlign = 'center';
-                  columnaEmpaque.style.width = 'auto';
-                  columnaEmpaque.style.whiteSpace = 'white-space';
-                  columnaEmpaque.style.paddingLeft = '5px';
+                  // const columnaEmpaque = document.createElement('td'); //generador de carga
+                  // columnaEmpaque.innerHTML = element.remesas[b].mer_empaque;
+                  // columnaEmpaque.style.textAlign = 'center';
+                  // columnaEmpaque.style.width = 'auto';
+                  // columnaEmpaque.style.whiteSpace = 'white-space';
+                  // columnaEmpaque.style.paddingLeft = '5px';
 
-                  const columnaPesoPedido = document.createElement('td'); //generador de carga
-                  columnaPesoPedido.innerHTML = element.remesas[b].peso_pedido;
-                  columnaPesoPedido.style.textAlign = 'center';
-                  columnaPesoPedido.style.width = 'auto';
-                  columnaPesoPedido.style.whiteSpace = 'white-space';
-                  columnaPesoPedido.style.paddingLeft = '5px';
+                  // const columnaPesoPedido = document.createElement('td'); //generador de carga
+                  // columnaPesoPedido.innerHTML = element.remesas[b].peso_pedido;
+                  // columnaPesoPedido.style.textAlign = 'center';
+                  // columnaPesoPedido.style.width = 'auto';
+                  // columnaPesoPedido.style.whiteSpace = 'white-space';
+                  // columnaPesoPedido.style.paddingLeft = '5px';
 
-                  const columnaPesoOrdenCargue = document.createElement('td'); //generador de carga
-                  columnaPesoOrdenCargue.innerHTML = element.remesas[b].mer_pesomercancia;
-                  columnaPesoOrdenCargue.style.textAlign = 'center';
-                  columnaPesoOrdenCargue.style.width = 'auto';
-                  columnaPesoOrdenCargue.style.whiteSpace = 'white-space';
-                  columnaPesoOrdenCargue.style.paddingLeft = '5px';
+                  // const columnaPesoOrdenCargue = document.createElement('td'); //generador de carga
+                  // columnaPesoOrdenCargue.innerHTML = element.remesas[b].mer_pesomercancia;
+                  // columnaPesoOrdenCargue.style.textAlign = 'center';
+                  // columnaPesoOrdenCargue.style.width = 'auto';
+                  // columnaPesoOrdenCargue.style.whiteSpace = 'white-space';
+                  // columnaPesoOrdenCargue.style.paddingLeft = '5px';
 
-                  const columnaPesoRemesa = document.createElement('td'); //generador de carga
-                  columnaPesoRemesa.innerHTML = element.remesas[b].peso_pedido;
-                  columnaPesoRemesa.style.textAlign = 'center';
-                  columnaPesoRemesa.style.width = 'auto';
-                  columnaPesoRemesa.style.whiteSpace = 'white-space';
-                  columnaPesoRemesa.style.paddingLeft = '5px';
-                  
-                  const columnaPesoCumplido = document.createElement('td'); //generador de carga
-                  columnaPesoCumplido.innerHTML = element.remesas[b].total_peso;
-                  columnaPesoCumplido.style.textAlign = 'center';
-                  columnaPesoCumplido.style.width = 'auto';
-                  columnaPesoCumplido.style.whiteSpace = 'white-space';
-                  columnaPesoCumplido.style.paddingLeft = '5px';
+                  // const columnaPesoRemesa = document.createElement('td'); //generador de carga
+                  // columnaPesoRemesa.innerHTML = element.remesas[b].peso_pedido;
+                  // columnaPesoRemesa.style.textAlign = 'center';
+                  // columnaPesoRemesa.style.width = 'auto';
+                  // columnaPesoRemesa.style.whiteSpace = 'white-space';
+                  // columnaPesoRemesa.style.paddingLeft = '5px';
+
+                  // const columnaPesoCumplido = document.createElement('td'); //generador de carga
+                  // columnaPesoCumplido.innerHTML = element.remesas[b].total_peso;
+                  // columnaPesoCumplido.style.textAlign = 'center';
+                  // columnaPesoCumplido.style.width = 'auto';
+                  // columnaPesoCumplido.style.whiteSpace = 'white-space';
+                  // columnaPesoCumplido.style.paddingLeft = '5px';
 
                   const columnaFechaCumplidoManifiesto = document.createElement('td'); //generador de carga
                   columnaFechaCumplidoManifiesto.innerHTML = element.remesas[b].fecha_cumplido;
@@ -240,71 +241,71 @@ document.addEventListener('DOMContentLoaded', async e => {
                   columnaDestinoManifiesto.style.whiteSpace = 'white-space';
                   columnaDestinoManifiesto.style.paddingLeft = '5px';
 
-                  const columnaProducto= document.createElement('td'); //generador de carga
+                  const columnaProducto = document.createElement('td'); //generador de carga
                   columnaProducto.innerHTML = element.remesas[b].tipo_mercancia;
                   columnaProducto.style.textAlign = 'center';
                   columnaProducto.style.width = 'auto';
                   columnaProducto.style.whiteSpace = 'white-space';
                   columnaProducto.style.paddingLeft = '5px';
 
-                  const columnaConductor= document.createElement('td'); //generador de carga
+                  const columnaConductor = document.createElement('td'); //generador de carga
                   columnaConductor.innerHTML = element.remesas[b].Conductor;
                   columnaConductor.style.textAlign = 'center';
                   columnaConductor.style.width = 'auto';
                   columnaConductor.style.whiteSpace = 'white-space';
                   columnaConductor.style.paddingLeft = '5px';
 
-                  const columnaCedulaConductor= document.createElement('td'); //generador de carga
+                  const columnaCedulaConductor = document.createElement('td'); //generador de carga
                   columnaCedulaConductor.innerHTML = element.remesas[b].cedula_conductor;
                   columnaCedulaConductor.style.textAlign = 'center';
                   columnaCedulaConductor.style.width = 'auto';
                   columnaCedulaConductor.style.whiteSpace = 'white-space';
                   columnaCedulaConductor.style.paddingLeft = '5px';
 
-                  const columnaCelularConductor= document.createElement('td'); //generador de carga
-                  columnaCelularConductor.innerHTML = element.remesas[b].ceular_conductor;
+                  const columnaCelularConductor = document.createElement('td'); //generador de carga
+                  columnaCelularConductor.innerHTML = element.remesas[b].celular_conductor;
                   columnaCelularConductor.style.textAlign = 'center';
                   columnaCelularConductor.style.width = 'auto';
                   columnaCelularConductor.style.whiteSpace = 'white-space';
                   columnaCelularConductor.style.paddingLeft = '5px';
 
 
-                  const columnaPoseedor= document.createElement('td'); //generador de carga
+                  const columnaPoseedor = document.createElement('td'); //generador de carga
                   columnaPoseedor.innerHTML = element.remesas[b].Poseedor;
                   columnaPoseedor.style.textAlign = 'center';
                   columnaPoseedor.style.width = 'auto';
                   columnaPoseedor.style.whiteSpace = 'white-space';
                   columnaPoseedor.style.paddingLeft = '5px';
 
-                  const columnaCedulaPoseedor= document.createElement('td'); //generador de carga
+                  const columnaCedulaPoseedor = document.createElement('td'); //generador de carga
                   columnaCedulaPoseedor.innerHTML = element.remesas[b].cedula_poseedor;
                   columnaCedulaPoseedor.style.textAlign = 'center';
                   columnaCedulaPoseedor.style.width = 'auto';
                   columnaCedulaPoseedor.style.whiteSpace = 'white-space';
                   columnaCedulaPoseedor.style.paddingLeft = '5px';
 
-                  const columnaCelularPoseedor= document.createElement('td'); //generador de carga
+                  const columnaCelularPoseedor = document.createElement('td'); //generador de carga
                   columnaCelularPoseedor.innerHTML = element.remesas[b].celular_poseedor;
                   columnaCelularPoseedor.style.textAlign = 'center';
                   columnaCelularPoseedor.style.width = 'auto';
                   columnaCelularPoseedor.style.whiteSpace = 'white-space';
                   columnaCelularPoseedor.style.paddingLeft = '5px';
 
-                  const columnaPedido= document.createElement('td'); //generador de carga
+                  const columnaPedido = document.createElement('td'); //generador de carga
                   columnaPedido.innerHTML = element.remesas[b].nundoc_solicitud;
                   columnaPedido.style.textAlign = 'center';
                   columnaPedido.style.width = 'auto';
                   columnaPedido.style.whiteSpace = 'white-space';
                   columnaPedido.style.paddingLeft = '5px';
 
-                  const columnaElaborado= document.createElement('td'); //generador de carga
+                  const columnaElaborado = document.createElement('td'); //generador de carga
                   columnaElaborado.innerHTML = element.remesas[b].elaborado;
                   columnaElaborado.style.textAlign = 'center';
                   columnaElaborado.style.width = 'auto';
                   columnaElaborado.style.whiteSpace = 'white-space';
                   columnaElaborado.style.paddingLeft = '5px';
 
-                  const columnaEstadoManifiesto= document.createElement('td'); //generador de carga
+                  const columnaEstadoManifiesto = document.createElement('td'); //generador de carga
                   columnaEstadoManifiesto.innerHTML = element.remesas[b].estado_manifiesto;
                   columnaEstadoManifiesto.style.textAlign = 'center';
                   columnaEstadoManifiesto.style.width = 'auto';
@@ -329,13 +330,13 @@ document.addEventListener('DOMContentLoaded', async e => {
                   fila.appendChild(columnaFechaSalidaDescargue);
                   fila.appendChild(columnaCantidadRealCargada);
                   fila.appendChild(columnaCliente);
-                  fila.appendChild(columnaSede);
+                  // fila.appendChild(columnaSede);
                   fila.appendChild(columnaAgencia);
-                  fila.appendChild(columnaEmpaque);
-                  fila.appendChild(columnaPesoPedido);
-                  fila.appendChild(columnaPesoOrdenCargue);
-                  fila.appendChild(columnaPesoRemesa);
-                  fila.appendChild(columnaPesoCumplido);
+                  // fila.appendChild(columnaEmpaque);
+                  // fila.appendChild(columnaPesoPedido);
+                  // fila.appendChild(columnaPesoOrdenCargue);
+                  // fila.appendChild(columnaPesoRemesa);
+                  // fila.appendChild(columnaPesoCumplido);
                   fila.appendChild(columnaFechaCumplidoManifiesto);
                   fila.appendChild(columnaOrigenManifiesto);
                   fila.appendChild(columnaDestinoManifiesto);
@@ -436,16 +437,31 @@ document.addEventListener('DOMContentLoaded', async e => {
           .catch(error => {
             alert(error);
           });
-      } catch (error) {}
+      } catch (error) { } finally {
+        $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+      }
     }
   });
 
   //boton de excel
-  document.getElementById('exportar_excel').addEventListener('click', function() {
+  document.getElementById('exportar_excel').addEventListener('click', function () {
     var table = document.getElementById('informe_de_calidad');
-    var wb = XLSX.utils.table_to_book(table);
+    // var wb = XLSX.utils.table_to_book(table);
     // Crear contenido de archivo con fecha
     // var fecha = new Date();
+    // Preprocesar la tabla: evitar que fechas se interpreten mal
+    Array.from(table.getElementsByTagName('td')).forEach(function (td) {
+      const text = td.innerText.trim();
+
+      // Detectar valores con $ o formatos de fecha ISO
+      const esFecha = /^\d{4}-\d{2}-\d{2}$/.test(text); // Formato YYYY-MM-DD
+
+      if (esFecha) {
+        td.setAttribute('data-t', 's'); // Marcar como texto para Excel
+      }
+    });
+
+    var wb = XLSX.utils.table_to_book(table);
     const fechaActual = new Date().toISOString().slice(0, 10);
     const nombreArchivo = `Informe de Calidad${fechaActual}.xlsx`; //'Informe Remesas_${fecha.toISOString()}.xlsx '
     XLSX.writeFile(wb, nombreArchivo);

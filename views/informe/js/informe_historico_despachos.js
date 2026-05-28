@@ -154,13 +154,18 @@ d.addEventListener('DOMContentLoaded', async e => {
   });
 
   // Botones para exportar las remesas
-  d.getElementById('exportar_excel').addEventListener('click', function() {
+  d.getElementById('exportar_excel').addEventListener('click', function () {
     var table = d.getElementById('informe_historico_seguimiento');
 
-    // Preprocesar la tabla para asegurar que los valores con formato de moneda sean tratados como texto
-    Array.from(table.getElementsByTagName('td')).forEach(function(td) {
-      if (td.innerText.includes('$') || td.innerText.includes(',')) {
-        td.setAttribute('data-t', 's'); // Marcar como texto
+    // Preprocesar la tabla: evitar que fechas se interpreten mal
+    Array.from(table.getElementsByTagName('td')).forEach(function (td) {
+      const text = td.innerText.trim();
+
+      // Detectar valores con $ o formatos de fecha ISO
+      const esFecha = /^\d{4}-\d{2}-\d{2}$/.test(text); // Formato YYYY-MM-DD
+
+      if (esFecha) {
+        td.setAttribute('data-t', 's'); // Marcar como texto para Excel
       }
     });
 
@@ -173,11 +178,11 @@ d.addEventListener('DOMContentLoaded', async e => {
     // Definir estilo para el thead
     var rangoEncabezado = XLSX.utils.decode_range(ws['!ref']); // Obtener el rango de la tabla
     for (let C = rangoEncabezado.s.c; C <= rangoEncabezado.e.c; ++C) {
-      var cell = ws[XLSX.utils.encode_cell({r: 0, c: C})]; // Fila 0 es el thead
+      var cell = ws[XLSX.utils.encode_cell({ r: 0, c: C })]; // Fila 0 es el thead
       if (!cell.s) cell.s = {};
       cell.s.fill = {
         patternType: 'solid',
-        fgColor: {rgb: '3B71CA'}, // Color de fondo amarillo
+        fgColor: { rgb: '3B71CA' }, // Color de fondo amarillo
       };
     }
 
@@ -188,10 +193,10 @@ d.addEventListener('DOMContentLoaded', async e => {
 
     // Ajustar ancho de las columnas
     ws['!cols'] = [
-      {wpx: 100}, // Columna 1 ancho en píxeles
-      {wpx: 100}, // Columna 2 ancho en píxeles
-      {wpx: 100}, // Ajusta el tamaño de las columnas según el contenido5
-      {wpx: 250}, // Columna 2 ancho en píxeles
+      { wpx: 100 }, // Columna 1 ancho en píxeles
+      { wpx: 100 }, // Columna 2 ancho en píxeles
+      { wpx: 100 }, // Ajusta el tamaño de las columnas según el contenido5
+      { wpx: 250 }, // Columna 2 ancho en píxeles
     ];
 
     // Crear contenido de archivo con fecha
@@ -200,7 +205,7 @@ d.addEventListener('DOMContentLoaded', async e => {
     XLSX.writeFile(wb, nombreArchivo);
   });
 
-  d.getElementById('criterio_busqueda').addEventListener('keydown', function(event) {
+  d.getElementById('criterio_busqueda').addEventListener('keydown', function (event) {
     // Verificar si la tecla presionada es "Enter" (código 13)
     if (event.key === 'Enter' || event.keyCode === 13) {
       // Evitar el comportamiento por defecto (como enviar un formulario)

@@ -1,0 +1,558 @@
+Array
+(
+    [foto_vehiculo] => Array
+        (
+            [name] => Certificado_Laboral_Abraham_Arrieta_Final.pdf
+            [full_path] => Certificado_Laboral_Abraham_Arrieta_Final.pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php6274.tmp
+            [error] => 0
+            [size] => 259837
+        )
+
+    [foto_vehiculod] => Array
+        (
+            [name] => EJEMPLO.pdf
+            [full_path] => EJEMPLO.pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php6285.tmp
+            [error] => 0
+            [size] => 110727
+        )
+
+    [foto_vehiculoi] => Array
+        (
+            [name] => Certificado_Laboral_Abraham_Arrieta_Final.pdf
+            [full_path] => Certificado_Laboral_Abraham_Arrieta_Final.pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php6286.tmp
+            [error] => 0
+            [size] => 259837
+        )
+
+    [foto_vehiculoa] => Array
+        (
+            [name] => Comprobante_Transferencia_PSE1752110879645.pdf
+            [full_path] => Comprobante_Transferencia_PSE1752110879645.pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php6287.tmp
+            [error] => 0
+            [size] => 1141944
+        )
+
+    [foto_soat] => Array
+        (
+            [name] => print (1).pdf
+            [full_path] => print (1).pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php6288.tmp
+            [error] => 0
+            [size] => 33934
+        )
+
+    [foto_tecno] => Array
+        (
+            [name] => ejemplo2.pdf
+            [full_path] => ejemplo2.pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php6298.tmp
+            [error] => 0
+            [size] => 113263
+        )
+
+    [foto_transi] => Array
+        (
+            [name] => Remesa.pdf
+            [full_path] => Remesa.pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php6299.tmp
+            [error] => 0
+            [size] => 24045
+        )
+
+    [documento_preopeacional] => Array
+        (
+            [name] => 9e91b961ba5b4c.pdf
+            [full_path] => 9e91b961ba5b4c.pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php629A.tmp
+            [error] => 0
+            [size] => 20879
+        )
+
+    [foto_kit_mercancias] => Array
+        (
+            [name] => Presupuesto - S00824.pdf
+            [full_path] => Presupuesto - S00824.pdf
+            [type] => application/pdf
+            [tmp_name] => C:\Windows\Temp\php62AB.tmp
+            [error] => 0
+            [size] => 33455
+        )
+
+)
+Datos vencidos 2025-07-30
+Datos vencidos 2025-07-30
+Datos vencidos 2025-07-30
+Datos vencidos 2025-07-30
+Datos vencidos 2025-07-30
+Datos vencidos 2025-07-31
+Datos vencidos 2025-07-31
+Error en la transacción al insertar nota controlador: count(): Argument #1 ($value) must be of type Countable|array, string given 2025-08-01 05:35:08 Lucas  Villegas
+Error en la transacción al insertar nota controlador: count(): Argument #1 ($value) must be of type Countable|array, string given 2025-08-01 05:38:24 Lucas  Villegas
+Error en la transacción al insertar nota controlador: count(): Argument #1 ($value) must be of type Countable|array, string given 2025-08-01 05:39:40 Lucas  Villegas
+Error en la transacción al insertar nota controlador: count(): Argument #1 ($value) must be of type Countable|array, string given 2025-08-01 05:47:01 Lucas  Villegas
+Error en la transacción al insertar nota controlador: count(): Argument #1 ($value) must be of type Countable|array, string given 2025-08-01 05:51:12 Lucas  Villegas
+Error en la transacción al insertar nota controlador: count(): Argument #1 ($value) must be of type Countable|array, string given 2025-08-01 06:05:57 Lucas  Villegas
+Error en la transacción al insertar nota controlador: count(): Argument #1 ($value) must be of type Countable|array, string given 2025-08-01 07:53:43 Lucas  Villegas
+Error en la transacción al insertar nota controlador: PDOStatement::bindParam(): Argument #2 ($var) could not be passed by reference 2025-08-02 11:53:38 Lucas  Villegas
+Datos vencidos 2025-08-05
+Datos vencidos 2025-08-05
+Datos vencidos 2025-08-05
+Datos vencidos 2025-08-05
+Error al insertar la cabeceraError al insertar la cabeceraDatos vencidos 2025-08-06
+Datos vencidos 2025-08-06
+Datos vencidos 2025-08-06
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-07
+Datos vencidos 2025-08-07
+Datos vencidos 2025-08-07
+Datos vencidos 2025-08-07
+Datos vencidos 2025-08-07
+Datos vencidos 2025-08-07
+Datos vencidos 2025-08-07
+Datos vencidos 2025-08-07
+No se proporcionaron documentos para el proveedor 106918 a las 2025-08-07 19:08:00
+No se han proporcionado documentos para subir. 2025-08-07 19:08:00
+No se han proporcionado documentos para subir. 2025-08-07
+No se han proporcionado documentos para subir.2025-08-07 19:08:00
+No se han proporcionado documentos para subir.2025-08-07 19:08:00
+No se han proporcionado documentos para subir.2025-08-07 19:08:00
+No se han proporcionado documentos para subir.2025-08-07 19:08:00
+No se han proporcionado documentos para subir.2025-08-07 19:08:00
+No se han proporcionado documentos para subir.2025-08-07 19:08:00
+No se han proporcionado documentos para subir.2025-08-07 19:08:00
+Datos vencidos 2025-08-07
+Datos vencidos 2025-08-07
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+[2025-08-08 09:03:32] Error en Aprobacion_total_estudio: No se pudo insertar el movimiento para la aprobación del estudio
+[2025-08-08 09:25:50] Error en Aprobacion_total_estudio: No se pudo actualizar el estado actual
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-08
+[2025-08-08 17:35:44] Error en Aprobacion_total_estudio: No se pudo insertar el movimiento para la aprobación del estudio
+Datos vencidos 2025-08-08
+Datos vencidos 2025-08-09
+Datos vencidos 2025-08-09
+Datos vencidos 2025-08-09
+Datos vencidos 2025-08-09
+Datos vencidos 2025-08-10
+Datos vencidos 2025-08-10
+Datos vencidos 2025-08-10
+Datos vencidos 2025-08-10
+Datos vencidos 2025-08-10
+Datos vencidos 2025-08-10
+Datos vencidos 2025-08-10
+No se han proporcionado documentos para subir para el proveedor con ID 9025 a las 2025-08-24 12:27:03
+No se han proporcionado documentos para subir. 2025-08-24 12:27:03
+No se han proporcionado documentos para subir. 2025-08-24
+No se han proporcionado documentos para subir.2025-08-24 12:27:03
+No se han proporcionado documentos para subir.2025-08-24 12:27:03
+No se han proporcionado documentos para subir.2025-08-24 12:27:03
+No se han proporcionado documentos para subir.2025-08-24 12:27:03
+No se han proporcionado documentos para subir.2025-08-24 12:27:03
+No se han proporcionado documentos para subir.2025-08-24 12:27:03
+No se han proporcionado documentos para subir.2025-08-24 12:27:03
+No se han proporcionado documentos para subir para el proveedor con ID 9025 a las 2025-08-24 12:28:13
+No se han proporcionado documentos para subir. 2025-08-24 12:28:13
+No se han proporcionado documentos para subir. 2025-08-24
+No se han proporcionado documentos para subir.2025-08-24 12:28:13
+No se han proporcionado documentos para subir.2025-08-24 12:28:13
+No se han proporcionado documentos para subir.2025-08-24 12:28:13
+No se han proporcionado documentos para subir.2025-08-24 12:28:13
+No se han proporcionado documentos para subir.2025-08-24 12:28:13
+No se han proporcionado documentos para subir.2025-08-24 12:28:13
+No se han proporcionado documentos para subir.2025-08-24 12:28:13
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-24
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+No se ha proporcionado un archivo para subir. Fecha: 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-25
+Datos vencidos 2025-08-30
+Datos vencidos 2025-08-30
+Datos vencidos 2025-08-30
+Datos vencidos 2025-08-30
+Datos vencidos 2025-08-30
+Datos vencidos 2025-08-30
+Datos vencidos 2025-08-31
+Datos vencidos 2025-08-31
+Datos vencidos 2025-08-31
+Datos vencidos 2025-08-31
+Datos vencidos 2025-08-31
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-04
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-05
+Datos vencidos 2025-09-22
+Datos vencidos 2025-09-22
+Datos vencidos 2025-10-09
+Datos vencidos 2025-10-09
+Datos vencidos 2025-10-13
+Datos vencidos 2025-10-15
+Datos vencidos 2025-10-15
+Datos vencidos 2025-10-15
+Datos vencidos 2025-10-15
+Datos vencidos 2025-10-15
+Datos vencidos 2025-10-15
+Datos vencidos 2025-10-15
+Datos vencidos 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+No se ha proporcionado un archivo para subir. Fecha: 2025-10-15
+Datos vencidos 2025-10-15
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-21
+Datos vencidos 2025-10-22
+Datos vencidos 2025-10-22
+Datos vencidos 2025-10-22
+Datos vencidos 2025-10-22
+Datos vencidos 2025-10-22
+Datos vencidos 2025-10-22
+Datos vencidos 2025-10-22
+Datos vencidos 2025-11-12
+Datos vencidos 2025-11-12
+Datos vencidos 2025-11-21
+Datos vencidos 2025-11-21
+Datos vencidos 2025-11-21
+Datos vencidos 2025-11-21
+Datos vencidos 2025-11-21
+Datos vencidos 2025-11-21
+Datos vencidos 2025-11-21
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-22
+Datos vencidos 2025-11-25
+Datos vencidos 2025-11-26
+Datos vencidos 2025-11-26
+Datos vencidos 2025-11-26
+Datos vencidos 2025-11-26
+Datos vencidos 2025-11-26
+Datos vencidos 2025-11-29
+Datos vencidos 2025-11-29
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+No se han proporcionado documentos para subir para el proveedor con ID 109944 a las 2025-12-04 18:04:28
+No se han proporcionado documentos para subir. 2025-12-04 18:04:28
+No se han proporcionado documentos para subir. 2025-12-04
+No se han proporcionado documentos para subir.2025-12-04 18:04:28
+No se han proporcionado documentos para subir.2025-12-04 18:04:28
+No se han proporcionado documentos para subir.2025-12-04 18:04:28
+No se han proporcionado documentos para subir.2025-12-04 18:04:28
+No se han proporcionado documentos para subir.2025-12-04 18:04:28
+No se han proporcionado documentos para subir.2025-12-04 18:04:28
+No se han proporcionado documentos para subir.2025-12-04 18:04:28
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-04
+Datos vencidos 2025-12-21
+Datos vencidos 2025-12-21
+Error en la transacción: No se puedo resgistrar la solicitud de estudio para la placa
+Error en la transacción: No se puedo resgistrar la solicitud de estudio para la placa
+Error en la transacción: No se puedo resgistrar la solicitud de estudio para la placa
+Datos vencidos 2025-12-21
+Datos vencidos 2025-12-24
+Datos vencidos 2025-12-24
+Datos vencidos 2025-12-24
+Datos vencidos 2025-12-27
+Datos vencidos 2025-12-27
+Datos vencidos 2025-12-27
+Datos vencidos 2025-12-28
+[2025-12-28 08:33:32] Error en Aprobacion_total_estudio: No se pudo insertar el movimiento para la aprobación del estudio
+Datos vencidos 2025-12-28
+Datos vencidos 2025-12-28
+[2025-12-28 09:39:58] Error en Aprobacion_total_estudio: No se pudo insertar el movimiento para la aprobación del estudio
+Error en la transacción al seleccionar el maestro: No hay números disponibles para crear una nueva cotización. 2025-12-28 13:39:46 undefined
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-29
+Datos vencidos 2025-12-30
+Datos vencidos 2025-12-30
+Datos vencidos 2025-12-30
+Datos vencidos 2025-12-30
+Datos vencidos 2025-12-30
+Datos vencidos 2026-01-15
+Datos vencidos 2026-01-15

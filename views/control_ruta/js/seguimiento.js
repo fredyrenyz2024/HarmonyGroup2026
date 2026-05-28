@@ -1,0 +1,1886 @@
+// window.VENTANA = null; // Variable global para almacenar el ID
+// Definir la función initScript globalmente
+var solicitud_servicio = new Array();
+// window.initScript = function (id) {}
+// window.VENTANA = id; // Asigna el ID recibido a la variable global
+// alert("HOLA MUNDO");
+document.addEventListener('DOMContentLoaded', async e => {
+
+    let codigo_inicio = '';
+    //datos de los filtros
+    // Datos();
+
+    // new DataTable('#tbl_Manifiestos_seguimiento');
+    Tabla_SinFiltro();
+    setInterval(Tabla_SinFiltro, 300000);
+
+    $('#Busqueda_Datos').click(function () {
+        var num = $('#fnum_manifiesto').val();
+        var tipomnf = $('#ftipo_manifiesto').val();
+        var ffecha = $('#ffecha').val();
+        var agenci = $('#fagencia').val();
+        var orign = $('#forigen').val();
+        var desti = $('#fdestino').val();
+        var fcliente = $('#fcliente').val();
+        var fechaultima = $('#fultimanove').val();
+        var fconductor = $('#fconductor').val();
+        if (num != '' || tipomnf != '' || ffecha != '' || agenci != '' || orign != '' || desti != '' || fcliente != '' || fechaultima != '' || fconductor != '') {
+            Busqueda_Datos();
+        }
+    });
+
+    document.addEventListener('click', async e => {
+        const BtnGestion = e.target.closest('.btn-gestion-manifiesto');
+        if (BtnGestion) {
+            let ManifiestoId = BtnGestion.getAttribute('data-Manifiestoid');
+            Tarjeta_Seguimiento(ManifiestoId);
+            Informacion(ManifiestoId);
+        }
+    });
+
+    // JavaScript
+    // document.getElementById('exportar_excel').addEventListener('click', function () {
+    //     var table = document.getElementById('tbl_Manifiestos_seguimiento');
+    //     if (table) {
+    //         // Clonar la tabla
+    //         var clonedTable = table.cloneNode(true);
+
+    //         // Indicar qué columnas omitir (por ejemplo, 1 y 3)
+    //         var columnsToOmit = [12]; // Índices base 0
+
+    //         // Eliminar las columnas no deseadas en el encabezado
+    //         var ths = clonedTable.querySelectorAll('thead th');
+    //         columnsToOmit.slice().reverse().forEach(index => {
+    //             ths[index].remove();
+    //         });
+
+    //         // Eliminar las columnas no deseadas en las filas del cuerpo
+    //         var rows = clonedTable.querySelectorAll('tbody tr');
+    //         rows.forEach(row => {
+    //             var cells = row.querySelectorAll('td');
+    //             columnsToOmit.slice().reverse().forEach(index => {
+    //                 cells[index].remove();
+    //             });
+    //         });
+
+    //         // Convertir la tabla modificada a libro de Excel
+    //         var wb = XLSX.utils.table_to_book(clonedTable);
+    //         const fechaActual = new Date().toISOString().slice(0, 10);
+    //         const nombreArchivo = `Informe de Manifiesto en Seguimiento_${fechaActual}.xlsx`;
+    //         XLSX.writeFile(wb, nombreArchivo);
+    //     } else {
+    //         console.error("El elemento con el ID 'ordenes_decargue' no existe.");
+    //     }
+    // });
+
+
+    $('#btn_finalizar').click(async function () {
+        let dato = new FormData();
+        dato.append('maniesto', $('#maniesto').val());
+        dato.append('cod_inicio', $('#cod_inicio').val());
+        dato.append('cod_punto', $('#cod_punto').val());
+        try {
+            const response = await fetch($('#base_url').val() + 'control_ruta/finalziar_Seguimiento', {
+                method: 'POST',
+                body: dato,
+                cache: 'no-cache',
+            });
+            const data = await response.json();
+            if (data.numero == 200) {
+                let mensaje = `
+      <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
+          <div class="icon"><span class="mdi mdi-check"></span></div>
+          <div class="message">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+            <strong>Mensaje!</strong> ${data.mensaje}
+          </div>
+      </div> `;
+                document.getElementById('mensaje').innerHTML = mensaje;
+                $('#d-footer-primary').modal('toggle');
+                Tabla_llegada();
+            } else {
+                let mensaje = `
+      <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert">
+          <div class="icon"><i class="fas fa-times"></i></div>
+          <div class="message">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+            <strong>Mensaje!</strong> Error al finalziar el Manifiesto.
+          </div>
+      </div> `;
+                document.getElementById('mensaje').innerHTML = mensaje;
+            }
+        } catch (error) {
+            console.error('Error en la segunda solicitud:', error);
+            throw error;
+        } finally {
+            $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+        }
+    });
+
+});
+
+
+// async function Tabla_SinFiltro() {
+//     try {
+//         const response = await fetch($('#base_url').val() + 'trafico/Datos_SinFiltro', {
+//             method: 'POST',
+//             cache: 'no-cache',
+//         });
+//         const data = await response.json();
+
+//         if (data) {
+//             let template = '';
+//             let promises = [];
+
+//             for (let m = 0; m < data.data.length; m++) {
+//                 const item = data.data[m];
+//                 const c = m + 1;
+
+//                 template += `
+//                     <tr id="tiempos${c}">
+//                         <td style="width: auto; white-space: nowrap;text-align: center;" id="semaforo${c}">
+//                             <a href="#" class='text-white text-decoration-none' onClick="Registra_Seguimiento(${item['id']})">${item['id']}</a>
+//                         </td>
+//                         <td style="width: auto; white-space: nowrap;" id="tiempo${c}"></td>
+//                         <td style="width: auto; white-space: nowrap;">${item['origen']} - ${item['destino']}</td>
+//                         <td style="width: auto; white-space: nowrap;">${item['placa']}</td>
+//                         <td style="width: auto; white-space: nowrap;">${item['nombre_conductor']} ${item['apellido1']} ${item['apellido2']}</td>
+//                         <td style="width: auto; white-space: nowrap;">${item['celular']}</td>
+//                         <td style="width: auto; white-space: nowrap;">${item['nombre']}</td>
+//                         <td style="width: auto; white-space: nowrap;" id="ultimositio${c}"></td>
+//                         <td style="width: auto; white-space: nowrap;" id="maxhorafecha${c}"></td>
+//                         <td style="width: auto; white-space: nowrap;" id="ultimaousuario${c}"></td>
+//                     </tr>
+//                 `;
+
+//                 // Llama a ultimahorafecha y almacena la promesa
+//                 if (item['cod_ini_ruta'] != null) {
+//                     promises.push(
+//                         new Promise(resolve => {
+//                             ultimahorafecha(item['cod_ini_ruta'], c);
+//                             resolve();
+//                         }),
+//                     );
+
+//                     promises.push(
+//                         new Promise(resolve => {
+//                             semaforo(item['cod_ini_ruta'], c);
+//                             resolve();
+//                         }),
+//                     );
+//                 }
+//             }
+
+//             $('#tablero').html(template);
+
+//             // Espera a que todas las actualizaciones dinámicas terminen
+//             await Promise.all(promises);
+
+//             // Inicializa DataTables después de actualizar dinámicamente los datos
+//             new DataTable('#tbl_Manifiestos_seguimiento', {
+//                 destroy: true,
+//                 paging: false,
+//                 searching: true,
+//                 ordering: true,
+//                 order: [[1, 'desc']],
+//                 info: false,
+//                 responsive: true,
+//                 pageLength: 100,
+//                 dom: '<"row"<"col-sm-10 custom-search"f><"col-sm-2 text-right"B>>' + '<"row"<"col-sm-12"tr>>',
+//                 buttons: [
+//                     {
+//                         extend: 'excelHtml5',
+//                         text: '<i class="fa-regular fa-file-excel"></i> Exportar a Excel',
+//                         className: 'btn btn-success input-sm',
+//                         exportOptions: {
+//                             columns: ':visible',
+//                             modifier: { page: 'all' },
+//                         },
+//                     },
+//                 ],
+//                 language: {
+//                     decimal: ',',
+//                     thousands: '.',
+//                     lengthMenu: 'Mostrar _MENU_ registros por página',
+//                     zeroRecords: 'No se encontraron resultados',
+//                     info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+//                     infoEmpty: 'Mostrando 0 a 0 de 0 registros',
+//                     infoFiltered: '(filtrado de _MAX_ registros totales)',
+//                     search: 'Buscar:',
+//                     paginate: { first: 'Primero', last: 'Último', next: 'Siguiente', previous: 'Anterior' },
+//                 },
+//             });
+//         } else {
+//             alert('Error al traer los datos');
+//         }
+//     } catch (error) {
+//         console.error('Error en la solicitud:', error);
+//     } finally {
+//         Tabla_llegada();
+//         await Contadores_manifiestos();
+//     }
+// }
+
+function getTipoManifiesto(tipo) {
+    const tipos = {
+        1: 'General',
+        2: 'Multiparada',
+        3: 'Viaje Vacío',
+        4: 'Varios viajes en el Día',
+        8: 'Viaje de Ida y Regreso',
+    };
+    return tipos[tipo] || 'Desconocido';
+}
+
+function getPlanInfo(codigo) {
+    return codigo ? { plan: 'SI', color: 'success' } : { plan: 'NO', color: 'danger' };
+}
+
+
+function Registra_Seguimiento(manifiesto) {
+    url = $('#base_url').val() + 'control_ruta/redireccionar/?idmenu=5&m=' + manifiesto;
+    window.open(url, '_self');
+}
+
+// Inicializar la variable de tiempo
+// var tiempo = -59;
+// function semaforo(codini, id, manifiesto) {
+//     var consulta = { codini: codini };
+
+//     $.ajax({
+//         url: $('#base_url').val() + 'trafico/consulta_semaforo',
+//         type: 'POST',
+//         data: consulta,
+//         dataType: 'json',
+//         success: function (data) {
+//             if (data != null) {
+//                 data.forEach(element => {
+//                     var resultado = parseFloat(element.tiempo);
+//                     var texto = resultado.toLocaleString();
+//                     var color = '';
+
+//                     // Determina el color según el resultado
+//                     if (resultado < 0) {
+//                         color = '#FFFFFF'; // Blanco
+//                     } else if (resultado >= 0 && resultado <= 30) {
+//                         color = '#FFFF6C'; // Amarillo
+//                     } else if (resultado >= 31 && resultado <= 59) {
+//                         color = '#FF9E5E'; // Naranja
+//                     } else if (resultado >= 60 && resultado <= 89) {
+//                         color = '#FF8891'; // Rojo claro
+//                     } else if (resultado >= 90 && resultado <= 119) {
+//                         color = '#DDBBFF'; // Lila
+//                     } else if (resultado >= 120) {
+//                         color = '#DDBBFF'; // Lila
+//                     }
+
+//                     // Actualiza el semáforo y el tiempo en la tabla
+//                     $(`#semaforo${id}`).css('background-color', color);
+//                     $(`#tiempo${id}`).html(`<p>${texto}</p>`);
+
+//                     // Actualiza los datos en DataTables
+//                     const table = $('#tbl_Manifiestos_seguimiento').DataTable();
+//                     const rowIndex = table.row(`#tiempos${id}`).index();
+//                     const rowData = table.row(rowIndex).data();
+
+//                     // Modifica los datos dinámicamente en DataTables
+//                     rowData[1] = `<div style="background-color:${color}; width:100%; height:100%;"></div>`; // Columna del semáforo
+//                     rowData[1] = texto; // Columna del tiempo
+
+//                     table.row(rowIndex).data(rowData).draw(false); // Actualiza la fila
+//                 });
+//             }
+//         },
+//         error: function (jqXHR, textStatus, errorThrown) {
+//             console.error('Error al obtener semáforo:', textStatus, errorThrown);
+//         },
+//     });
+// }
+
+// function ultimahorafecha(codini, id) {
+//     const maximo = { codini: codini };
+
+//     $.ajax({
+//         url: $('#base_url').val() + 'trafico/consulta_notas',
+//         type: 'POST',
+//         data: maximo,
+//         dataType: 'json',
+//         success: function (data) {
+//             if (data != null) {
+//                 data.forEach(element => {
+//                     // Actualiza el contenido dinámico
+//                     $(`#maxhorafecha${id}`).html(`${element.fecha} - ${element.hora}`);
+//                     $(`#ultimositio${id}`).html(`${element.Municipio}`);
+//                     // $(`#ultimaobservacion${id}`).html(`${element.observacion}`);
+//                     $(`#ultimaousuario${id}`).html(`${element.usuario}`);
+
+//                     // Actualiza el estado interno de DataTables
+//                     const table = $('#tbl_Manifiestos_seguimiento').DataTable();
+//                     const rowIndex = table.row(`#tiempos${id}`).index(); // Encuentra el índice de la fila
+//                     const rowData = table.row(rowIndex).data(); // Obtiene los datos de la fila
+
+//                     // Modifica los datos dinámicamente en el estado de DataTables
+//                     rowData[8] = `${element.fecha} - ${element.hora}`; // Columna maxhorafecha
+//                     rowData[7] = `${element.Municipio}`; // Columna ultimositio
+//                     // rowData[9] = `${element.observacion}`; // Columna ultimaobservacion
+//                     rowData[9] = `${element.usuario}`; // Columna ultimaousuario
+
+//                     table.row(rowIndex).data(rowData).draw(false); // Actualiza la fila
+//                 });
+//             } else {
+//                 // Manejo de datos en blanco
+//                 $(`#maxhorafecha${id}`).html('<strong>No existe una novedad aún</strong>');
+//                 $(`#ultimositio${id}`).html('<strong>No tiene sitio de control</strong>');
+//                 // $(`#ultimaobservacion${id}`).html('<strong>No tiene observaciones</strong>');
+//                 $(`#ultimaousuario${id}`).html('<strong>No tiene usuario</strong>');
+//             }
+//         },
+//         error: function (jqXHR, textStatus, errorThrown) {
+//             console.error(jqXHR, textStatus, errorThrown);
+//         },
+//     });
+// }
+
+
+// Gestion de seguimientos y notas
+function Tarjeta_Seguimiento(manifi) {
+    //Tarjeta de seguimiento
+    var tabla = {
+        manifiesto: manifi,
+        // action: "consultar_inicioruta",
+    };
+    $('#body_esconder').html('');
+    $.ajax({
+        // url: url,
+        url: $('#base_url').val() + 'trafico/Consultar_inicio_ruta',
+        type: 'POST',
+        data: tabla,
+        dataType: 'json',
+        success: function (data) {
+            if (data) {
+                var c = 0;
+                data.forEach(function (element, index) {
+                    c++;
+                    //var codini=element.id;
+                    codini = element.cod_inicio;
+                    codigo_plan = element.cod_plan;
+                    // plan_ruta(codigo_plan, codini, manifi);
+                    planilla = element.id_estudio_seguridad;
+                    placa = element.placa;
+                    mani = element.med;
+                    dcondu = element.nombre + ' ' + element.apellido1 + ' ' + element.apellido2;
+                    med = element.med;
+                    manifiesto = element.num_manifiesto;
+                    // ultimanovedad(codini, c);
+                    let codinin = codini;
+                    // Informacio_Principal(manifi, codinin);
+                    // Consulta_Seguimiento_Actual(codini);
+                    let btngestor = '';
+                    if (element.estado != 'Entregado') {
+                        btngestor = `
+                            <button type="button" class="btn btn-primary btn-md mdi mdi-truck" id="btn_ver${c}" data-toggle="modal" data-target="#ver_gestion" data-placement="top" title="Realizar Gestión" onclick="gestion(this)" data-id="${codini}" data-id2="${mani}" data-id3="${placa}" data-id4="${dcondu}" data-id6="${codigo_plan}" data-id7="${med}" data-id8="${planilla}" data-id9="${manifiesto}"></button>`;
+                    } else {
+                        btngestor = `
+                            <button type="button" class="btn btn-primary btn-md mdi mdi-truck" id="btn_ver${c}" data-toggle="modal" data-target="#" data-placement="top" title="Realizar Gestión" onclick="gestion(this)" data-id="${codini}"></button>`;
+                    }
+                });
+                plan_ruta(codigo_plan, codini, manifi);
+                Informacio_Principal(manifi, codini);
+                Consulta_Seguimiento_Actual(codini);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            // alert("ocurrio un error en consulta de tabla");
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        },
+    });
+}
+
+/* Función para cargar el plan de ruta */
+function plan_ruta(codigoPlan, codigoInicio, manifi) {
+    var cont = {
+        id_plan: codigoPlan,
+        codigo_ini: codigoInicio,
+        manifiesto: manifi,
+    };
+
+    var pcarraylat = [];
+    var pcarraylong = [];
+    var namepc = [];
+
+    $.ajax({
+        url: $('#base_url').val() + 'planruta/Listar_plan_ruta_seguimiento',
+        type: 'POST',
+        data: cont,
+        dataType: 'json',
+        success: function (data) {
+            if (data) {
+                var t = 0;
+                var notas = data.notas_puntos;
+                var puntos = data.plan_ruta;
+
+                // Ordenar puntos para que "Lugar Llegada" esté siempre al final
+                puntos.sort((a, b) => {
+                    if (a.nombre_punto === 'Lugar Llegada') return 1;
+                    if (b.nombre_punto === 'Lugar Llegada') return -1;
+                    return 0;
+                });
+
+                $('#panel_control_plan_ruta').html('');
+                puntos.forEach(function (element, index) {
+                    // Determinar clasificación del punto
+                    var clasificacion = element.tipo_punto === 'punto control' ? 'punto físico' : 'punto virtual';
+
+                    // Agregar fila de punto al panel de control
+                    $('#panel_control_plan_ruta').append(
+                        `<tr style='border: 1px solid #ddd;padding: 1px;background-color:#fff;' class='punto_control${element.cod_punto}'>
+                            <td class='control_punto${element.cod_punto}'>
+                                <a href='Javascript:void(0);' onclick='formulario_seguimiento(${manifi});'
+                                data-lat="${element.latitud}" data-long="${element.longitud}" data-punto="${element.nombre_punto}"
+                                data-id="${element.idmunicipio}" data-cod_punto="${element.cod_punto}"  class="puntos_list">
+                                ${element.nombre_punto} (${clasificacion})
+                                </a>
+                            </td>
+                            <td class="fecha_control${element.cod_punto}"></td>
+                            <td class="novedad_control${element.cod_punto}"></td>
+                            <td>${element.municipio}-${element.depto}</td>
+                            <td class="usuario_control${element.cod_punto}"></td>
+                        </tr>`,
+                    );
+
+                    // Guardar datos de punto en arrays
+                    pcarraylat[t] = [element.latitud];
+                    pcarraylong[t] = [element.longitud];
+                    namepc[t] = [element.nombre_punto];
+                    t++;
+
+                    // Agregar controlador de clic a los enlaces de puntos
+                    $('.puntos_list').on('click', function (event) {
+                        event.preventDefault();
+                        var dataPunto = $(this).data('punto');
+                        var dataLatitud = $(this).data('lat');
+                        var dataLongitud = $(this).data('long');
+                        var dataId = $(this).data('id');
+                        var dataCodPunto = $(this).data('cod_punto');
+
+                        // Guardar datos en localStorage
+                        localStorage.setItem('puntos', dataPunto);
+                        localStorage.setItem('latitud', dataLatitud);
+                        localStorage.setItem('longitud', dataLongitud);
+                        localStorage.setItem('municipio_id', dataId);
+                        localStorage.setItem('codigo_punto', dataCodPunto);
+                    });
+                });
+
+                notas_control(notas, puntos);
+                // pintar_mapacontrol(latori, latdes, longori, longdes, pcarraylat, pcarraylong, namepc);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        },
+    });
+}
+
+/* Funcion para llenar información principal de seguimiento */
+async function Informacio_Principal(manifi, codinin) {
+    $('#loading-overlay-nexosapp ').css('display', 'flex');
+    let datos = new FormData();
+    datos.append('manifiesto', manifi);
+
+    //Nueva consulta  modificada con el fecht
+    try {
+        const response = await fetch($('#base_url').val() + 'trafico/seguimiento_ruta', {
+            method: 'POST',
+            body: datos,
+            cache: 'no-cache',
+        });
+        const data = await response.json();
+        if (data) {
+            data.forEach(function (element, index) {
+                var dcondu = element.nombre + ' ' + element.apellido1 + ' ' + element.apellido2;
+                codigoPlan = element.cod_plan;
+                codigoInicio = element.cod_inicio;
+                // plan_ruta(codigoPlan);
+                $('.manifiesto').html(element.num_manifiesto);
+                // $(".agencia").html(decodeURIComponent(escape(element.Lugar)));
+                $('.agencia').html(element.Lugar);
+                $('.conductor').html(dcondu);
+                $('.documento').html(element.cond_cedula);
+                $('.celular').html(element.celular);
+                $('.telefono').html(element.celular);
+                $('.marca').html(element.marca);
+                $('.linea').html(element.descripcion);
+                $('.color').html(element.color);
+                $('.operador-gps').html(element.operador_gps);
+                $('.url-gps').attr('href', element.url);
+                $('.url-gps').html(element.url);
+                $('.usuario-gps').html(element.usuario_satelital);
+                $('.usuario-salida').html(element.usuario);
+                $('.remolque').html(element.Placatrailer);
+
+                /* Segunda columna de la tabla de informacioón */
+                $('.origen').html(element.origin);
+                $('.destino').html(element.destini);
+                $('.ruta').html(element.nombre_plan);
+                $('.fecha-salida').html(element.fechasalida + '-' + element.horasalida);
+                // $(".fecha-llegada").html(element.nombre_plan);
+                $('.configuración').html(element.configuracion);
+                $('.carroceria').html(element.carrocerias);
+                $('.id-gps').html(element.id);
+                $('.clave-gps').html(element.clave_satelital);
+                $('.placa').html(element.placa);
+                $('.modelo').html(element.anio_fabricacion);
+                $('.fecha-llegada').html(element.fecha_descargue && element.hora_descargue ? element.fecha_descargue + '-' + element.hora_descargue : 'Sin resgistrar' + ' - ' + 'Sin resgistrar');
+            });
+        } else {
+        }
+    } catch (error) {
+        console.error('Error en la primera solicitud:', error);
+        throw error;
+    } finally {
+        $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+        // Puntos_geograficos(codigoPlan, codinin);
+    }
+}
+
+/* Funciones para llenar la tabla de informacion de remesa*/
+function Informacion(manifi) {
+    $.post(
+        $('#base_url').val() + 'tiempo_logistico_cargue/Selecciona_Ordenes',
+        'manifiesto=' + manifi,
+        function (data) {
+            if (data) {
+                data.forEach(element => {
+                    // Primera validación: Verificar órdenes de carga
+                    $.post(
+                        $('#base_url').val() + 'tiempo_logistico_cargue/Verificar_ordenes',
+                        'orden_cargue=' + element.id + '&manifiesto=' + manifi,
+                        function (datosOrden) {
+                            if (datosOrden.length > 0) {
+                                // Segunda validación: Verificar remesas
+                                $.post(
+                                    $('#base_url').val() + 'tiempo_logistico_descargue/Verificar_ordenes',
+                                    'remesa=' + element.Remesa + '&manifiesto=' + manifi,
+                                    function (datosRemesa) {
+                                        if (datosRemesa.length > 0) {
+                                            $('#tbl_informacion').append(`
+                                                <tr>
+                                                    <td style="background-color: #FFFFFF;border-right:1px #ddd solid;">
+                                                        <a href="Javascript:void(0)" onclick="abrir_orden_carga(${manifi},${element.id});" style="font-weight:bold;">[${element.id}]</a>
+                                                        <input type="hidden" name="orden_cargue_id[]" value="${element.id}" class="orden_cargue_id">
+                                                    </td>
+                                                    <td style="background-color: #FFFFFF;border-right:1px #ddd solid;">
+                                                        <a href="Javascript:void(0)" onclick="abrir_remesa(${manifi},${element.Remesa});" style="font-weight:bold;">[${element.Remesa}]</a>
+                                                        <input type="hidden" name="remesa_descargue_id[]" value="${element.Remesa}" class="remesa_descargue_id">
+                                                    </td>
+                                                    <td style="border-right:1px #ddd solid;">0000-00-00 00-00-00</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.peso}Kg</td>
+                                                    <td style="border-right:1px #ddd solid;">Volumen</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.empaque}</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.mer_producto}</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.Cliente}</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.Remitente}</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.Destinatario}</td>
+                                                </tr>
+                                            `);
+                                        } else {
+                                            $('#tbl_informacion').append(`
+                                                <tr>
+                                                    <td style="background-color: #FFFFFF;border-right:1px #ddd solid;">
+                                                        <a href="Javascript:void(0)" onclick="abrir_orden_carga(${manifi},${element.id});" style="font-weight:bold;">[${element.id}]</a>
+                                                        <input type="hidden" name="orden_cargue_id[]" value="${element.id}" class="orden_cargue_id">
+                                                    </td>
+                                                    <td style="background-color: #FFCDD2;border-right:1px #ddd solid;">
+                                                        <a href="Javascript:void(0)" onclick="abrir_remesa(${manifi},${element.Remesa});" style="font-weight:bold;">[${element.Remesa}]</a>
+                                                        <input type="hidden" name="remesa_descargue_id[]" value="${element.Remesa}" class="remesa_descargue_id">
+                                                    </td>
+                                                    <td style="border-right:1px #ddd solid;">0000-00-00 00-00-00</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.peso}Kg</td>
+                                                    <td style="border-right:1px #ddd solid;">Volumen</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.empaque}</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.mer_producto}</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.Cliente}</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.Remitente}</td>
+                                                    <td style="border-right:1px #ddd solid;">${element.Destinatario}</td>
+                                                </tr>
+                                            `);
+                                        }
+                                    },
+                                    'json',
+                                );
+                            } else {
+                                $('#tbl_informacion').append(`
+                                    <tr>
+                                        <td style="background-color: #FFCDD2;border-right:1px #ddd solid;">
+                                        <a href="Javascript:void(0)" onclick="abrir_orden_carga(${manifi},${element.id});" style="font-weight:bold;">[${element.id}]</a>
+                                        <input type="hidden" name="orden_cargue_id[]" value="${element.id}" class="orden_cargue_id">
+                                        </td>
+                                        <td style="background-color: #FFCDD2;border-right:1px #ddd solid;">
+                                        <a href="Javascript:void(0)" onclick="abrir_remesa(${manifi},${element.Remesa});" style="font-weight:bold;">[${element.Remesa}]</a>
+                                        <input type="hidden" name="remesa_descargue_id[]" value="${element.Remesa}" class="remesa_descargue_id">
+                                        </td>
+                                        <td style="border-right:1px #ddd solid;">0000-00-00 00-00-00</td>
+                                        <td style="border-right:1px #ddd solid;">${element.peso}Kg</td>
+                                        <td style="border-right:1px #ddd solid;">Volumen</td>
+                                        <td style="border-right:1px #ddd solid;">${element.empaque}</td>
+                                        <td style="border-right:1px #ddd solid;">${element.mer_producto}</td>
+                                        <td style="border-right:1px #ddd solid;">${element.Cliente}</td>
+                                        <td style="border-right:1px #ddd solid;">${element.Remitente}</td>
+                                        <td style="border-right:1px #ddd solid;">${element.Destinatario}</td>
+                                    </tr>
+                                `);
+                            }
+                        },
+                        'json',
+                    );
+                });
+            }
+        },
+        'json',
+    );
+}
+
+function Consulta_Seguimiento_Actual(codini) {
+    var buscar = {
+        codini: codini,
+    };
+    $.ajax({
+        url: $('#base_url').val() + 'trafico/consulta_seguimiento',
+        type: 'POST',
+        data: buscar,
+        dataType: 'json',
+        success: function (data) {
+            $('#seguimiento_real').html('');
+            if (data != null) {
+                data.forEach(function (element, index) {
+                    var tblBody = '';
+                    let cadena = element.novedad.substr(0, 7);
+                    let color = '';
+                    if (cadena === 'NOVEDAD') {
+                        color = '#D50000';
+                    } else {
+                        color = '#000000';
+                    }
+
+                    // /* Vaidar si es nota del punto del plan de ruta o de otro punto o de punto del controlador */ element.punto_controlador
+                    var punto = '';
+
+                    if (element.municipio === null && element.nom_punto === null && element.nombre_punto === null) {
+                        punto = element.punto_controlador;
+                    } else if (element.municipio !== null && element.nom_punto === null && element.nombre_punto !== null) {
+                        punto = element.nombre_punto;
+                    } else if (element.municipio !== null && element.nom_punto !== null && element.nombre_punto === null) {
+                        punto = element.municipio + ' - ' + element.nom_punto;
+                    }
+
+                    tblBody = `
+						<tr>
+							<td style="padding:5px;">
+                <span class="cell-detail-description" style='color:${color}'>
+                  ${punto}
+                </span>
+              </td>
+							<td style="padding:5px;">
+								<span class="cell-detail-description" style='color:${color}'>${element.fecha} - ${element.hora}</span>
+							</td>
+							<td style="padding:5px;">
+								<span class="cell-detail-description" style='color:${color}'>${element.novedad}</span>
+							</td>
+							<td style="padding:5px;">
+								<span class="cell-detail-description" style='color:${color}'> ${element.observacion}</span>
+							</td>
+							<td style="padding:5px;">
+								<span class="cell-detail-description" style='color:${color}'>${element.usuario}</span>
+							</td>
+						</tr>`;
+                    $('#seguimiento_real').append(tblBody);
+                });
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('no trajo seguimientos');
+            // console.log(jqXHR);
+            // console.log(textStatus);
+            // console.log(errorThrown);
+        },
+    });
+}
+
+function notas_control(notas, puntos) {
+    var t = 0;
+    var longitud = notas.length;
+    var longitud_puntos = puntos.length;
+    notas.forEach(element => {
+        var clasificacion;
+        if (element.tipo_punto == 'punto geografico') {
+            clasificacion = 'punto virtual';
+        }
+        if (element.estado_punto === 'CERRADO') {
+            $(`.control_punto${element.cod_punto}`).html(`
+            <a href='Javascript:void(0);' style="pointer-events: none;cursor: not-allowed;color: #332D2D;">
+                ${element.nombre_punto}(${clasificacion})
+            </a>
+          `);
+            $(`.punto_control${element.cod_punto}`).css('backgroundColor', '#d8dfea');
+            $(`.fecha_control${element.cod_punto}`).html(element.Hora_gestion);
+            $(`.novedad_control${element.cod_punto}`).html(element.novedad);
+            $(`.usuario_control${element.cod_punto}`).html(element.usuario);
+        }
+    });
+}
+
+/* Formulario de seguimientos */
+function formulario_seguimiento(manifi) {
+    fetch($('#base_url').val() + 'views/templates/formulario_seguimiento.phtml')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('contenido-controlador').innerHTML = data;
+            $(document).ready(function () {
+                gestion(manifi);
+                // listanovedades();
+                $('#notas_controlador').css('display', 'none');
+                $('#plan_ruta_lista').css('display', 'none');
+                $('#mapa_recorrido').css('display', 'none');
+                if ($('#ocurrio option:selected').val() === 'En sitio') {
+                    $('#nota').css('display', 'none');
+                    $('#accion').css('display', 'block');
+
+                    $('#accion').val(localStorage.getItem('puntos'));
+                    $('#ubilatitud').val(localStorage.getItem('latitud'));
+                    $('#ubilongitud').val(localStorage.getItem('longitud'));
+                    $('#accion_id').val(localStorage.getItem('municipio_id'));
+                    $('#codigo_punto').val(localStorage.getItem('codigo_punto'));
+                }
+
+                $('#ocurrio').change(function () {
+                    $('#ubilatitud').val('');
+                    $('#ubilongitud').val('');
+                    var ocurrio = $('#ocurrio').val();
+                    if (ocurrio === 'En sitio') {
+                        $('#nota').css('display', 'none');
+                        $('#accion').css('display', 'block');
+                        $('#accion').css('disabled', true);
+                        $('#accion').val(localStorage.getItem('puntos'));
+                        $('#ubilatitud').val(localStorage.getItem('latitud'));
+                        $('#ubilongitud').val(localStorage.getItem('longitud'));
+                        $('#accion_id').val(localStorage.getItem('municipio_id'));
+                        $('#codigo_punto').val(localStorage.getItem('codigo_punto'));
+                    } else {
+                        $('#nota').css('display', 'block');
+                        $('#accion').css('display', 'none');
+                        $('#accion').val('');
+                        $('#ubilatitud').val('');
+                        $('#ubilongitud').val('');
+                        $('#accion_id').val('');
+                        $('#codigo_punto').val('');
+
+                        // Seleccionar el campo de entrada
+                        var $miInput = $('#nota');
+                        // Seleccionar el elemento donde mostrar el resultado
+                        var $resultado = document.getElementById('searchResults');
+                        var currentFocus = -1; // Índice de la selección actual
+
+                        // Agregar un controlador de eventos para el evento input
+                        $miInput.on('input', function () {
+                            // Obtener el valor actual del campo de entrada
+                            var valorInput = $miInput.val();
+                            // Actualizar el contenido del elemento resultado
+                            if (valorInput !== '') {
+                                $.post(
+                                    $('#base_url').val() + 'planruta/Buscar_Puntos_Control',
+                                    { datos: valorInput },
+                                    function (data) {
+                                        mostrar_resultados(data);
+                                    },
+                                    'json',
+                                );
+                            } else {
+                                $resultado.innerHTML = '';
+                            }
+                        });
+
+                        function mostrar_resultados(results) {
+                            // Limpiar resultados anteriores
+                            $resultado.innerHTML = '';
+                            currentFocus = -1; // Reiniciar el índice de la selección
+                            // Mostrar los nuevos resultados
+                            results.forEach(function (result, index) {
+                                const li = document.createElement('li');
+                                li.style.padding = '8px';
+                                li.style.cursor = 'pointer';
+                                li.style.transition = 'background-color 0.3s';
+                                li.textContent = result.nom_punto + ' - ' + result.municipio;
+                                li.setAttribute('data-index', index); // Asignar un índice al elemento
+                                li.addEventListener('click', function () {
+                                    seleccionarElemento(result);
+                                });
+                                $resultado.appendChild(li);
+                            });
+                        }
+
+                        function seleccionarElemento(result) {
+                            // Colocar el valor en el input al hacer clic en un resultado
+                            $miInput.val(result.nom_punto + ' - ' + result.municipio);
+                            $('#ubilatitud').val(result.latitud);
+                            $('#ubilongitud').val(result.longitud);
+                            $('#accion_id').val(result.cod_ciudad);
+                            $('#codigo_punto').val(result.id);
+                            $resultado.innerHTML = '';
+                        }
+
+                        // Manejar eventos de teclado para la navegación
+                        $miInput.on('keydown', function (e) {
+                            var items = $resultado.getElementsByTagName('li');
+                            if (e.key === 'ArrowDown') {
+                                // Mover hacia abajo en la lista
+                                currentFocus++;
+                                if (currentFocus >= items.length) currentFocus = 0;
+                                addActive(items);
+                            } else if (e.key === 'ArrowUp') {
+                                // Mover hacia arriba en la lista
+                                currentFocus--;
+                                if (currentFocus < 0) currentFocus = items.length - 1;
+                                addActive(items);
+                            } else if (e.key === 'Enter') {
+                                // Seleccionar el elemento activo
+                                e.preventDefault();
+                                if (currentFocus > -1) {
+                                    if (items) items[currentFocus].click();
+                                }
+                            }
+                        });
+
+                        function addActive(items) {
+                            if (!items) return false;
+                            removeActive(items);
+                            if (currentFocus >= items.length) currentFocus = 0;
+                            if (currentFocus < 0) currentFocus = items.length - 1;
+                            items[currentFocus].classList.add('autocomplete-active');
+                        }
+
+                        function removeActive(items) {
+                            for (var i = 0; i < items.length; i++) {
+                                items[i].classList.remove('autocomplete-active');
+                            }
+                        }
+
+                        // Estilo para el elemento activo (opcional)
+                        var style = document.createElement('style');
+                        style.innerHTML = `.autocomplete-active {background-color: #f39c12 !important;color: white;}`;
+                        document.head.appendChild(style);
+                    }
+                });
+
+                /* Buscador de novedades para las notas */
+                var $searchInput = $('#novedad');
+                var $resultado_novedad = document.getElementById('searchResults2');
+                var currentFocus = -1; // Índice de la selección actual
+
+                // Buscar usuario responsable para la actividad
+                $searchInput.on('input', function () {
+                    const searchTerm = $searchInput.val().trim();
+                    // Realizar una solicitud AJAX para obtener resultados desde el servidor
+                    if (searchTerm !== '') {
+                        $.post(
+                            $('#base_url').val() + 'trafico/Buscar_novedades',
+                            { datos: searchTerm },
+                            function (data) {
+                                mostrar_resultados_notas(data);
+                            },
+                            'json',
+                        );
+                    } else {
+                        $resultado_novedad.innerHTML = '';
+                    }
+                });
+
+                function mostrar_resultados_notas(results) {
+                    // Limpiar resultados anteriores
+                    $resultado_novedad.innerHTML = '';
+                    currentFocus = -1; // Reiniciar el índice de la selección
+                    // Mostrar los nuevos resultados
+                    results.forEach(function (result, index) {
+                        const li = document.createElement('li');
+                        li.style.padding = '8px';
+                        li.style.cursor = 'pointer';
+                        li.style.transition = 'background-color 0.3s';
+                        li.textContent = result.id + ' - ' + result.novedad;
+                        li.setAttribute('data-index', index); // Asignar un índice al elemento
+                        li.addEventListener('click', function () {
+                            seleccionarElemento(result);
+                        });
+                        $resultado_novedad.appendChild(li);
+                    });
+                }
+
+                function seleccionarElemento(result) {
+                    // Colocar el valor en el input al hacer clic en un resultado
+                    $searchInput.val(result.novedad);
+                    $resultado_novedad.innerHTML = '';
+                }
+
+                // Manejar eventos de teclado para la navegación
+                $searchInput.on('keydown', function (e) {
+                    var items = $resultado_novedad.getElementsByTagName('li');
+                    if (e.key === 'ArrowDown') {
+                        // Mover hacia abajo en la lista
+                        currentFocus++;
+                        if (currentFocus >= items.length) currentFocus = 0;
+                        addActive(items);
+                    } else if (e.key === 'ArrowUp') {
+                        // Mover hacia arriba en la lista
+                        currentFocus--;
+                        if (currentFocus < 0) currentFocus = items.length - 1;
+                        addActive(items);
+                    } else if (e.key === 'Enter') {
+                        // Seleccionar el elemento activo
+                        e.preventDefault();
+                        if (currentFocus > -1) {
+                            if (items) items[currentFocus].click();
+                        }
+                    }
+                });
+
+                function addActive(items) {
+                    if (!items) return false;
+                    removeActive(items);
+                    if (currentFocus >= items.length) currentFocus = 0;
+                    if (currentFocus < 0) currentFocus = items.length - 1;
+                    items[currentFocus].classList.add('autocomplete-active');
+                }
+
+                function removeActive(items) {
+                    for (var i = 0; i < items.length; i++) {
+                        items[i].classList.remove('autocomplete-active');
+                    }
+                }
+
+                // Estilo para el elemento activo (opcional)
+                var style = document.createElement('style');
+                style.innerHTML = `.autocomplete-active {background-color: #f39c12 !important;color: white;}`;
+                document.head.appendChild(style);
+
+                //Boton para volver a la tabla de notas
+                $('#btn-volver-notas').click(function () {
+                    location.reload();
+                });
+
+                // $('#btn_guadargestion').click(function () {
+                //     Swal.fire({
+                //         title: '¿Está seguro?',
+                //         text: '¿Desea guardar la nota para este punto?',
+                //         icon: 'question',
+                //         showCancelButton: true,
+                //         confirmButtonColor: '#3085d6',
+                //         cancelButtonColor: '#d33',
+                //         confirmButtonText: 'Sí, guardar',
+                //         cancelButtonText: 'Cancelar',
+                //         focusConfirm: true // 👈 Forzar focus en el botón de confirmar
+                //     }).then((result) => {
+                //         if (result.isConfirmed) {
+                //             let msg_error = '';
+                //             let ocurrioval = $('#ocurrio').val();
+
+                //             if (ocurrioval === 'En sitio') {
+                //                 if (!msg_error) {
+                //                     validar_proceso(manifi); // Lógica si todo está bien
+                //                 } else {
+                //                     Swal.fire({
+                //                         icon: 'error',
+                //                         title: '¡Error!',
+                //                         html: msg_error
+                //                     });
+                //                     $('#ver_gestion').animate({ scrollTop: 0 }, 600);
+                //                 }
+                //             } else {
+                //                 if (!msg_error) {
+                //                     Registrar_Gestion(manifi); // Lógica si todo está bien
+                //                 } else {
+                //                     Swal.fire({
+                //                         icon: 'error',
+                //                         title: '¡Error!',
+                //                         html: msg_error
+                //                     });
+                //                     $('#ver_gestion').animate({ scrollTop: 0 }, 600);
+                //                 }
+                //             }
+                //         }
+                //     });
+                // });
+
+
+                $('#btn_guadargestion').click(function () {
+                    // Swal.fire({
+                    //     title: '¿Está seguro?',
+                    //     text: '¿Desea guardar la nota para este punto?',
+                    //     icon: 'question',
+                    //     showCancelButton: true,
+                    //     confirmButtonColor: '#3085d6',
+                    //     cancelButtonColor: '#d33',
+                    //     confirmButtonText: 'Sí, guardar',
+                    //     cancelButtonText: 'Cancelar',
+                    //     allowOutsideClick: false,
+                    //     returnFocus: false, // Evita que el offcanvas tome foco
+                    //     didOpen: () => {
+                    //         const confirmBtn = Swal.getConfirmButton();
+                    //         if (confirmBtn) confirmBtn.focus(); // 🔍 fuerza el focus en confirmar
+                    //     }
+                    // }).then((result) => {
+                    //     if (result.isConfirmed) {
+                    if (window.confirm('¿Esta seguro de guardar la nota para este punto?')) {
+                        let msg_error = '';
+                        let ocurrioval = $('#ocurrio').val();
+
+                        if (ocurrioval === 'En sitio') {
+                            if (!msg_error) {
+                                validar_proceso(manifi);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '¡Error!',
+                                    html: msg_error
+                                });
+                                $('#ver_gestion').animate({ scrollTop: 0 }, 600);
+                            }
+                        } else {
+                            if (!msg_error) {
+                                Registrar_Gestion(manifi);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '¡Error!',
+                                    html: msg_error
+                                });
+                                $('#ver_gestion').animate({ scrollTop: 0 }, 600);
+                            }
+                        }
+                    }
+                    //     }
+                    // });
+                });
+
+            });
+        })
+        .catch(error => console.log(error));
+}
+
+function trazabilidad() {
+    fetch($('#base_url').val() + 'views/templates/trazabilidad.phtml')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('contenedor').innerHTML = data;
+
+            $(document).ready(function () {
+                $('#novedad_estado').html('');
+                $('#novedad_seguimiento').html('');
+                $('#tiempo_descargue').html('');
+                $('#tiempo_cargue').html('');
+
+                const estado = {
+                    codigo_inicio: codigoInicio,
+                    mani: manifiesti_codigo,
+                    action: 'consultar_novedades',
+                };
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: estado,
+                    dataType: 'json',
+                    success: function (data) {
+                        // === NOVEDAD ESTADO ===
+                        if (data.result != null) {
+                            data.result.forEach(element => {
+                                let d = '';
+                                switch (element.estado) {
+                                    case 2: d = 'Enturnado'; break;
+                                    case 3: d = 'Cargue'; break;
+                                    case 4: d = 'Descargue'; break;
+                                    case 5: d = 'En ruta'; break;
+                                    case 6: d = 'Cumplido'; break;
+                                    case 7: d = 'Entregado'; break;
+                                    case 8: d = 'Devolución'; break;
+                                    default: d = ''; break;
+                                }
+
+                                $('#novedad_estado').append(`
+                                    <tr>
+                                        <td>${d}</td>
+                                        <td>${element.fecha} - ${element.hora}</td>
+                                        <td>${element.reporte_cliente}</td>
+                                        <td>${element.usuario}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+
+                        // === NOVEDAD SEGUIMIENTO ===
+                        if (data.result2 != null) {
+                            data.result2.forEach(element => {
+                                const clase = element.tipo_seguimiento === 'punto geografico'
+                                    ? 'Punto virtual' : 'Punto físico';
+
+                                $('#novedad_seguimiento').append(`
+                                    <tr>
+                                        <td>${clase}</td>
+                                        <td>${element.observacion}</td>
+                                        <td>${element.tipo_contacto}</td>
+                                        <td>${element.reporte_cliente}</td>
+                                        <td>${element.id_servicio}</td>
+                                        <td>${element.usuario}</td>
+                                        <td>${element.fecha} - ${element.hora}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+
+                        // === TIEMPO CARGUE ===
+                        if (data.result3 != null) {
+                            data.result3.forEach(element => {
+                                $('#tiempo_cargue').append(`
+                                    <tr>
+                                        <td>${element.id_orden_cargue}</td>
+                                        <td>${element.tipo_fecha}</td>
+                                        <td>${element.fecha_cargue}</td>
+                                        <td>${element.hora_cargue}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+
+                        // === TIEMPO DESCARGUE ===
+                        if (data.result4 != null) {
+                            data.result4.forEach(element => {
+                                $('#tiempo_descargue').append(`
+                                    <tr>
+                                        <td>${element.id_remesa}</td>
+                                        <td>${element.tipo_fecha}</td>
+                                        <td>${element.fecha_descargue}</td>
+                                        <td>${element.hora_descargue}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log('no trajo estados');
+                        console.log(jqXHR, textStatus, errorThrown);
+                    },
+                });
+            });
+        })
+        .catch(error => console.log(error));
+}
+
+function gestion(manifi) {
+    $('#noveq').val('');
+    $('#observa').val('');
+    $('#ubilatitud').val('');
+    $('#ubilongitud').val('');
+    $('#udocumnento').val('');
+    $('.solocargue').hide();
+    $('#msg_editar_gestion').html('');
+
+    $('.med').html(med);
+    $('.ini').html(codini);
+    $('.man').html(manifi);
+    $('.pk').html(placa);
+    $('.conductor').html(dcondu);
+    //consultar el último estado registrado
+    var ultimo_estado = {
+        id: codini,
+        // action: 'estado_max',
+    };
+
+    $.ajax({
+        url: $('#base_url').val() + 'trafico/estado_maximo',
+        type: 'POST',
+        data: ultimo_estado,
+        dataType: 'json',
+        success: function (data) {
+            // console.log('trajo estado maximo');
+            if (data.result) {
+                // alert('estado');
+                $('.subtitu2').html(data.result[0].letra);
+                $('#actu').val(data.result[0].estado);
+                $('#subtitu3').html(data.result[0].letra);
+                $('#actu2').val(data.result[0].estado);
+                var estado = data.result[0].estado;
+                var estados = {
+                    actual: estado,
+                    action: 'estado_select',
+                };
+                $('#estadoq').html('');
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: estados,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data) {
+                            data.forEach(function (element, index) {
+                                $('#estadoq').append('<option value="' + element.id + '">' + element.estado + '</option>');
+                            });
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log('no trajo estados');
+                        console.log(jqXHR);
+                        console.log(textStatus);
+                        console.log(errorThrown);
+                    },
+                });
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('no trajo estado maximo');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        },
+    });
+    //consulta para traer las solicitudes de servicio
+    var servi = {
+        idplanilla: manifi,
+        // action: 'consultar_solicitudes',
+    };
+    $('#nservicio').html('');
+    $.ajax({
+        url: $('#base_url').val() + 'trafico/consultar_solicitudes',
+        type: 'POST',
+        data: servi,
+        dataType: 'json',
+        success: function (data) {
+            if (data != null) {
+                var t = 0;
+                data.forEach(function (element, index) {
+                    solicitud_servicio[t] = element.mer_idservicio;
+                    t++;
+                });
+                console.log(solicitud_servicio);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('No trajo solicitudes de servicio');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        },
+    });
+}
+
+function abrir_orden_carga(manifi, orden) {
+    // URL de la página que deseas abrir en la nueva ventana
+    var url = $('#base_url').val() + `tiempo_logistico_cargue/crear_cargue/?manifiesto=${manifi}&orden_cargue=${orden}`;
+    // Opciones de la ventana emergente (ancho, alto, opciones adicionales)
+    var ventanaAncho = 1000;
+    var ventanaAlto = 700;
+    // Calcula las coordenadas para centrar la ventana
+    var ventanaIzquierda = (window.innerWidth - ventanaAncho) / 2;
+    var ventanaArriba = (window.innerHeight - ventanaAlto) / 2;
+    // Opciones de la ventana emergente (ancho, alto, posición)
+    var opcionesVentana = 'width=' + ventanaAncho + ',height=' + ventanaAlto + ',left=' + ventanaIzquierda + ',top=' + ventanaArriba + ',scrollbars=yes';
+    // Utiliza window.open para abrir la nueva ventana
+    window.open(url, name, opcionesVentana);
+}
+
+function abrir_remesa(manifi, remesa) {
+    /* Validar si la orden de cargue ya esta diligenciada */
+
+    $.post(
+        $('#base_url').val() + 'tiempo_logistico_cargue/validar_order_cargue',
+        'manifiesto=' + manifi,
+        function (data) {
+            if (data) {
+                // URL de la página que deseas abrir en la nueva ventana
+                var url = $('#base_url').val() + `tiempo_logistico_descargue/crear_descargue/?manifiesto=${manifi}&remesa=${remesa}`;
+                // Opciones de la ventana emergente (ancho, alto, opciones adicionales)
+                var ventanaAncho = 1000;
+                var ventanaAlto = 700;
+                // Calcula las coordenadas para centrar la ventana
+                var ventanaIzquierda = (window.innerWidth - ventanaAncho) / 2;
+                var ventanaArriba = (window.innerHeight - ventanaAlto) / 2;
+                // Opciones de la ventana emergente (ancho, alto, posición)
+                var opcionesVentana = 'width=' + ventanaAncho + ',height=' + ventanaAlto + ',left=' + ventanaIzquierda + ',top=' + ventanaArriba + ',scrollbars=yes';
+                // Utiliza window.open para abrir la nueva ventana
+                window.open(url, name, opcionesVentana);
+            } else {
+                var mensaje = 'Para llenar los <b>tiempos de descargue</b> debe llenar los <b>tiempos de cargue</b> del manifiesto ' + manifi;
+                Swal.fire({
+                    // position: 'top-end',
+                    position: 'center',
+                    icon: 'warning',
+                    title: 'Advertencia',
+                    html: mensaje,
+                    showConfirmButton: true,
+                    // timer: 1500,
+                    customClass: {
+                        popup: 'swal2-custom-font',
+                    },
+                });
+            }
+        },
+        'json',
+    );
+
+    // var url = $('#base_url').val() + `tiempo_logistico_descargue/validar_order_cargue`;
+    // let data = new FormData();
+    // data.append('manifiesto', manifi);
+    // $.ajax({
+    //   url: url,
+    //   type: 'POST',
+    //   data: data,
+    //   cache: false,
+    //   processData: false, // Don't process the files
+    //   contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+    //   dataType: 'json',
+    //   success: function(data, textStatus, jqXHR) {
+
+    //   },
+    //   error: function(jqXHR, textStatus, errorThrown) {
+    //     var mensaje = 'Para llenar los tiempos de descargue de';
+    //     Swal.fire({
+    //       // position: 'top-end',
+    //       position: 'center',
+    //       icon: 'warning',
+    //       title: 'Advertencia',
+    //       text: mensaje,
+    //       showConfirmButton: true,
+    //       // timer: 1500,
+    //     });
+    //   },
+    // });
+}
+
+//INSERT
+function validar_proceso(manifi) {
+    //VALIDAR EL SEGUIMIENTO
+    // var a = $("#ini").val(); //cod_iniruta
+    var a = codini; //cod_iniruta
+    // var estad = $("#actu").val(); //estado actual
+    var segui = 'punto geografico'; //tipo seguimiento
+    var deta = $('#accion_id').val(); //detalle
+    var proce = $('#proceso').val(); //proceso
+    if (segui !== 'novedad general') {
+        var fun = {
+            cod_iniruta: a,
+            // estado: estad,
+            segui: segui,
+            detalle: deta,
+            proce: proce,
+            // action: 'validar_tipoproceso',
+        };
+        $.ajax({
+            url: $('#base_url').val() + 'trafico/validar_tipoproceso',
+            type: 'POST',
+            data: fun,
+            dataType: 'json',
+            success: function (data) {
+                if (data.length > 0) {
+                    data.forEach(function (element, index) {
+                        if (element.tipo_proceso == 'completado') {
+                            alert('Este seguimiento ya tiene un estado de completado, no puede realizar más seguimientos sobre el mismo');
+                        } else {
+                            Registrar_Gestion(manifi);
+                        }
+                    });
+                } else {
+                    Registrar_Gestion(manifi);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+            },
+        });
+    } else {
+        Registrar_Gestion(manifi);
+    }
+}
+
+async function Registrar_Gestion(manifi) {
+    try {
+        // Obtener los arrays de ordenes y remesas
+        const ordenCargueInputs = document.querySelectorAll('input.orden_cargue_id');
+        const remesaDescargueInputs = document.querySelectorAll('input.remesa_descargue_id');
+
+        const ordenCargueArray = Array.from(ordenCargueInputs).map(input => input.value);
+        const remesaDescargueArray = Array.from(remesaDescargueInputs).map(input => input.value);
+
+        // Crear FormData
+        const formData = new FormData();
+        formData.append('accion_completado', $('#procesoq').val());
+        formData.append('estado_siguiente', $('#estadoq').val());
+        formData.append('reporte_cliente', $('#reporte').val());
+        formData.append('observacion', $('#observa').val());
+        formData.append('nota_punto_controlador', $('#nota').val());
+        formData.append('solicitud_servicio_nuevo', solicitud_servicio);
+        formData.append('contacto', 'Llamada telefonica');
+        formData.append('tipo_seguimiento', 'punto geografico');
+        formData.append('tipo_detalle', $('#accion_id').val());
+        formData.append('novedad_general', $('#novedad').val());
+        formData.append('ocurrio', $('#ocurrio').val());
+        formData.append('latitud', $('#ubilatitud').val());
+        formData.append('longitud', $('#ubilongitud').val());
+        formData.append('documento_evidencia', '');
+        formData.append('id_ini_ruta', codini);
+        formData.append('idmanifiesto', mani);
+        formData.append('tipo_proceso', $('#proceso').val());
+        formData.append('edocu', '');
+        formData.append('codigo_punto', $('#codigo_punto').val());
+        formData.append('accion_punto', $('#accion').val());
+        formData.append('manifiesto', manifi);
+        // formData.append('manifiesto', manifiesti_codigo);
+
+        // Agregar los arreglos al formData
+        ordenCargueArray.forEach((val, i) => {
+            formData.append(`orden_cargue_id[${i}]`, val);
+        });
+        remesaDescargueArray.forEach((val, i) => {
+            formData.append(`remesa_descargue_id[${i}]`, val);
+        });
+
+        const response = await fetch($('#base_url').val() + 'trafico/crear_gestion', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success === true) {
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                html: data.message,
+                timer: 1000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: { popup: 'swal2-custom-font' },
+            }).then(() => {
+                location.reload(true);
+            });
+
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Advertencia',
+                html: data.message,
+                position: 'center',
+                showConfirmButton: true,
+                customClass: {
+                    popup: 'swal2-custom-font',
+                },
+            });
+        }
+    } catch (error) {
+        console.error('Error al guardar la gestión:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de conexión',
+            text: 'No se pudo guardar la gestión. Intenta de nuevo.',
+        });
+    }
+}
+
+function Registrar_Gestionestado() {
+    var data = null;
+    data = new FormData();
+    data.append('accion', 'crear_gestionestado');
+    var gestion = $('#select_gestion').val();
+    if (gestion == 1) {
+        data.append('id_ini_ruta', $('#ini').val());
+        data.append('estadoq', $('#estadoq').val());
+        data.append('procesoq', $('#procesoq').val());
+        data.append('noveq', $('#noveq').val());
+        data.append('reportecliente', $('#reportee').val());
+        data.append('gestion', 1);
+    }
+    $.ajax({
+        url: url2,
+        type: 'POST',
+        data: data,
+        cache: false,
+        processData: false, // Don't process the files
+        contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+        dataType: 'json',
+        success: function (data, textStatus, jqXHR) {
+            //location.reload();
+            $('.hcontenedor').empty();
+            var manifi = $('#man').val();
+            Tarjeta_Seguimiento(manifi); //bloques
+            $('#ver_gestion').modal('hide');
+            alert('Ok!!Datos Registrado Exitosamente!!');
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('no guardo seguimiento');
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        },
+    });
+}
+
+async function Tabla_SinFiltro() {
+    try {
+        const response = await fetch($('#base_url').val() + 'trafico/Datos_SinFiltro', {
+            method: 'POST',
+            cache: 'no-cache',
+        });
+        const data = await response.json();
+
+        if (!data || !data.data) {
+            alert('Error al traer los datos');
+            return;
+        }
+
+        let template = '';
+        let solicitudes = [];
+
+        data.data.forEach((item, i) => {
+            const c = i + 1;
+
+            template += `
+                <tr id="tiempos${c}">
+                    <td style="white-space: nowrap;" id="semaforo${c}">
+                        <!--<a href="#" class='text-decoration-none btn-gestion-manifiesto' data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" data-ManifiestoId='${item.id}'>${item.id}</a>-->
+                        <a href="#" onClick="Registra_Seguimiento(${item.id})">${item.id}</a>
+                    </td>
+                    <td style='width:auto; white-space: nowrap;' id="tiempo${c}"></td>
+                    <td style='width:auto; white-space: nowrap;'>${item.origen} - ${item.destino}</td>
+                    <td style='width:auto; white-space: nowrap;'>${item.placa}</td>
+                    <td style='width:auto; white-space: nowrap;'>${item.nombre_conductor} ${item.apellido1} ${item.apellido2}</td>
+                    <td style='width:auto; white-space: nowrap;'>${item.celular}</td>
+                    <td style='width:auto; white-space: nowrap;'>${item.nombre_cliente}</td>
+                    <td style='width:auto; white-space: nowrap;' id="ultimositio${c}"></td>
+                    <td style='width:auto; white-space: nowrap;' id="maxhorafecha${c}"></td>
+                    <td style='width:auto; white-space: nowrap;' id="ultimaousuario${c}"></td>
+                </tr>`;
+
+            if (item.cod_ini_ruta) {
+                solicitudes.push({ codini: item.cod_ini_ruta, id: c });
+            }
+        });
+
+        // Destruir el DataTable si existe antes de limpiar e insertar HTML nuevo
+        if ($.fn.DataTable.isDataTable('#tbl_Manifiestos_seguimiento')) {
+            $('#tbl_Manifiestos_seguimiento').DataTable().clear().destroy();
+        }
+
+        // Renderizar nuevo contenido
+        $('#tablero').html(template);
+
+        // Esperar a que el DOM se actualice completamente
+        setTimeout(async () => {
+            // Ejecutar actualizaciones por cada fila (datos asíncronos)
+            // await Promise.all(solicitudes.map(item => actualizarInfo(item.codini, item.id)));
+            await actualizarInfoLote(solicitudes);
+
+            // Verificar que la tabla exista
+            if (document.querySelector('#tbl_Manifiestos_seguimiento')) {
+                new DataTable('#tbl_Manifiestos_seguimiento', {
+                    paging: false,
+                    searching: true,
+                    ordering: true,
+                    order: [[1, 'desc']],
+                    info: false,
+                    responsive: true,
+                    pageLength: 100,
+                    dom: '<"row"<"col-sm-10 custom-search"f><"col-sm-2 text-right"B>>' + '<"row"<"col-sm-12"tr>>',
+                    buttons: [
+                        {
+                            extend: 'excelHtml5',
+                            text: '<i class="fa-regular fa-file-excel"></i> Exportar a Excel',
+                            className: 'btn btn-success input-sm',
+                            exportOptions: { columns: ':visible', modifier: { page: 'all' } },
+                        },
+                    ],
+                    language: {
+                        decimal: ',',
+                        thousands: '.',
+                        search: 'Buscar:',
+                        zeroRecords: 'No se encontraron resultados',
+                        info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+                        infoEmpty: 'Mostrando 0 a 0 de 0 registros',
+                        infoFiltered: '(filtrado de _MAX_ registros totales)',
+                        paginate: { first: 'Primero', last: 'Último', next: 'Siguiente', previous: 'Anterior' },
+                    },
+                });
+            }
+
+            // Funciones auxiliares luego de renderizar
+            await Contadores_manifiestos();
+            Tabla_llegada();
+        }, 50); // Esperar que el DOM pinte
+
+    } catch (error) {
+        console.error('Error en la solicitud:', error);
+    }
+}
+
+async function actualizarInfoLote(solicitudes) {
+    const codigos = solicitudes.map(s => s.codini); // Extrae todos los cod_ini_ruta
+
+    try {
+        const response = await fetch($('#base_url').val() + 'trafico/obtenerLoteSeguimiento', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(codigos),
+        });
+
+        const data = await response.json();
+
+        // Por cada cod_ini_ruta recibido, actualiza la fila correspondiente
+        data.forEach(item => {
+            // Busca el índice ID de la fila en solicitudes[]
+            const solicitud = solicitudes.find(s => s.codini === item.cod_ini_ruta);
+            if (!solicitud) return;
+
+            const id = solicitud.id;
+            const tiempo = parseFloat(item.tiempo);
+            const texto = isNaN(tiempo) ? 'N/A' : tiempo.toLocaleString();
+
+            // Determina color de semáforo
+            const color =
+                tiempo < 0 ? '#FFFFFF' :
+                    tiempo <= 30 ? '#FFFF6C' :
+                        tiempo <= 59 ? '#FF9E5E' :
+                            tiempo <= 89 ? '#FF8891' :
+                                '#DDBBFF';
+
+            $(`#semaforo${id}`).css({ 'background-color': color, 'color': '#000' });
+            $(`#tiempo${id}`).html(texto);
+
+            // Datos de última novedad
+            $(`#maxhorafecha${id}`).html(`${item.fecha ?? '-'} - ${item.hora ?? '-'}`);
+            $(`#ultimositio${id}`).html(item.Municipio ?? '-');
+            $(`#ultimaousuario${id}`).html(item.usuario ?? '-');
+        });
+
+    } catch (error) {
+        console.error("❌ Error en actualizarInfoLote:", error);
+    }
+}
+
+function Contadores_manifiestos() {
+    return new Promise((resolve, reject) => {
+        $.post(
+            $('#base_url').val() + 'trafico/Contadores_Manifiestos',
+            function (data) {
+                if (data) {
+                    $('#num_vehiculos_seguimiento').html(data.total_manifiestos_seguimiento);
+                    $('#num_vehiculos_totales').html(data.total_manifiestos_general);
+                    $('#num_manifiestos_llegada').html(data.total_manifiestos_llegada);
+                    resolve(data);
+                } else {
+                    reject('No data received');
+                }
+            },
+            'json',
+        ).fail((jqXHR, textStatus, errorThrown) => {
+            reject(errorThrown);
+        });
+    });
+}
+
+function Tabla_llegada() {
+    $.post(
+        $('#base_url').val() + 'trafico/Datos_llegada',
+        function (data) {
+            if (data) {
+                $('#tablero_llegada').html('');
+                var c = 0;
+                var template = '';
+                var tipo_manifiesto = '';
+                for (var m = 0; m < data.length; m++) {
+                    c++;
+                    codigo_inicio = data[m]['cod_ini_ruta'];
+                    if (data[m]['tipo_manifiesto'] == 1) {
+                        tipo_manifiesto = 'General';
+                    } else if (data[m]['tipo_manifiesto'] == 2) {
+                        tipo_manifiesto = 'Multiparada';
+                    } else if (data[m]['tipo_manifiesto'] == 3) {
+                        tipo_manifiesto = 'Viaje Vacío';
+                    } else if (data[m]['tipo_manifiesto'] == 4) {
+                        tipo_manifiesto = 'Varios viajes en el Dia';
+                    } else if (data[m]['tipo_manifiesto'] == 8) {
+                        tipo_manifiesto = 'Viaje de Ida y Regreso';
+                    }
+
+                    template += `
+                        <tr id="tiempos${c}">
+                            <td style="white-space: nowrap;width: auto;" id="semaforo${c}"><a href="#" onClick="Registra_Seguimiento(${data[m]['id']})">${data[m]['id']}</a></td>
+                            <td style="white-space: nowrap;width: auto;">${data[m]['origen']} - ${data[m]['destino']}</td>
+                            <td style="white-space: nowrap;width: auto;">${data[m]['mer_producto']}</td>
+                            <td style="white-space: nowrap;width: auto;" class="cell-detail">${data[m]['placa']}</td>
+                            <td style="white-space: nowrap;width: auto;" class="cell-detail">${data[m]['apellido1']} ${data[m]['apellido1']}</td>
+                            <td style="white-space: nowrap;width: auto;" class="cell-detail">${data[m]['celular']}</td>
+                            <td style="white-space: nowrap;width: auto;" class="cell-detail">${data[m]['nombre']}</td>
+                            <td style="white-space: nowrap;width: auto;" class="cell-detail">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                                    <button class="btn btn-primary btn-sm me-1 px-1 py-0 btn_finaliza_seguimiento" type="button" data-codini="${data[m]['cod_ini_ruta']}" data-manifiesto='${data[m]['id']}' onclick="Finalizar_Seguimiento(this)">
+                                        Llegada Vehiculo
+                                    </button>
+                                    <button class="btn btn-warning btn-sm me-1 px-1 py-0" type="button">Devolver Trafico</button>
+                                    <!--<button class="btn btn-secondary btn-sm me-1 px-1 py-0" type="button">Right</button>-->
+                                </div>
+                            </td>
+                        </tr>`;
+                    $('#tablero_llegada').html(template);
+
+                    // if (data[m]['cod_ini_ruta'] != null) {
+                    //     var codini = data[m]['cod_ini_ruta'];
+                    //     // Actualizar la tabla cada minuto (60000 ms)
+                    //     // semaforo(codini, c, data[m]['id']);
+                    //     // ultimanovedad(codini, c);
+                    //     // ultimahorafecha(codini, c);
+                    //     // setInterval(semaforo(codini, c), 60000);
+                    //     // traer_punto(codini);
+                    // }
+                }
+            }
+        },
+        'json',
+    );
+}
+
+// async function traer_punto(codini) {
+//     const dato = new FormData();
+//     dato.append('codini', codini);
+
+//     try {
+//         const response = await fetch($('#base_url').val() + 'control_ruta/punto', {
+//             method: 'POST',
+//             body: dato,
+//             cache: 'no-cache',
+//         });
+
+//         const data = await response.json();
+
+//         console.log("🚀 ~ traer_punto ~ data.cod_punto:", data.cod_punto)
+//         if (data && data.cod_punto) {
+//             document.querySelectorAll('.btn_finaliza_seguimiento').forEach(btn => {
+//                 btn.setAttribute('data-CodigoPunto', data.cod_punto);
+//             });
+//         }
+//     } catch (error) {
+//         console.error('Error en la solicitud traer_punto:', error);
+//         throw error;
+//     } finally {
+//         $('#loading-overlay-oet').css('display', 'none'); // Sin espacio al final del selector
+//     }
+// }
+
+async function Finalizar_Seguimiento(boton) {
+    const manifiesto = boton.getAttribute('data-manifiesto');
+    const codini = boton.getAttribute('data-codini');
+
+    // Esperar que se traiga el punto y se asigne al botón
+    await traer_punto(codini, boton);
+
+    const cod_punto = boton.getAttribute('data-CodigoPunto'); // Aquí ya debe estar asignado
+
+    const dato = new FormData();
+    dato.append('maniesto', manifiesto);
+    dato.append('cod_inicio', codini);
+    dato.append('cod_punto', cod_punto);
+
+    try {
+        const response = await fetch($('#base_url').val() + 'control_ruta/finalziar_Seguimiento', {
+            method: 'POST',
+            body: dato,
+            cache: 'no-cache',
+        });
+
+        const data = await response.json();
+
+        if (data.numero === 200) {
+            await Swal.fire({
+                icon: 'success',
+                title: '¡Finalizado!',
+                html: `<strong>Mensaje:</strong> ${data.mensaje}`,
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'swal2-custom-font',
+                },
+            });
+
+            $('#d-footer-primary').modal('toggle');
+            Tabla_llegada();
+
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                html: `<strong>Mensaje:</strong> Error al finalizar el Manifiesto.`,
+                showConfirmButton: true,
+                customClass: {
+                    popup: 'swal2-custom-font',
+                },
+            });
+        }
+    } catch (error) {
+        console.error('Error en la solicitud:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de conexión',
+            text: 'Ocurrió un problema al finalizar el manifiesto. Intenta de nuevo.',
+        });
+    } finally {
+        $('#loading-overlay-oet').css('display', 'none');
+    }
+}
+
+async function traer_punto(codini, boton) {
+    const dato = new FormData();
+    dato.append('codini', codini);
+
+    try {
+        const response = await fetch($('#base_url').val() + 'control_ruta/punto', {
+            method: 'POST',
+            body: dato,
+            cache: 'no-cache',
+        });
+
+        const data = await response.json();
+        if (data && data.cod_punto) {
+            boton.setAttribute('data-CodigoPunto', data.cod_punto);
+        }
+    } catch (error) {
+        console.error('Error en traer_punto:', error);
+    } finally {
+        $('#loading-overlay-oet').css('display', 'none');
+    }
+}
+
+// async function traer_punto(codini, boton) {
+//     const dato = new FormData();
+//     dato.append('codini', codini);
+
+//     try {
+//         const response = await fetch($('#base_url').val() + 'control_ruta/punto', {
+//             method: 'POST',
+//             body: dato,
+//             cache: 'no-cache',
+//         });
+
+//         const data = await response.json();
+//         if (data && data.cod_punto) {
+//             // Asigna solo al botón correspondiente
+//             boton.setAttribute('data-CodigoPunto', data.cod_punto);
+//             console.log(`🎯 Botón para codini ${codini} actualizado con cod_punto: ${data.cod_punto}`);
+//         }
+//     } catch (error) {
+//         console.error('Error en traer_punto:', error);
+//     } finally {
+//         $('#loading-overlay-oet').css('display', 'none');
+//     }
+// }

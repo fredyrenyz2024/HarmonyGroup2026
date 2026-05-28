@@ -30,7 +30,7 @@ switch ($_GET["action"]) {
 		$_msg_control .= "Entro en insertar_nacional\n";
 		$numero_importacion = time();
 
-		$arrayProyecto = array();
+		$arrayProyecto = [];
 		if (!isset($_POST["id_contrato"]) or $_POST["id_contrato"] != "otro") {
 			$arrayProyecto["id_contrato"] = $_POST["id_contrato"];
 		}
@@ -83,7 +83,7 @@ switch ($_GET["action"]) {
 			if ($arrayProyecto["id_tipo_carga"] == 1) {
 				if ($_POST["cant_contenedores"] > 0) {
 					for ($i = 1; $i <= $_POST["cant_contenedores"]; $i++) {
-						$arrayContenedores = array();
+						$arrayContenedores = [];
 						$arrayContenedores["id_proyecto"] = $id_proyecto;
 						$arrayContenedores["tipo_contenedor"] = $_POST["tipo_contenedor_" . $i];
 						$arrayContenedores["contenedor"] = $_POST["contenedor_" . $i];
@@ -224,105 +224,260 @@ switch ($_GET["action"]) {
 	// 	} while ($_flag_tramo);
 	// 	break;
 
+	// case 'insertar_internacional':
+	// 	$_msg_control .= "Entro en insertar_internacional\n";
+	// 	$numero_importacion = time();
+
+	// 	// Se guarda la información del proyecto
+	// 	$arrayProyecto = [];
+	// 	$arrayProyecto["importacion"] = trim($_POST["importacion"] ?? '');
+	// 	$arrayProyecto["numero_importacion"] = $numero_importacion;
+	// 	$arrayProyecto["tipo_operacion"] = $_POST["tipo_operacion"] ?? '';
+	// 	$arrayProyecto["id_cliente"] = (int) ($_POST["id_cliente"] ?? 0);
+	// 	$arrayProyecto["id_tipo_carga"] = (int) ($_POST["id_tipo_carga"] ?? 0);
+	// 	$arrayProyecto["descripcion"] = trim($_POST["descripcion_proyecto"] ?? '');
+	// 	$arrayProyecto["estado"] = 1;
+
+	// 	// Manejo de contenedores principales
+	// 	if ($arrayProyecto["id_tipo_carga"] == 1) {
+	// 		$arrayProyecto["tipo_contenedor"] = $_POST["tipo_contenedor_1"] ?? '';
+	// 		$arrayProyecto["contenedor"] = trim($_POST["contenedor_1"] ?? '');
+	// 		if (isset($_POST["devolucion_1"])) {
+	// 			$arrayProyecto["devolucion"] = (int) $_POST["devolucion_1"];
+	// 		}
+	// 	}
+
+	// 	// Búsqueda de origen mejorada
+	// 	$_flag_tramo = true;
+	// 	$i = 0;
+	// 	while ($_flag_tramo) {
+	// 		$i++;
+	// 		$tipo_tramo = $_POST["tipo_tramo_" . $i] ?? null;
+	// 		$rem_dest = $_POST["rem_dest_" . $i] ?? null;
+
+	// 		if ($tipo_tramo && $rem_dest) {
+	// 			if ($tipo_tramo === "Cargue") {
+	// 				$arrayProyecto["id_origen"] = (int) $rem_dest;
+	// 				$_flag_tramo = false;
+	// 			}
+	// 		} else {
+	// 			$_flag_tramo = false;
+	// 		}
+	// 	}
+
+	// 	// Guardar proyecto
+	// 	$id_proyecto = $Data->setRegistro("cmx_importacion_proyecto", $arrayProyecto);
+	// 	$return["arrayProyecto"] = $arrayProyecto;
+
+	// 	// Manejo de contenedores adicionales
+	// 	if ($arrayProyecto["id_tipo_carga"] == 1) {
+	// 		$cant_contenedores = (int) ($_POST["cant_contenedores"] ?? 0);
+	// 		if ($cant_contenedores > 0) {
+	// 			for ($i = 1; $i <= $cant_contenedores; $i++) {
+	// 				$arrayContenedores = [
+	// 					"id_proyecto" => $id_proyecto,
+	// 					"tipo_contenedor" => $_POST["tipo_contenedor_" . $i] ?? '',
+	// 					"contenedor" => trim($_POST["contenedor_" . $i] ?? ''),
+	// 					"devolucion" => isset($_POST["devolucion_" . $i]) ? (int) $_POST["devolucion_" . $i] : null
+	// 				];
+
+	// 				$Data->setRegistro("cmx_importacion_contenedores", $arrayContenedores);
+	// 				$return["arrayContenedores"][$i] = $arrayContenedores;
+	// 			}
+	// 		}
+	// 	}
+
+	// 	// Proyecto internacional
+	// 	$arrayIntrSolicitud = [
+	// 		"id_proyecto" => $id_proyecto,
+	// 		"tipo_transporte" => $_POST["tipo_transporte"] ?? '',
+	// 		"incoterm" => $_POST["incoterm"] ?? ''
+	// 	];
+
+	// 	// if (isset($_POST["valor_declarado"], $_POST["id_moneda"])) {
+	// 	// 	$valor = str_replace([',', '.'], ['', '.'], $_POST["valor_declarado"]);
+	// 	// 	$arrayIntrSolicitud["valor_declarado"] = (float) $valor;
+	// 	// 	$arrayIntrSolicitud["id_moneda"] = (int) $_POST["id_moneda"];
+	// 	// }
+
+	// 	if (isset($_POST["valor_declarado"], $_POST["id_moneda"])) {
+	// 		// Limpiar: eliminar puntos (miles), reemplazar coma (decimales)
+	// 		$valor = str_replace(['.', ','], ['', '.'], $_POST["valor_declarado"]);
+
+	// 		// Convertir a número flotante
+	// 		$arrayIntrSolicitud["valor_declarado"] = (float) $valor;
+	// 		$arrayIntrSolicitud["id_moneda"] = (int) $_POST["id_moneda"];
+	// 	}
+
+	// 	if (!empty($_POST["intr_comodin_facturacion"])) {
+	// 		$arrayIntrSolicitud["comodin_facturacion"] = trim($_POST["intr_comodin_facturacion"]);
+	// 	}
+
+	// 	$id_intr_proyecto = $Data->setRegistro("cmx_intr_solicitudes", $arrayIntrSolicitud);
+
+	// 	// Tramos internacionales
+	// 	$i = 0;
+	// 	while (true) {
+	// 		$i++;
+	// 		$tipo_tramo = $_POST["tipo_tramo_" . $i] ?? null;
+	// 		$rem_dest = $_POST["rem_dest_" . $i] ?? null;
+
+	// 		if (!$tipo_tramo || !$rem_dest)
+	// 			break;
+
+	// 		$arrayTramo = [
+	// 			"id_intr_proyecto" => $id_intr_proyecto,
+	// 			"id_remitente_destinatario" => (int) $rem_dest,
+	// 			"tipo_tramo" => $tipo_tramo
+	// 		];
+
+	// 		$Data->setRegistro("cmx_intr_tramos", $arrayTramo);
+	// 	}
+	// 	break;
+
 	case 'insertar_internacional':
 		$_msg_control .= "Entro en insertar_internacional\n";
 		$numero_importacion = time();
+		$return = []; // Asegurar que está inicializado
 
-		// Se guarda la información del proyecto
-		$arrayProyecto = [];
-		$arrayProyecto["importacion"] = trim($_POST["importacion"] ?? '');
-		$arrayProyecto["numero_importacion"] = $numero_importacion;
-		$arrayProyecto["tipo_operacion"] = $_POST["tipo_operacion"] ?? '';
-		$arrayProyecto["id_cliente"] = (int) ($_POST["id_cliente"] ?? 0);
-		$arrayProyecto["id_tipo_carga"] = (int) ($_POST["id_tipo_carga"] ?? 0);
-		$arrayProyecto["descripcion"] = trim($_POST["descripcion_proyecto"] ?? '');
-		$arrayProyecto["estado"] = 1;
-
-		// Manejo de contenedores principales
-		if ($arrayProyecto["id_tipo_carga"] == 1) {
-			$arrayProyecto["tipo_contenedor"] = $_POST["tipo_contenedor_1"] ?? '';
-			$arrayProyecto["contenedor"] = trim($_POST["contenedor_1"] ?? '');
-			if (isset($_POST["devolucion_1"])) {
-				$arrayProyecto["devolucion"] = (int) $_POST["devolucion_1"];
+		try {
+			// 1. Validación de datos básicos
+			if (empty($_POST["tipo_operacion"]) || empty($_POST["id_cliente"])) {
+				throw new Exception("Datos básicos del proyecto incompletos");
 			}
-		}
 
-		// Búsqueda de origen mejorada
-		$_flag_tramo = true;
-		$i = 0;
-		while ($_flag_tramo) {
-			$i++;
-			$tipo_tramo = $_POST["tipo_tramo_" . $i] ?? null;
-			$rem_dest = $_POST["rem_dest_" . $i] ?? null;
-
-			if ($tipo_tramo && $rem_dest) {
-				if ($tipo_tramo === "Cargue") {
-					$arrayProyecto["id_origen"] = (int) $rem_dest;
-					$_flag_tramo = false;
-				}
-			} else {
-				$_flag_tramo = false;
-			}
-		}
-
-		// Guardar proyecto
-		$id_proyecto = $Data->setRegistro("cmx_importacion_proyecto", $arrayProyecto);
-		$return["arrayProyecto"] = $arrayProyecto;
-
-		// Manejo de contenedores adicionales
-		if ($arrayProyecto["id_tipo_carga"] == 1) {
-			$cant_contenedores = (int) ($_POST["cant_contenedores"] ?? 0);
-			if ($cant_contenedores > 0) {
-				for ($i = 1; $i <= $cant_contenedores; $i++) {
-					$arrayContenedores = [
-						"id_proyecto" => $id_proyecto,
-						"tipo_contenedor" => $_POST["tipo_contenedor_" . $i] ?? '',
-						"contenedor" => trim($_POST["contenedor_" . $i] ?? ''),
-						"devolucion" => isset($_POST["devolucion_" . $i]) ? (int) $_POST["devolucion_" . $i] : null
-					];
-
-					$Data->setRegistro("cmx_importacion_contenedores", $arrayContenedores);
-					$return["arrayContenedores"][$i] = $arrayContenedores;
-				}
-			}
-		}
-
-		// Proyecto internacional
-		$arrayIntrSolicitud = [
-			"id_proyecto" => $id_proyecto,
-			"tipo_transporte" => $_POST["tipo_transporte"] ?? '',
-			"incoterm" => $_POST["incoterm"] ?? ''
-		];
-
-		if (isset($_POST["valor_declarado"], $_POST["id_moneda"])) {
-			$valor = str_replace([',', '.'], ['', '.'], $_POST["valor_declarado"]);
-			$arrayIntrSolicitud["valor_declarado"] = (float) $valor;
-			$arrayIntrSolicitud["id_moneda"] = (int) $_POST["id_moneda"];
-		}
-
-		if (!empty($_POST["intr_comodin_facturacion"])) {
-			$arrayIntrSolicitud["comodin_facturacion"] = trim($_POST["intr_comodin_facturacion"]);
-		}
-
-		$id_intr_proyecto = $Data->setRegistro("cmx_intr_solicitudes", $arrayIntrSolicitud);
-
-		// Tramos internacionales
-		$i = 0;
-		while (true) {
-			$i++;
-			$tipo_tramo = $_POST["tipo_tramo_" . $i] ?? null;
-			$rem_dest = $_POST["rem_dest_" . $i] ?? null;
-
-			if (!$tipo_tramo || !$rem_dest)
-				break;
-
-			$arrayTramo = [
-				"id_intr_proyecto" => $id_intr_proyecto,
-				"id_remitente_destinatario" => (int) $rem_dest,
-				"tipo_tramo" => $tipo_tramo
+			// 2. Se guarda la información del proyecto
+			$arrayProyecto = [
+				"importacion" => trim($_POST["importacion"] ?? ''),
+				"numero_importacion" => $numero_importacion,
+				"tipo_operacion" => $_POST["tipo_operacion"] ?? '',
+				"id_cliente" => (int) ($_POST["id_cliente"] ?? 0),
+				"id_tipo_carga" => (int) ($_POST["id_tipo_carga"] ?? 0),
+				"descripcion" => trim($_POST["descripcion_proyecto"] ?? ''),
+				"estado" => 1
 			];
 
-			$Data->setRegistro("cmx_intr_tramos", $arrayTramo);
+			// 3. Manejo de contenedores principales
+			if ($arrayProyecto["id_tipo_carga"] == 1) {
+				$arrayProyecto["tipo_contenedor"] = $_POST["tipo_contenedor_1"] ?? '';
+				$arrayProyecto["contenedor"] = trim($_POST["contenedor_1"] ?? '');
+				if (isset($_POST["devolucion_1"])) {
+					$arrayProyecto["devolucion"] = (int) $_POST["devolucion_1"];
+				}
+			}
+
+			// 4. Búsqueda de origen
+			$_flag_tramo = true;
+			$i = 0;
+			while ($_flag_tramo) {
+				$i++;
+				$tipo_tramo = $_POST["tipo_tramo_" . $i] ?? null;
+				$rem_dest = $_POST["rem_dest_" . $i] ?? null;
+
+				if ($tipo_tramo && $rem_dest) {
+					if ($tipo_tramo === "Cargue") {
+						$arrayProyecto["id_origen"] = (int) $rem_dest;
+						$_flag_tramo = false;
+					}
+				} else {
+					$_flag_tramo = false;
+				}
+			}
+
+			// 5. Guardar proyecto principal
+			$id_proyecto = $Data->setRegistro("cmx_importacion_proyecto", $arrayProyecto);
+			if (!$id_proyecto) {
+				throw new Exception("Error al crear el proyecto principal");
+			}
+			$return["arrayProyecto"] = $arrayProyecto;
+
+			// 6. Manejo de contenedores adicionales
+			if ($arrayProyecto["id_tipo_carga"] == 1) {
+				$cant_contenedores = (int) ($_POST["cant_contenedores"] ?? 0);
+				if ($cant_contenedores > 0) {
+					for ($i = 1; $i <= $cant_contenedores; $i++) {
+						$arrayContenedores = [
+							"id_proyecto" => $id_proyecto,
+							"tipo_contenedor" => $_POST["tipo_contenedor_" . $i] ?? '',
+							"contenedor" => trim($_POST["contenedor_" . $i] ?? ''),
+							"devolucion" => isset($_POST["devolucion_" . $i]) ? (in_array($_POST["devolucion_" . $i], ['1', 'on', 'true']) ? 1 : 0) : 0
+						];
+
+						if (!$Data->setRegistro("cmx_importacion_contenedores", $arrayContenedores)) {
+							$_msg_control .= "Error al insertar contenedor adicional $i\n";
+						}
+						$return["arrayContenedores"][$i] = $arrayContenedores;
+					}
+				}
+			}
+
+
+			// 7. Validación de datos para internacional
+			if (empty($_POST["tipo_transporte"]) || empty($_POST["incoterm"])) {
+				throw new Exception("Faltan datos obligatorios para internacional (tipo_transporte o incoterm)");
+			}
+
+			// 8. Proyecto internacional
+			$arrayIntrSolicitud = [
+				"id_proyecto" => $id_proyecto,
+				"tipo_transporte" => $_POST["tipo_transporte"],
+				"incoterm" => $_POST["incoterm"]
+			];
+
+			// 9. Manejo seguro del valor declarado
+			if (isset($_POST["valor_declarado"], $_POST["id_moneda"])) {
+				$valor = str_replace(['.', ','], ['', '.'], $_POST["valor_declarado"]);
+				if (!is_numeric($valor)) {
+					throw new Exception("El valor declarado no es un número válido");
+				}
+				$arrayIntrSolicitud["valor_declarado"] = (float) $valor;
+				$arrayIntrSolicitud["id_moneda"] = (int) $_POST["id_moneda"];
+			}
+
+			if (!empty($_POST["intr_comodin_facturacion"])) {
+				$arrayIntrSolicitud["comodin_facturacion"] = trim($_POST["intr_comodin_facturacion"]);
+			}
+
+			// 10. Insertar en cmx_intr_solicitudes con verificación
+			$id_intr_proyecto = $Data->setRegistro("cmx_intr_solicitudes", $arrayIntrSolicitud);
+			if (!$id_intr_proyecto) {
+				throw new Exception("No se pudo insertar el registro en cmx_intr_solicitudes");
+			}
+
+			// 11. Tramos internacionales
+			$i = 0;
+			$tramos_insertados = 0;
+			while (true) {
+				$i++;
+				$tipo_tramo = $_POST["tipo_tramo_" . $i] ?? null;
+				$rem_dest = $_POST["rem_dest_" . $i] ?? null;
+
+				if (!$tipo_tramo || !$rem_dest)
+					break;
+
+				$arrayTramo = [
+					"id_intr_proyecto" => $id_intr_proyecto,
+					"id_remitente_destinatario" => (int) $rem_dest,
+					"tipo_tramo" => $tipo_tramo
+				];
+
+				if ($Data->setRegistro("cmx_intr_tramos", $arrayTramo)) {
+					$tramos_insertados++;
+				}
+			}
+
+			if ($tramos_insertados == 0) {
+				$_msg_control .= "Advertencia: No se insertaron tramos internacionales\n";
+			}
+
+			$return["success"] = true;
+			$return["id_proyecto"] = $id_proyecto;
+			$return["id_intr_proyecto"] = $id_intr_proyecto;
+
+		} catch (Exception $e) {
+			$_msg_control .= "ERROR: " . $e->getMessage() . "\n";
+			$return["error"] = $e->getMessage();
+			$return["success"] = false;
 		}
 		break;
 

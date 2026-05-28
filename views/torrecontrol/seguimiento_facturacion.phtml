@@ -1,0 +1,78 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= $_SESSION['usuario']['proveedor_id'] ?>">
+<input type="hidden" name="cliente_id" id="cliente_id" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="container-fluid">
+   <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+      <div class="row">
+         <div class="col-12 mt-2 text-end">
+            <button id="btnDescargarSeleccionados" class="btn btn-primary btn-sm d-none" onclick="exportarSeleccionadosExcel()">
+               Descargar Seleccionados
+            </button>
+
+            <?php if ($_SESSION["usuario"]["id_perfil"] == 42 || $_SESSION["usuario"]["id_perfil"] == 1): ?>
+               <button id="btnAprobarMasivo" class="btn btn-success btn-sm d-none">
+                  Aprobación Masiva
+               </button>
+            <?php endif; ?>
+         </div>
+
+         <div class="row mt-3" id="row_cargar_archivos">
+            <div class="col-md-4">
+               <label class="form-label fw-bold">Cargar archivo Excel con Órdenes</label>
+               <input type="file" id="input_excel_ordenes" class="form-control" accept=".xlsx,.xls,.csv">
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+               <button class="btn btn-primary w-100" onclick="procesarExcelOrdenes()">
+                  Cargar y Enviar Órdenes
+               </button>
+            </div>
+         </div>
+
+         <table class="text-end" cellpadding="0" cellspacing="0" border="0" style="width:100%;font-size: 13px;">
+            <thead>
+               <tr>
+                  <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="5">
+                     <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                  </td>
+               </tr>
+            </thead>
+         </table>
+         <div class="table-responsive scrollbar">
+            <table id='tbl-auditoria-factura' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
+               <thead>
+                  <tr>
+                     <?php if ($_SESSION["usuario"]["id_perfil"] == 1 || $_SESSION["usuario"]["id_perfil"] == 43 || $_SESSION["usuario"]["id_perfil"] == 42): ?>
+                        <th class='text-center' style='width: auto; white-space: nowrap;'>
+                           <input class="form-check-input" id="selectAll" type="checkbox" value="" style="scale: 1.2;">
+                        </th>
+                     <?php endif; ?>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Modalidad</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Pedido</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Estado Solicitud</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Estado Aprobacion</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha Solicitud</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha Asignación</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Proveedor</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Placa</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Nombre Conductor</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Cedula Conductor</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Valor total servicio</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Valor total servicio especial</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Numero Orden Compra</th>
+                     <th class='text-center' style='width: auto; white-space: nowrap;'>Numero Factura</th>
+                  </tr>
+               </thead>
+               <tbody id='tbl_seguimiendo_facturacion' class='text-center'>
+                  <tr>
+                     <td colspan="24" class="text-center" style="font-size:15px;font-weight:bold;">
+                        <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info" style="display: none;"> Esperando Información
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>

@@ -1,0 +1,42 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
+      <div class="mb-3">
+        <label class="control-label">(*) Tipo Servicio:</label>
+        <input type="text" id="tipo_servicio" class="form-control form-control-sm" name="tipo_servicio" oninput="this.value = capitalizeWords(this.value);">
+      </div>
+    </div>
+    <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
+      <div class="mb-3">
+        <label class="control-label">(*) Descripción Servicio:</label>
+        <textarea name="observacion_servicio" id="observacion_servicio" class="form-control form-control-sm" rows="1" oninput="this.value = capitalizeWords(this.value);"></textarea>
+      </div>
+    </div>
+    <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
+      <div class="mb-3">
+        <label class="control-label">(*) Estado Servicio:</label>
+        <select class="form-select form-select-sm" name="estado_servicio" id="slct_estado_servicio_">
+          <option value="" selected>Seleccione</option>
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="col-12 mb-2">
+      <div class="row g-3 justify-content-end">
+        <!-- <div class="col-auto">
+          <button class="btn btn-phoenix-primary btn-sm text-danger" type="button" id="btn-cancelar">
+            <span class="text-danger" data-feather="x"></span> Cancelar
+          </button>
+        </div> -->
+        <div class="col-auto">
+          <button class="btn btn-primary btn-sm" id="btn_guardar_servicio" type="button">
+            <!-- <button class="btn btn-primary btn-sm me-1 px-1 py-0" id="btn_guardar_proveedor" type="button"> -->
+            <span class="uil uil-save"></span> Guardar Servicio
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

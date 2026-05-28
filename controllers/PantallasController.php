@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-class PantallasController extends Controller
+class pantallasController extends Controller
 {
   private $_modelo;
   private $_modulos;
@@ -23,15 +23,41 @@ class PantallasController extends Controller
     $this->_view->titulo = 'Nueva Pantalla';
     $this->_view->renderizar('pantallas', 'pantalla'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
   }
+
   public function nueva_ventana()
   {
     $this->_view->titulo = 'Nueva Ventana';
     $this->_view->renderizar('ventanas', 'pantalla'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
   }
+
   public function nuevo_filtro()
   {
     $this->_view->titulo = 'Crear Filtro';
     $this->_view->renderizar('filtros', 'pantalla'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+  }
+
+  public function parametro_general()
+  {
+    $this->_view->titulo = 'Parametro general';
+    $this->_view->renderizar('index', 'pantalla'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+  }
+
+  public function generales()
+  {
+    $this->_view->titulo = 'Nuevo Parametro';
+    $this->_view->renderizar_ventana('parametros_general', 'pantallas'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+  }
+
+  public function causales_de_aprobacion()
+  {
+    $this->_view->titulo = 'Nuevo Parametro';
+    $this->_view->renderizar_ventana('causales_aprobacion', 'pantallas'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
+  }
+
+  public function zonas()
+  {
+    $this->_view->titulo = 'Nuevo Parametro';
+    $this->_view->renderizar_ventana('zonas/zona', 'pantallas'); //index=nombre del archivo.phtml, prueba= la carpeta adentro de la views
   }
 
   public function Cargar_Datos()
@@ -39,6 +65,7 @@ class PantallasController extends Controller
     $this->_modulos = $this->_modelo->Listar_Datos_Parametros();
     echo json_encode($this->_modulos);
   }
+
   public function Cargar_pantallas()
   {
     $this->_pantallas = $this->_modelo->Listar_Pantallas_Trabajo();

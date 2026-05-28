@@ -1,1 +1,39 @@
-<h1>hola mundo</h1>
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= isset($_SESSION['usuario']['proveedor_id']) ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="container-fluid">
+  <!-- <div class="d-flex justify-content-center"></div> -->
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <div class='table-responsive p-1'>
+        <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
+          <thead class="p-1">
+            <tr>
+              <!-- <th></th> -->
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>#</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>TIPO DOCUMENTO</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>REGIMEN</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>PROVEEDOR</th>
+              <!-- <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>DOCUMENTO</th> -->
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CIUDAD</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>DIRECCION</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>TELEFONO</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CORREO</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CONTACNTO</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>NOMBRE CONTACNTO</th>
+              <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>ESTADO</th>
+              <!-- <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>CLIENTES</th> -->
+            </tr>
+          </thead>
+          <tbody id='tbl_proveedores_torre_control' class='text-center'>
+            <tr id="load_info" style="display: none;">
+              <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+                <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25"> Esperando Información
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

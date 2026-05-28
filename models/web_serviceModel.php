@@ -226,13 +226,12 @@ class web_serviceModel extends Model
 					FROM cmx_remesa re LEFT JOIN cmx_remesas_transmision rt ON re.id=rt.id_remesa WHERE re.fecha_creacion='" . $fecha . "'";
 				}
 			}
+
 			if ($filtro == 2) { //MANIFIESTO
 				if ($opcion == 3) { //busca por numero
-					$sql = "SELECT m.id AS id_documento, w.estado_envio_rndc AS estado, 
-						rta_ministerio, MAX(w.id) 
+					$sql = "SELECT m.id AS id_documento, w.estado_envio_rndc AS estado, rta_ministerio, MAX(w.id) 
 						FROM 	cmx_manifiesto m
-						LEFT JOIN 	web_service_rndc2 w	
-						ON  m.id=w.codigo_proceso AND w.tipo='Manifiesto'	
+						LEFT JOIN 	web_service_rndc2 w	 ON  m.id=w.codigo_proceso AND w.tipo='Manifiesto'	
 						WHERE m.id=" . $num_docu;
 				}
 				if ($opcion == 4) { //busca por fecha
@@ -244,6 +243,7 @@ class web_serviceModel extends Model
 						WHERE m.fecha_expedicion='" . $fecha . "'";
 				}
 			}
+			
 			if ($filtro == 3) { //CUMPLIDO
 				if ($opcion == 3) {
 					$sql = "SELECT cu.id AS id_documento, cu.manifiesto, 
@@ -271,7 +271,7 @@ class web_serviceModel extends Model
 					ws.estado_envio_rndc AS estado, 
 					ws.rta_ministerio, MAX(ws.id)  
 					FROM cmx_clientes cl
-					LEFT JOIN web_service_RNDC ws
+					LEFT JOIN web_service_rndc ws
 					ON cl.documento=ws.codigo_proceso
 					WHERE cl.documento=" . $num_docu;
 				}
@@ -284,7 +284,7 @@ class web_serviceModel extends Model
 					$sql = "SELECT rm.documento AS id_documento, ws.estado_envio_rndc AS estado, 
 					ws.rta_ministerio, MAX(ws.id)  
 					FROM cmx_remitente_destinatario rm
-					LEFT JOIN web_service_RNDC ws
+					LEFT JOIN web_service_rndc ws
 					ON rm.documento=ws.codigo_proceso
 					WHERE rm.documento=" . $num_docu;
 				}
@@ -295,7 +295,7 @@ class web_serviceModel extends Model
 					$sql = "SELECT pro.numero_documento AS id_documento, ws.estado_envio_rndc AS estado,
 					ws.rta_ministerio, MAX(ws.id) 
 					FROM cmx_proveedores pro
-					LEFT JOIN web_service_RNDC ws
+					LEFT JOIN web_service_rndc ws
 					ON pro.numero_documento=ws.codigo_proceso
 					WHERE pro.numero_documento=" . $num_docu;
 				}
@@ -306,7 +306,7 @@ class web_serviceModel extends Model
 					$sql = "	SELECT tra.placa AS id_documento, ws.estado_envio_rndc AS estado,
 					ws.rta_ministerio, MAX(ws.id)
 					FROM cmx_trailer tra
-					LEFT JOIN web_service_RNDC ws
+					LEFT JOIN web_service_rndc ws
 					ON tra.placa=ws.codigo_proceso
 					WHERE tra.placa='" . $num_docu . "'";
 				}
@@ -318,7 +318,7 @@ class web_serviceModel extends Model
 					ws.estado_envio_rndc AS estado,
 					ws.rta_ministerio, MAX(ws.id) 
 					FROM cmx_vehiculos ve
-					LEFT JOIN web_service_RNDC ws
+					LEFT JOIN web_service_rndc ws
 					ON ve.placa=ws.codigo_proceso
 					WHERE ve.placa='" . $num_docu . "'";
 				}
@@ -560,7 +560,7 @@ class web_serviceModel extends Model
 			$resultado = $this->_db2->conectar();
 			$factual = date('Y-m-d');
 			$horactual = date('H:i:s');
-			$resultado->prepare("insert into web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,accion)values(:id,:proceso,:tipologia,:estadoenvio,:estadodato,:cadena,:fecha,:hora,:usuario,:respuesta,:accion)
+			$resultado->prepare("insert into web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,accion)values(:id,:proceso,:tipologia,:estadoenvio,:estadodato,:cadena,:fecha,:hora,:usuario,:respuesta,:accion)
 						")->execute(
 				array(
 					':id' => null,
@@ -611,7 +611,7 @@ class web_serviceModel extends Model
 				$tipoa = '';
 			}
 
-			$resultado->prepare("insert into web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)
+			$resultado->prepare("insert into web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)
 			values(:id,:proceso,:tipo,:estado_envio,:estado,:cadena,:fecha,:hora,:user,:respuesta,:tipot,:accion)")->execute(
 				array(
 					':id' => null,
@@ -872,23 +872,41 @@ class web_serviceModel extends Model
 		}
 	}
 
+	// public function Consulta_Remesa_Trans($num_mani)
+	// {
+	// 	try {
+	// 		$sql = "SELECT mre.id_remesa FROM cmx_manifiesto ma
+	// 				INNER JOIN cmx_manifiesto_remesa mre ON ma.id=mre.id_manifiesto
+	// 				WHERE ma.id=" . $num_mani . " AND mre.estado=1";
+
+	// 		$resultado = $this->_db3->query($sql);
+	// 		$resultado->setFetchMode(PDO::FETCH_ASSOC);
+	// 		return $resultado->fetchall();
+	// 	} catch (Exception $e) {
+	// 		$error = $e->getMessage();
+	// 		$this->_db3->rollBack();
+	// 	}
+	// }
+
 	public function Consulta_Remesa_Trans($num_mani)
 	{
 		try {
 			$sql = "SELECT mre.id_remesa 
-					FROM 
-					cmx_manifiesto ma
-					INNER JOIN cmx_manifiesto_remesa mre
-					ON ma.id=mre.id_manifiesto
-					WHERE ma.id=" . $num_mani . "
-					AND mre.estado=1";
+                FROM cmx_manifiesto ma
+                INNER JOIN cmx_manifiesto_remesa mre ON ma.id = mre.id_manifiesto
+                WHERE ma.id = :num_mani AND mre.estado = 1";
 
-			$resultado = $this->_db3->query($sql);
-			$resultado->setFetchMode(PDO::FETCH_ASSOC);
-			return $resultado->fetchall();
+			$stmt = $this->_db3->prepare($sql);
+			$stmt->bindParam(':num_mani', $num_mani, PDO::PARAM_INT);
+			$stmt->execute();
+
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
 		} catch (Exception $e) {
-			$error = $e->getMessage();
-			$this->_db3->rollBack();
+			// rollback solo si había transacción activa
+			if ($this->_db3->inTransaction()) {
+				$this->_db3->rollBack();
+			}
+			throw new Exception("Error en Consulta_Remesa_Trans: " . $e->getMessage());
 		}
 	}
 
@@ -1134,54 +1152,61 @@ class web_serviceModel extends Model
 
 	//Datos del sicetac
 
-	public function Consultar_detalle_servicios($vehiculo_id)
+	public function Consultar_detalle_servicios($solicitud_Id)
 	{
 		$date = date('Y-m-d');
-		$sql = $this->_db3->prepare("SELECT 
-    r.id, 
-    r.cantidad_real_cargada,
-    d.tipo_servicio_mer, 
-    d.cantidad_empaque,
-    d.naturaleza, 
-    d.tipo_mercancia,
-    te.empaque, 
-    co.nombre_cliente,
-    rd.nombre AS nomdest, 
-    rd.documento AS docdest,
-    de.nombre AS nomrem, 
-    de.documento AS docrem, 
-    CONCAT(mnori.municipio, '-', mnori.depto) AS origen_rem, 
-    CONCAT(mn.municipio, '-', mn.depto) AS destino_rem, 
-    o.mer_volumen, 
-    d.itr,
-    mnori.rndc_codigo_ciudad AS codigo_origen,
-    mn.rndc_codigo_ciudad AS codigo_destino,
-    CASE 
-        WHEN d.tipo_carga = 'G' THEN 'GENERAL'
-        WHEN d.tipo_carga = 'V' THEN 'CONTENEDOR VACÍO'
-        WHEN d.tipo_carga = 'C' THEN 'CONTENEDOR CARGADO'
-        ELSE 'OTRO'
-    END AS tipo_carga_descripcion
-FROM 
-    cmx_remesa r
-    INNER JOIN cmx_remesa_ordencargue ro ON r.id = ro.id_remesa AND ro.estado = 1 AND r.fecha_creacion ='" . $date . "' AND r.estado_manifiesto = 'pendiente'
-    INNER JOIN cmx_orden_cargue o ON ro.id_orden_cargue = o.id
-    INNER JOIN cmx_solicitud_vehiculo2 se ON o.mer_idservicio = se.nundoc_solicitud
-    INNER JOIN cmx_ruta_puntosentrega m ON o.id_remitente = m.id
-    INNER JOIN cmx_remitente_destinatario rd ON m.cliente = rd.id
-    INNER JOIN cmx_municipios mnori ON rd.id_ciudad = mnori.id
-    INNER JOIN cmx_destinatarios_ss desti ON se.nundoc_solicitud = desti.solicitud_servicio AND m.id_punto = desti.id_punto
-    INNER JOIN cmx_remitente_destinatario de ON desti.cliente = de.id
-    INNER JOIN cmx_municipios mn ON desti.municipio_entrega = mn.id
-    INNER JOIN cmx_detalle_mercancia2 d ON se.idpareja_origen_destino = d.id
-    INNER JOIN cmx_para_tipo_empaque te ON te.id = d.tipo_empaque
-    INNER JOIN cmx_cotizaciones_serviciocliente co ON d.n_cotizacion = co.n_cotizacion
-WHERE 
-    o.ve_idcarro IN (:vehiculo) 
-GROUP BY 
-    r.id");
+		$sql = $this->_db3->prepare("SELECT tp.empaque,tm.nombre,dm.tipo_carga,tv.nombre FROM cmx_solicitud_vehiculo2 ss
+			INNER JOIN cmx_cotizaciones_serviciocliente cs ON ss.n_cotizacion=cs.n_cotizacion
+			INNER JOIN cmx_detalle_mercancia2 dm ON ss.n_cotizacion=dm.n_cotizacion
+			INNER JOIN cmx_para_tipo_empaque tp ON dm.tipo_empaque=tp.id
+			INNER JOIN cmx_para_tipo_mercancia tm ON dm.id_mercancia=tm.id
+			INNER JOIN cmx_para_tipo_vehiculo tv ON dm.tipo_vehiculo=tv.id
+			WHERE ss.nundoc_solicitud=:Solicitud");
+		// 		$sql = $this->_db3->prepare("SELECT 
+		//     r.id, 
+		//     r.cantidad_real_cargada,
+		//     d.tipo_servicio_mer, 
+		//     d.cantidad_empaque,
+		//     d.naturaleza, 
+		//     d.tipo_mercancia,
+		//     te.empaque, 
+		//     co.nombre_cliente,
+		//     rd.nombre AS nomdest, 
+		//     rd.documento AS docdest,
+		//     de.nombre AS nomrem, 
+		//     de.documento AS docrem, 
+		//     CONCAT(mnori.municipio, '-', mnori.depto) AS origen_rem, 
+		//     CONCAT(mn.municipio, '-', mn.depto) AS destino_rem, 
+		//     o.mer_volumen, 
+		//     d.itr,
+		//     mnori.rndc_codigo_ciudad AS codigo_origen,
+		//     mn.rndc_codigo_ciudad AS codigo_destino,
+		//     CASE 
+		//         WHEN d.tipo_carga = 'G' THEN 'GENERAL'
+		//         WHEN d.tipo_carga = 'V' THEN 'CONTENEDOR VACÍO'
+		//         WHEN d.tipo_carga = 'C' THEN 'CONTENEDOR CARGADO'
+		//         ELSE 'OTRO'
+		//     END AS tipo_carga_descripcion
+		// FROM 
+		//     cmx_remesa r
+		//     INNER JOIN cmx_remesa_ordencargue ro ON r.id = ro.id_remesa AND ro.estado = 1 AND r.fecha_creacion ='" . $date . "' AND r.estado_manifiesto = 'pendiente'
+		//     INNER JOIN cmx_orden_cargue o ON ro.id_orden_cargue = o.id
+		//     INNER JOIN cmx_solicitud_vehiculo2 se ON o.mer_idservicio = se.nundoc_solicitud
+		//     INNER JOIN cmx_ruta_puntosentrega m ON o.id_remitente = m.id
+		//     INNER JOIN cmx_remitente_destinatario rd ON m.cliente = rd.id
+		//     INNER JOIN cmx_municipios mnori ON rd.id_ciudad = mnori.id
+		//     INNER JOIN cmx_destinatarios_ss desti ON se.nundoc_solicitud = desti.solicitud_servicio AND m.id_punto = desti.id_punto
+		//     INNER JOIN cmx_remitente_destinatario de ON desti.cliente = de.id
+		//     INNER JOIN cmx_municipios mn ON desti.municipio_entrega = mn.id
+		//     INNER JOIN cmx_detalle_mercancia2 d ON se.idpareja_origen_destino = d.id
+		//     INNER JOIN cmx_para_tipo_empaque te ON te.id = d.tipo_empaque
+		//     INNER JOIN cmx_cotizaciones_serviciocliente co ON d.n_cotizacion = co.n_cotizacion
+		// WHERE 
+		//     o.ve_idcarro IN (:vehiculo) 
+		// GROUP BY 
+		//     r.id");
 		// $sql->bindParam(':fecha', $date, PDO::PARAM_STR);
-		$sql->execute(array(':vehiculo' => $vehiculo_id));
+		$sql->execute([':Solicitud' => $solicitud_Id]);
 		return $sql->fetchAll(PDO::FETCH_ASSOC);
 	}
 }

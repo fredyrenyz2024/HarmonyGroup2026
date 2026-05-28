@@ -1,0 +1,32 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-12 mt-4">
+            <h5 class="fw-bold text-danger mb-3">Manifiestos en Seguimiento con Documentos Pendientes</h5>
+
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm' style="font-size:11px;" id="tabla-documentos-pendientes">
+                    <thead class="table-danger">
+                        <tr>
+                            <th style="width: 10%;">Manifiesto</th>
+                            <th style="width: 10%;">Placa</th>
+                            <th style="width: 25%;">Tenedor / Conductor</th>
+                            <th style="width: 55%;">Documentación Pendiente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-docs-pendientes">
+                        <tr>
+                            <td colspan="4">Cargando datos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

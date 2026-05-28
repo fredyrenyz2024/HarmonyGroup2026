@@ -1,0 +1,258 @@
+    <div class="d-flex flex-column h-100" style="overflow-y: auto;overflow-x:hidden;">
+        <div class="card-header p-3 p-md-4 d-flex flex-between-center" style='padding:5px 5px 5px 5px !important;'>
+            <h6> <i class="fas fa-list-ul"></i> Detalles del Prefiltro</h6>
+            <div class="d-flex">
+                <button class="btn btn-icon btn-phoenix-primary" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent" id="btn-acciones-prefiltro" style="display: none;"><span class="fa-solid fa-ellipsis-vertical"></span></button>
+                <ul class="dropdown-menu dropdown-menu-end p-0">
+                    <li>
+                        <a class="dropdown-item fw-bold" href="#!" id="iniciacion_preestudio">
+                            <span class="far fa-play-circle text-success"></span> Iniciar Prefiltro
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-body p-3 p-sm-4 scrollbar chat-content-body-0 " style='padding:5px 5px 5px 5px !important; overflow-y: auto;overflow-x:hidden;'>
+            <table class='table table-bordered table-sm' style=" font-size:12px;">
+                <tbody>
+                    <tr>
+                        <th colspan="4" class="text-center" style="width: 150px; font-weight: bold; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Cliente</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4" id="vcliente" class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="width: 150px; font-weight: bold; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Solicitud</th>
+                        <td id="vid" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <th scope="row" style="width: 150px; font-weight: bold; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Fecha</th>
+                        <td id="vfecha" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="width: 150px; font-weight: bold; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Placa</th>
+                        <td id="vplaca" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <th scope="row" style="width: 150px; font-weight: bold; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Hora</th>
+                        <td id="vhora" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="width: 150px; font-weight: bold; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Consecutivo</th>
+                        <td id="vconse" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <th scope="row" style="width: 150px; font-weight: bold; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Usuario</th>
+                        <td id="vuser" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class='table table-bordered table-sm text-center' style=" font-size:12px;">
+                <tbody>
+                    <tr>
+                        <td class="text-center" colspan='3'>
+                            <b>Datos del Vehículo</b>
+                        </td>
+                    </tr>
+                    <tr class="text-center active">
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Propietario</th>
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Estado</th>
+                    </tr>
+                    <tr>
+                        <td id="vpropi" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <td id="vpdocumento" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <td id="estado_tercero_propietario" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                    </tr>
+                    <tr>
+                    </tr>
+                    <tr class="text-center active">
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Poseedor</th>
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Estado</th>
+                    </tr>
+                    <tr>
+                        <td id="vtene" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <td id="vtdocumento" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <td id="estado_tercero_poseedor" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                    </tr>
+                    <tr>
+                    </tr>
+                    <tr class="text-center active">
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Conductor</th>
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Estado</th>
+                    </tr>
+                    <tr>
+                        <td id="vcondu" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <td id="vcdocumento" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <td id="estado_tercero_conductor" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+                    </tr>
+                    <tr>
+                    <tr class="text-center active">
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Propietario Trailer</th>
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento Propietarioi Trailer</th>
+                        <th style="color: #332D2D;width: 150px; font-weight: bold;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Estado</th>
+                    </tr>
+                    <td id="ptcondu" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                    <td id="ptcdocumento" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+                    <td id="estado_tercero_pro_trailer" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="table table-bordered table-sm text-center table-striped" style='font-size:12px;'>
+                <tbody>
+                    <tr class="text-center active">
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Web</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Usuario</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Clave</th>
+                    </tr>
+                    <tr>
+                        <td id="vweb" class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <td id="vwuser" class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                        <td id="vwclave" class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- REFERENCIAS-->
+            <table class="table table-bordered table-sm text-center table-striped" style='font-size:12px;'>
+                <thead>
+                    <tr>
+                        <td class="text-center" colspan='6'>
+                            <b>Referencias</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Empresa</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Ingreso</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Retiro</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Contacto</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Celular</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Cargo</th>
+                    </tr>
+                </thead>
+                <tbody id="consulta_referencia"></tbody>
+            </table>
+
+            <!--SOLICITUDES SERVICIO-->
+            <table class="table table-bordered table-sm text-center table-striped" style='font-size:12px;'>
+                <thead>
+                    <tr>
+                        <td class="text-center" colspan='6'>
+                            <b>Solicitudes de servicio al cliente</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">SS</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Cliente</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Ruta</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Peso / Tipo Vehículo</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Usuario</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Fecha-Hora</th>
+                    </tr>
+                </thead>
+                <tbody id="consulta_tbservicio"></tbody>
+            </table>
+
+            <!-- Observaciones de sevicio al cliente -->
+            <div class='row' style="margin-top: 5px;">
+                <div class="col-md-6">
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+                        <tbody>
+                            <tr>
+                                <td class="celda_titulo2 text-center">
+                                    Observaciones Servicio al cliente
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <textarea id="observacion_servicio_cliente" rows="1" style="width: 100%;font-size: 10px;" disabled></textarea>
+                </div>
+                <div class="col-md-6">
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+                        <tbody>
+                            <tr>
+                                <td class="celda_titulo2 text-center">
+                                    Observaciones Operaciones
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <textarea id="observacion_operaciones" rows="1" style="width: 100%;font-size: 10px;" disabled></textarea>
+                </div>
+            </div>
+
+            <table class="table table-bordered table-sm text-center table-striped" style='font-size:12px;'>
+                <thead>
+                    <tr>
+                        <td colspan='5' class="text-center">
+                            <b>Datos del contenedor en la solictud de servicio</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Numero</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Tipo Contenedor</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Fecha Vencimiento</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Ciudad Devolución</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Direccion</th>
+                    </tr>
+                </thead>
+                <tbody id="datos_contenedor"></tbody>
+            </table>
+
+            <!-- RESPUESTAS DE SEGURIDAD PARA CREAR LAS HOJAS DE VIDA DE LOS RECURSOS -->
+            <table class="table table-bordered table-sm text-center table-striped" style='font-size:12px;'>
+                <thead>
+                    <tr>
+                        <th style="width: auto; white-space: nowrap;">Estado</th>
+                        <th style="width: auto; white-space: nowrap;">Observación</th>
+                        <th style="width: auto; white-space: nowrap;">Usuario</th>
+                        <th style="width: auto; white-space: nowrap;">Fecha / Hora</th>
+                    </tr>
+                </thead>
+                <tbody id="respuestas_seguridad"></tbody>
+            </table>
+
+            <!--DOCUMENTOS-->
+            <table class="table table-bordered table-sm text-center table-striped" style='font-size:12px;'>
+                <thead>
+                    <tr>
+                        <td class="text-center" colspan='5'>
+                            <b>Documentos</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Tipo hoja</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Clase</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Documento/Img</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Usuario</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap; ">Fecha - Hora</th>
+                    </tr>
+                </thead>
+                <tbody id="consulta_documentos"> </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="select_estados">
+                    <label class="form-label" for="estado_seguridad">estado</label>
+                    <select id="estado_seguridad" class="form-select form-select-sm text-center">
+                        <option value="" selected>Seleccione</option>
+                        <option value="aprobado">Autorizado para registrar HV</option>
+                        <option value="rechazado">Rechazado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <label class="form-label" for="estado_seguridad">Proceso</label>
+                    <input type="text" class="form-control form-control-sm" id="procesoprefiltro" style="width: 100%;">
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="textarea_observacion">
+                    <label class="form-label" for="obse_estu">Causalidad</label>
+                    <textarea id="seguridad_observa" class="form-control form-control-sm"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="text-end my-1 py-0">
+            <button type="button" data-dismiss="modal" class="btn btn-danger btn-sm me-1 px-1 py-1 md-close" id=""><i class="fas fa-times"></i> Cancelar</button>
+            <button type="button" class="btn btn-primary btn-sm me-1 px-1 py-1" id="enviar_seguridad">
+                <i class="far fa-save"></i> Guardar estudio de seguridad
+            </button>
+        </div>
+    </div>

@@ -1,0 +1,2444 @@
+<div class="container-fluid py-3">
+
+    <style>
+        /* --- ESTILOS GENERALES --- */
+
+        /* body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        } */
+
+        /* --- ESTILOS DEL OFFCANVAS --- */
+        .offcanvas-center {
+            /* Centrado y flotante */
+            bottom: auto !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+
+            width: 90% !important;
+            /* Ajuste responsive */
+            max-width: 1000px;
+            height: 800px !important;
+            max-height: 95vh;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border: none;
+            overflow: hidden;
+            /* Para el border-radius */
+        }
+
+        .offcanvas-header-custom {
+            background-color: #f8fbff;
+            border-bottom: 1px solid #e3e8ef;
+            height: 70px;
+            /* Altura fija para el listón */
+            padding: 0;
+            /* Padding manejado internamente */
+            position: relative;
+        }
+
+        /* --- EL LISTÓN (RIBBON) --- */
+        .ribbon-box {
+            position: relative;
+            background-color: #1a73e8;
+            /* Azul Corporativo */
+            color: white;
+            width: 50px;
+            height: 70px;
+            /* Mismo alto que el header */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-left: 20px;
+            box-shadow: 0 4px 6px rgba(26, 115, 232, 0.2);
+        }
+
+        /* El recorte triangular inferior del listón */
+        .ribbon-box::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            border-left: 25px solid transparent;
+            /* Mitad del ancho */
+            border-right: 25px solid transparent;
+            border-bottom: 15px solid #f8fbff;
+            /* Color de fondo del header */
+        }
+
+        /* --- TEXTOS Y BADGES --- */
+        .text-primary-custom {
+            color: #1a73e8;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .badge-custom-light {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(26, 115, 232, 0.1);
+        }
+
+        .badge-custom-dark {
+            background-color: #5f6368;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- PRO TABS (TU SELECCIÓN CSS MEJORADA) --- */
+        .custom-tabs-container {
+            margin-top: 1.5rem;
+        }
+
+        .nav-tabs-custom {
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            /* Más espacio entre tabs */
+            padding-left: 10px;
+        }
+
+        .nav-tabs-custom .nav-link {
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 12px 10px;
+            position: relative;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tabs-custom .nav-link:hover {
+            color: #1a73e8;
+        }
+
+        .nav-tabs-custom .nav-link.active {
+            color: #1a73e8 !important;
+            background: transparent;
+        }
+
+        /* Indicador de pestaña activa (Línea inferior) */
+        .nav-tabs-custom .nav-link.active::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #1a73e8;
+            border-radius: 3px 3px 0 0;
+            box-shadow: 0 -2px 5px rgba(26, 115, 232, 0.1);
+        }
+
+        .custom-tab-content {
+            background-color: #ffffff;
+            /* Eliminamos bordes para un look más limpio */
+            padding-top: 20px;
+            min-height: 150px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+
+        /* --- FORMULARIOS --- */
+        .form-label-sm {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.25rem;
+        }
+
+        .req {
+            color: #dc3545;
+        }
+
+        .btn-save {
+            background-color: #1a73e8;
+            border-color: #1a73e8;
+            font-weight: 500;
+            padding: 8px 24px;
+        }
+
+        .btn-save:hover {
+            background-color: #1557b0;
+        }
+
+        /* Ajuste para que la fila de filtros no sea tan alta */
+        thead tr.filters th {
+            padding: 5px !important;
+            background-color: #f8f9fa !important;
+        }
+
+        thead tr.filters input {
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+    <!-- <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 fw-bold"><!-- Órdenes de Cargue </h5>
+        <button class="btn btn-outline-primary btn-sm me-0 px-2 py-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvaTarifasCostos" aria-controls="offcanvaTarifasCostos"><span class="fas fa-plus"></span> Agregar Tarifa Costo</button>
+    </div> -->
+
+    <!-- <div class="card shadow-sm mb-3">
+        <div class="card-body p-2">
+            <div class="row g-3 d-flex justify-content-end">
+                <div class="d-flex justify-content-end align-items-center mb-1">
+                    <!-- <h5 class="mb-0 fw-bold">Órdenes de Cargue</h5> --
+                    <button class="btn btn-primary btn-sm me-1 mb-" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvaTarifasCostos" aria-controls="offcanvaTarifasCostos"><span class="fas fa-plus"></span> Agregar Tarifa Costo</button>
+                </div>
+                <!-- <div class="col-md-3">
+                    <label class="form-label fw-bold">Empresa</label>
+                    <input type="number" id="f_empresa" class="form-control form-control-sm">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Cliente</label>
+                    <select id="f_cliente" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Origen</label>
+                    <select id="f_origen" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Destino</label>
+                    <select id="f_destino" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Vehículo</label>
+                    <select id="f_vehiculo" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off">
+                        <option value="" selected></option>
+                        <option value="2">Camión dos ejes - Sencillo PBV mas de 10500 Kg </option>
+                        <option value="2_7_8">Camion dos ejes - Sencillo PBV 7500-8000 Kg </option>
+                        <option value="2_8_9">Camion dos ejes - Sencillo PBV 8001-9000 Kg </option>
+                        <option value="2_9_105">Camion dos ejes - Sencillo PBV 9001-10500 Kg </option>
+                        <option value="2S2">Tractocamión dos ejes - Patineta - Minimula con semiremolque de dos ejes</option>
+                        <option value="2S3">Tractocamión dos ejes - Patineta - Minimula con semiremolque de tres ejes</option>
+                        <option value="3">Camión tres ejes - Dobletroque </option>
+                        <option value="3S2">Tractocamión tres ejes - Tractomula con semiremolque de dos ejes</option>
+                        <option value="3S3">Tractocamión tres ejes - Tractomula con semiremolque de tres ejes</option>
+                        <option value="V2">Volqueta dos ejes - Sencillo </option>
+                        <option value="V3">Volqueta tres ejes - Dobletroque </option>
+                        <option value="V4">Volqueta cuatro ejes - Cuatromanos </option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Estado</label>
+                    <select id="f_estado" class="form-select form-select-sm">
+                        <option value="">-- Todos --</option>
+                        <option value="ACTIVA">ACTIVA</option>
+                        <option value="INACTIVA">INACTIVA</option>
+                    </select>
+                </div> --
+
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Fecha desde</label>
+                    <input type="date" id="f_fecha_desde_costo" class="form-control form-control-sm" value="<?= date('Y-m-01') ?>">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Fecha hasta</label>
+                    <input type="date" id="f_fecha_hasta_costo" class="form-control form-control-sm" value="<?= date('Y-m-t') ?>">
+                </div>
+
+                <!-- <div class="col-md-2">
+                        <label class="form-label fw-bold">Semana desde</label>
+                        <input type="number" id="f_semana_desde" class="form-control form-control-sm">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Semana hasta</label>
+                        <input type="number" id="f_semana_hasta" class="form-control form-control-sm">
+                    </div> --
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-phoenix-primary btn-sm w-100" id="btn_filtrar_tarifas_costos_costos">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div> -->
+
+
+    <!-- =====================================================
+         ESTILOS DEL NUEVO PANEL DE FILTROS
+    ====================================================== -->
+    <style>
+        /* ── Variables ─────────────────────────────────────── */
+        :root {
+            --tc-navy: #0f1f3d;
+            --tc-navy-mid: #1a3260;
+            --tc-blue: #1a5ce5;
+            --tc-blue-soft: #dbeafe;
+            --tc-amber: #f59e0b;
+            --tc-amber-soft: #fef3c7;
+            --tc-green: #10b981;
+            --tc-green-soft: #d1fae5;
+            --tc-red: #ef4444;
+            --tc-red-soft: #fee2e2;
+            --tc-slate-50: #f8fafc;
+            --tc-slate-100: #f1f5f9;
+            --tc-slate-200: #e2e8f0;
+            --tc-slate-400: #94a3b8;
+            --tc-slate-600: #475569;
+            --tc-slate-800: #1e293b;
+            --tc-radius-sm: 6px;
+            --tc-radius-md: 10px;
+            --tc-radius-lg: 16px;
+            --tc-shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+            --tc-shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 2px 4px rgba(0, 0, 0, .06);
+        }
+
+        /* ── Page Header ──────────────────────────────────── */
+        .tc-page-header {
+            background: linear-gradient(135deg, var(--tc-navy) 0%, var(--tc-navy-mid) 100%);
+            border-radius: var(--tc-radius-lg);
+            padding: 20px 28px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--tc-shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tc-page-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .tc-page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            right: 120px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(26, 92, 229, .15);
+        }
+
+        .tc-ph-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(16, 185, 129, .15);
+            border: 2px solid rgba(16, 185, 129, .35);
+            border-radius: var(--tc-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #34d399;
+            flex-shrink: 0;
+        }
+
+        .tc-ph-title {
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -.3px;
+            margin: 0;
+        }
+
+        .tc-ph-sub {
+            color: rgba(255, 255, 255, .55);
+            font-size: .78rem;
+            margin-top: 2px;
+        }
+
+        /* ── KPI Grid ─────────────────────────────────────── */
+        .tc-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .tc-kpi-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .tc-kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .tc-kpi-card {
+            background: #fff;
+            border-radius: var(--tc-radius-md);
+            padding: 14px 16px;
+            box-shadow: var(--tc-shadow-sm);
+            border: 1px solid var(--tc-slate-200);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: box-shadow .2s, transform .2s, border-color .2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tc-kpi-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: var(--tc-radius-sm) 0 0 var(--tc-radius-sm);
+        }
+
+        .tc-kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--tc-shadow-md);
+        }
+
+        .tc-kpi-card.active {
+            box-shadow: var(--tc-shadow-md);
+        }
+
+        .tc-kpi-card.c-green::before {
+            background: var(--tc-green);
+        }
+
+        .tc-kpi-card.c-amber::before {
+            background: var(--tc-amber);
+        }
+
+        .tc-kpi-card.c-red::before {
+            background: var(--tc-red);
+        }
+
+        .tc-kpi-card.c-blue::before {
+            background: var(--tc-blue);
+        }
+
+        .tc-kpi-card.c-slate::before {
+            background: var(--tc-slate-400);
+        }
+
+        .tc-kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--tc-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .tc-kpi-card.c-green .tc-kpi-icon {
+            background: var(--tc-green-soft);
+            color: var(--tc-green);
+        }
+
+        .tc-kpi-card.c-amber .tc-kpi-icon {
+            background: var(--tc-amber-soft);
+            color: #d97706;
+        }
+
+        .tc-kpi-card.c-red .tc-kpi-icon {
+            background: var(--tc-red-soft);
+            color: var(--tc-red);
+        }
+
+        .tc-kpi-card.c-blue .tc-kpi-icon {
+            background: var(--tc-blue-soft);
+            color: var(--tc-blue);
+        }
+
+        .tc-kpi-card.c-slate .tc-kpi-icon {
+            background: var(--tc-slate-100);
+            color: var(--tc-slate-600);
+        }
+
+        .tc-kpi-num {
+            font-size: 1.55rem;
+            font-weight: 700;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .tc-kpi-card.c-green .tc-kpi-num {
+            color: var(--tc-green);
+        }
+
+        .tc-kpi-card.c-amber .tc-kpi-num {
+            color: #d97706;
+        }
+
+        .tc-kpi-card.c-red .tc-kpi-num {
+            color: var(--tc-red);
+        }
+
+        .tc-kpi-card.c-blue .tc-kpi-num {
+            color: var(--tc-blue);
+        }
+
+        .tc-kpi-card.c-slate .tc-kpi-num {
+            color: var(--tc-slate-600);
+        }
+
+        .tc-kpi-label {
+            font-size: .68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--tc-slate-400);
+            margin-top: 3px;
+        }
+
+        /* ── Filter Card ──────────────────────────────────── */
+        .tc-filter-card {
+            background: #fff;
+            border-radius: var(--tc-radius-lg);
+            box-shadow: var(--tc-shadow-sm);
+            border: 1px solid var(--tc-slate-200);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .tc-filter-header {
+            background: var(--tc-slate-50);
+            border-bottom: 1px solid var(--tc-slate-200);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tc-filter-header i {
+            color: var(--tc-blue);
+            font-size: .9rem;
+        }
+
+        .tc-filter-header .fc-title {
+            font-size: .78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--tc-slate-600);
+        }
+
+        .tc-filter-body {
+            padding: 18px 20px;
+        }
+
+        /* Labels y controles */
+        .tc-f-label {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--tc-slate-600);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .tc-f-control {
+            width: 100%;
+            height: 34px;
+            padding: 0 10px;
+            border: 1.5px solid var(--tc-slate-200);
+            border-radius: var(--tc-radius-sm);
+            font-size: .82rem;
+            color: var(--tc-slate-800);
+            background: #fff;
+            transition: border-color .15s, box-shadow .15s;
+            outline: none;
+        }
+
+        .tc-f-control:focus {
+            border-color: var(--tc-blue);
+            box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+        }
+
+        .tc-f-control::placeholder {
+            color: var(--tc-slate-400);
+        }
+
+        select.tc-f-control {
+            cursor: pointer;
+        }
+
+        /* Separador de sección */
+        .tc-divider {
+            height: 1px;
+            background: var(--tc-slate-200);
+            margin: 14px 0;
+            position: relative;
+        }
+
+        .tc-divider span {
+            position: absolute;
+            top: -9px;
+            left: 10px;
+            background: #fff;
+            padding: 0 8px;
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--tc-slate-400);
+        }
+
+        /* Botones */
+        .tc-btn-search {
+            height: 34px;
+            padding: 0 20px;
+            background: var(--tc-blue);
+            color: #fff;
+            border: none;
+            border-radius: var(--tc-radius-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background .15s, box-shadow .15s;
+            white-space: nowrap;
+        }
+
+        .tc-btn-search:hover {
+            background: #1449c4;
+            box-shadow: 0 2px 8px rgba(26, 92, 229, .3);
+        }
+
+        .tc-btn-clear {
+            height: 34px;
+            padding: 0 16px;
+            background: #fff;
+            color: var(--tc-slate-600);
+            border: 1.5px solid var(--tc-slate-200);
+            border-radius: var(--tc-radius-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .tc-btn-clear:hover {
+            border-color: var(--tc-slate-400);
+            color: var(--tc-slate-800);
+        }
+
+        .tc-btn-add {
+            height: 34px;
+            padding: 0 16px;
+            background: var(--tc-navy);
+            color: #fff;
+            border: none;
+            border-radius: var(--tc-radius-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background .15s;
+            white-space: nowrap;
+        }
+
+        .tc-btn-add:hover {
+            background: var(--tc-navy-mid, #1a3260);
+        }
+
+        .tc-btn-import {
+            height: 34px;
+            padding: 0 16px;
+            background: #fff;
+            color: var(--tc-green);
+            border: 1.5px solid var(--tc-green);
+            border-radius: var(--tc-radius-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .tc-btn-import:hover {
+            background: var(--tc-green-soft);
+        }
+
+        /* Toggle avanzado */
+        .tc-toggle-adv {
+            font-size: .76rem;
+            font-weight: 600;
+            color: var(--tc-blue);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+            background: none;
+            padding: 0;
+            transition: color .15s;
+        }
+
+        .tc-toggle-adv:hover {
+            color: #1449c4;
+        }
+
+        .tc-toggle-adv .ti-icon {
+            transition: transform .2s;
+        }
+
+        .tc-toggle-adv.open .ti-icon {
+            transform: rotate(180deg);
+        }
+
+        .tc-adv-filters {
+            display: none;
+        }
+
+        .tc-adv-filters.show {
+            display: block;
+            animation: tcFadeIn .2s ease;
+        }
+
+        @keyframes tcFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Chips */
+        .tc-active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--tc-blue-soft);
+            color: var(--tc-navy-mid, #1a3260);
+            font-size: .72rem;
+            font-weight: 600;
+            padding: 3px 10px 3px 8px;
+            border-radius: 20px;
+        }
+
+        .filter-chip button {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            cursor: pointer;
+            line-height: 1;
+            font-size: .8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ── Table Card ───────────────────────────────────── */
+        .tc-table-card {
+            background: #fff;
+            border-radius: var(--tc-radius-lg);
+            box-shadow: var(--tc-shadow-sm);
+            border: 1px solid var(--tc-slate-200);
+            overflow: hidden;
+        }
+
+        .tc-table-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--tc-slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tc-table-title {
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--tc-slate-600);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tc-table-title i {
+            color: var(--tc-blue);
+        }
+
+        .tc-table-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tc-search-wrap {
+            position: relative;
+        }
+
+        .tc-search-inline {
+            height: 32px;
+            padding: 0 10px 0 30px;
+            border: 1.5px solid var(--tc-slate-200);
+            border-radius: var(--tc-radius-sm);
+            font-size: .8rem;
+            outline: none;
+            transition: border-color .15s;
+            width: 200px;
+        }
+
+        .tc-search-inline:focus {
+            border-color: var(--tc-blue);
+        }
+
+        .tc-search-wrap i {
+            position: absolute;
+            left: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--tc-slate-400);
+            font-size: .78rem;
+            pointer-events: none;
+        }
+
+        .tc-btn-refresh {
+            width: 32px;
+            height: 32px;
+            border: 1.5px solid var(--tc-slate-200);
+            border-radius: var(--tc-radius-sm);
+            background: #fff;
+            color: var(--tc-slate-600);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .15s;
+        }
+
+        .tc-btn-refresh:hover {
+            border-color: var(--tc-blue);
+            color: var(--tc-blue);
+        }
+
+        /* Table */
+        #tarifas_costo_export thead th {
+            background: var(--tc-navy) !important;
+            color: rgba(255, 255, 255, .85) !important;
+            font-size: .7rem !important;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+    </style>
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+    <div class="tc-page-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="tc-ph-icon">
+                <i class="bi bi-truck-flatbed"></i>
+            </div>
+            <div>
+                <h1 class="tc-ph-title">Tarifas de Costo — Flete Nacional</h1>
+                <div class="tc-ph-sub">Gestión y consulta de fletes · Parámetros del sistema</div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2" style="z-index:1">
+            <button class="tc-btn-import" type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasImporteMasivoCostos">
+                <i class="bi bi-file-earmark-arrow-up"></i>
+                Importación masiva
+            </button>
+            <button class="tc-btn-add" type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvaTarifasCostos">
+                <i class="bi bi-plus-lg"></i>
+                Nueva tarifa costo
+            </button>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         KPI CARDS — Resumen vigencias
+    ====================================================== -->
+    <!-- <div class="tc-kpi-grid">
+
+        <div class="tc-kpi-card c-green resumen-card" data-filtro="vigente">
+            <div class="tc-kpi-icon"><i class="bi bi-shield-check"></i></div>
+            <div>
+                <div class="tc-kpi-num" id="total_vigentes_costos">0</div>
+                <div class="tc-kpi-label">Vigentes</div>
+            </div>
+        </div>
+
+        <div class="tc-kpi-card c-amber resumen-card" data-filtro="por_vencer">
+            <div class="tc-kpi-icon"><i class="bi bi-clock-history"></i></div>
+            <div>
+                <div class="tc-kpi-num" id="total_por_vencer_costos">0</div>
+                <div class="tc-kpi-label">Por vencer</div>
+            </div>
+        </div>
+
+        <div class="tc-kpi-card c-red resumen-card" data-filtro="vencida">
+            <div class="tc-kpi-icon"><i class="bi bi-x-circle"></i></div>
+            <div>
+                <div class="tc-kpi-num" id="total_vencidas_costos">0</div>
+                <div class="tc-kpi-label">Vencidas</div>
+            </div>
+        </div>
+
+        <div class="tc-kpi-card c-blue resumen-card" data-filtro="por_aprobar">
+            <div class="tc-kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div>
+                <div class="tc-kpi-num" id="total_por_aprobar_costos">0</div>
+                <div class="tc-kpi-label">Por aprobar</div>
+            </div>
+        </div>
+
+        <div class="tc-kpi-card c-slate resumen-card" data-filtro="inactiva">
+            <div class="tc-kpi-icon"><i class="bi bi-pause-circle"></i></div>
+            <div>
+                <div class="tc-kpi-num" id="total_inactivas_costos">0</div>
+                <div class="tc-kpi-label">Inactivas</div>
+            </div>
+        </div>
+
+    </div> -->
+
+    <!-- =====================================================
+         FILTROS DE CONSULTA
+    ====================================================== -->
+    <div class="tc-filter-card">
+
+        <div class="tc-filter-header">
+            <i class="bi bi-funnel-fill"></i>
+            <span class="fc-title">Filtros de consulta</span>
+        </div>
+
+        <div class="tc-filter-body">
+
+            <!-- FILA 1 — Filtros básicos -->
+            <div class="row g-3 align-items-end">
+
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <label class="tc-f-label" for="f_fecha_desde_costo">Fecha desde</label>
+                    <input type="date" id="f_fecha_desde_costo" class="tc-f-control" value="<?= date('Y-m-01') ?>">
+                </div>
+
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <label class="tc-f-label" for="f_fecha_hasta_costo">Fecha hasta</label>
+                    <input type="date" id="f_fecha_hasta_costo" class="tc-f-control" value="<?= date('Y-m-t') ?>">
+                </div>
+
+                <!-- <div class="col-sm-12 col-md-6 col-lg-3">
+                    <label class="tc-f-label" for="f_search_costo">Buscar (municipio)</label>
+                    <div class="position-relative">
+                        <i class="bi bi-search" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:.78rem;pointer-events:none;"></i>
+                        <input type="text" id="f_search_costo" class="tc-f-control" style="padding-left:28px;" placeholder="Escribe para filtrar...">
+                    </div>
+                </div> -->
+
+                <!-- <div class="col-sm-12 col-md-6 col-lg-3">
+                    <label class="f-label" for="f_municipio_costo">Buscar (municipio)</label>
+                    <div class="position-relative">
+                        <i class="bi bi-search" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--slate-400);font-size:.78rem;pointer-events:none;"></i>
+                        <select id="f_municipio_costo" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4 col-lg-2">
+                    <label class="tc-f-label" for="f_tipo_vehiculo_costo">Tipo vehículo</label>
+                    <select id="f_tipo_vehiculo_costo" class="tc-f-control">
+                        <option value="">Todos</option>
+                        <option value="NHR_2">NHR — Sencillo &gt;2500 Kg</option>
+                        <option value="2">Sencillo &gt;10500 Kg</option>
+                        <option value="2_7_8">Sencillo 7500-8000 Kg</option>
+                        <option value="2_8_9">Sencillo 8001-9000 Kg</option>
+                        <option value="2_9_105">Sencillo 9001-10500 Kg</option>
+                        <option value="2S2">Tractomula 2+2 ejes</option>
+                        <option value="2S3">Tractomula 2+3 ejes</option>
+                        <option value="3">Dobletroque 3 ejes</option>
+                        <option value="3S2">Tractomula 3+2 ejes</option>
+                        <option value="3S3">Tractomula 3+3 ejes</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <label class="tc-f-label" for="f_estado_costo">Estado</label>
+                    <select id="f_estado_costo" class="tc-f-control">
+                        <option value="">Todos</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div> -->
+
+                <!-- Acciones -->
+                <div class="col-sm-12 col-md-auto ms-md-auto">
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <!-- <button class="tc-toggle-adv" id="toggleAdvancedCosto" type="button"
+                            onclick="toggleFiltersCosto()">
+                            <i class="bi bi-sliders2 me-1"></i> Filtros avanzados
+                            <i class="bi bi-chevron-down ti-icon"></i>
+                        </button>
+                        <button class="tc-btn-clear" type="button" onclick="limpiarFiltrosCosto()">
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+                        </button> -->
+                        <button class="tc-btn-search" id="btn_filtrar_tarifas_costos" type="button">
+                            <i class="bi bi-search"></i> Consultar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FILTROS AVANZADOS (colapsables) -->
+            <div class="tc-adv-filters" id="advancedFiltersCosto">
+
+                <div class="tc-divider"><span>Filtros avanzados</span></div>
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="tc-f-label" for="f_origen_costo">Origen (municipio ID)</label>
+                        <!-- <input type="text" id="f_origen_costo" class="tc-f-control" placeholder="Ej: 11001"> -->
+                        <select id="f_origen_costo" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="tc-f-label" for="f_destino_costo">Destino (municipio ID)</label>
+                        <!-- <input type="text" id="f_destino_costo" class="tc-f-control" placeholder="Ej: 76001"> -->
+                        <select id="f_destino_costo" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="tc-f-label" for="f_semana_desde_costo">Semana desde</label>
+                        <input type="number" id="f_semana_desde_costo" class="tc-f-control" placeholder="1" min="1" max="53">
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="tc-f-label" for="f_semana_hasta_costo">Semana hasta</label>
+                        <input type="number" id="f_semana_hasta_costo" class="tc-f-control" placeholder="52" min="1" max="53">
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="tc-f-label" for="f_mes_desde_costo">Mes desde</label>
+                        <select id="f_mes_desde_costo" class="tc-f-control">
+                            <option value="">—</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="tc-f-label" for="f_mes_hasta_costo">Mes hasta</label>
+                        <select id="f_mes_hasta_costo" class="tc-f-control">
+                            <option value="">—</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-auto">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" id="f_pendientes_costo" class="form-check-input"
+                                style="width:16px;height:16px;cursor:pointer;border-color:#94a3b8;">
+                            <label class="tc-f-label mb-0" for="f_pendientes_costo" style="cursor:pointer;">
+                                Solo con aprobación pendiente
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Chips de filtros activos -->
+                <div class="tc-active-filters" id="activeFilterChipsCosto"></div>
+
+            </div>
+
+        </div><!-- /.tc-filter-body -->
+    </div><!-- /.tc-filter-card -->
+
+    <!-- =====================================================
+         TABLA DE RESULTADOS
+    ====================================================== -->
+    <div class="tc-table-card" id="tabla_datos_costos">
+
+        <div class="tc-table-header">
+            <div class="tc-table-title">
+                <i class="bi bi-table"></i>
+                Listado de tarifas costo
+            </div>
+            <div class="tc-table-actions">
+                <!-- <div class="tc-search-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="tc-search-inline" id="filtro_tabla_local_costo" placeholder="Filtrar tabla...">
+                </div>
+                <button class="tc-btn-refresh" id="btn_refrescar_costos" title="Refrescar"
+                    onclick="listar_Fletes_Costos ? listar_Fletes_Costos() : null">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button> -->
+                <!-- <a href="javascript:void(0);" id="exportar_excel_tarifa_costo"
+                    style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;
+                           font-size:.78rem;font-weight:600;color:#1a6b3a;
+                           border:1.5px solid #d1fae5;border-radius:6px;padding:4px 12px;
+                           background:#d1fae5;transition:all .15s;"
+                    onmouseover="this.style.background='#bbf7d0'"
+                    onmouseout="this.style.background='#d1fae5'">
+                    <i class="bi bi-file-earmark-excel" style="font-size:.9rem;"></i>
+                    Excel
+                </a> -->
+            </div>
+        </div>
+
+        <div class="table-responsive p-2">
+            <table id="tarifas_costo_export" class="table table-hover table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                <thead>
+                    <tr>
+                        <th style='width:auto; white-space: nowrap;'>#</th>
+                        <th style='width:auto; white-space: nowrap;'>Codigo</th>
+                        <th style='width:auto; white-space: nowrap;'>Origen</th>
+                        <th style='width:auto; white-space: nowrap;'>Destino</th>
+                        <th style='width:auto; white-space: nowrap;'>Zona Origen</th>
+                        <th style='width:auto; white-space: nowrap;'>Zona Destino</th>
+                        <th style='width:auto; white-space: nowrap;'>Tipo Vehículo</th>
+                        <th style='width:auto; white-space: nowrap;'>Vigencia</th>
+                        <th style='width:auto; white-space: nowrap;'>Mes</th>
+                        <th style='width:auto; white-space: nowrap;'>Semana</th>
+                        <th style='width:auto; white-space: nowrap;'>Flete</th>
+                        <th style='width:auto; white-space: nowrap;'>Flete SiceTac</th>
+                        <th style='width:auto; white-space: nowrap;'>Porcentaje Variación</th>
+                        <th style='width:auto; white-space: nowrap;'>Vigencia</th>
+                        <th style='width:auto; white-space: nowrap;'>Estado</th>
+                        <th style='width:auto; white-space: nowrap;'>Estado Aprobación</th>
+                        <th style='width:auto; white-space: nowrap;'>Fecha Registro</th>
+                        <th style='width:auto; white-space: nowrap;'>Usuario</th>
+                        <th style='width:auto; white-space: nowrap;'>Empresa</th>
+                        <th style='width:auto; white-space: nowrap;'>Causales</th>
+                        <th style='width:auto; white-space: nowrap;'>Observación</th>
+                    </tr>
+                </thead>
+                <tbody id="tarifa_flete_body">
+                    <tr>
+                        <td colspan="18">
+                            <div style="text-align:center;padding:60px 20px;">
+                                <div style="font-size:2.8rem;color:#e2e8f0;margin-bottom:16px;">
+                                    <i class="bi bi-filter-square"></i>
+                                </div>
+                                <div style="font-weight:700;color:#475569;font-size:.95rem;margin-bottom:6px;">
+                                    Aplica los filtros para consultar
+                                </div>
+                                <div style="font-size:.8rem;color:#94a3b8;">
+                                    Selecciona un rango de fechas y presiona <strong>Consultar</strong>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div><!-- /.tc-table-card -->
+</div>
+
+
+<!-- OFFCANVAS -->
+<div class="offcanvas offcanvas-bottom offcanvas-center" tabindex="-1" id="offcanvaTarifasCostos" aria-labelledby="offcanvaTarifasCostosLabel" data-bs-backdrop="true">
+
+    <!-- HEADER -->
+    <div class="offcanvas-header offcanvas-header-custom">
+        <div class="d-flex align-items-center w-100 h-100">
+
+            <!-- Ribbon Icon -->
+            <div class="ribbon-box">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+
+            <!-- Title -->
+            <div class="ms-3 flex-grow-1">
+                <h5 class="mb-0 fw-bold text-primary-custom">Nueva Tarifa Costo</h5>
+                <small class="text-muted" style="font-size: 0.8rem;">Gestión de Localizaciones</small>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="d-flex align-items-center gap-3 me-4">
+                <div class="badge-custom-light">
+                    <i class="bi bi-diagram-3-fill me-1"></i> Entidad Raíz
+                </div>
+
+                <!-- <div class="badge-custom-dark">
+                    <div class="form-check form-switch min-h-0 mb-0 d-flex align-items-center">
+                        <input class="form-check-input mt-0 me-2" type="checkbox" id="subentidades">
+                        <label class="form-check-label text-white cursor-pointer" for="subentidades" style="font-size: 0.8rem;">Subentidades</label>
+                    </div>
+                </div> -->
+            </div>
+
+            <button type="button" class="btn-close me-3" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="offcanvas-body px-4 pb-1">
+
+        <div class="row g-3">
+            <!-- Origen -->
+            <div class="col-md-6">
+                <label class="form-label-sm">Origen <span class="req">*</span></label>
+                <div class="input-group input-group-sm">
+                    <?= $this->municipios->getHtmlSelectnew("id_ciudad_origen", "") ?>
+                </div>
+            </div>
+
+            <!-- Destino -->
+            <div class="col-md-6">
+                <label class="form-label-sm">Destino <span class="req">*</span></label>
+                <div class="input-group input-group-sm">
+                    <?= $this->municipios->getHtmlSelectnew2("id_ciudad_destino", "") ?>
+                </div>
+            </div>
+
+            <!-- Tipo Vehículo -->
+            <div class="col-md-6">
+                <label class="form-label-sm">Tipo Vehículo <span class="req">*</span></label>
+                <div class="input-group input-group-sm">
+                    <!-- <select name="slct_tipo_vehiculo_" id="slct_tipo_vehiculo_" class="form-select form-select-sm"> -->
+                    <select name="slct_tipo_vehiculo_costo" id="slct_tipo_vehiculo_costo" placeholder="Seleccionar Tipo Vehículo..." autocomplete="off" class="w-100">
+                        <option value="">Seleccione</option>
+                        <option value="NHR_2">NHR Camión dos ejes - Sencillo PBV mas de 2500 Kg Cap Max Pm 2.5tn</option>
+                        <option value="2">Camión dos ejes - Sencillo PBV mas de 10500 Kg Cap Max Pm 9tn</option>
+                        <option value="2_7_8">Camion dos ejes - Sencillo PBV 7500-8000 Kg Cap Max Pm 4tn</option>
+                        <option value="2_8_9">Camion dos ejes - Sencillo PBV 8001-9000 Kg Cap Max Pm 5tn</option>
+                        <option value="2_9_105">Camion dos ejes - Sencillo PBV 9001-10500 Kg Cap Max Pm 6tn</option>
+                        <option value="2S2">Tractocamión dos ejes - semiremolque de dos ejes Cap Max Pm 22tn</option>
+                        <option value="2S3">Tractocamión dos ejes - semiremolque de tres ejes Cap Max Pm 27tn</option>
+                        <option value="3">Camión tres ejes - Cap Max Pm 16tn</option>
+                        <option value="3S2">Tractocamión tres ejes - semiremolque de dos ejes Cap Max Pm 31tn</option>
+                        <option value="3S3">Tractocamión tres ejes - semiremolque de tres ejes Cap Max Pm 34tn</option>
+                    </select>
+                    <!-- <button class="btn btn-outline-secondary" type="button"><i class="bi bi-plus"></i></button> -->
+                </div>
+            </div>
+
+            <!-- Costo -->
+            <div class="col-md-6">
+                <label class="form-label-sm">Tarifa Costo <span class="req">*</span></label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" name="valor" id="valor" placeholder="0.00" oninput="this.value = this.value.toUpperCase();" onchange="currencyMask2(this)">
+                </div>
+            </div>
+
+            <!-- Vigencia -->
+            <div class="col-md-6">
+                <label class="form-label-sm">Vigencia <span class="req">*</span></label>
+                <div class="d-flex gap-2">
+                    <input type="number" class="form-control form-control-sm" id="vigencia" placeholder="Año" disabled>
+                    <select class="form-select form-select-sm" id="mes_flete" disabled>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label-sm">Estado & Semana <span class="req">*</span></label>
+                <div class="d-flex gap-2">
+                    <input type="number" class="form-control form-control-sm" name="semana" id="semana" placeholder="Semana" disabled>
+                    <!-- <label class="form-label-sm">Estado <span class="req">*</span></label> -->
+                    <select class="form-select form-select-sm" name="esatdo" id="estado">
+                        <option value="Activa">Activo</option>
+                        <option value="Inactiva">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input" id="switch-config-extra-costo" type="checkbox">
+                <label class="form-check-label" for="switch-config-extra-costo"> Activar Configuración Avanzada </label>
+            </div>
+        </div>
+
+        <!-- PRO TABS NAVIGATION -->
+        <div class="custom-tabs-container">
+            <ul class="nav nav-tabs-custom" id="myTab" role="tablist">
+                <!-- <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="homeCosto-tab" data-bs-toggle="tab" data-bs-target="#tab-homeCosto" type="button" role="tab" aria-controls="tab-homeCosto" aria-selected="true">
+                        <i class="bi bi-truck"></i> MultiRecogida
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="multiorigenCosto-tab" data-bs-toggle="tab" data-bs-target="#tab-multiorigenCosto" type="button" role="tab" aria-controls="tab-multiorigenCosto" aria-selected="false">
+                        <i class="bi bi-graph-up"></i> MultiOrigen
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="multiEntregaCosto-tab" data-bs-toggle="tab" data-bs-target="#tab-multiEntregaCosto" type="button" role="tab" aria-controls="tab-multiEntregaCosto" aria-selected="false">
+                        <i class="bi bi-gear"></i> MultiEntrega
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="multidestinoCosto-tab" data-bs-toggle="tab" data-bs-target="#tab-multidestinoCosto" type="button" role="tab" aria-controls="tab-multidestinoCosto" aria-selected="false">
+                        <i class="bi bi-gear"></i> MultiDestino
+                    </button>
+                </li> -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="homeCosto-tab" data-bs-toggle="tab" data-bs-target="#tab-homeCosto" type="button" role="tab" aria-controls="tab-homeCosto" aria-selected="true" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="La tarifa por MULTIRECOGIDA  se debe aplicar cuando exista una seguda recogida en la ciudad Origen del bloque definido como ruta principal, estas se liquidan como N-1, Nro de remitentes que estan en la misma cidudad que se definio como ruta principal">
+                        <i class="bi bi-truck"></i> MultiRecogida
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="multiorigenCosto-tab" data-bs-toggle="tab" data-bs-target="#tab-multiorigenCosto" type="button" role="tab" aria-controls="tab-multiorigenCosto" aria-selected="false" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="La tarifa por MULTIORIGEN por primera operación se debe aplicar cuando exista una seguda recogida en una  ciudad distinta a la ciudad Origen del bloque de mercancias definido como ruta principal, despues de la segunda recogida se liquidara en base a la tarifa registrada como Recogida adicional.">
+                        <i class="bi bi-graph-up"></i> MultiOrigen
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="multiEntregaCosto-tab" data-bs-toggle="tab" data-bs-target="#tab-multiEntregaCosto" type="button" role="tab" aria-controls="tab-multiEntregaCosto" aria-selected="false" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="La tarifa por MULTIENTREGA por primera operación se debe aplicar cuando exista una seguda recogida en la ciudad Origen del bloque definido como ruta principal, Nro de remitentes que estan en la misma cidudad que se definio como ruta principal.">
+                        <i class="bi bi-gear"></i> MultiEntrega
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="multidestinoCosto-tab" data-bs-toggle="tab" data-bs-target="#tab-multidestinoCosto" type="button" role="tab" aria-controls="tab-multidestinoCosto" aria-selected="false" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="La tarifa por MULTIDESTINO por primera operación se debe aplicar cuando exista una seguda recogida en la ciudad Origen del bloque definido como ruta principal,   despues de la segunda recogida se liquidara en base a la tarifa registrada como Recogida adicional.">
+                        <i class="bi bi-gear"></i> MultiDestino
+                    </button>
+                </li>
+                <!-- <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="historico-costos-tab" data-bs-toggle="tab" data-bs-target="#tab-historico-costos" type="button" role="tab" aria-controls="tab-historico-costos" aria-selected="false">
+                        <i class="bi bi-clock-history"></i> Histórico
+                    </button>
+                </li> -->
+            </ul>
+
+            <!-- TAB CONTENT -->
+            <div class="tab-content custom-tab-content" id="myTabContentCostos">
+
+                <!-- TAB 1: DATOS (HOME) -->
+                <div class="tab-pane fade show active" id="tab-homeCosto" role="tabpanel" aria-labelledby="homeCosto-tab">
+                    <div class="row g-3">
+                        <!-- Origen Tarifa Adicional-->
+                        <div class="col-md-12">
+                            <label class="form-label-sm">Tarifa Adicional<span class="req">*</span></label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">$</span>
+                                <input type="text" class="form-control" id="multi_recogida_costo" placeholder="0.00" oninput="this.value = this.value.toUpperCase();" onchange="currencyMask2(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: HISTÓRICO (Chart.js) -->
+                <div class="tab-pane fade" id="tab-multiorigenCosto" role="tabpanel" aria-labelledby="multiorigenCosto-tab">
+                    <div class="d-flex justify-content-end my-1">
+                        <button class="btn btn-subtle-primary btn-sm me-1 px-1 py-0" type="button" id="btn-add-multiorigen-costo">
+                            Agregar
+                        </button>
+                    </div>
+                    <!-- CONTENEDOR DINÁMICO -->
+                    <div id="multiorigen-costo-container"></div>
+                </div>
+
+                <!-- TAB 3: CONFIGURACIÓN -->
+                <div class="tab-pane fade" id="tab-multiEntregaCosto" role="tabpanel" aria-labelledby="multiEntregaCosto-tab">
+                    <div class="row g-3">
+                        <!-- Costo -->
+                        <div class="col-md-12">
+                            <label class="form-label-sm">Tarifa Adicional<span class="req">*</span></label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">$</span>
+                                <input type="text" class="form-control" id="multi_entrega_costo" placeholder="0.00" oninput="this.value = this.value.toUpperCase();" onchange="currencyMask2(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: MULTIDESTINO -->
+                <div class="tab-pane fade" id="tab-multidestinoCosto" role="tabpanel" aria-labelledby="multidestinoCosto-tab">
+                    <div class="d-flex justify-content-end my-1">
+                        <button class="btn btn-subtle-primary btn-sm me-1 px-1 py-0" type="button" id="btn-add-multidestino-costo">
+                            Agregar
+                        </button>
+                    </div>
+
+                    <!-- CONTENEDOR DINÁMICO -->
+                    <div id="multidestino-costo-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTÓRICO — siempre visible, fuera del sistema de tabs -->
+        <div class="mt-0">
+            <label class="form-label-sm">
+                <i class="bi bi-clock-history me-1"></i> Histórico de Tarifas
+            </label>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover style-table" style="font-size: 0.75rem;">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tarifa Base</th>
+                            <th>Vigencia</th>
+                            <th>Estado</th>
+                            <th>Estado Aprobación</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historico-tarifas-costos-container"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER ACTION -->
+        <div class="border-top border-translucent border-dashed p-4 pt-3 mt-4 text-end fixed-bottom">
+            <button type="button" class="btn btn-light btn-sm me-2" data-bs-dismiss="offcanvas">Cancelar</button>
+            <button id="btn_guardar_tarifa_costo" data-tarifa_id="" class="btn btn-save text-white btn-sm shadow-sm" type="button">
+                <i class="bi bi-save me-1"></i> Guardar Tarifa
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     OFFCANVAS — IMPORTACIÓN MASIVA TARIFAS DE COSTO
+     Proyecto HARMONY 2026
+     Archivo: offcanvas_importacion_masiva_costos.phtml
+     Sistema de diseño: mismo que bandeja de aprobación
+     ============================================================ -->
+
+<div class="offcanvas offcanvas-end" id="offcanvasImporteMasivoCostos" tabindex="-1" aria-labelledby="offcanvasImporteMasivoCostosLabel" style="width: 580px; max-width: 96vw;">
+    <style>
+        /* ============================================================
+           IMPORT MASIVO — variables del sistema de diseño
+           ============================================================ */
+        #offcanvasImporteMasivoCostos {
+            --im-navy: #0f1f3d;
+            --im-blue: #1a3c6b;
+            --im-accent: #e8a020;
+            --im-green: #16a34a;
+            --im-red: #dc2626;
+            --im-orange: #f59e0b;
+            --im-gray: #64748b;
+            --im-light: #f0f4f8;
+            --im-border: #dde3ef;
+            --im-white: #ffffff;
+            --im-shadow: 0 2px 12px rgba(15, 31, 61, .08);
+            --im-radius: 10px;
+            font-family: inherit;
+        }
+
+        /* ── Header ── */
+        .im-header {
+            background: linear-gradient(135deg, var(--im-navy) 0%, var(--im-blue) 100%);
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .im-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .im-header-icon {
+            width: 42px;
+            height: 42px;
+            background: rgba(232, 160, 32, .2);
+            border: 2px solid var(--im-accent);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--im-accent);
+            flex-shrink: 0;
+        }
+
+        .im-header-title {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .im-header-sub {
+            color: rgba(255, 255, 255, .55);
+            font-size: .75rem;
+            margin: 0;
+        }
+
+        .im-close-btn {
+            background: rgba(255, 255, 255, .1);
+            border: none;
+            border-radius: 7px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background .2s;
+        }
+
+        .im-close-btn:hover {
+            background: rgba(255, 255, 255, .2);
+        }
+
+        /* ── Body general ── */
+        .im-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px 22px 16px;
+            background: #f8fafc;
+        }
+
+        .im-body::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .im-body::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .im-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        /* ── ZONA DE UPLOAD ── */
+        .im-dropzone {
+            border: 2px dashed var(--im-border);
+            border-radius: var(--im-radius);
+            background: var(--im-white);
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .25s, background .25s;
+        }
+
+        .im-dropzone:hover,
+        .im-dropzone.dragover {
+            border-color: var(--im-blue);
+            background: #eff6ff;
+        }
+
+        .im-dropzone-icon {
+            font-size: 2.5rem;
+            color: var(--im-blue);
+            margin-bottom: 10px;
+            opacity: .7;
+        }
+
+        .im-dropzone-title {
+            font-size: .92rem;
+            font-weight: 700;
+            color: var(--im-navy);
+        }
+
+        .im-dropzone-sub {
+            font-size: .78rem;
+            color: var(--im-gray);
+            margin-top: 4px;
+        }
+
+        .im-dropzone-badge {
+            display: inline-block;
+            background: var(--im-light);
+            color: var(--im-blue);
+            border: 1px solid var(--im-border);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: .72rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        #archivo_excel_costos {
+            display: none;
+        }
+
+        /* Archivo seleccionado */
+        .im-file-selected {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-top: 12px;
+        }
+
+        .im-file-selected.show {
+            display: flex;
+        }
+
+        .im-file-icon {
+            font-size: 1.6rem;
+            color: #16a34a;
+            flex-shrink: 0;
+        }
+
+        .im-file-name {
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--im-navy);
+            word-break: break-all;
+        }
+
+        .im-file-size {
+            font-size: .72rem;
+            color: var(--im-gray);
+        }
+
+        .im-file-clear {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--im-red);
+            cursor: pointer;
+            font-size: .95rem;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: background .15s;
+        }
+
+        .im-file-clear:hover {
+            background: #fee2e2;
+        }
+
+        /* ── INFO SHEETS ── */
+        .im-sheets-info {
+            background: var(--im-white);
+            border: 1px solid var(--im-border);
+            border-radius: var(--im-radius);
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .im-sheets-info-header {
+            background: var(--im-light);
+            border-bottom: 1px solid var(--im-border);
+            padding: 10px 14px;
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--im-blue);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .im-sheet-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--im-border);
+        }
+
+        .im-sheet-row:last-child {
+            border-bottom: none;
+        }
+
+        .im-sheet-tab {
+            background: var(--im-navy);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 4px;
+            font-size: .7rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .im-sheet-tab.green {
+            background: #16a34a;
+        }
+
+        .im-sheet-tab.amber {
+            background: #d97706;
+        }
+
+        .im-sheet-tab.purple {
+            background: #7c3aed;
+        }
+
+        .im-sheet-desc {
+            font-size: .78rem;
+            color: var(--im-gray);
+            line-height: 1.45;
+        }
+
+        .im-sheet-cols {
+            font-size: .72rem;
+            color: var(--im-navy);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* ── BOTÓN PRINCIPAL ── */
+        .im-btn-import {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--im-navy) 0%, var(--im-blue) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: .9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity .2s, transform .1s;
+            margin-top: 18px;
+        }
+
+        .im-btn-import:hover:not(:disabled) {
+            opacity: .9;
+            transform: translateY(-1px);
+        }
+
+        .im-btn-import:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        /* ── SECCIÓN PROGRESO ── */
+        .im-prog-header {
+            text-align: center;
+            padding: 20px 0 16px;
+        }
+
+        .im-spinner-wrap {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 14px;
+        }
+
+        .im-spinner-ring {
+            width: 72px;
+            height: 72px;
+            border: 5px solid var(--im-light);
+            border-top-color: var(--im-blue);
+            border-radius: 50%;
+            animation: im-spin 1s linear infinite;
+        }
+
+        @keyframes im-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .im-spinner-pct {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .85rem;
+            font-weight: 800;
+            color: var(--im-navy);
+        }
+
+        .im-prog-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--im-navy);
+        }
+
+        .im-prog-sub {
+            font-size: .82rem;
+            color: var(--im-gray);
+            margin-top: 3px;
+        }
+
+        /* Barra de progreso */
+        .im-progress-track {
+            background: var(--im-light);
+            border-radius: 8px;
+            height: 10px;
+            overflow: hidden;
+            margin: 14px 0 6px;
+        }
+
+        .im-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--im-blue) 0%, #3b82f6 100%);
+            border-radius: 8px;
+            transition: width .6s ease;
+            width: 0%;
+        }
+
+        /* Steps de proceso */
+        .im-steps {
+            margin-top: 14px;
+        }
+
+        .im-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 7px;
+            margin-bottom: 4px;
+            font-size: .8rem;
+            color: var(--im-gray);
+            transition: background .2s, color .2s;
+        }
+
+        .im-step.active {
+            background: #eff6ff;
+            color: var(--im-blue);
+            font-weight: 600;
+        }
+
+        .im-step.done {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .im-step.error {
+            background: #fef2f2;
+            color: var(--im-red);
+        }
+
+        .im-step-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: .7rem;
+            background: #e2e8f0;
+            color: var(--im-gray);
+            transition: background .2s, color .2s;
+        }
+
+        .im-step.active .im-step-dot {
+            background: var(--im-blue);
+            color: #fff;
+            animation: im-pulse 1.2s ease-in-out infinite;
+        }
+
+        .im-step.done .im-step-dot {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .im-step.error .im-step-dot {
+            background: var(--im-red);
+            color: #fff;
+        }
+
+        @keyframes im-pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(26, 60, 107, .4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(26, 60, 107, 0);
+            }
+        }
+
+        /* ── SECCIÓN RESULTADO ── */
+        .im-result-hero {
+            text-align: center;
+            padding: 20px 0 14px;
+        }
+
+        .im-result-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .im-result-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--im-navy);
+        }
+
+        .im-result-sub {
+            font-size: .82rem;
+            color: var(--im-gray);
+            margin-top: 4px;
+        }
+
+        /* Tarjetas de resumen */
+        .im-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .im-summary-card {
+            background: var(--im-white);
+            border: 1px solid var(--im-border);
+            border-radius: 9px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--im-shadow);
+        }
+
+        .im-summary-card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .95rem;
+            flex-shrink: 0;
+        }
+
+        .ic-activas {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .ic-pendientes {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .ic-saltadas {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .ic-errores {
+            background: #fee2e2;
+            color: var(--im-red);
+        }
+
+        .im-summary-num {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--im-navy);
+            line-height: 1;
+        }
+
+        .im-summary-label {
+            font-size: .7rem;
+            color: var(--im-gray);
+            margin-top: 1px;
+        }
+
+        /* Acordeón de detalle */
+        .im-detail-section {
+            background: var(--im-white);
+            border: 1px solid var(--im-border);
+            border-radius: var(--im-radius);
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .im-detail-toggle {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 11px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--im-navy);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .im-detail-toggle:hover {
+            background: var(--im-light);
+        }
+
+        .im-detail-toggle .badge-count {
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: .7rem;
+            font-weight: 700;
+        }
+
+        .im-detail-body {
+            display: none;
+            border-top: 1px solid var(--im-border);
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .im-detail-body.open {
+            display: block;
+        }
+
+        .im-detail-row {
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--im-border);
+            font-size: .78rem;
+        }
+
+        .im-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .im-detail-row .ruta {
+            font-weight: 600;
+            color: var(--im-navy);
+        }
+
+        .im-detail-row .meta {
+            color: var(--im-gray);
+            font-size: .72rem;
+            margin-top: 2px;
+        }
+
+        .im-var-chip {
+            display: inline-block;
+            padding: 1px 7px;
+            border-radius: 3px;
+            font-size: .68rem;
+            font-weight: 700;
+            margin: 1px;
+        }
+
+        .im-var-chip.alta {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .im-var-chip.normal {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        /* Botones del footer resultado */
+        .im-result-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .im-btn-finalizar {
+            padding: 11px;
+            background: var(--im-blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: .88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .im-btn-finalizar:hover {
+            background: var(--im-navy);
+        }
+
+        .im-btn-otro {
+            padding: 10px;
+            background: transparent;
+            color: var(--im-gray);
+            border: 1px solid var(--im-border);
+            border-radius: 8px;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .im-btn-otro:hover {
+            background: var(--im-light);
+            color: var(--im-navy);
+        }
+
+        /* ── WARNING ── */
+        .im-warn {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--im-orange);
+            border-radius: 7px;
+            padding: 10px 12px;
+            font-size: .78rem;
+            color: #92400e;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 14px;
+        }
+    </style>
+
+    <!-- ── HEADER ── -->
+    <div class="im-header">
+        <div class="im-header-left">
+            <div class="im-header-icon"><i class="fas fa-file-excel"></i></div>
+            <div>
+                <p class="im-header-title">Importación Masiva — Tarifas de Costo</p>
+                <p class="im-header-sub">Carga de plantilla Excel · Hasta 3 hojas simultáneas</p>
+            </div>
+        </div>
+        <button class="im-close-btn" data-bs-dismiss="offcanvas" title="Cerrar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Instrucciones y descarga de plantilla -->
+    <div class="card border-0 bg-light mb-4">
+        <div class="card-body py-3">
+            <h6 class="fw-bold mb-2">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                Instrucciones
+            </h6>
+            <ol class="mb-2 ps-3 small">
+                <li>Descarga la plantilla Excel y completa los datos.</li>
+                <li>La hoja <strong>archivo</strong> contiene una tarifa por fila.</li>
+                <li>Las hojas <strong>multiorigen</strong> y <strong>multidestino</strong>
+                    usan la columna <strong>fila_ref</strong> para vincular
+                    sus municipios con la tarifa correspondiente de la hoja <em>archivo</em>.</li>
+                <li>Las tarifas que superen el umbral de variación configurado
+                    se enviarán a <em>Pendiente de Aprobación</em> automáticamente;
+                    la tarifa anterior permanece activa.</li>
+            </ol>
+            <button class="btn btn-sm btn-outline-success"
+                onclick="descargarPlantillaMasivo()">
+                <i class="fas fa-download me-1"></i>
+                Descargar plantilla (.xlsx)
+            </button>
+        </div>
+    </div>
+
+    <!-- ── BODY ── -->
+    <div class="im-body" id="im-body-wrap">
+
+        <!-- ======================================================
+             SECCIÓN 1: UPLOAD
+             ====================================================== -->
+        <div id="im-upload-section">
+
+            <!-- Drop zone -->
+            <div class="im-dropzone" id="im-dropzone" onclick="document.getElementById('archivo_excel_costos').click()">
+                <div class="im-dropzone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <div class="im-dropzone-title">Arrastra tu archivo aquí o haz clic para seleccionar</div>
+                <div class="im-dropzone-sub" style="margin-top:8px;">
+                    <span class="im-dropzone-badge">.xlsx</span>
+                    <span class="im-dropzone-badge">.xls</span>
+                </div>
+            </div>
+            <input type="file" id="archivo_excel_costos" accept=".xlsx,.xls" onchange="imOnFileSelected(this)">
+
+            <!-- Archivo seleccionado -->
+            <div class="im-file-selected" id="im-file-preview">
+                <div class="im-file-icon"><i class="fas fa-file-excel"></i></div>
+                <div>
+                    <div class="im-file-name" id="im-file-name">—</div>
+                    <div class="im-file-size" id="im-file-size">—</div>
+                </div>
+                <button class="im-file-clear" onclick="imLimpiarArchivo()" title="Quitar archivo">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Estructura esperada del Excel -->
+            <div class="im-sheets-info">
+                <div class="im-sheets-info-header">
+                    <i class="fas fa-table"></i> Estructura del archivo Excel
+                </div>
+                <div class="im-sheet-row">
+                    <span class="im-sheet-tab green">archivo</span>
+                    <div>
+                        <div class="im-sheet-desc">Tarifa principal por ruta y vehículo</div>
+                        <div class="im-sheet-cols">Columnas: Origen · Destino · Tipo vehículo · Plena · Multi-Recogida · Multi-Entrega</div>
+                    </div>
+                </div>
+                <div class="im-sheet-row">
+                    <span class="im-sheet-tab amber">multiorigen</span>
+                    <div>
+                        <div class="im-sheet-desc">Detalles de Multi-Origen por municipio</div>
+                        <div class="im-sheet-cols">Columnas: N° Fila (ref.) · Municipio ID · Rate 1 · Rate 2</div>
+                    </div>
+                </div>
+                <div class="im-sheet-row">
+                    <span class="im-sheet-tab purple">multidestino</span>
+                    <div>
+                        <div class="im-sheet-desc">Detalles de Multi-Destino por municipio</div>
+                        <div class="im-sheet-cols">Columnas: N° Fila (ref.) · Municipio ID · Rate 1 · Rate 2</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advertencia -->
+            <div class="im-warn">
+                <i class="fas fa-exclamation-triangle" style="flex-shrink:0; margin-top:1px;"></i>
+                <span>Las tarifas que superen el umbral de variación permitido quedarán <strong>INACTIVAS</strong> y entrarán a la bandeja de aprobación. Las demás se activarán automáticamente.</span>
+            </div>
+
+            <!-- Botón iniciar -->
+            <button class="im-btn-import" id="im-btn-start" onclick="importarTarifasMasivo()" disabled>
+                <i class="fas fa-cloud-upload-alt"></i>
+                Iniciar Importación
+            </button>
+
+        </div>
+
+        <!-- ======================================================
+             SECCIÓN 2: PROGRESO
+             ====================================================== -->
+        <div id="im-progress-section" style="display:none;">
+
+            <div class="im-prog-header">
+                <div class="im-spinner-wrap">
+                    <div class="im-spinner-ring"></div>
+                    <div class="im-spinner-pct" id="im-pct-label">0%</div>
+                </div>
+                <div class="im-prog-title" id="im-prog-title">Procesando archivo...</div>
+                <div class="im-prog-sub" id="im-prog-sub">Por favor espera, esto puede tomar unos minutos</div>
+            </div>
+
+            <div class="im-progress-track">
+                <div class="im-progress-fill" id="im-progress-fill"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:.72rem; color:var(--im-gray); margin-bottom:14px;">
+                <span>0%</span><span id="im-pct-right">0%</span>
+            </div>
+
+            <!-- Pasos del proceso -->
+            <div class="im-steps" id="im-steps-list">
+                <div class="im-step" id="step-convirtiendo">
+                    <div class="im-step-dot"><i class="fas fa-sync-alt"></i></div>
+                    <span>Convirtiendo fórmulas Excel a valores</span>
+                </div>
+                <div class="im-step" id="step-archivo">
+                    <div class="im-step-dot">1</div>
+                    <span>Procesando hoja <strong>archivo</strong> — rutas y tarifas base</span>
+                </div>
+                <div class="im-step" id="step-multiorigen">
+                    <div class="im-step-dot">2</div>
+                    <span>Procesando hoja <strong>multiorigen</strong></span>
+                </div>
+                <div class="im-step" id="step-multidestino">
+                    <div class="im-step-dot">3</div>
+                    <span>Procesando hoja <strong>multidestino</strong></span>
+                </div>
+                <div class="im-step" id="step-variaciones">
+                    <div class="im-step-dot"><i class="fas fa-chart-line"></i></div>
+                    <span>Evaluando variaciones y reglas de aprobación</span>
+                </div>
+                <div class="im-step" id="step-finalizando">
+                    <div class="im-step-dot"><i class="fas fa-check"></i></div>
+                    <span>Finalizando y actualizando lista de tarifas</span>
+                </div>
+            </div>
+
+            <div class="im-warn" style="margin-top:16px;">
+                <i class="fas fa-lock" style="flex-shrink:0; margin-top:1px;"></i>
+                <span>No cierres esta ventana hasta que el proceso finalice.</span>
+            </div>
+
+        </div>
+
+        <!-- ======================================================
+             SECCIÓN 3: RESULTADO
+             ====================================================== -->
+        <div id="im-result-section" style="display:none;">
+
+            <!-- Hero resultado -->
+            <div class="im-result-hero">
+                <div class="im-result-icon" id="im-result-icon">✅</div>
+                <div class="im-result-title" id="im-result-title">¡Importación completada!</div>
+                <div class="im-result-sub" id="im-result-sub">Todas las filas fueron procesadas</div>
+            </div>
+
+            <!-- Resumen en cards -->
+            <div class="im-summary-grid" id="im-summary-grid">
+                <div class="im-summary-card">
+                    <div class="im-summary-card-icon ic-activas"><i class="fas fa-check-circle"></i></div>
+                    <div>
+                        <div class="im-summary-num" id="sum-activas">0</div>
+                        <div class="im-summary-label">Activadas</div>
+                    </div>
+                </div>
+                <div class="im-summary-card">
+                    <div class="im-summary-card-icon ic-pendientes"><i class="fas fa-hourglass-half"></i></div>
+                    <div>
+                        <div class="im-summary-num" id="sum-pendientes">0</div>
+                        <div class="im-summary-label">A bandeja aprobación</div>
+                    </div>
+                </div>
+                <div class="im-summary-card">
+                    <div class="im-summary-card-icon ic-saltadas"><i class="fas fa-forward"></i></div>
+                    <div>
+                        <div class="im-summary-num" id="sum-saltadas">0</div>
+                        <div class="im-summary-label">Saltadas (pend. previa)</div>
+                    </div>
+                </div>
+                <div class="im-summary-card">
+                    <div class="im-summary-card-icon ic-errores"><i class="fas fa-times-circle"></i></div>
+                    <div>
+                        <div class="im-summary-num" id="sum-errores">0</div>
+                        <div class="im-summary-label">Con error</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalle pendientes de aprobación -->
+            <div class="im-detail-section" id="im-block-pendientes" style="display:none;">
+                <button class="im-detail-toggle" onclick="imToggleDetalle('pendientes')">
+                    <span>
+                        <i class="fas fa-hourglass-half me-2" style="color:#d97706;"></i>
+                        Tarifas enviadas a bandeja de aprobación
+                    </span>
+                    <span class="badge-count" id="badge-pendientes"
+                        style="background:#fef3c7; color:#854d0e;">0</span>
+                </button>
+                <div class="im-detail-body" id="detail-pendientes"></div>
+            </div>
+
+            <!-- Detalle errores -->
+            <div class="im-detail-section" id="im-block-errores" style="display:none;">
+                <button class="im-detail-toggle" onclick="imToggleDetalle('errores')">
+                    <span>
+                        <i class="fas fa-exclamation-circle me-2" style="color:#dc2626;"></i>
+                        Filas con error
+                    </span>
+                    <span class="badge-count" id="badge-errores"
+                        style="background:#fee2e2; color:#991b1b;">0</span>
+                </button>
+                <div class="im-detail-body" id="detail-errores"></div>
+            </div>
+
+            <!-- Botones -->
+            <div class="im-result-footer">
+                <button class="im-btn-finalizar" onclick="imCerrar()">
+                    <i class="fas fa-check"></i> Finalizar y ver tarifas
+                </button>
+                <button class="im-btn-otro" onclick="imReset()">
+                    <i class="fas fa-redo"></i> Importar otro archivo
+                </button>
+            </div>
+
+        </div>
+    </div>
+    <!-- /im-body -->
+</div>
+<!-- /offcanvas -->

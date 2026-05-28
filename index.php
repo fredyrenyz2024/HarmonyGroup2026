@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('America/Bogota');
+
 define('DS', DIRECTORY_SEPARATOR);
 //
 define('ROOT', realpath(dirname(__FILE__)) . DS); //
@@ -22,7 +24,6 @@ try {
     // Este es codigo que se debe dejar
 
     Bootstrap::run(new Request());
-
 } catch (Exception $e) {
     echo "<p>" . $e->getMessage() . "</p>";
 }

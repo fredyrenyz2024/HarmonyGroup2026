@@ -26,6 +26,7 @@ class informeController extends Controller
     private $_informe_pedidos;
     private $_informe_cumplidos;
     private $_informe_historico_despachos;
+    private $_informe_vehiculos;
 
     public function __construct()
     {
@@ -109,6 +110,18 @@ class informeController extends Controller
     {
         $this->_view->titulo = 'Historico de despachos';
         $this->_view->renderizar('informe_historico_despachos', 'informe');
+    }
+
+    public function informe_vehiculos()
+    {
+        $this->_view->titulo = 'Historico de vehiculos';
+        $this->_view->renderizar('informe_vehiculos', 'informe');
+    }
+    
+    public function informe_instruccion()
+    {
+        $this->_view->titulo = 'Historico de Instrucciones';
+        $this->_view->renderizar('informe_instrccion', 'informe');
     }
 
     public function Aplicar_Filtro()
@@ -402,11 +415,12 @@ class informeController extends Controller
     public function Informe_pedidos()
     {
         $num_pedido = $_POST['num_pedido'];
-        $this->_informe_pedidos = $this->_modelo->Informe_pedidos(/* $fecha_inicial, $fecha_final, */ $num_pedido);
+        $this->_informe_pedidos = $this->_modelo->Informe_pedidos(/* $fecha_inicial, $fecha_final, */$num_pedido);
         echo json_encode($this->_informe_pedidos);
     }
 
-    public function Informe_Cumplidos(){
+    public function Informe_Cumplidos()
+    {
         $fecha_inicial = $_POST['fecha_inicial'];
         $fecha_final = $_POST['fecha_final'];
         $num_pedido = $_POST['num_pedido'];
@@ -414,11 +428,30 @@ class informeController extends Controller
         // $this->_informe_cumplidos = $this->_modelo->Informe_cumplidos();
         echo json_encode($this->_informe_cumplidos);
     }
-    public function Historico_Seguimiento(){
+    public function Historico_Seguimiento()
+    {
         $fecha_inicial = $_POST['fecha_inicial'];
         $fecha_final = $_POST['fecha_final'];
         $criterio_busqueda = $_POST['criterio_busqueda'];
         $this->_informe_historico_despachos = $this->_modelo->Informe_historico_seguimiento($fecha_inicial, $fecha_final, $criterio_busqueda);
+        // $this->_informe_cumplidos = $this->_modelo->Informe_cumplidos();
+        echo json_encode($this->_informe_historico_despachos);
+    }
+
+    public function Informe_Vehiculos_Activos()
+    {
+        $fecha_inicial = $_POST['fecha_inicial'];
+        $fecha_final = $_POST['fecha_final'];
+        $this->_informe_vehiculos = $this->_modelo->Informe_Vehiculos($fecha_inicial, $fecha_final);
+        echo json_encode($this->_informe_vehiculos);
+    }
+
+    public function generar_informe_instruccion_facturacion()
+    {
+        $fecha_inicial = $_POST['fecha_inicial'];
+        $fecha_final = $_POST['fecha_final'];
+        $criterio_busqueda = $_POST['criterio_busqueda'];
+        $this->_informe_historico_despachos = $this->_modelo->Informe_instruccion_facturacion($fecha_inicial, $fecha_final, $criterio_busqueda);
         // $this->_informe_cumplidos = $this->_modelo->Informe_cumplidos();
         echo json_encode($this->_informe_historico_despachos);
     }

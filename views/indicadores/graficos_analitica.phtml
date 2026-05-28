@@ -1,0 +1,104 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-3 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+            <!-- Contenedor gráfica -->
+            <div id="IndicadoresPlacasConductor" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-placa-conductor">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th id="total-placa-conductor"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-3 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+            <!-- Contenedor gráfica -->
+            <div id="IndicadoresDestinos" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-destino">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th id="total-destino"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-3 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+            <!-- Contenedor gráfica -->
+            <div id="IndicadoresClientes" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-clientes">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th id="total-clientes"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-3 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+            <!-- Tabla resultados -->
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-detalle-analitica">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>#</th>
+                            <th>Manifiesto</th>
+                            <th>Radicado</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Fecha Expedicion</th>
+                            <th>Conductor</th>
+                            <th>Estado Manifiesto</th>
+                            <th>Planillador</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

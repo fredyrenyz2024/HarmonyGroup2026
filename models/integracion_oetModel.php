@@ -23,7 +23,7 @@ class integracion_oetModel extends Model
 
 		if ($resultado_empresa_id) {
 			$sql = $this->_db3->prepare("SELECT ab.nombre_ambiente,ep.nombre_empresa,ep.id AS empresa_id FROM cmx_empresas ep
-		INNER JOIN cmx_ambiente ab ON ep.id=ab.empresa_id WHERE ep.id=:empresa_id");
+			INNER JOIN cmx_ambiente ab ON ep.id=ab.empresa_id WHERE ep.id=:empresa_id");
 			$sql->bindParam(':empresa_id', $resultado_empresa_id['empresa_id']);
 			$sql->execute();
 			$resultado = $sql->fetch(PDO::FETCH_ASSOC);
@@ -68,344 +68,322 @@ class integracion_oetModel extends Model
 	public function Consulta_Recurso($tiporecurso, $filtro, $numero, $placa)
 	{
 		try {
+			$sql = "";
+			$params = [];
+
+			// ================== CLIENTES / TERCEROS ==================
 			if ($tiporecurso == 1 && $filtro == 1) {
-				$sql = "SELECT  id,
-					tipo_documento,regimen,documento,
-					digito_verificacion, nombre,
-					actividad_cliente as descripcion_actividad,
-					direccion,
-					telefono, email
-					FROM
-					cmx_clientes
-					WHERE documento=" . $numero;
-			}
-			if ($tiporecurso == 1 && $filtro == 2) {
 				$sql = "SELECT id,
-					tipo_documento,
-					documento,digito_verificacion,
-					nombre, descripcion_actividad,
-					direccion, celular as telefono
-					FROM
-					cmx_remitente_destinatario
-					WHERE
-					documento=" . $numero . "
-					AND estado=1";
+                        tipo_documento, regimen, documento,
+                        digito_verificacion, nombre,
+                        actividad_cliente AS descripcion_actividad,
+                        direccion, telefono, email
+                    FROM cmx_clientes
+                    WHERE documento = :numero";
+				$params[':numero'] = $numero;
 			}
+
+			if ($tiporecurso == 1 && $filtro == 2) {
+				$sql = "SELECT id, tipo_documento,
+                        documento, digito_verificacion,
+                        nombre, descripcion_actividad,
+                        direccion, celular AS telefono
+                    FROM cmx_remitente_destinatario
+                    WHERE documento = :numero
+                      AND estado = 1";
+				$params[':numero'] = $numero;
+			}
+
 			if ($tiporecurso == 1 && $filtro == 3) {
 				$sql = "SELECT p.id,
-						p.tipo_documento, p.numero_documento AS 'documento', p.digito_verificacion,
-						p.nombre, p.apellido1, p.apellido2,
-						p.celular AS 'telefono', p.email, p.direccion
-						FROM cmx_proveedores p
-						INNER JOIN cmx_actividad_proveedor ap
-						ON p.numdoc_nexos=ap.id_proveedor
-						WHERE
-						p.estado='Activo'
-						AND ap.actividad='Propietario Vehiculo'
-						AND p.numero_documento=" . $numero;
+                        p.tipo_documento, p.numero_documento AS documento, p.digito_verificacion,
+                        p.nombre, p.apellido1, p.apellido2,
+                        p.celular AS telefono, p.email, p.direccion
+                    FROM cmx_proveedores p
+                    INNER JOIN cmx_actividad_proveedor ap
+                        ON p.numdoc_nexos = ap.id_proveedor
+                    WHERE p.estado = 'Activo'
+                      AND ap.actividad = 'Propietario Vehiculo'
+                      AND p.numero_documento = :numero";
+				$params[':numero'] = $numero;
 			}
+
 			if ($tiporecurso == 1 && $filtro == 4) {
 				$sql = "SELECT p.id,
-						p.tipo_documento, p.numero_documento AS 'documento', p.digito_verificacion,
-						p.nombre, p.apellido1, p.apellido2,p.celular AS 'telefono', p.email, p.direccion,
-						p.rndc_categoria_licencia, p.rndc_numero_licencia, p.rndc_vencimiento_licencia
-						FROM cmx_proveedores p
-						INNER JOIN cmx_actividad_proveedor ap
-						ON p.numdoc_nexos=ap.id_proveedor
-						WHERE
-						p.estado='Activo'
-						AND ap.actividad='Conductor'
-						AND p.numero_documento=" . $numero;
+                        p.tipo_documento, p.numero_documento AS documento, p.digito_verificacion,
+                        p.nombre, p.apellido1, p.apellido2,
+                        p.celular AS telefono, p.email, p.direccion,
+                        p.rndc_categoria_licencia, p.rndc_numero_licencia, p.rndc_vencimiento_licencia
+                    FROM cmx_proveedores p
+                    INNER JOIN cmx_actividad_proveedor ap
+                        ON p.numdoc_nexos = ap.id_proveedor
+                    WHERE p.estado = 'Activo'
+                      AND ap.actividad = 'Conductor'
+                      AND p.numero_documento = :numero";
+				$params[':numero'] = $numero;
 			}
 
 			if ($tiporecurso == 1 && $filtro == 5) {
 				$sql = "SELECT p.id,
-						p.tipo_documento, p.numero_documento AS 'documento', p.digito_verificacion,
-						p.nombre, p.apellido1, p.apellido2,p.celular AS 'telefono', p.email, p.direccion
-						FROM cmx_proveedores p
-						INNER JOIN cmx_actividad_proveedor ap
-						ON p.numdoc_nexos=ap.id_proveedor
-						WHERE
-						p.estado='Activo'
-						AND ap.actividad='Poseedor Vehiculo'
-						AND p.numero_documento=" . $numero;
+                        p.tipo_documento, p.numero_documento AS documento, p.digito_verificacion,
+                        p.nombre, p.apellido1, p.apellido2,
+                        p.celular AS telefono, p.email, p.direccion
+                    FROM cmx_proveedores p
+                    INNER JOIN cmx_actividad_proveedor ap
+                        ON p.numdoc_nexos = ap.id_proveedor
+                    WHERE p.estado = 'Activo'
+                      AND ap.actividad = 'Poseedor Vehiculo'
+                      AND p.numero_documento = :numero";
+				$params[':numero'] = $numero;
 			}
 
-			if ($tiporecurso == 2 && $filtro == 6) { //placa
+			// ================== VEHICULOS ==================
+			if ($tiporecurso == 2 && ($filtro == 6 || $filtro == 7)) {
 				$sql = "SELECT ve.id,
-					ve.placa, ve.web_satelital,
-					ve.usuario_satelital,
-					ve.clave_satelital,
-					pro.nombre,
-					ten.nombre AS poseedor,
-					condu.nombre AS conductor,
-					ca.descripcion AS carroceria,
-					gp.operador_gps AS gpss,
-					ve2.anio_fabricacion
-					FROM cmx_vehiculos ve
-					INNER JOIN cmx_proveedores pro
-					ON ve.id_propietario=pro.numdoc_nexos
-					INNER JOIN cmx_proveedores ten
-					ON ve.id_tenedor=ten.numdoc_nexos
-					INNER JOIN cmx_proveedores condu
-					ON ve.id_conductor=condu.numdoc_nexos
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca
-					ON ve.tipo_carroceria=ca.id
-					INNER JOIN cmx_rndc_empresa_gps gp
-					ON ve.empresa_gps=gp.id
-					INNER JOIN cmx_vehiculo2 ve2
-					ON ve.numdoc_vehiculo=ve2.id_vehiculo
-					WHERE ve.placa='" . $placa . "'";
+                        ve.placa, ve.web_satelital,
+                        ve.usuario_satelital, ve.clave_satelital,
+                        pro.nombre, ten.nombre AS poseedor,
+                        condu.nombre AS conductor,
+                        ca.descripcion AS carroceria,
+                        gp.operador_gps AS gpss,
+                        ve2.anio_fabricacion
+                    FROM cmx_vehiculos ve
+                    INNER JOIN cmx_proveedores pro
+                        ON ve.id_propietario = pro.numdoc_nexos
+                    INNER JOIN cmx_proveedores ten
+                        ON ve.id_tenedor = ten.numdoc_nexos
+                    INNER JOIN cmx_proveedores condu
+                        ON ve.id_conductor = condu.numdoc_nexos
+                    INNER JOIN cmx_rndc_vehiculos_carroceria ca
+                        ON ve.tipo_carroceria = ca.id
+                    INNER JOIN cmx_rndc_empresa_gps gp
+                        ON ve.empresa_gps = gp.id
+                    INNER JOIN cmx_vehiculo2 ve2
+                        ON ve.numdoc_vehiculo = ve2.id_vehiculo
+                    WHERE ve.placa = :placa";
+				$params[':placa'] = $placa;
 			}
 
-			if ($tiporecurso == 2 && $filtro == 7) { //numero propietario
-				$sql = "SELECT ve.id,
-					ve.placa, ve.web_satelital,
-					ve.usuario_satelital,
-					ve.clave_satelital,
-					pro.nombre,
-					ten.nombre AS poseedor,
-					condu.nombre AS conductor,
-					ca.descripcion AS carroceria,
-					gp.operador_gps AS gpss,
-					ve2.anio_fabricacion
-					FROM cmx_vehiculos ve
-					INNER JOIN cmx_proveedores pro
-					ON ve.id_propietario=pro.numdoc_nexos
-					INNER JOIN cmx_proveedores ten
-					ON ve.id_tenedor=ten.numdoc_nexos
-					INNER JOIN cmx_proveedores condu
-					ON ve.id_conductor=condu.numdoc_nexos
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca
-					ON ve.tipo_carroceria=ca.id
-					INNER JOIN cmx_rndc_empresa_gps gp
-					ON ve.empresa_gps=gp.id
-					INNER JOIN cmx_vehiculo2 ve2
-					ON ve.numdoc_vehiculo=ve2.id_vehiculo
-					WHERE ve.placa='" . $placa . "'";
-			}
-
-			if ($tiporecurso == 3 && $filtro == 8) { //placa
+			// ================== TRAILERS ==================
+			if ($tiporecurso == 3 && $filtro == 8) {
 				$sql = "SELECT tra.id, tra.placa, tma.codigo,
-					tra.peso_vacio, tra.volumen,
-					tra.tipo_tramite, tra.serie_chasis,
-					vc.nombre, tra.modelo, tra.alto,
-					tra.largo, tra.ancho, tra.capacidad,
-					ca.rndc_id AS rndc_carroceria,
-					tra.caracteristica,
-					pro.numero_documento,
-					tra.numero_civil, ase.rndc_id AS rndc_aseguradora,
-					tra.fecha_vence
-					FROM cmx_trailer tra
-					INNER JOIN cmx_rndc_trailermarcas tma
-					ON tra.marca=tma.id
-					INNER JOIN cmx_rndc_vehiculos_configuracion vc
-					ON tra.configuracion=vc.id
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca
-					ON tra.carroceria=ca.id
-					INNER JOIN cmx_proveedores pro
-					ON tra.doc_propietario=pro.numdoc_nexos
-					INNER JOIN cmx_rndc_aseguradoras ase
-					ON tra.aseguradora=ase.id
-					WHERE tra.placa='" . $placa . "'";
+                        tra.peso_vacio, tra.volumen,
+                        tra.tipo_tramite, tra.serie_chasis,
+                        vc.nombre, tra.modelo, tra.alto,
+                        tra.largo, tra.ancho, tra.capacidad,
+                        ca.rndc_id AS rndc_carroceria,
+                        tra.caracteristica, pro.numero_documento,
+                        tra.numero_civil, ase.rndc_id AS rndc_aseguradora,
+                        tra.fecha_vence
+                    FROM cmx_trailer tra
+                    INNER JOIN cmx_rndc_trailermarcas tma
+                        ON tra.marca = tma.id
+                    INNER JOIN cmx_rndc_vehiculos_configuracion vc
+                        ON tra.configuracion = vc.id
+                    INNER JOIN cmx_rndc_vehiculos_carroceria ca
+                        ON tra.carroceria = ca.id
+                    INNER JOIN cmx_proveedores pro
+                        ON tra.doc_propietario = pro.numdoc_nexos
+                    INNER JOIN cmx_rndc_aseguradoras ase
+                        ON tra.aseguradora = ase.id
+                    WHERE tra.placa = :placa";
+				$params[':placa'] = $placa;
 			}
+
 			if ($tiporecurso == 3 && $filtro == 9) {
 				$sql = "SELECT tra.id, tra.placa, tma.codigo,
-					tra.peso_vacio, tra.volumen,
-					tra.tipo_tramite, tra.serie_chasis,
-					vc.nombre, tra.modelo, tra.alto,
-					tra.largo, tra.ancho, tra.capacidad,
-					ca.rndc_id AS rndc_carroceria,
-					tra.caracteristica,
-					pro.numero_documento,
-					tra.numero_civil, ase.rndc_id AS rndc_aseguradora,
-					tra.fecha_vence
-					FROM cmx_trailer tra
-					INNER JOIN cmx_rndc_trailermarcas tma
-					ON tra.marca=tma.id
-					INNER JOIN cmx_rndc_vehiculos_configuracion vc
-					ON tra.configuracion=vc.id
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca
-					ON tra.carroceria=ca.id
-					INNER JOIN cmx_proveedores pro
-					ON tra.doc_propietario=pro.numdoc_nexos
-					INNER JOIN cmx_rndc_aseguradoras ase
-					ON tra.aseguradora=ase.id
-					WHERE pro.numero_documento=" . $placa;
+                        tra.peso_vacio, tra.volumen,
+                        tra.tipo_tramite, tra.serie_chasis,
+                        vc.nombre, tra.modelo, tra.alto,
+                        tra.largo, tra.ancho, tra.capacidad,
+                        ca.rndc_id AS rndc_carroceria,
+                        tra.caracteristica, pro.numero_documento,
+                        tra.numero_civil, ase.rndc_id AS rndc_aseguradora,
+                        tra.fecha_vence
+                    FROM cmx_trailer tra
+                    INNER JOIN cmx_rndc_trailermarcas tma
+                        ON tra.marca = tma.id
+                    INNER JOIN cmx_rndc_vehiculos_configuracion vc
+                        ON tra.configuracion = vc.id
+                    INNER JOIN cmx_rndc_vehiculos_carroceria ca
+                        ON tra.carroceria = ca.id
+                    INNER JOIN cmx_proveedores pro
+                        ON tra.doc_propietario = pro.numdoc_nexos
+                    INNER JOIN cmx_rndc_aseguradoras ase
+                        ON tra.aseguradora = ase.id
+                    WHERE pro.numero_documento = :numero";
+				$params[':numero'] = $numero;
 			}
-			//echo $sql;
-			$resultado = $this->_db3->query($sql);
-			$resultado->setFetchMode(PDO::FETCH_ASSOC);
-			return $resultado->fetchAll();
+
+			// Si no hay SQL válido, devuelvo vacío
+			if (empty($sql)) {
+				return [];
+			}
+
+			$stmt = $this->_db3->prepare($sql);
+
+			// Bind automático según tipo
+			foreach ($params as $key => $value) {
+				if (is_numeric($value)) {
+					$stmt->bindValue($key, $value, PDO::PARAM_INT);
+				} else {
+					$stmt->bindValue($key, $value, PDO::PARAM_STR);
+				}
+			}
+
+			$stmt->execute();
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
-			$error = $e->getMessage();
-			//$error = throw New Exception( $e->getMessage() );
 			$this->_db3->rollBack();
-			return $resultado = $error;
+			return ["error" => $e->getMessage()];
 		}
 	}
+
 
 	public function Consulta_Tipo($tiporecurso, $filtro, $numero, $placa)
 	{
 		try {
+			$sql = "";
+			$params = [];
 
+			// ================== CLIENTES ==================
 			if ($tiporecurso == 1 && $filtro == 1) {
-				$sql = "SELECT  cli.id,
-					cli.tipo_documento,cli.regimen,cli.documento,
-					cli.digito_verificacion, cli.nombre,
-					cli.actividad_cliente AS 'descripcion_actividad',
-					cli.direccion,
-					cli.telefono,cli.email,cli.regimen, CONCAT(mnc.municipio,'',mnc.depto) AS lugar,
-					cr.ciiu_principal, cr.actividad_aduanera
-					FROM
-					cmx_clientes cli
-					INNER JOIN cmx_municipios mnc
-					ON cli.ciudad=mnc.id
-					LEFT JOIN cmx_clientes_documentos clid
-					ON clid.id_cliente=cli.id
-					LEFT JOIN cmx_clientes_rut cr
-					ON clid.id=cr.id_documento
-					WHERE cli.documento=" . $numero;
+				$sql = "SELECT cli.id,
+                        cli.tipo_documento, cli.regimen, cli.documento,
+                        cli.digito_verificacion, cli.nombre,
+                        cli.actividad_cliente AS descripcion_actividad,
+                        cli.direccion, cli.telefono, cli.email, cli.regimen,
+                        CONCAT(mnc.municipio,'',mnc.depto) AS lugar,
+                        cr.ciiu_principal, cr.actividad_aduanera
+                    FROM cmx_clientes cli
+                    INNER JOIN cmx_municipios mnc ON cli.ciudad = mnc.id
+                    LEFT JOIN cmx_clientes_documentos clid ON clid.id_cliente = cli.id
+                    LEFT JOIN cmx_clientes_rut cr ON clid.id = cr.id_documento
+                    WHERE cli.documento = :numero";
+				$params[':numero'] = $numero;
 			}
+
 			if ($tiporecurso == 1 && $filtro == 2) {
-				$sql = "SELECT id,
-					tipo_documento,
-					documento,digito_verificacion,
-					nombre, descripcion_actividad,
-					direccion, celular as telefono
-					FROM
-					cmx_remitente_destinatario
-					WHERE
-					documento=" . $numero . "
-					AND estado=1";
+				$sql = "SELECT id, tipo_documento,
+                        documento, digito_verificacion,
+                        nombre, descripcion_actividad,
+                        direccion, celular AS telefono
+                    FROM cmx_remitente_destinatario
+                    WHERE documento = :numero AND estado = 1";
+				$params[':numero'] = $numero;
 			}
+
 			if ($tiporecurso == 1 && $filtro == 3) {
 				$sql = "SELECT p.id,
-						p.tipo_documento, p.numero_documento AS 'documento', p.digito_verificacion,
-						p.nombre, p.apellido1, p.apellido2,
-						p.celular AS 'telefono', p.email, p.direccion,
-						p.abreviatura, p.contacto,
-						CONCAT(mn.municipio,'',mn.depto) AS lugar
-						FROM cmx_proveedores p
-						INNER JOIN cmx_actividad_proveedor ap
-						ON p.numdoc_nexos=ap.id_proveedor
-						INNER JOIN cmx_municipios mn
-						ON p.id_municipio=mn.id
-						WHERE
-						p.estado='Activo'
-						AND ap.actividad='Propietario Vehiculo'
-						AND p.numero_documento=" . $numero;
-			}
-			if ($tiporecurso == 1 && $filtro == 5) {
-				$sql = "SELECT p.id,
-						p.tipo_documento, p.numero_documento AS 'documento', p.digito_verificacion,
-						p.nombre, p.apellido1, p.apellido2,
-						p.celular AS 'telefono', p.email, p.direccion,
-						p.abreviatura, p.contacto,
-						CONCAT(mn.municipio,'',mn.depto) AS lugar
-						FROM cmx_proveedores p
-						INNER JOIN cmx_actividad_proveedor ap
-						ON p.numdoc_nexos=ap.id_proveedor
-						INNER JOIN cmx_municipios mn
-						ON p.id_municipio=mn.id
-						WHERE
-						p.estado='Activo'
-						AND ap.actividad='Poseedor Vehiculo'
-						AND p.numero_documento=" . $numero;
-			}
-			if ($tiporecurso == 1 && $filtro == 4) {
-				$sql = "SELECT p.id,
-					p.tipo_documento, p.numero_documento, p.digito_verificacion,
-					p.nombre, p.apellido1, p.apellido2,p.contacto, p.celular, p.email, p.direccion,
-					p.rndc_categoria_licencia, p.rndc_numero_licencia, p.rndc_vencimiento_licencia,
-					condu.celular2, condu.sexo, condu.grupo_sanguineo, condu.fecha_nacimiento,
-					condu.nombre_eps, condu.fecha_vence_eps, condu.nombre_entidad, condu.vence_curso,
-					mn.municipio
-					FROM cmx_proveedores p
-					INNER JOIN cmx_actividad_proveedor ap
-					ON p.numdoc_nexos=ap.id_proveedor
-					INNER JOIN cmx_detalle_conductor condu
-					ON p.id=condu.id_proveedor
-					INNER JOIN cmx_municipios mn
-					ON p.id_municipio=mn.id
-					WHERE
-					p.estado='Activo'
-					AND ap.actividad='Conductor'
-					AND p.numero_documento=" . $numero;
-			}
-			if ($tiporecurso == 2 && $filtro == 6) {
-				$sql = "SELECT ve.id,
-					ve.placa, ve.web_satelital,
-					ve.usuario_satelital,
-					ve.clave_satelital,
-					pro.nombre,
-					ten.nombre AS poseedor,
-					condu.nombre AS conductor,
-					ca.descripcion AS carroceria,
-					gp.operador_gps AS gpss,
-					ve2.anio_fabricacion,
-					cf.nombre AS configuracion,
-					mc.marca, lin.descripcion,
-					col.color, ve2.anio_fabricacion,
-					ve2.peso, ve2.num_chasis, ve2.num_soat,
-					ve2.vence_soat, ve2.num_motor,
-					ve2.poliza_responsabilidad, ve2.tipo_vinculacion,
-					ve2.capacidad_tn, ve2.pesobruto_kg,
-					ve2.f_matricula, ase.nombre AS aseguradora,
-					ve2.cod_tipo_combustible,
-					ve2.anio_fabricacion,
-					cla.clase,
-					cri.descripcion,
-					ve2.capacidad_tn, ve2.pesobruto_kg,
-					ve2.num_soat, ve2.vence_soat,
-					gp.nit AS nit_gps,
-					dve.tecnomecanica,
-					dve.tecno_fecha_expedida,
-					dve.tecno_fecha_vigencia,
-					ve2.num_chasis,
-					pro.numero_documento AS 'docpro',
-					ten.numero_documento AS 'docten',
-					condu.numero_documento AS 'doccondu'
-					FROM cmx_vehiculos ve
-					INNER JOIN cmx_proveedores pro
-					ON ve.id_propietario=pro.numdoc_nexos
-					INNER JOIN cmx_proveedores ten
-					ON ve.id_tenedor=ten.numdoc_nexos
-					INNER JOIN cmx_proveedores condu
-					ON ve.id_conductor=condu.numdoc_nexos
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca
-					ON ve.tipo_carroceria=ca.id
-					INNER JOIN cmx_rndc_empresa_gps gp
-					ON ve.empresa_gps=gp.id
-					INNER JOIN cmx_vehiculo2 ve2
-					ON ve.numdoc_vehiculo=ve2.id_vehiculo
-					INNER JOIN cmx_rndc_vehiculos_configuracion cf
-					ON ve2.configuracion=cf.id
-					INNER JOIN cmx_rndc_vehiculos_marcas mc
-					ON ve2.marca=mc.id
-					INNER JOIN cmx_rndc_vehiculos_linea lin
-					ON ve2.linea=lin.id
-					INNER JOIN cmx_rndc_vehiculos_color col
-					ON ve2.color=col.id
-					INNER JOIN cmx_rndc_aseguradoras ase
-					ON ve2.aseguradora=ase.id
-					INNER JOIN cmx_rndc_clase_vehiculo cla
-					ON ve2.clase_vehiculo=cla.id
-					INNER JOIN cmx_rndc_vehiculos_carroceria cri
-					ON ve.tipo_carroceria=cri.id
-					INNER JOIN cmx_detalle_vehiculo dve
-					ON ve.numdoc_vehiculo=dve.id_vehiculo
-					WHERE ve.placa='" . $placa . "'";
+                        p.tipo_documento, p.numero_documento AS documento, p.digito_verificacion,
+                        p.nombre, p.apellido1, p.apellido2,
+                        p.celular AS telefono, p.email, p.direccion,
+                        p.abreviatura, p.contacto,
+                        CONCAT(mn.municipio,'',mn.depto) AS lugar
+                    FROM cmx_proveedores p
+                    INNER JOIN cmx_actividad_proveedor ap ON p.numdoc_nexos = ap.id_proveedor
+                    INNER JOIN cmx_municipios mn ON p.id_municipio = mn.id
+                    WHERE p.estado = 'Activo'
+                      AND ap.actividad = 'Propietario Vehiculo'
+                      AND p.numero_documento = :numero";
+				$params[':numero'] = $numero;
 			}
 
-			$resultado = $this->_db3->query($sql);
-			$resultado->setFetchMode(PDO::FETCH_ASSOC);
-			return $resultado->fetchall();
+			if ($tiporecurso == 1 && $filtro == 5) {
+				$sql = "SELECT p.id,
+                        p.tipo_documento, p.numero_documento AS documento, p.digito_verificacion,
+                        p.nombre, p.apellido1, p.apellido2,
+                        p.celular AS telefono, p.email, p.direccion,
+                        p.abreviatura, p.contacto,
+                        CONCAT(mn.municipio,'',mn.depto) AS lugar
+                    FROM cmx_proveedores p
+                    INNER JOIN cmx_actividad_proveedor ap ON p.numdoc_nexos = ap.id_proveedor
+                    INNER JOIN cmx_municipios mn ON p.id_municipio = mn.id
+                    WHERE p.estado = 'Activo'
+                      AND ap.actividad = 'Poseedor Vehiculo'
+                      AND p.numero_documento = :numero";
+				$params[':numero'] = $numero;
+			}
+
+			if ($tiporecurso == 1 && $filtro == 4) {
+				$sql = "SELECT p.id,
+                        p.tipo_documento, p.numero_documento, p.digito_verificacion,
+                        p.nombre, p.apellido1, p.apellido2, p.contacto,
+                        p.celular, p.email, p.direccion,
+                        p.rndc_categoria_licencia, p.rndc_numero_licencia, p.rndc_vencimiento_licencia,
+                        condu.celular2, condu.sexo, condu.grupo_sanguineo, condu.fecha_nacimiento,
+                        condu.nombre_eps, condu.fecha_vence_eps, condu.nombre_entidad, condu.vence_curso,
+                        mn.municipio
+                    FROM cmx_proveedores p
+                    INNER JOIN cmx_actividad_proveedor ap ON p.numdoc_nexos = ap.id_proveedor
+                    INNER JOIN cmx_detalle_conductor condu ON p.id = condu.id_proveedor
+                    INNER JOIN cmx_municipios mn ON p.id_municipio = mn.id
+                    WHERE p.estado = 'Activo'
+                      AND ap.actividad = 'Conductor'
+                      AND p.numero_documento = :numero";
+				$params[':numero'] = $numero;
+			}
+
+			// ================== VEHICULOS ==================
+			if ($tiporecurso == 2 && $filtro == 6) {
+				$sql = "SELECT ve.id,
+                        ve.placa, ve.web_satelital, ve.usuario_satelital,
+                        ve.clave_satelital, pro.nombre, ten.nombre AS poseedor,
+                        condu.nombre AS conductor, ca.descripcion AS carroceria,
+                        gp.operador_gps AS gpss, ve2.anio_fabricacion,
+                        cf.nombre AS configuracion, mc.marca, lin.descripcion,
+                        col.color, ve2.anio_fabricacion, ve2.peso, ve2.num_chasis, ve2.num_soat,
+                        ve2.vence_soat, ve2.num_motor, ve2.poliza_responsabilidad, ve2.tipo_vinculacion,
+                        ve2.capacidad_tn, ve2.pesobruto_kg, ve2.f_matricula,
+                        ase.nombre AS aseguradora, ve2.cod_tipo_combustible,
+                        ve2.anio_fabricacion, cla.clase, cri.descripcion,
+                        ve2.capacidad_tn, ve2.pesobruto_kg,
+                        ve2.num_soat, ve2.vence_soat, gp.nit AS nit_gps,
+                        dve.tecnomecanica, dve.tecno_fecha_expedida, dve.tecno_fecha_vigencia,
+                        ve2.num_chasis,
+                        pro.numero_documento AS docpro,
+                        ten.numero_documento AS docten,
+                        condu.numero_documento AS doccondu
+                    FROM cmx_vehiculos ve
+                    INNER JOIN cmx_proveedores pro ON ve.id_propietario = pro.numdoc_nexos
+                    INNER JOIN cmx_proveedores ten ON ve.id_tenedor = ten.numdoc_nexos
+                    INNER JOIN cmx_proveedores condu ON ve.id_conductor = condu.numdoc_nexos
+                    INNER JOIN cmx_rndc_vehiculos_carroceria ca ON ve.tipo_carroceria = ca.id
+                    INNER JOIN cmx_rndc_empresa_gps gp ON ve.empresa_gps = gp.id
+                    INNER JOIN cmx_vehiculo2 ve2 ON ve.numdoc_vehiculo = ve2.id_vehiculo
+                    INNER JOIN cmx_rndc_vehiculos_configuracion cf ON ve2.configuracion = cf.id
+                    INNER JOIN cmx_rndc_vehiculos_marcas mc ON ve2.marca = mc.id
+                    INNER JOIN cmx_rndc_vehiculos_linea lin ON ve2.linea = lin.id
+                    INNER JOIN cmx_rndc_vehiculos_color col ON ve2.color = col.id
+                    INNER JOIN cmx_rndc_aseguradoras ase ON ve2.aseguradora = ase.id
+                    INNER JOIN cmx_rndc_clase_vehiculo cla ON ve2.clase_vehiculo = cla.id
+                    INNER JOIN cmx_rndc_vehiculos_carroceria cri ON ve.tipo_carroceria = cri.id
+                    INNER JOIN cmx_detalle_vehiculo dve ON ve.numdoc_vehiculo = dve.id_vehiculo
+                    WHERE ve.placa = :placa";
+				$params[':placa'] = $placa;
+			}
+
+			// ================== EJECUTAR ==================
+			if (empty($sql)) {
+				return [];
+			}
+
+			$stmt = $this->_db3->prepare($sql);
+
+			// Bind automático de parámetros
+			foreach ($params as $key => $value) {
+				if (is_numeric($value)) {
+					$stmt->bindValue($key, $value, PDO::PARAM_INT);
+				} else {
+					$stmt->bindValue($key, $value, PDO::PARAM_STR);
+				}
+			}
+
+			$stmt->execute();
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
-			$error = $e->getMessage();
-			//$error = throw New Exception( $e->getMessage() );
 			$this->_db3->rollBack();
-			return $resultado = $error;
+			return ["error" => $e->getMessage()];
 		}
 	}
 
@@ -413,24 +391,22 @@ class integracion_oetModel extends Model
 	{
 		try {
 			if ($tiporecurso == 1 && $filtro == 3) {
-				$sql = "SELECT pf.tipo_cuenta, pf.numero_cuenta,
+				$sql = $this->_db3->prepare("SELECT pf.tipo_cuenta, pf.numero_cuenta,
 					t.descripcion AS tributaria,
 					bank.nombre, ac.descripcion
 					FROM cmx_proveedor_financieros pf
-					INNER JOIN cmx_para_bancos bank
-					ON pf.banco=bank.id
-					INNER JOIN cmx_para_actividad_economica ac
-					ON pf.actividad_economica=ac.id
-					INNER JOIN cmx_para_obligacion_tributaria t
-					ON pf.obliga_tributaria=t.id
-					WHERE pf.id_proveedor=" . $numero;
+					INNER JOIN cmx_para_bancos bank ON pf.banco=bank.id
+					INNER JOIN cmx_para_actividad_economica ac ON pf.actividad_economica=ac.id
+					INNER JOIN cmx_para_obligacion_tributaria t ON pf.obliga_tributaria=t.id
+					WHERE pf.id_proveedor=:numero");
+				$sql->bindParam(":numero", $numero);
+				$sql->execute();
+				$resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
 			}
-			$resultado = $this->_db3->query($sql);
-			$resultado->setFetchMode(PDO::FETCH_ASSOC);
-			return $resultado->fetchall();
+			return $resultado;
 		} catch (PDOException $e) {
 			$error = $e->getMessage();
-			$this->_db3->rollBack();
+			// $this->_db3->rollBack();
 			return $resultado = $error;
 		}
 	}
@@ -489,196 +465,176 @@ class integracion_oetModel extends Model
 	public function Datos_Tercero($recurso, $datorecurso)
 	{
 		try {
-			if ($recurso == 1) { //cliente
+			$sql = "";
+
+			if ($recurso == 1) { // cliente
 				$sql = "SELECT cl.tipo_documento, cl.documento,
-					cl.digito_verificacion,
-					cl.nombre, mn.rndc_codigo_ciudad,
-					cl.direccion, cl.telefono, cl.email,
-					clr.ciiu_principal, cl.regimen,
-					po.codigo AS obligacion
-					FROM cmx_clientes cl
-					INNER JOIN cmx_municipios mn ON cl.ciudad=mn.id
-					INNER JOIN cmx_clientes_documentos cld ON cl.id=cld.id_cliente
-					INNER JOIN cmx_clientes_rut clr ON cld.id=clr.id_documento
-					INNER JOIN cmx_para_obligacion_tributaria po ON cl.obligacion_tributaria=po.id
-					WHERE cl.documento=" . $datorecurso . "";
+                        cl.digito_verificacion,
+                        cl.nombre, mn.rndc_codigo_ciudad,
+                        cl.direccion, cl.telefono, cl.email,
+                        clr.ciiu_principal, cl.regimen,
+                        po.codigo AS obligacion
+                    FROM cmx_clientes cl
+                    INNER JOIN cmx_municipios mn ON cl.ciudad=mn.id
+                    INNER JOIN cmx_clientes_documentos cld ON cl.id=cld.id_cliente
+                    INNER JOIN cmx_clientes_rut clr ON cld.id=clr.id_documento
+                    INNER JOIN cmx_para_obligacion_tributaria po ON cl.obligacion_tributaria=po.id
+                    WHERE cl.documento = :dato";
 			}
-			if ($recurso == 3) { //propietario
-				$sql = "SELECT
-						pro.tipo_documento,
-						pro.numero_documento,
-						pro.digito_verificacion,
-						pro.nombre,
-						pro.apellido1,
-						pro.apellido2,
-						pro.abreviatura,
-						pro.contacto,
-						pro.celular,
-						pro.direccion,
-						pro.email,
-						mn.rndc_codigo_ciudad
-						FROM cmx_proveedores pro
-						INNER JOIN cmx_municipios mn ON pro.id_municipio=mn.id
-						WHERE pro.numero_documento=" . $datorecurso . "
-						AND pro.estado='Activo'";
+
+			if ($recurso == 3) { // propietario
+				$sql = "SELECT pro.tipo_documento, pro.numero_documento,
+                        pro.digito_verificacion, pro.nombre,
+                        pro.apellido1, pro.apellido2, pro.abreviatura,
+                        pro.contacto, pro.celular, pro.direccion,
+                        pro.email, mn.rndc_codigo_ciudad
+                    FROM cmx_proveedores pro
+                    INNER JOIN cmx_municipios mn ON pro.id_municipio=mn.id
+                    WHERE pro.numero_documento = :dato
+                      AND pro.estado='Activo'";
 			}
-			if ($recurso == 4) { //conductor
+
+			if ($recurso == 4) { // conductor
 				$sql = "SELECT a.tipo_documento, a.numero_documento, a.digito_verificacion,
-					a.nombre, a.apellido1, a.apellido2, a.abreviatura,a.contacto, a.celular,
-					a.direccion, a.email, m.rndc_codigo_ciudad,
-					b.celular2, b.fecha_nacimiento, b.grupo_sanguineo,
-					b.sexo, a.rndc_categoria_licencia,
-					a.rndc_numero_licencia, a.rndc_vencimiento_licencia,
-					MIN(ref.id),ref.id,
-					ref.nombre_empresa, ref.fecha_ingreso, ref.fecha_retiro,
-					ref.persona_contacto, ref.celular,
-					ref.cargo, ref.antiguedad,
-					MIN(per.id),
-					per.id, per.nombre_personal,
-					per.parentezco, per.tel_personal
-					FROM cmx_proveedores a
-					INNER JOIN cmx_municipios m ON a.id_municipio=m.id
-					INNER JOIN cmx_detalle_conductor b ON a.numdoc_nexos=b.id_proveedor
-					INNER JOIN cmx_referencias_preestudio ref ON a.numero_documento=ref.id_conductor
-					INNER JOIN cmx_referencias_personales per ON a.numdoc_nexos=per.id_conductor
-					WHERE a.numero_documento=" . $datorecurso . "";
+                        a.nombre, a.apellido1, a.apellido2, a.abreviatura, a.contacto, a.celular,
+                        a.direccion, a.email, m.rndc_codigo_ciudad,
+                        b.celular2, b.fecha_nacimiento, b.grupo_sanguineo,
+                        b.sexo, a.rndc_categoria_licencia,
+                        a.rndc_numero_licencia, a.rndc_vencimiento_licencia,
+                        MIN(ref.id) AS id_ref, ref.nombre_empresa, ref.fecha_ingreso, ref.fecha_retiro,
+                        ref.persona_contacto, ref.celular AS tel_ref,
+                        ref.cargo, ref.antiguedad,
+                        MIN(per.id) AS id_per,
+                        per.nombre_personal, per.parentezco, per.tel_personal
+                    FROM cmx_proveedores a
+                    INNER JOIN cmx_municipios m ON a.id_municipio=m.id
+                    INNER JOIN cmx_detalle_conductor b ON a.numdoc_nexos=b.id_proveedor
+                    INNER JOIN cmx_referencias_preestudio ref ON a.numero_documento=ref.id_conductor
+                    INNER JOIN cmx_referencias_personales per ON a.numdoc_nexos=per.id_conductor
+                    WHERE a.numero_documento = :dato";
 			}
-			if ($recurso == 5) { //poseedor
-				$sql = "SELECT
-					pro.tipo_documento,
-					pro.numero_documento,
-					pro.digito_verificacion,
-					pro.nombre,
-					pro.apellido1,
-					pro.apellido2,
-					pro.abreviatura,
-					pro.contacto,
-					pro.celular,
-					pro.direccion,
-					pro.email,
-					mn.rndc_codigo_ciudad
-					FROM cmx_proveedores pro
-					INNER JOIN cmx_municipios mn ON pro.id_municipio=mn.id
-					WHERE pro.numero_documento=" . $datorecurso . "
-					AND pro.estado='Activo'";
+
+			if ($recurso == 5) { // poseedor
+				$sql = "SELECT pro.tipo_documento, pro.numero_documento,
+                        pro.digito_verificacion, pro.nombre,
+                        pro.apellido1, pro.apellido2, pro.abreviatura,
+                        pro.contacto, pro.celular, pro.direccion,
+                        pro.email, mn.rndc_codigo_ciudad
+                    FROM cmx_proveedores pro
+                    INNER JOIN cmx_municipios mn ON pro.id_municipio=mn.id
+                    WHERE pro.numero_documento = :dato
+                      AND pro.estado='Activo'";
 			}
-			if ($recurso == 6) { //veh placa
-				$sql = "SELECT v.placa,
-					 conf.nombre AS rndc_configuracion,col.rndc_id AS id_color_avansat,
-					 ma.rndc_id AS id_marca_avansat, lin.rndc_id AS id_linea_avansat, ve2.cod_tipo_combustible, ve2.anio_fabricacion,
-					ve2.clase_vehiculo, ca.id_carroc_avansat,
-					ve2.peso, ve2.capacidad_tn,ve2.num_soat, ve2.vence_soat, ase.rndc_id AS rndc_aseguradora,
-					dv.tecno_fecha_vigencia,gps.nit, v.usuario_satelital, v.clave_satelital, ve2.fecha_mant_gps,
-					ve2.num_motor, ve2.num_chasis, ve2.poliza_responsabilidad,
-					ve2.vence_poliza,ve2.tipo_vinculacion, dv.licencia_transito,
-					p.numero_documento AS propietario,
-					pe.numero_documento AS poseedor,
-					co.numero_documento AS conductor,
-					dv.tecnomecanica
-					FROM cmx_vehiculos v
-					INNER JOIN cmx_proveedores p ON v.id_propietario=p.numdoc_nexos
-					INNER JOIN cmx_proveedores pe ON v.id_tenedor=pe.numdoc_nexos
-					INNER JOIN cmx_proveedores co ON v.id_conductor=co.numdoc_nexos
-					INNER JOIN cmx_vehiculo2 ve2 ON v.numdoc_vehiculo=ve2.id_vehiculo
-					INNER JOIN cmx_rndc_vehiculos_configuracion conf ON ve2.configuracion=conf.id
-					INNER JOIN cmx_rndc_vehiculos_color col ON ve2.color=col.id
-					INNER JOIN cmx_rndc_vehiculos_marcas ma ON ve2.marca=ma.id
-					INNER JOIN cmx_rndc_vehiculos_linea lin ON ve2.linea=lin.id
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca ON v.tipo_carroceria=ca.id
-					INNER JOIN cmx_rndc_aseguradoras ase ON ve2.aseguradora=ase.id
-					INNER JOIN cmx_detalle_vehiculo dv ON v.numdoc_vehiculo=dv.id_vehiculo
-					INNER JOIN cmx_rndc_empresa_gps gps ON v.empresa_gps=gps.id
-					WHERE v.placa='" . $datorecurso . "'";
+
+			if ($recurso == 6) { // vehículo por placa
+				$sql = "SELECT v.placa, conf.nombre AS rndc_configuracion,
+                        col.rndc_id AS id_color_avansat,
+                        ma.rndc_id AS id_marca_avansat,
+                        lin.rndc_id AS id_linea_avansat,
+                        ve2.cod_tipo_combustible, ve2.anio_fabricacion,
+                        ve2.clase_vehiculo, ca.id_carroc_avansat,
+                        ve2.peso, ve2.capacidad_tn, ve2.num_soat, ve2.vence_soat,
+                        ase.rndc_id AS rndc_aseguradora, dv.tecno_fecha_vigencia,
+                        gps.nit, v.usuario_satelital, v.clave_satelital, ve2.fecha_mant_gps,
+                        ve2.num_motor, ve2.num_chasis, ve2.poliza_responsabilidad,
+                        ve2.vence_poliza, ve2.tipo_vinculacion, dv.licencia_transito,
+                        p.numero_documento AS propietario,
+                        pe.numero_documento AS poseedor,
+                        co.numero_documento AS conductor,
+                        dv.tecnomecanica
+                    FROM cmx_vehiculos v
+                    INNER JOIN cmx_proveedores p ON v.id_propietario=p.numdoc_nexos
+                    INNER JOIN cmx_proveedores pe ON v.id_tenedor=pe.numdoc_nexos
+                    INNER JOIN cmx_proveedores co ON v.id_conductor=co.numdoc_nexos
+                    INNER JOIN cmx_vehiculo2 ve2 ON v.numdoc_vehiculo=ve2.id_vehiculo
+                    INNER JOIN cmx_rndc_vehiculos_configuracion conf ON ve2.configuracion=conf.id
+                    INNER JOIN cmx_rndc_vehiculos_color col ON ve2.color=col.id
+                    INNER JOIN cmx_rndc_vehiculos_marcas ma ON ve2.marca=ma.id
+                    INNER JOIN cmx_rndc_vehiculos_linea lin ON ve2.linea=lin.id
+                    INNER JOIN cmx_rndc_vehiculos_carroceria ca ON v.tipo_carroceria=ca.id
+                    INNER JOIN cmx_rndc_aseguradoras ase ON ve2.aseguradora=ase.id
+                    INNER JOIN cmx_detalle_vehiculo dv ON v.numdoc_vehiculo=dv.id_vehiculo
+                    INNER JOIN cmx_rndc_empresa_gps gps ON v.empresa_gps=gps.id
+                    WHERE v.placa = :dato";
 			}
-			if ($recurso == 7) {
-				$sql = "SELECT v.placa,
-					 conf.nombre AS rndc_configuracion,col.rndc_id AS id_color_avansat,
-					 ma.id_marca_avansat, lin.rndc_id AS id_linea_avansat ,ve2.cod_tipo_combustible, ve2.anio_fabricacion,
-					ve2.clase_vehiculo, ca.id_carroc_avansat,
-					ve2.peso, ve2.capacidad_tn,ve2.num_soat, ve2.vence_soat, ase.rndc_id AS rndc_aseguradora,
-					dv.tecno_fecha_vigencia,gps.nit, v.usuario_satelital, v.clave_satelital, ve2.fecha_mant_gps,
-					ve2.num_motor, ve2.num_chasis, ve2.poliza_responsabilidad,
-					ve2.vence_poliza,ve2.tipo_vinculacion, dv.licencia_transito,
-					p.numero_documento AS propietario,
-					pe.numero_documento AS poseedor,
-					co.numero_documento AS conductor, dv.tecnomecanica
-					FROM cmx_vehiculos v
-					INNER JOIN cmx_proveedores p
-					ON v.id_propietario=p.numdoc_nexos
-					INNER JOIN cmx_proveedores pe
-					ON v.id_tenedor=pe.numdoc_nexos
-					INNER JOIN cmx_proveedores co
-					ON v.id_conductor=co.numdoc_nexos
-					INNER JOIN cmx_vehiculo2 ve2
-					ON v.numdoc_vehiculo=ve2.id_vehiculo
-					INNER JOIN cmx_rndc_vehiculos_configuracion conf
-					ON ve2.configuracion=conf.id
-					INNER JOIN cmx_rndc_vehiculos_color col
-					ON ve2.color=col.id
-					INNER JOIN cmx_rndc_vehiculos_marcas ma
-					ON ve2.marca=ma.id
-					INNER JOIN cmx_rndc_vehiculos_linea lin
-					ON ve2.linea=lin.id
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca
-					ON v.tipo_carroceria=ca.id
-					INNER JOIN cmx_rndc_aseguradoras ase
-					ON ve2.aseguradora=ase.id
-					INNER JOIN cmx_detalle_vehiculo dv
-					ON v.numdoc_vehiculo=dv.id_vehiculo
-					INNER JOIN cmx_rndc_empresa_gps gps
-					ON v.empresa_gps=gps.id
-					WHERE p.numero_documento=" . $datorecurso;
+
+			if ($recurso == 7) { // vehículo por propietario
+				$sql = "SELECT v.placa, conf.nombre AS rndc_configuracion,
+                        col.rndc_id AS id_color_avansat,
+                        ma.id_marca_avansat, lin.rndc_id AS id_linea_avansat,
+                        ve2.cod_tipo_combustible, ve2.anio_fabricacion,
+                        ve2.clase_vehiculo, ca.id_carroc_avansat,
+                        ve2.peso, ve2.capacidad_tn, ve2.num_soat, ve2.vence_soat,
+                        ase.rndc_id AS rndc_aseguradora, dv.tecno_fecha_vigencia,
+                        gps.nit, v.usuario_satelital, v.clave_satelital, ve2.fecha_mant_gps,
+                        ve2.num_motor, ve2.num_chasis, ve2.poliza_responsabilidad,
+                        ve2.vence_poliza, ve2.tipo_vinculacion, dv.licencia_transito,
+                        p.numero_documento AS propietario,
+                        pe.numero_documento AS poseedor,
+                        co.numero_documento AS conductor,
+                        dv.tecnomecanica
+                    FROM cmx_vehiculos v
+                    INNER JOIN cmx_proveedores p ON v.id_propietario=p.numdoc_nexos
+                    INNER JOIN cmx_proveedores pe ON v.id_tenedor=pe.numdoc_nexos
+                    INNER JOIN cmx_proveedores co ON v.id_conductor=co.numdoc_nexos
+                    INNER JOIN cmx_vehiculo2 ve2 ON v.numdoc_vehiculo=ve2.id_vehiculo
+                    INNER JOIN cmx_rndc_vehiculos_configuracion conf ON ve2.configuracion=conf.id
+                    INNER JOIN cmx_rndc_vehiculos_color col ON ve2.color=col.id
+                    INNER JOIN cmx_rndc_vehiculos_marcas ma ON ve2.marca=ma.id
+                    INNER JOIN cmx_rndc_vehiculos_linea lin ON ve2.linea=lin.id
+                    INNER JOIN cmx_rndc_vehiculos_carroceria ca ON v.tipo_carroceria=ca.id
+                    INNER JOIN cmx_rndc_aseguradoras ase ON ve2.aseguradora=ase.id
+                    INNER JOIN cmx_detalle_vehiculo dv ON v.numdoc_vehiculo=dv.id_vehiculo
+                    INNER JOIN cmx_rndc_empresa_gps gps ON v.empresa_gps=gps.id
+                    WHERE p.numero_documento = :dato";
 			}
-			if ($recurso == 8) { //trailer
+
+			if ($recurso == 8) { // trailer por placa
 				$sql = "SELECT tra.placa, tma.id_avansat,
-					tra.peso_vacio, tra.volumen,
-					tra.tipo_tramite, tra.serie_chasis,
-					vc.nombre AS rndc_configuacion, tra.modelo, tra.alto,
-					tra.largo, tra.ancho, tra.capacidad,
-					ca.rndc_id AS rndc_carroceria,
-					tra.caracteristica,
-					pro.numero_documento,
-					tra.numero_civil, ase.rndc_id AS rndc_aseguradora,
-					tra.fecha_vence, tma.codigo AS rndc_marca
-					FROM cmx_trailer tra
-					INNER JOIN cmx_rndc_trailermarcas tma ON tra.marca=tma.id
-					INNER JOIN cmx_rndc_vehiculos_configuracion vc ON tra.configuracion=vc.id
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca ON tra.carroceria=ca.id
-					INNER JOIN cmx_proveedores pro ON tra.doc_propietario=pro.numdoc_nexos
-					LEFT JOIN cmx_rndc_aseguradoras ase ON tra.aseguradora=ase.id
-					WHERE tra.placa='" . $datorecurso . "'";
+                        tra.peso_vacio, tra.volumen, tra.tipo_tramite,
+                        tra.serie_chasis, vc.nombre AS rndc_configuacion,
+                        tra.modelo, tra.alto, tra.largo, tra.ancho, tra.capacidad,
+                        ca.rndc_id AS rndc_carroceria, tra.caracteristica,
+                        pro.numero_documento, tra.numero_civil,
+                        ase.rndc_id AS rndc_aseguradora, tra.fecha_vence, tma.codigo AS rndc_marca
+                    FROM cmx_trailer tra
+                    INNER JOIN cmx_rndc_trailermarcas tma ON tra.marca=tma.id
+                    INNER JOIN cmx_rndc_vehiculos_configuracion vc ON tra.configuracion=vc.id
+                    INNER JOIN cmx_rndc_vehiculos_carroceria ca ON tra.carroceria=ca.id
+                    INNER JOIN cmx_proveedores pro ON tra.doc_propietario=pro.numdoc_nexos
+                    LEFT JOIN cmx_rndc_aseguradoras ase ON tra.aseguradora=ase.id
+                    WHERE tra.placa = :dato";
 			}
-			if ($recurso == 9) {
+
+			if ($recurso == 9) { // trailer por propietario
 				$sql = "SELECT tra.placa, tma.id_avansat,
-					tra.peso_vacio, tra.volumen,
-					tra.tipo_tramite, tra.serie_chasis,
-					vc.nombre AS rndc_configuacion, tra.modelo, tra.alto,
-					tra.largo, tra.ancho, tra.capacidad,
-					ca.rndc_id AS rndc_carroceria,
-					tra.caracteristica,
-					pro.numero_documento,
-					tra.numero_civil, ase.rndc_id AS rndc_aseguradora,
-					tra.fecha_vence, tma.codigo AS rndc_marca
-					FROM cmx_trailer tra
-					INNER JOIN cmx_rndc_trailermarcas tma
-					ON tra.marca=tma.id
-					INNER JOIN cmx_rndc_vehiculos_configuracion vc
-					ON tra.configuracion=vc.id
-					INNER JOIN cmx_rndc_vehiculos_carroceria ca
-					ON tra.carroceria=ca.id
-					INNER JOIN cmx_proveedores pro
-					ON tra.doc_propietario=pro.numdoc_nexos
-					LEFT JOIN cmx_rndc_aseguradoras ase
-					ON tra.aseguradora=ase.id
-					WHERE pro.numero_documento=" . $datorecurso;
+                        tra.peso_vacio, tra.volumen, tra.tipo_tramite,
+                        tra.serie_chasis, vc.nombre AS rndc_configuacion,
+                        tra.modelo, tra.alto, tra.largo, tra.ancho, tra.capacidad,
+                        ca.rndc_id AS rndc_carroceria, tra.caracteristica,
+                        pro.numero_documento, tra.numero_civil,
+                        ase.rndc_id AS rndc_aseguradora, tra.fecha_vence, tma.codigo AS rndc_marca
+                    FROM cmx_trailer tra
+                    INNER JOIN cmx_rndc_trailermarcas tma ON tra.marca=tma.id
+                    INNER JOIN cmx_rndc_vehiculos_configuracion vc ON tra.configuracion=vc.id
+                    INNER JOIN cmx_rndc_vehiculos_carroceria ca ON tra.carroceria=ca.id
+                    INNER JOIN cmx_proveedores pro ON tra.doc_propietario=pro.numdoc_nexos
+                    LEFT JOIN cmx_rndc_aseguradoras ase ON tra.aseguradora=ase.id
+                    WHERE pro.numero_documento = :dato";
 			}
-			$resultado = $this->_db3->query($sql);
-			$resultado->setFetchMode(PDO::FETCH_ASSOC);
-			return $resultado->fetch();
+
+			// preparar consulta
+			$stmt = $this->_db3->prepare($sql);
+			// bindParam explícito
+			$stmt->bindParam(':dato', $datorecurso, PDO::PARAM_STR);
+
+			$stmt->execute();
+			$stmt->setFetchMode(PDO::FETCH_ASSOC);
+
+			return $stmt->fetch();
 		} catch (PDOException $e) {
-			$error = $e->getMessage();
 			$this->_db3->rollBack();
-			return $resultado = $error;
+			return $e->getMessage();
 		}
 	}
 
@@ -686,41 +642,35 @@ class integracion_oetModel extends Model
 	{
 		try {
 			if ($filtro == 1) {
-				$sql = "SELECT oc.id,  cli.nombre,
-						ve.placa
-						FROM cmx_orden_cargue oc
-						INNER JOIN cmx_clientes cli
-						ON oc.cli_id=cli.id
-						INNER JOIN cmx_vehiculos ve
-						ON oc.ve_idcarro=ve.numdoc_vehiculo
-						WHERE oc.id=" . $numero;
-				//echo $sql;
-				$resultado = $this->_db3->query($sql);
-				$resultado->setFetchMode(PDO::FETCH_ASSOC);
-				return $resultado->fetchall();
+				$sql = "SELECT oc.id, cli.nombre, ve.placa
+                    FROM cmx_orden_cargue oc
+                    INNER JOIN cmx_clientes cli ON oc.cli_id = cli.id
+                    INNER JOIN cmx_vehiculos ve ON oc.ve_idcarro = ve.numdoc_vehiculo
+                    WHERE oc.id = :numero";
+			} elseif ($filtro == 2) {
+				$sql = "SELECT re.id, cli.nombre, ve.placa
+                    FROM cmx_remesa re
+                    INNER JOIN cmx_remesa_ordencargue roc 
+                        ON re.id = roc.id_remesa AND roc.estado = 1
+                    INNER JOIN cmx_orden_cargue oc 
+                        ON roc.id_orden_cargue = oc.id AND roc.estado = 1
+                    INNER JOIN cmx_clientes cli ON oc.cli_id = cli.id
+                    INNER JOIN cmx_vehiculos ve ON oc.ve_idcarro = ve.numdoc_vehiculo
+                    WHERE re.id = :numero";
+			} else {
+				return []; // si no coincide con los filtros válidos
 			}
-			if ($filtro == 2) {
-				$sql = "SELECT re.id, cli.nombre,ve.placa
-						FROM cmx_remesa re
-						INNER JOIN cmx_remesa_ordencargue roc
-						ON re.id=roc.id_remesa AND roc.estado=1
-						INNER JOIN cmx_orden_cargue oc
-						ON roc.id_orden_cargue=oc.id AND roc.estado=1
-						INNER JOIN cmx_clientes cli
-						ON oc.cli_id=cli.id
-						INNER JOIN cmx_vehiculos ve
-						ON oc.ve_idcarro=ve.numdoc_vehiculo
-						WHERE re.id=" . $numero;
-				//echo $sql;
-				$resultado = $this->_db3->query($sql);
-				$resultado->setFetchMode(PDO::FETCH_ASSOC);
-				return $resultado->fetchall();
-			}
+
+			$stmt = $this->_db3->prepare($sql);
+			$stmt->bindParam(':numero', $numero, PDO::PARAM_INT);
+			$stmt->execute();
+
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
-			$this->_db3->rollBack();
-			return $resultado = $error;
+			return ['error' => $e->getMessage()];
 		}
 	}
+
 
 	public function Consul_Num_Orden($numero)
 	{
@@ -736,15 +686,15 @@ class integracion_oetModel extends Model
 			return $resultado->fetchall();
 		} catch (PDOException $e) {
 			$this->_db3->rollBack();
-			return $resultado = $error;
+			return $resultado = $e;
 		}
 	}
 
 	public function Datos_Documento($recurso, $numero)
 	{
 		try {
-			if ($recurso == 1) {
-				$sql = "SELECT oc.fecha_orden,DATE_FORMAT(oc.hora_orden,'%h:%i')
+			if ($recurso == 1) { //Orde de cargue
+				$sql = "SELECT oc.fecha_orden,DATE_FORMAT(oc.hora_orden,'%H:%i')
 					AS hora_orden,oc.id, me.tipo_servicio_mer, ss.agencia, age.codigo,
 					ve.placa, cond.numero_documento AS documento_conductor,
 					pro.numero_documento AS documento_propietario, ten.numero_documento AS documento_poseedor,
@@ -761,77 +711,67 @@ class integracion_oetModel extends Model
 					pree.serie_precinto, pree.tipo_precinto, coti.nit AS nit_cliente,
 					merk.id_avansat AS mercancia_avansat
 					FROM cmx_orden_cargue oc
-					INNER JOIN cmx_solicitud_vehiculo2 ss
-					ON oc.mer_idservicio=ss.nundoc_solicitud
-					INNER JOIN cmx_agencias age
-					ON ss.agencia=age.id
-					INNER JOIN cmx_detalle_mercancia2 me
-					ON ss.n_cotizacion=me.n_cotizacion
-					INNER JOIN cmx_vehiculos ve
-					ON oc.ve_idcarro=ve.numdoc_vehiculo
-					INNER JOIN cmx_proveedores cond
-					ON oc.ve_id_conductor=cond.numdoc_nexos
-					INNER JOIN cmx_proveedores pro
-					ON ve.id_propietario=pro.numdoc_nexos
-					INNER JOIN cmx_proveedores ten
-					ON ve.id_tenedor=ten.numdoc_nexos
-					LEFT JOIN cmx_planilla_detalle2 pree
-					ON oc.id=pree.id_planilla
-					INNER JOIN cmx_para_tipo_empaque emp
-					ON me.tipo_empaque=emp.id
-					INNER JOIN cmx_para_tipo_mercancia merk
-					ON me.id_mercancia=merk.id
-					INNER JOIN cmx_ruta_puntosentrega rem
-					ON rem.id=oc.id_remitente
-					INNER JOIN cmx_remitente_destinatario b
-					ON rem.cliente=b.id
-					INNER JOIN cmx_municipios mnb
-					ON b.id_ciudad=mnb.id
-					INNER JOIN cmx_ruta_puntosentrega des
-					ON des.id=oc.id_remitente
-					INNER JOIN cmx_destinatarios_ss bdes
-					ON des.id_punto=bdes.id_punto
-					AND bdes.solicitud_servicio=ss.nundoc_solicitud
-					INNER JOIN cmx_remitente_destinatario pa
-					ON bdes.cliente=pa.id
-					INNER JOIN cmx_municipios mnpa
-					ON pa.id_ciudad=mnpa.id
-					INNER JOIN cmx_cotizaciones_serviciocliente coti
-					ON me.n_cotizacion=coti.n_cotizacion
+					INNER JOIN cmx_solicitud_vehiculo2 ss ON oc.mer_idservicio=ss.nundoc_solicitud
+					INNER JOIN cmx_agencias age ON ss.agencia=age.id
+					INNER JOIN cmx_detalle_mercancia2 me ON ss.n_cotizacion=me.n_cotizacion
+					INNER JOIN cmx_vehiculos ve ON oc.ve_idcarro=ve.numdoc_vehiculo
+					INNER JOIN cmx_proveedores cond ON oc.ve_id_conductor=cond.numdoc_nexos
+					INNER JOIN cmx_proveedores pro ON ve.id_propietario=pro.numdoc_nexos
+					INNER JOIN cmx_proveedores ten ON ve.id_tenedor=ten.numdoc_nexos
+					LEFT JOIN cmx_planilla_detalle2 pree ON oc.id=pree.id_planilla
+					INNER JOIN cmx_para_tipo_empaque emp ON me.tipo_empaque=emp.id
+					INNER JOIN cmx_para_tipo_mercancia merk ON me.id_mercancia=merk.id
+					INNER JOIN cmx_ruta_puntosentrega rem ON rem.id=oc.id_remitente
+					INNER JOIN cmx_remitente_destinatario b ON rem.cliente=b.id
+					INNER JOIN cmx_municipios mnb ON b.id_ciudad=mnb.id
+					INNER JOIN cmx_ruta_puntosentrega des ON des.id=oc.id_remitente
+					INNER JOIN cmx_destinatarios_ss bdes ON des.id_punto=bdes.id_punto AND bdes.solicitud_servicio=ss.nundoc_solicitud
+					INNER JOIN cmx_remitente_destinatario pa ON bdes.cliente=pa.id
+					INNER JOIN cmx_municipios mnpa ON pa.id_ciudad=mnpa.id
+					INNER JOIN cmx_cotizaciones_serviciocliente coti ON me.n_cotizacion=coti.n_cotizacion
 					WHERE oc.id=" . $numero;
 			}
 
-			if ($recurso == 2) {
-				$sql = "SELECT re.fecha_creacion,
-						DATE_FORMAT(re.hora_creacion,'%h:%i') AS hora_remesa,
-						re.id AS num_remesa, roc.id_orden_cargue, re.remesa_contado, re.valor_declarado,
-						re.aplica_seguro, re.remesa_contraentrega,
-						re.fecha_cargue, re.cantidad_real_cargada,
-						DATE_FORMAT(re.hora_cargue,'%h:%i') AS hora_cargue,
-						re.horaspactocarga, re.minutospactocarga,
-						re.fecha_descargue,
-						DATE_FORMAT(re.hora_descarga,'%h:%i') AS hora_descarga,
-						re.horaspactodescargue, re.minutospactodescargue,
-						oc.mer_cantidad, de.tipo_servicio_mer,
-						de.tipo_carga, de.total_tarifa, dest.observacion AS observacion_cliente
-						FROM cmx_manifiesto_remesa mr INNER JOIN
-						cmx_remesa AS re ON mr.id_remesa=re.id
-						AND mr.estado=1
-						INNER JOIN cmx_remesa_ordencargue roc
-						ON re.id=roc.id_remesa AND roc.estado=1
-						INNER JOIN cmx_orden_cargue oc
-						ON roc.id_orden_cargue=oc.id AND roc.estado=1
-						INNER JOIN cmx_solicitud_vehiculo2 se
-						ON oc.mer_idservicio=se.nundoc_solicitud
-						INNER JOIN cmx_detalle_mercancia2 de
-						ON se.idpareja_origen_destino=de.id
-						LEFT JOIN cmx_ruta_puntosentrega rp
-						ON se.nundoc_solicitud=rp.cod_ini_ruta
-						LEFT JOIN cmx_destinatarios_ss dest
-						ON rp.cod_ini_ruta=dest.solicitud_servicio
-						AND rp.id_punto=dest.id_punto
-						WHERE
-						mr.id_manifiesto=" . $numero;
+			if ($recurso == 2) { //Remesa
+				$sql = "SELECT
+					re.fecha_creacion,
+					DATE_FORMAT(re.hora_creacion, '%H:%i') AS hora_remesa,
+					re.id AS num_remesa,
+					roc.id_orden_cargue,
+					re.remesa_contado,
+					re.valor_declarado,
+					re.aplica_seguro,
+					re.remesa_contraentrega,
+					re.fecha_cargue,
+					re.cantidad_real_cargada,
+					DATE_FORMAT(re.hora_cargue, '%H:%i') AS hora_cargue,
+					re.horaspactocarga,
+					re.minutospactocarga,
+					re.fecha_descargue,
+					DATE_FORMAT(re.hora_descarga, '%H:%i') AS hora_descarga,
+					re.horaspactodescargue,
+					re.minutospactodescargue,
+					oc.mer_cantidad,
+					de.tipo_servicio_mer,
+					de.tipo_carga,
+					de.total_tarifa,
+					dest.observacion AS observacion_cliente,
+					cl.empresa,
+					rt.rta_ministerio
+				FROM
+					cmx_manifiesto_remesa mr
+					INNER JOIN cmx_remesa AS re ON mr.id_remesa = re.id AND mr.estado = 1
+					INNER JOIN cmx_remesas_transmision rt re.id=rt.id_remesa AND rt.estado= 1
+					INNER JOIN cmx_remesa_ordencargue roc ON re.id = roc.id_remesa AND roc.estado = 1
+					INNER JOIN cmx_orden_cargue oc ON roc.id_orden_cargue = oc.id AND roc.estado = 1
+					INNER JOIN cmx_solicitud_vehiculo2 se ON oc.mer_idservicio = se.nundoc_solicitud
+					INNER JOIN cmx_detalle_mercancia2 de ON se.idpareja_origen_destino = de.id
+					INNER JOIN cmx_clientes cl ON oc.cli_id = cl.id
+					LEFT JOIN cmx_ruta_puntosentrega rp ON se.nundoc_solicitud = rp.cod_ini_ruta
+					LEFT JOIN cmx_destinatarios_ss dest ON rp.cod_ini_ruta = dest.solicitud_servicio
+					AND rp.id_punto = dest.id_punto
+				WHERE
+					mr.id_manifiesto =" . $numero;
 			}
 
 			if ($recurso == 3) {
@@ -851,23 +791,14 @@ class integracion_oetModel extends Model
 					IF(trai.placa IS NULL,'no',trai.placa) AS placa_trailer,
 					IF(mant.valor_anticipo IS NULL,'no',mant.valor_anticipo) AS anticipo
 					FROM cmx_manifiesto ma
-					INNER JOIN cmx_municipios mn
-					ON  ma.origen_viaje=mn.id
-					INNER JOIN cmx_municipios des
-					ON ma.destino_viaje=des.id
-					INNER JOIN cmx_manifiesto_remesa mre
-					ON ma.id=mre.id_manifiesto AND mre.estado=1
-					INNER JOIN cmx_remesa_ordencargue reo
-					ON mre.id_remesa=reo.id_remesa
-					AND reo.estado=1
-					INNER JOIN cmx_orden_cargue oc
-					ON reo.id_orden_cargue=oc.id
-					LEFT JOIN cmx_proveedores propi
-					ON oc.ve_id_propietario=propi.numdoc_nexos
-					LEFT JOIN cmx_trailer trai
-					ON oc.ve_idtrailer=trai.id
-					LEFT JOIN cmx_manifiesto_anticipo mant
-					ON ma.id=mant.id_manifiesto
+					INNER JOIN cmx_municipios mn ON  ma.origen_viaje=mn.id
+					INNER JOIN cmx_municipios des ON ma.destino_viaje=des.id
+					INNER JOIN cmx_manifiesto_remesa mre ON ma.id=mre.id_manifiesto AND mre.estado=1
+					INNER JOIN cmx_remesa_ordencargue reo ON mre.id_remesa=reo.id_remesa AND reo.estado=1
+					INNER JOIN cmx_orden_cargue oc ON reo.id_orden_cargue=oc.id
+					LEFT JOIN cmx_proveedores propi ON oc.ve_id_propietario=propi.numdoc_nexos
+					LEFT JOIN cmx_trailer trai ON oc.ve_idtrailer=trai.id
+					LEFT JOIN cmx_manifiesto_anticipo mant ON ma.id=mant.id_manifiesto
 					WHERE ma.id=" . $numero;
 			}
 
@@ -886,29 +817,6 @@ class integracion_oetModel extends Model
 					INNER JOIN cmx_tiempo_descargue_rem te3 ON tm1.id=te3.id_descargue AND te3.tipo_fecha='fec_salida'
 					INNER JOIN web_service_rndc_cu mc ON ma.id=mc.codigo_proceso
 					WHERE ma.id=" . $numero . " AND estado_envio_rndc='1' GROUP BY te1.id_remesa";
-
-				// $sql = "SELECT ma.id, ma.fecha_expedicion,
-				// 		cum.cantidad_multa,cum.valor_multa,
-				// 		ma.lugar,ma.fecha_pago,
-				// 		CONCAT(too.fecha_cargue,' ',too.hora_cargue) AS fca_llegada,
-				// 		CONCAT(too2.fecha_cargue,' ',too2.hora_cargue) AS fca_entrada,
-				// 		CONCAT(too3.fecha_cargue,' ',too3.hora_cargue) AS fca_salida,
-				// 		CONCAT(te1.fecha_descargue,' ',te1.hora_descargue) AS fdc_llegada,
-				// 		CONCAT(te2.fecha_descargue,' ',te2.hora_descargue) AS fdc_entrada,
-				// 		CONCAT(te3.fecha_descargue,' ',te3.hora_descargue) AS fdc_salida,
-				// 		te1.id_remesa,mc.rta_ministerio
-				// 		FROM cmx_manifiesto ma
-				// 		LEFT JOIN cmx_cumplido cum ON ma.id=cum.manifiesto AND cum.estado=1
-				// 		LEFT JOIN cmx_tiempo_cargue b ON ma.id=b.num_manifiesto
-				// 		LEFT JOIN cmx_tiempo_cargue_ordenes too ON b.id=too.id_cargue AND too.tipo_fecha='fec_llegada'
-				// 		LEFT JOIN cmx_tiempo_cargue_ordenes too2 ON b.id=too2.id_cargue AND too2.tipo_fecha='fec_entrada'
-				// 		LEFT JOIN cmx_tiempo_cargue_ordenes too3 ON b.id=too3.id_cargue AND too3.tipo_fecha='fec_salida'
-				// 		LEFT JOIN cmx_tiempo_descargue tm1 ON ma.id=tm1.num_manifiesto
-				// 		LEFT JOIN cmx_tiempo_descargue_rem te1 ON tm1.id=te1.id_descargue AND te1.tipo_fecha='fec_llegada'
-				// 		LEFT JOIN cmx_tiempo_descargue_rem te2 ON tm1.id=te2.id_descargue AND te2.tipo_fecha='fec_entrada'
-				// 		LEFT JOIN cmx_tiempo_descargue_rem te3 ON tm1.id=te3.id_descargue AND te3.tipo_fecha='fec_salida'
-				// 		LEFT JOIN web_service_rndc_cu mc ON ma.id=mc.codigo_proceso
-				// 		WHERE ma.id=" . $numero . " GROUP BY te1.id_remesa";
 			}
 			// $resultado = $this->_db3->query($sql);
 			$consulta = $this->_db3->prepare($sql);
@@ -986,10 +894,6 @@ class integracion_oetModel extends Model
 				)
 			);
 
-
-
-
-
 			if ($resultado) {
 				return true;
 			} else {
@@ -1064,18 +968,12 @@ class integracion_oetModel extends Model
 					$sql = "SELECT  re.id  AS numero, re.id AS valor, cli.nombre,ve.placa , oet.rta_oet,
 						oet.estado_envio_oet
 						FROM cmx_remesa re
-						INNER JOIN cmx_remesa_ordencargue roc
-						ON re.id=roc.id_remesa AND roc.estado=1
-						INNER JOIN cmx_orden_cargue oc
-						ON roc.id_orden_cargue=oc.id AND roc.estado=1
-						INNER JOIN cmx_clientes cli
-						ON oc.cli_id=cli.id
-						INNER JOIN cmx_vehiculos ve
-						ON oc.ve_idcarro=ve.numdoc_vehiculo
-						LEFT JOIN 	web_service_oet oet
-						ON re.id=oet.codigo_proceso AND oet.identificatorio='Remesa'
-						WHERE re.fecha_creacion='" . $fecha . "'
-						ORDER BY oet.id DESC LIMIT 1";
+						INNER JOIN cmx_remesa_ordencargue roc ON re.id=roc.id_remesa AND roc.estado=1
+						INNER JOIN cmx_orden_cargue oc ON roc.id_orden_cargue=oc.id AND roc.estado=1
+						INNER JOIN cmx_clientes cli ON oc.cli_id=cli.id
+						INNER JOIN cmx_vehiculos ve ON oc.ve_idcarro=ve.numdoc_vehiculo
+						LEFT JOIN web_service_oet oet ON re.id=oet.codigo_proceso AND oet.identificatorio='Remesa'
+						WHERE re.fecha_creacion='" . $fecha . "' ORDER BY oet.id DESC LIMIT 1";
 					$resultado = $this->_db3->query($sql);
 					$resultado->setFetchMode(PDO::FETCH_ASSOC);
 					return $resultado->fetchall();
@@ -1225,7 +1123,7 @@ class integracion_oetModel extends Model
 	{
 		try {
 			if ($recurso == 1) {
-				$sql = "SELECT oc.fecha_orden,DATE_FORMAT(oc.hora_orden,'%h:%i')
+				$sql = "SELECT oc.fecha_orden,DATE_FORMAT(oc.hora_orden,'%H:%i')
 					AS hora_orden,oc.id,
 										me.tipo_servicio_mer, ss.agencia, age.codigo,
 										ve.placa, cond.numero_documento AS documento_conductor,
@@ -1267,32 +1165,26 @@ class integracion_oetModel extends Model
 
 			if ($recurso == 2) {
 				$sql = "SELECT re.fecha_creacion,
-						DATE_FORMAT(re.hora_creacion,'%h:%i') AS hora_remesa,
+						DATE_FORMAT(re.hora_creacion,'%H:%i') AS hora_remesa,
 						re.id AS num_remesa, roc.id_orden_cargue, re.remesa_contado, re.valor_declarado,
 						re.aplica_seguro, re.remesa_contraentrega,
 						re.fecha_cargue, re.cantidad_real_cargada,
-						DATE_FORMAT(re.hora_cargue,'%h:%i') AS hora_cargue,
+						DATE_FORMAT(re.hora_cargue,'%H:%i') AS hora_cargue,
 						re.horaspactocarga, re.minutospactocarga,
 						re.fecha_descargue,
-						DATE_FORMAT(re.hora_descarga,'%h:%i') AS hora_descarga,
+						DATE_FORMAT(re.hora_descarga,'%H:%i') AS hora_descarga,
 						re.horaspactodescargue, re.minutospactodescargue,
 						oc.mer_cantidad, de.tipo_servicio_mer,
-						de.tipo_carga, de.total_tarifa, dest.observacion AS observacion_cliente
-						FROM cmx_manifiesto_remesa mr INNER JOIN
-						cmx_remesa AS re ON mr.id_remesa=re.id
-						AND mr.estado=1
-						INNER JOIN cmx_remesa_ordencargue roc
-						ON re.id=roc.id_remesa AND roc.estado=1
-						INNER JOIN cmx_orden_cargue oc
-						ON roc.id_orden_cargue=oc.id AND roc.estado=1
-						INNER JOIN cmx_solicitud_vehiculo2 se
-						ON oc.mer_idservicio=se.nundoc_solicitud
-						INNER JOIN cmx_detalle_mercancia2 de
-						ON se.idpareja_origen_destino=de.id
-						LEFT JOIN cmx_ruta_puntosentrega rp
-						ON se.nundoc_solicitud=rp.cod_ini_ruta
-						LEFT JOIN cmx_destinatarios_ss dest
-						ON rp.cod_ini_ruta=dest.solicitud_servicio
+						de.tipo_carga, de.total_tarifa, dest.observacion AS observacion_cliente,cl.empresa
+						FROM cmx_manifiesto_remesa mr 
+						INNER JOIN cmx_remesa AS re ON mr.id_remesa=re.id AND mr.estado=1
+						INNER JOIN cmx_remesa_ordencargue roc ON re.id=roc.id_remesa AND roc.estado=1
+						INNER JOIN cmx_orden_cargue oc ON roc.id_orden_cargue=oc.id AND roc.estado=1
+						INNER JOIN cmx_solicitud_vehiculo2 se ON oc.mer_idservicio=se.nundoc_solicitud
+						INNER JOIN cmx_detalle_mercancia2 de ON se.idpareja_origen_destino=de.id
+						INNER JOIN cmx_clientes cl ON oc.cli_id=cl.id
+						LEFT JOIN cmx_ruta_puntosentrega rp ON se.nundoc_solicitud=rp.cod_ini_ruta
+						LEFT JOIN cmx_destinatarios_ss dest ON rp.cod_ini_ruta=dest.solicitud_servicio
 						AND rp.id_punto=dest.id_punto
 						WHERE mr.id_remesa=" . $numero;
 			}
@@ -1313,7 +1205,7 @@ class integracion_oetModel extends Model
 					mre.id_remesa, ma.hora_expedicion,
 					IF(trai.placa IS NULL,'no',trai.placa) AS placa_trailer,
 					IF(mant.valor_anticipo IS NULL,'no',mant.valor_anticipo) AS anticipo,rt.rta_ministerio,ma.num_autorizacion,
-					ss.agencia,ag.nombre AS 'Agencia_generacion',ag.id_extermo
+					ss.agencia,ag.nombre AS 'Agencia_generacion',ag.id_extermo,rm.empresa_id AS empresa
 					FROM cmx_manifiesto ma
 					INNER JOIN cmx_municipios mn ON ma.origen_viaje=mn.id
 					INNER JOIN cmx_municipios des ON ma.destino_viaje=des.id
@@ -1416,6 +1308,7 @@ class integracion_oetModel extends Model
 				 INNER JOIN cmx_rndc_empresa_gps gps ON v.empresa_gps=gps.id
 				 WHERE v.placa='" . $numero . "'";
 			}
+
 			$consulta = $this->_db3->prepare($sql);
 			$consulta->execute();
 			$resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);

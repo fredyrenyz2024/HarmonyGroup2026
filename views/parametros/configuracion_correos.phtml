@@ -1,129 +1,55 @@
-<div class="nexos-content">
-  <div class="row" style="margin:-25px -39px -10px -39px;">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-      <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
-        <tbody>
-          <tr>
-            <td class="celda_titulo2 text-center" style="margin:25px;">
-              <b>Configuración de correo de envios a clientes</b>
-            </td>
-          </tr>
-          <tr>
-          </tr>
-        </tbody>
-      </table>
-      <div id="config_inicial"> <!-- style="display: none;" -->
-        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
-          <tbody>
-            <tr>
-              <td class="celda_titulo2" style="margin:25px;padding: 5px;">
-                <b>Seleccionar cliente para crear la configuración</b>
-              </td>
-            </tr>
-            <tr>
-            </tr>
-          </tbody>
-        </table>
-        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-zise: 8px;">
-          <thead>
-            <tr>
-              <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Cliente:</th>
-              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
-                <select name="cliente" id="cliente" style="width: 100%;height: 24px;" class="select2">
-                  <option value="" selected>Seleccioonar..</option>
-                </select>
-              </td>
-              <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Correo Automatico:</th>
-              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
-                <input type="checkbox" id="correo_automatico" name="correo_automatico" style="width: 100%;transform: scale(1.5);">
-              </td>
-              <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Correo Manual:</th>
-              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
-                <input type="checkbox" id="correo_manual" name="correo_manual" style="width: 100%;transform: scale(1.5);">
-              </td>
-              <th style="background-color: #F5F5F5; width: 250px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">Acción:</th>
-              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
-                <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
-                <button type="button" class="btn btn-primary btn-xs" id="aplicar_filtro" style="width: 100%;height: 24px;"><i class="fas fa-save"></i> Guardar Configuración</button>
-              </td>
-            </tr>
-          </thead>
-        </table>
-
-        <!-- <div class="table-responsive"> </div> -->
-        <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;" style="border: #332D2D;" id="informe_responsable_placas">
-          <thead style="border-collapse: collapse;background-color: #332D2D;color:#fff;">
-            <tr>
-              <!-- <th class="text-center"><b>Pedido</b></th> -->
-              <th class="text-center"><b>#</b></th>
-              <th class="text-center"><b>Novedad</b></th>
-              <th class="text-center"><b>Reporta Cliente</b></th>
-              <th class="text-center"><b>Reporte Sac</b></th>
-            </tr>
-          </thead>
-          <tbody id="tbl_asignar_configuracion" style="border-collapse: collapse;font-size: 12px;">
-          </tbody>
-        </table>
-      </div>
-
-      <div id="confgiuracion_contactos" style="display: none;">
-        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
-          <tbody>
-            <tr>
-              <td class="celda_titulo2" style="margin:25px;padding: 5px;">
-                <b>Configurar las notas por contacto del cliente</b>
-              </td>
-            </tr>
-            <tr>
-            </tr>
-          </tbody>
-        </table>
-        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
-          <thead>
-            <tr>
-              <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Cliente:</th>
-              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="text-center" id="nombre_cliente"></td>
-              <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Nombre del grupo:</th>
-              <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="text-center" id="nombre_grupo"></td>
-              <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Contactos del grupo:</th>
-              <td class="text-right" style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
-                <span class="badge badge-success" id="cantidad_contacto">0</span>
-              </td>
-            </tr>
-          </thead>
-        </table>
-
-        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
-          <tbody>
-            <tr>
-              <td class="celda_titulo2 text-center" style="margin:25px;">
-                <b>Contactos del cliente</b>
-              </td>
-            </tr>
-            <tr>
-            </tr>
-          </tbody>
-        </table>
-
-        <div id="contactos">
-          <div class="row" id="contactos_grupo"></div>
-        </div>
-
-        <div class="col-sm-12 col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 25px;">
-          <p class="text-center">
-            <button class="btn btn-space btn-primary btn-sm" type="button" id="btn_registrar_configuracion"><i class="far fa-save"></i> Registrar</button>
-            <button class="btn btn-space btn-secondary btn-sm"><i class="far fa-window-close"></i> Cancelar</button>
-          </p>
-        </div>
-      </div>
-
-      <!-- <ul class="mt-2" style="display: flex; flex-wrap: wrap;" id="novedades_trafico"></ul> -->
-      <!-- <div id="novedades_trafico"></div> -->
-    </div>
-  </div>
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="d-flex justify-content-end align-items-center mb-2">
+  <!-- <h5 class="mb-0 fw-bold">Administrador de Clientes</h5> -->
+  <!-- <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasConfiguracionEnvios" aria-controls="offcanvasConfiguracionEnvios">
+        <i class="fa-solid fa-plus me-1"></i> Nuevo Cliente
+    </button> -->
+  <button class="btn btn-sm btn-phoenix-success" id="nueva_configuracion" style="font-size: 10px;"><i class="fa-solid fa-plus me-1"></i> NUEVA CONFIGURACION</button>
 </div>
 
 
+
+<div class="container-fluid vh-100">
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <!-- <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'></div> -->
+      <table id='table1' class='table table-bordered table-sm' data-page-length='100' style=" font-size:12px;">
+        <thead class="table-primary" id="manThead">
+          <tr>
+            <th>#</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cliente</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Grupo</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Envio Automatico</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Envio Manual</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Envio WhatsApp</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Tipo Transporte</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Estado</th>
+
+            <!-- <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Ultimo Sitio</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Observación</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha</th>
+            <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Estado</th> -->
+          </tr>
+        </thead>
+        <tbody id='tbodyGrupos' class='text-center'>
+          <tr>
+            <td colspan="9" id="remload"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- <button class="btn btn-primary" type="button" id="btn_probar">PROBAR API</button>
+
+  <div class="card">
+    <div class="card-body">
+        <div id="response"></div>
+    </div>
+  </div> -->
+
+</div>
 
 <!-- Mensajes para los usuarios de la plataforma -->
 <div id="loading-overlay-nexosapp" class="loading-nexosapp">
@@ -134,23 +60,192 @@
   </div>
 </div>
 
-<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/jquery/jquery.min.js type="text/javascript"></script>
-<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js type="text/javascript"></script>
-<script src=<?php echo BASE_URL; ?>views/layout/assets/js/main.js type="text/javascript"></script>
-<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap/dist/js/bootstrap.min.js type="text/javascript">
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
-<script src=<?php echo BASE_URL; ?>/views/parametros/js/configuracion_correo.js type="text/javascript"></script>
-<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/fuelux/js/wizard.js type="text/javascript"></script>
-<script src=<?php echo BASE_URL; ?>views/layout/assets/js/app-form-wizard.js type="text/javascript"></script>
-<script src=<?php echo BASE_URL; ?>views/layout/assets/lib/bootstrap-slider/js/bootstrap-slider.js type="text/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-    //initialize the javascript
-    App.init();
-  });
-</script>
+<div class="offcanvas offcanvas-end" id="offcanvasNuevaNotificaicones" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasNuevaNotificaiconesLabel" style="width: 1200px;">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasNuevaNotificaiconesLabel">Configuración Envios</h5>
+    <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-2 overflow-x-hidden">
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+        <hr class="my-1 text-dark">
+        <div class="d-flex flex-wrap justify-content-start">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Configuración de correo de envios a clientes</h6>
+          </div>
+        </div>
+        <hr class="my-1 text-dark">
+
+        <!-- Tipos de operacion para crear los grupos de trabajo -->
+        <div class="d-flex justify-content-start">
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input check_tipo_operacion" id="importacion" type="checkbox" value="Importación" />
+            <label class="form-check-label fw-bold" for="importacion">Importación</label>
+          </div>
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input check_tipo_operacion" id="exportacion" type="checkbox" value="Exportación" />
+            <label class="form-check-label fw-bold" for="exportacion">Exportación</label>
+          </div>
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input check_tipo_operacion" id="nacional" type="checkbox" value="Nacional" />
+            <label class="form-check-label fw-bold" for="nacional">Nacional</label>
+          </div>
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input check_tipo_operacion" id="urbano" type="checkbox" value="Urbano" />
+            <label class="form-check-label fw-bold" for="urbano">Urbano</label>
+          </div>
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input check_tipo_operacion" id="torre_control" type="checkbox" value="Torre Control" />
+            <label class="form-check-label fw-bold" for="torre_control">Torre de Control</label>
+          </div>
+        </div>
+
+        <hr class="my-1 text-dark">
+        <div class="d-flex flex-wrap justify-content-start">
+          <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <h6 class="mb-0 text-body-highlight me-2">Seleccionar cliente para crear la configuración</h6>
+          </div>
+        </div>
+        <hr class="my-1 text-dark">
+
+        <div id="config_inicial"> <!-- style="display: none;" -->
+          <div class="row g-3 align-items-center">
+            <!-- Cliente -->
+            <div class="col-md-6">
+              <label for="cliente" class="form-label fw-bold">Cliente</label>
+              <select name="cliente" id="cliente" class="form-select form-select-sm select2">
+                <option value="" selected>Seleccionar..</option>
+              </select>
+            </div>
+
+            <!-- Nombre Grupo Cliente -->
+            <div class="col-md-6">
+              <div class="mb-1">
+                <label for="cliente" class="form-label fw-bold">Nombre Grupo</label>
+                <input type="text" id="nombre_grupo" class="form-control form-control-sm" oninput="this.value = this.value.toUpperCase();">
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <table class="table table-bordered table-sm text-center" data-page-length="100" style="font-size:12px;">
+                <thead>
+                  <tr>
+                    <td class="fw-blod" style="width: auto; white-space: nowrap;">#</td>
+                    <td class="fw-blod" style="width: auto; white-space: nowrap;">Grupo</td>
+                    <td class="fw-blod" style="width: auto; white-space: nowrap;">Cliente</td>
+                    <!-- <td class="fw-blod" style="width: auto; white-space: nowrap;">A</td> -->
+                    <!-- <td class="fw-blod" style="width: auto; white-space: nowrap;"></td> -->
+                  </tr>
+                </thead>
+                <tbody id="tbody_datos_grupos"></tbody>
+              </table>
+
+            </div>
+          </div>
+
+          <hr class="my-1 text-dark">
+          <div class="d-flex flex-wrap justify-content-start">
+            <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+              <h6 class="mb-0 text-body-highlight me-2">Opciones de envios de notificaciones</h6>
+            </div>
+          </div>
+          <hr class="my-1 text-dark">
+
+          <div class="d-flex justify-content-start">
+            <div class="form-check form-switch form-check-inline">
+              <input class="form-check-input check_tipo_envio" id="correo_automatico" name="correo_automatico" type="checkbox" />
+              <label class="form-check-label fw-bold" for="correo_automatico">Correo Automatico</label>
+            </div>
+
+            <div class="form-check form-switch form-check-inline">
+              <input class="form-check-input check_tipo_envio" id="correo_manual" name="correo_manual" type="checkbox" />
+              <label class="form-check-label fw-bold" for="correo_manual">Correo Manual</label>
+            </div>
+
+            <div class="form-check form-switch form-check-inline">
+              <input class="form-check-input check_tipo_envio" id="mensaje_whatsapp" name="mensaje_whatsapp" type="checkbox" />
+              <label class="form-check-label fw-bold" for="mensaje_whatsapp">Mensaje WhatsApp</label>
+            </div>
+          </div>
+
+          <hr class="my-1 text-dark">
+          <div class="d-flex flex-wrap justify-content-start">
+            <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+              <h6 class="mb-0 text-body-highlight me-2">Contactos del cliente y Horarios de envios</h6>
+            </div>
+          </div>
+          <hr class="my-1 text-dark">
+
+          <div class="row">
+            <div class="col-md-7">
+              <table class="table table-bordered table-sm text-center" data-page-length="100" style="font-size:12px;">
+                <thead>
+                  <tr>
+                    <td class="fw-blod" style="width: auto; white-space: nowrap;">#</td>
+                    <td class="fw-blod" style="width: auto; white-space: nowrap;">Nombre</td>
+                    <td class="fw-blod" style="width: auto; white-space: nowrap;">Correo</td>
+                    <td class="fw-blod" style="width: auto; white-space: nowrap;">Celular</td>
+                    <td class="fw-blod" style="width: auto; white-space: nowrap;"></td>
+                  </tr>
+                </thead>
+                <tbody id="tbody_datos"></tbody>
+              </table>
+              <button class="btn btn-info btn-sm me-1 px-1 py-1" id="btnAgregar">Agregar contacto</button>
+            </div>
+
+            <div class="col-md-5">
+              <table class="table table-bordered table-sm text-center" data-page-length="100" style="font-size:12px;">
+                <thead>
+                  <td class="fw-blod" style="width: auto; white-space: nowrap;">#</td>
+                  <td class="fw-blod" style="width: auto; white-space: nowrap;">Horas Envio</td>
+                  <td class="fw-blod" style="width: auto; white-space: nowrap;"></td>
+                </thead>
+                <tbody id="tbody_horas_envio"></tbody>
+              </table>
+              <button class="btn btn-info btn-sm me-1 px-1 py-1" id="btnAgregarContacto">Agregar horario</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="confgiuracion_contactos" style="display: none;">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2" style="margin:25px;padding: 5px;">
+                  <b>Configurar las notas por contacto del cliente</b>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Cliente:</th>
+                <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="text-center" id="nombre_cliente"></td>
+                <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Nombre del grupo:</th>
+                <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" class="text-center" id="nombre_grupo"></td>
+                <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Contactos del grupo:</th>
+                <td class="text-right" style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                  <span class="badge badge-success" id="cantidad_contacto">0</span>
+                </td>
+              </tr>
+            </thead>
+          </table>
+        </div>
+
+        <!-- <ul class="mt-2" style="display: flex; flex-wrap: wrap;" id="novedades_trafico"></ul> -->
+        <!-- <div id="novedades_trafico"></div> -->
+      </div>
+    </div>
+  </div>
+  <div class="offcanvas-foote">
+    <div class="text-end my-1">
+      <button id="btn_guardar_configuracion_cliente" class="btn btn-success btn-sm me-1 px-1 py-1"><i class="fa-regular fa-floppy-disk"></i> Guardar Configuración</button>
+    </div>
+  </div>
+</div>

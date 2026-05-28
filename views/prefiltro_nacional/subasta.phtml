@@ -1,0 +1,180 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+    <!-- Filtros -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form class="row g-3 align-items-center">
+                <div class="col-12 col-md-2">
+                    <label for="filtro_subastaa" class="form-label fw-bold mb-1">Filtro</label>
+                    <select id="filtro_subastaa" class="form-select form-select-sm">
+                        <option value="fecha">Fecha</option>
+                        <option value="placa">Placa</option>
+                        <option value="ss">Solicitud servicio</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold mb-1">Búsqueda</label>
+                    <div id="seccion_fecha" class="row g-2">
+                        <div class="col">
+                            <input type="date" id="fec_incio" class="form-control form-control-sm" value="<?= date('Y-m-d') ?>">
+                        </div>
+                        <div class="col">
+                            <input type="date" id="fec_final" class="form-control form-control-sm" value="<?= date('Y-m-d') ?>">
+                        </div>
+                    </div>
+
+                    <div id="seccion_placa" class="d-none mt-2">
+                        <input type="text" id="placa" class="form-control form-control-sm" placeholder="Ingrese placa">
+                    </div>
+                    <div id="seccion_ss" class="d-none mt-2">
+                        <input type="number" id="sservicio" class="form-control form-control-sm" placeholder="Ingrese número de solicitud">
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2 d-flex align-items-end mt-5">
+                    <button type="button" class="btn btn-primary btn-sm w-100" id="buscar_datos">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-sm align-middle mb-0" style="font-size:12px;">
+                <thead class="table-light">
+                    <tr class="text-center">
+                        <th style='width:auto; white-space: nowrap;'>#</th>
+                        <th style='width:auto; white-space: nowrap;'>Subasta</th>
+                        <th style='width:auto; white-space: nowrap;'>Fecha inicio - final</th>
+                        <th style='width:auto; white-space: nowrap;'>Fecha registro</th>
+                        <th style='width:auto; white-space: nowrap;'>Solicitud(es) Servicio</th>
+                        <th style='width:auto; white-space: nowrap;'>Placa(s)</th>
+                        <!-- <th style='width:auto; white-space: nowrap;'>Estado Solicitud</th> -->
+                        <th style='width:auto; white-space: nowrap;'>Estado Subasta</th>
+                        <th style='width:auto; white-space: nowrap;' class='text-center'>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl_subasta" class="text-center">
+                    <tr>
+                        <td colspan="8" class="text-muted py-3">No hay datos para mostrar</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvasWithBackdrop" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasWithBackdropLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBackdropLabel">Resultado de subasta</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close" id="btn-closed-subasta"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="nexos-content" id="contenedor_dato">
+            <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+            <!--contenedor de  solicitudes de servicio-->
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <b class="mg_title"></b>
+                </div>
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 FP2"></div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 FP">
+                    <table class="table table-hover table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th style='width:auto; white-space: nowrap;'>Estudio de seguridad</th>
+                                <th style='width:auto; white-space: nowrap;'>Flete Propuesto</th>
+                                <th style='width:auto; white-space: nowrap;'>Flete sugerido</th>
+                                <th style='width:auto; white-space: nowrap;'>Estado flete</th>
+                                <th style='width:auto; white-space: nowrap;'>Traza estado</th>
+                                <th style='width:auto; white-space: nowrap;'>Realizado por</th>
+                                <th style='width:auto; white-space: nowrap;'>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla_placas"></tbody>
+                    </table>
+                </div>
+                <!--contenedor de  estudio de seguridad-->
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 FT">
+                    <section>
+                        <h5 class="text-center"><strong>Estudio de seguridad</strong></h5>
+                    </section>
+                    <table class="table table-hover table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <td style='width:auto; white-space: nowrap;'>Id subasta</td>
+                            <td style='width:auto; white-space: nowrap;'>Num servicio</td>
+                            <td style='width:auto; white-space: nowrap;'>Placa</td>
+                            <td style='width:auto; white-space: nowrap;'>Conductor</td>
+                            <td style='width:auto; white-space: nowrap;'>Núm estudio</td>
+                            <td style='width:auto; white-space: nowrap;'>Estado</td>
+                        </thead>
+                        <tbody id="cuerpo_estado"></tbody>
+                    </table>
+                </div>
+                <!--contenedor de  calculo de vehículos-->
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 FM">
+                    <div class="col-xs-12 col-sm-12 col.md-12 col-lg-12 MSG"></div>
+                    <section>
+                        <h5 class="text-center"><strong>Cálculo de vehículos</strong></h5>
+                    </section>
+                    <table class="table table-hover table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <th style='width:auto; white-space: nowrap;'>Subasta</th>
+                            <th style='width:auto; white-space: nowrap;'>Fecha inicio</th>
+                            <th style='width:auto; white-space: nowrap;'>Fecha final</th>
+                            <th style='width:auto; white-space: nowrap;'>estado</th>
+                        </thead>
+                        <tbody id="cuerpo_calculo"></tbody>
+                    </table>
+
+                    <label class="form-label"><strong>Vehículos Aprobados</strong></label>
+                    <table class="table table-hover table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <td style='width:auto; white-space: nowrap;'>Id subasta</td>
+                            <td style='width:auto; white-space: nowrap;'>Placa</td>
+                            <td style='width:auto; white-space: nowrap;'>Conductor</td>
+                            <td style='width:auto; white-space: nowrap;'>Núm estudio</td>
+                            <td style='width:auto; white-space: nowrap;'>Flete ganador</td>
+                            <td style='width:auto; white-space: nowrap;'>Estado</td>
+                        </thead>
+                        <tbody id="cuerpo_estado2"></tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label class="form-label" for="flete_ganador">Valor flete propuesto</label>
+                            <input type="text" id="flete_ganador" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label class="form-label" for="id_fleteg">Id Flete</label>
+                            <input type="text" id="id_fleteg" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label class="form-label" for="n_subasta">Subasta</label>
+                            <input type="text" id="n_subasta" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label class="form-label" for="splaca">Placa</label>
+                            <input type="text" id="splaca" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <br><input type="" id="estadofle" class="form-control form-control-sm text-center" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center"></div>
+        </div>
+    </div>
+</div>
+<!-- Enable both scrolling & backdrop-->

@@ -1,0 +1,925 @@
+<style>
+  /* ============================================================
+     VARIABLES DE DISEÑO — Causales de Aprobación
+  ============================================================ */
+  :root {
+    --ca-navy: #0f1f3d;
+    --ca-navy-mid: #1a3260;
+    --ca-blue: #1a5ce5;
+    --ca-blue-soft: #dbeafe;
+    --ca-violet: #7c3aed;
+    --ca-violet-soft: #ede9fe;
+    --ca-green: #10b981;
+    --ca-green-soft: #d1fae5;
+    --ca-amber: #f59e0b;
+    --ca-amber-soft: #fef3c7;
+    --ca-red: #ef4444;
+    --ca-red-soft: #fee2e2;
+    --ca-slate-50: #f8fafc;
+    --ca-slate-100: #f1f5f9;
+    --ca-slate-200: #e2e8f0;
+    --ca-slate-400: #94a3b8;
+    --ca-slate-600: #475569;
+    --ca-slate-800: #1e293b;
+    --ca-radius-sm: 6px;
+    --ca-radius-md: 10px;
+    --ca-radius-lg: 16px;
+    --ca-shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+    --ca-shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 2px 4px rgba(0, 0, 0, .06);
+  }
+
+  /* ── Page Header ────────────────────────────────────────── */
+  .ca-page-header {
+    background: linear-gradient(135deg, var(--ca-navy) 0%, var(--ca-navy-mid) 100%);
+    border-radius: var(--ca-radius-lg);
+    padding: 20px 28px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--ca-shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ca-page-header::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .04);
+    pointer-events: none;
+  }
+
+  .ca-page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: 130px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, .15);
+    pointer-events: none;
+  }
+
+  .ca-ph-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(124, 58, 237, .18);
+    border: 2px solid rgba(124, 58, 237, .35);
+    border-radius: var(--ca-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #a78bfa;
+    flex-shrink: 0;
+  }
+
+  .ca-ph-title {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -.3px;
+    margin: 0;
+  }
+
+  .ca-ph-sub {
+    color: rgba(255, 255, 255, .55);
+    font-size: .78rem;
+    margin-top: 2px;
+  }
+
+  /* ── KPI Cards ──────────────────────────────────────────── */
+  .ca-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .ca-kpi-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 500px) {
+    .ca-kpi-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .ca-kpi-card {
+    background: #fff;
+    border-radius: var(--ca-radius-md);
+    padding: 14px 16px;
+    box-shadow: var(--ca-shadow-sm);
+    border: 1px solid var(--ca-slate-200);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ca-kpi-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: var(--ca-radius-sm) 0 0 var(--ca-radius-sm);
+  }
+
+  .ca-kpi-card.c-violet::before {
+    background: var(--ca-violet);
+  }
+
+  .ca-kpi-card.c-blue::before {
+    background: var(--ca-blue);
+  }
+
+  .ca-kpi-card.c-green::before {
+    background: var(--ca-green);
+  }
+
+  .ca-kpi-card.c-red::before {
+    background: var(--ca-red);
+  }
+
+  .ca-kpi-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--ca-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .ca-kpi-card.c-violet .ca-kpi-icon {
+    background: var(--ca-violet-soft);
+    color: var(--ca-violet);
+  }
+
+  .ca-kpi-card.c-blue .ca-kpi-icon {
+    background: var(--ca-blue-soft);
+    color: var(--ca-blue);
+  }
+
+  .ca-kpi-card.c-green .ca-kpi-icon {
+    background: var(--ca-green-soft);
+    color: var(--ca-green);
+  }
+
+  .ca-kpi-card.c-red .ca-kpi-icon {
+    background: var(--ca-red-soft);
+    color: var(--ca-red);
+  }
+
+  .ca-kpi-num {
+    font-size: 1.55rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ca-kpi-card.c-violet .ca-kpi-num {
+    color: var(--ca-violet);
+  }
+
+  .ca-kpi-card.c-blue .ca-kpi-num {
+    color: var(--ca-blue);
+  }
+
+  .ca-kpi-card.c-green .ca-kpi-num {
+    color: var(--ca-green);
+  }
+
+  .ca-kpi-card.c-red .ca-kpi-num {
+    color: var(--ca-red);
+  }
+
+  .ca-kpi-label {
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--ca-slate-400);
+    margin-top: 3px;
+  }
+
+  /* ── Table Card ─────────────────────────────────────────── */
+  .ca-table-card {
+    background: #fff;
+    border-radius: var(--ca-radius-lg);
+    box-shadow: var(--ca-shadow-sm);
+    border: 1px solid var(--ca-slate-200);
+    overflow: hidden;
+  }
+
+  .ca-table-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--ca-slate-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ca-table-title {
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--ca-slate-600);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ca-table-title i {
+    color: var(--ca-violet);
+  }
+
+  .ca-table-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Search inline */
+  .ca-search-wrap {
+    position: relative;
+  }
+
+  .ca-search-inline {
+    height: 32px;
+    padding: 0 10px 0 30px;
+    border: 1.5px solid var(--ca-slate-200);
+    border-radius: var(--ca-radius-sm);
+    font-size: .8rem;
+    outline: none;
+    transition: border-color .15s;
+    width: 200px;
+  }
+
+  .ca-search-inline:focus {
+    border-color: var(--ca-blue);
+  }
+
+  .ca-search-wrap i {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ca-slate-400);
+    font-size: .78rem;
+    pointer-events: none;
+  }
+
+  /* Botón agregar */
+  .ca-btn-add {
+    height: 34px;
+    padding: 0 16px;
+    background: var(--ca-violet);
+    color: #fff;
+    border: none;
+    border-radius: var(--ca-radius-sm);
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background .15s;
+    white-space: nowrap;
+  }
+
+  .ca-btn-add:hover {
+    background: #6d28d9;
+  }
+
+  /* Cabecera de tabla */
+  #tabla-porcentaje-variacion thead th {
+    background: var(--ca-navy) !important;
+    color: rgba(255, 255, 255, .85) !important;
+    font-size: .7rem !important;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+    border-color: rgba(255, 255, 255, .08) !important;
+  }
+
+  #tabla-porcentaje-variacion tbody tr {
+    transition: background .1s;
+  }
+
+  #tabla-porcentaje-variacion tbody td {
+    font-size: .8rem;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  /* Badges tipo causal */
+  .badge-venta {
+    background: var(--ca-blue-soft);
+    color: #1e40af;
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: .02em;
+  }
+
+  .badge-costo {
+    background: var(--ca-amber-soft);
+    color: #92400e;
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: .02em;
+  }
+
+  .badge-ambos {
+    background: var(--ca-violet-soft);
+    color: #5b21b6;
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: .02em;
+  }
+
+  /* Badges estado */
+  .badge-activo {
+    background: var(--ca-green-soft);
+    color: #065f46;
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .badge-inactivo {
+    background: var(--ca-slate-100);
+    color: var(--ca-slate-600);
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Action buttons en la tabla */
+  .ca-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--ca-radius-sm);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .78rem;
+    transition: all .15s;
+  }
+
+  .ca-ab-edit {
+    background: var(--ca-amber-soft);
+    color: #d97706;
+  }
+
+  .ca-ab-toggle {
+    background: var(--ca-green-soft);
+    color: var(--ca-green);
+  }
+
+  .ca-ab-inactive {
+    background: var(--ca-red-soft);
+    color: var(--ca-red);
+  }
+
+  .ca-action-btn:hover {
+    filter: brightness(.88);
+    transform: scale(1.08);
+  }
+
+  /* Empty state */
+  .ca-empty {
+    text-align: center;
+    padding: 50px 20px;
+  }
+
+  .ca-empty .ce-icon {
+    font-size: 2.5rem;
+    color: var(--ca-slate-200);
+    margin-bottom: 12px;
+  }
+
+  .ca-empty .ce-title {
+    font-weight: 700;
+    color: var(--ca-slate-600);
+    font-size: .9rem;
+  }
+
+  /* ── Offcanvas mejorado ─────────────────────────────────── */
+  .ca-offcanvas-header {
+    background: linear-gradient(135deg, var(--ca-navy) 0%, var(--ca-navy-mid) 100%);
+    padding: 0;
+    height: 66px;
+    border-bottom: none;
+  }
+
+  .ca-ribbon {
+    position: relative;
+    background: var(--ca-violet);
+    color: #fff;
+    width: 50px;
+    height: 66px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-left: 20px;
+    flex-shrink: 0;
+  }
+
+  .ca-ribbon::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 14px solid #f8fbff;
+  }
+
+  .ca-offcanvas-title {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .ca-offcanvas-sub {
+    color: rgba(255, 255, 255, .55);
+    font-size: .75rem;
+    margin-top: 1px;
+  }
+
+  /* Labels del formulario */
+  .ca-form-label {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--ca-slate-600);
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .ca-form-label .req {
+    color: var(--ca-red);
+  }
+
+  .ca-form-control {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border: 1.5px solid var(--ca-slate-200);
+    border-radius: var(--ca-radius-sm);
+    font-size: .85rem;
+    color: var(--ca-slate-800);
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+    outline: none;
+  }
+
+  .ca-form-control:focus {
+    border-color: var(--ca-violet);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, .12);
+  }
+
+  .ca-form-control::placeholder {
+    color: var(--ca-slate-400);
+  }
+
+  select.ca-form-control {
+    cursor: pointer;
+  }
+
+  /* Tipo causal pills selector */
+  .ca-tipo-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ca-tipo-pill {
+    flex: 1;
+    min-width: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border: 2px solid var(--ca-slate-200);
+    border-radius: var(--ca-radius-md);
+    cursor: pointer;
+    transition: all .15s;
+    background: #fff;
+  }
+
+  .ca-tipo-pill:hover {
+    border-color: var(--ca-violet);
+    background: var(--ca-violet-soft);
+  }
+
+  .ca-tipo-pill.selected-venta {
+    border-color: var(--ca-blue);
+    background: var(--ca-blue-soft);
+  }
+
+  .ca-tipo-pill.selected-costo {
+    border-color: var(--ca-amber);
+    background: var(--ca-amber-soft);
+  }
+
+  .ca-tipo-pill.selected-ambos {
+    border-color: var(--ca-violet);
+    background: var(--ca-violet-soft);
+  }
+
+  .ca-tipo-pill .pill-icon {
+    font-size: 1.2rem;
+  }
+
+  .ca-tipo-pill .pill-label {
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--ca-slate-600);
+  }
+
+  /* Divider de formulario */
+  .ca-form-divider {
+    height: 1px;
+    background: var(--ca-slate-200);
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .ca-form-divider span {
+    position: absolute;
+    top: -8px;
+    left: 10px;
+    background: #fff;
+    padding: 0 8px;
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ca-slate-400);
+  }
+
+  /* Botón guardar del offcanvas */
+  .ca-btn-save {
+    height: 38px;
+    padding: 0 24px;
+    background: var(--ca-violet);
+    color: #fff;
+    border: none;
+    border-radius: var(--ca-radius-sm);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background .15s;
+  }
+
+  .ca-btn-save:hover {
+    background: #6d28d9;
+  }
+
+  .ca-btn-cancel {
+    height: 38px;
+    padding: 0 16px;
+    background: #fff;
+    color: var(--ca-slate-600);
+    border: 1.5px solid var(--ca-slate-200);
+    border-radius: var(--ca-radius-sm);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .15s;
+  }
+
+  .ca-btn-cancel:hover {
+    border-color: var(--ca-slate-400);
+    color: var(--ca-slate-800);
+  }
+
+  /* Offcanvas – estilos heredados para compatibilidad Bootstrap */
+  .offcanvas-center {
+    bottom: auto !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90% !important;
+    max-width: 480px;
+    height: auto !important;
+    max-height: 95vh;
+    border-radius: var(--ca-radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .2);
+    border: none;
+    overflow: hidden;
+  }
+
+  /* Paginación footer */
+  .ca-table-footer {
+    padding: 10px 20px;
+    border-top: 1px solid var(--ca-slate-200);
+    font-size: .78rem;
+    color: var(--ca-slate-400);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ca-table-footer strong {
+    color: var(--ca-slate-800);
+  }
+</style>
+
+<!-- Variables de sesión -->
+<input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="fecha_dia" value="<?= date('Y-m-d') ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+<div class="container-fluid py-3">
+
+  <!-- =====================================================
+       PAGE HEADER
+  ====================================================== -->
+  <div class="ca-page-header">
+    <div class="d-flex align-items-center gap-3">
+      <div class="ca-ph-icon">
+        <i class="bi bi-tags-fill"></i>
+      </div>
+      <div>
+        <h1 class="ca-ph-title">Causales de Aprobación</h1>
+        <div class="ca-ph-sub">Configuración de motivos para variaciones de tarifa · Parámetros del sistema</div>
+      </div>
+    </div>
+    <div style="z-index:1;">
+      <button class="ca-btn-add"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasImporteMasivo">
+        <i class="bi bi-plus-lg"></i>
+        Nueva causal
+      </button>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       KPI CARDS
+  ====================================================== -->
+  <div class="ca-kpi-grid">
+
+    <div class="ca-kpi-card c-violet">
+      <div class="ca-kpi-icon"><i class="bi bi-collection-fill"></i></div>
+      <div>
+        <div class="ca-kpi-num" id="kpi_total">0</div>
+        <div class="ca-kpi-label">Total causales</div>
+      </div>
+    </div>
+
+    <div class="ca-kpi-card c-green">
+      <div class="ca-kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
+      <div>
+        <div class="ca-kpi-num" id="kpi_activos">0</div>
+        <div class="ca-kpi-label">Activas</div>
+      </div>
+    </div>
+
+    <div class="ca-kpi-card c-blue">
+      <div class="ca-kpi-icon"><i class="bi bi-receipt"></i></div>
+      <div>
+        <div class="ca-kpi-num" id="kpi_venta">0</div>
+        <div class="ca-kpi-label">De venta</div>
+      </div>
+    </div>
+
+    <div class="ca-kpi-card c-red">
+      <div class="ca-kpi-icon"><i class="bi bi-truck-flatbed"></i></div>
+      <div>
+        <div class="ca-kpi-num" id="kpi_costo">0</div>
+        <div class="ca-kpi-label">De costo</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =====================================================
+       TABLE CARD
+  ====================================================== -->
+  <div class="ca-table-card">
+
+    <div class="ca-table-header">
+      <div class="ca-table-title">
+        <i class="bi bi-table"></i>
+        Listado de causales
+        <span id="ca-count-label" style="color:var(--ca-slate-400);font-weight:400;font-size:.72rem;"></span>
+      </div>
+      <div class="ca-table-actions">
+        <div class="ca-search-wrap">
+          <i class="bi bi-search"></i>
+          <input type="text"
+            class="ca-search-inline"
+            id="ca_search_table"
+            placeholder="Buscar causal..."
+            oninput="filtrarTablaLocal(this.value)">
+        </div>
+        <!-- Filtro rápido por tipo -->
+        <select id="ca_filter_tipo" class="ca-search-inline" style="padding-left:10px;width:140px;"
+          onchange="filtrarTablaLocal(document.getElementById('ca_search_table').value)">
+          <option value="">Todos los tipos</option>
+          <option value="VENTA">Solo Venta</option>
+          <option value="COSTO">Solo Costo</option>
+          <option value="AMBOS">Ambos</option>
+        </select>
+        <button class="ca-btn-add" style="height:32px;padding:0 12px;font-size:.78rem;"
+          onclick="listar()" title="Refrescar">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table id="tabla-porcentaje-variacion"
+        class="table table-hover table-bordered table-sm align-middle mb-0 text-center"
+        style="font-size:12px;">
+        <thead>
+          <tr>
+            <th style="width:60px;">#</th>
+            <th>Causal</th>
+            <th style="width:130px;">Tipo Causal</th>
+            <th style="width:100px;">Estado</th>
+            <th style="width:100px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="porcentajes_body" class="text-center">
+          <!-- Estado inicial: cargando -->
+          <tr id="load_info">
+            <td colspan="5" class="text-center py-4">
+              <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+              <span style="font-size:.85rem;color:var(--ca-slate-400);">Cargando causales...</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ca-table-footer">
+      <span id="ca-footer-info">Cargando...</span>
+    </div>
+
+  </div><!-- /.ca-table-card -->
+
+</div><!-- /.container-fluid -->
+
+
+<!-- =====================================================
+     OFFCANVAS — Crear / Editar Causal
+====================================================== -->
+<div class="offcanvas offcanvas-end offcanvas-center"
+  id="offcanvasImporteMasivo"
+  tabindex="-1"
+  aria-labelledby="offcanvasImporteMasivoLabel"
+  data-bs-backdrop="true">
+
+  <!-- Header -->
+  <div class="offcanvas-header ca-offcanvas-header">
+    <div class="d-flex align-items-center w-100 h-100 gap-3">
+      <div class="ca-ribbon">
+        <i class="bi bi-tags-fill"></i>
+      </div>
+      <div>
+        <h5 class="ca-offcanvas-title" id="offcanvasImporteMasivoLabel">Nueva Causal</h5>
+        <div class="ca-offcanvas-sub" id="ca-offcanvas-sub">Completa los campos requeridos</div>
+      </div>
+      <button type="button"
+        class="btn-close btn-close-white ms-auto me-3"
+        data-bs-dismiss="offcanvas"
+        aria-label="Cerrar">
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="offcanvas-body p-4">
+
+    <!-- Hidden: ID para edición -->
+    <input type="hidden" id="parametro-id-edit" value="">
+
+    <!-- ── Tipo de Causal (pills) ──────────────────────── -->
+    <div class="mb-3">
+      <label class="ca-form-label">
+        Tipo de Causal <span class="req">*</span>
+      </label>
+      <div class="ca-tipo-pills" id="ca-tipo-pills-container">
+
+        <div class="ca-tipo-pill" data-value="VENTA" onclick="seleccionarTipoCausal('VENTA', this)">
+          <span class="pill-icon">🧾</span>
+          <span class="pill-label">Venta</span>
+        </div>
+
+        <div class="ca-tipo-pill" data-value="COSTO" onclick="seleccionarTipoCausal('COSTO', this)">
+          <span class="pill-icon">🚛</span>
+          <span class="pill-label">Costo</span>
+        </div>
+
+        <div class="ca-tipo-pill" data-value="AMBOS" onclick="seleccionarTipoCausal('AMBOS', this)">
+          <span class="pill-icon">🔀</span>
+          <span class="pill-label">Ambos</span>
+        </div>
+
+      </div>
+      <!-- Input oculto que recibe el valor seleccionado -->
+      <input type="hidden" id="tipo-causal" value="">
+    </div>
+
+    <div class="ca-form-divider"><span>Datos de la causal</span></div>
+
+    <!-- ── Nombre ──────────────────────────────────────── -->
+    <div class="mb-3">
+      <label class="ca-form-label" for="nombre-parametro">
+        Nombre de la causal <span class="req">*</span>
+      </label>
+      <input type="text"
+        id="nombre-parametro"
+        class="ca-form-control"
+        placeholder="Ej: ALZA DE COMBUSTIBLE"
+        oninput="this.value = this.value.toUpperCase();">
+    </div>
+
+    <!-- ── Estado ──────────────────────────────────────── -->
+    <div class="mb-4">
+      <label class="ca-form-label" for="estado-parametro">
+        Estado <span class="req">*</span>
+      </label>
+      <select id="estado-parametro" class="ca-form-control">
+        <option value="Activo">Activo</option>
+        <option value="Inactivo">Inactivo</option>
+      </select>
+    </div>
+
+    <!-- ── Botones ─────────────────────────────────────── -->
+    <div class="d-flex gap-2 justify-content-end">
+      <button class="ca-btn-cancel" type="button" data-bs-dismiss="offcanvas">
+        <i class="bi bi-x-lg"></i> Cancelar
+      </button>
+      <button class="ca-btn-save" id="btn-accion-parametro" type="button">
+        <i class="bi bi-floppy-fill"></i>
+        <span id="btn-accion-texto">Guardar</span>
+      </button>
+    </div>
+
+  </div><!-- /.offcanvas-body -->
+</div><!-- /#offcanvasImporteMasivo -->

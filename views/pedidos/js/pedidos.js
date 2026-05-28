@@ -673,7 +673,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                   }
                   var nota = datos;
                   nota = JSON.stringify(nota);
-                  
+
                   for (let j = 0; j < detalles.length; j++) {
                     // const element = detalles[j];
                     var checkbox_detalle = detalles[j];
@@ -1334,6 +1334,15 @@ async function Listar_pedidos() {
         columnaReferencia.style.color = '#000000';
         columnaReferencia.style.width = 'auto';
         columnaReferencia.style.whiteSpace = 'nowrap';
+
+        const columnaSolicitud = document.createElement('td');
+        // columnaSolicitud.innerHTML = `<a href="${$('#id_url_ajax').val()}pedidos/detalle/${element.numdoc}/${valores}">${element.referencia}</a>`;
+        columnaSolicitud.textContent = element.Solicitud;
+        columnaSolicitud.style.textAlign = 'center';
+        columnaSolicitud.style.color = '#000000';
+        columnaSolicitud.style.width = 'auto';
+        columnaSolicitud.style.whiteSpace = 'nowrap';
+
         // Columna Cliente
         const columnaCliente = document.createElement('td');
         columnaCliente.textContent = element.nombre;
@@ -1414,6 +1423,7 @@ async function Listar_pedidos() {
         // Añadir columnas a la fila
         fila.appendChild(columnaNumdoc);
         fila.appendChild(columnaReferencia);
+        fila.appendChild(columnaSolicitud);
         fila.appendChild(columnaCliente);
         fila.appendChild(columnaFecha);
         fila.appendChild(columnaEstado);

@@ -3,9 +3,33 @@
     <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
       <div class="mb-3">
         <label class="control-label">(*) Proveedor:</label>
-        <select class="form-control form-control-sm" name="proveedor_asignar" id="slct_proveedor_asignar_">
-          <option value="" disabled="" selected="">Seleccione</option>
+        <select class="form-select form-select-sm" name="proveedor_asignar" id="slct_proveedor_asignar_">
+          <!-- <option value="" disabled="" selected="">Seleccione</option> -->
         </select>
+      </div>
+    </div>
+    <div class="form-group col-xs-9 col-sm-9 col-md-9 col-lg-9">
+      <div class="mb-3">
+        <label class="control-label">(*) Clientes:</label>
+        <select class="form-select form-select-sm" multiple="multiple" name="clientes_asignar[]" id="slct_clientes_asignar_">
+          <!-- <option value="" disabled="" selected="">Seleccione</option> -->
+        </select>
+      </div>
+    </div>
+
+    <div class="col-12 mb-2">
+      <div class="row g-3 justify-content-end">
+        <!-- <div class="col-auto">
+          <button class="btn btn-phoenix-primary btn-sm text-danger" type="button" id="btn-cancelar">
+            <span class="text-danger" data-feather="x"></span> Cancelar
+          </button>
+        </div> -->
+        <div class="col-auto">
+          <button class="btn btn-primary btn-sm" id="btn_guardar_asignacion" type="button">
+          <!-- <button class="btn btn-primary btn-sm me-1 px-1 py-0" id="btn_guardar_proveedor" type="button"> -->
+            <span class="uil uil-save"></span> Guardar Asignación
+          </button>
+        </div>
       </div>
     </div>
   </div>

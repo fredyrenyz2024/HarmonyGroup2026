@@ -311,6 +311,10 @@ class Session
         $model = new Conexion;
         $conexion = $model->conectar();
 
+        // // ⭐⭐ AÑADE ESTO ANTES DE TU CONSULTA PRINCIPAL ⭐⭐
+        // $conexion->exec("SET SESSION group_concat_max_len = 1000000");
+        // $conexion->exec("SET SESSION max_allowed_packet = 1048576"); // 1MB
+
         $sql = "SELECT 
         uc.*, 
         u.nom_usuario AS 'nom_usuario',
@@ -343,9 +347,9 @@ class Session
         INNER JOIN cmx_empresas ep ON eu.empresa_id = ep.id
         INNER JOIN cmx_modulos_perfil mp ON mp.id_perfil = p.id
         INNER JOIN cmx_modulos mo ON mo.id = mp.id_modulo
-        INNER JOIN cmx_pantallas pt ON mo.id = pt.modulo_id
-        INNER JOIN cmx_pantallas_menu ptm ON pt.id = ptm.pantalla_id AND estado_ventana='Activo' /*Nuevo Validacion*/
-        INNER JOIN cmx_ventanas v ON ptm.ventana_id = v.id
+        LEFT JOIN cmx_pantallas pt ON mo.id = pt.modulo_id
+        LEFT JOIN cmx_pantallas_menu ptm ON pt.id = ptm.pantalla_id AND estado_ventana='Activo' /*Nuevo Validacion*/
+        LEFT JOIN cmx_ventanas v ON ptm.ventana_id = v.id
     WHERE
         u.user_log = :user_log
         AND u.pass = :pass
@@ -357,7 +361,7 @@ class Session
     GROUP BY u.id
     HAVING VIGENCIA <= " . VIGENCIA_CLAVES . "
     ";
-
+        // hola mundo desde aqui
         $this->pass = sha1($this->pass); // ¡Considera usar password_hash en su lugar!
         $consulta = $conexion->prepare($sql);
         $consulta->bindParam(':user_log', $this->user_log, PDO::PARAM_STR);
@@ -374,9 +378,9 @@ class Session
             /* Se consulta si el perfil es proveedor traemos esos datos */
             if ($fila['tipo_perfil'] == "PROVEEDOR") {
 
-                $sql = $conexion->prepare("SELECT proveedor_id,razon_social FROM cmx_proveedor_usuario pu
+                $sql = $conexion->prepare("SELECT proveedor_id,pt.razon_social FROM cmx_proveedor_usuario pu
                 INNER JOIN cmx_proveedor_torre_control pt ON pt.id = pu.proveedor_id              
-               WHERE pu.usuario_id='" . $fila['id_usuario'] . "'");
+                WHERE pu.usuario_id='" . $fila['id_usuario'] . "'");
                 $sql->execute();
                 if ($sql->rowCount() == 1) {
                     session_start();
@@ -429,6 +433,7 @@ class Session
                 $_SESSION['usuario']['menu_ids'] = explode('|', $fila['menu_ids']);
                 $_SESSION['usuario']['menu_pantallas'] = explode('|', $fila['menu_pantallas']);
                 $_SESSION['usuario']['ventanas'] = explode('|', $fila['ventanas']);  // Formato: id_ventana:nombre_ventana:orden_ventana:pantalla_id
+                // $_SESSION['usuario']['agencias'] = explode('|', $AgenciaUsuario['agencias']);
             }
         }
     }

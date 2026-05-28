@@ -1,0 +1,63 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+            <div id="IndicadoresVentasCostos" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <div class="table-responsive mt-5">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-general-ventas-costos">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Estado</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total Costos y Ventas</th>
+                            <th id="total-costos-ventas"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="col-9 col-sm-12 col-md-9 col-lg-9 col-xl-9 col-xxl-9" id="detalle_grafico_ventas_costos">
+            <div id="contenedor_grafico_detalle" style="min-height: 300px;"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                <div style="width: 90%;">
+                    <select class="form-select form-select-sm" id="filtro_venta_costo">
+                        <option value="">---Seleccionar---</option>
+                    </select>
+                </div>
+
+                <a href="JavaScript:void(0);" id="exportar_excel_venta_costo" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="<?= BASE_URL ?>public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+
+            </div>
+            <div class="table-responsive mt-3">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-detalle-ventas-costos">
+                    <thead class="table-info">
+                        <tr></tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" id="detalle-total-footer"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

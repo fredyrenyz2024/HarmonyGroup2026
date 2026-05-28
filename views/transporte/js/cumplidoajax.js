@@ -20,6 +20,7 @@ $(document).ready(function() {
     },
     'json',
   );
+  
   $('#placao').change(function() {
     //Datos del manifiesto
     var manifiesto = $('#placao').val();

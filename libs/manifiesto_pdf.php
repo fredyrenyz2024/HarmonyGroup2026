@@ -465,7 +465,7 @@ if ($cont <= 1) {
 		CONCAT(ori.municipio,'-',ori.depto) AS origen_rem,
 		CONCAT(dest.municipio,'-',dest.depto) AS destino_rem
 		FROM cmx_manifiesto_remesa  mr
-		INNER JOIN cmx_remesa r ON mr.id_remesa=r.id AND mr.estado=1 AND mr.estado_rem_rndc=1
+		INNER JOIN cmx_remesa r ON mr.id_remesa=r.id AND mr.estado=1 -- AND mr.estado_rem_rndc=1
 		INNER JOIN cmx_remesa_ordencargue ro ON  r.id=ro.id_remesa
 		INNER JOIN cmx_orden_cargue o ON ro.id_orden_cargue=o.id
 		INNER JOIN cmx_solicitud_vehiculo2 se ON o.mer_idservicio=se.nundoc_solicitud

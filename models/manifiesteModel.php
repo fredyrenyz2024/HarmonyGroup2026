@@ -40,27 +40,31 @@ class manifiesteModel extends Model
         }
     }
 
+    // public function consulte_munipios($id_vehi)
+    // {
+    //     try {
+    //         $fechah = date('Y-m-d');
+    //         $sqlr = "SELECT ori.id AS idorigen,ori.*
+    //     	FROM cmx_remesa re
+    //     	INNER JOIN cmx_remesa_ordencargue roc ON re.id=roc.id_remesa AND roc.estado=1 AND re.fecha_creacion='" . $fechah . "'
+    //     	INNER JOIN cmx_orden_cargue o ON roc.id_orden_cargue=o.id
+    //     	INNER JOIN cmx_ruta_puntosentrega remitente ON  o.mer_idservicio=remitente.cod_ini_ruta
+    //     	INNER JOIN cmx_remitente_destinatario rem ON remitente.cliente=rem.id
+    //     	INNER JOIN cmx_municipios ori ON rem.id_ciudad=ori.id
+    //     	INNER JOIN cmx_vehiculos ve ON o.ve_idcarro=ve.numdoc_vehiculo
+    //     	WHERE o.ve_idcarro IN(" . $id_vehi . ")";
+    //         $resultado = $this->_db3->query($sqlr);
+    //         $resultado->setFetchMode(PDO::FETCH_ASSOC);
+    //         $result = $resultado->fetchall();
+    //         return $result;
+    //     } catch (PDOException $e) {
+    //         $error = $e->getMessage();
+    //         $this->_db3->rollBack();
+    //     }
+    // }
+
     public function consulte_munipios($id_vehi)
     {
-        // try {
-        //     $fechah = date('Y-m-d');
-        //     $sqlr = "SELECT ori.id AS idorigen,ori.* FROM cmx_remesa re
-        // 	INNER JOIN cmx_remesa_ordencargue roc ON re.id=roc.id_remesa AND roc.estado=1
-        // 	LEFT JOIN cmx_orden_cargue o ON roc.id_orden_cargue=o.id
-        // 	LEFT JOIN cmx_ruta_puntosentrega remitente ON  o.mer_idservicio=remitente.cod_ini_ruta
-        // 	LEFT JOIN cmx_remitente_destinatario rem ON remitente.cliente=rem.id
-        // 	LEFT JOIN cmx_municipios ori ON rem.id_ciudad=ori.id
-        // 	LEFT JOIN cmx_vehiculos ve ON o.ve_idcarro=ve.numdoc_vehiculo
-        // 	WHERE o.ve_idcarro=" . $id_vehi . " AND re.fecha_creacion='" . $fechah . "'";
-        //     $resultado = $this->_db3->query($sqlr);
-        //     $resultado->setFetchMode(PDO::FETCH_ASSOC);
-        //     $result = $resultado->fetchall();
-        //     return $result;
-        // } catch (PDOException $e) {
-        //     $error = $e->getMessage();
-        //     $this->_db3->rollBack();
-        // }
-
         try {
             $fechah = date('Y-m-d');
             $sqlr = "SELECT ori.id AS idorigen,ori.*
@@ -114,33 +118,6 @@ class manifiesteModel extends Model
             $error = $e->getMessage();
             $this->_db3->rollBack();
         }
-
-        // try {
-        //     $fechah = date('Y-m-d');
-        //     $sqlr = "SELECT dest.id AS iddestino,dest.*
-        // 	FROM cmx_remesa re
-        // 	INNER JOIN cmx_remesa_ordencargue roc
-        // 	ON re.id=roc.id_remesa AND roc.estado=1
-        // 	INNER JOIN cmx_orden_cargue o
-        // 	ON roc.id_orden_cargue=o.id
-        // 	INNER JOIN cmx_ruta_puntosentrega remitente
-        // 	ON  o.mer_idservicio=remitente.cod_ini_ruta
-        // 	AND remitente.tipo='punto recogida'
-        // 	INNER JOIN cmx_destinatarios_ss destinat
-        // 	ON o.mer_idservicio=destinat.solicitud_servicio
-        // 	AND remitente.id_punto=destinat.id_punto
-        // 	INNER JOIN cmx_remitente_destinatario rd
-        // 	ON destinat.cliente=rd.id
-        // 	INNER JOIN cmx_municipios dest
-        // 	ON destinat.municipio_entrega=dest.id
-        // 	WHERE o.ve_idcarro=" . $id_vehi . " AND re.fecha_creacion='" . $fechah . "' GROUP BY re.id, dest.rndc_codigo_ciudad";
-        //     $resultado = $this->_db3->query($sqlr);
-        //     $resultado->setFetchMode(PDO::FETCH_ASSOC);
-        //     return $resultado->fetchall();
-        // } catch (PDOException $e) {
-        //     $error = $e->getMessage();
-        //     $this->_db3->rollBack();
-        // }
     }
 
     public function consulte_remesas()
@@ -168,53 +145,6 @@ class manifiesteModel extends Model
 
     public function consulte_conductor_vehiculo($vehiculo)
     {
-        // try {
-        //     $fechah = date('Y-m-d');
-        //     $sql3 = "SELECT co.nombre AS nomconductor,
-        // 	co.apellido1 AS coape1, co.apellido2 AS coape2,
-        // 	co.numero_documento, co.direccion, co.celular,
-        // 	mn.municipio, co.rndc_numero_licencia,
-        // 	ve.placa,ma.marca, ve2.configuracion, conf.nombre, ve2.peso,
-        // 	ase.nombre AS aseguradora, ve2.capacidad_tn,
-        // 	ve2.vence_soat, ve2.num_soat, tra.placa AS placa_trailer,
-        // 	ten.nombre AS nomtenedor,
-        // 	ten.apellido1, ten.apellido2,
-        // 	ten.numero_documento AS numtenedor,
-        // 	ten.direccion AS tendireccion,
-        // 	ten.celular AS tencelular,
-        // 	mnt.municipio AS tenmunicipio,
-        // 	max(o.ve_fletepactado) AS ve_fletepactado,
-        // 	age.nombre AS nomagencia,
-        // 	conf.nombre AS confletra,
-        // 	ve2.tipo_vinculacion
-        // 	FROM cmx_remesa r
-        // 	INNER JOIN cmx_remesa_ordencargue ro
-        // 	ON  r.id=ro.id_remesa
-        // 	AND ro.estado=1
-
-        // 	INNER JOIN cmx_orden_cargue o ON ro.id_orden_cargue=o.id
-        // 	INNER JOIN cmx_solicitud_vehiculo2 se ON o.mer_idservicio=se.nundoc_solicitud
-        // 	INNER JOIN cmx_agencias age ON se.agencia=age.id
-        // 	INNER JOIN cmx_vehiculos ve ON o.ve_idcarro=ve.numdoc_vehiculo
-        // 	INNER JOIN cmx_vehiculo2 ve2 ON o.ve_idcarro=ve2.id_vehiculo
-        // 	INNER JOIN cmx_proveedores co ON ve.id_conductor=co.numdoc_nexos
-        // 	INNER JOIN cmx_municipios mn ON co.id_municipio=mn.id
-        // 	INNER JOIN cmx_rndc_vehiculos_configuracion conf ON ve2.configuracion=conf.id
-        // 	INNER JOIN cmx_rndc_vehiculos_marcas ma ON ve2.marca=ma.id
-        // 	INNER JOIN cmx_rndc_aseguradoras ase ON ve2.aseguradora=ase.id
-        // 	INNER JOIN cmx_proveedores ten ON ve.id_tenedor=ten.numdoc_nexos
-        // 	INNER JOIN cmx_municipios mnt ON ten.id_municipio=mnt.id
-        // 	LEFT JOIN cmx_trailer_vehiculo tve ON ve.numdoc_vehiculo=tve.id_vehiculo AND tve.estado=1
-        // 	LEFT JOIN cmx_trailer tra ON tve.id_trailer=tra.numdoc_trailer
-        // 	WHERE o.ve_idcarro=" . $vehiculo . " AND r.fecha_creacion='" . $fechah . "'";
-        //     $resultado = $this->_db3->query($sql3);
-        //     $resultado->setFetchMode(PDO::FETCH_ASSOC);
-        //     return $resultado->fetch();
-        // } catch (PDOException $e) {
-        //     $error = $e->getMessage();
-        //     $this->_db3->rollBack();
-        // }
-
         try {
             $fechah = date('Y-m-d');
             $sql3 = "SELECT co.nombre AS nomconductor,
@@ -264,24 +194,78 @@ class manifiesteModel extends Model
     {
         try {
             $fechah = date('Y-m-d');
-            $sql = "SELECT r.id, r.cantidad_real_cargada,d.tipo_servicio_mer, d.cantidad_empaque,d.naturaleza, d.tipo_mercancia,te.empaque, co.nombre_cliente,
-        	rd.nombre AS nomdest, rd.documento AS docdest,
-        	de.nombre AS nomrem, de.documento AS docrem, CONCAT(mnori.municipio,'-',mnori.depto) AS origen_rem, CONCAT(mn.municipio,'-',mn.depto) AS destino_rem, o.mer_volumen,d.itr,
-            mnori.rndc_codigo_ciudad AS codigo_origen,mn.rndc_codigo_ciudad AS codigo_destino
-        	FROM cmx_remesa r
-        	INNER JOIN cmx_remesa_ordencargue ro ON r.id=ro.id_remesa AND ro.estado=1 AND r.fecha_creacion='" . $fechah . "' AND r.estado_manifiesto='pendiente'
-        	INNER JOIN cmx_orden_cargue o ON ro.id_orden_cargue=o.id
-        	INNER JOIN cmx_solicitud_vehiculo2 se ON o.mer_idservicio=se.nundoc_solicitud
-        	INNER JOIN cmx_ruta_puntosentrega m ON o.id_remitente=m.id
-        	INNER JOIN cmx_remitente_destinatario rd ON m.cliente=rd.id
-        	INNER JOIN cmx_municipios mnori ON rd.id_ciudad=mnori.id
-        	INNER JOIN cmx_destinatarios_ss desti ON se.nundoc_solicitud=desti.solicitud_servicio AND m.id_punto=desti.id_punto
-        	INNER JOIN cmx_remitente_destinatario de ON desti.cliente=de.id
-        	INNER JOIN cmx_municipios mn ON desti.municipio_entrega=mn.id
-        	INNER JOIN cmx_detalle_mercancia2 d ON se.idpareja_origen_destino=d.id
-        	INNER JOIN cmx_para_tipo_empaque te ON te.id=d.tipo_empaque
-        	INNER JOIN cmx_cotizaciones_serviciocliente co ON d.n_cotizacion=co.n_cotizacion
-        	WHERE o.ve_idcarro IN(" . $vehiculo . ") GROUP BY r.id";
+            // $sql = "SELECT
+            // r.id, r.cantidad_real_cargada,
+            // d.tipo_servicio_mer, d.cantidad_empaque,
+            // d.naturaleza, d.tipo_mercancia,
+            // te.empaque, co.nombre_cliente,
+            // rd.nombre AS nomdest, rd.documento AS docdest,
+            // de.nombre AS nomrem, de.documento AS docrem,
+            // CONCAT(mnori.municipio,'-',mnori.depto) AS origen_rem,
+            // CONCAT(mn.municipio,'-',mn.depto) AS destino_rem,
+            // o.mer_volumen,d.itr
+            // FROM cmx_remesa r
+            // INNER JOIN cmx_remesa_ordencargue ro ON r.id=ro.id_remesa AND ro.estado=1 AND r.fecha_creacion='" . $fechah . "' AND r.estado_manifiesto='pendiente'
+            // INNER JOIN cmx_orden_cargue o ON ro.id_orden_cargue=o.id
+            // INNER JOIN cmx_solicitud_vehiculo2 se ON o.mer_idservicio=se.nundoc_solicitud
+            // INNER JOIN cmx_ruta_puntosentrega m ON o.id_remitente=m.id
+            // INNER JOIN cmx_remitente_destinatario rd ON m.cliente=rd.id
+            // INNER JOIN cmx_municipios mnori ON rd.id_ciudad=mnori.id
+            // INNER JOIN cmx_destinatarios_ss desti ON se.nundoc_solicitud=desti.solicitud_servicio AND m.id_punto=desti.id_punto
+            // INNER JOIN cmx_remitente_destinatario de ON desti.cliente=de.id
+            // INNER JOIN cmx_municipios mn ON desti.municipio_entrega=mn.id
+            // INNER JOIN cmx_detalle_mercancia2 d ON se.idpareja_origen_destino=d.id
+            // INNER JOIN cmx_para_tipo_empaque te ON te.id=d.tipo_empaque
+            // INNER JOIN cmx_cotizaciones_serviciocliente co ON d.n_cotizacion=co.n_cotizacion
+            // WHERE o.ve_idcarro IN(" . $vehiculo . ") GROUP BY r.id";
+
+            $sql = "SELECT
+                r.id AS remesa_id,
+                CONCAT(
+                    mnori.municipio, '-', mnori.depto
+                ) AS origen_rem,
+                CONCAT(mn.municipio, '-', mn.depto) AS destino_rem,
+                CONCAT(
+                    d.tipo_servicio_mer, ' ', d.cantidad_empaque,
+                    ' Unid.'
+                ) AS servicio_cant,
+                GROUP_CONCAT(
+                    CONCAT(
+                        d.tipo_mercancia, ' (', CASE d.naturaleza WHEN 1 THEN 'Carga normal' WHEN 2 THEN 'Carga peligrosa' WHEN 3 THEN 'Carga extradimensionada' WHEN 4 THEN 'Carga extrapesada' WHEN 5 THEN 'Residuos Peligrosos' WHEN 6 THEN 'Semovientes' WHEN 7 THEN 'Refrigerada' ELSE d.naturaleza END,
+                        ')'
+                    ) SEPARATOR ' | '
+                ) AS productos,
+                rd.nombre AS nomdest,
+                rd.documento AS docdest,
+                de.nombre AS nomrem,
+                de.documento AS docrem,
+                o.mer_volumen,
+                r.cantidad_real_cargada,
+                d.itr
+            FROM
+                cmx_remesa r
+                INNER JOIN cmx_remesa_ordencargue ro ON r.id = ro.id_remesa
+                AND ro.estado = 1
+                AND r.fecha_creacion = '" . $fechah . "'
+                AND r.estado_manifiesto = 'pendiente'
+                INNER JOIN cmx_orden_cargue o ON ro.id_orden_cargue = o.id
+                INNER JOIN cmx_solicitud_vehiculo2 se ON o.mer_idservicio = se.nundoc_solicitud
+                INNER JOIN cmx_ruta_puntosentrega m ON o.id_remitente = m.id
+                INNER JOIN cmx_remitente_destinatario rd ON m.cliente = rd.id
+                INNER JOIN cmx_municipios mnori ON rd.id_ciudad = mnori.id
+                INNER JOIN cmx_destinatarios_ss desti ON se.nundoc_solicitud = desti.solicitud_servicio
+                AND m.id_punto = desti.id_punto
+                INNER JOIN cmx_remitente_destinatario de ON desti.cliente = de.id
+                INNER JOIN cmx_municipios mn ON desti.municipio_entrega = mn.id
+                INNER JOIN cmx_detalle_mercancia2 d  ON d.n_cotizacion = se.n_cotizacion
+                -- INNER JOIN cmx_detalle_mercancia2 d 
+                --    ON ((se.escenario_id IN (5,6,7,8) AND d.n_cotizacion = se.n_cotizacion)
+                --       OR (se.escenario_id NOT IN (5,6,7,8) AND d.id = se.idpareja_origen_destino))
+                INNER JOIN cmx_para_tipo_empaque te ON te.id = d.tipo_empaque
+            WHERE
+                o.ve_idcarro IN (" . $vehiculo . ")
+            GROUP BY
+                r.id";
             $resultado = $this->_db3->query($sql);
             $resultado->setFetchMode(PDO::FETCH_ASSOC);
             return $resultado->fetchall();
@@ -289,24 +273,44 @@ class manifiesteModel extends Model
             $error = $e->getMessage();
             $this->_db3->rollBack();
         }
-    }
 
-    public function consulta_configuracion_vehiculo($vehiculo_id)
-    {
-        try {
-            $fechah = date('Y-m-d');
-            $sql = "SELECT g.nombre FROM cmx_vehiculos v
-            INNER JOIN cmx_vehiculo2 v2 ON v.numdoc_vehiculo=v2.id_vehiculo
-            INNER JOIN cmx_detalle_vehiculo dv ON v.numdoc_vehiculo=dv.id_vehiculo
-            INNER JOIN cmx_rndc_vehiculos_configuracion g ON v2.configuracion=g.id
-            WHERE v.numdoc_vehiculo=" . $vehiculo_id . " GROUP BY v.placa";
-            $resultado = $this->_db3->query($sql);
-            $resultado->setFetchMode(PDO::FETCH_ASSOC);
-            return $resultado->fetch();
-        } catch (PDOException $e) {
-            $error = $e->getMessage();
-            $this->_db3->rollBack();
-        }
+        // Consulta Original
+        // try {
+        //     $fechah = date('Y-m-d');
+        //     $sql = "SELECT
+        // 	r.id, r.cantidad_real_cargada,
+        // 	d.tipo_servicio_mer, d.cantidad_empaque,
+        // 	d.naturaleza, d.tipo_mercancia,
+        // 	te.empaque, co.nombre_cliente,
+        // 	rd.nombre AS nomdest, rd.documento AS docdest,
+        // 	de.nombre AS nomrem, de.documento AS docrem,
+        // 	CONCAT(mnori.municipio,'-',mnori.depto) AS origen_rem,
+        // 	CONCAT(mn.municipio,'-',mn.depto) AS destino_rem,
+        // 	o.mer_volumen,d.itr
+        // 	FROM cmx_remesa r
+        // 	INNER JOIN cmx_remesa_ordencargue ro ON r.id=ro.id_remesa AND ro.estado=1 AND r.fecha_creacion='" . $fechah . "' AND r.estado_manifiesto='pendiente'
+        // 	INNER JOIN cmx_orden_cargue o ON ro.id_orden_cargue=o.id
+        // 	INNER JOIN cmx_solicitud_vehiculo2 se ON o.mer_idservicio=se.nundoc_solicitud
+        // 	INNER JOIN cmx_ruta_puntosentrega m ON o.id_remitente=m.id
+        // 	INNER JOIN cmx_remitente_destinatario rd ON m.cliente=rd.id
+        // 	INNER JOIN cmx_municipios mnori ON rd.id_ciudad=mnori.id
+        // 	INNER JOIN cmx_destinatarios_ss desti ON se.nundoc_solicitud=desti.solicitud_servicio AND m.id_punto=desti.id_punto
+        // 	INNER JOIN cmx_remitente_destinatario de ON desti.cliente=de.id
+        // 	INNER JOIN cmx_municipios mn ON desti.municipio_entrega=mn.id
+        // 	INNER JOIN cmx_detalle_mercancia2 d ON se.idpareja_origen_destino=d.id
+        // 	INNER JOIN cmx_para_tipo_empaque te ON te.id=d.tipo_empaque
+        // 	INNER JOIN cmx_cotizaciones_serviciocliente co ON d.n_cotizacion=co.n_cotizacion
+        // 	INNER JOIN cmx_municipios ori ON d.origen=ori.rndc_codigo_ciudad
+        // 	INNER JOIN cmx_municipios dest ON d.destino=dest.rndc_codigo_ciudad
+        // 	INNER JOIN cmx_vehiculos ve ON o.ve_idcarro=ve.numdoc_vehiculo
+        // 	WHERE o.ve_idcarro IN(" . $vehiculo . ") GROUP BY r.id";
+        //     $resultado = $this->_db3->query($sql);
+        //     $resultado->setFetchMode(PDO::FETCH_ASSOC);
+        //     return $resultado->fetchall();
+        // } catch (PDOException $e) {
+        //     $error = $e->getMessage();
+        //     $this->_db3->rollBack();
+        // }
     }
 
     public function consulta_por_anticipo()
@@ -322,213 +326,6 @@ class manifiesteModel extends Model
             $this->_db3->rollBack();
         }
     }
-
-    // public function Insertar_manifiesto(
-    //     $placa,
-    //     $fecha_expe,
-    //     $tipo_mnf,
-    //     $origen,
-    //     $destino,
-    //     $posee_num,
-    //     $condu_identifi,
-    //     $tot_viaje,
-    //     $v_rete,
-    //     $v_reteica,
-    //     $v_neto,
-    //     $saldo,
-    //     $agencia_manifiesto,
-    //     $fec_pago,
-    //     $cargue,
-    //     $descargue,
-    //     $obs,
-    //     $r_anti,
-    //     $porcentaje,
-    //     $valor,
-    //     $metodo,
-    //     $total_peso,
-    //     $total_volumen,
-    //     $rem,
-    //     $manitr
-    // ) {
-    //     // $resultado = $this->_db2->conectar();
-    //     // $resultadoa = $this->_db2->conectar();
-    //     // $resultadom = $this->_db2->conectar();
-    //     $factual = date('Y-m-d');
-    //     $horactual = date('H:i:s');
-    //     $id_usuario = $_SESSION["usuario"]["nom_usuario"];
-    //     $_msg_error = "";
-    //     //santizar
-    //     (int) $posee_num;
-    //     (int) $condu_identifi;
-    //     (int) $r_anti;
-    //     (float) $tot_viaje;
-    //     (float) $v_rete;
-    //     (float) $v_reteica;
-    //     (float) $v_neto;
-    //     (float) $saldo;
-
-    //     try {
-
-    //         $empresa_id = $_SESSION['usuario']['empresa_id'];
-    //             $sqlm = $this->_db3->prepare(" SELECT numero_actual FROM cmx_maestro  WHERE tipo = :tipo AND numero_actual >= numero_inicial AND numero_actual <= numero_final AND empresa_id = :empresa_id");
-
-    //                 // Asignar valores a los placeholders
-    //                 $tipo = 'MNF';
-    //                 $sqlm->bindValue(':tipo', $tipo);
-    //                 $sqlm->bindValue(':empresa_id', $empresa_id);
-    //             // Ejecutar la consulta
-    //             $sqlm->execute();
-
-    //             // Obtener el resultado
-    //             $number1 = $sqlm->fetch(PDO::FETCH_ASSOC);
-
-    //         if ($number1) {
-    //             // Calcular el nuevo número
-    //             $number2 = $number1['numero_actual'];
-    //             $operacion = $number2 + 1;
-
-    //             // Prepara la consulta de actualización
-    //             $sqlupdate = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual = :numero WHERE tipo = :tipo  AND empresa_id = :empresa_id");>
-    //             // Ejecutar la consulta con los valores
-    //             $sqlupdate->execute([
-    //                 ':numero' => $operacion,
-    //                 ':tipo' => $tipo,
-    //                 ':empresa_id' => $empresa_id
-    //             ]);
-
-    //         }
-
-    //         //tabla principal
-    //         $resultadom->prepare("insert into cmx_manifiesto(id,placa,fecha_expedicion,tipo_manifiesto,origen_viaje,destino_viaje,titular_manifiesto,conductor_manifiesto,valor_total_viaje,retencion_fuente,rete_ica,neto_pagar,saldo,Lugar,fecha_pago,cargue_pagado,descargue_pagado,observacion,anticipo_reque,estadomnf_actual,estadoant_actual,hora_expedicion,total_peso,total_volumen,empresa_id,manifiesto_itr) 
-    //         values(:num_mnf,:placam,:expedicion,:tipo_mnf,:origen,:destino,:titular,:condu,:valor_viaje,:retefuente,:reteica,:neto,:saldo,:place,:f_pago,:cargue,:descargue,:obsn,:requiere_anticipo,:status_mnf,:status_anti,:hora_expe,:totpeso,:totvolumen,:empresa_id,:manifiesto_itr)")->execute(
-    //             array(
-    //                 ':num_mnf' => $number2,
-    //                 ':placam' => $placa,
-    //                 ':expedicion' => $fecha_expe,
-    //                 ':tipo_mnf' => $tipo_mnf,
-    //                 ':origen' => $origen,
-    //                 ':destino' => $destino,
-    //                 ':titular' => $posee_num,
-    //                 ':condu' => $condu_identifi,
-    //                 ':valor_viaje' => $tot_viaje,
-    //                 ':retefuente' => $v_rete,
-    //                 ':reteica' => $v_reteica,
-    //                 ':neto' => $v_neto,
-    //                 ':saldo' => $saldo,
-    //                 ':place' => $agencia_manifiesto,
-    //                 ':f_pago' => $fec_pago,
-    //                 ':cargue' => $cargue,
-    //                 ':descargue' => $descargue,
-    //                 ':obsn' => $obs,
-    //                 ':requiere_anticipo' => $r_anti,
-    //                 ':status_mnf' => '1', //guardado
-    //                 ':status_anti' => '1', //guardado
-    //                 ':hora_expe' => $horactual,
-    //                 ':totpeso' => $total_peso,
-    //                 ':totvolumen' => $total_volumen,
-    //                 ':empresa_id' => $empresa_id,
-    //                 ':manifiesto_itr' =>  $manitr,
-    //             )
-    //         );
-
-    //         if ($resultadom) { //si registro manifiesto
-    //             //registrar manifiesto remesa
-    //             $m = 0;
-    //             while ($m < count($rem->id_remesa)) {
-    //                 $estado_mnf = 'completado';
-    //                 $numremesa = $rem->id_remesa[$m];
-    //                 $resultado->prepare("insert into cmx_manifiesto_remesa
-    // 					(id,id_manifiesto,id_remesa,fecha,hora,usuario,estado) values(null,:id_mnf,:id_rem,:fecha,:hour,:user,:status)")->execute(
-    //                     array(
-    //                         ':id_mnf' => $number2,
-    //                         ':id_rem' => $numremesa,
-    //                         ':fecha' => $factual,
-    //                         ':hour' => $horactual,
-    //                         ':user' => $id_usuario,
-    //                         ':status' => 1,
-    //                     )
-    //                 );
-    //                 if ($resultado) { //actualizacion de remesa
-    //                     $resultado->prepare("update cmx_remesa set estado_manifiesto=:estado_manifiesto where id=:remesa")->execute(
-    //                         array(
-    //                             ':estado_manifiesto' => $estado_mnf,
-    //                             ':remesa' => $numremesa
-    //                         )
-    //                     );
-    //                 }
-    //                 $m++;
-    //             }
-
-    //             //registro de estado del manifiesto
-    //             $resultado->prepare("insert into cmx_manifiesto_estado
-    // 				(id,id_manifiesto,estado,fecha,hora,usuario)
-    // 				values(null,:id_mnf,:status,:fecha,:hour,:user)")->execute(
-    //                 array(
-    //                     ':id_mnf' => $number2,
-    //                     ':status' => 1,
-    //                     ':fecha' => $factual,
-    //                     ':hour' => $horactual,
-    //                     ':user' => $id_usuario,
-    //                 )
-    //             );
-    //         }
-
-    //         //si registro manifiesto y requiere anticipo
-    //         if ($resultadom && $r_anti == 1) {
-
-    //             $resultadoa->prepare("insert into cmx_manifiesto_anticipo
-    // 				(id,beneficiario,porcentaje,valor_anticipo,metodo_desembolso,id_manifiesto)
-    // 				values(:id,:bene,:porcentaj,:valor,:metodo,:id_mnf)")->execute(array(
-    //                 ':id' => null,
-    //                 ':bene' => $condu_identifi,
-    //                 ':porcentaj' => $porcentaje,
-    //                 ':valor' => $valor,
-    //                 ':metodo' => $metodo,
-    //                 ':id_mnf' => $number2,
-    //             ));
-
-    //             //
-    //             if ($resultadoa) {
-    //                 $sqlanti = "select MAX(id) AS id_anticipo FROM cmx_manifiesto_anticipo
-    // 					where id_manifiesto=" . $number2;
-    //                 $num = $resultado->query($sqlanti);
-    //                 $id1 = $num->fetch();
-    //                 $numero_anticipo = $id1['id_anticipo'];
-    //                 if ($numero_anticipo) {
-    //                     $estad = 1;
-    //                     $resultado->prepare("insert into cmx_estado_mnf_anticipo(id,id_anticipo,id_manifiesto,estado,fecha,hora,usuario)
-    // 						values(null,:num_anti,:id_mnf,:statu,:fecha,:hora,:user)")->execute(
-    //                         array(
-    //                             ':num_anti' => $numero_anticipo,
-    //                             ':id_mnf' => $number2,
-    //                             ':statu' => $estad,
-    //                             ':fecha' => $factual,
-    //                             ':hora' => $horactual,
-    //                             ':user' => $id_usuario,
-    //                         )
-    //                     );
-    //                 }
-    //             }
-    //         }
-
-    //         if ($resultado && $resultadoa && $resultadom) {
-    //             $return["status"] = true;
-    //             $return["numero_documento"] = $number2;
-    //             $return["error"] = $_msg_error;
-    //             return $return;
-    //         } else {
-    //             $_msg_error = "Error";
-    //             $return["status"] = false;
-    //             $return["numero_documento"] = "";
-    //             $return["error"] = $_msg_error;
-    //             return $return;
-    //         }
-    //     } catch (PDOException $e) {
-    //         $error = $e->getMessage();
-    //         $this->_db3->rollBack();
-    //         return 'false';
-    //     }
-    // }
 
     public function Insertar_manifiesto(
         $placa,
@@ -557,204 +354,253 @@ class manifiesteModel extends Model
         $rem,
         $manitr
     ) {
+        // --- (Valores fijos y de sesión) ---
         $factual = date('Y-m-d');
         $horactual = date('H:i:s');
         $id_usuario = $_SESSION["usuario"]["nom_usuario"];
         $empresa_id = $_SESSION['usuario']['empresa_id'];
         $_msg_error = "";
+        $return = ['status' => false, 'numero_documento' => '', 'error' => ''];
+
+        // --- Saneamiento de variables (casting para claridad, pero PDO se encarga de la seguridad) ---
+        // (int) $posee_num; (int) $condu_identifi; (int) $r_anti; 
+        // (float) $tot_viaje; (float) $v_rete; (float) $v_reteica; (float) $v_neto; (float) $saldo;
 
         try {
-            // Inicia la transacción
+            // 1. Inicia la transacción en la CONEXIÓN PRINCIPAL ($this->_db3)
             $this->_db3->beginTransaction();
 
-            // 1. Obtener el número actual del manifiesto
-            $sqlm = $this->_db3->prepare(" SELECT numero_actual FROM cmx_maestro WHERE tipo = :tipo  AND numero_actual >= numero_inicial  AND numero_actual <= numero_final AND empresa_id = :empresa_id");
-            $sqlm->execute([
-                ':tipo' => 'MNF',
-                ':empresa_id' => $empresa_id,
-            ]);
-            $number1 = $sqlm->fetch(PDO::FETCH_ASSOC);
+            // 2. Obtener y BLOQUEAR el contador (FOR UPDATE para manejo de concurrencia)
+            $sql_select = "SELECT numero_actual FROM cmx_maestro WHERE tipo='MNF' AND numero_actual>=numero_inicial AND numero_actual<=numero_final AND empresa_id = :empresa_id FOR UPDATE";
+            $stmt_select = $this->_db3->prepare($sql_select);
+            $stmt_select->bindParam(':empresa_id', $empresa_id, PDO::PARAM_STR);
+            $stmt_select->execute();
+            $number1 = $stmt_select->fetch(PDO::FETCH_ASSOC);
 
             if (!$number1) {
-                throw new Exception("No se encontró un número actual disponible.");
+                $this->_db3->rollBack();
+                return ['status' => false, 'error' => 'Rango de manifiesto agotado o no encontrado.'];
             }
 
-            $number2 = $number1['numero_actual'];
-            $operacion = $number2 + 1;
+            $number2 = $number1['numero_actual']; // Número de manifiesto a usar
+            $operacion = ($number2 + 1);       // Siguiente número a guardar
 
-            // 2. Actualizar el número actual en cmx_maestro
-            $sqlupdate = $this->_db3->prepare("UPDATE cmx_maestro SET numero_actual = :numero  WHERE tipo = :tipo AND empresa_id = :empresa_id");
-            $sqlupdate->execute([
-                ':numero' => $operacion,
-                ':tipo' => 'MNF',
-                ':empresa_id' => $empresa_id,
-            ]);
+            // 3. Actualizar el contador (dentro de la transacción)
+            $sql_update = 'UPDATE cmx_maestro SET numero_actual = :numero WHERE tipo = :tipo AND empresa_id = :empresa_id';
+            $stmt_update = $this->_db3->prepare($sql_update);
+            $stmt_update->execute(array(':numero' => $operacion, ':tipo' => 'MNF', ':empresa_id' => $empresa_id));
 
-            // 3. Insertar el manifiesto en cmx_manifiesto
-            $sqlInsertManifiesto = $this->_db3->prepare("
-                INSERT INTO cmx_manifiesto (
-                    id, placa, fecha_expedicion, tipo_manifiesto, origen_viaje, destino_viaje, 
-                    titular_manifiesto, conductor_manifiesto, valor_total_viaje, retencion_fuente, 
-                    rete_ica, neto_pagar, saldo, Lugar, fecha_pago, cargue_pagado, 
-                    descargue_pagado, observacion, anticipo_reque, estadomnf_actual, estadoant_actual, 
-                    hora_expedicion, total_peso, total_volumen, empresa_id, manifiesto_itr
-                ) VALUES (
-                    :num_mnf, :placa, :fecha_expedicion, :tipo_mnf, :origen, :destino, 
-                    :titular, :conductor, :valor_total, :retencion_fuente, :rete_ica, 
-                    :neto_pagar, :saldo, :Lugar, :fecha_pago, :cargue_pagado, :descargue_pagado, 
-                    :observacion, :anticipo_reque, :estadomnf_actual, :estadoant_actual, 
-                    :hora_expedicion, :total_peso, :total_volumen, :empresa_id, :manifiesto_itr
+            // 4. Inserción en la tabla principal (cmx_manifiesto)
+            $sql_mnf = "INSERT INTO cmx_manifiesto(id,placa,fecha_expedicion,tipo_manifiesto,origen_viaje,destino_viaje,titular_manifiesto,conductor_manifiesto,valor_total_viaje,retencion_fuente,rete_ica,neto_pagar,saldo,Lugar,fecha_pago,cargue_pagado,descargue_pagado,observacion,anticipo_reque,estadomnf_actual,estadoant_actual,hora_expedicion,total_peso,total_volumen,empresa_id,manifiesto_itr) 
+            VALUES(:num_mnf,:placam,:expedicion,:tipo_mnf,:origen,:destino,:titular,:condu,:valor_viaje,:retefuente,:reteica,:neto,:saldo,:place,:f_pago,:cargue,:descargue,:obsn,:requiere_anticipo,:status_mnf,:status_anti,:hora_expe,:totpeso,:totvolumen,:empresa_id,:manifiesto_itr)";
+
+            $stmt_mnf = $this->_db3->prepare($sql_mnf);
+            $resultadom = $stmt_mnf->execute(
+                array(
+                    ':num_mnf' => $number2,
+                    ':placam' => $placa,
+                    ':expedicion' => $fecha_expe,
+                    ':tipo_mnf' => $tipo_mnf,
+                    ':origen' => $origen,
+                    ':destino' => $destino,
+                    ':titular' => $posee_num,
+                    ':condu' => $condu_identifi,
+                    ':valor_viaje' => $tot_viaje,
+                    ':retefuente' => $v_rete,
+                    ':reteica' => $v_reteica,
+                    ':neto' => $v_neto,
+                    ':saldo' => $saldo,
+                    ':place' => $agencia_manifiesto,
+                    ':f_pago' => $fec_pago,
+                    ':cargue' => $cargue,
+                    ':descargue' => $descargue,
+                    ':obsn' => $obs,
+                    ':requiere_anticipo' => $r_anti,
+                    ':status_mnf' => '1', //guardado
+                    ':status_anti' => '1', //guardado
+                    ':hora_expe' => $horactual,
+                    ':totpeso' => $total_peso,
+                    ':totvolumen' => $total_volumen,
+                    ':empresa_id' => $empresa_id,
+                    ':manifiesto_itr' => $manitr,
                 )
-            ");
-            $sqlInsertManifiesto->execute([
-                ':num_mnf' => $number2,
-                ':placa' => $placa,
-                ':fecha_expedicion' => $fecha_expe,
-                ':tipo_mnf' => $tipo_mnf,
-                ':origen' => $origen,
-                ':destino' => $destino,
-                ':titular' => $posee_num,
-                ':conductor' => $condu_identifi,
-                ':valor_total' => $tot_viaje,
-                ':retencion_fuente' => $v_rete,
-                ':rete_ica' => $v_reteica,
-                ':neto_pagar' => $v_neto,
-                ':saldo' => $saldo,
-                ':Lugar' => $agencia_manifiesto,
-                ':fecha_pago' => $fec_pago,
-                ':cargue_pagado' => $cargue,
-                ':descargue_pagado' => $descargue,
-                ':observacion' => $obs,
-                ':anticipo_reque' => $r_anti,
-                ':estadomnf_actual' => 1,
-                ':estadoant_actual' => 1,
-                ':hora_expedicion' => $horactual,
-                ':total_peso' => $total_peso,
-                ':total_volumen' => $total_volumen,
-                ':empresa_id' => $empresa_id,
-                ':manifiesto_itr' => $manitr,
-            ]);
+            );
 
-            // 4. Insertar manifiesto-remesa
-            foreach ($rem->id_remesa as $numremesa) {
-                $sqlManifiestoRemesa = $this->_db3->prepare("INSERT INTO cmx_manifiesto_remesa (id, id_manifiesto, id_remesa, fecha, hora, usuario, estado) 
-                VALUES (null, :id_manifiesto, :id_remesa, :fecha, :hora, :usuario, :estado)");
-                $sqlManifiestoRemesa->execute([
-                    ':id_manifiesto' => $number2,
-                    ':id_remesa' => $numremesa,
-                    ':fecha' => $factual,
-                    ':hora' => $horactual,
-                    ':usuario' => $id_usuario,
-                    ':estado' => 1,
-                ]);
+            if (!$resultadom) {
+                $this->_db3->rollBack();
+                return ['status' => false, 'error' => 'Error al insertar manifiesto principal.'];
             }
 
-            // Finalizar transacción
+            // 5. Registrar manifiesto remesa y actualizar remesa
+            $estado_mnf_remesa = 'completado';
+            $m = 0;
+
+            while ($m < count($rem->id_remesa)) {
+                $numremesa = $rem->id_remesa[$m];
+
+                // ================================================================
+                // 1. Consultar transmisión previa en cmx_remesas_transmision
+                // ================================================================
+                $sql_check = "SELECT estado FROM cmx_remesas_transmision WHERE id_remesa = :id_rem LIMIT 1";
+                $stmt_check = $this->_db3->prepare($sql_check);
+                $stmt_check->execute([':id_rem' => $numremesa]);
+
+                $row = $stmt_check->fetch(\PDO::FETCH_ASSOC);
+
+                // Si existe se usa su estado, si no existe se asume 0
+                $estado_rndc = ($row && isset($row['estado']) && $row['estado'] == 1) ? 1 : 0;
+
+                // ================================================================
+                // 2. Insertar en cmx_manifiesto_remesa
+                // ================================================================
+                $sql_mr = "INSERT INTO cmx_manifiesto_remesa 
+                (id, id_manifiesto, id_remesa, fecha, hora, usuario, estado, estado_rem_rndc)
+                VALUES (NULL, :id_mnf, :id_rem, :fecha, :hour, :user, :status, :estado_rndc)";
+
+                $stmt_mr = $this->_db3->prepare($sql_mr);
+                $stmt_mr->execute([
+                    ':id_mnf'        => $number2,
+                    ':id_rem'        => $numremesa,
+                    ':fecha'         => $factual,
+                    ':hour'          => $horactual,
+                    ':user'          => $id_usuario,
+                    ':status'        => 1,
+                    ':estado_rndc'   => $estado_rndc,
+                ]);
+
+                // ================================================================
+                // 3. Actualizar estado de remesa en cmx_remesa
+                // ================================================================
+                $sql_ur = "UPDATE cmx_remesa 
+               SET estado_manifiesto = :estado_manifiesto 
+               WHERE id = :remesa";
+
+                $stmt_ur = $this->_db3->prepare($sql_ur);
+                $stmt_ur->execute([
+                    ':estado_manifiesto' => $estado_mnf_remesa,
+                    ':remesa'            => $numremesa
+                ]);
+
+                $m++;
+            }
+
+            // 6. Registro de estado del manifiesto
+            $sql_me = "INSERT INTO cmx_manifiesto_estado (id,id_manifiesto,estado,fecha,hora,usuario) VALUES(null,:id_mnf,:status,:fecha,:hour,:user)";
+            $stmt_me = $this->_db3->prepare($sql_me);
+            $stmt_me->execute([
+                ':id_mnf' => $number2,
+                ':status' => 1,
+                ':fecha' => $factual,
+                ':hour' => $horactual,
+                ':user' => $id_usuario,
+            ]);
+
+            // 7. Si requiere anticipo
+            if ($r_anti == 1) {
+                // Inserción en cmx_manifiesto_anticipo
+                $sql_ma = "INSERT INTO cmx_manifiesto_anticipo (id,beneficiario,porcentaje,valor_anticipo,metodo_desembolso,id_manifiesto) VALUES(null,:bene,:porcentaj,:valor,:metodo,:id_mnf)";
+                $stmt_ma = $this->_db3->prepare($sql_ma);
+                $stmt_ma->execute(array(
+                    ':bene' => $condu_identifi,
+                    ':porcentaj' => $porcentaje,
+                    ':valor' => $valor,
+                    ':metodo' => $metodo,
+                    ':id_mnf' => $number2,
+                ));
+
+                // Obtener el ID del anticipo recién insertado (usamos PDO::lastInsertId)
+                $numero_anticipo = $this->_db3->lastInsertId();
+
+                if ($numero_anticipo) {
+                    // Registro de estado del anticipo
+                    $estad = 1;
+                    $sql_ea = "INSERT INTO cmx_estado_mnf_anticipo(id,id_anticipo,id_manifiesto,estado,fecha,hora,usuario) VALUES(null,:num_anti,:id_mnf,:statu,:fecha,:hora,:user)";
+                    $stmt_ea = $this->_db3->prepare($sql_ea);
+                    $stmt_ea->execute([
+                        ':num_anti' => $numero_anticipo,
+                        ':id_mnf' => $number2,
+                        ':statu' => $estad,
+                        ':fecha' => $factual,
+                        ':hora' => $horactual,
+                        ':user' => $id_usuario,
+                    ]);
+                }
+            }
+
+            // 8. Insertar en nueva tabla de pagos y anticipos
+            $sql_pagos = "INSERT INTO cmx_pagos_manifiestos (manifiesto_id, valor_total_manifiesto, total_pagado, estado_ancipo, estado_liquidacion, estado_pago, usuario, fecha, hora, empresa_id)
+            VALUES (:manifiesto_id, :valor_total, NULL, :estado_ancipo, :estado_liquidacion, :estado_pago, :usuario, :fecha, :hora, :empresa_id)";
+
+            // $VALOR_ANTICIPO = $r_anti == 1 ? $valor : null;
+            $ESTADO_ANTICIPO = $r_anti == 1 ? 'Pendiente' : 'No Aplica';
+            $ESTADO_LIQUIDACION = 'Pendiente';
+            $ESTADO_PAGO = 'Pendiente';
+
+            $stmt_pagos = $this->_db3->prepare($sql_pagos);
+            $stmt_pagos->bindParam(':manifiesto_id', $number2, PDO::PARAM_INT);
+            $stmt_pagos->bindParam(':valor_total', $tot_viaje, PDO::PARAM_STR); // Usar STR/FLOAT si valor es decimal
+            $stmt_pagos->bindParam(':estado_ancipo', $ESTADO_ANTICIPO, PDO::PARAM_STR);
+            $stmt_pagos->bindParam(':estado_liquidacion', $ESTADO_LIQUIDACION, PDO::PARAM_STR);
+            $stmt_pagos->bindParam(':estado_pago', $ESTADO_PAGO, PDO::PARAM_STR);
+            $stmt_pagos->bindParam(':usuario', $id_usuario, PDO::PARAM_STR);
+            $stmt_pagos->bindParam(':fecha', $factual, PDO::PARAM_STR);
+            $stmt_pagos->bindParam(':hora', $horactual, PDO::PARAM_STR);
+            $stmt_pagos->bindParam(':empresa_id', $empresa_id, PDO::PARAM_STR);
+            $stmt_pagos->execute();
+
+            // 9. Confirmar la transacción
             $this->_db3->commit();
 
-            return [
-                'status' => true,
-                'numero_documento' => $number2,
-                'error' => $_msg_error,
-            ];
-        } catch (Exception $e) {
+            $return["status"] = true;
+            $return["numero_documento"] = $number2;
+            $return["error"] = $_msg_error;
+            return $return;
+        } catch (PDOException $e) {
+            // 10. Rollback en caso de error
             $this->_db3->rollBack();
+
+            // Registrar o manejar el error
+            error_log("Error al crear manifiesto: " . $e->getMessage());
             return [
                 'status' => false,
-                'numero_documento' => null,
-                'error' => $e->getMessage(),
+                'error' => true,
+                'message' => 'Error de base de datos: ' . $e->getMessage(),
             ];
         }
     }
 
-    // public function consulta_manifiestos($finicia, $ffinal)
-    // {
-    //     try {
-    //         $sql = "SELECT mnf.id, mnf.placa, mnf.conductor_manifiesto,
-    // 		mnf.tipo_manifiesto, mnf.observacion,
-    // 		mnf.estadomnf_actual, mnf.estadoant_actual, cu.estado AS cumplido
-    // 		FROM cmx_manifiesto mnf
-    // 		INNER JOIN cmx_manifiesto_estado mnfe
-    // 		ON mnf.id=mnfe.id_manifiesto
-    //         LEFT JOIN cmx_cumplido cu
-    //         ON mnf.id=cu.manifiesto
-    // 		WHERE mnfe.estado=1 AND  mnf.estadomnf_actual=1
-    // 		AND mnfe.fecha
-    // 		BETWEEN '" . $finicia . "' AND '" . $ffinal . "'";
-
-    //         $sql_total_manifiesto = "SELECT COUNT(*) AS total_manifiestos
-    // 		FROM cmx_manifiesto mnf
-    // 		INNER JOIN cmx_manifiesto_estado mnfe
-    // 		ON mnf.id=mnfe.id_manifiesto
-    //         LEFT JOIN cmx_cumplido cu
-    //         ON mnf.id=cu.manifiesto
-    // 		WHERE mnfe.estado=1 AND  mnf.estadomnf_actual=1
-    // 		AND mnfe.fecha
-    // 		BETWEEN '" . $finicia . "' AND '" . $ffinal . "'";
-    //         $response = [
-    //             'manifiestos' => $this->_db3->query($sql)->fetchAll(),
-    //             'total_manifiestos' => $this->_db3->query($sql_total_manifiesto)->fetch()['total_manifiestos'],
-    //         ];
-    //         return $response;
-    //     } catch (PDOException $e) {
-    //         $error = $e->getMessage();
-    //         $this->_db3->rollBack();
-    //     }
-    // }
-
     public function consulta_manifiestos($finicia, $ffinal)
     {
         try {
-            // Inicia la transacción
-            $this->_db3->beginTransaction();
-
             $sql = "SELECT mnf.id, mnf.placa, mnf.conductor_manifiesto,
-            mnf.tipo_manifiesto, mnf.observacion,
-            mnf.estadomnf_actual, mnf.estadoant_actual, cu.estado AS cumplido
-            FROM cmx_manifiesto mnf
-            INNER JOIN cmx_manifiesto_estado mnfe ON mnf.id = mnfe.id_manifiesto
-            LEFT JOIN cmx_cumplido cu ON mnf.id = cu.manifiesto
-            WHERE mnfe.estado = 1 AND mnf.estadomnf_actual = 1
-            AND mnfe.fecha
-            BETWEEN :finicia AND :ffinal";
+			mnf.tipo_manifiesto, mnf.observacion,
+			mnf.estadomnf_actual, mnf.estadoant_actual, cu.estado AS cumplido,mnf.estado_seguimiento,mnf.fecha_expedicion
+			FROM cmx_manifiesto mnf
+			INNER JOIN cmx_manifiesto_estado mnfe
+			ON mnf.id=mnfe.id_manifiesto
+            LEFT JOIN cmx_cumplido cu
+            ON mnf.id=cu.manifiesto
+			WHERE 
+			mnf.fecha_expedicion
+			BETWEEN '" . $finicia . "' AND '" . $ffinal . "'";
 
             $sql_total_manifiesto = "SELECT COUNT(*) AS total_manifiestos
-            FROM cmx_manifiesto mnf
-            INNER JOIN cmx_manifiesto_estado mnfe ON mnf.id = mnfe.id_manifiesto
-            LEFT JOIN cmx_cumplido cu ON mnf.id = cu.manifiesto
-            WHERE mnfe.estado = 1 AND mnf.estadomnf_actual = 1
-            AND mnfe.fecha
-            BETWEEN :finicia AND :ffinal";
-
-            // Preparar y ejecutar las consultas
-            $stmt1 = $this->_db3->prepare($sql);
-            $stmt1->bindParam(':finicia', $finicia);
-            $stmt1->bindParam(':ffinal', $ffinal);
-            $stmt1->execute();
-            $manifiestos = $stmt1->fetchAll();
-
-            $stmt2 = $this->_db3->prepare($sql_total_manifiesto);
-            $stmt2->bindParam(':finicia', $finicia);
-            $stmt2->bindParam(':ffinal', $ffinal);
-            $stmt2->execute();
-            $total_manifiestos = $stmt2->fetch()['total_manifiestos'];
-
-            // Confirmar la transacción
-            $this->_db3->commit();
-
-            return [
-                'manifiestos' => $manifiestos,
-                'total_manifiestos' => $total_manifiestos,
+			FROM cmx_manifiesto mnf
+			INNER JOIN cmx_manifiesto_estado mnfe
+			ON mnf.id=mnfe.id_manifiesto
+            LEFT JOIN cmx_cumplido cu
+            ON mnf.id=cu.manifiesto
+			WHERE 
+			mnf.fecha_expedicion
+			BETWEEN '" . $finicia . "' AND '" . $ffinal . "'";
+            $response = [
+                'manifiestos' => $this->_db3->query($sql)->fetchAll(),
+                'total_manifiestos' => $this->_db3->query($sql_total_manifiesto)->fetch()['total_manifiestos'],
             ];
+            return $response;
         } catch (PDOException $e) {
-            // Revertir los cambios si ocurre un error
+            $error = $e->getMessage();
             $this->_db3->rollBack();
-
-            // Registrar o manejar el error
-            return [
-                'error' => true,
-                'message' => $e->getMessage(),
-            ];
         }
     }
 
@@ -864,8 +710,8 @@ class manifiesteModel extends Model
             }
             return 'true';
         } catch (PDOException $e) {
+            // $this->_db2->rollBack();
             $error = $e->getMessage();
-            $this->_db3->rollBack();
         }
     }
 
@@ -934,7 +780,7 @@ class manifiesteModel extends Model
 
             //si registro el anticipo, poner los anteriores en 0 y el nuevo validar con que estado según el porcentaje
             if ($resultado) {
-                $estado;
+                $estado = 0;
                 if ($por >= 65) {
                     $estado = 2;
                 }
@@ -973,9 +819,9 @@ class manifiesteModel extends Model
                 }
                 return 'true';
             }
-        } catch (PDOExeption $e) {
+        } catch (Throwable $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();
             return 'false';
         }
     }
@@ -1065,22 +911,60 @@ class manifiesteModel extends Model
         }
     }
 
-    public function Remesa_Rndc($manifiesto)
+    public function Remesa_Rndc_retransmitir($manifiesto)
     {
         try {
-            $sql = 'SELECT
-			id_manifiesto,
-			COUNT(id_remesa) AS can_remesa,
-			(SELECT COUNT(estado_rem_rndc) FROM cmx_manifiesto_remesa
-			WHERE id_manifiesto=' . $manifiesto . ' AND estado_rem_rndc=1) AS can_re_rndc
-			FROM cmx_manifiesto_remesa
-			WHERE id_manifiesto=' . $manifiesto . '
-			AND estado=1';
+            $sql = 'SELECT id_manifiesto,
+    		COUNT(id_remesa) AS can_remesa,
+    		(SELECT COUNT(estado_rem_rndc) FROM cmx_manifiesto_remesa
+    		WHERE id_manifiesto=' . $manifiesto . ' AND estado_rem_rndc=1) AS can_re_rndc
+    		FROM cmx_manifiesto_remesa
+    		WHERE id_manifiesto=' . $manifiesto . '
+    		AND estado=1';
             $resultado = $this->_db3->query($sql);
             return $resultado->fetch();
         } catch (PDOException $e) {
             $error = $e->getMessage();
             $this->_db3->rollBack();
+        }
+    }
+
+    public function Remesa_Rndc($manifiesto)
+    {
+        try {
+            // Totales
+            $sqlResumen = '
+            SELECT 
+                COUNT(*) AS total_remesas,
+                SUM(CASE WHEN estado_rem_rndc = 1 THEN 1 ELSE 0 END) AS remesas_transmitidas,
+                SUM(CASE WHEN estado_rem_rndc IS NULL OR estado_rem_rndc != 1 THEN 1 ELSE 0 END) AS remesas_pendientes
+            FROM cmx_manifiesto_remesa
+            WHERE id_manifiesto = :manifiesto AND estado = 1
+        ';
+            $stmtResumen = $this->_db3->prepare($sqlResumen);
+            $stmtResumen->bindParam(':manifiesto', $manifiesto, PDO::PARAM_INT);
+            $stmtResumen->execute();
+            $resumen = $stmtResumen->fetch();
+
+            // Pendientes
+            $sqlPendientes = '
+            SELECT id_remesa, id_remesa AS numero_remesa, fecha
+            FROM cmx_manifiesto_remesa 
+            WHERE id_manifiesto = :manifiesto
+              AND estado = 1
+              AND (estado_rem_rndc IS NULL OR estado_rem_rndc != 1)
+        ';
+            $stmtPendientes = $this->_db3->prepare($sqlPendientes);
+            $stmtPendientes->bindParam(':manifiesto', $manifiesto, PDO::PARAM_INT);
+            $stmtPendientes->execute();
+            $pendientes = $stmtPendientes->fetchAll();
+
+            return [
+                'resumen' => $resumen,
+                'pendientes' => $pendientes
+            ];
+        } catch (PDOException $e) {
+            return ['error' => $e->getMessage()];
         }
     }
 }

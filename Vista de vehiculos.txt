@@ -1,0 +1,23 @@
+
+            <div class="panel panel-border panel-contrast">
+            <div class="panel-heading panel-heading-contrast">
+              Vehiculos
+              <div class="tools">
+                <!-- <a href="#" data-toggle="modal" id="btn_crea" class="cell-detail  hint--top"  data-hint="Agregar Vehículo" id="btn_crea" onclick="limpiar_modal_vehiculo()" ><span class="icon mdi mdi-plus"></span></a> -->
+                <!-- <a href="#" data-toggle="modal" id="btn_trailer" class="cell-detail  hint--top"  data-hint="Agregar Trailer" id="btn_trailer"><span class="icon mdi mdi-tumblr"></span></a> -->
+                <!-- <a href="#" class="cell-detail hint--top"  data-hint="Agregar Vehículo" onclick="crear_vehiculo()"><span class="icon mdi mdi-plus"></span> Agregar Vehiculo</a>-->
+              </div>
+              <span class="panel-subtitle">
+                Administración de las hojas de vida de los vehículos, donde se controla toda la información y se capturan los soportes.
+              </span>
+            </div>
+            <div class="panel-body xs-mt-15">
+              <div class="nexos-messages"></div>
+              <div class="row">
+                <div class="col-sm-12">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>

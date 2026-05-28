@@ -1,0 +1,1 @@
+Error en Guardar_prefiltro: No se pudo registrar la respuesta de seguridad.

@@ -14,7 +14,7 @@
 			<div class="row">
 				<div class="col-xs-4 col-sm-5 col-md-4 col-lg-4">
 					<label>Filtrar por</label>
-					<select id="filtro" class="form-control input-sm">
+					<select id="filtro" class="form-select form-select-sm">
 						<option value="">Seleccione</option>
 						<option value="1">Número Manifiesto</option>
 						<option value="2">Fecha</option>
@@ -22,15 +22,15 @@
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 fec">
 					<label>Fecha inicial</label>
-					<input type="date" id="finicial" class="form-control input-xs" value="<?php echo date('Y-m-d'); ?>">
+					<input type="date" id="finicial" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 fec">
 					<label>Fecha final</label>
-					<input type="date" id="ffinal" class="form-control input-xs" value="<?php echo date('Y-m-d'); ?>">
+					<input type="date" id="ffinal" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 num">
 					<label>Número Manifiesto</label>
-					<input type="number" id="numnani" class="form-control input-sm">
+					<input type="number" id="numnani" class="form-control form-control-sm">
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 btn">
 					<br><button id="buscar_cumplido" class="btn btn-primary btn-sm">Buscar</button>
@@ -125,8 +125,7 @@
 									<th style='width:10%;min-width: 10%;'>Acciones</th>
 								</tr>
 							</thead>
-							<tbody id="cumplidobody">
-							</tbody>
+							<tbody id="cumplidobody"></tbody>
 						</table>
 					</div>
 				</div>

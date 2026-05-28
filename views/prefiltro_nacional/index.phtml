@@ -1,52 +1,615 @@
 <div class="container-fluid">
+  <!-- Sesión oculta -->
   <input type="hidden" name="ssn_id_cliente" id="ssn_id_cliente" value="<?= $_SESSION["usuario"]["id_cliente"] ?>">
   <input type="hidden" name="ssn_id_usuario" id="ssn_id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"] ?>">
   <input type="hidden" name="ssn_nombre" id="ssn_nombre" value="<?= $_SESSION["usuario"]["nom_usuario"] ?>">
   <input type="hidden" name="ssn_id_perfil" id="ssn_id_perfil" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
   <input type="hidden" name="fecha_dia_solicitud" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
   <input type="hidden" name="hora_dia_solicitud" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-    <div class="row">
+    /* body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    } */
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Estilos del buscador */
+    .search-container {
+      display: flex;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .search-input {
+      flex-grow: 1;
+      padding: 12px 16px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .search-button {
+      padding: 12px 24px;
+      background-color: #4a6ee0;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    .search-button:hover {
+      background-color: #3a5ec0;
+    }
+
+    /* Contenedor del mapa */
+    .map-container {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      background-color: #e9e9e9;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .map-background {
+      width: 100%;
+      height: 100%;
+      background-image: url('https://via.placeholder.com/1200x800?text=Mapa+de+Ejemplo');
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Efecto de radar */
+    .radar {
+      position: relative;
+      /* Cambiado a relative o mantenerlo así */
+      /* top: 50%; <--- ELIMINADO/SOBREESCRITO POR EL CENTRADO FLEXBOX */
+      /* left: 50%; <--- ELIMINADO/SOBREESCRITO POR EL CENTRADO FLEXBOX */
+      /* transform: translate(-50%, -50%); <--- ELIMINADO/SOBREESCRITO POR EL CENTRADO FLEXBOX */
+
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* 🛑 MANTENER REGLA .radar-center (Para centrar el PUNTO DENTRO DEL RADAR) */
+    .radar-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      /* MANTENER ESTO para centrar el punto */
+      width: 12px;
+      height: 12px;
+      background-color: #4a6ee0;
+      border-radius: 50%;
+      z-index: 15;
+    }
+
+    .radar-pulse {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid #4a6ee0;
+      opacity: 0;
+      animation: pulse 3s infinite;
+    }
+
+    .radar-pulse:nth-child(2) {
+      animation-delay: 1s;
+    }
+
+    .radar-pulse:nth-child(3) {
+      animation-delay: 2s;
+    }
+
+    .radar-sweep {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(45deg, transparent 49%, rgba(74, 110, 224, 0.3) 50%, transparent 51%);
+      animation: sweep 3s linear infinite;
+    }
+
+    /* Marcadores de resultados */
+    .marker {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background-color: #ff6b6b;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 5;
+    }
+
+    .marker.active {
+      opacity: 1;
+    }
+
+    .marker::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: rgba(255, 107, 107, 0.3);
+      animation: marker-pulse 2s infinite;
+    }
+
+    /* Animaciones */
+    @keyframes pulse {
+      0% {
+        transform: scale(0.1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sweep {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes marker-pulse {
+      0% {
+        transform: scale(0.8);
+        opacity: 1;
+      }
+
+      70% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .map-container {
+        height: 400px;
+      }
+
+      .radar {
+        width: 150px;
+        height: 150px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .search-container {
+        flex-direction: column;
+      }
+
+      .search-button {
+        border-radius: 0 0 8px 8px;
+      }
+
+      .map-container {
+        height: 300px;
+      }
+    }
+  </style>
+  <!-- Tabla principal -->
+  <div class="col-12">
+
+    <div class="d-flex justify-content-center my-2">
+      <button class="btn btn-ligth position-relative px-5 py-1 me-3" type="button">
+        Contador General Solicitudes<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary-dark" id="contador-general-solicitudes">0<span class="visually-hidden">unread messages</span></span>
+      </button>
+
+      <!-- <button class="btn btn-ligth position-relative px-5 py-1 me-3" type="button">
+        Contador Solicitudes Filtro<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary-dark" id="contador-solicitudes-filtro" >0<span class="visually-hidden">unread messages</span></span>
+      </button> -->
+
+      <!-- <button class="btn btn-ligth position-relative px-5 py-1 me-3" type="button">
+        Contador Vehiculos<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary-dark" id="contador-vehiculos">0<span class="visually-hidden">unread messages</span></span>
+      </button> -->
+
+      <!-- <button class="btn btn-ligth position-relative px-5 py-1 me-3" type="button">
+        Contador Tipo Servicio<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary-dark" id="contador-tipo-servicio">0<span class="visually-hidden">unread messages</span></span>
+      </button> -->
+
+      <!-- <button class="btn btn-ligth position-relative px-5 py-1 me-3" type="button">
+        Contador Por estado<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary-dark" id="contador-estado">0<span class="visually-hidden">unread messages</span></span>
+      </button> -->
+    </div>
+
+    <div class="row vh-100">
+
       <div class='table-responsive p-1'>
-        <table class='table table-bordered table-sm' style=" font-size:10px;">
-          <thead>
+        <table class='table table-bordered table-striped table-hover table-sm align-middle' style="font-size:12px;">
+          <thead class="table-light">
             <tr>
-              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Solicitud</th>
-              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Tipo Servicio</th>
-              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Itr</th>
-              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Cliente</th>
-              <th class='text-center' style="vertical-align:middle;width: auto;">Mercancía</th>
-              <th class='text-center' style='color:black;width: auto;white-space: nowrap;'>Vehículo</th>
-              <th class='text-center' style="vertical-align:middle;width: auto;">P.Neto</th>
-              <th class='text-center' style="vertical-align:middle;width: auto;">Ruta</th>
-              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Fecha</th>
-              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>prioridad</th>
-              <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Estado</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Solicitud</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Prioridad</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Tipo Servicio</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Estado</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Itr</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Cliente</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Mercancía</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Vehículo</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">P.Neto</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Ruta</th>
+              <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Fecha</th>
+              <!-- <th class='text-center'>Acciones</th> -->
             </tr>
           </thead>
-          <tbody id='tbl-solicitudes' class='text-center'></tbody>
+          <tbody id='tbl-solicitudes' class='text-center'>
+            <!-- Aquí se cargan las solicitudes vía JS -->
+          </tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
 
-<script type="text/javascript">
-  $(document).on('click', '#btn_soli', function() {
-    $('#solicitudservicio').modal('show');
-  });
-  $(document).on('click', '#cancel', function() {
-    $('#solicitudservicio').modal('hide');
-  });
-  $(document).on('click', '#btn_soli2', function() {
-    $('#solicitudservicionew').modal('show');
-  });
-  $(document).on('click', '#cancel2', function() {
-    $('#solicitudservicionew').modal('hide');
-  });
-  $(document).on('click', '#btn_cerrar', function() {
-    $('#crea_vehiculopreestudio').modal('hide');
-    location.reload();
-  });
-</script>
+<!-- MODAL PARA MOSTRAR DETALLES DE LA SOLICITUD -->
+<div class="modal fade" id="solicitudservicio" tabindex="-1" data-bs-backdrop="static" aria-labelledby="solicitudservicioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- Encabezado -->
+      <div class="modal-header justify-content-between bg-primary">
+        <h5 class="modal-title text-white dark__text-gray-1100" id="solicitudservicioLabel">
+          Solicitudes de servicio
+        </h5>
+        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+          <svg class="svg-inline--fa fa-xmark fs-9 text-white dark__text-gray-1100" aria-hidden="true" focusable="false"
+            data-prefix="fas" data-icon="xmark" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+            <path fill="currentColor"
+              d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 
+                     210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 
+                     45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 
+                     45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 
+                     12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 
+                     342.6 150.6z">
+            </path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="modal-body py-4">
+        <div id="nexos_messages_popup" class="mb-3"></div>
+        <div class="mb-3">
+          <label class="fw-bold">Listas seleccionadas</label>
+          <ul id="listamodal" class="ps-3"></ul>
+        </div>
+
+        <!-- Tabla dinámica de solicitudes -->
+        <div class="table-responsive">
+          <table id="table2" class="table table-striped table-hover table-bordered align-middle mb-0" style="font-size: 14px;">
+            <thead class="table-light">
+              <tr>
+                <th>Solicitud</th>
+                <th>Mercancía</th>
+                <th>Item</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Peso (Kg) / Tipo Vehículo</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-solicitudes-consolidadas">
+              <!-- Aquí cargamos los datos vía AJAX -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pie -->
+      <div class="modal-footer">
+        <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-bottom w-100 h-100" id="offcanvasBottom" tabindex="-1" aria-labelledby="offcanvasBottomLabel">
+  <div class="offcanvas-header bg-primary text-white">
+    <h5 class="offcanvas-title text-white" id="offcanvasBottomLabel">Posición de Vehículos Encontrados</h5>
+    <button class="btn-close text-reset btn-close-white" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body small d-flex flex-column overflow-x-hidden overflow-y-scroll">
+
+    <div class="row flex-grow-1 g-2 mt-0 p-3">
+
+      <div class="col-5 d-flex border rounded border-secondary">
+        <div id="map-container-wrapper" class="flex-grow-1 position-relative" style="min-height: 48vh;">
+
+          <div id="map-loading-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); display: none; z-index: 100;">
+            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <div class="radar" style="position: relative; width: 400px; height: 400px;">
+                <div class="radar-center"></div>
+                <div class="radar-pulse"></div>
+                <div class="radar-pulse"></div>
+                <div class="radar-pulse"></div>
+                <div class="radar-sweep"></div>
+              </div>
+              <div class="mt-2 text-primary fw-bold">Buscando vehículos...</div>
+            </div>
+          </div>
+
+          <div id="map-container" style="width: 100%; height: 100%;"></div>
+        </div>
+      </div>
+
+      <div class="col-7">
+        <div class="card h-100 shadow-sm border border-secondary">
+          <div class="card-header bg-light p-2">
+            <h6 class="fw-bold mb-0 text-dark">Resultados de Radar</h6>
+          </div>
+          <div class="card-body p-0">
+
+            <div class="card p-3 shadow-sm border-bottom-0 bg-light">
+              <!-- <h6 class="mb-3 fw-bold text-dark">Herramientas de Búsqueda (Radar)</h6> -->
+              <div class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                  <label for="select-tipologia" class="form-label text-sm font-weight-bold mb-1">Tipología:</label>
+                  <select id="select-tipologia-local" class="form-select form-select-sm select2" name="states[]" multiple="multiple" style="width: 100%;">
+                    <!-- <option value="">-- Sin Filtro --</option> -->
+                    <!-- <option value="C2 Sencillo 10 ton de cap">C2 Sencillo 10 ton de cap</option>
+                    <option value="C2 X 0.6 (SUPER carry)">C2 X 0.6 (SUPER carry)</option>
+                    <option value="C2 X 1 camioneta sencilla">C2 X 1 camioneta sencilla</option>
+                    <option value="C2 X 1.5 Camioneta 4x4">C2 X 1.5 Camioneta 4x4</option>
+                    <option value="C2 X 2 Camioneta 2 ton de cap">C2 X 2 Camioneta 2 ton de cap</option>
+                    <option value="C2 X 3.5 turbo 3.5 ton de cap">C2 X 3.5 turbo 3.5 ton de cap</option>
+                    <option value="C2 X 4.5 turbo 4.5 ton de cap">C2 X 4.5 turbo 4.5 ton de cap</option>
+                    <option value="C2 X 5 turbo 5 ton de cap">C2 X 5 turbo 5 ton de cap</option>
+                    <option value="C2 X 7 turbo 7 ton de cap">C2 X 7 turbo 7 ton de cap</option>
+                    <option value="C2 X 7 Turbo 7 ton Extradimensionado">C2 X 7 Turbo 7 ton Extradimensionado</option>
+                    <option value="C2 Sencillo 10 ton Extradimencionado">C2 Sencillo 10 ton Extradimencionado</option>
+                    <option value="C3 Doble troque">C3 Doble troque</option>
+                    <option value="C4 Rigido cuatro ejes">C4 Rigido cuatro ejes</option>
+                    <option value="Carro Tanque x 10 Ton de cap">Carro Tanque x 10 Ton de cap</option>
+                    <option value="Carro Tanque x 17 Ton de cap">Carro Tanque x 17 Ton de cap</option>
+                    <option value="Carro Tanque x 20 Ton de Cap">Carro Tanque x 20 Ton de Cap</option>
+                    <option value="Carro Tanque x 34 Ton de Cap">Carro Tanque x 34 Ton de Cap</option>
+                    <option value="Remolque de 2 ejes">Remolque de 2 ejes</option>
+                    <option value="Remolque de 3 ejes">Remolque de 3 ejes</option>
+                    <option value="Semiremolque de 1 eje">Semiremolque de 1 eje</option>
+                    <option value="Semiremolque de 2 ejes">Semiremolque de 2 ejes</option>
+                    <option value="Semiremolque de 3 ejes">Semiremolque de 3 ejes</option>
+                    <option value="BITREN">BITREN</option>
+                    <option value="Minimula">Minimula</option>
+                    <option value="Tractomula">Tractomula</option>
+                    <option value="Patineta">Patineta</option>
+                    <option value="Poderosa">Poderosa</option>
+                    <option value="Cabezal">Cabezal</option>
+                    <option value="Camión">Camión</option>
+                    <option value="Furgón">Furgón</option>
+                    <option value="Plataforma">Plataforma</option>
+                    <option value="Tráiler">Tráiler</option>
+                    <option value="C2x6 turbo 6 ton de cap">C2x6 turbo 6 ton de cap</option>
+                    <option value="Camioneta">Camioneta</option>
+                    <option value="Turbo">Turbo</option>
+                    <option value="Sencillo">Sencillo</option>
+                    <option value="Mula">Mula</option>
+
+                    <option value="Tractocamion 2 ejes + Remolque 2 ejes">Tractocamion 2 ejes + Remolque 2 ejes</option>
+                    <option value="Tractocamion 2 ejes + Remolque 3 ejes">Tractocamion 2 ejes + Remolque 3 ejes</option>
+                    <option value="Tractocamion 3 ejes + Remolque 2 ejes">Tractocamion 3 ejes + Remolque 2 ejes</option>
+                    <option value="Tractocamion 3 ejes + Remolque 3 ejes">Tractocamion 3 ejes + Remolque 3 ejes</option>
+                    <option value="Camión Rígido de 2 ejes">Camión Rígido de 2 ejes</option>
+                    <option value="Camión Rigido 2 ejes">Camión Rigido 2 ejes</option>
+                    <option value="Camión Rigido 3 ejes">Camión Rigido 3 ejes</option>
+                    <option value="Camión Rigido de 4 ejes">Camión Rigido de 4 ejes</option>
+
+                    <option value="Camión Rígido de 2 ejes Remolque Balanceado de 1 eje">Camión Rígido de 2 ejes Remolque Balanceado de 1 eje</option>
+                    <option value="Camión Rígido de 2 ejes Remolque Balanceado de 2 ejes">Camión Rígido de 2 ejes Remolque Balanceado de 2 ejes</option>
+                    <option value="Camión Rígido de 2 ejes Remolque de 2 ejes">Camión Rígido de 2 ejes Remolque de 2 ejes</option>
+                    <option value="Camión Rígido de 2 ejes Remolque de 3 ejes">Camión Rígido de 2 ejes Remolque de 3 ejes</option>
+
+                    <option value="Tractocamión de 2 ejes Semiremolque de 1 eje">Tractocamión de 2 ejes Semiremolque de 1 eje</option>
+                    <option value="Tractocamión de 2 ejes Semiremolque de 2 ejes">Tractocamión de 2 ejes Semiremolque de 2 ejes</option>
+                    <option value="Tractocamión de 2 ejes Semiremolque de 3 ejes">Tractocamión de 2 ejes Semiremolque de 3 ejes</option>
+
+                    <option value="Camión Rígido de 3 ejes Remolque Balanceado de 1 eje">Camión Rígido de 3 ejes Remolque Balanceado de 1 eje</option>
+                    <option value="Camión Rígido de 3 ejes Remolque Balanceado de 2 ejes">Camión Rígido de 3 ejes Remolque Balanceado de 2 ejes</option>
+                    <option value="Camión Rígido de 3 ejes Remolque de 2 ejes">Camión Rígido de 3 ejes Remolque de 2 ejes</option>
+                    <option value="Camión Rígido de 3 ejes Remolque de 3 ejes">Camión Rígido de 3 ejes Remolque de 3 ejes</option>
+
+                    <option value="Tractocamión de 3 ejes Semiremolque de 2 ejes">Tractocamión de 3 ejes Semiremolque de 2 ejes</option>
+                    <option value="Tractocamión de 3 ejes Semiremolque de 3 ejes">Tractocamión de 3 ejes Semiremolque de 3 ejes</option>
+
+                    <option value="Camión Rígido de 4 ejes Remolque Balanceado de 1 eje">Camión Rígido de 4 ejes Remolque Balanceado de 1 eje</option>
+                    <option value="Camión Rígido de 4 ejes Remolque Balanceado de 2 ejes">Camión Rígido de 4 ejes Remolque Balanceado de 2 ejes</option>
+                    <option value="Camión Rígido de 4 ejes Remolque de 2 ejes">Camión Rígido de 4 ejes Remolque de 2 ejes</option>
+                    <option value="Camión Rígido de 4 ejes Remolque de 3 ejes">Camión Rígido de 4 ejes Remolque de 3 ejes</option>
+
+                    <option value="Tractocamión de más de 3 ejes semiremolque de 2 ejes">Tractocamión de más de 3 ejes semiremolque de 2 ejes</option>
+                    <option value="Motocarro de 2 ejes">Motocarro de 2 ejes</option>
+
+                    <option value="Volqueta de 2 ejes">Volqueta de 2 ejes</option>
+                    <option value="Volqueta de 2 ejes Remolque de 2 ejes">Volqueta de 2 ejes Remolque de 2 ejes</option>
+                    <option value="Volqueta de 2 ejes Remolque de 3 ejes">Volqueta de 2 ejes Remolque de 3 ejes</option>
+                    <option value="Volqueta de 3 ejes">Volqueta de 3 ejes</option>
+                    <option value="Volqueta de 3 ejes Remolque de 2 ejes">Volqueta de 3 ejes Remolque de 2 ejes</option>
+                    <option value="Volqueta de 3 ejes Remolque de 3 ejes">Volqueta de 3 ejes Remolque de 3 ejes</option>
+                    <option value="Volqueta de 4 ejes">Volqueta de 4 ejes</option>
+                    <option value="Volqueta de 4 ejes Remolque de 2 ejes">Volqueta de 4 ejes Remolque de 2 ejes</option> -->
+                  </select>
+                </div>
+
+                <div class="col-md-8 p-0">
+                  <!-- <div id="tbl_totalizados_configuracion"></div> -->
+                  <div class="d-flex justify-content-end bg-body-secondary">
+                    <!-- <div class="p-2 bg-body-secondary border">Flex Item</div> -->
+                    <button class="btn btn-primary btn-sm me-1 mb-1" type="button" id="btn-gestionar-seleccionados">Gestionar Seleccionados</button>
+                  </div>
+                </div>
+                <!-- <div class="col-md-4">
+                  <label for="select-carroceria" class="form-label text-sm font-weight-bold mb-1">Carrocería:</label>
+                  <select id="select-carroceria" class="form-select form-select-sm select2">
+                  </select>
+                </div> -->
+
+                <!-- 
+                <div class="col-md-4">
+                  <button id="btn-aplicar-filtros-mapa-local" class="btn btn-primary btn-sm w-100 fw-bold">
+                    <i class="bi bi-search"></i> Aplicar Filtros
+                  </button>
+                </div> -->
+              </div>
+            </div>
+
+            <!-- <div class="table-responsive" style="max-height: 59vh; overflow-y: auto;"> -->
+            <div class="table-responsive vh-50">
+              <table class='table table-striped table-sm mb-0' id="tabla-vehiculos-encontrados">
+                <thead class="table-info">
+                  <tr>
+                    <th style="width: 5%;"></th>
+                    <th style="width: 15%;">Placa</th>
+                    <th style="width: 35%;">Tipo</th>
+                    <th style="width: 10%;">Viajes</th>
+                    <th style="width: 15%;">Viajes Destino</th>
+                    <th style="width: 15%;">Viajes Clente</th>
+                    <th style="width: 35%;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-vehiculos-encontrados">
+                  <tr>
+                    <td colspan="4" class="text-center text-muted">Realice una búsqueda.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="row p-3">
+      <div class="col-5 mt-2">
+        <div class="card shadow-sm border border-secondary">
+          <div class="card-header bg-dark text-white p-2">
+            <h6 class="fw-bold mb-0 text-white">
+              <i class="fas fa-truck-moving"></i> Histórico de Viajes: <span class="fw-bold" id="placa-text">[Placa]</span>
+            </h6>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 40vh; overflow-y: auto;">
+              <table class='table table-striped table-sm mb-0' id="tabla-detalle-manifiestos">
+                <thead>
+                  <tr>
+                    <th>Manifiesto</th>
+                    <th>Remesa</th>
+                    <th>Orden Cargue</th>
+                    <th>Fecha Expedición</th>
+                    <th>Origen</th>
+                    <th>Destino </th>
+                    <th>Total Manifiesto</th>
+                    <th>Anticipo</th>
+                    <th>Lugar Expedición</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-manifiestos-encontrados">
+                  <tr>
+                    <td colspan="10" class="text-center text-muted">Seleccione un vehículo para ver sus viajes.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-7">
+
+        <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation"><a class="nav-link active" id="configuracion-vehiculo-tab" data-bs-toggle="tab" href="#tab-configuracion-vehiculo" role="tab" aria-controls="tab-configuracion-vehiculo" aria-selected="false" tabindex="-1">Total Vehiculos Configuración</a></li>
+          <li class="nav-item" role="presentation"><a class="nav-link" id="ruta-tab" data-bs-toggle="tab" href="#tab-ruta" role="tab" aria-controls="tab-ruta" aria-selected="true">Vehiculos Ruta</a></li>
+          <li class="nav-item" role="presentation"><a class="nav-link" id="historico-tab" data-bs-toggle="tab" href="#tab-historico" role="tab" aria-controls="tab-historico" aria-selected="false" tabindex="-1">Historico Ruta</a></li>
+        </ul>
+        <div class="tab-content mt-3" id="myTabContent">
+          <div class="tab-pane fade show active" id="tab-configuracion-vehiculo" role="tabpanel" aria-labelledby="configuracion-vehiculo-tab">
+            <div class="col-md-12 p-0">
+              <div id="tbl_totalizados_configuracion"></div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="tab-ruta" role="tabpanel" aria-labelledby="ruta-tab">
+            <table class='table table-striped table-sm mb-0'>
+              <thead>
+                <tr>
+                  <th>Conductor</th>
+                  <th>Telefono</th>
+                  <th>Placa</th>
+                  <th>Configuración</th>
+                  <th>Carroceria</th>
+                  <th>Trailer</th>
+                  <th>Fecha Expedición</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-viajes-activos"></tbody>
+            </table>
+          </div>
+          <div class="tab-pane fade" id="tab-historico" role="tabpanel" aria-labelledby="historico-tab">
+            <table class='table table-striped table-sm mb-0'>
+              <thead>
+                <tr>
+                  <th>Conductor</th>
+                  <th>Telefono</th>
+                  <th>Placa</th>
+                  <th>Configuración</th>
+                  <th>Carroceria</th>
+                  <th>Trailer</th>
+                  <th>Fecha Expedición</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-viajes-historico"></tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

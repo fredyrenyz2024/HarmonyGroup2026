@@ -193,6 +193,16 @@ d.addEventListener('DOMContentLoaded', async e => {
                   columnaUsuarioCumplido.style.whiteSpace = 'nowrap';
                   columnaUsuarioCumplido.style.paddingFeft = '5px';
 
+
+                  const columnaObservacionCumplido = document.createElement('td');
+                  columnaObservacionCumplido.innerHTML = element.observacion || 'N/A';
+                  columnaObservacionCumplido.style.textAlign = 'left';
+                  columnaObservacionCumplido.style.borderBottom = '1px solid black';
+                  columnaObservacionCumplido.style.width = 'width';
+                  columnaObservacionCumplido.style.whiteSpace = 'nowrap';
+                  columnaObservacionCumplido.style.paddingFeft = '5px';
+
+
                   // const columnaDocumento = document.createElement('td');
                   // columnaDocumento.innerHTML = `
                   // <a href="JavaScript:void(0);" onClick="imprimir_cumplido(${element.cumplido})" style="text-decoration: none;cursor: pointer;color: #332D2D;">
@@ -212,6 +222,7 @@ d.addEventListener('DOMContentLoaded', async e => {
                   fila.appendChild(columnaPlanillador);
                   fila.appendChild(columnaCumplido);
                   fila.appendChild(columnaUsuarioCumplido);
+                  fila.appendChild(columnaObservacionCumplido);
                   fila.appendChild(columnaFechaCumplido);
                   fila.appendChild(columnaEstado);
                   // fila.appendChild(columnaDocumento);
@@ -234,11 +245,11 @@ d.addEventListener('DOMContentLoaded', async e => {
   });
 
   // Botones para exportar las remesas
-  d.getElementById('exportar_excel').addEventListener('click', function() {
+  d.getElementById('exportar_excel').addEventListener('click', function () {
     var table = d.getElementById('informe_cumplidos');
 
     // Preprocesar la tabla para asegurar que los valores con formato de moneda sean tratados como texto
-    Array.from(table.getElementsByTagName('td')).forEach(function(td) {
+    Array.from(table.getElementsByTagName('td')).forEach(function (td) {
       if (td.innerText.includes('$') || td.innerText.includes(',')) {
         td.setAttribute('data-t', 's'); // Marcar como texto
       }
@@ -253,11 +264,11 @@ d.addEventListener('DOMContentLoaded', async e => {
     // Definir estilo para el thead
     var rangoEncabezado = XLSX.utils.decode_range(ws['!ref']); // Obtener el rango de la tabla
     for (let C = rangoEncabezado.s.c; C <= rangoEncabezado.e.c; ++C) {
-      var cell = ws[XLSX.utils.encode_cell({r: 0, c: C})]; // Fila 0 es el thead
+      var cell = ws[XLSX.utils.encode_cell({ r: 0, c: C })]; // Fila 0 es el thead
       if (!cell.s) cell.s = {};
       cell.s.fill = {
         patternType: 'solid',
-        fgColor: {rgb: '3B71CA'}, // Color de fondo amarillo
+        fgColor: { rgb: '3B71CA' }, // Color de fondo amarillo
       };
     }
 
@@ -268,10 +279,10 @@ d.addEventListener('DOMContentLoaded', async e => {
 
     // Ajustar ancho de las columnas
     ws['!cols'] = [
-      {wpx: 100}, // Columna 1 ancho en píxeles
-      {wpx: 100}, // Columna 2 ancho en píxeles
-      {wpx: 100}, // Ajusta el tamaño de las columnas según el contenido5
-      {wpx: 250}, // Columna 2 ancho en píxeles
+      { wpx: 100 }, // Columna 1 ancho en píxeles
+      { wpx: 100 }, // Columna 2 ancho en píxeles
+      { wpx: 100 }, // Ajusta el tamaño de las columnas según el contenido5
+      { wpx: 250 }, // Columna 2 ancho en píxeles
     ];
 
     // Crear contenido de archivo con fecha
@@ -280,7 +291,7 @@ d.addEventListener('DOMContentLoaded', async e => {
     XLSX.writeFile(wb, nombreArchivo);
   });
 
-  document.getElementById('num_pedido').addEventListener('keydown', function(event) {
+  document.getElementById('num_pedido').addEventListener('keydown', function (event) {
     // Verificar si la tecla presionada es "Enter" (código 13)
     if (event.key === 'Enter' || event.keyCode === 13) {
       // Evitar el comportamiento por defecto (como enviar un formulario)
@@ -535,9 +546,9 @@ function imprimir_cumplido(cumplido) {
   $.ajax({
     url: $('#id_url_ajax').val() + 'transporte/CumplidoPdf',
     method: 'POST',
-    data: {idcumplido: cumplido},
+    data: { idcumplido: cumplido },
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data) {
         cumplido = data[0]['id'];
         placa = data[0]['placa'];
@@ -602,7 +613,7 @@ function imprimir_cumplido(cumplido) {
         window.open(url, '_blank');
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);

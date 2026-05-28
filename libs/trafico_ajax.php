@@ -628,12 +628,9 @@ switch ($_REQUEST['action']) {
 			mn2.municipio as destino,
 			ru.km_tot_ruta, pl.observacion
 			FROM cmx_rutas AS ru
-			INNER JOIN cmx_plan_ruta AS pl
-			ON ru.id=pl.cod_ruta
-			INNER JOIN cmx_municipios mn1
-			ON ru.cod_ciudad_origen=mn1.id
-			INNER JOIN cmx_municipios mn2
-			ON ru.cod_ciudad_destino=mn2.id
+			INNER JOIN cmx_plan_ruta AS pl ON ru.id=pl.cod_ruta
+			INNER JOIN cmx_municipios mn1 ON ru.cod_ciudad_origen=mn1.id
+			INNER JOIN cmx_municipios mn2 ON ru.cod_ciudad_destino=mn2.id
 			WHERE ru.cod_ciudad_origen=" . $origen_ruta . "
 			AND ru.cod_ciudad_destino=" . $destino_ruta . "
 			AND pl.estado='Activo'";
@@ -1313,6 +1310,7 @@ switch ($_REQUEST['action']) {
         }
         break;
         //primer remitente de la solicitud de servicio debe contener la ciudad de origen
+        
     case 'cliente_puntos1':
         $cliente = $_POST["cliente"];
         $origen_rndc = $_POST["origen"];

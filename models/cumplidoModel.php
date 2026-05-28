@@ -221,21 +221,40 @@ class cumplidoModel extends Model
     {
         try {
             if ($filtro == 1) {
-                $donde = 'manifiesto=' . $num;
-            }
-            if ($filtro == 2) {
-                $donde = 'fecha BETWEEN "' . $fec1 . '" and "' . $fec2 . '"';
+                $donde = 'manifiesto = :num';
+            } elseif ($filtro == 2) {
+                $donde = 'fecha BETWEEN :fec1 AND :fec2';
+            } else {
+                throw new Exception("Filtro no válido");
             }
 
-            $sql = "SELECT id, manifiesto, placa, estado FROM cmx_cumplido WHERE " . $donde;
-            $resultado = $this->_db3->query($sql);
-            $resultado->setFetchMode(PDO::FETCH_ASSOC);
-            return $resultado->fetchAll();
+            $sql = "SELECT id, manifiesto, placa, estado 
+                FROM cmx_cumplido 
+                WHERE $donde";
+
+            $stmt = $this->_db3->prepare($sql);
+
+            if ($filtro == 1) {
+                $stmt->bindParam(':num', $num, PDO::PARAM_INT);
+            } elseif ($filtro == 2) {
+                $stmt->bindParam(':fec1', $fec1);
+                $stmt->bindParam(':fec2', $fec2);
+            }
+
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                "total" => count($rows), // contador
+                "data"  => $rows
+            ];
         } catch (Exception $e) {
             $error = $e->getMessage();
             $this->_db3->rollBack();
+            return ["error" => $error];
         }
     }
+
 
     public function Consulta_Cumplido($numma)
     {
@@ -299,9 +318,10 @@ class cumplidoModel extends Model
                 )
             );
             return 'true';
-        } catch (PDOExeption $e) {
+            // } catch (PDOExeption $e) {
+        } catch (Exception $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();
             return 'false';
         }
     }
@@ -314,8 +334,8 @@ class cumplidoModel extends Model
             $sql = $this->_db3->prepare("SELECT cu.id, cu.placa,
 			cu.manifiesto, cu.valor_multa,
 			pro.nombre namepro,
-			pro.apellido1 AS proape1,
-			pro.apellido2 AS proape2,
+            IFNULL(pro.apellido1,'') AS proape1,
+            IFNULL(pro.apellido2,'') AS proape2,
 			pro.numero_documento docprop,
 			pro.tipo_documento,
 			te.nombre namete,
@@ -332,7 +352,8 @@ class cumplidoModel extends Model
 			ma.marca, veh.anio_fabricacion,
 			m1.municipio AS 'origen',
 			m2.municipio AS 'destino',
-			mnf.total_peso, mnf.total_volumen,DATE_ADD(mnf.fecha_expedicion, INTERVAL 15 DAY) AS nueva_fecha
+			mnf.total_peso, mnf.total_volumen,DATE_ADD(mnf.fecha_expedicion, INTERVAL 15 DAY) AS nueva_fecha,
+            cu.fecha AS fecha_cumplido
 			FROM cmx_cumplido cu
 			INNER JOIN cmx_vehiculos ve ON cu.placa=ve.placa
 			INNER JOIN cmx_proveedores pro ON ve.id_propietario=pro.numdoc_nexos
@@ -354,7 +375,7 @@ class cumplidoModel extends Model
             // exit(0);
 
             // return $resultado->fetch();
-        } catch (PDOExeption $e) {
+        } catch (Exception $e) {
             $error = $e->getMessage();
             $this->_db3->rollBack();
         }

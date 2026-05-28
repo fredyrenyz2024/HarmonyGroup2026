@@ -457,7 +457,7 @@ function Registrar_Tiempo() {
         );
         $('.nexos-content').animate({scrollTop: 2}, 600);
         $('.nexos-messages').css('display', 'block');
-        location.reload();
+        // location.reload();
       } else if (da.numero === 400) {
         // mensaje = "Datos No fueron Registrados!!";
         $('.nexos-messages').html(

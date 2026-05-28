@@ -45,7 +45,7 @@ if (isset($this->importacion)) {
 	$array = $this->importacion->consultar_clientes();
 	if ($array) {
 		foreach ($array as $key => $value) {
-			$cliente .= '<option value="' . $value['id'] . '">' . $value['nombre'] . '-' . $value['documento']  . '</option>';
+			$cliente .= '<option value="' . $value['id'] . '">' . $value['nombre'] . '-' . $value['documento'] . '</option>';
 		}
 	}
 	$cliente .= '</select></div>';
@@ -111,10 +111,13 @@ if (isset($this->importacion)) {
 						if ($arrayPermisos["eliminar"] == 1) {
 							$col_action = '
 								<td class="actions">
-									<a href="javascript:" onclick="habilitar_proyecto(this)" class="cell-detail hint--top-left" data-hint="Habilitar" data-id="' . $value['ID_PROYECTO_INTERNACIONAL'] . '"><span class="icon mdi mdi-check-circle" data-toggle="modal" data-target="#habilitar"></span></a>
-
+									<a href="javascript:" onclick="habilitar_proyecto(this)" class="cell-detail hint--top-left" data-hint="Habilitar" data-id="' . $value['ID_IMPORTACION'] . '"><span class="icon mdi mdi-check-circle" data-toggle="modal" data-target="#habilitar"></span></a>
 								</td>
-							';
+							';/* 							$col_action = '
+								<td class="actions">
+									<a href="javascript:" onclick="habilitar_proyecto(this)" class="cell-detail hint--top-left" data-hint="Habilitar" data-id="' . $value['ID_PROYECTO_INTERNACIONAL'] . '"><span class="icon mdi mdi-check-circle" data-toggle="modal" data-target="#habilitar"></span></a>
+								</td>
+							'; */
 						}
 						break;
 
@@ -131,9 +134,14 @@ if (isset($this->importacion)) {
 							$col_action = '
 								<td class="actions">
 									' . $_btn_ver . '
+									<a href="javascript:" onclick="eliminar_proyecto(this)" class="cell-detail hint--top-left" data-hint="Eliminar" data-id="' . $value['ID_IMPORTACION'] . '"><span class="icon mdi mdi-close-circle" data-toggle="modal" data-target="#eliminar"></span></a>
+								</td>
+							';/* 							$col_action = '
+								<td class="actions">
+									' . $_btn_ver . '
 									<a href="javascript:" onclick="eliminar_proyecto(this)" class="cell-detail hint--top-left" data-hint="Eliminar" data-id="' . $value['ID_PROYECTO_INTERNACIONAL'] . '"><span class="icon mdi mdi-close-circle" data-toggle="modal" data-target="#eliminar"></span></a>
 								</td>
-							';
+							'; */
 						} else {
 							$col_action = '
 								<td class="actions">
@@ -148,10 +156,16 @@ if (isset($this->importacion)) {
 						if ($arrayPermisos["eliminar"] == 1) {
 							$col_action = '
 								<td class="actions">
+									<a href="javascript:" onclick="eliminar_proyecto(this)" class="cell-detail hint--top-left" data-hint="Eliminar" data-id="' . $value['ID_IMPORTACION'] . '"><span class="icon mdi mdi-close-circle" data-toggle="modal" data-target="#eliminar"></span></a>
+								</td>
+							';
+						}/* 						if ($arrayPermisos["eliminar"] == 1) {
+							$col_action = '
+								<td class="actions">
 									<a href="javascript:" onclick="eliminar_proyecto(this)" class="cell-detail hint--top-left" data-hint="Eliminar" data-id="' . $value['ID_PROYECTO_INTERNACIONAL'] . '"><span class="icon mdi mdi-close-circle" data-toggle="modal" data-target="#eliminar"></span></a>
 								</td>
 							';
-						}
+						} */
 						break;
 				}
 				/*** FIN DE FILTRO DE CONTENDO DE LA COLUMNA DE BOTONES DE ACCION***/
@@ -452,7 +466,7 @@ $vista .= '
 									<input type="hidden" name="id" id="id">
 									<input type="hidden" name="estado" id="estado" value="0">
 									<button type="button" data-dismiss="modal" class="btn btn-space btn-default">Cancelar</button>
-									<button id="btn_eliminar" type="button" class="btn btn-space btn-danger">Eliminar</button>
+									<button id="btn_eliminar" type="button" class="btn btn-space btn-danger">EliminarES</button>
 								</div>
 							</form>
 						</div>
@@ -741,629 +755,666 @@ echo $vista;
 ?>
 
 <script type="text/javascript">
-	//FILTROS
-	var b = '';
-	var a = '';
-	var c = '';
-	$(".cli").hide();
-	$(".fi").show();
-
-	$("#tipotb").change(function() {
-		//alert('cambio');
-		var t = $("#tipotb").val();
-		if (t == '') {
-			$(".cli").hide();
-			$(".fi").hide();
-		}
-
-		if (t == 1) {
-			$(".cli").show();
-			$(".fi").hide();
-		}
-
-		if (t == 2) {
-			$(".fi").show();
-			$(".cli").hide();
-		}
-	});
-
-	$("#buscar_coti").click(function() {
-		var a = $("#tipotb").val();
-		if (a == '') {
-			a == '';
-			c = '';
-			d = '';
-			b = '';
-			var url = $("#id_url_ajax").val() + 'importacion/index/?idmenu=2&i=1&a=' + a + '&b=' + b + '&c=' + c;
-			window.location = (url);
-		}
-
-		if (a == 1) {
-			b = $("#clientefiltro").val();
-			c = '';
-			d = '';
-			var url = $("#id_url_ajax").val() + 'importacion/index/?idmenu=2&i=1&a=' + a + '&b=' + b + '&c=' + c;
-			window.location = (url);
-		}
-		if (a == 2) {
-			b = '';
-			var p = $("#fecha_incia").val().trim();
-			c = p; //DO
-			var url = $("#id_url_ajax").val() + 'importacion/index/?idmenu=2&i=1&a=' + a + '&b=' + b + '&c=' + c;
-			window.location = (url);
-		}
-	});
-
-	//
-
-
-	$("#slct_tipo_operacion_").change(function() {
-		$("#div_clientes").empty();
-		$("#form_tramo_1").empty();
-
-		// Se filtra vista de los campos de material y solicitud de urbano y se buscan los clientes correspondientes al tipo de operación
-		var flag_vista;
-		// Se filtra si el proyecto es nacional o internacional
-		switch ($("#slct_tipo_operacion_").val()) {
-			case 'IMPORTACION':
-				flag_vista = "INTERNACIONAL";
-				break;
-			case 'EXPORTACION':
-				flag_vista = "INTERNACIONAL";
-				break;
-			case 'NACIONAL_AEREO':
-				flag_vista = "INTERNACIONAL";
-				break;
-
-			case 'NACIONAL':
-				flag_vista = "NACIONAL";
-				break;
-
-			case 'URBANO':
-				flag_vista = "NACIONAL";
-				break;
-		}
-
-		switch (flag_vista) {
-			case 'INTERNACIONAL':
-				// Se filtra la vista de materiales y solicitud de urbano
-				$(".nacional").hide();
-				$(".internacional").show();
-				$("#slct_rndc_material_").val('');
-				$("#solicita_urbano").attr('checked', false);
-				break;
-
-			case 'NACIONAL':
-				// Se filtra la vista de materiales y solicitud de urbano
-				$(".nacional").show();
-				$(".internacional").hide();
-				break;
-		}
-
-		if ($("#slct_tipo_operacion_").val()) {
-			buscaClientes(flag_vista);
-			formDatosInternacional(flag_vista);
-		}
-
-		// Se hace filtro para ajustar las plantilla de actividades a seleccionar 
-		let solicita_urbano = 0;
-		if ($("#solicita_urbano").is(':checked')) {
-			solicita_urbano = 1;
-		}
-		selectPlantillas($("#slct_tipo_operacion_").val(), solicita_urbano);
-	});
-
-	var num = 1;
-	$("#slct_tipo_cargas_").change(function() {
-		var id_tipo_carga = $("#slct_tipo_cargas_").val();
-
-		$(".div_contenedor").hide();
-		if (id_tipo_carga == 1) {
-			$(".div_contenedor").show();
-			$(".div_devolucion").hide();
-			$('#btn_quita').attr('disabled', 'disabled');
-			App.formElements();
-		} else {
-			// Se reinicia el contenido de los contenedores
-			$("#devolucion_1").attr("checked", false);
-			num = $('.contenedor_clon').length;
-			if (num > 1) {
-				for (var i = 2; i <= num; i++) {
-					$('#form_contenedor_' + i).remove();
-				}
-			}
-			$('#btn_agrega').removeAttr("disabled");
-			$('#btn_quita').attr('disabled', 'disabled');
-		}
-	});
-
-	// Programación del botón de agregar contenedor
-	$('#btn_agrega').click(function() {
-		num = $('.contenedor_clon').length;
-		var newNum = new Number(num + 1);
-
-		// create the new element via clone(), and manipulate it's ID using newNum value
-		var newElem = $('#form_contenedor_' + num).clone().attr('id', 'form_contenedor_' + newNum);
-
-		newElem.children('#div_tipo_contenedor_' + num).attr('id', 'div_tipo_contenedor_' + newNum);
-		newElem.children('#div_contenedor_' + num).attr('id', 'div_contenedor_' + newNum);
-		newElem.children('#div_devolucion_' + num).attr('id', 'div_devolucion_' + newNum);
-		newElem.children('#div_devolucion_' + num).attr('id', 'label_devolucion_' + newNum);
-		newElem.children('#div_comodato_' + num).attr('id', 'div_comodato_' + newNum);
-		newElem.children('#div_fecha_comodato_' + num).attr('id', 'div_fecha_comodato_' + newNum);
-		newElem.children('#div_devolucion_contenedor_' + num).attr('id', 'div_devolucion_contenedor_' + newNum);
-
-		// manipulate the name/id values of the input inside the new element
-		newElem.find('#div_contenedor_' + newNum + ' #contenedor_' + num).attr('id', 'contenedor_' + newNum).attr('name', 'contenedor_' + newNum);
-		newElem.find('#div_tipo_contenedor_' + newNum + ' #slct_tipo_contenedor_' + num).attr('id', 'slct_tipo_contenedor_' + newNum).attr('name', 'tipo_contenedor_' + newNum);
-		newElem.find('#div_devolucion_' + newNum + ' #devolucion_' + num).attr('id', 'devolucion_' + newNum).attr('name', 'devolucion_' + newNum).attr("checked", false).parents(".contenedor_clon").find(".div_devolucion").hide();
-		newElem.find('#div_devolucion_' + newNum + ' #label_devolucion_' + num).attr('id', 'label_devolucion_' + newNum).attr('for', 'devolucion_' + newNum);
-		newElem.find('#div_devolucion_contenedor_' + newNum + ' #devolucion_contenedor_' + num).attr('id', 'devolucion_contenedor_' + newNum).attr('name', 'devolucion_contenedor_' + newNum);
-		newElem.find('#div_fecha_comodato_' + newNum + ' #fecha_comodato_' + num).attr('id', 'fecha_comodato_' + newNum).attr('name', 'fecha_comodato_' + newNum);
-		newElem.find('#div_comodato_' + newNum + ' #url_comodato_' + num).attr('id', 'url_comodato_' + newNum).attr('name', 'url_comodato_' + newNum);
-		newElem.find('#div_comodato_' + newNum + ' #lbl_comodato_' + num).attr('id', 'lbl_comodato_' + newNum).attr('for', 'url_comodato_' + newNum);
-
-		// insert the new element after the last "duplicatable" input field
-		$('#form_contenedor_' + num).after(newElem);
-
-		// // enable the "remove" button
-		$('#btn_quita').removeAttr("disabled");
-
-		// business rule: you can only add 5 names
-		if (newNum == 2)
-			$('#btn_agrega').attr('disabled', 'disabled');
-		App.formElements();
-	});
-
-	// Programación del botón de quitar contenedor
-	$('#btn_quita').click(function() {
-		num = $('.contenedor_clon').length;
-
-		$('#form_contenedor_' + num).remove();
-
-		// enable the "add" button
-		$('#btn_agrega').removeAttr("disabled");
-
-		// if only one element remains, disable the "remove" button
-		if (num - 1 == 1) {
-			$('#btn_quita').attr('disabled', 'disabled');
-		}
-	});
-
-	$("#solicita_urbano").change(function() {
-		let solicita_urbano = 0;
-		if ($("#solicita_urbano").is(':checked')) {
-			solicita_urbano = 1;
-		}
-		selectPlantillas($("#slct_tipo_operacion_").val(), solicita_urbano);
-	});
-
-	function buscaClientes(tipo_proyecto) {
-		let params = {
-			tipo_proyecto: tipo_proyecto
-		};
-		// console.log(params);
-
-		var url = $("#id_url_ajax").val() + "libs/buscar.php";
-		$.ajax({
-			type: "POST",
-			url: url,
-			data: params,
-			dataType: "html",
-			beforeSend: function() {
-				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
-			},
-			error: function() {
-				console.log("Error");
-			},
-			success: function(data) {
-				// console.log(data);
-				// Se pinta el contenido en el formulario 
-				$("#div_clientes").html(data);
-
-				$("#slct_id_cliente").change(function() {
-					let params = {
-						id_cliente: $("#slct_id_cliente").val()
-					};
-					// console.log(params);
-
-					switch (tipo_proyecto) {
-						case 'NACIONAL':
-							$("#div_slct_contrato").empty();
-
-							var url = $("#id_url_ajax").val() + "libs/buscar_proyectos.php?action=crea_html_select_contrato";
-							$.ajax({
-								type: "POST",
-								url: url,
-								data: params,
-								dataType: "json",
-								beforeSend: function() {
-									$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
-								},
-								error: function(jqXHR, textStatus, errorThrown) {
-									console.log(jqXHR);
-									console.log(textStatus);
-									console.log(errorThrown);
-								},
-								success: function(data) {
-									var html_content = "<label>(*) Contrato:</label>";
-									html_content += data.content;
-									$(".nexos-messages").html("");
-									$("#div_slct_contrato").empty();
-									$("#div_slct_contrato").append(html_content);
-									$("#div_contrato").fadeOut("fast");
-								}
-							});
-							break;
-
-						case 'INTERNACIONAL':
-							// console.log("Entro en - " + tipo_proyecto);
-							$("#div_btn_tramos").empty();
-							$("#form_tramo_1").empty();
-
-							var url = $("#id_url_ajax").val() + "libs/buscar_proyectos.php?action=crea_html_content_tramos";
-							$.ajax({
-								type: "POST",
-								url: url,
-								data: params,
-								dataType: "json",
-								beforeSend: function() {
-									$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
-								},
-								error: function(jqXHR, textStatus, errorThrown) {
-									console.log(jqXHR);
-									console.log(textStatus);
-									console.log(errorThrown);
-								},
-								success: function(data) {
-									// console.log(data);
-									$(".nexos-messages").html("");
-									$("#div_btn_tramos").empty();
-									$("#div_tramos").empty();
-									$("#div_btn_tramos").append(data.result["botones"]);
-									$("#form_tramo_1").append(data.result["form_tramos"]);
-
-									// Programación del botón de agregar tramo de la solicitud
-									$('#btn_agrega_tramo').click(function() {
-										num = $('.tramo_clon').length;
-										var newNum = new Number(num + 1);
-
-										// create the new element via clone(), and manipulate it's ID using newNum value
-										var newElem = $('#form_tramo_' + num).clone().attr('id', 'form_tramo_' + newNum);
-
-										newElem.children('#div_tipo_tramo_' + num).attr('id', 'div_tipo_tramo_' + newNum);
-										newElem.children('#div_tramo_' + num).attr('id', 'div_tramo_' + newNum);
-
-										// manipulate the name/id values of the input inside the new element
-										newElem.find('#div_tipo_tramo_' + newNum + ' #slct_tipo_tramo_' + num).attr('id', 'slct_tipo_tramo_' + newNum).attr('name', 'tipo_tramo_' + newNum);
-										newElem.find('#div_tramo_' + newNum + ' #slct_remitente_destinatario_' + num).attr('id', 'slct_remitente_destinatario_' + newNum).attr('name', 'rem_dest_' + newNum);
-
-										// insert the new element after the last "duplicatable" input field
-										$('#form_tramo_' + num).after(newElem);
-
-										// // enable the "remove" button
-										$('#btn_quita_tramo').removeAttr("disabled");
-
-										// business rule: you can only add 5 names
-										if (newNum == 20)
-											$('#btn_agrega_tramo').attr('disabled', 'disabled');
-									});
-
-									// Programación del botón de quitar tramo
-									$('#btn_quita_tramo').click(function() {
-										num = $('.tramo_clon').length;
-
-										$('#form_tramo_' + num).remove();
-
-										// enable the "add" button
-										$('#btn_agrega_tramo').removeAttr("disabled");
-
-										// if only one element remains, disable the "remove" button
-										if (num - 1 == 1) {
-											$('#btn_quita_tramo').attr('disabled', 'disabled');
-										}
-									});
-								}
-							});
-							break;
-
-						default:
-							console.log("Error en la selección de tipo de proyecto");
-							break;
-					}
-				});
-			}
-		});
-	}
-
-	function formDatosInternacional(tipo_proyecto) {
-		$("#div_form_intencional").empty();
-		if (tipo_proyecto == "INTERNACIONAL") {
-			let params = {
-				div_form_intencional: tipo_proyecto
-			};
-			// console.log(params);
-
-			var url = $("#id_url_ajax").val() + "libs/buscar.php";
-			$.ajax({
-				type: "POST",
-				url: url,
-				data: params,
-				dataType: "html",
-				beforeSend: function() {
-					$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
-				},
-				error: function() {
-					console.log("Error");
-				},
-				success: function(data) {
-					// console.log(data);
-					// Se pinta el contenido en el formulario 
-					$("#div_form_intencional").html(data);
-				}
-			});
-		}
-	}
-
-	function selectPlantillas(tipo_operacion, solicita_urbano) {
-		// console.log("Entro en funcion de plantillas");
-		// console.log("tipo_operacion " + tipo_operacion);
-		// console.log("solicita_urbano " + solicita_urbano);
-		var id_cliente = "<?php echo $ssn_id_cliente; ?>";
-
-		let params = {
-			tipo_operacion: tipo_operacion,
-			solicita_urbano: solicita_urbano,
-			id_cliente: id_cliente
-		};
-		// console.log(params);
-
-		$("#plantillas_actividades").empty();
-		$("#datos_platilla_").empty();
-
-		var url = $("#id_url_ajax").val() + "libs/buscar.php?genera_select=";
-		$.ajax({
-			type: "POST",
-			url: url,
-			data: params,
-			dataType: "html",
-			beforeSend: function() {
-				$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
-			},
-			error: function() {
-				console.log("Error");
-			},
-			success: function(data) {
-				// console.log(data);
-				$(".nexos-messages").html("");
-				$("#plantillas_actividades").empty();
-				$("#plantillas_actividades").css("display", "block");
-				$("#plantillas_actividades").append(data);
-
-				// Se adiciona la función que lista las actividades de la plantilla seleccionada 
-				$("#slct_plantilla_").change(function() {
-					// console.log("Entro en funcion slct_plantilla_");
-					var id_plantilla = $("#slct_plantilla_").val();
-					if (id_plantilla != "") {
-						// console.log("selcciono plantilla " + id_plantilla);
-						let params_1 = {
-							valorBusqueda: id_plantilla,
-							solicita_urbano: solicita_urbano
-						}
-						$.ajax({
-							type: "POST",
-							url: "<?php echo $urlBuscaPlantilla; ?>",
-							data: params_1,
-							dataType: "html",
-							beforeSend: function() {
-								$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
-							},
-							error: function() {
-								console.log("Pailas no sirve");
-							},
-							success: function(data) {
-								$(".nexos-messages").html("");
-								$("#datos_platilla_").empty();
-								$("#datos_platilla_").append(data);
-							}
-						});
-
-						var url = $("#id_url_ajax").val() + "libs/buscar.php?orden_compra=";
-						let params_2 = {
-							valorBusqueda: id_plantilla,
-							solicita_urbano: solicita_urbano
-						}
-						$.ajax({
-							type: "POST",
-							url: url,
-							data: params_2,
-							dataType: "html",
-							beforeSend: function() {
-								$(".nexos-messages").html('<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' + $("#id_url_ajax").val() + 'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>');
-							},
-							error: function() {
-								console.log("Error");
-							},
-							success: function(data) {
-								// console.log(data);
-								$(".nexos-messages").html("");
-								$("#resultado").empty();
-								$("#resultado").append(data);
-							}
-						});
-					} else {
-						console.log("No selecciono plantilla");
-						// $("#resultado").html("");
-					}
-				});
-			}
-		});
-	}
-
-	function muestraDevolucion(element) {
-		$("#" + element).parents(".contenedor_clon").find(".div_devolucion").fadeToggle("fast");
-	}
-
-	$("#div_contrato").hide();
-	$(".condiciones").click(function() {
-		$("#" + $(this).attr("id") + "_content").slideToggle("fast");
-	});
-	$("#inicio_contrato").change(function() {
-		var fecha = new Date($(this).val());
-		var day = fecha.getDate() + 1;
-		var month = fecha.getMonth() + 1;
-		var year = fecha.getFullYear() + 1;
-
-		if (day.toString().length == 1) {
-			day = "0" + day;
-		}
-
-		if (month.toString().length == 1) {
-			month = "0" + month;
-		}
-
-		var fecha_fin = year + "-" + month + "-" + day;
-		$("#fin_contrato").val(fecha_fin)
-	});
-
-	function muestraFormContrato() {
-		$("#div_contrato").fadeOut("fast");
-		if ($("#slct_contrato_").val() == "otro") {
-			$("#div_contrato").fadeIn("fast");
-		}
-
-		$(".condiciones").each(function() {
-			$("#" + $(this).attr("id") + "_content").hide();
-			$(this).prop("checked", false);
-		});
-		App.formElements();
-	}
-
-	// Funciones de eliminación de proyecto
-	function eliminar_proyecto(element) {
-		$(".msg_error_danger").empty();
-		var id = $(element).data("id");
-		var formulario = $("#eliminar");
-		formulario.find("#id").val("");
-		formulario.find("#id").val(id);
-
-		formulario.find("#btn_eliminar").click(function() {
-			var msg_error = '';
-			let params = {
-				tabla: "cmx_importacion_proyecto",
-				id: formulario.find("#id").val(),
-				estado: formulario.find("#estado").val()
-			};
-
-			$.ajaxSetup({
-				async: false
-			});
-			$.ajax({
-				url: $("#id_url_ajax").val() + "libs/editar_ajax.php",
-				type: 'POST',
-				data: params,
-				cache: false,
-				dataType: 'json',
-				beforeSend: function(jqXHR, settings) {
-					funct_msg_loading(".nexos-messages");
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					$(".nexos-messages").html('');
-					msg_error += "<p>" + jqXHR.responseText + "</p>";
-					console.log(jqXHR);
-					console.log(textStatus);
-					console.log(errorThrown);
-				},
-				success: function(data, textStatus, jqXHR) {
-					// console.log(data);
-					if (data.error) {
-						msg_error += data.error;
-					}
-				}
-			});
-			$(".nexos-messages").empty();
-			if (!msg_error) {
-				funct_msg_success(".msg_error_danger");
-				$("#eliminar").animate({
-					scrollTop: 0
-				}, 600);
-				setTimeout(function() {
-					location.reload(false);
-				}, 800);
-			}
-			if (msg_error) {
-				funct_msg_error(".msg_error_danger", msg_error);
-				$("#eliminar").animate({
-					scrollTop: 0
-				}, 600);
-			}
-			$.ajaxSetup({
-				async: true
-			});
-		});
-	}
-
-	// Funciones de habilitación de proyecto
-	function habilitar_proyecto(element) {
-		$(".msg_error_success").empty();
-		var id = $(element).data("id");
-		var formulario = $("#habilitar");
-		formulario.find("#id").val("");
-		formulario.find("#id").val(id);
-
-		formulario.find("#btn_habilitar").click(function() {
-			var msg_error = '';
-			let params = {
-				tabla: "cmx_importacion_proyecto",
-				id: formulario.find("#id").val(),
-				estado: formulario.find("#estado").val()
-			};
-
-			$.ajaxSetup({
-				async: false
-			});
-			$.ajax({
-				url: $("#id_url_ajax").val() + "libs/editar_ajax.php",
-				type: 'POST',
-				data: params,
-				cache: false,
-				dataType: 'json',
-				beforeSend: function(jqXHR, settings) {
-					funct_msg_loading(".nexos-messages");
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					$(".nexos-messages").html('');
-					msg_error += "<p>" + jqXHR.responseText + "</p>";
-					console.log(jqXHR);
-					console.log(textStatus);
-					console.log(errorThrown);
-				},
-				success: function(data, textStatus, jqXHR) {
-					// console.log(data);
-					if (data.error) {
-						msg_error += data.error;
-					}
-				}
-			});
-			$(".nexos-messages").empty();
-			if (!msg_error) {
-				funct_msg_success(".msg_error_success");
-				$("#eliminar").animate({
-					scrollTop: 0
-				}, 600);
-				setTimeout(function() {
-					location.reload(false);
-				}, 800);
-			}
-			if (msg_error) {
-				funct_msg_error(".msg_error_success", msg_error);
-				$("#eliminar").animate({
-					scrollTop: 0
-				}, 600);
-			}
-			$.ajaxSetup({
-				async: true
-			});
-		});
-	}
+//FILTROS
+var b = '';
+var a = '';
+var c = '';
+$(".cli").hide();
+$(".fi").show();
+
+$("#tipotb").change(function() {
+  //alert('cambio');
+  var t = $("#tipotb").val();
+  if (t == '') {
+    $(".cli").hide();
+    $(".fi").hide();
+  }
+
+  if (t == 1) {
+    $(".cli").show();
+    $(".fi").hide();
+  }
+
+  if (t == 2) {
+    $(".fi").show();
+    $(".cli").hide();
+  }
+});
+
+$("#buscar_coti").click(function() {
+  var a = $("#tipotb").val();
+  if (a == '') {
+    a == '';
+    c = '';
+    d = '';
+    b = '';
+    var url = $("#id_url_ajax").val() + 'importacion/index/?idmenu=2&i=1&a=' + a + '&b=' + b + '&c=' + c;
+    window.location = (url);
+  }
+
+  if (a == 1) {
+    b = $("#clientefiltro").val();
+    c = '';
+    d = '';
+    var url = $("#id_url_ajax").val() + 'importacion/index/?idmenu=2&i=1&a=' + a + '&b=' + b + '&c=' + c;
+    window.location = (url);
+  }
+  if (a == 2) {
+    b = '';
+    var p = $("#fecha_incia").val().trim();
+    c = p; //DO
+    var url = $("#id_url_ajax").val() + 'importacion/index/?idmenu=2&i=1&a=' + a + '&b=' + b + '&c=' + c;
+    window.location = (url);
+  }
+});
+
+$("#slct_tipo_operacion_").change(function() {
+  $("#div_clientes").empty();
+  $("#form_tramo_1").empty();
+
+  // Se filtra vista de los campos de material y solicitud de urbano y se buscan los clientes correspondientes al tipo de operación
+  var flag_vista;
+  // Se filtra si el proyecto es nacional o internacional
+  switch ($("#slct_tipo_operacion_").val()) {
+    case 'IMPORTACION':
+      flag_vista = "INTERNACIONAL";
+      break;
+    case 'EXPORTACION':
+      flag_vista = "INTERNACIONAL";
+      break;
+    case 'NACIONAL_AEREO':
+      flag_vista = "INTERNACIONAL";
+      break;
+
+    case 'NACIONAL':
+      flag_vista = "NACIONAL";
+      break;
+
+    case 'URBANO':
+      flag_vista = "NACIONAL";
+      break;
+  }
+
+  switch (flag_vista) {
+    case 'INTERNACIONAL':
+      // Se filtra la vista de materiales y solicitud de urbano
+      $(".nacional").hide();
+      $(".internacional").show();
+      $("#slct_rndc_material_").val('');
+      $("#solicita_urbano").attr('checked', false);
+      break;
+
+    case 'NACIONAL':
+      // Se filtra la vista de materiales y solicitud de urbano
+      $(".nacional").show();
+      $(".internacional").hide();
+      break;
+  }
+
+  if ($("#slct_tipo_operacion_").val()) {
+    buscaClientes(flag_vista);
+    formDatosInternacional(flag_vista);
+  }
+
+  // Se hace filtro para ajustar las plantilla de actividades a seleccionar 
+  let solicita_urbano = 0;
+  if ($("#solicita_urbano").is(':checked')) {
+    solicita_urbano = 1;
+  }
+  selectPlantillas($("#slct_tipo_operacion_").val(), solicita_urbano);
+});
+
+var num = 1;
+$("#slct_tipo_cargas_").change(function() {
+  var id_tipo_carga = $("#slct_tipo_cargas_").val();
+
+  $(".div_contenedor").hide();
+  if (id_tipo_carga == 1) {
+    $(".div_contenedor").show();
+    $(".div_devolucion").hide();
+    $('#btn_quita').attr('disabled', 'disabled');
+    App.formElements();
+  } else {
+    // Se reinicia el contenido de los contenedores
+    $("#devolucion_1").attr("checked", false);
+    num = $('.contenedor_clon').length;
+    if (num > 1) {
+      for (var i = 2; i <= num; i++) {
+        $('#form_contenedor_' + i).remove();
+      }
+    }
+    $('#btn_agrega').removeAttr("disabled");
+    $('#btn_quita').attr('disabled', 'disabled');
+  }
+});
+
+// Programación del botón de agregar contenedor
+$('#btn_agrega').click(function() {
+  num = $('.contenedor_clon').length;
+  var newNum = new Number(num + 1);
+
+  // create the new element via clone(), and manipulate it's ID using newNum value
+  var newElem = $('#form_contenedor_' + num).clone().attr('id', 'form_contenedor_' + newNum);
+
+  newElem.children('#div_tipo_contenedor_' + num).attr('id', 'div_tipo_contenedor_' + newNum);
+  newElem.children('#div_contenedor_' + num).attr('id', 'div_contenedor_' + newNum);
+  newElem.children('#div_devolucion_' + num).attr('id', 'div_devolucion_' + newNum);
+  newElem.children('#div_devolucion_' + num).attr('id', 'label_devolucion_' + newNum);
+  newElem.children('#div_comodato_' + num).attr('id', 'div_comodato_' + newNum);
+  newElem.children('#div_fecha_comodato_' + num).attr('id', 'div_fecha_comodato_' + newNum);
+  newElem.children('#div_devolucion_contenedor_' + num).attr('id', 'div_devolucion_contenedor_' + newNum);
+
+  // manipulate the name/id values of the input inside the new element
+  newElem.find('#div_contenedor_' + newNum + ' #contenedor_' + num).attr('id', 'contenedor_' + newNum).attr('name',
+    'contenedor_' + newNum);
+  newElem.find('#div_tipo_contenedor_' + newNum + ' #slct_tipo_contenedor_' + num).attr('id',
+    'slct_tipo_contenedor_' + newNum).attr('name', 'tipo_contenedor_' + newNum);
+  newElem.find('#div_devolucion_' + newNum + ' #devolucion_' + num).attr('id', 'devolucion_' + newNum).attr('name',
+    'devolucion_' + newNum).attr("checked", false).parents(".contenedor_clon").find(".div_devolucion").hide();
+  newElem.find('#div_devolucion_' + newNum + ' #label_devolucion_' + num).attr('id', 'label_devolucion_' + newNum)
+    .attr('for', 'devolucion_' + newNum);
+  newElem.find('#div_devolucion_contenedor_' + newNum + ' #devolucion_contenedor_' + num).attr('id',
+    'devolucion_contenedor_' + newNum).attr('name', 'devolucion_contenedor_' + newNum);
+  newElem.find('#div_fecha_comodato_' + newNum + ' #fecha_comodato_' + num).attr('id', 'fecha_comodato_' + newNum)
+    .attr('name', 'fecha_comodato_' + newNum);
+  newElem.find('#div_comodato_' + newNum + ' #url_comodato_' + num).attr('id', 'url_comodato_' + newNum).attr(
+    'name', 'url_comodato_' + newNum);
+  newElem.find('#div_comodato_' + newNum + ' #lbl_comodato_' + num).attr('id', 'lbl_comodato_' + newNum).attr('for',
+    'url_comodato_' + newNum);
+
+  // insert the new element after the last "duplicatable" input field
+  $('#form_contenedor_' + num).after(newElem);
+
+  // // enable the "remove" button
+  $('#btn_quita').removeAttr("disabled");
+
+  // business rule: you can only add 5 names
+  if (newNum == 2)
+    $('#btn_agrega').attr('disabled', 'disabled');
+  App.formElements();
+});
+
+// Programación del botón de quitar contenedor
+$('#btn_quita').click(function() {
+  num = $('.contenedor_clon').length;
+
+  $('#form_contenedor_' + num).remove();
+
+  // enable the "add" button
+  $('#btn_agrega').removeAttr("disabled");
+
+  // if only one element remains, disable the "remove" button
+  if (num - 1 == 1) {
+    $('#btn_quita').attr('disabled', 'disabled');
+  }
+});
+
+$("#solicita_urbano").change(function() {
+  let solicita_urbano = 0;
+  if ($("#solicita_urbano").is(':checked')) {
+    solicita_urbano = 1;
+  }
+  selectPlantillas($("#slct_tipo_operacion_").val(), solicita_urbano);
+});
+
+function buscaClientes(tipo_proyecto) {
+  let params = {
+    tipo_proyecto: tipo_proyecto
+  };
+  // console.log(params);
+
+  var url = $("#id_url_ajax").val() + "libs/buscar.php";
+  $.ajax({
+    type: "POST",
+    url: url,
+    data: params,
+    dataType: "html",
+    beforeSend: function() {
+      $(".nexos-messages").html(
+        '<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
+        $("#id_url_ajax").val() +
+        'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>'
+      );
+    },
+    error: function() {
+      console.log("Error");
+    },
+    success: function(data) {
+      // console.log(data);
+      // Se pinta el contenido en el formulario 
+      $("#div_clientes").html(data);
+
+      $("#slct_id_cliente").change(function() {
+        let params = {
+          id_cliente: $("#slct_id_cliente").val()
+        };
+        // console.log(params);
+
+        switch (tipo_proyecto) {
+          case 'NACIONAL':
+            $("#div_slct_contrato").empty();
+
+            var url = $("#id_url_ajax").val() + "libs/buscar_proyectos.php?action=crea_html_select_contrato";
+            $.ajax({
+              type: "POST",
+              url: url,
+              data: params,
+              dataType: "json",
+              beforeSend: function() {
+                $(".nexos-messages").html(
+                  '<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
+                  $("#id_url_ajax").val() +
+                  'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>'
+                );
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              },
+              success: function(data) {
+                var html_content = "<label>(*) Contrato:</label>";
+                html_content += data.content;
+                $(".nexos-messages").html("");
+                $("#div_slct_contrato").empty();
+                $("#div_slct_contrato").append(html_content);
+                $("#div_contrato").fadeOut("fast");
+              }
+            });
+            break;
+
+          case 'INTERNACIONAL':
+            // console.log("Entro en - " + tipo_proyecto);
+            $("#div_btn_tramos").empty();
+            $("#form_tramo_1").empty();
+
+            var url = $("#id_url_ajax").val() + "libs/buscar_proyectos.php?action=crea_html_content_tramos";
+            $.ajax({
+              type: "POST",
+              url: url,
+              data: params,
+              dataType: "json",
+              beforeSend: function() {
+                $(".nexos-messages").html(
+                  '<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
+                  $("#id_url_ajax").val() +
+                  'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>'
+                );
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+              },
+              success: function(data) {
+                // console.log(data);
+                $(".nexos-messages").html("");
+                $("#div_btn_tramos").empty();
+                $("#div_tramos").empty();
+                $("#div_btn_tramos").append(data.result["botones"]);
+                $("#form_tramo_1").append(data.result["form_tramos"]);
+
+                // Programación del botón de agregar tramo de la solicitud
+                $('#btn_agrega_tramo').click(function() {
+                  num = $('.tramo_clon').length;
+                  var newNum = new Number(num + 1);
+
+                  // create the new element via clone(), and manipulate it's ID using newNum value
+                  var newElem = $('#form_tramo_' + num).clone().attr('id', 'form_tramo_' + newNum);
+
+                  newElem.children('#div_tipo_tramo_' + num).attr('id', 'div_tipo_tramo_' + newNum);
+                  newElem.children('#div_tramo_' + num).attr('id', 'div_tramo_' + newNum);
+
+                  // manipulate the name/id values of the input inside the new element
+                  newElem.find('#div_tipo_tramo_' + newNum + ' #slct_tipo_tramo_' + num).attr('id',
+                    'slct_tipo_tramo_' + newNum).attr('name', 'tipo_tramo_' + newNum);
+                  newElem.find('#div_tramo_' + newNum + ' #slct_remitente_destinatario_' + num)
+                    .attr('id', 'slct_remitente_destinatario_' + newNum).attr('name', 'rem_dest_' +
+                      newNum);
+
+                  // insert the new element after the last "duplicatable" input field
+                  $('#form_tramo_' + num).after(newElem);
+
+                  // // enable the "remove" button
+                  $('#btn_quita_tramo').removeAttr("disabled");
+
+                  // business rule: you can only add 5 names
+                  if (newNum == 20)
+                    $('#btn_agrega_tramo').attr('disabled', 'disabled');
+                });
+
+                // Programación del botón de quitar tramo
+                $('#btn_quita_tramo').click(function() {
+                  num = $('.tramo_clon').length;
+
+                  $('#form_tramo_' + num).remove();
+
+                  // enable the "add" button
+                  $('#btn_agrega_tramo').removeAttr("disabled");
+
+                  // if only one element remains, disable the "remove" button
+                  if (num - 1 == 1) {
+                    $('#btn_quita_tramo').attr('disabled', 'disabled');
+                  }
+                });
+              }
+            });
+            break;
+
+          default:
+            console.log("Error en la selección de tipo de proyecto");
+            break;
+        }
+      });
+    }
+  });
+}
+
+function formDatosInternacional(tipo_proyecto) {
+  $("#div_form_intencional").empty();
+  if (tipo_proyecto == "INTERNACIONAL") {
+    let params = {
+      div_form_intencional: tipo_proyecto
+    };
+    // console.log(params);
+
+    var url = $("#id_url_ajax").val() + "libs/buscar.php";
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: params,
+      dataType: "html",
+      beforeSend: function() {
+        $(".nexos-messages").html(
+          '<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
+          $("#id_url_ajax").val() +
+          'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>'
+        );
+      },
+      error: function() {
+        console.log("Error");
+      },
+      success: function(data) {
+        // console.log(data);
+        // Se pinta el contenido en el formulario 
+        $("#div_form_intencional").html(data);
+      }
+    });
+  }
+}
+
+function selectPlantillas(tipo_operacion, solicita_urbano) {
+  // console.log("Entro en funcion de plantillas");
+  // console.log("tipo_operacion " + tipo_operacion);
+  // console.log("solicita_urbano " + solicita_urbano);
+  var id_cliente = "<?php echo $ssn_id_cliente; ?>";
+
+  let params = {
+    tipo_operacion: tipo_operacion,
+    solicita_urbano: solicita_urbano,
+    id_cliente: id_cliente
+  };
+  // console.log(params);
+
+  $("#plantillas_actividades").empty();
+  $("#datos_platilla_").empty();
+
+  var url = $("#id_url_ajax").val() + "libs/buscar.php?genera_select=";
+  $.ajax({
+    type: "POST",
+    url: url,
+    data: params,
+    dataType: "html",
+    beforeSend: function() {
+      $(".nexos-messages").html(
+        '<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
+        $("#id_url_ajax").val() +
+        'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>'
+      );
+    },
+    error: function() {
+      console.log("Error");
+    },
+    success: function(data) {
+      // console.log(data);
+      $(".nexos-messages").html("");
+      $("#plantillas_actividades").empty();
+      $("#plantillas_actividades").css("display", "block");
+      $("#plantillas_actividades").append(data);
+
+      // Se adiciona la función que lista las actividades de la plantilla seleccionada 
+      $("#slct_plantilla_").change(function() {
+        // console.log("Entro en funcion slct_plantilla_");
+        var id_plantilla = $("#slct_plantilla_").val();
+        if (id_plantilla != "") {
+          // console.log("selcciono plantilla " + id_plantilla);
+          let params_1 = {
+            valorBusqueda: id_plantilla,
+            solicita_urbano: solicita_urbano
+          }
+          $.ajax({
+            type: "POST",
+            url: "<?php echo $urlBuscaPlantilla; ?>",
+            data: params_1,
+            dataType: "html",
+            beforeSend: function() {
+              $(".nexos-messages").html(
+                '<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
+                $("#id_url_ajax").val() +
+                'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>'
+              );
+            },
+            error: function() {
+              console.log("Pailas no sirve");
+            },
+            success: function(data) {
+              $(".nexos-messages").html("");
+              $("#datos_platilla_").empty();
+              $("#datos_platilla_").append(data);
+            }
+          });
+
+          var url = $("#id_url_ajax").val() + "libs/buscar.php?orden_compra=";
+          let params_2 = {
+            valorBusqueda: id_plantilla,
+            solicita_urbano: solicita_urbano
+          }
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: params_2,
+            dataType: "html",
+            beforeSend: function() {
+              $(".nexos-messages").html(
+                '<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
+                $("#id_url_ajax").val() +
+                'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>'
+              );
+            },
+            error: function() {
+              console.log("Error");
+            },
+            success: function(data) {
+              // console.log(data);
+              $(".nexos-messages").html("");
+              $("#resultado").empty();
+              $("#resultado").append(data);
+            }
+          });
+        } else {
+          console.log("No selecciono plantilla");
+          // $("#resultado").html("");
+        }
+      });
+    }
+  });
+}
+
+function muestraDevolucion(element) {
+  $("#" + element).parents(".contenedor_clon").find(".div_devolucion").fadeToggle("fast");
+}
+
+$("#div_contrato").hide();
+$(".condiciones").click(function() {
+  $("#" + $(this).attr("id") + "_content").slideToggle("fast");
+});
+$("#inicio_contrato").change(function() {
+  var fecha = new Date($(this).val());
+  var day = fecha.getDate() + 1;
+  var month = fecha.getMonth() + 1;
+  var year = fecha.getFullYear() + 1;
+
+  if (day.toString().length == 1) {
+    day = "0" + day;
+  }
+
+  if (month.toString().length == 1) {
+    month = "0" + month;
+  }
+
+  var fecha_fin = year + "-" + month + "-" + day;
+  $("#fin_contrato").val(fecha_fin)
+});
+
+function muestraFormContrato() {
+  $("#div_contrato").fadeOut("fast");
+  if ($("#slct_contrato_").val() == "otro") {
+    $("#div_contrato").fadeIn("fast");
+  }
+
+  $(".condiciones").each(function() {
+    $("#" + $(this).attr("id") + "_content").hide();
+    $(this).prop("checked", false);
+  });
+  App.formElements();
+}
+
+// Funciones de eliminación de proyecto
+function eliminar_proyecto(element) {
+  $(".msg_error_danger").empty();
+  var id = $(element).data("id");
+  // console.log("🚀 ~ eliminar_proyecto ~ id:", id)
+  var formulario = $("#eliminar");
+  formulario.find("#id").val("");
+  formulario.find("#id").val(id);
+
+  formulario.find("#btn_eliminar").click(function() {
+    var msg_error = '';
+    let params = {
+      tabla: "cmx_importacion_proyecto",
+      id: formulario.find("#id").val(),
+      estado: formulario.find("#estado").val()
+    };
+    // console.log("🚀 ~ formulario.find ~ params:", params)
+    $.ajaxSetup({
+      async: false
+    });
+    $.ajax({
+      url: $("#id_url_ajax").val() + "libs/editar_ajax.php",
+      type: 'POST',
+      data: params,
+      cache: false,
+      dataType: 'json',
+      beforeSend: function(jqXHR, settings) {
+        funct_msg_loading(".nexos-messages");
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        $(".nexos-messages").html('');
+        msg_error += "<p>" + jqXHR.responseText + "</p>";
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      },
+      success: function(data, textStatus, jqXHR) {
+        // console.log(data);
+        if (data.error) {
+          msg_error += data.error;
+        }
+      }
+    });
+    $(".nexos-messages").empty();
+    if (!msg_error) {
+      funct_msg_success(".msg_error_danger");
+      $("#eliminar").animate({
+        scrollTop: 0
+      }, 600);
+      setTimeout(function() {
+        location.reload(false);
+      }, 800);
+    }
+    if (msg_error) {
+      funct_msg_error(".msg_error_danger", msg_error);
+      $("#eliminar").animate({
+        scrollTop: 0
+      }, 600);
+    }
+    $.ajaxSetup({
+      async: true
+    });
+  });
+}
+
+// Funciones de habilitación de proyecto
+function habilitar_proyecto(element) {
+  $(".msg_error_success").empty();
+  var id = $(element).data("id");
+  var formulario = $("#habilitar");
+  formulario.find("#id").val("");
+  formulario.find("#id").val(id);
+
+  formulario.find("#btn_habilitar").click(function() {
+    var msg_error = '';
+    let params = {
+      tabla: "cmx_importacion_proyecto",
+      id: formulario.find("#id").val(),
+      estado: formulario.find("#estado").val()
+    };
+
+    $.ajaxSetup({
+      async: false
+    });
+    $.ajax({
+      url: $("#id_url_ajax").val() + "libs/editar_ajax.php",
+      type: 'POST',
+      data: params,
+      cache: false,
+      dataType: 'json',
+      beforeSend: function(jqXHR, settings) {
+        funct_msg_loading(".nexos-messages");
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        $(".nexos-messages").html('');
+        msg_error += "<p>" + jqXHR.responseText + "</p>";
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      },
+      success: function(data, textStatus, jqXHR) {
+        // console.log(data);
+        if (data.error) {
+          msg_error += data.error;
+        }
+      }
+    });
+    $(".nexos-messages").empty();
+    if (!msg_error) {
+      funct_msg_success(".msg_error_success");
+      $("#eliminar").animate({
+        scrollTop: 0
+      }, 600);
+      setTimeout(function() {
+        location.reload(false);
+      }, 800);
+    }
+    if (msg_error) {
+      funct_msg_error(".msg_error_success", msg_error);
+      $("#eliminar").animate({
+        scrollTop: 0
+      }, 600);
+    }
+    $.ajaxSetup({
+      async: true
+    });
+  });
+}
 </script>

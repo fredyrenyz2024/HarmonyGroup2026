@@ -1,0 +1,179 @@
+<div class="container-fluid">
+  <input type="hidden" name="ssn_id_cliente" id="ssn_id_cliente" value="<?= $_SESSION["usuario"]["id_cliente"] ?>">
+  <input type="hidden" name="ssn_id_usuario" id="ssn_id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"] ?>">
+  <input type="hidden" name="ssn_nombre" id="ssn_nombre" value="<?= $_SESSION["usuario"]["nom_usuario"] ?>">
+  <input type="hidden" name="ssn_id_perfil" id="ssn_id_perfil" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+  <input type="hidden" name="fecha_dia_solicitud" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+  <input type="hidden" name="hora_dia_solicitud" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+  <style>
+    /* Animación de entrada deslizante */
+    @keyframes slideInHighlight {
+      0% {
+        transform: translateX(-10px);
+        opacity: 0;
+        background-color: #e3f2fd;
+      }
+
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+        background-color: white;
+      }
+    }
+
+    .estudio-animado {
+      animation: slideInHighlight 0.6s ease-out;
+      border-left: 4px solid #1976D2;
+      /* Borde azul al seleccionar */
+      background-color: #f1f8ff !important;
+    }
+  </style>
+
+  <!-- <div class="row vh-100"> -->
+  <div class="row h-100">
+
+    <div class="card shadow-sm mb-1">
+      <div class="card-body p-1">
+        <div class="row g-3 d-flex justify-content-end">
+          <div class="col-md-2">
+            <label class="form-label fw-bold">Fecha desde</label>
+            <input type="date" id="fecha_inicial_estudios" class="form-control form-control-sm" value="<?= date('Y-m-01') ?>">
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label fw-bold">Fecha hasta</label>
+            <input type="date" id="fecha_final_estudios" class="form-control form-control-sm" value="<?= date('Y-m-d') ?>">
+          </div>
+
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-phoenix-primary btn-sm w-100" id="btn_filtrar_estudios_seguridad">
+              <i class="fas fa-search"></i> Buscar
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Menú lateral más ancho -->
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+      <div class="chat d-flex phoenix-offcanvas-container pt-1 mt-n1">
+        <!-- Sidebar (izquierda) -->
+        <div class="card p-3 p-xl-1 mt-xl-n1 chat-sidebar me-3 phoenix-offcanvas phoenix-offcanvas-start"
+          id="chat-sidebar"
+          style="min-width:410px; max-width:450px;">
+          <button class="btn d-none d-sm-block d-xl-none mb-2"
+            data-bs-toggle="modal"
+            data-bs-target="#chatSearchBoxModal">
+            <span class="fa-solid fa-magnifying-glass text-body-tertiary text-opacity-85 fs-7"></span>
+          </button>
+
+          <div class="d-none d-sm-block d-xl-none mb-5">
+            <button class="btn w-100 mx-auto" type="button" data-bs-toggle="dropdown"
+              data-boundary="window" aria-haspopup="true" aria-expanded="false"
+              data-bs-reference="parent">
+              <span class="fa-solid fa-bars text-body-tertiary text-opacity-85 fs-7"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end p-0">
+              <li><a class="dropdown-item" href="#!">All</a></li>
+              <li><a class="dropdown-item" href="#!">Read</a></li>
+              <li><a class="dropdown-item" href="#!">Unread</a></li>
+            </ul>
+          </div>
+
+          <div class="form-icon-container mb-2 d-sm-none d-xl-block">
+            <input class="form-control form-icon-input" type="text"
+              oninput="this.value = this.value.toUpperCase();"
+              placeholder="Buscar Estudio Seguridad" id="buscar_estudio_seguridad" />
+            <span class="fas fa-user text-body fs-9 form-icon"></span>
+          </div>
+
+          <!-- Tabs -->
+          <ul class="nav nav-phoenix-pills mb-2 d-sm-none d-xl-flex" id="contactListTab"
+            data-chat-thread-tab="data-chat-thread-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <a class="nav-link cursor-pointer active position-relative"
+                data-bs-toggle="tab"
+                data-chat-thread-list="all"
+                data-valor="todos"
+                role="tab"
+                aria-selected="true">
+                Todos
+                <span class="badge badge-phoenix badge-phoenix-primary rounded-circle position-absolute top-0 end-0 translate-middle d-flex justify-content-center align-items-center fs-10 fw-semibold lh-1" style="height: 1rem; width: 1rem;" id="total_general">
+                  0
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <a class="nav-link cursor-pointer position-relative"
+                data-bs-toggle="tab"
+                data-chat-thread-list="read"
+                data-valor="prefiltros"
+                role="tab"
+                aria-selected="false">
+                Prefiltros
+                <span class="badge badge-phoenix badge-phoenix-secondary rounded-circle position-absolute top-0 end-0 translate-middle d-flex justify-content-center align-items-center fs-10 fw-semibold lh-1" style="height: 1rem; width: 1rem;" id="total_prefiltros">
+                  0
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <a class="nav-link cursor-pointer position-relative"
+                data-bs-toggle="tab"
+                data-chat-thread-list="unread"
+                data-valor="estudios"
+                role="tab"
+                aria-selected="false">
+                Estudios
+                <span class="badge badge-phoenix badge-phoenix-warning rounded-circle position-absolute top-0 end-0 translate-middle d-flex justify-content-center align-items-center fs-10 fw-semibold lh-1" style="height: 1rem; width: 1rem;" id="total_estudios">
+                  0
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <a class="nav-link cursor-pointer position-relative"
+                data-bs-toggle="tab"
+                data-chat-thread-list="unread"
+                data-valor="Aprobados"
+                role="tab"
+                aria-selected="false">
+                Gestionados
+                <span class="badge badge-phoenix badge-phoenix-success rounded-circle position-absolute top-0 end-0 translate-middle d-flex justify-content-center align-items-center fs-10 fw-semibold lh-1" style="height: 1rem; width: 1rem;" id="total_aprobados">
+                  0
+                </span>
+              </a>
+            </li>
+          </ul>
+
+          <!-- Lista de estudios -->
+          <div class="scrollbar vh-100" style="overflow-y:auto; overflow-x:hidden;">
+            <div class="tab-content" id="contactListTabContent">
+              <div data-chat-thread-tab-content="data-chat-thread-tab-content">
+                <ul class="nav chat-thread-tab flex-column list" id="List_estudios_seguridad">
+                  <!-- Aquí se cargan los estudios dinámicamente -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenido derecho -->
+        <div class="card tab-content flex-1 phoenix-offcanvas-container"
+          style="overflow-y:auto; overflow-x:hidden;">
+          <div class="d-flex flex-column justify-content-center align-items-center h-100 text-center text-muted"
+            id="mensaje_vacio" style="min-height:400px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076503.png"
+              alt="Sin datos" style="width:120px; opacity:0.5;">
+            <h5 class="mt-3">No hay estudios disponibles</h5>
+            <p class="fs-6">No hay nada seleccionado.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

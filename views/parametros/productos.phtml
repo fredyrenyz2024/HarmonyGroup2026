@@ -1,0 +1,57 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="form-group col-md-4 mb-3">
+      <label class="control-label">(*) Cliente:</label>
+      <select class="form-select form-select-sm select2" name="cliente_id" id="prod_cliente_id">
+        <option value="">Seleccione un cliente</option>
+        <?php foreach ($this->clientes as $c): ?>
+          <option value="<?= $c['id'] ?>"><?= $c['nombre'] ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <div class="form-group col-md-4 mb-3">
+      <label class="control-label">(*) SKU:</label>
+      <input type="text" class="form-control form-control-sm" id="prod_sku" placeholder="Código único">
+    </div>
+
+    <div class="form-group col-md-4 mb-3">
+      <label class="control-label">(*) Nombre Producto:</label>
+      <input type="text" class="form-control form-control-sm" id="prod_nombre" placeholder="Nombre comercial">
+    </div>
+
+    <div class="form-group col-md-3 mb-3">
+      <label class="control-label">KG Neto por Unidad:</label>
+      <input type="number" step="0.0001" class="form-control form-control-sm" id="prod_kg_neto" placeholder="0.0000">
+    </div>
+
+    <div class="form-group col-md-3 mb-3">
+      <label class="control-label">KG Bruto por Unidad:</label>
+      <input type="number" step="0.0001" class="form-control form-control-sm" id="prod_kg_bruto" placeholder="0.0000">
+    </div>
+
+    <div class="form-group col-md-3 mb-3">
+      <label class="control-label">Unidades por Palet:</label>
+      <input type="number" class="form-control form-control-sm" id="prod_unidades_palet" placeholder="Cantidad">
+    </div>
+
+    <div class="form-group col-md-3 mb-3">
+      <label class="control-label">(*) Presentación:</label>
+      <select class="form-select form-select-sm" id="prod_presentacion">
+        <option value="">Seleccione...</option>
+        <option value="BIDONES">BIDONES</option>
+        <option value="SACOS">SACOS</option>
+        <option value="TAMBORES">TAMBORES</option>
+        <option value="CAJAS">CAJAS</option>
+        <option value="IBC">IBC</option>
+        <option value="BIGBAGS">BIGBAGS</option>
+      </select>
+    </div>
+
+    <div class="col-12 text-end mt-3">
+      <button type="button" class="btn btn-primary btn-sm" id="btn_guardar_producto">
+        <i class="uil uil-save"></i> Guardar Producto
+      </button>
+    </div>
+  </div>
+</div>

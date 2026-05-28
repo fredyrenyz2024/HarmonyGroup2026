@@ -157,6 +157,7 @@ d.addEventListener('DOMContentLoaded', async e => {
             $('#loading-overlay-nexosapp ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
             $('#tbl_datos').css('display', 'flex');
           }
+          
         }
       });
     }

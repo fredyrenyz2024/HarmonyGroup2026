@@ -6,32 +6,12 @@ $ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
 $ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
 $ssn_tipo_perfil = $_SESSION["usuario"]["tipo_perfil"];
 $nombre_usuario = $_SESSION['usuario']['nom_usuario'];
+$clientes = [];
 
-// $time = date('Y-m-d H:i:s', time());
-
-// $url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-
-// // Extraer la parte de la consulta (query)
-// $query_string = parse_url($url, PHP_URL_QUERY);
-
-// // Reemplazar "/?" por "&" para corregir el formato
-// $query_string = str_replace('/?', '&', $query_string);
-
-// // Parsear los parámetros
-// parse_str($query_string, $query_params);
-
-// // Obtener los valores de idmenu y submenu
-// $idmenu_encrypted = $query_params['idmenu'] ?? null;
-// $submenu_encrypted = $query_params['submenu'] ?? null;
-
-// // Descifrar los valores
-// $idmenu = decrypt($idmenu_encrypted);
-// $submenu = decrypt($submenu_encrypted);
 $vista = '';
 //TRAE EL ID DEL LANZADOR
 
-if ($ssn_tipo_perfil == 'INTERNACIONAL') {
-
+if ($ssn_tipo_perfil == 'INTERNACIONAL' /* || $ssn_tipo_perfil == 'ADMINISTRATIVO' */ || $ssn_tipo_perfil == 13) {
 	// Esta información se muestra si el usuario es de nexos
 	if ($ssn_id_cliente == 1) {
 
@@ -95,7 +75,8 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 					</div>
 				</div>
 			';
-		if ($ssn_id_perfil == 13 or $ssn_id_perfil == 21 or $ssn_id_perfil == 1) {
+		if ($ssn_id_perfil == 13 or $ssn_id_perfil == 21 or $ssn_id_perfil == 1 or $ssn_id_perfil == 23) {
+
 			/**** Resumen de Material Pendiente - Responsive Table ****/
 			$verMaterialPendiente = $this->dashboard->getMaterialPendiente();
 
@@ -189,9 +170,6 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 			or $ssn_id_perfil == 22 or $ssn_id_perfil == 23 or $ssn_id_perfil == 24 or $ssn_id_perfil == 1 or $ssn_id_perfil == 25 or $ssn_id_perfil == 26 or $ssn_id_perfil == 29 or $ssn_id_perfil == 32 or $ssn_id_perfil == 33
 		) {
 			$verIntrSeguimientos = $this->dashboard->getIntrSeguimientos($_SESSION["usuario"]);
-			// print_r("<pre>");
-			// print_r($verIntrSeguimientos);
-			// print_r("</pre>");
 
 			// Se filtra el contenido de la tabla
 			$_flag_seguimientos_cliente = true;
@@ -200,6 +178,7 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 			}
 
 			if ($verIntrSeguimientos["general"]) {
+
 				$_encabezado_seguimeinto = '';
 				if ($_flag_seguimientos_cliente) {
 					$_encabezado_seguimeinto = '
@@ -225,25 +204,31 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 								</thead>
 								<tbody>
 					';
-				foreach ($verIntrSeguimientos["general"]["rowsData"] as $key => $value) {
+
+				foreach ($verIntrSeguimientos["general"] as $key => $value) {
 					// Se filtra la información del estado del proyecto internacional
 					$_msg_estado_proyecto = "";
-					if (isset($verIntrSeguimientos["info_internacional"][$value[0]])) {
-						$info_internacional = $verIntrSeguimientos["info_internacional"][$value[0]];
+					if (isset($verIntrSeguimientos["info_internacional"][$value['ID_PROYECTO']])) {
+						$info_internacional = $verIntrSeguimientos["info_internacional"][$value['ID_PROYECTO']];
+						// print_r($info_internacional);
 
 						// Se filtra el color de los mensajes del estado del proyecto
 						// Oferta Comercial
 						switch ($info_internacional["OFERTA_COMERCIAL"]) {
+							// switch ($info_internacional) {
 							case 'OCN':
 								$_oferta_comercial = ' <strong class="text-danger hint--top" data-hint="Oferta Comercial no presentada">' . $info_internacional["OFERTA_COMERCIAL"] . '</strong> ';
+								// $_oferta_comercial = ' <strong class="text-danger hint--top" data-hint="Oferta Comercial no presentada">' . $info_internacional . '</strong> ';
 								break;
 
 							case 'OCP':
 								$_oferta_comercial = ' <strong class="text-warning hint--top" data-hint="Oferta Comercial presentada">' . $info_internacional["OFERTA_COMERCIAL"] . '</strong> ';
+								// $_oferta_comercial = ' <strong class="text-warning hint--top" data-hint="Oferta Comercial presentada">' . $info_internacional . '</strong> ';
 								break;
 
 							case 'OCA':
 								$_oferta_comercial = ' <strong class="text-success hint--top" data-hint="Oferta Comercial aprobada">' . $info_internacional["OFERTA_COMERCIAL"] . '</strong> ';
+								// $_oferta_comercial = ' <strong class="text-success hint--top" data-hint="Oferta Comercial aprobada">' . $info_internacional . '</strong> ';
 								break;
 
 							default:
@@ -324,8 +309,8 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 
 					// Se buscan los orígenes del proyecto
 					$_origen = "";
-					if (isset($verIntrSeguimientos["origen"][$value[0]])) {
-						foreach ($verIntrSeguimientos["origen"][$value[0]] as $key_01 => $value_01) {
+					if (isset($verIntrSeguimientos["origen"][$value['ID_PROYECTO']])) {
+						foreach ($verIntrSeguimientos["origen"][$value['ID_PROYECTO']] as $key_01 => $value_01) {
 							$_origen .= '
 									<span>' . $value_01["sigla"] . '</span>
 									<span class="cell-detail-description">' . $value_01["MUNICIPIO"] . '</span>
@@ -335,8 +320,8 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 
 					// Se buscan los destinos del proyecto
 					$_destino = "";
-					if (isset($verIntrSeguimientos["destino"][$value[0]])) {
-						foreach ($verIntrSeguimientos["destino"][$value[0]] as $key_01 => $value_01) {
+					if (isset($verIntrSeguimientos["destino"][$value['ID_PROYECTO']])) {
+						foreach ($verIntrSeguimientos["destino"][$value['ID_PROYECTO']] as $key_01 => $value_01) {
 							$_destino .= '
 									<span>' . $value_01["sigla"] . '</span>
 									<span class="cell-detail-description">' . $value_01["MUNICIPIO"] . '</span>
@@ -494,6 +479,15 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 						}
 					}
 
+
+					// cONSULTAR COMERCIAL Y SERVICIO AL CLIENTE DE CLIENTE EN LA TABLA
+					$colaboradores = $this->dashboard->getComercialSac($value["ID_CLIENTE"]);
+
+					// print_r('<pre>');
+					// print_r($colaboradores);
+					// print_r('</pre>');
+
+
 					$table_seguimientos .= '
 							<tr>
 								<td class="cell-detail" >
@@ -502,9 +496,18 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 									<span class="cell-detail-description"><strong>' . $value["numero_importacion"] . '</strong> | ' . date('Y-m-d', $value["numero_importacion"]) . '</span>
 									' . $_msg_estado_proyecto . '
 								</td>
-								<td class="cell-detail" >
+								<td class="cell-detail" style="width:auto; white-space: nowrap;">
 									<span>' . $value["nombre"] . '</span>
 									<span class="cell-detail-description">' . $value["cod_cliente"] . '</span>
+									
+									<div style="display: block;"> 
+										<span class="text-muted">Ejecutivo Comercial:</span> 
+										<strong>' . $colaboradores[0]["nom_usuario"] . '</strong>
+									</div>
+									<div style="display: block;">
+										<span class="text-muted">Ejecutivo Servicio al Cliente:</span> 
+										<strong>' . $colaboradores[1]["nom_usuario"] . '</strong>
+									</div>
 								</td>
 								<td class="cell-detail" >
 									' . $_origen . '
@@ -533,7 +536,7 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 							<div class="panel-heading">
 								<h4 class="panel-title">
 									<a data-toggle="collapse" data-parent="#accordion_intr_seguimientos" href="#collapseSeguimientos">
-										<i class="icon mdi mdi-chevron-down"></i> Seguimientos Pendientes Internacional<strong> (' . $verIntrSeguimientos["general"]["rowsNum"] . ')</strong>
+										<i class="icon mdi mdi-chevron-down"></i> Seguimientos Pendientes Internacional<strong> (' . $verIntrSeguimientos["total_rows"] . ')</strong>
 									</a>
 								</h4>
 							</div>
@@ -1171,7 +1174,7 @@ if ($ssn_tipo_perfil == 'INTERNACIONAL') {
 		}
 		/**** Fin - Resumen de Seguimientos para Clientes Pendientes Internacional - Responsive Table ****/
 	}
-} elseif ($ssn_tipo_perfil == 'CLIENTES' && $ssn_id_perfil == 30 && $ssn_tipo_perfil == 'ADMINISTRATIVO') {
+} else if ($ssn_tipo_perfil == 'CLIENTES' && $ssn_id_perfil == 30 && $ssn_tipo_perfil == 'ADMINISTRATIVO') {
 	// var_dump($ssn_tipo_perfil);
 
 	$initials = $this->dashboard->getInitials($nombre_usuario);

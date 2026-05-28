@@ -1,0 +1,834 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 fw-bold">Administrador de Clientes</h5>
+        <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNuevaRemesa" aria-controls="offcanvasNuevaRemesa">
+            <i class="fa-solid fa-plus me-1"></i> Nuevo Cliente
+        </button>
+    </div>
+
+    <!-- <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form class="row g-3 align-items-center">
+
+                <div class="col-12 col-md-2 divfiltro">
+                    <label for="filtro_remesas" class="form-label fw-bold mb-1">Filtro</label>
+                    <select id="filtro_remesas" class="form-select form-select-sm">
+                        <option value="">Seleccionar</option>
+                        <option value="1">Documento</option>
+                        <option value="2">Nombre</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 divcliente">
+                    <label class="form-label fw-bold">Cliente</label>
+                    <select id="clientefiltro" class="form-control form-select-sm">
+                        <option value="">Seleccionar</option>
+                    </select>
+                </div>
+
+                <div class="col-6 col-md-3 divfechas">
+                    <label class="form-label fw-bold">Fecha inicial</label>
+                    <input type="date" id="finicial" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="col-6 col-md-3 divfechas">
+                    <label class="form-label fw-bold">Fecha final</label>
+                    <input type="date" id="ffinal" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="col-12 col-md-2 d-flex align-items-end pt-4 align-content-center divbtnbusqueda">
+                    <button type="button" class="btn btn-primary btn-sm w-100" id="buscar_remesa">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar Cliente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div> -->
+
+    <!-- Tabla paera listar las remesas en el sistema -->
+    <div class="row" id="tabla_datos">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge badge-phoenix badge-phoenix-info" style="font-size: 13px;">
+                    Numero de Clientes: <span class="fw-bold badge-phoenix-info contador">0</span>
+                </span>
+                <a href="JavaScript:void(0);" id="exportar_excel" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="http://principal.nexosapp.com/public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+            </div>
+
+            <div class="table-responsive shadow-sm rounded" style="overflow: hidden;">
+                <table id="ordenes_decargue_export" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                    <thead class="table-primary" id="manfhead">
+                        <tr>
+                            <th style='width:auto; white-space: nowrap;'>#</th>
+                            <th style='width:auto; white-space: nowrap;'>Cliente</th>
+                            <th style='width:auto; white-space: nowrap;'>Ubicación</th>
+                            <!-- <th style='width:auto; white-space: nowrap;'>Conductor</th> -->
+                            <th style='width:auto; white-space: nowrap;'>Contacto</th>
+                            <th style='width:auto; white-space: nowrap;'>Documentos</th>
+                            <th style='width:auto; white-space: nowrap;'>Empresa</th>
+                            <th style='width:auto; white-space: nowrap;'>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientebody">
+                        <tr>
+                            <td colspan="7" class="text-center" id="cliload"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvasNuevaRemesa" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasNuevaRemesaLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasNuevaRemesaLabel">Nuevo Cliente</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+
+        <div id="nexos_messages_popup_crea"></div>
+        <form id="form_crea_cliente" enctype="multipart/form-data">
+
+            <div class="d-flex flex-wrap justify-content-start mt-2">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos basicos del cliente</h6>
+                </div>
+            </div>
+            <hr class="my-1 text-dark">
+
+            <div class="d-flex justify-content-center">
+                <?= $this->cliente->getEnumCheckTipoServicio("servicio", ""); ?>
+            </div>
+            <div id="info" class="tab-pane active cont">
+                <hr class="my-0 text-dark">
+                <div class="d-flex flex-wrap justify-content-start my-1">
+                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                        <h6 class="mb-0 text-body-highlight me-2">Información General</h6>
+                    </div>
+                </div>
+                <hr class="my-0 text-dark">
+
+                <div class="row cont" id="info_basico">
+                    <div class="col-12 col-md-4 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Tipo de Documento:</label>
+                            <?= $this->cliente->getEnumSlctTipoDocumento_sm("tipo_documento", "", "") ?>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Régimen:</label>
+                            <?= $this->cliente->getEnumSlctRegimen_sm("regimen", "", "") ?>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Documento:</label>
+                            <input type="number" min="0" name="documento" id="documento" placeholder="Nit" class="form-control form-control-sm" onkeyup="Validar_Documento(event);">
+                            <span id="mensajeDocumento" style="color: red;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-1 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">Dígito:</label>
+                            <input type="number" min="0" name="digito_verificacion" id="digito_verificacion" placeholder="0" class="form-control form-control-sm" disabled>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Nombre o Razón social:</label>
+                            <input type="text" name="nombre" id="nombre" placeholder="Nombre Cliente" class="form-control form-control-sm" onkeyup="Validar_Nombre(event);">
+                            <span id="mensajeNombre" style="color: red;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Tipo Sociedad:</label>
+                            <?= $this->cliente->getEnumSlctTipoSociedad_sm("tipo_sociedad", "", "") ?>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Sigla:</label>
+                            <input type="text" name="sigla" id="sigla" placeholder="Sigla" class="form-control form-control-sm">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-12 mb-2">
+                        <div class="form-group col-sm-12">
+                            <label class="form-label">(*) Actividad:</label>
+                            <textarea name="actividad_cliente" id="actividad_cliente" class="form-control form-control-sm" data-parsley-id="73" required rows="1"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">Número Formulario RUT:</label>
+                            <input type="number" min="0" name="numero_formulario" id="numero_formulario" class="form-control form-control-sm" onkeyup="Valida_Longitud(event);">
+                            <span id="mensajeRut" style="color: red;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 mb-2">
+                        <div class="form-group">
+                            <label class="form-label" for="datepicker">Fecha Renovación RUT:</label>
+                            <input type="date" class="form-control form-control-sm" name="rut_expedicion" id="rut_expedicion">
+                            <!-- <input class="form-control form-control-sm datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}'> -->
+                            <!-- <div data-min-view="2" data-start-view="4" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" class="input-group date datetimepicker" style="padding: 0">
+                            <input size="10" type="text" value="" name="rut_expedicion" id="rut_expedicion" readonly="" class="form-control input-sm">
+                            <span class="input-group-addon btn btn-primary"><i class="icon-th mdi mdi-calendar"></i></span>
+                        </div> -->
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 mb-2">
+                        <div class="form-group">
+                            <label class="form-label"> Adjunto RUT:</label><br />
+                            <input type="file" name="rut_file" id="rut_file" class="form-control form-control-sm inputfile">
+                            <!-- <label for="rut_file" class="btn-success"> <i class="mdi mdi-upload"></i><span>Buscar Archivo...</span>:</label> -->
+                        </div>
+                    </div>
+
+                    <!-- <div class="form-group col-sm-2"></div> -->
+
+                    <div class="col-12 col-md-6 mb-4">
+                        <div class="form-group">
+                            <label class="form-label">(*) CIIU Separados por (<strong>,</strong>):</label>
+                            <input type="text" name="ciiu_principal" id="ciiu_principal" class="form-control form-control-sm ">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">Actividad Aduanera Separados por (<strong>,</strong>):</label>
+                            <input type="text" name="actividad_aduanera" id="actividad_aduanera" class="form-control form-control-sm ">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-0 text-dark">
+                <div class="d-flex flex-wrap justify-content-start my-1">
+                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                        <h6 class="mb-0 text-body-highlight me-2">Ubicación</h6>
+                    </div>
+                </div>
+                <hr class="my-0 text-dark">
+
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Nombre Sede:</label>
+                            <input type="text" id="sede" class="form-control input-xs" onkeyup="Valida_Sede(event);">
+                            <span id="mensajesede" style="color: red;"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Ciudad:</label>
+                            <?= $this->Municipio->getHtmlSelect_sm("ciudad", "", "") ?>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">Código Postal</label>
+                            <input type="number" name="codigo_postal" id="codigo_postal" min="0" placeholder="Código Postal" class="form-control form-control-sm">
+                        </div>
+                    </div>
+
+                    <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Dirección:</label>
+                            <button class="btn btn-subtle-success btn-sm me-1 px-1 py-0" id="mascara_direccion" type="button"><i class="fas fa-directions"></i></button>
+                            <input type="text" name="direccion" id="direccion" placeholder="Dirección" class="form-control form-control-sm" readonly="readonly" onChange="Valida_Direccion(this.value)">
+                            <span id="mensajeDireccion" style="color: red;"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-xs-12 col-sm-4 col-md-4 col-lg-4 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">(*) Teléfono:</label>
+                            <input type="number" name="telefono" id="telefono" min="0" max="10" placeholder="Teléfono" onkeyup="Validar_Telefono(event);" class="form-control form-control-sm" require>
+                            <span id="mensajeTelefono" style="color: red;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 my-2" id="div_mascara" style="display: none;">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <hr style="background:blue;">
+                                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                            <label><strong>Generador Dirección</strong></label>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3 col-md-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input comple_direc" id="Complement" type="checkbox" />
+                                                <label class="form-check-label" for="Complement">¿Complemento?</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                            <button id="limpiar" class="btn btn-info btn-sm w-50">Limpiar</button>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="form-label"><strong>Tipo vía:(*)</strong></label>
+                                    <select id="di_tipovia" class="form-select form-select-sm address">
+                                        <option value="">Seleccione</option>
+                                        <option value="AC">AC Avenida calle</option>
+                                        <option value="AD">AD Administración</option>
+                                        <option value="ADL">ADL Adelante</option>
+                                        <option value="AER">AER Aeropuerto</option>
+                                        <option value="AG">AG Agencia</option>
+                                        <option value="AGP">AGP Agrupación</option>
+                                        <option value="AK">AK Avenida carrera</option>
+                                        <option value="AL">AL Altillo</option>
+                                        <option value="ALD">ALD Al lado</option>
+                                        <option value="ALM">ALM Almacén</option>
+                                        <option value="AP">AP Apartamento</option>
+                                        <option value="APTDO">APTDO Apartado</option>
+                                        <option value="ATR">ATR Atrás</option>
+                                        <option value="AUT">AUT Autopista</option>
+                                        <option value="AV">AV Avenida</option>
+                                        <option value="AVIAL">AVIAL Anillo vial</option>
+                                        <option value="BG">BG Bodega</option>
+                                        <option value="BL">BL Bloque</option>
+                                        <option value="BLV">BLV Boulevard</option>
+                                        <option value="BR">BR Barrio</option>
+                                        <option value="C">C Corregimiento</option>
+                                        <option value="CA">CA Casa</option>
+                                        <option value="CAS">CAS Caserío</option>
+                                        <option value="CC">CC Centro comercial</option>
+                                        <option value="CD">CD Ciudadela</option>
+                                        <option value="CEL">CEL Célula</option>
+                                        <option value="CEN">CEN Centro</option>
+                                        <option value="CIR">CIR Circular</option>
+                                        <option value="CL">CL Calle</option>
+                                        <option value="CLJ">CLJ Callejón</option>
+                                        <option value="CN">CN Camino</option>
+                                        <option value="CON">CON Conjunto residencial</option>
+                                        <option value="CONJ">CONJ Conjunto</option>
+                                        <option value="CR">CR Carrera</option>
+                                        <option value="CRT">CRT Carretera</option>
+                                        <option value="CRV">CRV Circunvalar</option>
+                                        <option value="CS">CS Consultorio</option>
+                                        <option value="DG">DG Diagonal</option>DG Diagonal
+                                        <option value="DP">DP Depósito</option>
+                                        <option value="DPTO">DPTO Departamento</option>
+                                        <option value="DS">DS Depósito sótano</option>
+                                        <option value="ED">ED Edificio</option>
+                                        <option value="EN">EN Entrada</option>
+                                        <option value="ES">ES Escalera</option>
+                                        <option value="ESQ">ESQ Esquina</option>
+                                        <option value="ESTE">ESTE Este</option>
+                                        <option value="ET">ET Etapa</option>
+                                        <option value="EX">EX Exterior</option>
+                                        <option value="FCA">FCA Finca</option>
+                                        <option value="GJ">GJ Garaje</option>
+                                        <option value="GS">GS Garaje sótano</option>
+                                        <option value="GT">GT Glorieta</option>
+                                        <option value="HC">HC Hacienda</option>
+                                        <option value="HG">HG Hangar</option>
+                                        <option value="IN">IN Interior</option>
+                                        <option value="IP">IP Inspección de Policía</option>
+                                        <option value="IPD">IPD Inspección Departamental</option>
+                                        <option value="IPM">IPM Inspección Municipal</option>
+                                        <option value="KM">KM Kilómetro</option>
+                                        <option value="LC">LC Local</option>
+                                        <option value="LM">LM Local mezzanine</option>
+                                        <option value="LT">LT Lote</option>
+                                        <option value="MD">MD Módulo</option>
+                                        <option value="MJ">MJ Mojón</option>
+                                        <option value="MLL">MLL Muelle</option>
+                                        <option value="MN">MN Mezzanine</option>
+                                        <option value="MZ">MZ Manzana</option>
+                                        <option value="NOMBRE VIA">NOMBRE VIA Vías de nombre común</option>
+                                        <option value="NORTE">NORTE Norte</option>
+                                        <option value="O">O Oriente</option>
+                                        <option value="OCC">OCC Occidente</option>
+                                        <option value="OESTE">OESTE Oeste</option>
+                                        <option value="OF">OF Oficina</option>
+                                        <option value="P">P Piso</option>
+                                        <option value="PA">PA Parcela</option>
+                                        <option value="PAR">PAR Parque</option>
+                                        <option value="PD">PD Predio</option>
+                                        <option value="PH">PH Penthouse</option>
+                                        <option value="PJ">PJ Pasaje</option>
+                                        <option value="PL">PL Planta</option>
+                                        <option value="PN">PN Puente</option>
+                                        <option value="POR">POR Portería</option>
+                                        <option value="POS">POS Poste</option>
+                                        <option value="PQ">PQ Parqueadero</option>
+                                        <option value="PRJ">PRJ Paraje</option>
+                                        <option value="PS">PS Paseo</option>
+                                        <option value="PT">PT Puesto</option>
+                                        <option value="PW">PW Park Way</option>
+                                        <option value="RP">RP Round Point</option>
+                                        <option value="SA">SA Salón</option>
+                                        <option value="SC">SC Salón comunal</option>
+                                        <option value="SD">SD Salida</option>
+                                        <option value="SEC">SEC Sector</option>
+                                        <option value="SL">SL Solar</option>
+                                        <option value="SM">SM Súper manzana</option>
+                                        <option value="SS">SS Semisótano</option>
+                                        <option value="ST">ST Sótano</option>
+                                        <option value="SUITE">SUITE Suite</option>
+                                        <option value="SUR">SUR Sur</option>
+                                        <option value="TER">TER Terminal</option>
+                                        <option value="TERPLN">TERPLN Terraplén</option>
+                                        <option value="TO">TO Torre</option>
+                                        <option value="TV">TV Transversal</option>
+                                        <option value="TZ">TZ Terraza</option>
+                                        <option value="UN">UN Unidad</option>
+                                        <option value="UR">UR Unidad residencial</option>
+                                        <option value="URB">URB Urbanización</option>
+                                        <option value="VRD">VRD Vereda</option>
+                                        <option value="VTE">VTE Variante</option>
+                                        <option value="ZF">ZF Zona franca</option>
+                                        <option value="ZN">ZN Zona</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="form-label"><strong>Nombre/Núm de vía:(*)</strong></label>
+                                    <input type="text" id="di_nomvia" class="form-control form-control-sm address">
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="form-label"><strong>Letra:</strong></label><br>
+                                    <select id="di_letra1" class="form-select form-select-sm address">
+                                        <option value="">Seleccione</option>
+                                        <option value="A">A</option>
+                                        <option valu="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                        <option value="E">E</option>
+                                        <option value="F">F</option>
+                                        <option value="G">G</option>
+                                        <option value="H">H</option>
+                                        <option value="I">I</option>
+                                        <option value="J">J</option>
+                                        <option value="K">K</option>
+                                        <option value="L">L</option>
+                                        <option value="M">M</option>
+                                        <option value="N">N</option>
+                                        <option value="O">O</option>
+                                        <option value="P">P</option>
+                                        <option value="Q">Q</option>
+                                        <option value="R">R</option>
+                                        <option value="S">S</option>
+                                        <option value="T">T</option>
+                                        <option value="U">U</option>
+                                        <option value="V">V</option>
+                                        <option value="W">W</option>
+                                        <option value="X">X</option>
+                                        <option value="Y">Y</option>
+                                        <option value="Z">Z</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="form-label"><strong>Prefijo:</strong></label>
+                                    <select id="di_prefijo1" class="form-select form-select-sm address">
+                                        <option value="">Seleccione</option>
+                                        <option value="BIS">BIS</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <hr />
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-label"><strong>Letra:</strong></label>
+                                    <select id="di_letra2" class="form-select form-select-sm address">
+                                        <option value="">Seleccione</option>
+                                        <option value="A">A</option>
+                                        <option valu="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                        <option value="E">E</option>
+                                        <option value="F">F</option>
+                                        <option value="G">G</option>
+                                        <option value="H">H</option>
+                                        <option value="I">I</option>
+                                        <option value="J">J</option>
+                                        <option value="K">K</option>
+                                        <option value="L">L</option>
+                                        <option value="M">M</option>
+                                        <option value="N">N</option>
+                                        <option value="O">O</option>
+                                        <option value="P">P</option>
+                                        <option value="Q">Q</option>
+                                        <option value="R">R</option>
+                                        <option value="S">S</option>
+                                        <option value="T">T</option>
+                                        <option value="U">U</option>
+                                        <option value="V">V</option>
+                                        <option value="W">W</option>
+                                        <option value="X">X</option>
+                                        <option value="Y">Y</option>
+                                        <option value="Z">Z</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-label"><strong>Cuadrante</strong></label>
+                                    <select id="di_cuadrante" class="form-select form-select-sm address">
+                                        <option value="">Seleccione</option>
+                                        <option value="Norte">Norte</option>
+                                        <option value="Sur">Sur</option>
+                                        <option value="Este">Este</option>
+                                        <option value="Oeste">Oeste</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-label"><strong>Número</strong></label>
+                                    <input type="number" id="di_num1" class="form-control form-control-sm address">
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <hr />
+                                </div>
+                                <div class="col-xs-4 col-sm-4 col-md-4">
+                                    <label class="form-label"><strong>Letra</strong></label>
+                                    <select id="di_letra3" class="form-select form-select-sm address">
+                                        <option value="">Seleccione</option>
+                                        <option value="A">A</option>
+                                        <option valu="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                        <option value="E">E</option>
+                                        <option value="F">F</option>
+                                        <option value="G">G</option>
+                                        <option value="H">H</option>
+                                        <option value="I">I</option>
+                                        <option value="J">J</option>
+                                        <option value="K">K</option>
+                                        <option value="L">L</option>
+                                        <option value="M">M</option>
+                                        <option value="N">N</option>
+                                        <option value="O">O</option>
+                                        <option value="P">P</option>
+                                        <option value="Q">Q</option>
+                                        <option value="R">R</option>
+                                        <option value="S">S</option>
+                                        <option value="T">T</option>
+                                        <option value="U">U</option>
+                                        <option value="V">V</option>
+                                        <option value="W">W</option>
+                                        <option value="X">X</option>
+                                        <option value="Y">Y</option>
+                                        <option value="Z">Z</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-label"><strong>Número</strong></label>
+                                    <input type="number" id="di_numero2" class="form-control form-control-sm address">
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-label"><strong>Cuadrante</strong></label>
+                                    <select id="di_cuadrante2" class="form-select form-select-sm address">
+                                        <option value="">Seleccione</option>
+                                        <option value="Norte">Norte</option>
+                                        <option value="Sur">Sur</option>
+                                        <option value="Este">Este</option>
+                                        <option value="Oeste">Oeste</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <hr />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="div_complemento" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-sm-3"><label class="form-label">Complemento 1</label></div>
+                                        <div class="col-sm-4">
+                                            <label class="form-label"><strong>Tipo vía</strong></label>
+                                            <select id="di_tipovia1" class="form-select form-select-sm address">
+                                                <option value="">Seleccione</option>
+                                                <option value="AC">AC Avenida calle</option>
+                                                <option value="AD">AD Administración</option>
+                                                <option value="ADL">ADL Adelante</option>
+                                                <option value="AER">AER Aeropuerto</option>
+                                                <option value="AG">AG Agencia</option>
+                                                <option value="AGP">AGP Agrupación</option>
+                                                <option value="AK">AK Avenida carrera</option>
+                                                <option value="AL">AL Altillo</option>
+                                                <option value="ALD">ALD Al lado</option>
+                                                <option value="ALM">ALM Almacén</option>
+                                                <option value="AP">AP Apartamento</option>
+                                                <option value="APTDO">APTDO Apartado</option>
+                                                <option value="ATR">ATR Atrás</option>
+                                                <option value="AUT">AUT Autopista</option>
+                                                <option value="AV">AV Avenida</option>
+                                                <option value="AVIAL">AVIAL Anillo vial</option>
+                                                <option value="BG">BG Bodega</option>
+                                                <option value="BL">BL Bloque</option>
+                                                <option value="BLV">BLV Boulevard</option>
+                                                <option value="BR">BR Barrio</option>
+                                                <option value="C">C Corregimiento</option>
+                                                <option value="CA">CA Casa</option>
+                                                <option value="CAS">CAS Caserío</option>
+                                                <option value="CC">CC Centro comercial</option>
+                                                <option value="CD">CD Ciudadela</option>
+                                                <option value="CEL">CEL Célula</option>
+                                                <option value="CEN">CEN Centro</option>
+                                                <option value="CIR">CIR Circular</option>
+                                                <option value="CL">CL Calle</option>
+                                                <option value="CLJ">CLJ Callejón</option>
+                                                <option value="CN">CN Camino</option>
+                                                <option value="CON">CON Conjunto residencial</option>
+                                                <option value="CONJ">CONJ Conjunto</option>
+                                                <option value="CR">CR Carrera</option>
+                                                <option value="CRT">CRT Carretera</option>
+                                                <option value="CRV">CRV Circunvalar</option>
+                                                <option value="CS">CS Consultorio</option>
+                                                <option value="DG">DG Diagonal</option>DG Diagonal
+                                                <option value="DP">DP Depósito</option>
+                                                <option value="DPTO">DPTO Departamento</option>
+                                                <option value="DS">DS Depósito sótano</option>
+                                                <option value="ED">ED Edificio</option>
+                                                <option value="EN">EN Entrada</option>
+                                                <option value="ES">ES Escalera</option>
+                                                <option value="ESQ">ESQ Esquina</option>
+                                                <option value="ESTE">ESTE Este</option>
+                                                <option value="ET">ET Etapa</option>
+                                                <option value="EX">EX Exterior</option>
+                                                <option value="FCA">FCA Finca</option>
+                                                <option value="GJ">GJ Garaje</option>
+                                                <option value="GS">GS Garaje sótano</option>
+                                                <option value="GT">GT Glorieta</option>
+                                                <option value="HC">HC Hacienda</option>
+                                                <option value="HG">HG Hangar</option>
+                                                <option value="IN">IN Interior</option>
+                                                <option value="IP">IP Inspección de Policía</option>
+                                                <option value="IPD">IPD Inspección Departamental</option>
+                                                <option value="IPM">IPM Inspección Municipal</option>
+                                                <option value="KM">KM Kilómetro</option>
+                                                <option value="LC">LC Local</option>
+                                                <option value="LM">LM Local mezzanine</option>
+                                                <option value="LT">LT Lote</option>
+                                                <option value="MD">MD Módulo</option>
+                                                <option value="MJ">MJ Mojón</option>
+                                                <option value="MLL">MLL Muelle</option>
+                                                <option value="MN">MN Mezzanine</option>
+                                                <option value="MZ">MZ Manzana</option>
+                                                <option value="NOMBRE VIA">NOMBRE VIA Vías de nombre común</option>
+                                                <option value="NORTE">NORTE Norte</option>
+                                                <option value="O">O Oriente</option>
+                                                <option value="OCC">OCC Occidente</option>
+                                                <option value="OESTE">OESTE Oeste</option>
+                                                <option value="OF">OF Oficina</option>
+                                                <option value="P">P Piso</option>
+                                                <option value="PA">PA Parcela</option>
+                                                <option value="PAR">PAR Parque</option>
+                                                <option value="PD">PD Predio</option>
+                                                <option value="PH">PH Penthouse</option>
+                                                <option value="PJ">PJ Pasaje</option>
+                                                <option value="PL">PL Planta</option>
+                                                <option value="PN">PN Puente</option>
+                                                <option value="POR">POR Portería</option>
+                                                <option value="POS">POS Poste</option>
+                                                <option value="PQ">PQ Parqueadero</option>
+                                                <option value="PRJ">PRJ Paraje</option>
+                                                <option value="PS">PS Paseo</option>
+                                                <option value="PT">PT Puesto</option>
+                                                <option value="PW">PW Park Way</option>
+                                                <option value="RP">RP Round Point</option>
+                                                <option value="SA">SA Salón</option>
+                                                <option value="SC">SC Salón comunal</option>
+                                                <option value="SD">SD Salida</option>
+                                                <option value="SEC">SEC Sector</option>
+                                                <option value="SL">SL Solar</option>
+                                                <option value="SM">SM Súper manzana</option>
+                                                <option value="SS">SS Semisótano</option>
+                                                <option value="ST">ST Sótano</option>
+                                                <option value="SUITE">SUITE Suite</option>
+                                                <option value="SUR">SUR Sur</option>
+                                                <option value="TER">TER Terminal</option>
+                                                <option value="TERPLN">TERPLN Terraplén</option>
+                                                <option value="TO">TO Torre</option>
+                                                <option value="TV">TV Transversal</option>
+                                                <option value="TZ">TZ Terraza</option>
+                                                <option value="UN">UN Unidad</option>
+                                                <option value="UR">UR Unidad residencial</option>
+                                                <option value="URB">URB Urbanización</option>
+                                                <option value="VRD">VRD Vereda</option>
+                                                <option value="VTE">VTE Variante</option>
+                                                <option value="ZF">ZF Zona franca</option>
+                                                <option value="ZN">ZN Zona</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="form-label">
+                                                <strong>Número/Nombre</strong></label>
+                                            <input type="text" id="di_numero3" class="form-control form-control-sm address">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <label class="form-label"><strong>Dirección final</strong></label>
+                                    <input type="text" id="direccion_compuesta" class="form-control form-control-sm" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">(*) E-mail:</label>
+                            <input type="email" name="email" id="email" placeholder="E-mail" class="form-control form-control-xs" onkeyup="Validar_Correo(event);">
+                            <span id="mensajeCorreo" style="color: red;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">(*) Persona Encargado:</label>
+                            <input type="text" id="sede_encargado" class="form-control form-control-xs">
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">(*) Días Información:</label>
+                            <input type="text" id="sede_atencion" class="form-control form-control-xs">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row my-2">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="form-group">
+                            <label class="form-label">(*) Condiciones de facturación:</label>
+                            <textarea id="sede_cond_factura" class="form-control form-control-sm"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <div class="form-group">
+                            <label class="form-label">(*)Obligacion tributaria:</label>
+                            <?= $this->cliente->Obligacion_Tributaria() ?>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <div class="form-group">
+                            <label class="form-label">(*) Condición de Pago:</label>
+                            <select id="sede_cond_pago" class="form-select form-select-sm">
+                                <option value="">Seleccione</option>
+                                <option value="1">Transferencia</option>
+                                <option value="2">Cheque</option>
+                                <option value="3">Consignación</option>
+                                <option value="4">Contraentrega</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <div class="form-group">
+                            <label class="form-label">Indicaciones de llegada:</label>
+                            <textarea name="indicaciones_llegada" id="indicaciones_llegada" class="form-control form-control-sm"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <div class="form-group">
+                            <label class="form-label">(*) Restricción Acceso:</label>
+                            <textarea id="sede_restriccion" class="form-control form-control-sm" rows="1"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <div class="form-group">
+                            <label class="form-label">(*) Instrucción especial:</label>
+                            <textarea id="sede_instruccion" class="form-control form-control-sm" rows="1"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">(*)Empresa Cliente:</label>
+                            <?= $this->cliente->Listar_Empresas() ?>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-0 text-dark">
+                <div class="d-flex flex-wrap justify-content-start my-1">
+                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                        <h6 class="mb-0 text-body-highlight me-2">Responsables</h6>
+                    </div>
+                </div>
+                <hr class="my-0 text-dark">
+
+                <!-- <div class="row my-2"></div> -->
+                <div id="info_responsables" class="row my-2">
+                    <div class="alert alert-outline-warning d-flex align-items-center p-2" role="alert">
+                        <span class="fas fa-info-circle text-warning fs-5 me-3"></span>
+                        <p class="mb-0 flex-1">No se ha seleccionado ningún servicio para el cliente...</p>
+                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!--<div class="row"></div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos Pactados de Cargue y Descargue</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos de Mercancía / Datos de propietario</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Precintos</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark"> -->
+
+        </form>
+
+        <hr class="mt-5 text-dark">
+        <div class="text-end my-1">
+            <button id="btn_crea_cliente" class="btn btn-success btn-sm me-1 px-1 py-1"><i class="fa-regular fa-floppy-disk"></i> Guardar Cliente</button>
+        </div>
+
+    </div>
+</div>

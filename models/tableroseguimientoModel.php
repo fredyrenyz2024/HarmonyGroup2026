@@ -186,139 +186,147 @@ class tableroseguimientoModel extends Model
         }
     }
 
-    public function Datos_SinFiltro()
-    {
-        try {
-            // Inicia la transacción
-            $this->_db3->beginTransaction();
+    // public function Datos_SinFiltro()
+    // {
+    //     try {
+    //         // Inicia la transacción
+    //         $this->_db3->beginTransaction();
 
-            // Consulta original para obtener los datos
-            $sql = "SELECT ins.tiempo, ma.*, pro.nombre AS nombre_conductor, pro.apellido1, 
-            pro.apellido2, pro.celular,mn1.municipio AS origen, mn2.municipio AS destino,inr.cod_inicio AS cod_ini_ruta, cl.nombre, oc.mer_producto, dm.tipo_transporte
-            FROM cmx_manifiesto ma
-            INNER JOIN cmx_proveedores pro ON ma.conductor_manifiesto = pro.numero_documento
-            INNER JOIN cmx_municipios mn1 ON ma.origen_viaje = mn1.id
-            INNER JOIN cmx_municipios mn2 ON ma.destino_viaje = mn2.id
-            INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
-            INNER JOIN cmx_manifiesto_remesa mr ON mr.id_manifiesto = ma.id
-            INNER JOIN cmx_remesa r ON r.id = mr.id_remesa
-            INNER JOIN cmx_remesa_ordencargue ro ON ro.id_remesa = r.id
-            INNER JOIN cmx_orden_cargue oc ON oc.id = ro.id_orden_cargue
-            INNER JOIN cmx_clientes cl ON cl.id = oc.cli_id
-            INNER JOIN cmx_solicitud_vehiculo2 ss ON ss.nundoc_solicitud = oc.mer_idservicio
-            INNER JOIN cmx_cotizaciones_serviciocliente cs ON cs.n_cotizacion = ss.n_cotizacion
-            INNER JOIN cmx_detalle_mercancia2 dm ON dm.n_cotizacion = cs.n_cotizacion
-            LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
-            LEFT JOIN (SELECT s1.* FROM  cmx_inicio_seguimiento s1
-            INNER JOIN (SELECT  cod_ini_ruta, MAX(id) AS max_id FROM  cmx_inicio_seguimiento WHERE tipo_proceso = 'seguimiento'
-            GROUP BY cod_ini_ruta) s2 ON s1.cod_ini_ruta = s2.cod_ini_ruta AND s1.id = s2.max_id) ins ON ins.cod_ini_ruta = inr.cod_inicio
-            WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento = 'SEGUIMIENTO'
-            GROUP BY ma.placa, ma.id ORDER BY ins.tiempo DESC";
+    //         // Consulta original para obtener los datos
+    //         $sql = "SELECT ins.tiempo, ma.*, pro.nombre AS nombre_conductor, pro.apellido1, 
+    //         pro.apellido2, pro.celular,mn1.municipio AS origen, mn2.municipio AS destino,inr.cod_inicio AS cod_ini_ruta, cl.nombre, oc.mer_producto, dm.tipo_transporte
+    //         FROM cmx_manifiesto ma
+    //         INNER JOIN cmx_proveedores pro ON ma.conductor_manifiesto = pro.numero_documento
+    //         INNER JOIN cmx_municipios mn1 ON ma.origen_viaje = mn1.id
+    //         INNER JOIN cmx_municipios mn2 ON ma.destino_viaje = mn2.id
+    //         INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
+    //         INNER JOIN cmx_manifiesto_remesa mr ON mr.id_manifiesto = ma.id
+    //         INNER JOIN cmx_remesa r ON r.id = mr.id_remesa
+    //         INNER JOIN cmx_remesa_ordencargue ro ON ro.id_remesa = r.id
+    //         INNER JOIN cmx_orden_cargue oc ON oc.id = ro.id_orden_cargue
+    //         INNER JOIN cmx_clientes cl ON cl.id = oc.cli_id
+    //         INNER JOIN cmx_solicitud_vehiculo2 ss ON ss.nundoc_solicitud = oc.mer_idservicio
+    //         INNER JOIN cmx_cotizaciones_serviciocliente cs ON cs.n_cotizacion = ss.n_cotizacion
+    //         INNER JOIN cmx_detalle_mercancia2 dm ON dm.n_cotizacion = cs.n_cotizacion
+    //         LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
+    //         LEFT JOIN (SELECT s1.* FROM  cmx_inicio_seguimiento s1
+    //         INNER JOIN (SELECT  cod_ini_ruta, MAX(id) AS max_id FROM  cmx_inicio_seguimiento WHERE tipo_proceso = 'seguimiento'
+    //         GROUP BY cod_ini_ruta) s2 ON s1.cod_ini_ruta = s2.cod_ini_ruta AND s1.id = s2.max_id) ins ON ins.cod_ini_ruta = inr.cod_inicio
+    //         WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento = 'SEGUIMIENTO'
+    //         GROUP BY ma.placa, ma.id ORDER BY ins.tiempo DESC";
 
-            $resultado = $this->_db3->query($sql);
-            $resultado->setFetchMode(PDO::FETCH_ASSOC);
-            $data = $resultado->fetchAll();
+    //         $resultado = $this->_db3->query($sql);
+    //         $resultado->setFetchMode(PDO::FETCH_ASSOC);
+    //         $data = $resultado->fetchAll();
 
-            // Confirma la transacción
-            $this->_db3->commit();
-            // Retorna ambos resultados
-            return [
-                'data' => $data,
-            ];
-        } catch (PDOException $e) {
-            // Realiza un rollback en caso de error
-            $this->_db3->rollBack();
+    //         // Confirma la transacción
+    //         $this->_db3->commit();
+    //         // Retorna ambos resultados
+    //         return [
+    //             'data' => $data,
+    //         ];
+    //     } catch (PDOException $e) {
+    //         // Realiza un rollback en caso de error
+    //         $this->_db3->rollBack();
 
-            // Manejo del error
-            $error = $e->getMessage();
-            throw new Exception("Error en la consulta: " . $error);
-        }
-    }
+    //         // Manejo del error
+    //         $error = $e->getMessage();
+    //         throw new Exception("Error en la consulta: " . $error);
+    //     }
+    // }
 
-    public function Contadores_SinFiltros()
-    {
-        try {
-            // Inicia la transacción
-            $this->_db3->beginTransaction();
-            // Nueva consulta para contar los manifiestos en seguimiento
-            $sql_total_Seguimiento = "SELECT COUNT(DISTINCT ma.id,inr.num_manifiesto) AS total_manifiestos_seguimiento
-            FROM cmx_manifiesto ma
-            INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
-            LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
-            WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento='SEGUIMIENTO'";
-            $resultado_total = $this->_db3->query($sql_total_Seguimiento);
-            $resultado_total->setFetchMode(PDO::FETCH_ASSOC);
-            $total_manifiestos_seguimiento = $resultado_total->fetch();
+    // public function Contadores_SinFiltros()
+    // {
+    //     try {
+    //         // Inicia la transacción
+    //         $this->_db3->beginTransaction();
+    //         // Nueva consulta para contar los manifiestos en seguimiento
+    //         $sql_total_Seguimiento = "SELECT COUNT(DISTINCT ma.id,inr.num_manifiesto) AS total_manifiestos_seguimiento
+    //         FROM cmx_manifiesto ma
+    //         INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
+    //         LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
+    //         WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento='SEGUIMIENTO'";
+    //         $resultado_total = $this->_db3->query($sql_total_Seguimiento);
+    //         $resultado_total->setFetchMode(PDO::FETCH_ASSOC);
+    //         $total_manifiestos_seguimiento = $resultado_total->fetch();
 
-            // Nueva consulta para contar los manifiestos en seguimiento Y llegada
-            $sql_total_general = "SELECT COUNT(DISTINCT ma.id) AS total_manifiestos_general
-            FROM cmx_manifiesto ma
-            INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
-            LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
-            WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento IN ('SEGUIMIENTO', 'LLEGADA')";
-            $resultado_total_general = $this->_db3->query($sql_total_general);
-            $resultado_total_general->setFetchMode(PDO::FETCH_ASSOC);
-            $total_manifiestos_general = $resultado_total_general->fetch();
+    //         // Nueva consulta para contar los manifiestos en seguimiento Y llegada
+    //         $sql_total_general = "SELECT COUNT(DISTINCT ma.id) AS total_manifiestos_general
+    //         FROM cmx_manifiesto ma
+    //         INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
+    //         LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
+    //         WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento IN ('SEGUIMIENTO', 'LLEGADA')";
+    //         $resultado_total_general = $this->_db3->query($sql_total_general);
+    //         $resultado_total_general->setFetchMode(PDO::FETCH_ASSOC);
+    //         $total_manifiestos_general = $resultado_total_general->fetch();
 
 
-            // Nueva consulta para contar los manifiestos en llegada
-            $sql_total_Seguimiento_llegada = "SELECT COUNT(DISTINCT ma.id) AS total_manifiestos_llegada
-            FROM cmx_manifiesto ma
-            INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
-            LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
-            WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento = 'LLEGADA'";
-            $resultado_total_llegada = $this->_db3->query($sql_total_Seguimiento_llegada);
-            $resultado_total_llegada->setFetchMode(PDO::FETCH_ASSOC);
-            $total_manifiestos_llegada = $resultado_total_llegada->fetch();
+    //         // Nueva consulta para contar los manifiestos en llegada
+    //         $sql_total_Seguimiento_llegada = "SELECT COUNT(DISTINCT ma.id) AS total_manifiestos_llegada
+    //         FROM cmx_manifiesto ma
+    //         INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
+    //         LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
+    //         WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento = 'LLEGADA'";
+    //         $resultado_total_llegada = $this->_db3->query($sql_total_Seguimiento_llegada);
+    //         $resultado_total_llegada->setFetchMode(PDO::FETCH_ASSOC);
+    //         $total_manifiestos_llegada = $resultado_total_llegada->fetch();
 
-            // Confirma la transacción
-            $this->_db3->commit();
-            // Retorna ambos resultados
-            return [
-                'total_manifiestos_seguimiento' => $total_manifiestos_seguimiento['total_manifiestos_seguimiento'],
-                'total_manifiestos_general' => $total_manifiestos_general['total_manifiestos_general'],
-                'total_manifiestos_llegada' => $total_manifiestos_llegada['total_manifiestos_llegada'],
-            ];
-        } catch (\Throwable $th) {
-            // Realiza un rollback en caso de error
-            $this->_db3->rollBack();
-            // Manejo del error
-            $error = $th->getMessage();
-            throw new Exception("Error en la consulta: " . $error);
-        }
-    }
+    //         // Confirma la transacción
+    //         $this->_db3->commit();
+    //         // Retorna ambos resultados
+    //         return [
+    //             'total_manifiestos_seguimiento' => $total_manifiestos_seguimiento['total_manifiestos_seguimiento'],
+    //             'total_manifiestos_general' => $total_manifiestos_general['total_manifiestos_general'],
+    //             'total_manifiestos_llegada' => $total_manifiestos_llegada['total_manifiestos_llegada'],
+    //         ];
+    //     } catch (\Throwable $th) {
+    //         // Realiza un rollback en caso de error
+    //         $this->_db3->rollBack();
+    //         // Manejo del error
+    //         $error = $th->getMessage();
+    //         throw new Exception("Error en la consulta: " . $error);
+    //     }
+    // }
 
     /* Funcion para lisatr los seguimientos que ya les dieon llegada */
-    public function listar_seguimientos_llegada()
-    {
-        $response = [];
-        try {
-            $sql = "SELECT ma.*,pro.nombre, pro.apellido1, pro.apellido2,pro.celular,mn1.municipio AS origen, mn2.municipio AS destino,
-            inr.cod_inicio AS cod_ini_ruta, cl.nombre,oc.mer_producto,dm.tipo_transporte
-            FROM cmx_manifiesto ma
-            INNER JOIN cmx_proveedores pro ON ma.conductor_manifiesto=pro.numero_documento
-            INNER JOIN cmx_municipios mn1 ON ma.origen_viaje=mn1.id
-            INNER JOIN cmx_municipios mn2 ON ma.destino_viaje=mn2.id
-            INNER JOIN cmx_inicio_ruta inr ON ma.id=inr.num_manifiesto
-            INNER JOIN cmx_manifiesto_remesa mr ON mr.id_manifiesto=ma.id
-            INNER JOIN cmx_remesa r ON r.id=mr.id_remesa
-            INNER JOIN cmx_remesa_ordencargue ro ON ro.id_remesa=r.id
-            INNER JOIN cmx_orden_cargue oc ON oc.id=ro.id_orden_cargue
-            INNER JOIN cmx_clientes cl ON cl.id=oc.cli_id
-            INNER JOIN cmx_solicitud_vehiculo2 ss ON ss.nundoc_solicitud=oc.mer_idservicio
-           	INNER JOIN cmx_cotizaciones_serviciocliente cs ON cs.n_cotizacion=ss.n_cotizacion
-            INNER JOIN cmx_detalle_mercancia2 dm ON dm.n_cotizacion=cs.n_cotizacion
-            LEFT JOIN cmx_inicio_seguimiento ins ON ins.cod_ini_ruta=inr.cod_inicio
-            LEFT JOIN cmx_cumplido cu ON ma.id=cu.manifiesto
-            WHERE cu.manifiesto IS NULL AND ma.estado_seguimiento='LLEGADA' GROUP BY ma.placa,ma.id ORDER BY ins.tiempo ASC";
-            $resultado = $this->_db3->query($sql);
-            $resultado->setFetchMode(PDO::FETCH_ASSOC);
-            return $resultado->fetchAll();
-        } catch (PDOException $e) {
-            $error = $e->getMessage();
-            $this->_db3->rollBack();
-        }
-    }
+    // public function listar_seguimientos_llegada()
+    // {
+    //     try {
+    //         $sql = "SELECT 
+    //                 ma.*,
+    //                 pro.nombre, 
+    //                 pro.apellido1, 
+    //                 pro.apellido2,
+    //                 pro.celular,
+    //                 mn1.municipio AS origen, 
+    //                 mn2.municipio AS destino,
+    //                 inr.cod_inicio AS cod_ini_ruta,
+    //                 cl.nombre AS cliente_nombre,
+    //                 oc.mer_producto
+    //             FROM cmx_manifiesto ma
+    //             INNER JOIN cmx_proveedores pro ON ma.conductor_manifiesto = pro.numero_documento
+    //             INNER JOIN cmx_municipios mn1 ON ma.origen_viaje = mn1.id
+    //             INNER JOIN cmx_municipios mn2 ON ma.destino_viaje = mn2.id
+    //             INNER JOIN cmx_inicio_ruta inr ON ma.id = inr.num_manifiesto
+    //             INNER JOIN cmx_manifiesto_remesa mr ON mr.id_manifiesto = ma.id
+    //             INNER JOIN cmx_remesa r ON r.id = mr.id_remesa
+    //             INNER JOIN cmx_remesa_ordencargue ro ON ro.id_remesa = r.id
+    //             INNER JOIN cmx_orden_cargue oc ON oc.id = ro.id_orden_cargue
+    //             INNER JOIN cmx_clientes cl ON cl.id = oc.cli_id
+    //             LEFT JOIN cmx_cumplido cu ON ma.id = cu.manifiesto
+    //             WHERE cu.manifiesto IS NULL 
+    //             AND ma.estado_seguimiento = 'LLEGADA'
+    //             GROUP BY  ma.id
+    //             ORDER BY ma.id ASC";
+
+    //         $stmt = $this->_db3->prepare($sql);
+    //         $stmt->execute(); // ✅ Ejecutar la consulta
+
+    //         return $stmt->fetchAll(PDO::FETCH_ASSOC); // ✅ Retornar resultados en forma asociativa
+    //     } catch (PDOException $e) {
+    //         throw new Exception("Error en listar_seguimientos_llegada: " . $e->getMessage());
+    //     }
+    // }
 
     public function listar_seguimientos_salida()
     {
@@ -474,61 +482,127 @@ class tableroseguimientoModel extends Model
         return $resultado = $sql->fetchAll();
     }
 
+    // public function Historial_Seguimiento($tipo, $num_manifiesto, $fecha_inicial, $fecha_final, $cliente)
+    // {
+    //     $response = [];
+    //     try {
+    //         if ($tipo == 1) {
+    //             $sql = "SELECT m.id, m.fecha_expedicion, m.placa, pro.numero_documento,
+    //             CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor, ptt.cod_inicio, ptt.id_estudio_seguridad,
+    //             m1.municipio AS origen, m2.municipio AS destino,pro.celular
+    //             FROM cmx_manifiesto m 
+    //             INNER JOIN cmx_municipios m1
+    //             ON m.origen_viaje=m1.id
+    //             INNER JOIN cmx_municipios m2
+    //             ON m.destino_viaje=m2.id
+    //             INNER JOIN cmx_proveedores pro
+    //             ON m.conductor_manifiesto=pro.numero_documento
+    //             INNER JOIN cmx_inicio_ruta ptt ON m.id=ptt.num_manifiesto
+    //             INNER JOIN cmx_salida_vehiculo sali ON ptt.num_manifiesto=sali.num_manifiesto
+    //             LEFT JOIN cmx_inicio_seguimiento se ON ptt.cod_inicio=se.cod_ini_ruta
+    //             WHERE m.fecha_expedicion BETWEEN '" . $fecha_inicial . "' AND '" . $fecha_final . "' GROUP BY se.cod_ini_ruta";
+    //             $resultado = $this->_db3->query($sql);
+    //             $resultado->setFetchMode(PDO::FETCH_ASSOC);
+    //             $datos = $resultado->fetchAll();
+    //             $response = $datos;
+    //         } elseif ($tipo == 2) {
+    //             $sql = "SELECT m.id, m.fecha_expedicion, m.placa, pro.numero_documento,
+    //             CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor, ptt.cod_inicio, ptt.id_estudio_seguridad,
+    //             m1.municipio AS origen, m2.municipio AS destino,pro.celular
+    //             FROM cmx_manifiesto m 
+    //             INNER JOIN cmx_municipios m1 ON m.origen_viaje=m1.id
+    //             INNER JOIN cmx_municipios m2 ON m.destino_viaje=m2.id
+    //             INNER JOIN cmx_proveedores pro ON m.conductor_manifiesto=pro.numero_documento
+    //             INNER JOIN cmx_inicio_ruta ptt ON m.id=ptt.num_manifiesto
+    //             INNER JOIN cmx_salida_vehiculo sali ON ptt.num_manifiesto=sali.num_manifiesto
+    //             LEFT JOIN cmx_inicio_seguimiento se ON ptt.cod_inicio=se.cod_ini_ruta
+    //             WHERE m.id=" . $num_manifiesto . " GROUP BY se.cod_ini_ruta";
+    //             $resultado = $this->_db3->query($sql);
+    //             $resultado->setFetchMode(PDO::FETCH_ASSOC);
+    //             $datos = $resultado->fetchAll();
+    //             $response = $datos;
+    //         } elseif ($tipo == 3) {
+    //             $sql = "SELECT m.id, m.fecha_expedicion, m.placa, pro.numero_documento, CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor, ptt.cod_inicio, ptt.id_estudio_seguridad,m1.municipio AS origen, m2.municipio AS destino,pro.celular
+    //             FROM cmx_manifiesto m
+    //             INNER JOIN cmx_municipios m1 ON m.origen_viaje=m1.id
+    //             INNER JOIN cmx_municipios m2 ON m.destino_viaje=m2.id
+    //             INNER JOIN cmx_proveedores pro ON m.conductor_manifiesto=pro.numero_documento
+    //             INNER JOIN cmx_inicio_ruta ptt ON m.id=ptt.num_manifiesto
+    //             INNER JOIN cmx_salida_vehiculo sali ON ptt.num_manifiesto=sali.num_manifiesto
+    //             INNER JOIN cmx_manifiesto_remesa mr ON m.id = mr.id_manifiesto
+    //             INNER JOIN cmx_remesa rm ON mr.id_remesa = rm.id
+    //             INNER JOIN cmx_remesa_ordencargue ro ON rm.id = ro.id_remesa
+    //             INNER JOIN cmx_orden_cargue oc ON ro.id_orden_cargue=oc.id
+    //             INNER JOIN cmx_clientes cl ON oc.cli_id = cl.id
+    //             LEFT JOIN cmx_inicio_seguimiento se ON ptt.cod_inicio=se.cod_ini_ruta
+    //             WHERE cl.id=" . $cliente . "
+    //             GROUP BY se.cod_ini_ruta";
+    //             $resultado = $this->_db3->query($sql);
+    //             $resultado->setFetchMode(PDO::FETCH_ASSOC);
+    //             $datos = $resultado->fetchAll();
+    //             $response = $datos;
+    //         }
+    //         return $response;
+    //     } catch (\Throwable $th) {
+    //         // $this->_db3->rollBack();
+    //         $error = $th->getMessage();
+    //         $response = $error;
+    //     }
+    // }
+
     public function Historial_Seguimiento($tipo, $num_manifiesto, $fecha_inicial, $fecha_final, $cliente)
     {
         $response = [];
         try {
             if ($tipo == 1) {
-                $sql = "SELECT m.id, m.fecha_expedicion, m.placa, pro.numero_documento,
-                CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor, ptt.cod_inicio, ptt.id_estudio_seguridad,
-                m1.municipio AS origen, m2.municipio AS destino,pro.celular
-                FROM cmx_manifiesto m 
-                INNER JOIN cmx_municipios m1
-                ON m.origen_viaje=m1.id
-                INNER JOIN cmx_municipios m2
-                ON m.destino_viaje=m2.id
-                INNER JOIN cmx_proveedores pro
-                ON m.conductor_manifiesto=pro.numero_documento
-                INNER JOIN cmx_inicio_ruta ptt ON m.id=ptt.num_manifiesto
-                INNER JOIN cmx_salida_vehiculo sali ON ptt.num_manifiesto=sali.num_manifiesto
-                LEFT JOIN cmx_inicio_seguimiento se ON ptt.cod_inicio=se.cod_ini_ruta
-                WHERE m.fecha_expedicion BETWEEN '" . $fecha_inicial . "' AND '" . $fecha_final . "' GROUP BY se.cod_ini_ruta";
+                $sql = "SELECT m.id, sv.nombre_cliente AS cliente, m.fecha_expedicion, m.placa,
+                ori.municipio AS origen, des.municipio AS destino,
+                CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor,
+                pro.numero_documento, pro.celular, m.estado_seguimiento AS estado
+                FROM cmx_manifiesto m
+                INNER JOIN cmx_manifiesto_remesa mr ON mr.id_manifiesto = m.id
+                INNER JOIN cmx_remesa r ON r.id = mr.id_remesa
+                INNER JOIN cmx_solicitud_vehiculo2 sv ON sv.nundoc_solicitud = r.mer_idservicio
+                INNER JOIN cmx_municipios ori ON m.origen_viaje=ori.id
+                INNER JOIN cmx_municipios des ON m.destino_viaje=des.id
+                INNER JOIN cmx_proveedores pro ON m.conductor_manifiesto=pro.numero_documento
+                WHERE m.fecha_expedicion BETWEEN '" . $fecha_inicial . "' AND '" . $fecha_final . "' ORDER BY m.id DESC";
                 $resultado = $this->_db3->query($sql);
                 $resultado->setFetchMode(PDO::FETCH_ASSOC);
                 $datos = $resultado->fetchAll();
                 $response = $datos;
             } elseif ($tipo == 2) {
-                $sql = "SELECT m.id, m.fecha_expedicion, m.placa, pro.numero_documento,
-                CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor, ptt.cod_inicio, ptt.id_estudio_seguridad,
-                m1.municipio AS origen, m2.municipio AS destino,pro.celular
-                FROM cmx_manifiesto m 
-                INNER JOIN cmx_municipios m1 ON m.origen_viaje=m1.id
-                INNER JOIN cmx_municipios m2 ON m.destino_viaje=m2.id
+                $sql = "SELECT m.id, sv.nombre_cliente AS cliente, m.fecha_expedicion, m.placa,
+                ori.municipio AS origen, des.municipio AS destino,
+                CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor,
+                pro.numero_documento, pro.celular, m.estado_seguimiento AS estado
+                FROM cmx_manifiesto m
+                INNER JOIN cmx_manifiesto_remesa mr ON mr.id_manifiesto = m.id
+                INNER JOIN cmx_remesa r ON r.id = mr.id_remesa
+                INNER JOIN cmx_solicitud_vehiculo2 sv ON sv.nundoc_solicitud = r.mer_idservicio
+                INNER JOIN cmx_municipios ori ON m.origen_viaje=ori.id
+                INNER JOIN cmx_municipios des ON m.destino_viaje=des.id
                 INNER JOIN cmx_proveedores pro ON m.conductor_manifiesto=pro.numero_documento
-                INNER JOIN cmx_inicio_ruta ptt ON m.id=ptt.num_manifiesto
-                INNER JOIN cmx_salida_vehiculo sali ON ptt.num_manifiesto=sali.num_manifiesto
-                LEFT JOIN cmx_inicio_seguimiento se ON ptt.cod_inicio=se.cod_ini_ruta
-                WHERE m.id=" . $num_manifiesto . " GROUP BY se.cod_ini_ruta";
+                WHERE m.id=" . $num_manifiesto . " ORDER BY m.id DESC";
                 $resultado = $this->_db3->query($sql);
                 $resultado->setFetchMode(PDO::FETCH_ASSOC);
                 $datos = $resultado->fetchAll();
                 $response = $datos;
             } elseif ($tipo == 3) {
-                $sql = "SELECT m.id, m.fecha_expedicion, m.placa, pro.numero_documento, CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor, ptt.cod_inicio, ptt.id_estudio_seguridad,m1.municipio AS origen, m2.municipio AS destino,pro.celular
+                $sql = "SELECT m.id, sv.nombre_cliente AS cliente, m.fecha_expedicion, m.placa,
+                ori.municipio AS origen, des.municipio AS destino,
+                CONCAT(pro.nombre,' ',pro.apellido1,' ',pro.apellido2) AS conductor,
+                pro.numero_documento, pro.celular, m.estado_seguimiento AS estado
                 FROM cmx_manifiesto m
-                INNER JOIN cmx_municipios m1 ON m.origen_viaje=m1.id
-                INNER JOIN cmx_municipios m2 ON m.destino_viaje=m2.id
+                INNER JOIN cmx_manifiesto_remesa mr ON mr.id_manifiesto = m.id
+                INNER JOIN cmx_remesa r ON r.id = mr.id_remesa
+                INNER JOIN cmx_solicitud_vehiculo2 sv ON sv.nundoc_solicitud = r.mer_idservicio
+                INNER JOIN cmx_clientes cl ON cl.nombre = sv.nombre_cliente
+                INNER JOIN cmx_municipios ori ON m.origen_viaje=ori.id
+                INNER JOIN cmx_municipios des ON m.destino_viaje=des.id
                 INNER JOIN cmx_proveedores pro ON m.conductor_manifiesto=pro.numero_documento
-                INNER JOIN cmx_inicio_ruta ptt ON m.id=ptt.num_manifiesto
-                INNER JOIN cmx_salida_vehiculo sali ON ptt.num_manifiesto=sali.num_manifiesto
-                INNER JOIN cmx_manifiesto_remesa mr ON m.id = mr.id_manifiesto
-                INNER JOIN cmx_remesa rm ON mr.id_remesa = rm.id
-                INNER JOIN cmx_remesa_ordencargue ro ON rm.id = ro.id_remesa
-                INNER JOIN cmx_orden_cargue oc ON ro.id_orden_cargue=oc.id
-                INNER JOIN cmx_clientes cl ON oc.cli_id = cl.id
-                LEFT JOIN cmx_inicio_seguimiento se ON ptt.cod_inicio=se.cod_ini_ruta
                 WHERE cl.id=" . $cliente . "
-                GROUP BY se.cod_ini_ruta";
+                ORDER BY m.id DESC";
                 $resultado = $this->_db3->query($sql);
                 $resultado->setFetchMode(PDO::FETCH_ASSOC);
                 $datos = $resultado->fetchAll();
@@ -541,7 +615,6 @@ class tableroseguimientoModel extends Model
             $response = $error;
         }
     }
-
 
     public function seguimiento_cabecera($manifiesto)
     {
@@ -567,7 +640,7 @@ class tableroseguimientoModel extends Model
             $resultado->setFetchMode(PDO::FETCH_ASSOC);
             return $resultado->fetchAll();
         } catch (\Throwable $th) {
-            $error = $e->getMessage();
+            $error = $th->getMessage();
             $this->_db3->rollBack();
         }
     }
@@ -590,7 +663,7 @@ class tableroseguimientoModel extends Model
             $resultado->setFetchMode(PDO::FETCH_ASSOC);
             return $resultado->fetchAll();
         } catch (\Throwable $th) {
-            $error = $e->getMessage();
+            $error = $th->getMessage();
             $this->_db3->rollBack();
         }
     }
@@ -678,7 +751,7 @@ class tableroseguimientoModel extends Model
                           GROUP BY n.id");
                         $sql_contactos->bindParam(':cliente', $cliente_id, PDO::PARAM_INT);
                         $sql_contactos->bindParam(':Grupo', $value['idgrupo'], PDO::PARAM_INT);
-                    $sql_contactos->bindParam(':Contacto', $value['contacto_id'], PDO::PARAM_INT);
+                        $sql_contactos->bindParam(':Contacto', $value['contacto_id'], PDO::PARAM_INT);
                         $sql_contactos->bindParam(':Empresa', $empresa_id, PDO::PARAM_INT);
                         $sql_contactos->execute();
                         $datos_contactos = $sql_contactos->fetchAll(PDO::FETCH_ASSOC);
@@ -715,7 +788,7 @@ class tableroseguimientoModel extends Model
                             LEFT JOIN cmx_puntos_controlador pc ON ise.id = pc.seguimiento_id
                             LEFT JOIN cmx_mail_enviados me ON ise.id = me.id_fecha_parametro
                             WHERE ir.num_manifiesto = :manifiesto AND ise.novedad = :novedad AND me.id_fecha_parametro IS NULL");
-                            
+
                             // $sql = $this->_db3->prepare("SELECT CONCAT(ise.fecha,' - ',ise.hora) AS fecha_trazabilidad,rd.observacion AS Referencia,ss.numero_contenedor,m.placa,
                             // CONCAT(cond.nombre,' ',cond.apellido1,' ',cond.apellido2) AS Conductor,m.conductor_manifiesto,ori.municipio AS origen,des.municipio AS destino,
                             // ise.novedad,IFNULL(mn.municipio,pc.punto_controlador) AS Municipio,ise.id AS seguimiento_inicio_id,ss.nundoc_solicitud,ss.agrupable

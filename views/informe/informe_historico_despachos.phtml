@@ -30,19 +30,17 @@
             <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">
               Fecha Inicial:</th>
             <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
-              <input type="date" id="fecha_inicial" name="fecha_inicial" style="width: 100%;"
-                value="<?php echo date("Y-m-d") ?>">
+              <input type="date" id="fecha_inicial" name="fecha_inicial" style="width: 100%;">
             </td>
 
             <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">
               Fecha Final:</th>
             <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
-              <input type="date" id="fecha_final" name="fecha_final" style="width: 100%;"
-                value="<?php echo date("Y-m-d") ?>">
+              <input type="date" id="fecha_final" name="fecha_final" style="width: 100%;">
             </td>
 
             <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">
-              Criterio de busqueda:</th>
+              Placa:</th>
             <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
               <input type="text" id="criterio_busqueda" name="criterio_busqueda" style="width: 100%;height: 23px;"
                 oninput="this.value = this.value.toUpperCase();">
@@ -54,7 +52,8 @@
         style="width:100%; border-collapse: collapse;font-size: 8px;margin-top: 5px;">
         <thead>
           <tr>
-            <th style="font-size: 12px;"> Cantidad Viajes: &nbsp;&nbsp;<span class="badge badge-success" id="totalViajes">0</span></th>
+            <th style="font-size: 12px;"> Cantidad Viajes: &nbsp;&nbsp;<span class="badge badge-success"
+                id="totalViajes">0</span></th>
             <td class="text-left" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;"
               colspan="4">
               <button type="button" class="btn btn-primary btn-xs" id="aplicar_filtro"><i class="fas fa-filter"></i>
@@ -132,7 +131,7 @@
 
 
 <script type="text/javascript">
-  $(document).ready(function () {
+  $(document).ready(function() {
     //initialize the javascript
     App.init();
   });

@@ -14,149 +14,348 @@ $vista = '';
 $vista .= '';
 $url = BASE_URL . 'libs/myajax.php'; //variable esta en config y es para la ruta de archivos
 //se maqueta eldiseño del formulario
+// $vista .= '
+// <div class="container-fluid" style="height: 100vh;">
+//   <div class="row" style="height: 100%;">
+//     <input type="hidden" id="id_url_ajax" value="' . BASE_URL . '">
+//     <div class="contenedor-login">
+//       <!--Slider-->
+//       <div class="contenedor-slider">
+//         <div class="slider">
+//           <!--Slide 1-->
+//           <div class="slide fade">
+//             <img src="' . BASE_URL . 'views\layout\assets\img\logis14.jpg" alt="" />
+//             <div class="contenido-slider">
+//               <div class="slider-texto"
+//                 style="background-color: black; opacity: 0.5; margin-bottom: 0px; margin-left: 0px; height: 35px">
+//                 <hr style="width: 100%; background-color: yellow; height: 5px; margin-top: 5px" />
+//                 <h4 style="font-weight: 800; color: #fafafa">Transporte - Logística - Almacenamiento</h4>
+//               </div>
+//             </div>
+//           </div>
+
+//           <!--Slide 2-->
+//           <div class="slide fade">
+//             <img src="' . BASE_URL . 'views\layout\assets\img\logis18.jpg" alt="" />
+//             <div class="contenido-slider">
+//               <div class="slider-texto"
+//                 style="background-color: black; opacity: 0.5; margin-bottom: 0px; margin-left: 0px; height: 35px">
+//                 <hr style="width: 100%; background-color: yellow; height: 5px; margin-top: 5px" />
+//                 <h4 style="font-weight: 800; color: #fafafa">Transporte Internacional Multimodal</h4>
+//               </div>
+//             </div>
+//           </div>
+
+//           <!--Slide 3-->
+//           <div class="slide fade">
+//             <img src="' . BASE_URL . 'views\layout\assets\img\logis0.jpg" alt="" />
+//             <div class="contenido-slider">
+//               <div class="slider-texto"
+//                 style="background-color: black; opacity: 0.5; margin-bottom: 0px; margin-left: 0px; height: 35px">
+//                 <hr style="width: 100%; background-color: yellow; height: 5px; margin-top: 5px" />
+//                 <h4 style="font-weight: 800; color: #fafafa">Seguridad - Control de Tráfico</h4>
+//               </div>
+//             </div>
+//           </div>
+
+//           <!--Slide 4-->
+//           <div class="slide fade">
+//             <img src="' . BASE_URL . 'views\layout\assets\img\logis16.jpg" alt="" />
+//             <div class="contenido-slider">
+//               <div class="slider-texto"
+//                 style="background-color: black; opacity: 0.5; margin-bottom: 0px; margin-left: 0px; height: 35px">
+//                 <hr style="width: 100%; background-color: yellow; height: 5px; margin-top: 5px" />
+//                 <h4 style="font-weight: 800; color: #fafafa">Almacenamiento - Logística</h4>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         <!--Botones next y prev-->
+//         <!--<a href="#" class="prev"><i class="fas fa-chevron-left"></i></a>
+//         <a href="#" class="next"><i class="fas fa-chevron-right"></i></a>-->
+
+//         <!--dots-->
+//         <div class="dots">
+//           <!--<span class="dot active"></span>-->
+//         </div>
+//       </div>
+
+//       <!--Formularios-->
+
+//       <div class="contenedor-texto">
+//         <div class="contenedor-form">
+//           <div class="logo">
+//             <!--<img src="' . BASE_URL . 'views\layout\assets\img\logo-xx.png" alt="" />-->
+//             <img src="' . BASE_URL . 'views\layout\assets\img\logo_nuevo.png" alt="" />
+//           </div>
+//           <h1 class="titutlo">Harmony Group</h1>
+//           <p class="descripcion">Ingrese a su cuenta de servicios.</p>
+//           <!--Tabs-->
+//           <ul class="tabs-links">
+//             <li class="tab-link active">Iniciar Sesión</li>
+//             <!-- <li class="tab-link">Registrate</li> -->
+//           </ul>
+//           <div class="nexos-messages" id="incorrectos"></div>
+//           <!--Formulario de login-->
+
+//           <form id="formlogin" method="POST" class="formulario active">
+//             <div class="error-text">
+//               <p>aqui los errores del formulario</p>
+//             </div>
+
+//             <input type="text" placeholder="Numero de documento" class="input-text" id="user_log" name="user_log"
+//               autocomplete="off" />
+//             <div class="error_user_log">
+//               <label id="error_user_log"></label>
+//             </div>
+//             <div class="grupo-input">
+//               <input type="password" placeholder="Contraseña" id="pass" name="pass" class="input-text clave" />
+//               <!--<button type="button" class="iconos fas fa-eye mostrarClave"></button>-->
+//             </div>
+//             <div class="error_pass">
+//               <label id="error_pass"></label>
+//             </div>
+//             <a href="javascript:" id="recuperar_clave" class="link tab-link">¿Olvidaste la Contraseña?</a>
+
+//             <button id="btn-login" class="btn btn btn-success" type="submit"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
+
+// 						</form>
+// 						<!--<button onclick="window.modal1.showModal();">Abrir  ventana modal</button>-->
+
+// 					<div class="panel-body" id="panel-recuperar" style="display:none">
+// 						<!--Formulario de registro-->
+// 						<span class="splash-description"><h4>¿Olvidaste tu Contraseña?</h4></span>
+// 						<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+// 							<div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
+// 							<div class="message">
+// 								<strong>Atencón!</strong>
+// 								<p>Por favor diligencia el email registrado en el sistema, recibirás un correo electrónico con un código de verificación para que puedas restablecer la contraseña.</p>
+// 							</div>
+// 						</div>
+// 						<div class="nexos-messages" id="info_correos"></div>
+// 						<form method=" POST" id="form-recuperar" class="formulario">
+// 									<div class="error-text"></div>
+// 									<input type="text" placeholder="Correo electrónico" class="input-text" id="correo" name="correo"
+// 										autocomplete="off" />
+// 										<label id="error_correo"></label>
+// 									<!--Checkbox Personalizados-->
+// 									<button class="btn" id="btn_recuperar" type="button">Recuperar cuenta</button>
+// 						</form>
+// 					</div>
+//         </div>
+//       </div>
+//     </div>
+//   </div>
+// </div>
+
+// <!-- Modal de loagoin -->
+// <dialog id="modal1">
+// 	<div style="text-align: center;">
+// 		<img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="100" width="100">
+// 		<h3>Solicitud en proceso...</h3>
+// 		<h4>Por favor, espere unos segundos.</h4>
+// 	</div>
+// </dialog>
+// ';
+
 $vista .= '
-<div class="container-fluid" style="height: 100vh;">
-  <div class="row" style="height: 100%;">
-    <input type="hidden" id="id_url_ajax" value="' . BASE_URL . '">
-    <div class="contenedor-login">
-      <!--Slider-->
-      <div class="contenedor-slider">
-        <div class="slider">
-          <!--Slide 1-->
-          <div class="slide fade">
-            <img src="' . BASE_URL . 'views\layout\assets\img\logis14.jpg" alt="" />
-            <div class="contenido-slider">
-              <div class="slider-texto"
-                style="background-color: black; opacity: 0.5; margin-bottom: 0px; margin-left: 0px; height: 35px">
-                <hr style="width: 100%; background-color: yellow; height: 5px; margin-top: 5px" />
-                <h4 style="font-weight: 800; color: #fafafa">Transporte - Logística - Almacenamiento</h4>
-              </div>
-            </div>
-          </div>
 
-          <!--Slide 2-->
-          <div class="slide fade">
-            <img src="' . BASE_URL . 'views\layout\assets\img\logis18.jpg" alt="" />
-            <div class="contenido-slider">
-              <div class="slider-texto"
-                style="background-color: black; opacity: 0.5; margin-bottom: 0px; margin-left: 0px; height: 35px">
-                <hr style="width: 100%; background-color: yellow; height: 5px; margin-top: 5px" />
-                <h4 style="font-weight: 800; color: #fafafa">Transporte Internacional Multimodal</h4>
-              </div>
-            </div>
-          </div>
+<!DOCTYPE html>
+<html lang="es">
 
-          <!--Slide 3-->
-          <div class="slide fade">
-            <img src="' . BASE_URL . 'views\layout\assets\img\logis0.jpg" alt="" />
-            <div class="contenido-slider">
-              <div class="slider-texto"
-                style="background-color: black; opacity: 0.5; margin-bottom: 0px; margin-left: 0px; height: 35px">
-                <hr style="width: 100%; background-color: yellow; height: 5px; margin-top: 5px" />
-                <h4 style="font-weight: 800; color: #fafafa">Seguridad - Control de Tráfico</h4>
-              </div>
-            </div>
-          </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-          <!--Slide 4-->
-          <div class="slide fade">
-            <img src="' . BASE_URL . 'views\layout\assets\img\logis16.jpg" alt="" />
-            <div class="contenido-slider">
-              <div class="slider-texto"
-                style="background-color: black; opacity: 0.5; margin-bottom: 0px; margin-left: 0px; height: 35px">
-                <hr style="width: 100%; background-color: yellow; height: 5px; margin-top: 5px" />
-                <h4 style="font-weight: 800; color: #fafafa">Almacenamiento - Logística</h4>
-              </div>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: "Segoe UI", sans-serif;
+            background: url("' . BASE_URL . 'views/layout/assets/img/fondo.webp") no-repeat center center fixed;
+            /*background: url("' . BASE_URL . 'views/layout/assets/img/fondo.jpg") no-repeat center center fixed;*/
+            /*background: url("img/fondo.jpg") no-repeat center center fixed;*/
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.35);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .login-container {
+            z-index: 2;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .login-box {
+            background: rgba(28, 28, 28, 0.215);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(98, 98, 98, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            backdrop-filter: blur(2px);
+            /* ← Desenfoque principal */
+            -webkit-backdrop-filter: blur(2px);
+            /* Para Safari */
+        }
+
+        .logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .logo img {
+            max-width: 300px;
+            margin: 0;
+        }
+
+        .separator {
+            height: 1px;
+            background-color: #ccc;
+            margin: 10px 0 20px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #ffffff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-label {
+            color: #eee;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 0.1px solid rgb(221, 221, 221);
+            color: white !important;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white !important;
+            border: #fff;
+        }
+
+        .btn-login {
+            background-color: #012A4A;
+            ;
+            /* Azul profundo */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            font-weight: 600;
+        }
+
+        input.form-control {
+            color: rgb(221, 221, 221) !important;
+        }
+
+        input.form-control::placeholder {
+            color: rgb(221, 221, 221) !important;
+        }
+
+        input.form-control:focus {
+            border: 2px solid #077f97;
+            /* Azul celeste brillante */
+            box-shadow: 0 0 5px rgba(2, 134, 161, 0.6);
+        }
+
+        .btn-login:hover {
+            background-color: #003a66;
+            ;
+        }
+
+        footer {
+            background-color: #012A4A;
+            /* Azul oscuro */
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .forgot-password a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="overlay"></div>
+
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">
+                <img src="' . BASE_URL . 'views\layout\assets\img\Icono-01.png" alt="HarmonyGroup">
             </div>
-          </div>
+            <div class="separator"></div>
+            <form>
+                <div class="mb-3 text-start">
+                    <label for="usuario" class="form-label">Numero de Documento</label>
+                    <input type="email" class="form-control" id="user_log" name="user_log" placeholder="">
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="pass" name="pass" placeholder="">
+                </div>
+
+                <button type="submit" id="btn-login" class="btn btn-login w-100">Iniciar Sesión</button>
+            </form>
+
+            <div class="forgot-password">
+                <a href="' . BASE_URL . 'password/recuperar/">¿Olvidaste tu contraseña?</a>
+            </div>
         </div>
-
-        <!--Botones next y prev-->
-        <!--<a href="#" class="prev"><i class="fas fa-chevron-left"></i></a>
-        <a href="#" class="next"><i class="fas fa-chevron-right"></i></a>-->
-
-        <!--dots-->
-        <div class="dots">
-          <!--<span class="dot active"></span>-->
-        </div>
-      </div>
-
-      <!--Formularios-->
-
-      <div class="contenedor-texto">
-        <div class="contenedor-form">
-          <div class="logo">
-            <!--<img src="' . BASE_URL . 'views\layout\assets\img\logo-xx.png" alt="" />-->
-            <img src="' . BASE_URL . 'views\layout\assets\img\logo_nuevo.png" alt="" />
-          </div>
-          <h1 class="titutlo">Harmony Group</h1>
-          <p class="descripcion">Ingrese a su cuenta de servicios.</p>
-          <!--Tabs-->
-          <ul class="tabs-links">
-            <li class="tab-link active">Iniciar Sesión</li>
-            <!-- <li class="tab-link">Registrate</li> -->
-          </ul>
-          <div class="nexos-messages" id="incorrectos"></div>
-          <!--Formulario de login-->
-
-          <form id="formlogin" method="POST" class="formulario active">
-            <div class="error-text">
-              <p>aqui los errores del formulario</p>
-            </div>
-
-            <input type="text" placeholder="Numero de documento" class="input-text" id="user_log" name="user_log"
-              autocomplete="off" />
-            <div class="error_user_log">
-              <label id="error_user_log"></label>
-            </div>
-            <div class="grupo-input">
-              <input type="password" placeholder="Contraseña" id="pass" name="pass" class="input-text clave" />
-              <!--<button type="button" class="iconos fas fa-eye mostrarClave"></button>-->
-            </div>
-            <div class="error_pass">
-              <label id="error_pass"></label>
-            </div>
-            <a href="javascript:" id="recuperar_clave" class="link tab-link">¿Olvidaste la Contraseña?</a>
-
-            <button id="btn-login" class="btn btn btn-success" type="submit"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
-
-						</form>
-						<!--<button onclick="window.modal1.showModal();">Abrir  ventana modal</button>-->
-
-					<div class="panel-body" id="panel-recuperar" style="display:none">
-						<!--Formulario de registro-->
-						<span class="splash-description"><h4>¿Olvidaste tu Contraseña?</h4></span>
-						<div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
-							<div class="icon"><span class="mdi mdi-alert-triangle"></span></div>
-							<div class="message">
-								<strong>Atencón!</strong>
-								<p>Por favor diligencia el email registrado en el sistema, recibirás un correo electrónico con un código de verificación para que puedas restablecer la contraseña.</p>
-							</div>
-						</div>
-						<div class="nexos-messages" id="info_correos"></div>
-						<form method=" POST" id="form-recuperar" class="formulario">
-									<div class="error-text"></div>
-									<input type="text" placeholder="Correo electrónico" class="input-text" id="correo" name="correo"
-										autocomplete="off" />
-										<label id="error_correo"></label>
-									<!--Checkbox Personalizados-->
-									<button class="btn" id="btn_recuperar" type="button">Recuperar cuenta</button>
-						</form>
-					</div>
-        </div>
-      </div>
     </div>
-  </div>
-</div>
 
-<!-- Modal de loagoin -->
-<dialog id="modal1">
-	<div style="text-align: center;">
-		<img src="' . BASE_URL . 'public/img/nexos_loading.gif" height="100" width="100">
-		<h3>Solicitud en proceso...</h3>
-		<h4>Por favor, espere unos segundos.</h4>
-	</div>
-</dialog>
+    <footer>
+        © 2025 HarmonyGroup - Todos los derechos reservados
+    </footer>
+
+	</body>
+
+</html>
 ';
 
 /***** CARGA DE ARCHIVOS JS DE LA VISTA  para hacer funcional los menus y demás elementos *****/

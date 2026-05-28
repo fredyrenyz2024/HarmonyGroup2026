@@ -1,0 +1,344 @@
+<div class="nexos-content">
+    <div class="row">
+        <table cellpadding="0" cellspacing="0" style="color:#fff;font-weight: 300; width: 100%;">
+            <tbody>
+                <tr>
+                    <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
+                        Se encontraron total de <span class="badge badge-phoenix badge-phoenix-secondary " id="num_vehiculos_totales"></span> vehiculos en despacho
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="progress" style="height: 20px; font-size: 0.85rem;width: 100%;">
+            <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FFFF6C; color:#000;">
+                Amarillo: 30 Min
+            </div>
+            <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FF9E5E; color:#000;">
+                Naranja: 60 Min
+            </div>
+            <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FF8891; color:#000;">
+                Rojo: 90 Min
+            </div>
+            <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#DDBBFF; color:#000;">
+                Violeta: 120 Min
+            </div>
+        </div>
+
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%;color:#fff;font-weight: 300;padding: 1px 1px 1px;">
+            <tbody>
+                <tr>
+                    <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
+                        Se encontraron total de <span class="badge badge-phoenix badge-phoenix-secondary " id="num_vehiculos_seguimiento"></span> vehiculos en seguimiento
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table id="tbl_Manifiestos_seguimiento" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size: 12px;border-top: #FFFFFF 1px solid;">
+            <thead style="background-color:#332D2D;">
+                <tr>
+                    <th style="color: white;">Manifiesto</th>
+                    <th style="color: white;">Tiempo</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Ruta</th>
+                    <th style="color: white;">Vehículo</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Conductor</th>
+                    <th style="color: white;">Celular</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Cliente</th>
+                    <th style="color: white;">Sitio</th>
+                    <th style="color: white;">Fecha Hora</th>
+                    <!-- <th style="color: white; white-space: nowrap;">Observación</th> -->
+                    <th style="color: white; white-space: nowrap;">Usuario</th>
+                </tr>
+            </thead>
+            <tbody id="tablero"></tbody>
+        </table>
+        <!-- Tabla de llegada -->
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#fff;font-weight: 300;">
+            <tbody>
+                <tr>
+                    <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
+                        Se encontraron <span class="badge badge-phoenix badge-phoenix-secondary" id="num_manifiestos_llegada"></span> Manifiestos sin darle llegada
+                    </td>
+                </tr>
+                <tr>
+                </tr>
+            </tbody>
+        </table>
+        <!-- <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;">
+            <thead>
+                <tr>
+                    <td class="text-end" style="border: 1px solid #ddd;padding: 1px 1px 1px;width: auto; white-space: nowrap;" colspan="4">
+                        <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="http://principal.nexosapp.com/public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                    </td>
+                </tr>
+            </thead>
+        </table> -->
+
+        <table class="table" cellpadding="0" cellspacing="0" border="0" style="width: 100%;font-size: 11px;border-bottom: 1px solid #332D2D;height: 5px;padding-left: 25px;" id="informe_placas_asignadas">
+            <thead style="border-collapse: collapse;background-color: #FBFBFB;color:#332D2D;">
+                <tr>
+                    <th style="text-align: center; width: auto; white-space: nowrap;padding-left: 25px;">Manifiesto</th>
+                    <th style="width: auto; white-space: nowrap;">Tipo Manifiesto</th>
+                    <th style="width: auto; white-space: nowrap;">Agencia</th>
+                    <th style="width: auto; white-space: nowrap;">Origen</th>
+                    <th style="width: auto; white-space: nowrap;">Destino</th>
+                    <th style="width: auto; white-space: nowrap;">Mercancias</th>
+                    <th style="width: auto; white-space: nowrap;">Dta</th>
+                    <th style="width: auto; white-space: nowrap;">Vehículo</th>
+                    <th style="width: auto; white-space: nowrap;">Conductor</th>
+                    <th style="width: auto; white-space: nowrap;">Celular</th>
+                    <th style="width: auto; white-space: nowrap;">Cliente</th>
+                    <th style=" white-space: nowrap;">Novedad</th>
+                    <th style=" white-space: nowrap;">Fecha Hora</th>
+                    <th style=" white-space: nowrap;">Sitio</th>
+                    <th style=" white-space: nowrap;">Observación</th>
+                    <th style=" white-space: nowrap;">Usuario</th>
+                </tr>
+            </thead>
+            <tbody id="tablero_llegada" style="font-size: 7pt;"></tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Offcanvas de seguimiento -->
+<!-- <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Right Offcanvas</button> -->
+<div class="offcanvas offcanvas-end w-100" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+        <h5 id="offcanvasRightLabel">Seguimiento Ruta</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-1 overflow-x-hidden">
+
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
+                                <b>Información Principal</b>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;margin-bottom: 10px;font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Manifiesto:</th>
+                            <td class="manifiesto gif-cell" style="border: 1px solid #ddd;padding: 1px;"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Origen: </th>
+                            <td class="origen gif-cell" style="border: 1px solid #ddd;padding: 1px;"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Agencia </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="agencia gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Destino </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="destino gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Conductor </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="conductor gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Ruta </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="ruta gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                C.C. </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="documento gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Fecha Salida </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="fecha-salida gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Celular </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="celular gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Fecha planeada Llegada </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="fecha-llegada gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Telefono </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="telefono gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Fecha Creación </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="fecha-creacion gif-cell"><?= date('Y-m-d H:i:s'); ?></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Marca </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="marca gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Placa </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="placa gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Linea </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="linea gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Configuración </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="configuración"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Color </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="color gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Carroceria </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="carroceria gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Operador GPS </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="operador-gps gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Modelo </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="modelo gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Usuario GPS </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="usuario-gps gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">ID
+                                GPS </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="id-gps gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">URL
+                                GPS </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;"><a class="url-gps gif-cell" target="framename"></a></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Clave GPS </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="clave-gps gif-cell"></td>
+                        </tr>
+                        <tr>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Remolque </th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="remolque gif-cell"></td>
+                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
+                                Usuario</th>
+                            <td style="border: 1px solid #ddd;padding: 1px;" class="usuario-salida gif-cell"></td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" style="margin-top:-15px;">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
+                                <b>Información de Remesas en Seguimiento</b>
+                            </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Orden Carga</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Remesa</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Fecha Est. Entrega</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Peso</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Volumen</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Empaque </th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Mercancia</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Cliente</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Remitente</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Destinatario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl_informacion" style="font-size: 10px;border-bottom: 1px #ddd solid;border-right:1px #ddd solid;"></tbody>
+                </table>
+            </div>
+
+            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" id="plan_ruta_lista">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
+                                <b>Información el plan de ruta</b>
+                            </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-hover table-sm" style="font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th class="text-start" style="width: auto; white-space: nowrap;">Punto</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap;">Fecha/Hora Control</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap;">Novedad</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap;">Municipio</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap;">Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="panel_control_plan_ruta" class="table-bordered"></tbody>
+                </table>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div id="contenido-controlador"></div>
+            </div>
+
+            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" id="notas_controlador">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
+                                <b>Información de Notas del Controlador</b>
+                            </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="hcontenedor">
+                    <!-- <div class="table-responsive"> </div> -->
+                    <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Lugar</th>
+                                <th class="text-center">Hora/Fecha Control</th>
+                                <th class="text-center">Novedad</th>
+                                <th class="text-center" style="width: 550px;">Observación</th>
+                                <th class="text-center">Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody id="seguimiento_real"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<!-- Left Offcanvas-->
+
+
+
+
+
+
+
+
+
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>

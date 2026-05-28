@@ -118,6 +118,7 @@ class proveedoresModel extends Model
 					WHERE cp.numero_documento="' . $docu . '" AND ap.actividad="' . $acti . '"
 					ORDER BY cp.numero_documento DESC';
 			}
+			//echo $sql;
 		}
 		if ($tipo == '4') { //proveedores
 			$acti = '';
@@ -234,12 +235,163 @@ class proveedoresModel extends Model
 					WHERE cp.numero_documento="' . $docu . '" ORDER BY cp.numero_documento DESC';
 			}
 		}
-		// $return = $this->_db->getConsulta($sql);
-		$return = $this->_db3->prepare($sql);
-		$return->execute();
-		$return = $return->fetchAll(PDO::FETCH_ASSOC);
+		$return = $this->_db->getConsulta($sql);
+
+		// var_dump($return);
+		// exit(0);
+
+
 		return $return;
 	}
+
+	// public function getProveedores($tipo, $valor, $name, $docu, $param1, $param2)
+	// {
+	// 	if ($tipo == '1' || $tipo == '2' || $tipo == '3') { //otros actores
+	// 		$acti = '';
+	// 		if ($tipo == '1') {
+	// 			$acti = 'Propietario Vehiculo';
+	// 		}
+	// 		if ($tipo == '2') {
+	// 			$acti = 'Poseedor Vehiculo';
+	// 		}
+	// 		if ($tipo == '3') {
+	// 			$acti = 'Conductor';
+	// 		}
+	// 		if ($valor == 'name') {
+	// 			$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 				FROM cmx_proveedores cp
+	// 				INNER JOIN cmx_municipios cm ON cp.id_municipio = cm.id
+	// 				INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 				WHERE  cp.nombre LIKE  "%' . $name . '%" AND ap.actividad="' . $acti . '"
+	// 				ORDER BY nombre ASC';
+	// 		}
+	// 		if ($valor == 'num') {
+	// 			$sql = 'SELECT cp.*, 
+	// 				CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad,ap.actividad
+	// 				FROM cmx_proveedores cp
+	// 				INNER JOIN cmx_municipios cm ON cp.id_municipio = cm.id
+	// 				INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 				WHERE cp.numero_documento="' . $docu . '"
+	// 				AND ap.actividad="' . $acti . '"
+	// 				ORDER BY cp.numero_documento DESC';
+	// 		}
+	// 		//echo $sql;
+	// 	}
+	// 	if ($tipo == '4') { //proveedores
+	// 		$acti = '';
+	// 		if ($tipo == '1') {
+	// 			$acti = 'Propietario Vehiculo';
+	// 		}
+	// 		if ($tipo == '2') {
+	// 			$acti = 'Poseedor Vehiculo';
+	// 		}
+	// 		if ($tipo == '3') {
+	// 			$acti = 'Conductor';
+	// 		}
+	// 		if ($valor == 'prove') {
+	// 			$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 				FROM cmx_proveedores cp
+	// 				INNER JOIN cmx_municipios cm ON cp.id_municipio=cm.id
+	// 				INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 				LEFT JOIN cmx_proveedores_detalle pd ON cp.id=pd.id_proveedor
+	// 				WHERE ap.actividad="Proveedor" AND pd.cod_tipo_proveedor=' . $param1 . ' ORDER BY cp.nombre ASC';
+	// 		}
+	// 		if ($valor == 'name') {
+	// 			$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 				FROM cmx_proveedores cp
+	// 				INNER JOIN cmx_municipios cm ON cp.id_municipio = cm.id
+	// 				INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 				WHERE  cp.nombre LIKE  "%' . $name . '%" AND ap.actividad="Proveedor" ORDER BY cp.nombre ASC';
+	// 		}
+	// 		if ($valor == 'num') {
+	// 			$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 				FROM cmx_proveedores cp
+	// 				INNER JOIN cmx_municipios cm ON cp.id_municipio = cm.id
+	// 				INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 				WHERE cp.numero_documento="' . $docu . '" AND ap.actividad="Proveedor" ORDER BY cp.numero_documento DESC';
+	// 		}
+	// 		if ($valor == 'geo') {
+	// 			$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 				FROM cmx_proveedores cp
+	// 				INNER JOIN cmx_municipios cm ON cp.id_municipio=cm.id
+	// 				INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 				LEFT JOIN cmx_proveedores_detalle pd ON cp.id=pd.id_proveedor
+	// 				WHERE ap.actividad="Proveedor" AND pd.cod_pais=' . $param1 . '
+	// 				ORDER BY cp.nombre ASC';
+	// 			//echo $sql;
+	// 		}
+	// 		if ($valor == 'servicio') {
+	// 			if ($param1 == 'Transporte') {
+	// 				$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 					FROM cmx_proveedores cp
+	// 					INNER JOIN cmx_municipios cm ON cp.id_municipio=cm.id
+	// 					INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 					LEFT JOIN cmx_proveedores_detalle pd ON cp.numdoc_nexos=pd.id_proveedor
+	// 					WHERE  ap.actividad="Proveedor" AND pd.tipo_servicio="Transporte" AND pd.tipo_servicio_detalle2="' . $param2 . '" ORDER BY cp.nombre ASC';
+	// 			}
+	// 			if ($param1 == 'Porteadores') {
+	// 				$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 					FROM cmx_proveedores cp
+	// 					INNER JOIN cmx_municipios cm ON cp.id_municipio=cm.id
+	// 					INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 					LEFT JOIN cmx_proveedores_detalle pd ON cp.numdoc_nexos=pd.id_proveedor
+	// 					WHERE ap.actividad="Proveedor" AND pd.tipo_servicio="Porteadores" AND pd.tipo_servicio_detalle1="' . $param2 . '" ORDER BY cp.nombre ASC';
+	// 			}
+	// 			if ($param1 == 'Agenciamiento de carga') {
+	// 				$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 					FROM cmx_proveedores cp
+	// 					INNER JOIN cmx_municipios cm ON cp.id_municipio=cm.id
+	// 					INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 					LEFT JOIN cmx_proveedores_detalle pd ON cp.numdoc_nexos=pd.id_proveedor
+	// 					WHERE ap.actividad="Proveedor" AND pd.tipo_servicio="Agenciamiento de carga" AND pd.tipo_servicio_detalle1="' . $param2 . '" ORDER BY cp.nombre ASC';
+	// 			}
+	// 			if ($param1 == 'Tramites Administrativos') {
+	// 				$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 					FROM cmx_proveedores cp
+	// 					INNER JOIN cmx_municipios cm ON cp.id_municipio=cm.id
+	// 					INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 					LEFT JOIN cmx_proveedores_detalle pd ON cp.numdoc_nexos=pd.id_proveedor
+	// 					WHERE ap.actividad="Proveedor" AND pd.tipo_servicio="Tramites Administrativos" AND pd.tipo_servicio_detalle1="' . $param2 . '" ORDER BY cp.nombre ASC';
+	// 			}
+	// 			if ($param1 !== 'Transporte' && $param1 !== 'Porteadores' &&  $param1 !== 'Agenciamiento de carga' && $param1 !== 'Tramites Administrativos') {
+	// 				$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 					FROM cmx_proveedores cp
+	// 					INNER JOIN cmx_municipios cm ON cp.id_municipio=cm.id
+	// 					INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 					LEFT JOIN cmx_proveedores_detalle pd ON cp.numdoc_nexos=pd.id_proveedor
+	// 					WHERE ap.actividad="Proveedor" AND pd.tipo_servicio="' . $param1 . '" ORDER BY cp.nombre ASC';
+	// 			}
+	// 		}
+	// 	}
+	// 	if ($tipo == '5') { //todos los actores
+	// 		$acti = '';
+	// 		if ($tipo == '1') {
+	// 			$acti = 'Propietario';
+	// 		}
+	// 		if ($tipo == '2') {
+	// 			$acti = 'Poseedor';
+	// 		}
+	// 		if ($tipo == '3') {
+	// 			$acti = 'Conductor';
+	// 		}
+	// 		if ($valor == 'name') {
+	// 			$sql = 'SELECT cp.*, CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad
+	// 				FROM cmx_proveedores cp
+	// 				INNER JOIN cmx_municipios cm ON cp.id_municipio = cm.id
+	// 				INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 				WHERE  cp.nombre LIKE  "%' . $name . '%" ORDER BY nombre ASC';
+	// 		}
+	// 		if ($valor == 'num') {
+	// 			$sql = 'SELECT cp.*, 
+	// 				CONCAT(cm.municipio, " (", cm.depto, " - ", cm.pais, ")") AS ciudad, ap.actividad FROM cmx_proveedores cp
+	// 				INNER JOIN cmx_municipios cm ON cp.id_municipio = cm.id
+	// 				INNER JOIN cmx_actividad_proveedor ap ON cp.numdoc_nexos=ap.id_proveedor
+	// 				WHERE cp.numero_documento="' . $docu . '" ORDER BY cp.numero_documento DESC';
+	// 		}
+	// 	}
+	// 	$return = $this->_db->getConsulta($sql);
+	// 	return $return;
+	// }
 
 	public function getListaProveedores()
 	{
@@ -391,10 +543,9 @@ class proveedoresModel extends Model
 			$fechaHoraActual =  date("Y-m-d H:i:s");
 			$formatoFecha = 'Y-m-d H:i:s';
 			# consulta mysql para los tres de forma lineas
-			if (isset($documentos->documento1) && isset($documentos->documento2) && isset($documentos->documento3) || isset($documentos->documento4)) {
+			if (isset($documentos->documento1) && isset($documentos->documento2) && isset($documentos->documento3)) {
 				foreach ($documentos as $valor) {
-					$sql_propietario = $this->_db3->prepare("SELECT token_actual, fecha_vigencia FROM cmx_prefiltro_actualizar WHERE id_solicitud_u=:Estudio AND token_actual=:Token_actual AND estado_token=:Estado 
-					AND (documento_propietario=:DocumentoPropietario OR documento_poseedor=:DocumentoPoseedor OR documento_conductor=:DocumentoConductor OR documento_propi_trailer=:DocumentoPropietaioTrailer)");
+					$sql_propietario = $this->_db3->prepare("SELECT token_actual, fecha_vigencia FROM cmx_prefiltro_actualizar WHERE id_solicitud_u = :Estudio AND token_actual = :Token_actual AND estado_token = :Estado AND (documento_propietario = :DocumentoPropietario OR documento_poseedor = :DocumentoPoseedor OR documento_conductor = :DocumentoConductor OR documento_propi_trailer=:DocumentoPropietaioTrailer)");
 					$sql_propietario->bindParam(':Estudio', $estudio, PDO::PARAM_STR);
 					$sql_propietario->bindParam(':Token_actual', $token, PDO::PARAM_STR);
 					$sql_propietario->bindParam(':Estado', $estado, PDO::PARAM_STR);
@@ -541,7 +692,7 @@ class proveedoresModel extends Model
 	public function Consultar_Recurso_Estudio($estudio)
 	{
 		$response = [];
-		$sql = $this->_db3->prepare("SELECT propietario,documento_propietario,poseedor,documento_poseedor,conductor,documento_conductor,id_solicitud_u AS ESTUDIO, trailer,documento_propi_trailer FROM cmx_prefiltro_actualizar WHERE id_solicitud_u=:Estudio");
+		$sql = $this->_db3->prepare("SELECT propietario,documento_propietario,poseedor,documento_poseedor,conductor,documento_conductor,id_solicitud_u AS ESTUDIO, trailer,documento_propi_trailer  FROM cmx_prefiltro_actualizar WHERE id_solicitud_u=:Estudio");
 		$sql->bindParam(':Estudio', $estudio, PDO::PARAM_STR);
 		$sql->execute();
 		$resultado = $sql->fetch(PDO::FETCH_ASSOC);
@@ -554,24 +705,19 @@ class proveedoresModel extends Model
 				'documento_conductor' => $resultado['documento_conductor'],
 				'documento_propi_trailer' => $resultado['documento_propi_trailer'],
 			];
-			// Recorrer el array resultante
-			// foreach ($array_resultado as $key => $value) {
-			// 	// $sql_validado = $this->_db3->prepare("SELECT numero_documento FROM cmx_proveedores WHERE numero_documento=:documento");
-			// 	$sql_validado = $this->_db3->prepare("SELECT numero_documento FROM cmx_proveedores WHERE numero_documento=:documento");
-			// 	$sql_validado->bindParam(':documento', $value, PDO::PARAM_STR);
-			// 	$sql_validado->execute();
-			// 	$resultado_validacion = $sql_validado->fetchAll(PDO::FETCH_ASSOC);
-			// }
-			$sql = $this->_db3->prepare("SELECT v.id_solicitud_u AS ESTUDIO,pro.numero_documento AS Propietario, pos.numero_documento AS Poseedor,con.numero_documento AS Conductor,pt.numero_documento AS Propietario_Trailer FROM cmx_prefiltro_actualizar v
-			LEFT JOIN cmx_proveedores pro ON v.documento_propietario=pro.numero_documento
-			LEFT JOIN cmx_proveedores pos ON v.documento_poseedor=pos.numero_documento
-			LEFT JOIN cmx_proveedores con ON v.documento_conductor=con.numero_documento
-			LEFT JOIN cmx_proveedores pt ON v.documento_propi_trailer=pt.numero_documento
-			WHERE v.id_solicitud_u=:Numdoc");
-			$sql->bindParam(':Numdoc', $estudio, PDO::PARAM_STR);
-			$sql->execute();
-			$resultado_validacion = $sql->fetch(PDO::FETCH_ASSOC);
 
+			// print_r($array_resultado);
+
+			// Recorrer el array resultante
+			foreach ($array_resultado as $key => $value) {
+				// echo $key . ': ' . $value . '<br>';
+				$sql_validado = $this->_db3->prepare("SELECT numero_documento FROM cmx_proveedores WHERE numero_documento=:documento");
+				$sql_validado->bindParam(':documento', $value, PDO::PARAM_STR);
+				$sql_validado->execute();
+				$resultado_validacion = $sql_validado->fetchAll(PDO::FETCH_ASSOC);
+				// echo $value . '<br>';
+				// print_r($resultado_validacion
+			}
 			if ($resultado_validacion) {
 				$response = [
 					'resultado' => $resultado,
@@ -585,9 +731,21 @@ class proveedoresModel extends Model
 			}
 		} else {
 			echo "error al consultar";
+			exit();
 		}
 		return $response;
 	}
+
+	// public function Cosultar_datos_estudio($dato)
+	// {
+	// 	$fecha = date("Y-m-d 12:00:00");
+	// 	$sql = $this->_db3->prepare("SELECT * FROM cmx_prefiltro_actualizar WHERE documento_conductor=:Documento AND fecha_vigencia=:fecha");
+	// 	$sql->bindParam(':Documento', $dato, PDO::PARAM_STR);
+	// 	$sql->bindParam(':fecha', $fecha, PDO::PARAM_STR);
+	// 	$sql->execute();
+	// 	$resultado = $sql->fetch(PDO::FETCH_ASSOC);
+	// 	return $resultado;
+	// }
 
 	public function Cosultar_datos_estudio($dato, $actividad)
 	{
@@ -626,14 +784,16 @@ class proveedoresModel extends Model
 		return $response;
 	}
 
+
 	public function Cosultar_datos_estudio_prefiltro($dato)
 	{
+		// -- $sql = $this->_db3->prepare("SELECT v.documento_propietario, v.documento_tenedor, v.documento_conductor,v.documento_propietario_trailer, v.id AS ESTUDIO,pro.numero_documento AS Propietario, pos.numero_documento AS Poseedor,con.numero_documento AS Conductor,pt.numero_documento AS Propietario_Trailer  FROM cmx_vehiculos_preestudio v
 		$response = [];
-		$sql = $this->_db3->prepare("SELECT v.id AS ESTUDIO,pro.numero_documento AS Propietario, pos.numero_documento AS Poseedor,con.numero_documento AS Conductor,pt.numero_documento AS Propietario_Trailer FROM cmx_vehiculos_preestudio v
+		$sql = $this->_db3->prepare("SELECT v.id AS ESTUDIO,pro.numero_documento AS Propietario, pos.numero_documento AS Poseedor,con.numero_documento AS Conductor,pt.numero_documento AS Propietario_Trailer  FROM cmx_vehiculos_preestudio v
 		 LEFT JOIN cmx_proveedores pro ON v.documento_propietario=pro.numero_documento
-     LEFT JOIN cmx_proveedores pos ON v.documento_tenedor=pos.numero_documento
-     LEFT JOIN cmx_proveedores con ON v.documento_conductor=con.numero_documento
-     LEFT JOIN cmx_proveedores pt ON v.documento_propietario_trailer=pt.numero_documento
+            LEFT JOIN cmx_proveedores pos ON v.documento_tenedor=pos.numero_documento
+            LEFT JOIN cmx_proveedores con ON v.documento_conductor=con.numero_documento
+            LEFT JOIN cmx_proveedores pt ON v.documento_propietario_trailer=pt.numero_documento
 		 WHERE v.id=:Numdoc");
 		$sql->bindParam(':Numdoc', $dato, PDO::PARAM_STR);
 		$sql->execute();
@@ -707,7 +867,6 @@ class proveedoresModel extends Model
 			return false;
 		}
 	}
-
 	public function Insertar_Propietario($datos)
 	{
 		$response = []; // Inicializa la variable de respuesta
@@ -767,8 +926,7 @@ class proveedoresModel extends Model
 						$response = ['success' => true, 'message' => 'Propietario insertado correctamente en NEXOSAPP.'];
 					} else {
 						// Falla en la actualización, revertir la transacción
-						// $response = false;
-						$response = ['success' => false, 'message' => 'Propietario no insertado correctamente en NEXOSAPP.'];
+						$response = false;
 						// Puedes lanzar una excepción específica aquí si lo deseas
 						$mensajeError = "Error al insertar las referencias del conductor." . $datos['numero_documento'] . " El dia " . date("Y-m-`d");
 						error_log($mensajeError . "\n", 3, "error_log.txt");
@@ -777,7 +935,7 @@ class proveedoresModel extends Model
 				}
 			} else {
 				// Falla en la actualización, revertir la transacción
-				$response = array('success' => false, 'message' => 'Proveedor no  <strong> ingresado </strong> correctamente en NexosApp.');
+				$response = array('numero' => 400, 'mensaje' => 'Proveedor no  <strong> ingresado </strong> correctamente en NexosApp.');
 				// Puedes lanzar una excepción específica aquí si lo deseas
 				$mensajeError = "Error al insertar proveedor en la base de datos." . date("Y-m-d");
 				error_log($mensajeError . "\n", 3, "error_log.txt");
@@ -945,27 +1103,68 @@ class proveedoresModel extends Model
 			/* Insertardocumentos */
 			if ($resultado) {
 				$cont++;
-				$ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
-				$ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
-				$sql = "UPDATE cmx_proveedores SET documentos_soporte = '$ruta_base' WHERE numdoc_nexos = " . $numdoc_cabecera . "";
-				$consulta_act_proveedor = $this->_db3->prepare($sql);
-				$consulta_act_proveedor->execute();
+				// $ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
+				// $ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
+				// $sql = "UPDATE cmx_proveedores SET documentos_soporte = '$ruta_base' WHERE numdoc_nexos = " . $numdoc_cabecera . "";
+				// $consulta_act_proveedor = $this->_db3->prepare($sql);
+				// $consulta_act_proveedor->execute();
 
-				// Crear directorio y mover archivo
+				// // Crear directorio y mover archivo
+				// if (!is_dir($ruta)) {
+				// 	mkdir($ruta, 0775, true);
+				// }
+				// if ($datos['documentos'] != null) {
+				// 	$nombre = $datos['documentos']['name'];
+				// 	$rutaTemporal = $datos['documentos']['tmp_name'];
+				// 	$src = $ruta . $nombre;
+				// 	// move_uploaded_file($rutaTemporal, $src);
+				// 	if (move_uploaded_file($rutaTemporal, $src)) {
+				// 		// Cambiar permisos al archivo subido
+				// 		chmod($src, 644);
+				// 	} else {
+				// 		echo "Error al mover el archivo.";
+				// 	}
+				// }
+
+				$ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
+
+				// Crear carpeta si no existe
 				if (!is_dir($ruta)) {
 					mkdir($ruta, 0775, true);
 				}
-				if ($datos['documentos'] != null) {
-					$nombre = $datos['documentos']['name'];
+
+				if (!empty($datos['documentos']) && $datos['documentos']['error'] === UPLOAD_ERR_OK) {
+					// Crear un nombre único para evitar conflictos
+					$aleatorio1 = rand(10000, 90000);
+					$aleatorio2 = rand(10000, 90000);
+					$nombreOriginal = basename($datos['documentos']['name']);
+					$nombreFinal = $aleatorio1 . "_" . $aleatorio2 . "_" . $nombreOriginal;
+
 					$rutaTemporal = $datos['documentos']['tmp_name'];
-					$src = $ruta . $nombre;
-					if (move_uploaded_file($rutaTemporal, $src)) {
-						// Cambiar permisos al archivo subido
-						chmod($src, 0644);
+					$destino = $ruta . $nombreFinal;
+
+					if (move_uploaded_file($rutaTemporal, $destino)) {
+						chmod($destino, 0644); // Permisos seguros de lectura
+
+						// Construir ruta completa para guardar en BD
+						$rutaCompleta = "public/files/proveedores/" . $numdoc_cabecera . "/" . $nombreFinal;
+
+						// Actualizar en la base de datos
+						$sql = "UPDATE cmx_proveedores SET documentos_soporte = :ruta WHERE numdoc_nexos = :numdoc";
+
+						$stmt = $this->_db3->prepare($sql);
+						$stmt->bindParam(':ruta', $rutaCompleta);
+						$stmt->bindParam(':numdoc', $numdoc_cabecera, PDO::PARAM_STR);
+
+						if (!$stmt->execute()) {
+							$mensajeError = "Error al actualizar la BD para proveedor $numdoc_cabecera a las " . date("Y-m-d H:i:s");
+							error_log($mensajeError . "\n", 3, "error_log.txt");
+						}
 					} else {
 						echo "Error al mover el archivo.";
 					}
-					// move_uploaded_file($rutaTemporal, to: $src);
+				} else {
+					echo "No se subió ningún archivo.";
 				}
 
 				$sql_log = "INSERT INTO cmx_log_proveedores (id_usuario,id_proveedor,operacion,fecha_hora_operacion) VALUES($id_usuario,$numdoc_cabecera,'Crear',NOW())";
@@ -1053,6 +1252,7 @@ class proveedoresModel extends Model
 			// Mostrar un mensaje amigable al usuario
 			$response = ['success' => false, 'message' => 'Ha ocurrido un error al insertar un conductor. Por favor, inténtelo nuevamente más tarde.</br>Por favor comunicarse con el equipo de desarrollo.'];
 		}
+
 		return $response;
 	}
 
@@ -1327,38 +1527,85 @@ class proveedoresModel extends Model
 					$crear_solicitud->bindParam(':id_proveedor', $numdoc_cabecera, PDO::PARAM_STR);
 					$result = $crear_solicitud->execute();
 					if ($result) {
-						$ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
-						$ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
+						// $ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
+						// $ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
 
+						// if (!is_dir($ruta)) {
+						// 	mkdir($ruta, 0775, true);
+						// }
+
+						// if ($datos['documentos'] !== null) {
+						// 	$nombre = $datos['documentos']['name'];
+						// 	$rutaTemporal = $datos['documentos']['tmp_name'];
+						// 	$carpeta = $ruta;
+						// 	$src = $carpeta . $nombre;
+						// 	// move_uploaded_file($rutaTemporal, $src);
+						// 	if (move_uploaded_file($rutaTemporal, $src)) {
+						// 		chmod($src, 644);
+						// 		// El archivo se subió correctamente
+						// 		// Ejecuta otra acción aquí, por ejemplo, actualiza la base de datos, etc.
+						// 		// echo "El archivo se ha subido correctamente.";
+						// 		$sql = "UPDATE cmx_proveedores SET documentos_soporte = '$ruta_base' WHERE numdoc_nexos = " . $numdoc_cabecera . "";
+						// 		$consulta_act_proveedor = $this->_db3->prepare($sql);
+						// 		$consulta_act_proveedor->execute();
+						// 	} else {
+						// 		// Hubo un error al subir el archivo
+						// 		$mensajeError = "Error al mover el archivo a la carpeta de destino." . date("Y-m-d H:i:s");
+						// 		error_log($mensajeError . "\n", 3, "error_log.txt");
+						// 		echo "Hubo un error al subir el archivo.";
+						// 		// Ejecuta otra acción aquí en caso de error, por ejemplo, devuelve una respuesta de error al usuario.
+						// 	}
+						// } else {
+						// 	// Cuando no hay documentos para subir
+						// 	$mensajeError = "No se han proporcionado documentos para subir." . date("Y-m-d");
+						// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+						// 	// throw new Exception("Error al guardar proveedor 1");
+						// }
+
+						$ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
+
+						// Crear carpeta si no existe
 						if (!is_dir($ruta)) {
-							mkdir($ruta, 0777, true);
+							mkdir($ruta, 0775, true);
 						}
 
-						if ($datos['documentos'] !== null) {
-							$nombre = $datos['documentos']['name'];
+						if (!empty($datos['documentos']) && $datos['documentos']['error'] === UPLOAD_ERR_OK) {
+							// Generar nombre único para evitar sobrescribir archivos
+							$aleatorio1 = rand(10000, 90000);
+							$aleatorio2 = rand(10000, 90000);
+							$nombreOriginal = basename($datos['documentos']['name']);
+							$nombreFinal = $aleatorio1 . "_" . $aleatorio2 . "_" . $nombreOriginal;
+
 							$rutaTemporal = $datos['documentos']['tmp_name'];
-							$carpeta = $ruta;
-							$src = $carpeta . $nombre;
-							// move_uploaded_file($rutaTemporal, $src);
-							if (move_uploaded_file($rutaTemporal, $src)) {
-								// El archivo se subió correctamente
-								// Ejecuta otra acción aquí, por ejemplo, actualiza la base de datos, etc.
-								// echo "El archivo se ha subido correctamente.";
-								$sql = "UPDATE cmx_proveedores SET documentos_soporte = '$ruta_base' WHERE numdoc_nexos = " . $numdoc_cabecera . "";
-								$consulta_act_proveedor = $this->_db3->prepare($sql);
-								$consulta_act_proveedor->execute();
+							$destino = $ruta . $nombreFinal;
+
+							if (move_uploaded_file($rutaTemporal, $destino)) {
+								chmod($destino, 0644); // Permisos seguros
+
+								// Ruta completa que se guardará en la BD
+								$rutaCompleta = "public/files/proveedores/" . $numdoc_cabecera . "/" . $nombreFinal;
+
+								// Actualizar la base de datos con la ruta completa
+								$sql = "UPDATE cmx_proveedores SET documentos_soporte = :ruta WHERE numdoc_nexos = :numdoc";
+
+								$stmt = $this->_db3->prepare($sql);
+								$stmt->bindParam(':ruta', $rutaCompleta, PDO::PARAM_STR);
+								$stmt->bindParam(':numdoc', $numdoc_cabecera, PDO::PARAM_STR);
+
+								if (!$stmt->execute()) {
+									$mensajeError = "Error al actualizar la BD para proveedor $numdoc_cabecera a las " . date("Y-m-d H:i:s");
+									error_log($mensajeError . "\n", 3, "error_log.txt");
+								}
 							} else {
-								// Hubo un error al subir el archivo
-								$mensajeError = "Error al mover el archivo a la carpeta de destino." . date("Y-m-d H:i:s");
+								// Error al mover el archivo
+								$mensajeError = "Error al mover el archivo para el proveedor $numdoc_cabecera a las " . date("Y-m-d H:i:s");
 								error_log($mensajeError . "\n", 3, "error_log.txt");
 								echo "Hubo un error al subir el archivo.";
-								// Ejecuta otra acción aquí en caso de error, por ejemplo, devuelve una respuesta de error al usuario.
 							}
 						} else {
-							// Cuando no hay documentos para subir
-							$mensajeError = "No se han proporcionado documentos para subir." . date("Y-m-d");
+							// No hay archivo para subir
+							$mensajeError = "No se han proporcionado documentos para el proveedor $numdoc_cabecera a las " . date("Y-m-d");
 							error_log($mensajeError . "\n", 3, "error_log.txt");
-							// throw new Exception("Error al guardar proveedor 1");
 						}
 
 						$sql_block = $this->_db3->prepare("INSERT INTO cmx_estado_bloqueo (nombre_proceso,estado_proceso,id_objeto,tipo_objeto,fecha,hora,usuario) 
@@ -1601,7 +1848,6 @@ class proveedoresModel extends Model
 							$result_poseedor = $sql_poseedor->execute();
 							if ($result_poseedor) {
 								$this->_db3->commit();
-								// $response = true;
 								$response = ['success' => true, 'message' => 'Poseedor y Propietario insertado correctamente en NEXOSAPP.'];
 							} else {
 								// Falla en la actualización, revertir la transacción
@@ -1636,39 +1882,87 @@ class proveedoresModel extends Model
 						$crear_solicitud->bindParam(':id_proveedor', $numdoc_cabecera, PDO::PARAM_STR);
 						$result = $crear_solicitud->execute();
 						if ($result) {
-							$ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
-							$ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
+							// $ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
+							// $ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
 
+							// if (!is_dir($ruta)) {
+							// 	mkdir($ruta, 0775, true);
+							// }
+
+							// if ($datos['documentos'] !== null) {
+							// 	$nombre = $datos['documentos']['name'];
+							// 	$rutaTemporal = $datos['documentos']['tmp_name'];
+							// 	$carpeta = $ruta;
+							// 	$src = $carpeta . $nombre;
+							// 	// move_uploaded_file($rutaTemporal, $src);
+							// 	if (move_uploaded_file($rutaTemporal, $src)) {
+							// 		chmod($src, 644);
+							// 		// El archivo se subió correctamente
+							// 		// Ejecuta otra acción aquí, por ejemplo, actualiza la base de datos, etc.
+							// 		// echo "El archivo se ha subido correctamente.";
+							// 		$sql = "UPDATE cmx_proveedores SET documentos_soporte = '$ruta_base' WHERE numdoc_nexos = " . $numdoc_cabecera . "";
+							// 		$consulta_act_proveedor = $this->_db3->prepare($sql);
+							// 		$consulta_act_proveedor->execute();
+							// 	} else {
+							// 		// Hubo un error al subir el archivo
+							// 		$mensajeError = "Error al mover el archivo a la carpeta de destino." . date("Y-m-d H:i:s");
+							// 		error_log($mensajeError . "\n", 3, "error_log.txt");
+							// 		echo "Hubo un error al subir el archivo.";
+							// 		// Ejecuta otra acción aquí en caso de error, por ejemplo, devuelve una respuesta de error al usuario.
+							// 	}
+							// } else {
+							// 	// Cuando no hay documentos para subir
+							// 	$mensajeError = "No se han proporcionado documentos para subir." . date("Y-m-d");
+							// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+							// 	// throw new Exception("Error al guardar proveedor 1");
+							// }
+
+							$ruta = "public/files/proveedores/" . $numdoc_cabecera . "/";
+
+							// Crear carpeta si no existe
 							if (!is_dir($ruta)) {
-								mkdir($ruta, 0777, true);
+								mkdir($ruta, 0775, true);
 							}
 
-							if ($datos['documentos'] !== null) {
-								$nombre = $datos['documentos']['name'];
+							if (!empty($datos['documentos']) && $datos['documentos']['error'] === UPLOAD_ERR_OK) {
+								// Crear nombre único para el archivo
+								$aleatorio1 = rand(10000, 99999);
+								$aleatorio2 = rand(10000, 99999);
+								$nombreOriginal = basename($datos['documentos']['name']);
+								$nombreFinal = $aleatorio1 . "_" . $aleatorio2 . "_" . $nombreOriginal;
+
 								$rutaTemporal = $datos['documentos']['tmp_name'];
-								$carpeta = $ruta;
-								$src = $carpeta . $nombre;
-								// move_uploaded_file($rutaTemporal, $src);
-								if (move_uploaded_file($rutaTemporal, $src)) {
-									// El archivo se subió correctamente
-									// Ejecuta otra acción aquí, por ejemplo, actualiza la base de datos, etc.
-									// echo "El archivo se ha subido correctamente.";
-									$sql = "UPDATE cmx_proveedores SET documentos_soporte = '$ruta_base' WHERE numdoc_nexos = " . $numdoc_cabecera . "";
-									$consulta_act_proveedor = $this->_db3->prepare($sql);
-									$consulta_act_proveedor->execute();
+								$destino = $ruta . $nombreFinal;
+
+								if (move_uploaded_file($rutaTemporal, $destino)) {
+									chmod($destino, 0644); // Permisos correctos
+
+									// Ruta completa a guardar en la BD
+									$rutaCompleta = "public/files/proveedores/" . $numdoc_cabecera . "/" . $nombreFinal;
+
+									// Actualizar base de datos con la ruta completa
+									$sql = "UPDATE cmx_proveedores SET documentos_soporte = :ruta WHERE numdoc_nexos = :numdoc";
+
+									$stmt = $this->_db3->prepare($sql);
+									$stmt->bindParam(':ruta', $rutaCompleta, PDO::PARAM_STR);
+									$stmt->bindParam(':numdoc', $numdoc_cabecera, PDO::PARAM_STR);
+
+									if (!$stmt->execute()) {
+										$mensajeError = "Error al actualizar la BD para proveedor $numdoc_cabecera a las " . date("Y-m-d H:i:s");
+										error_log($mensajeError . "\n", 3, "error_log.txt");
+									}
 								} else {
-									// Hubo un error al subir el archivo
-									$mensajeError = "Error al mover el archivo a la carpeta de destino." . date("Y-m-d H:i:s");
+									// Error al mover archivo
+									$mensajeError = "Error al mover el archivo para proveedor $numdoc_cabecera a las " . date("Y-m-d H:i:s");
 									error_log($mensajeError . "\n", 3, "error_log.txt");
 									echo "Hubo un error al subir el archivo.";
-									// Ejecuta otra acción aquí en caso de error, por ejemplo, devuelve una respuesta de error al usuario.
 								}
 							} else {
-								// Cuando no hay documentos para subir
-								$mensajeError = "No se han proporcionado documentos para subir." . date("Y-m-d");
+								// No hay archivo subido
+								$mensajeError = "No se han proporcionado documentos para proveedor $numdoc_cabecera a las " . date("Y-m-d");
 								error_log($mensajeError . "\n", 3, "error_log.txt");
-								// throw new Exception("Error al guardar proveedor 1");
 							}
+
 
 							$sql_block = $this->_db3->prepare("INSERT INTO cmx_estado_bloqueo (nombre_proceso,estado_proceso,id_objeto,tipo_objeto,fecha,hora,usuario) 
 								VALUES ('modificar','desbloqueado','" . $numdoc_cabecera . "','proveedor','" . $fecha_actual . "','" . $hora_actual . "','" . $user . "')");
@@ -1690,7 +1984,9 @@ class proveedoresModel extends Model
 											// $response = true;
 											$response = ['success' => true, 'message' => 'Conductor y Poseedor insertado correctamente en NEXOSAPP.'];
 										} else {
+											// $this->_db3->rollBack();
 											// Falla en la actualización, revertir la transacción
+											// $response = false;
 											$response = ['success' => false, 'message' => 'Conductor y Poseedor no insertado correctamente en NEXOSAPP.'];
 										}
 									} else {
@@ -1741,7 +2037,7 @@ class proveedoresModel extends Model
 							$ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
 
 							if (!is_dir($ruta)) {
-								mkdir($ruta, 0777, true);
+								mkdir($ruta, 0775, true);
 							}
 
 							if ($datos['documentos'] !== null) {
@@ -1751,6 +2047,7 @@ class proveedoresModel extends Model
 								$src = $carpeta . $nombre;
 								// move_uploaded_file($rutaTemporal, $src);
 								if (move_uploaded_file($rutaTemporal, $src)) {
+									chmod($src, 644);
 									// El archivo se subió correctamente
 									// Ejecuta otra acción aquí, por ejemplo, actualiza la base de datos, etc.
 									// echo "El archivo se ha subido correctamente.";
@@ -1840,7 +2137,7 @@ class proveedoresModel extends Model
 							$ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
 
 							if (!is_dir($ruta)) {
-								mkdir($ruta, 0777, true);
+								mkdir($ruta, 0775, true);
 							}
 
 							if ($datos['documentos'] !== null) {
@@ -1850,6 +2147,7 @@ class proveedoresModel extends Model
 								$src = $carpeta . $nombre;
 								// move_uploaded_file($rutaTemporal, $src);
 								if (move_uploaded_file($rutaTemporal, $src)) {
+									chmod($src, 644);
 									// El archivo se subió correctamente
 									// Ejecuta otra acción aquí, por ejemplo, actualiza la base de datos, etc.
 									// echo "El archivo se ha subido correctamente.";
@@ -1951,7 +2249,7 @@ class proveedoresModel extends Model
 							$ruta_base = "public/files/proveedores/" . $numdoc_cabecera . "/";
 
 							if (!is_dir($ruta)) {
-								mkdir($ruta, 0777, true);
+								mkdir($ruta, 0775, true);
 							}
 
 							if ($datos['documentos'] !== null) {
@@ -1961,6 +2259,7 @@ class proveedoresModel extends Model
 								$src = $carpeta . $nombre;
 								// move_uploaded_file($rutaTemporal, $src);
 								if (move_uploaded_file($rutaTemporal, $src)) {
+									chmod($src, 644);
 									// El archivo se subió correctamente
 									// Ejecuta otra acción aquí, por ejemplo, actualiza la base de datos, etc.
 									// echo "El archivo se ha subido correctamente.";
@@ -2089,7 +2388,8 @@ class proveedoresModel extends Model
 				$ruta_empresarial1 = "public/files/proveedores/empresarial/" . $numdoc_cabecera . "/1/";
 				$ruta_empresarial11 = "public/files/proveedores/empresarial/" . $numdoc_cabecera . "/1/";
 				$esatdo_ref = 1;
-				$sql_rl1 = $this->_db3->prepare("INSERT INTO cmx_referencias_preestudio (id,nombre_empresa,fecha_ingreso,fecha_retiro,persona_contacto,celular,cargo,id_conductor,antiguedad,documento_empresarial,name_documento,fecha,hora,usuario,estado)
+				$sql_rl1 = $this->_db3->prepare("INSERT INTO cmx_referencias_preestudio
+									 (id,nombre_empresa,fecha_ingreso,fecha_retiro,persona_contacto,celular,cargo,id_conductor,antiguedad,documento_empresarial,name_documento,fecha,hora,usuario,estado)
 									 VALUES(null,:referencias_empresariales,:fecha_ereferencia1,:fecha_retiro1,:contacto_ref1,:celular_ref1,:cargo_ref1,:numero_documento,:anti_ref1,:ruta_empresarial11,:name_soporte,:fecha_actual,:hora_actual,:user,:estado)");
 				$sql_rl1->bindParam(':referencias_empresariales', $datos['referencias_empresariales1'], PDO::PARAM_STR);
 				$sql_rl1->bindParam(':fecha_ereferencia1', $datos['fecha_referencia1'], PDO::PARAM_STR);
@@ -2147,7 +2447,8 @@ class proveedoresModel extends Model
 			} else {
 				$esatdo_ref = 1;
 				$ruta_ref = 'Sin documento';
-				$sql_rl1 = $this->_db3->prepare("INSERT INTO cmx_referencias_preestudio (id,nombre_empresa,fecha_ingreso,fecha_retiro,persona_contacto,celular,cargo,id_conductor,antiguedad,documento_empresarial,name_documento,fecha,hora,usuario,estado)
+				$sql_rl1 = $this->_db3->prepare("INSERT INTO cmx_referencias_preestudio
+									 (id,nombre_empresa,fecha_ingreso,fecha_retiro,persona_contacto,celular,cargo,id_conductor,antiguedad,documento_empresarial,name_documento,fecha,hora,usuario,estado)
 									 VALUES(null,:referencias_empresariales,:fecha_ereferencia1,:fecha_retiro1,:contacto_ref1,:celular_ref1,:cargo_ref1,:numero_documento,:anti_ref1,:ruta_empresarial11,:name_soporte,:fecha_actual,:hora_actual,:user,:estado)");
 				$sql_rl1->bindParam(':referencias_empresariales', $datos['referencias_empresariales1'], PDO::PARAM_STR);
 				$sql_rl1->bindParam(':fecha_ereferencia1', $datos['fecha_referencia1'], PDO::PARAM_STR);
@@ -2235,7 +2536,7 @@ class proveedoresModel extends Model
 				$esatdo_ref = 1;
 				$ruta_ref = 'Sin documento 2';
 				$sql_rl2 = $this->_db3->prepare("INSERT INTO cmx_referencias_preestudio (id,nombre_empresa,fecha_ingreso,fecha_retiro,persona_contacto,celular,cargo,id_conductor,antiguedad,documento_empresarial,name_documento,fecha,hora,usuario,estado)
-														             VALUES(null,:referencias_empresariales,:fecha_ereferencia2,:fecha_retiro2,:contacto_ref2,:celular_ref2,:cargo_ref2,:numero_documento,:anti_ref2,:ruta_empresarial22,:name_soporte,:fecha_actual,:hora_actual,:user,:estado)");
+														 VALUES(null,:referencias_empresariales,:fecha_ereferencia2,:fecha_retiro2,:contacto_ref2,:celular_ref2,:cargo_ref2,:numero_documento,:anti_ref2,:ruta_empresarial22,:name_soporte,:fecha_actual,:hora_actual,:user,:estado)");
 				$sql_rl2->bindParam(':referencias_empresariales', $datos['referencias_empresariales2'], PDO::PARAM_STR);
 				$sql_rl2->bindParam(':fecha_ereferencia2', $datos['fecha_referencia2'], PDO::PARAM_STR);
 				$sql_rl2->bindParam(':fecha_retiro2', $datos['fecha_retiro2'], PDO::PARAM_STR);
@@ -2264,7 +2565,7 @@ class proveedoresModel extends Model
 				$ruta_empresarial33 = "public/files/proveedores/empresarial/" . $numdoc_cabecera . "/3/";
 				$esatdo_ref = 1;
 				$sql_rl3 = $this->_db3->prepare("INSERT INTO cmx_referencias_preestudio (id,nombre_empresa,fecha_ingreso,fecha_retiro,persona_contacto,celular,cargo,id_conductor,antiguedad,documento_empresarial,name_documento,fecha,hora,usuario,estado)
-																				 VALUES(null,:referencias_empresariales,:fecha_ereferencia3,:fecha_retiro3,:contacto_ref3,:celular_ref3,:cargo_ref3,:numero_documento,:anti_ref3,:ruta_empresarial33,:name_soporte,:fecha_actual,:hora_actual,:user,:estado)");
+																								 VALUES(null,:referencias_empresariales,:fecha_ereferencia3,:fecha_retiro3,:contacto_ref3,:celular_ref3,:cargo_ref3,:numero_documento,:anti_ref3,:ruta_empresarial33,:name_soporte,:fecha_actual,:hora_actual,:user,:estado)");
 				$sql_rl3->bindParam(':referencias_empresariales', $datos['referencias_empresariales3'], PDO::PARAM_STR);
 				$sql_rl3->bindParam(':fecha_ereferencia3', $datos['fecha_referencia3'], PDO::PARAM_STR);
 				$sql_rl3->bindParam(':fecha_retiro3', $datos['fecha_retiro3'], PDO::PARAM_STR);
@@ -2755,6 +3056,7 @@ class proveedoresModel extends Model
 			// throw new Exception("Error al guardar proveedor 1");
 		}
 
+
 		//FOTOS CONDUCTOR
 		$ruta_fotos = "public/files/proveedores/fotos/" . $numdoc_cabecera . "/F/";
 		if (!is_dir($ruta_fotos)) {
@@ -2918,6 +3220,7 @@ class proveedoresModel extends Model
 
 		//CURSO MERCANCIAS PELIGROSAS
 		$ruta_mercancias1 = "public/files/proveedores/curso/" . $numdoc_cabecera . "/";
+		// $ruta_mercancias11 = "public/files/proveedores/curso/" . $numdoc_cabecera . "/";
 
 		if (!is_dir($ruta_mercancias1)) {
 			mkdir($ruta_mercancias1, 0777, true);
@@ -2965,6 +3268,8 @@ class proveedoresModel extends Model
 
 		//RUT
 		$ruta_rut1 = "public/files/proveedores/rut/" . $numdoc_cabecera . "/";
+		// $ruta_rut11 = "public/files/proveedores/rut/" . $numdoc_cabecera . "/";
+
 		if (!is_dir($ruta_rut1)) {
 			mkdir($ruta_rut1, 0777, true);
 		}
@@ -2982,9 +3287,9 @@ class proveedoresModel extends Model
 				$sqlrut->bindParam(':numdoc_cabecera', $numdoc_cabecera, PDO::PARAM_INT);
 				$sqlrut->execute();
 				if ($sqlrut->rowCount() > 0) {
-					echo "Si inserto el rut";
+					// echo "Si inserto el rut";
 					// La actualización fue exitosa
-					// $cont_doc++;
+					$cont_doc++;
 				} else {
 					// Falla en la actualización
 					$mensajeError = "Error al momento de subir el foto Mercancias peligrosas del conductor." . date("Y-m-d");
@@ -3012,6 +3317,7 @@ class proveedoresModel extends Model
 
 		//ACUERDOS
 		$ruta_ac1 = "public/files/proveedores/acuerdo/" . $numdoc_cabecera . "/AC1/";
+		// $ruta_ac11 = "public/files/proveedores/acuerdo/" . $numdoc_cabecera . "/AC1/";
 
 		if (!is_dir($ruta_ac1)) {
 			mkdir($ruta_ac1, 0777, true);
@@ -3220,7 +3526,7 @@ class proveedoresModel extends Model
 							$this->_db3->commit();
 							$response = true;
 						} else {
-							// $this->_db3->rollBack();
+							$this->_db3->rollBack();
 							// Falla en la actualización, revertir la transacción
 							$response = false;
 						}
@@ -3299,7 +3605,6 @@ class proveedoresModel extends Model
 		$resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
 		return $resultado;
 	}
-
 	public function Obetener_Municipios($municipio)
 	{
 		$arrayMunicipio = explode(" (", $municipio);
@@ -3309,7 +3614,6 @@ class proveedoresModel extends Model
 		$resultado = $sql->fetch(PDO::FETCH_ASSOC);
 		return $resultado;
 	}
-
 	public function Cosultar_Actividad_proveedor($proveedor)
 	{
 		$sql = $this->_db3->prepare("SELECT actividad as acti FROM cmx_actividad_proveedor WHERE id_proveedor=:id_proveedor");
@@ -3318,7 +3622,6 @@ class proveedoresModel extends Model
 		$resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
 		return $resultado;
 	}
-
 
 	public function Cosultar_Datos_proveedor($proveedor)
 	{
@@ -3438,41 +3741,89 @@ class proveedoresModel extends Model
 			$sql->bindParam(':id_proveedor', $datos['numdoc_proveedor'], PDO::PARAM_STR);
 			$resultado = $sql->execute();
 			if ($resultado) {
+				// $ruta = "public/files/proveedores/" . $datos['numdoc_proveedor'] . "/";
+				// if (!is_dir($ruta)) {
+				// 	mkdir($ruta, 0775, true);
+				// }
+
+				// if ($datos['documentos'] !== null) {
+				// 	$aleatorio1 = rand(10000, 90000);
+				// 	$aleatorio2 = rand(10000, 90000);
+				// 	$nom1 = $datos['documentos']['name'];
+				// 	$nombre = $datos['documentos']['name'];
+				// 	$rutaTemporal = $datos['documentos']['tmp_name'];
+				// 	$carpeta = $ruta;
+				// 	$src = $carpeta . $nombre;
+				// 	// Intenta mover el archivo subido
+				// 	if (move_uploaded_file($rutaTemporal, $src)) {
+				// 		chmod($src, 644);
+				// 		// Si el archivo se movió correctamente, ejecuta la consulta SQL
+				// 		$sqlce = "UPDATE cmx_proveedores SET documentos_soporte='public/files/proveedores/" . $datos['numdoc_proveedor'] . "/" . $nom1 . "'
+				// 						WHERE id=" . $datos['numdoc_proveedor'];
+				// 		$editese = $this->_db3->prepare($sqlce);
+				// 		$result = $editese->execute();
+				// 		if (!$result) {
+				// 			$mensajeError = "Error al actualizar la base de datos para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+				// 			error_log($mensajeError . "\n", 3, "error_log.txt");
+				// 		}
+				// 	} else {
+				// 		// Si el archivo no se pudo mover, registra un error
+				// 		$mensajeError = "Error al mover el archivo para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+				// 		error_log($mensajeError . "\n", 3, "error_log.txt");
+				// 		// throw new Exception("Error al subir el archivo.");
+				// 	}
+				// } else {
+				// 	// Cuando no hay documentos para subir
+				// 	$mensajeError = "No se han proporcionado documentos para subir para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+				// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+				// 	// throw new Exception("Error al guardar proveedor 1");
+				// }
+
+
 				$ruta = "public/files/proveedores/" . $datos['numdoc_proveedor'] . "/";
+
 				if (!is_dir($ruta)) {
 					mkdir($ruta, 0777, true);
 				}
 
-				if ($datos['documentos'] !== null) {
+				if (!empty($datos['documentos']) && !empty($datos['documentos']['name'])) {
+					// Generar nombre aleatorio para evitar duplicados
 					$aleatorio1 = rand(10000, 90000);
 					$aleatorio2 = rand(10000, 90000);
-					$nom1 = $aleatorio1 . $datos['documentos']['name'];
-					$nombre = $datos['documentos']['name'];
+
+					// Nombre final del archivo (aleatorio + nombre original)
+					$nombreFinal = $aleatorio1 . "_" . $aleatorio2 . "_" . basename($datos['documentos']['name']);
+
 					$rutaTemporal = $datos['documentos']['tmp_name'];
-					$carpeta = $ruta;
-					$src = $carpeta . $nombre;
-					// Intenta mover el archivo subido
-					if (move_uploaded_file($rutaTemporal, $src)) {
-						// Si el archivo se movió correctamente, ejecuta la consulta SQL
-						$sqlce = "UPDATE cmx_proveedores SET documentos_soporte='public/files/proveedores/" . $datos['numdoc_proveedor'] . "/" . $nom1 . "'
-										WHERE id=" . $datos['numdoc_proveedor'];
+					$destino = $ruta . $nombreFinal;
+
+					// Mover archivo
+					if (move_uploaded_file($rutaTemporal, $destino)) {
+						chmod($destino, 0644); // Permisos seguros para lectura
+
+						// Guardar ruta completa en la base de datos
+						$rutaCompleta = "public/files/proveedores/" . $datos['numdoc_proveedor'] . "/" . $nombreFinal;
+
+						$sqlce = "UPDATE cmx_proveedores 
+                  SET documentos_soporte = :ruta
+                  WHERE numdoc_nexos = :numdoc";  // Usar el campo correcto
+
 						$editese = $this->_db3->prepare($sqlce);
+						$editese->bindParam(':ruta', $rutaCompleta);
+						$editese->bindParam(':numdoc', $datos['numdoc_proveedor']);
 						$result = $editese->execute();
+
 						if (!$result) {
 							$mensajeError = "Error al actualizar la base de datos para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
 							error_log($mensajeError . "\n", 3, "error_log.txt");
 						}
 					} else {
-						// Si el archivo no se pudo mover, registra un error
 						$mensajeError = "Error al mover el archivo para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
 						error_log($mensajeError . "\n", 3, "error_log.txt");
-						// throw new Exception("Error al subir el archivo.");
 					}
 				} else {
-					// Cuando no hay documentos para subir
 					$mensajeError = "No se han proporcionado documentos para subir para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
 					error_log($mensajeError . "\n", 3, "error_log.txt");
-					// throw new Exception("Error al guardar proveedor 1");
 				}
 				// Actualizar detalles del condutor
 				$sql2 = $this->_db3->prepare("UPDATE cmx_detalle_conductor SET celular2=:celular2,nombre_eps=:eps,fecha_vence_eps=:venceeps,ultimo_eps=:ultimo_eps,nombre_arl=:arl,fecha_vence_arl=:vencearl,
@@ -3949,6 +4300,11 @@ class proveedoresModel extends Model
 					$sql_ref1->bindParam(':id_proveedor', $datos['numero_documento'], PDO::PARAM_STR);
 					$sql_ref1->bindParam(':eid', $datos['idp1'], PDO::PARAM_STR);
 					$sql_ref1->execute();
+					// if ($resultado_ref1) {
+					// } else {
+					// 	$mensajeError = "Error al actualziar la referencia 1 del proveedor." . date("Y-m-d H:i:s");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
 
 					$sql_ref2 = $this->_db3->prepare("UPDATE cmx_referencias_preestudio SET nombre_empresa=:referencias_empresariales,fecha_ingreso=:fecha_referencia, fecha_retiro=:fecha_retiro, 
 						persona_contacto=:contacto_ref, celular=:celular_ref, cargo=:cargo_ref, antiguedad=:anti_ref, fecha=:fecha, hora=:hora, usuario=:usuario WHERE id_conductor=:id_proveedor AND id=:eid");
@@ -3965,6 +4321,11 @@ class proveedoresModel extends Model
 					$sql_ref2->bindParam(':id_proveedor', $datos['numero_documento'], PDO::PARAM_STR);
 					$sql_ref2->bindParam(':eid', $datos['idp2'], PDO::PARAM_STR);
 					$sql_ref2->execute();
+					// if ($resultado_ref2) {
+					// } else {
+					// 	$mensajeError = "Error al actualziar la referencia 2 del proveedor." . date("Y-m-d H:i:s");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
 
 					$sql_ref3 = $this->_db3->prepare("UPDATE cmx_referencias_preestudio SET nombre_empresa=:referencias_empresariales,fecha_ingreso=:fecha_referencia, fecha_retiro=:fecha_retiro, 
 							persona_contacto=:contacto_ref, celular=:celular_ref, cargo=:cargo_ref, antiguedad=:anti_ref, fecha=:fecha, hora=:hora, usuario=:usuario WHERE id_conductor=:id_proveedor AND id=:eid");
@@ -3981,6 +4342,12 @@ class proveedoresModel extends Model
 					$sql_ref3->bindParam(':id_proveedor', $datos['numero_documento'], PDO::PARAM_STR);
 					$sql_ref3->bindParam(':eid', $datos['idp3'], PDO::PARAM_STR);
 					$sql_ref3->execute();
+					// if ($resultado_ref3) {
+					// } else {
+					// 	// return false;
+					// 	$mensajeError = "Error al actualziar la referencia 3 del proveedor." . date("Y-m-d H:i:s");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
 
 					$sql_refp1 = $this->_db3->prepare("UPDATE cmx_referencias_personales SET nombre_personal=:refep, fecha_personal=:fechap, parentezco=:parenp, tel_personal=:telefonop, usuario=:usuario, 
 								fecha=:fecha, hora=:hora WHERE id=:idp AND id_conductor=:id_proveedor");
@@ -4012,7 +4379,14 @@ class proveedoresModel extends Model
 					$sql_refp2->bindParam(':idp', $datos['ref_id2'], PDO::PARAM_STR);
 					$sql_refp2->bindParam(':id_proveedor', $datos['numdoc_proveedor'], PDO::PARAM_STR);
 					$result_refp2 = $sql_refp2->execute();
-
+					// if ($result_refp2) {
+					// 	// $response = true;
+					// } else {
+					// 	// $response = false;
+					// 	$response = ['success' => false, 'message' => 'Datos del proveedor no actualizados correctamente en NEXOSAPP.'];
+					// 	$mensajeError = "Error al actualziar la referencia personal 2 del proveedor." . date("Y-m-d H:i:s");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
 					$this->_db3->commit();
 					$response = ['success' => true, 'message' => 'Se actualizaron datos correctamente en NEXOSAPP.'];
 				} else {
@@ -4077,42 +4451,92 @@ class proveedoresModel extends Model
 			$ruta = "public/files/proveedores/" . $datos['numdoc_proveedor'] . "/";
 			if ($resultado) {
 
+				// $ruta = "public/files/proveedores/" . $datos['numdoc_proveedor'] . "/";
+				// if (!is_dir($ruta)) {
+				// 	mkdir($ruta, 0775, true);
+				// }
+
+				// if ($datos['documentos'] !== null && $datos['documentos']['error'] === UPLOAD_ERR_OK) {
+				// 	$aleatorio1 = rand(10000, 90000);
+				// 	$aleatorio2 = rand(10000, 90000);
+				// 	$nom1 = $datos['documentos']['name'];
+				// 	$nombre = $datos['documentos']['name'];
+				// 	$rutaTemporal = $datos['documentos']['tmp_name'];
+				// 	$carpeta = $ruta;
+				// 	$src = $carpeta . $nombre;
+				// 	// Intenta mover el archivo subido
+				// 	if (move_uploaded_file($rutaTemporal, $src)) {
+				// 		chmod($src, 644);
+				// 		// Si el archivo se movió correctamente, ejecuta la consulta SQL
+				// 		$sqlce = "UPDATE cmx_proveedores SET documentos_soporte='public/files/proveedores/" . $datos['numdoc_proveedor'] . "/" . $nom1 . "'
+				// 						WHERE id=" . $datos['numdoc_proveedor'];
+				// 		$editese = $this->_db3->prepare($sqlce);
+				// 		$result = $editese->execute();
+				// 		if (!$result) {
+				// 			$mensajeError = "Error al actualizar la base de datos para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+				// 			error_log($mensajeError . "\n", 3, "error_log.txt");
+				// 		}
+				// 	} else {
+				// 		// Si el archivo no se pudo mover, registra un error
+				// 		$mensajeError = "Error al mover el archivo para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+				// 		error_log($mensajeError . "\n", 3, "error_log.txt");
+				// 		// throw new Exception("Error al subir el archivo.");
+				// 	}
+				// } else {
+				// 	// Cuando no hay documentos para subir
+				// 	$mensajeError = "No se han proporcionado documentos para subir para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+				// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+				// 	// throw new Exception("Error al guardar proveedor 1");
+				// }
+
 				$ruta = "public/files/proveedores/" . $datos['numdoc_proveedor'] . "/";
+
+				// Crear carpeta si no existe
 				if (!is_dir($ruta)) {
-					mkdir($ruta, 0777, true);
+					mkdir($ruta, 0775, true);
 				}
 
-				if ($datos['documentos'] !== null && $datos['documentos']['error'] === UPLOAD_ERR_OK) {
+				if (!empty($datos['documentos']) && $datos['documentos']['error'] === UPLOAD_ERR_OK) {
+					// Crear un nombre aleatorio para evitar conflictos de nombres
 					$aleatorio1 = rand(10000, 90000);
 					$aleatorio2 = rand(10000, 90000);
-					$nom1 = $datos['documentos']['name'];
-					$nombre = $datos['documentos']['name'];
+					$nombreOriginal = basename($datos['documentos']['name']);
+					$nombreFinal = $aleatorio1 . "_" . $aleatorio2 . "_" . $nombreOriginal;
+
 					$rutaTemporal = $datos['documentos']['tmp_name'];
-					$carpeta = $ruta;
-					$src = $carpeta . $nombre;
-					// Intenta mover el archivo subido
-					if (move_uploaded_file($rutaTemporal, $src)) {
-						// Si el archivo se movió correctamente, ejecuta la consulta SQL
-						$sqlce = "UPDATE cmx_proveedores SET documentos_soporte='public/files/proveedores/" . $datos['numdoc_proveedor'] . "/" . $nom1 . "'
-										WHERE id=" . $datos['numdoc_proveedor'];
-						$editese = $this->_db3->prepare($sqlce);
-						$result = $editese->execute();
-						if (!$result) {
-							$mensajeError = "Error al actualizar la base de datos para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+					$destino = $ruta . $nombreFinal;
+
+					// Mover el archivo
+					if (move_uploaded_file($rutaTemporal, $destino)) {
+						chmod($destino, 0644); // Permisos de lectura seguros
+
+						// Ruta final que se guardará en la base de datos
+						$rutaCompleta = "public/files/proveedores/" . $datos['numdoc_proveedor'] . "/" . $nombreFinal;
+
+						// Actualizar en la base de datos
+						$sql = "UPDATE cmx_proveedores 
+                SET documentos_soporte = :ruta
+                WHERE numdoc_nexos = :numdoc";
+
+						$stmt = $this->_db3->prepare($sql);
+						$stmt->bindParam(':ruta', $rutaCompleta);
+						$stmt->bindParam(':numdoc', $datos['numdoc_proveedor'], PDO::PARAM_STR);
+
+						if (!$stmt->execute()) {
+							$mensajeError = "Error al actualizar la BD para el proveedor " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
 							error_log($mensajeError . "\n", 3, "error_log.txt");
 						}
 					} else {
-						// Si el archivo no se pudo mover, registra un error
-						$mensajeError = "Error al mover el archivo para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+						// Error al mover el archivo
+						$mensajeError = "Error al mover archivo para el proveedor " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
 						error_log($mensajeError . "\n", 3, "error_log.txt");
-						// throw new Exception("Error al subir el archivo.");
 					}
 				} else {
-					// Cuando no hay documentos para subir
-					$mensajeError = "No se han proporcionado documentos para subir para el proveedor con ID " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
+					// No se subió archivo
+					$mensajeError = "No se proporcionaron documentos para el proveedor " . $datos['numdoc_proveedor'] . " a las " . date("Y-m-d H:i:s");
 					error_log($mensajeError . "\n", 3, "error_log.txt");
-					// throw new Exception("Error al guardar proveedor 1");
 				}
+
 
 				// Actualizar detalles del condutor
 				$sql2 = $this->_db3->prepare("UPDATE cmx_detalle_conductor SET celular2=:celular2,nombre_eps=:eps,fecha_vence_eps=:venceeps,ultimo_eps=:ultimo_eps,nombre_arl=:arl,fecha_vence_arl=:vencearl,
@@ -4589,7 +5013,11 @@ class proveedoresModel extends Model
 					$sql_ref1->bindParam(':id_proveedor', $datos['numero_documento'], PDO::PARAM_STR);
 					$sql_ref1->bindParam(':eid', $datos['idp1'], PDO::PARAM_STR);
 					$sql_ref1->execute();
-
+					// if ($resultado_ref1) {
+					// } else {
+					// 	$mensajeError = "Error al actualziar la referencia 1 del proveedor." . date("Y-m-d");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
 					$sql_ref2 = $this->_db3->prepare("UPDATE cmx_referencias_preestudio SET nombre_empresa=:referencias_empresariales,fecha_ingreso=:fecha_referencia, fecha_retiro=:fecha_retiro, 
 						persona_contacto=:contacto_ref, celular=:celular_ref, cargo=:cargo_ref, antiguedad=:anti_ref, fecha=:fecha, hora=:hora, usuario=:usuario WHERE id_conductor=:id_proveedor AND id=:eid");
 					$sql_ref2->bindParam(':referencias_empresariales', $datos['referencias_empresariales2'], PDO::PARAM_STR);
@@ -4605,7 +5033,11 @@ class proveedoresModel extends Model
 					$sql_ref2->bindParam(':id_proveedor', $datos['numero_documento'], PDO::PARAM_STR);
 					$sql_ref2->bindParam(':eid', $datos['idp2'], PDO::PARAM_STR);
 					$sql_ref2->execute();
-
+					// if ($resultado_ref2) {
+					// } else {
+					// 	$mensajeError = "Error al actualziar la referencia 2 del proveedor." . date("Y-m-d");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
 					$sql_ref3 = $this->_db3->prepare("UPDATE cmx_referencias_preestudio SET nombre_empresa=:referencias_empresariales,fecha_ingreso=:fecha_referencia, fecha_retiro=:fecha_retiro, 
 							persona_contacto=:contacto_ref, celular=:celular_ref, cargo=:cargo_ref, antiguedad=:anti_ref, fecha=:fecha, hora=:hora, usuario=:usuario WHERE id_conductor=:id_proveedor AND id=:eid");
 					$sql_ref3->bindParam(':referencias_empresariales', $datos['referencias_empresariales3'], PDO::PARAM_STR);
@@ -4621,7 +5053,12 @@ class proveedoresModel extends Model
 					$sql_ref3->bindParam(':id_proveedor', $datos['numero_documento'], PDO::PARAM_STR);
 					$sql_ref3->bindParam(':eid', $datos['idp3'], PDO::PARAM_STR);
 					$sql_ref3->execute();
-
+					// if ($resultado_ref3) {
+					// } else {
+					// 	// return false;
+					// 	$mensajeError = "Error al actualziar la referencia 3 del proveedor." . date("Y-m-d");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
 					$sql_refp1 = $this->_db3->prepare("UPDATE cmx_referencias_personales SET nombre_personal=:refep, fecha_personal=:fechap, parentezco=:parenp, tel_personal=:telefonop, usuario=:usuario, 
 								fecha=:fecha, hora=:hora WHERE id=:idp AND id_conductor=:id_proveedor");
 					$sql_refp1->bindParam(':refep', $datos['referencias_personales'], PDO::PARAM_STR);
@@ -4634,6 +5071,12 @@ class proveedoresModel extends Model
 					$sql_refp1->bindParam(':idp', $datos['ref_id1'], PDO::PARAM_STR);
 					$sql_refp1->bindParam(':id_proveedor', $datos['numdoc_proveedor'], PDO::PARAM_STR);
 					$sql_refp1->execute();
+					// if ($result_refp1) {
+					// } else {
+					// 	$mensajeError = "Error al actualziar la referencia personal 1 del proveedor." . date("Y-m-d");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
+					// return true;
 
 					$sql_refp2 = $this->_db3->prepare("UPDATE cmx_referencias_personales SET nombre_personal=:refep, fecha_personal=:fechap, parentezco=:parenp, tel_personal=:telefonop, usuario=:usuario, 
 									fecha=:fecha, hora=:hora WHERE id=:idp AND id_conductor=:id_proveedor");
@@ -4647,6 +5090,13 @@ class proveedoresModel extends Model
 					$sql_refp2->bindParam(':idp', $datos['ref_id2'], PDO::PARAM_STR);
 					$sql_refp2->bindParam(':id_proveedor', $datos['numdoc_proveedor'], PDO::PARAM_STR);
 					$sql_refp2->execute();
+					// if ($result_refp2) {
+					// 	$response = true;
+					// } else {
+					// 	$response = false;
+					// 	$mensajeError = "Error al actualziar la referencia personal 2 del proveedor." . date("Y-m-d");
+					// 	error_log($mensajeError . "\n", 3, "error_log.txt");
+					// }
 
 					$this->_db3->commit();
 					$response = ['success' => true, 'message' => 'Se actualizaron datos del conductor correctamente en NEXOSAPP.'];
@@ -4785,6 +5235,10 @@ class proveedoresModel extends Model
 					$resultado_contacto = $sql_contacto->fetchAll(PDO::FETCH_ASSOC);
 				}
 			}
+			// $response = [
+			// 	"resultado_proveedor" => $resultado_proveedor,
+			// 	"resultado_contacto" => $resultado_contacto,
+			// ];
 
 			/* Referencias empresariales */
 			$sql_referencias = $this->_db3->prepare("SELECT ref.* FROM cmx_referencias_preestudio ref
@@ -4820,6 +5274,8 @@ class proveedoresModel extends Model
 				"resultado_datos_proveedor" => $resultado_datos_proveedor,
 				"resultado_actividad" => $resultado_actividad,
 			];
+			// var_dump($resultado_actividad);
+			// exit();
 		} else {
 			$mensajeError = "Error al consultar la informacion." . date("Y-m.d");
 			error_log($mensajeError . "\n", 3, "error_log.txt");

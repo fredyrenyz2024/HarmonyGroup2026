@@ -1,0 +1,63 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+            <div class="table-responsive mt-5">
+                <table class='table table-bordered table-striped table-sm text-center' style="font-size:12px;" id="tabla-general-tipo-vehiculos">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style="width: auto; white-space: nowrap;">NIt o C.C</th>
+                            <th style="width: auto; white-space: nowrap;">Clientes</th>
+                            <th style="width: auto; white-space: nowrap;">Dirección</th>
+                            <th style="width: auto; white-space: nowrap;">Telefono</th>
+                            <th style="width: auto; white-space: nowrap;">Ciudad</th>
+                            <th style="width: auto; white-space: nowrap;">Estado</th>
+                            <th style="width: auto; white-space: nowrap;">Remesas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-clientes-general"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="6" class="text-end fw-bold">Total General de Manifiestos:</th>
+                            <th id="total-remesas-general"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end w-100" tabindex="-1" id="offcanvasDetalleCarteraClientes" aria-labelledby="offcanvasDetalleLabel">
+    <div class="offcanvas-header bg-primary text-white">
+        <h5 class="offcanvas-title text-white" id="offcanvasDetalleLabel">Detalle de Manifiestos</h5>
+        <button type="button" class="btn-close text-reset btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="detalleManifiestoContent"></div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end w-75" tabindex="-1" id="offcanvasHistoricoCartera" aria-labelledby="offcanvasHistoricoCarteraLabel">
+    <div class="offcanvas-header bg-secondary text-white">
+        <h5 class="offcanvas-title text-white" id="offcanvasHistoricoCarteraLabel">
+            Histórico de Movimientos de Cartera
+        </h5>
+        <button type="button" class="btn-close text-reset btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+        <!-- <div class="mb-3 d-flex justify-content-end">
+            <button class="btn btn-success btn-sm me-2" id="btn-exportar-excel-movs"><i class="fas fa-file-excel me-1"></i> Excel</button>
+            <button class="btn btn-danger btn-sm" id="btn-exportar-pdf-movs"><i class="fas fa-file-pdf me-1"></i> PDF</button>
+        </div> -->
+
+        <div id="historicoCarteraContent" class="table-responsive flex-grow-1">
+        </div>
+    </div>
+</div>

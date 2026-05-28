@@ -1,0 +1,1335 @@
+<!-- ============================================================
+     BANDEJA DE APROBACIÓN — TARIFA DE COSTO
+     Proyecto HARMONY 2026 | Transporte Nacional
+     Estilos: sistema de diseño de Aprobación de Ventas
+     ============================================================ -->
+
+<div class="container-fluid py-3" id="modulo-aprobacion-costos">
+
+  <style>
+    /* ============================================================
+           VARIABLES Y RESET — mismo sistema que aprobación ventas
+           ============================================================ */
+    :root {
+      --ap-navy: #0f1f3d;
+      --ap-blue: #1a3c6b;
+      --ap-accent: #e8a020;
+      --ap-green: #16a34a;
+      --ap-red: #dc2626;
+      --ap-orange: #f59e0b;
+      --ap-gray: #64748b;
+      --ap-light: #f0f4f8;
+      --ap-white: #ffffff;
+      --ap-border: #dde3ef;
+      --ap-card-shadow: 0 2px 12px rgba(15, 31, 61, 0.08);
+      --ap-radius: 10px;
+    }
+
+    /* ============================================================
+           HEADER DEL MÓDULO
+           ============================================================ */
+    .ap-header {
+      background: linear-gradient(135deg, var(--ap-navy) 0%, var(--ap-blue) 100%);
+      border-radius: var(--ap-radius);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      box-shadow: var(--ap-card-shadow);
+    }
+
+    .ap-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ap-header-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(232, 160, 32, .2);
+      border: 2px solid var(--ap-accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--ap-accent);
+    }
+
+    .ap-header-title {
+      color: var(--ap-white);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -.3px;
+    }
+
+    .ap-header-sub {
+      color: rgba(255, 255, 255, .6);
+      font-size: .78rem;
+      margin: 0;
+    }
+
+    .ap-header-badge {
+      background: var(--ap-accent);
+      color: var(--ap-navy);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: .85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ============================================================
+           PANEL DE FILTROS
+           ============================================================ */
+    .ap-filters {
+      background: var(--ap-white);
+      border: 1px solid var(--ap-border);
+      border-radius: var(--ap-radius);
+      padding: 18px 22px;
+      margin-bottom: 18px;
+      box-shadow: var(--ap-card-shadow);
+    }
+
+    .ap-filters-title {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--ap-blue);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ap-form-label {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--ap-gray);
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      margin-bottom: 4px;
+    }
+
+    .ap-input {
+      border: 1px solid var(--ap-border);
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: .85rem;
+      width: 100%;
+      background: var(--ap-light);
+      color: var(--ap-navy);
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .ap-input:focus {
+      outline: none;
+      border-color: var(--ap-blue);
+      box-shadow: 0 0 0 3px rgba(26, 60, 107, .12);
+      background: var(--ap-white);
+    }
+
+    .ap-btn-filtrar {
+      background: var(--ap-blue);
+      color: var(--ap-white);
+      border: none;
+      border-radius: 7px;
+      padding: 9px 20px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .2s;
+    }
+
+    .ap-btn-filtrar:hover {
+      background: var(--ap-navy);
+    }
+
+    .ap-btn-limpiar {
+      background: transparent;
+      color: var(--ap-gray);
+      border: 1px solid var(--ap-border);
+      border-radius: 7px;
+      padding: 9px 16px;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .ap-btn-limpiar:hover {
+      background: var(--ap-light);
+    }
+
+    /* ============================================================
+           RESUMEN RÁPIDO (CONTADORES)
+           ============================================================ */
+    .ap-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .ap-stat-card {
+      background: var(--ap-white);
+      border: 1px solid var(--ap-border);
+      border-radius: var(--ap-radius);
+      padding: 14px 18px;
+      box-shadow: var(--ap-card-shadow);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ap-stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .ap-stat-icon.pendiente {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .ap-stat-icon.hoy {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .ap-stat-icon.semana {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .ap-stat-icon.rechazada {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .ap-stat-num {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--ap-navy);
+      line-height: 1;
+    }
+
+    .ap-stat-label {
+      font-size: .72rem;
+      color: var(--ap-gray);
+      margin-top: 2px;
+    }
+
+    /* ============================================================
+           TABLA PRINCIPAL DE PENDIENTES
+           ============================================================ */
+    .ap-table-wrapper {
+      background: var(--ap-white);
+      border: 1px solid var(--ap-border);
+      border-radius: var(--ap-radius);
+      box-shadow: var(--ap-card-shadow);
+      overflow: hidden;
+    }
+
+    .ap-table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--ap-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+    }
+
+    .ap-table-title {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--ap-navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ap-scroll-container {
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 60vh;
+    }
+
+    .ap-scroll-container::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .ap-scroll-container::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    .ap-scroll-container::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .ap-scroll-container::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    #tabla-aprobaciones-costos {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: .82rem;
+    }
+
+    #tabla-aprobaciones-costos thead th {
+      background: var(--ap-navy);
+      color: var(--ap-white);
+      padding: 11px 14px;
+      font-weight: 600;
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-right: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    #tabla-aprobaciones-costos tbody tr {
+      transition: background .15s;
+      border-bottom: 1px solid var(--ap-border);
+    }
+
+    #tabla-aprobaciones-costos tbody tr:hover {
+      background: #f0f4f8;
+    }
+
+    #tabla-aprobaciones-costos tbody td {
+      padding: 10px 14px;
+      vertical-align: middle;
+      white-space: nowrap;
+      color: var(--ap-navy);
+    }
+
+    #tabla-aprobaciones-costos tbody tr.ap-row-urgente td:first-child {
+      border-left: 3px solid var(--ap-red);
+    }
+
+    #tabla-aprobaciones-costos tbody tr.ap-row-normal td:first-child {
+      border-left: 3px solid var(--ap-orange);
+    }
+
+    /* ============================================================
+           BADGES Y ESTADO
+           ============================================================ */
+    .badge-pendiente {
+      background: #fef9c3;
+      color: #854d0e;
+      border: 1px solid #fde68a;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    .badge-aprobado {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    .badge-rechazado {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    /* Badges por tipo de componente */
+    .badge-tipo {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: .7rem;
+      font-weight: 600;
+      margin: 2px;
+      display: inline-block;
+    }
+
+    .badge-tipo-plena {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-tipo-recogida {
+      background: #fce8e6;
+      color: #d93025;
+      border: 1px solid #fca5a5;
+    }
+
+    .badge-tipo-entrega {
+      background: #fef7e0;
+      color: #d97706;
+      border: 1px solid #fde68a;
+    }
+
+    .badge-tipo-origen {
+      background: #e6f4ea;
+      color: #1e8e3e;
+      border: 1px solid #86efac;
+    }
+
+    .badge-tipo-destino {
+      background: #f3e8fd;
+      color: #7b1fa2;
+      border: 1px solid #d8b4fe;
+    }
+
+    .badge-variacion-alta {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    .badge-variacion-normal {
+      background: #f0fdf4;
+      color: #16a34a;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    /* ============================================================
+           BOTONES DE ACCIÓN
+           ============================================================ */
+    .btn-ap-ver {
+      background: var(--ap-blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all .2s;
+    }
+
+    .btn-ap-ver:hover {
+      background: var(--ap-navy);
+      transform: translateY(-1px);
+    }
+
+    .btn-ap-aprobar {
+      background: var(--ap-green);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all .2s;
+    }
+
+    .btn-ap-aprobar:hover {
+      background: #15803d;
+      transform: translateY(-1px);
+    }
+
+    .btn-ap-rechazar {
+      background: transparent;
+      color: var(--ap-red);
+      border: 1px solid var(--ap-red);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all .2s;
+    }
+
+    .btn-ap-rechazar:hover {
+      background: var(--ap-red);
+      color: white;
+    }
+
+    /* ============================================================
+           OFFCANVAS DETALLE / GESTIÓN
+           ============================================================ */
+    .ap-offcanvas {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 92%;
+      max-width: 920px;
+      height: 88vh;
+      max-height: 88vh;
+      background: var(--ap-white);
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+      z-index: 1055;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .ap-offcanvas.show {
+      display: flex;
+    }
+
+    .ap-offcanvas-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 31, 61, .55);
+      backdrop-filter: blur(3px);
+      z-index: 1054;
+      display: none;
+    }
+
+    .ap-offcanvas-backdrop.show {
+      display: block;
+    }
+
+    .ap-oc-header {
+      background: linear-gradient(135deg, var(--ap-navy) 0%, var(--ap-blue) 100%);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .ap-oc-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ap-oc-ribbon {
+      width: 44px;
+      height: 44px;
+      background: rgba(232, 160, 32, .2);
+      border: 2px solid var(--ap-accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--ap-accent);
+      flex-shrink: 0;
+    }
+
+    .ap-oc-title {
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .ap-oc-sub {
+      color: rgba(255, 255, 255, .6);
+      font-size: .78rem;
+      margin: 0;
+    }
+
+    .ap-oc-close {
+      background: rgba(255, 255, 255, .1);
+      border: none;
+      border-radius: 7px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background .2s;
+    }
+
+    .ap-oc-close:hover {
+      background: rgba(255, 255, 255, .2);
+    }
+
+    .ap-oc-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 24px;
+    }
+
+    .ap-oc-footer {
+      border-top: 1px solid var(--ap-border);
+      padding: 14px 24px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      background: #f8fafc;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+           INFO TARIFA EN DETALLE
+           ============================================================ */
+    .ap-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .ap-info-item {
+      background: var(--ap-light);
+      border-radius: 8px;
+      padding: 12px 14px;
+      border: 1px solid var(--ap-border);
+    }
+
+    .ap-info-label {
+      font-size: .7rem;
+      color: var(--ap-gray);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      margin-bottom: 3px;
+    }
+
+    .ap-info-value {
+      font-size: .92rem;
+      color: var(--ap-navy);
+      font-weight: 600;
+    }
+
+    /* ============================================================
+           TABLA DE COMPONENTES EN DETALLE
+           ============================================================ */
+    .ap-comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .82rem;
+      margin-bottom: 16px;
+    }
+
+    .ap-comp-table th {
+      background: var(--ap-navy);
+      color: white;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .ap-comp-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--ap-border);
+      vertical-align: middle;
+    }
+
+    .ap-comp-table tbody tr:hover {
+      background: var(--ap-light);
+    }
+
+    .ap-comp-table .comp-pendiente td {
+      background: #fffbeb;
+    }
+
+    .ap-comp-table .comp-pendiente td:first-child {
+      border-left: 3px solid var(--ap-orange);
+    }
+
+    .ap-valor-input {
+      width: 130px;
+      border: 1px solid var(--ap-border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: .82rem;
+      background: white;
+      color: var(--ap-navy);
+      text-align: right;
+    }
+
+    .ap-valor-input:focus {
+      outline: none;
+      border-color: var(--ap-blue);
+      box-shadow: 0 0 0 2px rgba(26, 60, 107, .1);
+    }
+
+    /* ============================================================
+           SECCIÓN DE OBSERVACIONES
+           ============================================================ */
+    .ap-obs-section {
+      background: var(--ap-light);
+      border: 1px solid var(--ap-border);
+      border-radius: 9px;
+      padding: 18px 20px;
+      margin-top: 16px;
+    }
+
+    .ap-obs-title {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--ap-blue);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ap-obs-textarea {
+      width: 100%;
+      border: 1px solid var(--ap-border);
+      border-radius: 7px;
+      padding: 10px 12px;
+      font-size: .85rem;
+      resize: vertical;
+      min-height: 80px;
+      background: white;
+      color: var(--ap-navy);
+      font-family: inherit;
+    }
+
+    .ap-obs-textarea:focus {
+      outline: none;
+      border-color: var(--ap-blue);
+      box-shadow: 0 0 0 3px rgba(26, 60, 107, .1);
+    }
+
+    .ap-select {
+      width: 100%;
+      border: 1px solid var(--ap-border);
+      border-radius: 7px;
+      padding: 9px 12px;
+      font-size: .85rem;
+      background: white;
+      color: var(--ap-navy);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+
+    /* ============================================================
+           EMPTY STATE & LOADING
+           ============================================================ */
+    .ap-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--ap-gray);
+    }
+
+    .ap-empty-icon {
+      font-size: 3rem;
+      margin-bottom: 14px;
+      opacity: .4;
+    }
+
+    .ap-empty-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ap-navy);
+      margin-bottom: 6px;
+    }
+
+    .ap-empty-sub {
+      font-size: .85rem;
+    }
+
+    .ap-skeleton {
+      background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+      background-size: 200% 100%;
+      animation: ap-shimmer 1.4s infinite;
+      border-radius: 4px;
+      height: 14px;
+    }
+
+    @keyframes ap-shimmer {
+      0% {
+        background-position: 200% 0
+      }
+
+      100% {
+        background-position: -200% 0
+      }
+    }
+
+    /* ============================================================
+           FLASH NOTIFICATION
+           ============================================================ */
+    .ap-flash {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 380px;
+      border-radius: 10px;
+      padding: 14px 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transform: translateX(420px);
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
+      font-size: .85rem;
+    }
+
+    .ap-flash.show {
+      transform: translateX(0);
+    }
+
+    .ap-flash.success {
+      background: #f0fdf4;
+      border-left: 4px solid var(--ap-green);
+      color: #166534;
+    }
+
+    .ap-flash.error {
+      background: #fef2f2;
+      border-left: 4px solid var(--ap-red);
+      color: #991b1b;
+    }
+
+    .ap-flash.info {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      color: #1d4ed8;
+    }
+
+    .ap-flash-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      opacity: .6;
+      margin-left: auto;
+      font-size: 1rem;
+    }
+
+    /* ============================================================
+           BADGE DÍAS DESDE SOLICITUD
+           ============================================================ */
+    .dias-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: .7rem;
+      font-weight: 700;
+    }
+
+    .dias-badge.urgente {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .dias-badge.atencion {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    .dias-badge.normal {
+      background: #f0fdf4;
+      color: #166534;
+    }
+
+    /* ============================================================
+           SEMÁFORO DE VIGENCIA
+           ============================================================ */
+    .semaforo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    .dot-verde {
+      background: #16a34a;
+    }
+
+    .dot-amarillo {
+      background: #f59e0b;
+    }
+
+    .dot-rojo {
+      background: #dc2626;
+    }
+
+
+    .ap-mun-card {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 10px;
+      padding: 0;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .ap-mun-card-header {
+      background: #0284c7;
+      color: white;
+      padding: 10px 16px;
+      font-size: .78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .ap-mun-edit-badge {
+      background: rgba(255, 255, 255, .18);
+      border: 1px solid rgba(255, 255, 255, .3);
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: .7rem;
+      font-weight: 600;
+      color: #e0f2fe;
+      white-space: nowrap;
+    }
+
+    .ap-mun-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .81rem;
+    }
+
+    .ap-mun-table thead tr {
+      background: #e0f2fe;
+    }
+
+    .ap-mun-table thead th {
+      padding: 8px 12px;
+      color: #0369a1;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      border-bottom: 1px solid #bae6fd;
+    }
+
+    .ap-mun-table tbody tr {
+      border-bottom: 1px solid #e0f2fe;
+      transition: background .12s;
+    }
+
+    .ap-mun-table tbody tr:hover {
+      background: #e0f2fe;
+    }
+
+    .ap-mun-table tbody td {
+      padding: 8px 12px;
+      vertical-align: middle;
+      color: var(--ap-navy);
+    }
+
+    .ap-mun-nombre {
+      font-weight: 600;
+      min-width: 180px;
+    }
+
+    .ap-mun-input {
+      width: 120px;
+      border: 1px solid #bae6fd;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: .82rem;
+      text-align: right;
+      background: white;
+      color: var(--ap-navy);
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .ap-mun-input:focus {
+      outline: none;
+      border-color: #0284c7;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, .15);
+    }
+
+    .ap-mun-input:hover {
+      border-color: #7dd3fc;
+    }
+
+    .ap-mun-total {
+      font-weight: 700;
+      color: #0369a1;
+      font-size: .85rem;
+      white-space: nowrap;
+    }
+
+    .ap-mun-btn-reset {
+      background: transparent;
+      border: 1px solid #bae6fd;
+      border-radius: 5px;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #0369a1;
+      cursor: pointer;
+      font-size: .72rem;
+      transition: all .2s;
+    }
+
+    .ap-mun-btn-reset:hover {
+      background: #0284c7;
+      color: white;
+      border-color: #0284c7;
+    }
+
+    .ap-mun-btn-guardar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 12px 16px 14px;
+      background: #0f766e;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 18px;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+
+    .ap-mun-btn-guardar:hover {
+      background: #115e59;
+      transform: translateY(-1px);
+    }
+
+    .ap-mun-btn-guardar:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Ajuste para que la fila de filtros no sea tan alta */
+    thead tr.filters th {
+      padding: 5px !important;
+      background-color: #f8f9fa !important;
+    }
+
+    thead tr.filters input {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+  </style>
+
+  <!-- Variables de sesión -->
+  <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+  <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+  <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+  <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+  <input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+  <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+  <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+  <input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+  <!-- ============================================================
+         FLASH NOTIFICATION
+         ============================================================ -->
+  <div id="ap-flash-costos" class="ap-flash">
+    <i id="ap-flash-icon-costos" class="fas fa-check-circle" style="font-size:1.1rem; flex-shrink:0;"></i>
+    <div>
+      <div id="ap-flash-title-costos" style="font-weight:700; margin-bottom:2px;"></div>
+      <div id="ap-flash-msg-costos" style="opacity:.85;"></div>
+    </div>
+    <button class="ap-flash-close" onclick="apCostosFlashHide()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <!-- ============================================================
+         HEADER
+         ============================================================ -->
+  <div class="ap-header">
+    <div class="ap-header-left">
+      <div class="ap-header-icon"><i class="fas fa-dollar-sign"></i></div>
+      <div>
+        <p class="ap-header-title">Bandeja de Aprobación — Tarifas de Costo</p>
+        <p class="ap-header-sub">Solo tarifas que superan el umbral de variación permitido · Ordenadas de más antigua a más reciente</p>
+      </div>
+    </div>
+    <div class="ap-header-badge">
+      <i class="fas fa-clock"></i>
+      <span id="ap-costos-badge-count">0</span> pendientes
+    </div>
+  </div>
+
+  <!-- ============================================================
+         ESTADÍSTICAS RÁPIDAS
+         ============================================================ -->
+  <!-- <div class="ap-stats">
+    <div class="ap-stat-card">
+      <div class="ap-stat-icon pendiente"><i class="fas fa-hourglass-half"></i></div>
+      <div>
+        <div class="ap-stat-num" id="costos-cnt-pendientes">—</div>
+        <div class="ap-stat-label">Total pendientes</div>
+      </div>
+    </div>
+    <div class="ap-stat-card">
+      <div class="ap-stat-icon hoy"><i class="fas fa-calendar-day"></i></div>
+      <div>
+        <div class="ap-stat-num" id="costos-cnt-hoy">—</div>
+        <div class="ap-stat-label">Ingresadas hoy</div>
+      </div>
+    </div>
+    <div class="ap-stat-card">
+      <div class="ap-stat-icon semana"><i class="fas fa-calendar-week"></i></div>
+      <div>
+        <div class="ap-stat-num" id="costos-cnt-semana">—</div>
+        <div class="ap-stat-label">Esta semana</div>
+      </div>
+    </div>
+    <div class="ap-stat-card">
+      <div class="ap-stat-icon rechazada"><i class="fas fa-times-circle"></i></div>
+      <div>
+        <div class="ap-stat-num" id="costos-cnt-mayor5">—</div>
+        <div class="ap-stat-label">Más de 5 días</div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ============================================================
+         FILTROS
+         ============================================================ -->
+  <div class="ap-filters">
+    <div class="ap-filters-title"><i class="fas fa-filter"></i> Filtros de consulta</div>
+    <div class="row g-2 align-items-end">
+      <div class="col-md-2">
+        <div class="ap-form-label">Fecha desde</div>
+        <input type="date" id="ap-costos-fecha-desde" class="ap-input">
+      </div>
+      <div class="col-md-2">
+        <div class="ap-form-label">Fecha hasta</div>
+        <input type="date" id="ap-costos-fecha-hasta" class="ap-input">
+      </div>
+      <div class="col-md-3">
+        <div class="ap-form-label">Buscar (origen / destino)</div>
+        <!-- <input type="text" id="ap-costos-search" class="ap-input" placeholder="Escribe para filtrar..."> -->
+        <div class="position-relative">
+          <i class="bi bi-search" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--slate-400);font-size:.78rem;pointer-events:none;"></i>
+          <!-- <input type="text" id="f_search" class="f-control" style="padding-left:28px;" placeholder="Escribe para filtrar..."> -->
+          <select id="f_numicipios_aprobacion" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="ap-form-label">Tipo vehículo</div>
+        <select id="ap-costos-tipo-vehiculo" class="ap-input ap-select">
+          <option value="">Todos</option>
+          <option value="NHR_2">NHR — Sencillo &gt;2500 Kg</option>
+          <option value="2">Sencillo &gt;10500 Kg</option>
+          <option value="2_7_8">Sencillo 7500-8000 Kg</option>
+          <option value="2_8_9">Sencillo 8001-9000 Kg</option>
+          <option value="2_9_105">Sencillo 9001-10500 Kg</option>
+          <option value="2S2">Tractomula 2+2 ejes</option>
+          <option value="2S3">Tractomula 2+3 ejes</option>
+          <option value="3">Dobletroque 3 ejes</option>
+          <option value="3S2">Tractomula 3+2 ejes</option>
+          <option value="3S3">Tractomula 3+3 ejes</option>
+        </select>
+      </div>
+      <div class="col-auto d-flex gap-2">
+        <button class="ap-btn-filtrar" onclick="apCostosCargar()">
+          <i class="fas fa-search"></i> Consultar
+        </button>
+        <button class="ap-btn-limpiar" onclick="apCostosLimpiarFiltros()">
+          <i class="fas fa-eraser"></i> Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+         TABLA PRINCIPAL
+         ============================================================ -->
+  <div class="ap-table-wrapper">
+    <div class="ap-table-header">
+      <div class="ap-table-title">
+        <i class="fas fa-list-alt" style="color:var(--ap-blue);"></i>
+        Solicitudes pendientes de aprobación — Costos
+      </div>
+      <!-- <div style="display:flex; gap:10px; align-items:center;">
+        <input type="text" id="ap-costos-col-search" class="ap-input" style="width:220px;" placeholder="&#128269; Filtrar tabla..." oninput="apCostosFiltrarTabla(this.value)">
+        <button class="ap-btn-filtrar" onclick="apCostosCargar()" style="padding:7px 14px;">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div> -->
+    </div>
+    <div class="ap-scroll-container py-2">
+      <table id="tabla-aprobaciones-costos" style="width: 100%;">
+        <thead>
+          <tr>
+            <th style="width:40px;">#</th>
+            <th>Fecha Solicitud</th>
+            <th>Días</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Vehículo</th>
+            <th>Tarifa Plena</th>
+            <!-- <th>Componentes<br>Pendientes</th> -->
+            <th>Componentes Pendientes</th>
+            <th>Vigencia</th>
+            <th>Usuario</th>
+            <th style="min-width:180px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="ap-costos-tbody">
+          <tr>
+            <td colspan="11" style="text-align:center; padding:40px;">
+              <div class="ap-empty-icon"><i class="fas fa-spinner fa-spin"></i></div>
+              <div>Cargando solicitudes...</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================================================
+         BACKDROP
+         ============================================================ -->
+  <div id="ap-costos-backdrop" class="ap-offcanvas-backdrop" onclick="apCostosCerrarDetalle()"></div>
+
+  <!-- ============================================================
+         OFFCANVAS DETALLE / GESTIÓN
+         ============================================================ -->
+  <div id="ap-costos-offcanvas" class="ap-offcanvas" role="dialog" aria-modal="true">
+
+    <!-- Header -->
+    <div class="ap-oc-header">
+      <div class="ap-oc-header-left">
+        <div class="ap-oc-ribbon"><i class="fas fa-dollar-sign"></i></div>
+        <div>
+          <p class="ap-oc-title" id="ap-costos-oc-title">Gestión de Aprobación — Costo</p>
+          <p class="ap-oc-sub" id="ap-costos-oc-sub">Tarifa #—</p>
+        </div>
+      </div>
+      <button class="ap-oc-close" onclick="apCostosCerrarDetalle()" title="Cerrar">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="ap-oc-body" id="ap-costos-oc-body">
+
+      <!-- Info general de la tarifa -->
+      <div class="ap-info-grid" id="ap-costos-info-grid"></div>
+
+      <!-- Encabezado sección componentes -->
+      <div style="font-size:.8rem; font-weight:700; color:var(--ap-blue); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+        <i class="fas fa-cubes"></i> Componentes de la tarifa
+        <span style="font-size:.72rem; color:var(--ap-gray); font-weight:400; margin-left:4px;">
+          — El aprobador puede modificar los valores sin control de umbral
+        </span>
+      </div>
+
+      <!-- Tabla de componentes -->
+      <div style="overflow-x:auto; margin-bottom:20px;">
+        <table class="ap-comp-table" id="ap-costos-comp-table">
+          <thead>
+            <tr>
+              <th style='width:auto; white-space: nowrap;'>Tipo</th>
+              <th style='width:auto; white-space: nowrap;'>Valor Anterior</th> <!-- NUEVA -->
+              <th style='width:auto; white-space: nowrap;'>Valor Nuevo</th>
+              <th style='width:auto; white-space: nowrap;'>% Variación</th>
+              <th style='width:auto; white-space: nowrap;'>Tarifa Mercado</th> <!-- NUEVA -->
+              <th style='width:auto; white-space: nowrap;'>Tarifa Sicetat</th> <!-- NUEVA -->
+              <th style='width:auto; white-space: nowrap;'>Ajustar Valor</th>
+              <th style='width:auto; white-space: nowrap;'>% Variación SiceTac</th>
+              <th style='width:auto; white-space: nowrap;'>Estado</th>
+              <!-- <th style='width:auto; white-space: nowrap;'>Acción Individual</th> -->
+            </tr>
+          </thead>
+          <tbody id="ap-costos-comp-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Detalle MultiOrigen / MultiDestino -->
+      <div id="ap-costos-detalle-multi" style="display:none;"></div>
+
+      <!-- Observaciones y causa -->
+      <div class="ap-obs-section">
+        <div class="ap-obs-title"><i class="fas fa-comment-alt"></i> Observaciones de aprobación</div>
+        <div class="row g-3">
+          <div class="col-md-5">
+            <label class="ap-form-label">Causa <span style="color:var(--ap-gray); font-weight:400;">(parametrizada)</span></label>
+            <select id="ap-costos-causa-id" class="ap-select">
+              <option value="">Sin causa / No aplica</option>
+              <!-- <option value="1">Acuerdo comercial especial</option>
+              <option value="2">Fidelización de cliente</option>
+              <option value="3">Ajuste por volumen</option>
+              <option value="4">Negociación directa gerencia</option>
+              <option value="5">Campaña temporal</option>
+              <option value="99">Otro (indicar en observaciones)</option> -->
+            </select>
+          </div>
+          <div class="col-md-7">
+            <label class="ap-form-label">Observación libre</label>
+            <textarea id="ap-costos-observacion" class="ap-obs-textarea"
+              placeholder="Detalle adicional sobre la decisión de aprobación..."></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- /body -->
+
+    <!-- Footer -->
+    <div class="ap-oc-footer">
+      <button class="ap-btn-limpiar" onclick="apCostosCerrarDetalle()">
+        <i class="fas fa-times me-1"></i> Cancelar
+      </button>
+      <button class="btn-ap-rechazar" id="ap-costos-btn-rechazar" onclick="apCostosRechazarTarifa()">
+        <i class="fas fa-times-circle"></i> Rechazar Tarifa
+      </button>
+      <!--<button class="ap-btn-filtrar" id="ap-costos-btn-guardar-ajuste"
+        onclick="apCostosGuardarAjuste()" style="background:#0f766e;">
+        <i class="fas fa-save"></i> Guardar Ajuste
+      </button>-->
+      <button class="btn-ap-aprobar" id="ap-costos-btn-aprobar" onclick="apCostosAprobarTarifa()">
+        <i class="fas fa-check-circle"></i> Aprobar Tarifa Completa
+      </button>
+    </div>
+
+  </div>
+  <!-- /offcanvas -->
+
+</div>
+<!-- /container -->

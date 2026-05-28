@@ -76,49 +76,209 @@ class transporteModel extends Model
     }
 
     //DATOS CON NUEVA FORMA
+
     public function prueba()
     {
         try {
             $fecha = date('Y-m-d');
-            $hora = date('H:i:s');
-            $sql = "SELECT  DISTINCT(remi.id),
-            sf.placa, sf.num_estudioseguridad,
-            ps.id_servicio_cliente,remi.id AS idremitente, remi.lugar,
-            sf.flete_propuesto, su.id AS idsubasta, es.id AS idestudi,remi.id_punto,
-            rm.nombre, remi.peso AS peso_remitente,sf.tarifa_promedio,
-            sf.id AS id_subastaflete, es.id AS id_estadoflete,
-            ef.estado_final, sf.id,  sf.estado_orden, remi.id
+
+            $sql = "SELECT DISTINCT(remi.id),
+                sf.placa,
+                sf.num_estudioseguridad,
+                ps.id_servicio_cliente,
+                remi.id AS idremitente,
+                remi.lugar,
+                sf.flete_propuesto,
+                su.id AS idsubasta,
+                es.id AS idestudi,
+                remi.id_punto,
+                rm.nombre,
+                remi.peso AS peso_remitente,
+                sf.tarifa_promedio,
+                sf.id AS id_subastaflete,
+                es.id AS id_estadoflete,
+                ef.estado_final,
+                sf.id,
+                sf.estado_orden,
+                remi.id,
+                se.agencia
             FROM cmx_subasta su
-            INNER JOIN cmx_subasta_solicitud_servicio ss ON su.id=ss.id_subasta
-            INNER JOIN cmx_subasta_flete sf ON ss.id=sf.id_suba_servicio AND ss.id_subasta=sf.id_suba
-            INNER JOIN cmx_estado_subasta_flete ef ON sf.id=ef.id_suba_flete
-            INNER JOIN cmx_estudio_vehiculo es ON  sf.num_estudioseguridad=es.id_estudio
-            INNER JOIN cmx_estudiov_completo eco ON es.id_estudio=eco.id_estudio AND eco.estado_actu=1
-            INNER JOIN cmx_preestudio_solicitudes_servicio ps ON es.id_estudio=ps.id_solicitudpreestudio AND ss.numer_solservicio=ps.id_servicio_cliente AND ps.clasificacion='E'
-            INNER JOIN cmx_solicitud_vehiculo2 se ON ps.id_servicio_cliente=se.nundoc_solicitud
-            INNER JOIN cmx_detalle_mercancia2 detalle ON se.idpareja_origen_destino=detalle.id
-            INNER JOIN cmx_ruta_puntosentrega remi ON remi.cod_ini_ruta=se.nundoc_solicitud  and remi.tipo='punto recogida'
-            INNER JOIN cmx_remitente_destinatario rm ON remi.cliente=rm.id
-            WHERE eco.estado='Aprobado' AND eco.estado_actu=1  AND eco.fecha='" . $fecha . "'
-            AND ef.estado_final='Ganador' AND sf.estado_orden='pendiente'
-            AND su.fecha_finaliza >='" . $fecha . "'
-            GROUP BY remi.id";
-            $resultado = $this->_db3->query($sql);
-            $resultado->setFetchMode(PDO::FETCH_ASSOC);
-            return $resultado->fetchall();
-        } catch (PDOExeption $e) {
-            $error = $e->getMessage();
-            $this->_db3->rollBack();
+            INNER JOIN cmx_subasta_solicitud_servicio ss ON su.id = ss.id_subasta
+            INNER JOIN cmx_subasta_flete sf ON ss.id = sf.id_suba_servicio 
+               AND ss.id_subasta = sf.id_suba
+            INNER JOIN cmx_estado_subasta_flete ef ON sf.id = ef.id_suba_flete
+            INNER JOIN cmx_estudio_vehiculo es ON sf.num_estudioseguridad = es.id_estudio
+            INNER JOIN cmx_estudiov_completo eco ON es.id_estudio = eco.id_estudio 
+               AND eco.estado_actu = 1
+            INNER JOIN cmx_preestudio_solicitudes_servicio ps ON es.id_estudio = ps.id_solicitudpreestudio 
+               AND ss.numer_solservicio = ps.id_servicio_cliente 
+               AND ps.clasificacion = 'E'
+            INNER JOIN cmx_solicitud_vehiculo2 se ON ps.id_servicio_cliente = se.nundoc_solicitud
+            INNER JOIN cmx_detalle_mercancia2 detalle ON se.idpareja_origen_destino = detalle.id
+            INNER JOIN cmx_ruta_puntosentrega remi ON remi.cod_ini_ruta = se.nundoc_solicitud  
+               AND remi.tipo = 'punto recogida'
+            INNER JOIN cmx_remitente_destinatario rm ON remi.cliente = rm.id
+            LEFT JOIN cmx_orden_cargue oc ON remi.id = oc.id_remitente
+            WHERE eco.estado = 'Aprobado'
+              AND eco.estado_actu = 1
+              AND eco.fecha = :fecha
+              AND ef.estado_final = 'Ganador'
+              AND sf.estado_orden = 'pendiente'
+              AND oc.id_remitente IS NULL
+            GROUP BY remi.id
+            ";
+
+            $stmt = $this->_db3->prepare($sql);
+            $stmt->bindParam(':fecha', $fecha, PDO::PARAM_STR);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
         }
     }
+
+
+    // public function prueba()
+    // {
+    //     try {
+
+    //         $this->_db3->beginTransaction();
+
+    //         $fecha = date('Y-m-d');
+    //         $hora = date('H:i:s');
+
+    //         $sql = "SELECT  DISTINCT(remi.id),
+    //         sf.placa, sf.num_estudioseguridad,
+    //         ps.id_servicio_cliente,remi.id AS idremitente, remi.lugar,
+    //         sf.flete_propuesto, su.id AS idsubasta, es.id AS idestudi,remi.id_punto,
+    //         rm.nombre, remi.peso AS peso_remitente,sf.tarifa_promedio,
+    //         sf.id AS id_subastaflete, es.id AS id_estadoflete,
+    //         ef.estado_final, sf.id,  sf.estado_orden, remi.id, se.agencia
+    //         FROM cmx_subasta su
+    //         INNER JOIN cmx_subasta_solicitud_servicio ss ON su.id=ss.id_subasta
+    //         INNER JOIN cmx_subasta_flete sf ON ss.id=sf.id_suba_servicio AND ss.id_subasta=sf.id_suba
+    //         INNER JOIN cmx_estado_subasta_flete ef ON sf.id=ef.id_suba_flete
+    //         INNER JOIN cmx_estudio_vehiculo es ON  sf.num_estudioseguridad=es.id_estudio
+    //         INNER JOIN cmx_estudiov_completo eco ON es.id_estudio=eco.id_estudio AND eco.estado_actu=1
+    //         INNER JOIN cmx_preestudio_solicitudes_servicio ps ON es.id_estudio=ps.id_solicitudpreestudio AND ss.numer_solservicio=ps.id_servicio_cliente AND ps.clasificacion='E'
+    //         INNER JOIN cmx_solicitud_vehiculo2 se ON ps.id_servicio_cliente=se.nundoc_solicitud
+    //         INNER JOIN cmx_detalle_mercancia2 detalle ON se.idpareja_origen_destino=detalle.id
+    //         INNER JOIN cmx_ruta_puntosentrega remi ON remi.cod_ini_ruta=se.nundoc_solicitud  and remi.tipo='punto recogida'
+    //         INNER JOIN cmx_remitente_destinatario rm ON remi.cliente=rm.id
+    //         LEFT JOIN cmx_orden_cargue oc ON remi.id=oc.id_remitente
+    //         WHERE eco.estado='Aprobado' AND eco.estado_actu=1  AND eco.fecha='" . $fecha . "'
+    //         AND ef.estado_final='Ganador' AND sf.estado_orden='pendiente' AND oc.id_remitente IS NULL
+    //         GROUP BY remi.id";
+
+    //         $resultado = $this->_db3->query($sql);
+    //         $resultado->setFetchMode(PDO::FETCH_ASSOC);
+    //         $this->_db3->commit();
+    //         return $resultado->fetchall();
+    //     } catch (PDOException $e) {
+    //         $this->_db3->rollBack();
+    //         $error = $e->getMessage();
+    //     }
+    // }
+
+    // public function prueba()
+    // {
+    //     try {
+
+    //         $fecha = date('Y-m-d');
+
+    //         $sql = "
+    //     WITH subasta_unica AS (
+    //         SELECT
+    //             sf.id                          AS id_subastaflete,
+    //             sf.placa,
+    //             sf.num_estudioseguridad,
+    //             ps.id_servicio_cliente,
+    //             remi.id                       AS id_remitente,
+    //             remi.lugar,
+    //             remi.id_punto,
+    //             rm.nombre                     AS remitente,
+    //             remi.peso                     AS peso_remitente,
+    //             sf.flete_propuesto,
+    //             sf.tarifa_promedio,
+    //             su.id                         AS idsubasta,
+    //             es.id                         AS idestudi,
+    //             ef.estado_final,
+    //             sf.estado_orden,
+    //             se.agencia,
+
+    //             ROW_NUMBER() OVER (
+    //                 PARTITION BY sf.id
+    //                 ORDER BY remi.id ASC
+    //             ) AS rn
+
+    //         FROM cmx_subasta su
+    //         INNER JOIN cmx_subasta_solicitud_servicio ss 
+    //             ON su.id = ss.id_subasta
+
+    //         INNER JOIN cmx_subasta_flete sf 
+    //             ON ss.id = sf.id_suba_servicio 
+    //            AND ss.id_subasta = sf.id_suba
+
+    //         INNER JOIN cmx_estado_subasta_flete ef 
+    //             ON sf.id = ef.id_suba_flete
+
+    //         INNER JOIN cmx_estudio_vehiculo es 
+    //             ON sf.num_estudioseguridad = es.id_estudio
+
+    //         INNER JOIN cmx_estudiov_completo eco 
+    //             ON es.id_estudio = eco.id_estudio 
+    //            AND eco.estado_actu = 1
+
+    //         INNER JOIN cmx_preestudio_solicitudes_servicio ps 
+    //             ON es.id_estudio = ps.id_solicitudpreestudio 
+    //            AND ss.numer_solservicio = ps.id_servicio_cliente 
+    //            AND ps.clasificacion = 'E'
+
+    //         INNER JOIN cmx_solicitud_vehiculo2 se 
+    //             ON ps.id_servicio_cliente = se.nundoc_solicitud
+
+    //         INNER JOIN cmx_detalle_mercancia2 detalle 
+    //             ON se.idpareja_origen_destino = detalle.id
+
+    //         INNER JOIN cmx_ruta_puntosentrega remi 
+    //             ON remi.cod_ini_ruta = se.nundoc_solicitud
+    //            AND remi.tipo = 'punto recogida'
+
+    //         INNER JOIN cmx_remitente_destinatario rm 
+    //             ON remi.cliente = rm.id
+
+    //         WHERE eco.estado = 'Aprobado'
+    //           AND eco.estado_actu = 1
+    //           AND eco.fecha = :fecha
+    //           AND ef.estado_final = 'Ganador'
+    //           AND sf.estado_orden = 'pendiente'
+    //     )
+    //     SELECT *
+    //     FROM subasta_unica
+    //     WHERE rn = 1
+    //     ORDER BY id_subastaflete;
+    //     ";
+
+    //         $stmt = $this->_db3->prepare($sql);
+    //         $stmt->bindParam(':fecha', $fecha, PDO::PARAM_STR);
+    //         $stmt->execute();
+
+    //         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //     } catch (PDOException $e) {
+    //         return [
+    //             'error' => true,
+    //             'message' => $e->getMessage()
+    //         ];
+    //     }
+    // }
 
     public function Datos_placa($placa)
     {
         try {
-            $resultado = $this->_db2->conectar();
+            // $resultado = $this->_db2->conectar();
 
-            $sql =
-                "SELECT v.numdoc_vehiculo AS idvehiculo, v.placa, rvc.descripcion AS tipo_carroceria, vmar.marca,
+            $sql = $this->_db3->prepare("SELECT v.numdoc_vehiculo AS idvehiculo, v.placa, rvc.descripcion AS tipo_carroceria, vmar.marca,
 			b.anio_fabricacion, colou.color, b.tipo_vinculacion,b.vence_soat, b.capacidad_tn, m.tecno_fecha_vigencia,p.numdoc_nexos as id_pro,
 			p.tipo_documento AS prodoc, p.numero_documento AS pronum, p.nombre AS pronom, p.apellido1 AS proape1, p.apellido2 AS proape2,
 			te.tipo_documento AS tedoc , te.numero_documento AS tenum, te.nombre AS tenom, te.apellido1 AS teape1, te.apellido2 AS teape2, te.numdoc_nexos as id_ten,
@@ -138,13 +298,18 @@ class transporteModel extends Model
 			LEFT JOIN cmx_rndc_vehiculos_color colou ON b.color=colou.id
 			LEFT JOIN cmx_trailer_vehiculo tv ON v.numdoc_vehiculo=tv.id_vehiculo
 			LEFT JOIN cmx_trailer tra ON tv.id_trailer=tra.id
-			WHERE v.placa='" . $placa . "'";
+			WHERE v.placa=:Placa");
+            $sql->bindParam(":Placa", $placa);
+            $sql->execute();
+            $result = $sql->fetch(PDO::FETCH_ASSOC);
+            return $result;
 
-            $consulta = $resultado->query($sql);
-            return $consulta->fetch();
-        } catch (PDOExeption $e) {
+            // $consulta = $resultado->query($sql);
+            // return $consulta->fetch();
+        } catch (PDOException $e) {
+            $this->_db3->rollBack();
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            return  $error;
         }
     }
 
@@ -170,7 +335,7 @@ class transporteModel extends Model
             return $consulta->fetch();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -196,7 +361,7 @@ class transporteModel extends Model
             return $consult->fetchall();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -220,9 +385,9 @@ class transporteModel extends Model
 			AND p.id_punto=" . $idpunto;
             $consult = $resultado->query($sql);
             return $consult->fetchall();
-        } catch (PDOExeption $e) {
+        } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
     //DATOS PARAMETRICOS
@@ -240,7 +405,7 @@ class transporteModel extends Model
         return $return;*/
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -260,7 +425,7 @@ class transporteModel extends Model
             return $consult->fetch();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -277,9 +442,9 @@ class transporteModel extends Model
             return $return;*/
             $consultm = $resultado->query($sql4);
             return $consultm->fetchall();
-        } catch (PDOExeption $e) {
+        } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -291,9 +456,9 @@ class transporteModel extends Model
 					WHERE id=" . $id_remitent;
             $resultado->prepare($sql9)->execute();
             return 'true';
-        } catch (PDOExeption $e) {
+        } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
             return 'false';
         }
     }
@@ -339,16 +504,14 @@ class transporteModel extends Model
         $id_subasta_flete,
         $id_esubasta_flete
     ) {
-
-        // echo (int)$cnt_dias2;
-        // exit();
-        $resultado = $this->_db2->conectar();
+        $resultado = $this->_db3;
         $resultadoo = $this->_db2->conectar();
         $factual = date('Y-m-d');
         $horactual = date('H:i:s');
         $id_usuario = $_SESSION["usuario"]["nom_usuario"];
         $_msg_error = "";
-        //santizar
+
+        // Sanitizar
         (int) $n_ordene;
         (int) $idcliente;
         (int) $id_vehiculo;
@@ -365,268 +528,219 @@ class transporteModel extends Model
         (int) $pesok;
         (int) $id_remitente;
 
-        if ($cnt_dias2) {
-            $cont_dias = $cnt_dias2;
-        } else {
-            $cont_dias = NULL;
-        }
-
-        $cont_municipio = (int)$cnt_dias2;
-        if (isset($cnt_direccion)) {
-            $cont_direccion = $cnt_direccion;
-        } else {
-            $cont_direccion = '';
-        }
-        $cont_tipo = (int)$cnt_tpo;
-
-        if ($cnt_comodato) {
-            $cont_comodato = $cnt_comodato;
-        } else {
-            $cont_comodato = NULL;
-        }
-        if ($cnt_vacio) {
-            $cont_peso = $cnt_vacio;
-        } else {
-            $cont_peso = (int)0;
-        }
+        $cont_dias = $cnt_dias2 ?: NULL;
+        $cont_municipio = (int) $cnt_muni2;
+        $cont_direccion = $cnt_direccion ?? '';
+        $cont_tipo = (int) $cnt_tpo;
+        $cont_comodato = $cnt_comodato ?: NULL;
+        $cont_peso = $cnt_vacio ?: 0;
 
         try {
+            // Iniciar transacción
+            $this->_db3->beginTransaction();
+
             $empresa_id = $_SESSION['usuario']['empresa_id'];
-            $sqlm = "select numero_actual from cmx_maestro where tipo='OC' and numero_actual>=numero_inicial and numero_actual<=numero_final and empresa_id='" . $empresa_id . "'";
-            $number = $resultado->query($sqlm);
-            $number1 = $number->fetch();
+            $sqlm = "SELECT numero_actual FROM cmx_maestro 
+                 WHERE tipo='OC' AND numero_actual>=numero_inicial 
+                 AND numero_actual<=numero_final 
+                 AND empresa_id=:empresa";
+            $stmt = $this->_db3->prepare($sqlm);
+            $stmt->execute([':empresa' => $empresa_id]);
+            $number1 = $stmt->fetch();
             $number2 = $number1['numero_actual'];
-            $operacion = ($number2 + 1);
-            $resultado->prepare('update cmx_maestro set numero_actual=:numero where tipo=:tipo and empresa_id=:empresa')->execute(array(':numero' => $operacion, ':tipo' => 'OC', ':empresa' => $empresa_id));
+            $operacion = $number2 + 1;
 
-            //actualizar datos del remitente
-            $i = 0;
-            while ($i < count($dat->idremi)) {
-                $dir = $dat->dire[$i];
-                $tele = $dat->tel[$i];
-                $fecha = $dat->fech[$i];
-                $hora = $dat->hor[$i];
-                $obser = $dat->obs[$i];
-                $idremi = $dat->idremi[$i];
+            // Actualizar consecutivo
+            $this->_db3->prepare('UPDATE cmx_maestro 
+                              SET numero_actual=:numero 
+                              WHERE tipo=:tipo AND empresa_id=:empresa')
+                ->execute([':numero' => $operacion, ':tipo' => 'OC', ':empresa' => $empresa_id]);
 
-                $resultado->prepare("update cmx_ruta_puntosentrega set direccion_entrega=:dir,
-					fecha_estimada_entrega=:fecha,
-					observacion=:obsre,
-					hora_estimada=:horarecoge
-					where id=:idremi")->execute(
-                    array(
-                        ':dir' => $dir,
-                        'idremi' => $idremi,
-                        ':fecha' => $fecha,
-                        'obsre' => $obser,
-                        'horarecoge' => $hora,
-                    )
-                );
-                $i++;
+            // Actualizar remitentes
+            for ($i = 0; $i < count($dat->idremi); $i++) {
+                $this->_db3->prepare("UPDATE cmx_ruta_puntosentrega 
+                SET direccion_entrega=:dir,
+                    fecha_estimada_entrega=:fecha,
+                    observacion=:obsre,
+                    hora_estimada=:horarecoge
+                WHERE id=:idremi")
+                    ->execute([
+                        ':dir' => $dat->dire[$i],
+                        ':fecha' => $dat->fech[$i],
+                        ':obsre' => $dat->obs[$i],
+                        ':horarecoge' => $dat->hor[$i],
+                        ':idremi' => $dat->idremi[$i]
+                    ]);
             }
 
-            //insertar remitentes
-            $a = 0;
-            while ($a < count($renuevo->p_ciudad)) {
-                $p_ciudad = $renuevo->p_ciudad[$a];
-                $clientea = $renuevo->clientea[$a];
-                $dire = $renuevo->dire[$a];
-                $fechar = $renuevo->fecha[$a];
-                $observa = $renuevo->observa[$a];
-                $horar = $renuevo->hora[$a];
-                $tipor = $renuevo->tipo[$a];
-                $orden = $renuevo->orden[$a];
-                $num_servicio = $num_servicio;
-
-                $resultado->prepare("insert into cmx_ruta_puntosentrega(id,cod_ini_ruta,municipio_entrega,direccion_entrega,cliente,fecha_estimada_entrega,observacion,fecha,hora,usuario,hora_estimada,tipo,orden)values(null,:id_servicio,:municipio,:direc,:cliente,:fecremite,:nota,:fhoy,:hhoy,:user,:horare,:tipo,:orden)")
-                    ->execute(
-                        array(
-                            ':id_servicio' => $num_servicio,
-                            ':municipio' => $p_ciudad,
-                            ':direc' => $dire,
-                            ':cliente' => $clientea,
-                            ':fecremite' => $fechar,
-                            ':nota' => $observa,
-                            ':fhoy' => $factual,
-                            ':hhoy' => $horactual,
-                            ':user' => $id_usuario,
-                            ':horare' => $horar,
-                            ':tipo' => $tipor,
-                            ':orden' => $orden,
-                        )
-                    );
-                $a++;
-            }
-
-            //actualizar destinatario
-            $m = 0;
-            while ($m < count($actudesty->iddest)) {
-                $direccion = $actudesty->direccion[$m];
-                $destino = $actudesty->destino[$m];
-                $fecha_entrega = $actudesty->fecha_entrega[$m];
-                $horaentre = $actudesty->horaentre[$m];
-                $observacion = $actudesty->observacion[$m];
-                $iddest = $actudesty->iddest[$m];
-
-                $resultado->prepare("update cmx_ruta_puntosentrega set
-					municipio_entrega=:ciudad,
-					direccion_entrega=:direccion,
-					fecha_estimada_entrega=:fecha,
-					observacion=:obs,
-					hora_estimada=:horad
-					where id=:idtb")->execute(
-                    array(
-                        ':ciudad' => $destino,
-                        ':direccion' => $direccion,
-                        ':fecha' => $fecha_entrega,
-                        ':horad' => $horaentre,
-                        ':obs' => $observacion,
-                        ':idtb' => $iddest,
-                    )
-                );
-                $m++;
-            }
-
-            //insertar destinantario nuevo
-            $z = 0;
-            while ($z < count($insertdes->p_ciudadd)) {
-                $p_ciudadd = $insertdes->p_ciudadd[$z];
-                $clientead = $insertdes->clientead[$z];
-                $dired = $insertdes->dired[$z];
-                $fechad = $insertdes->fechad[$z];
-                $observad = $insertdes->observad[$z];
-                $horad = $insertdes->horad[$z];
-                $tipod = $insertdes->tipod[$z];
-                $ordend = $insertdes->ordend[$z];
-
-                $resultado->prepare("insert into cmx_ruta_puntosentrega
-					(id,cod_ini_ruta,municipio_entrega,direccion_entrega,cliente,fecha_estimada_entrega,observacion,fecha,hora,usuario,hora_estimada,tipo,orden)values(null,:id_service,:municipio,:direc,:cliente,:fecha,:obse,:fhoy,:hhoy,:user,:horaesti,:type,:orden)")
-                    ->execute(
-                        array(
-                            ':id_service' => $num_servicio,
-                            ':municipio' => $p_ciudadd,
-                            ':direc' => $dired,
-                            ':cliente' => $clientead,
-                            ':fecha' => $fechad,
-                            ':obse' => $observad,
-                            ':fhoy' => $factual,
-                            ':hhoy' => $horactual,
-                            ':user' => $id_usuario,
-                            ':horaesti' => $horad,
-                            ':type' => $tipod,
-                            ':orden' => $ordend,
-                        )
-                    );
-                $z++;
-            }
-
-            //insertar precintos
-            $u = 0;
-            while ($u < count($precinto->num_preci)) {
-                $tipo_prec = $precinto->tipoprecinto[$u];
-                $num_preci = $precinto->num_preci[$u];
-                $num_ordenk = $number2;
-
-                $resultado->prepare("insert into cmx_planilla_detalle2(id,id_planilla,serie_precinto,tipo_precinto,hora,fecha,usuario) values(null,:num_orden,:num_precinto,:tipo_precinto,:hhoy,:fhoy,:user)")
-                    ->execute(
-                        array(
-                            ':num_orden' => $number2,
-                            ':num_precinto' => $num_preci,
-                            ':tipo_precinto' => $tipo_prec,
-                            ':fhoy' => $factual,
-                            ':hhoy' => $horactual,
-                            ':user' => $id_usuario,
-                        )
-                    );
-                $u++;
-            }
-
-            $resultadoo->prepare("INSERT INTO cmx_orden_cargue(id,cli_id,ve_idcarro,ve_idtrailer,ve_id_conductor,ve_pesototal,ve_fletecotizacion,ve_fletepactado,ve_idestudiosegu,mer_idservicio,mer_producto,mer_empaque,mer_cantidad,mer_pesomercancia,
-            mer_volumen,mer_contenedor1,mer_contenedor2,ca_condiciones,ca_observacion,ca_embalaje,ca_pesocargue,fecha_orden,usuario_orden,hora_orden,estado,id_remitente,id_punto_remitente,devol_dias2,devol_municipio2,devol_direccion2,devol_tipocont2,
-            devol_comodato,devol_pesovacio,ve_tarifacalculada,ve_id_propietario,ve_id_poseedor,estado_remesa,empresa)
-            VALUES(:num_orden,:idcliente,:idvehiculo,:idtrailer,:idconductor,:peso_vehiculo,:flete,:fletepactado,:id_estudio,:id_servicio,:producto,:empaque,:cantidad,:peso_mercancia,:volumen,:contenedor1,:contenedor2,:condi_carga,:observacion_carga,
-            :emabalaje_carga,:peso_cargue,:fecha,:usuario,:hora,1,:idremite,:punto_remi,:teu_dias,:teu_munici,:teu_direc,:teu_tipo,:teu_comodato,:teo_peso,:tarifa,:propietario,:tenedor,:estado_orden,:empresa)")
-                ->execute(
-                    array(
-                        ':num_orden' => $number2,
-                        ':idcliente' => $idcliente,
-                        ':idvehiculo' => $id_vehiculo,
-                        ':idtrailer' => $id_trailer == '' ? 0 :  $id_trailer,
-                        ':idconductor' => $idconductor,
-                        ':peso_vehiculo' => $pesovehiculo,
-                        ':flete' => $flete,
-                        ':fletepactado' => $fletepactado,
-                        ':id_estudio' => $num_estudio,
+            // Insertar remitentes nuevos
+            for ($a = 0; $a < count($renuevo->p_ciudad); $a++) {
+                $this->_db3->prepare("INSERT INTO cmx_ruta_puntosentrega
+                (id,cod_ini_ruta,municipio_entrega,direccion_entrega,cliente,fecha_estimada_entrega,observacion,fecha,hora,usuario,hora_estimada,tipo,orden) 
+                VALUES(null,:id_servicio,:municipio,:direc,:cliente,:fecremite,:nota,:fhoy,:hhoy,:user,:horare,:tipo,:orden)")
+                    ->execute([
                         ':id_servicio' => $num_servicio,
-                        ':producto' => $mercancia,
-                        ':empaque' => $empaque,
-                        ':cantidad' => $cant,
-                        ':peso_mercancia' => $peso_mer,
-                        ':volumen' => $volumen,
-                        ':contenedor1' => $cont1,
-                        ':contenedor2' => $cont2,
-                        ':condi_carga' => $condicionk,
-                        ':observacion_carga' => $obscarga,
-                        ':emabalaje_carga' => $emabalajek,
-                        ':peso_cargue' => $pesok,
-                        ':idremite' => $id_remitente,
-                        ':fecha' => $factual,
-                        ':usuario' => $id_usuario,
-                        ':hora' => $horactual,
-                        ':punto_remi' => $id_puntorem,
-                        ':teu_dias' => $cont_dias,
-                        ':teu_munici' => $cont_municipio,
-                        ':teu_direc' => $cont_direccion,
-                        ':teu_tipo' => $cont_tipo,
-                        ':teu_comodato' => $cont_comodato,
-                        ':teo_peso' => $cont_peso,
-                        ':tarifa' => $tarifapropuesta,
-                        ':propietario' => $id_propietario,
-                        ':tenedor' => $id_tenedor,
-                        ':estado_orden' => 'pendiente',
-                        ':empresa' => $empresa_id,
-                    )
-                );
-
-            if ($resultadoo) { //si registro orden de cargue
-                $resultado->prepare('insert into cmx_estado_ordencargue(id,id_orden,estado,fecha,hora,usuario)
-					values(:id,:orden,:estado,:fecha,:hora,:usuario)')->execute(
-                    array(
-                        ':id' => null,
-                        ':orden' => $number2,
-                        ':estado' => 1,
-                        ':fecha' => $factual,
-                        ':usuario' => $id_usuario,
-                        ':hora' => $horactual,
-                    )
-                );
-
-                //actualizar cmx_subasta_flete
-                $resultado->prepare('update cmx_subasta_flete
-					set estado_orden=:estado_orden, numero_orden=:orden
-					where id=:id')->execute(
-                    array(
-                        ':id' => $id_subasta_flete,
-                        ':estado_orden' => 'completado',
-                        ':orden' => $number2,
-                    )
-                );
+                        ':municipio' => $renuevo->p_ciudad[$a],
+                        ':direc' => $renuevo->dire[$a],
+                        ':cliente' => $renuevo->clientea[$a],
+                        ':fecremite' => $renuevo->fecha[$a],
+                        ':nota' => $renuevo->observa[$a],
+                        ':fhoy' => $factual,
+                        ':hhoy' => $horactual,
+                        ':user' => $id_usuario,
+                        ':horare' => $renuevo->hora[$a],
+                        ':tipo' => $renuevo->tipo[$a],
+                        ':orden' => $renuevo->orden[$a]
+                    ]);
             }
 
-            $return["status"] = true;
-            $return["numero_documento"] = $number2;
-            $return["error"] = $_msg_error;
-            return $return;
-        } catch (PDOExeption $e) {
-            $error = $e->getMessage();
-            $this->_db2->rollBack();
-            $_msg_error = "Error";
-            $return["status"] = false;
-            $return["numero_documento"] = "";
-            $return["error"] = $_msg_error;
-            return $return;
+            // Actualizar destinatarios
+            for ($m = 0; $m < count($actudesty->iddest); $m++) {
+                $this->_db3->prepare("UPDATE cmx_ruta_puntosentrega 
+                SET municipio_entrega=:ciudad,
+                    direccion_entrega=:direccion,
+                    fecha_estimada_entrega=:fecha,
+                    observacion=:obs,
+                    hora_estimada=:horad
+                WHERE id=:idtb")
+                    ->execute([
+                        ':ciudad' => $actudesty->destino[$m],
+                        ':direccion' => $actudesty->direccion[$m],
+                        ':fecha' => $actudesty->fecha_entrega[$m],
+                        ':obs' => $actudesty->observacion[$m],
+                        ':horad' => $actudesty->horaentre[$m],
+                        ':idtb' => $actudesty->iddest[$m]
+                    ]);
+            }
+
+            // Insertar destinatarios nuevos
+            for ($z = 0; $z < count($insertdes->p_ciudadd); $z++) {
+                $this->_db3->prepare("INSERT INTO cmx_ruta_puntosentrega
+                (id,cod_ini_ruta,municipio_entrega,direccion_entrega,cliente,fecha_estimada_entrega,observacion,fecha,hora,usuario,hora_estimada,tipo,orden)
+                VALUES(null,:id_service,:municipio,:direc,:cliente,:fecha,:obse,:fhoy,:hhoy,:user,:horaesti,:type,:orden)")
+                    ->execute([
+                        ':id_service' => $num_servicio,
+                        ':municipio' => $insertdes->p_ciudadd[$z],
+                        ':direc' => $insertdes->dired[$z],
+                        ':cliente' => $insertdes->clientead[$z],
+                        ':fecha' => $insertdes->fechad[$z],
+                        ':obse' => $insertdes->observad[$z],
+                        ':fhoy' => $factual,
+                        ':hhoy' => $horactual,
+                        ':user' => $id_usuario,
+                        ':horaesti' => $insertdes->horad[$z],
+                        ':type' => $insertdes->tipod[$z],
+                        ':orden' => $insertdes->ordend[$z]
+                    ]);
+            }
+
+            // Insertar precintos y actualizar estado
+            for ($u = 0; $u < count($precinto->num_preci); $u++) {
+                $this->_db3->prepare("INSERT INTO cmx_planilla_detalle2
+                (id,id_planilla,serie_precinto,tipo_precinto,hora,fecha,usuario) 
+                VALUES(null,:num_orden,:num_precinto,:tipo_precinto,:hhoy,:fhoy,:user)")
+                    ->execute([
+                        ':num_orden' => $number2,
+                        ':num_precinto' => $precinto->num_preci[$u],
+                        ':tipo_precinto' => $precinto->tipoprecinto[$u],
+                        ':fhoy' => $factual,
+                        ':hhoy' => $horactual,
+                        ':user' => $id_usuario
+                    ]);
+
+                $this->_db3->prepare("UPDATE cmx_precinto 
+                                  SET estado_precinto='asignado' 
+                                  WHERE codigo_precinto=:codigo AND tipo_precinto=:tipo")
+                    ->execute([
+                        ':codigo' => $precinto->num_preci[$u],
+                        ':tipo' => $precinto->tipoprecinto[$u]
+                    ]);
+            }
+
+            // Insertar orden de cargue
+            $resultadoo->prepare("INSERT INTO cmx_orden_cargue
+            (id,cli_id,ve_idcarro,ve_idtrailer,ve_id_conductor,ve_pesototal,ve_fletecotizacion,ve_fletepactado,ve_idestudiosegu,mer_idservicio,
+             mer_producto,mer_empaque,mer_cantidad,mer_pesomercancia,mer_volumen,mer_contenedor1,mer_contenedor2,ca_condiciones,ca_observacion,
+             ca_embalaje,ca_pesocargue,fecha_orden,usuario_orden,hora_orden,estado,id_remitente,id_punto_remitente,devol_dias2,devol_municipio2,
+             devol_direccion2,devol_tipocont2,devol_comodato,devol_pesovacio,ve_tarifacalculada,ve_id_propietario,ve_id_poseedor,estado_remesa,empresa)
+             VALUES(:num_orden,:idcliente,:idvehiculo,:idtrailer,:idconductor,:peso_vehiculo,:flete,:fletepactado,:id_estudio,:id_servicio,
+             :producto,:empaque,:cantidad,:peso_mercancia,:volumen,:contenedor1,:contenedor2,:condi_carga,:observacion_carga,:emabalaje_carga,
+             :peso_cargue,:fecha,:usuario,:hora,1,:idremite,:punto_remi,:teu_dias,:teu_munici,:teu_direc,:teu_tipo,:teu_comodato,:teo_peso,
+             :tarifa,:propietario,:tenedor,'pendiente',:empresa)")
+                ->execute([
+                    ':num_orden' => $number2,
+                    ':idcliente' => $idcliente,
+                    ':idvehiculo' => $id_vehiculo,
+                    ':idtrailer' => $id_trailer ?: 0,
+                    ':idconductor' => $idconductor,
+                    ':peso_vehiculo' => $pesovehiculo,
+                    ':flete' => $flete,
+                    ':fletepactado' => $fletepactado,
+                    ':id_estudio' => $num_estudio,
+                    ':id_servicio' => $num_servicio,
+                    ':producto' => $mercancia,
+                    ':empaque' => $empaque,
+                    ':cantidad' => $cant,
+                    ':peso_mercancia' => $peso_mer,
+                    ':volumen' => $volumen,
+                    ':contenedor1' => $cont1,
+                    ':contenedor2' => $cont2,
+                    ':condi_carga' => $condicionk,
+                    ':observacion_carga' => $obscarga,
+                    ':emabalaje_carga' => $emabalajek,
+                    ':peso_cargue' => $pesok,
+                    ':fecha' => $factual,
+                    ':usuario' => $id_usuario,
+                    ':hora' => $horactual,
+                    ':idremite' => $id_remitente,
+                    ':punto_remi' => $id_puntorem,
+                    ':teu_dias' => $cont_dias,
+                    ':teu_munici' => $cont_municipio,
+                    ':teu_direc' => $cont_direccion,
+                    ':teu_tipo' => $cont_tipo,
+                    ':teu_comodato' => $cont_comodato,
+                    ':teo_peso' => $cont_peso,
+                    ':tarifa' => $tarifapropuesta,
+                    ':propietario' => $id_propietario,
+                    ':tenedor' => $id_tenedor,
+                    ':empresa' => $empresa_id
+                ]);
+
+            // Insertar estado inicial
+            $this->_db3->prepare("INSERT INTO cmx_estado_ordencargue
+            (id,id_orden,estado,fecha,hora,usuario) 
+            VALUES(null,:orden,1,:fecha,:hora,:usuario)")
+                ->execute([
+                    ':orden' => $number2,
+                    ':fecha' => $factual,
+                    ':hora' => $horactual,
+                    ':usuario' => $id_usuario
+                ]);
+
+            // Actualizar subasta flete
+            $this->_db3->prepare("UPDATE cmx_subasta_flete 
+                              SET estado_orden='completado', numero_orden=:orden 
+                              WHERE id=:id")
+                ->execute([':orden' => $number2, ':id' => $id_subasta_flete]);
+
+            // Confirmar transacción
+            $this->_db3->commit();
+
+            return [
+                "status" => true,
+                "numero_documento" => $number2,
+                "error" => $_msg_error
+            ];
+        } catch (Exception $e) {
+            $resultado->rollBack(); // Revertir todo si hay error
+            return [
+                "status" => false,
+                "numero_documento" => "",
+                "error" => $e->getMessage()
+            ];
         }
     }
+
 
     //consulta al PDF
     public function Consulta_pdf($id)
@@ -639,7 +753,7 @@ class transporteModel extends Model
             return $consultm->fetch();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -657,81 +771,164 @@ class transporteModel extends Model
             return $consult->fetchall();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
     //CONSULTAS TABLA ORDENES DE CARGUE
+    // public function BuscarOrden($fi, $ff, $cliente, $tipo)
+    // {
+    //     try {
+    //         $resultado = $this->_db2->conectar();
+    //         if ($tipo == 1) {
+    //             $sqlo = "SELECT o.id, o.ca_condiciones, o.ca_fechacargue,
+    // 			o.ca_horacargue, o.ca_pesocargue, o.estado,
+    // 			o.mer_idservicio,
+    // 			v.placa, pro.nombre, pro.apellido1, pro.apellido2,
+    // 			t.placa AS placatrailer,
+    // 			cl.nombre AS cliente
+    // 			FROM cmx_orden_cargue o
+    // 			INNER JOIN cmx_vehiculos v ON o.ve_idcarro=v.numdoc_vehiculo
+    // 			INNER JOIN cmx_proveedores pro ON o.ve_id_conductor=pro.numdoc_nexos
+    // 			INNER JOIN cmx_clientes cl ON o.cli_id=cl.id
+    // 			LEFT JOIN cmx_trailer t ON o.ve_idtrailer=t.id
+    // 			WHERE o.fecha_orden
+    // 			BETWEEN '" . $fi . "' AND '" . $ff . "'";
+    //             $sql_total_ordenes = "SELECT COUNT(*) AS total_ordenes FROM cmx_orden_cargue WHERE fecha_orden
+    // 			BETWEEN '" . $fi . "' AND '" . $ff . "'";
+    //         }
+    //         if ($tipo == 2) {
+    //             $sqlo = "SELECT o.id, o.ca_condiciones, o.ca_fechacargue,
+    // 			o.ca_horacargue, o.ca_pesocargue, o.estado,
+    // 			o.mer_idservicio,
+    // 			v.placa, pro.nombre, pro.apellido1, pro.apellido2,
+    // 			t.placa AS placatrailer,
+    // 			cl.nombre AS cliente
+    // 			FROM cmx_orden_cargue o
+    // 			INNER JOIN cmx_vehiculos v ON o.ve_idcarro=v.numdoc_vehiculo
+    // 			INNER JOIN cmx_proveedores pro ON o.ve_id_conductor=pro.numdoc_nexos
+    // 			INNER JOIN cmx_clientes cl ON o.cli_id=cl.id
+    // 			LEFT JOIN cmx_trailer t
+    // 			ON o.ve_idtrailer=t.id
+    // 			WHERE o.cli_id=" . $cliente;
+    //             $sql_total_ordenes = "SELECT COUNT(*) AS total_ordenes FROM cmx_orden_cargue
+    // 			WHERE cli_id=" . $cliente;
+    //         }
+    //         if ($tipo == 3) {
+    //             $sqlo =
+    //                 "SELECT o.id, o.ca_condiciones, o.ca_fechacargue,
+    // 			o.ca_horacargue, o.ca_pesocargue, o.estado,
+    // 			o.mer_idservicio,
+    // 			v.placa, pro.nombre, pro.apellido1, pro.apellido2,
+    // 			t.placa AS placatrailer,
+    // 			cl.nombre AS cliente
+    // 			FROM cmx_orden_cargue o
+    // 			INNER JOIN cmx_vehiculos v ON o.ve_idcarro=v.numdoc_vehiculo
+    // 			INNER JOIN cmx_proveedores pro ON o.ve_id_conductor=pro.numdoc_nexos
+    // 			INNER JOIN cmx_clientes cl ON o.cli_id=cl.id
+    // 			LEFT JOIN cmx_trailer t ON o.ve_idtrailer=t.id
+    // 			WHERE o.cli_id=" . $cliente . "
+    // 			AND o.fecha_orden
+    // 			BETWEEN '" . $fi . "'
+    // 			AND '" . $ff . "'";
+    //             $sql_total_ordenes = "SELECT COUNT(*) AS total_ordenes FROM cmx_orden_cargue
+    // 			WHERE cli_id=" . $cliente . " AND fecha_orden BETWEEN '" . $fi . "' AND '" . $ff . "'";
+    //         }
+    //         $consultm = $resultado->query($sqlo);
+    //         $consultotal = $resultado->query($sql_total_ordenes);
+    //         $response = [
+    //             'ordenes' => $consultm->fetchall(),
+    //             'total_ordenes' => $consultotal->fetchall()[0]['total_ordenes'],
+    //         ];
+    //         return $response;
+    //     } catch (PDOException $e) {
+    //         $error = $e->getMessage();
+    //         // $this->_db2->rollBack();;
+    //     }
+    // }
+
     public function BuscarOrden($fi, $ff, $cliente, $tipo)
     {
         try {
-            $resultado = $this->_db2->conectar();
-            if ($tipo == 1) {
-                $sqlo = "SELECT o.id, o.ca_condiciones, o.ca_fechacargue,
-				o.ca_horacargue, o.ca_pesocargue, o.estado,
-				o.mer_idservicio,
-				v.placa, pro.nombre, pro.apellido1, pro.apellido2,
-				t.placa AS placatrailer,
-				cl.nombre AS cliente
-				FROM cmx_orden_cargue o
-				INNER JOIN cmx_vehiculos v ON o.ve_idcarro=v.numdoc_vehiculo
-				INNER JOIN cmx_proveedores pro ON o.ve_id_conductor=pro.numdoc_nexos
-				INNER JOIN cmx_clientes cl ON o.cli_id=cl.id
-				LEFT JOIN cmx_trailer t ON o.ve_idtrailer=t.id
-				WHERE o.fecha_orden
-				BETWEEN '" . $fi . "' AND '" . $ff . "'";
-                $sql_total_ordenes = "SELECT COUNT(*) AS total_ordenes FROM cmx_orden_cargue WHERE fecha_orden
-				BETWEEN '" . $fi . "' AND '" . $ff . "'";
+            // $db = $this->_db3->conectar(); // Conexión PDO
+
+            // Construcción dinámica de condiciones
+            $condiciones = [];
+            $params = [];
+
+            switch ($tipo) {
+                case 1: // Filtrar solo por rango de fechas
+                    $condiciones[] = "o.fecha_orden BETWEEN :fi AND :ff";
+                    $params[':fi'] = $fi;
+                    $params[':ff'] = $ff;
+                    break;
+
+                case 2: // Filtrar solo por cliente
+                    $condiciones[] = "o.cli_id = :cliente";
+                    $params[':cliente'] = $cliente;
+                    break;
+
+                case 3: // Filtrar por cliente y rango de fechas
+                    $condiciones[] = "o.cli_id = :cliente";
+                    $condiciones[] = "o.fecha_orden BETWEEN :fi AND :ff";
+                    $params[':cliente'] = $cliente;
+                    $params[':fi'] = $fi;
+                    $params[':ff'] = $ff;
+                    break;
             }
-            if ($tipo == 2) {
-                $sqlo = "SELECT o.id, o.ca_condiciones, o.ca_fechacargue,
-				o.ca_horacargue, o.ca_pesocargue, o.estado,
-				o.mer_idservicio,
-				v.placa, pro.nombre, pro.apellido1, pro.apellido2,
-				t.placa AS placatrailer,
-				cl.nombre AS cliente
-				FROM cmx_orden_cargue o
-				INNER JOIN cmx_vehiculos v ON o.ve_idcarro=v.numdoc_vehiculo
-				INNER JOIN cmx_proveedores pro ON o.ve_id_conductor=pro.numdoc_nexos
-				INNER JOIN cmx_clientes cl ON o.cli_id=cl.id
-				LEFT JOIN cmx_trailer t
-				ON o.ve_idtrailer=t.id
-				WHERE o.cli_id=" . $cliente;
-                $sql_total_ordenes = "SELECT COUNT(*) AS total_ordenes FROM cmx_orden_cargue
-				WHERE cli_id=" . $cliente;
-            }
-            if ($tipo == 3) {
-                $sqlo =
-                    "SELECT o.id, o.ca_condiciones, o.ca_fechacargue,
-				o.ca_horacargue, o.ca_pesocargue, o.estado,
-				o.mer_idservicio,
-				v.placa, pro.nombre, pro.apellido1, pro.apellido2,
-				t.placa AS placatrailer,
-				cl.nombre AS cliente
-				FROM cmx_orden_cargue o
-				INNER JOIN cmx_vehiculos v ON o.ve_idcarro=v.numdoc_vehiculo
-				INNER JOIN cmx_proveedores pro ON o.ve_id_conductor=pro.numdoc_nexos
-				INNER JOIN cmx_clientes cl ON o.cli_id=cl.id
-				LEFT JOIN cmx_trailer t ON o.ve_idtrailer=t.id
-				WHERE o.cli_id=" . $cliente . "
-				AND o.fecha_orden
-				BETWEEN '" . $fi . "'
-				AND '" . $ff . "'";
-                $sql_total_ordenes = "SELECT COUNT(*) AS total_ordenes FROM cmx_orden_cargue
-				WHERE cli_id=" . $cliente . " AND fecha_orden BETWEEN '" . $fi . "' AND '" . $ff . "'";
-            }
-            $consultm = $resultado->query($sqlo);
-            $consultotal = $resultado->query($sql_total_ordenes);
-            $response = [
-                'ordenes' => $consultm->fetchall(),
-                'total_ordenes' => $consultotal->fetchall()[0]['total_ordenes'],
+
+            // Unir condiciones con AND
+            $where = !empty($condiciones) ? "WHERE " . implode(" AND ", $condiciones) : "";
+
+            // Query principal
+            $sqlOrdenes = "
+            SELECT 
+                o.id, o.ca_condiciones, o.ca_fechacargue,
+                o.ca_horacargue, o.ca_pesocargue, o.estado,
+                o.mer_idservicio,
+                v.placa, pro.nombre, pro.apellido1, pro.apellido2,
+                t.placa AS placatrailer,
+                cl.nombre AS cliente
+            FROM cmx_orden_cargue o
+            INNER JOIN cmx_vehiculos v ON o.ve_idcarro = v.numdoc_vehiculo
+            INNER JOIN cmx_proveedores pro ON o.ve_id_conductor = pro.numdoc_nexos
+            INNER JOIN cmx_clientes cl ON o.cli_id = cl.id
+            LEFT JOIN cmx_trailer t ON o.ve_idtrailer = t.id
+            $where
+            ORDER BY o.fecha_orden DESC
+        ";
+
+            // Query de conteo
+            $sqlTotal = "
+            SELECT COUNT(*) AS total_ordenes 
+            FROM cmx_orden_cargue o
+            $where
+        ";
+
+            // Ejecutar query de ordenes
+            $stmtOrdenes =  $this->_db3->prepare($sqlOrdenes);
+            $stmtOrdenes->execute($params);
+            $ordenes = $stmtOrdenes->fetchAll(PDO::FETCH_ASSOC);
+
+            // Ejecutar query de total
+            $stmtTotal =  $this->_db3->prepare($sqlTotal);
+            $stmtTotal->execute($params);
+            $total = $stmtTotal->fetchColumn();
+
+            return [
+                'ordenes' => $ordenes,
+                'total_ordenes' => $total,
             ];
-            return $response;
         } catch (PDOException $e) {
-            $error = $e->getMessage();
-            $this->_db2->rollBack();
+            error_log("Error en BuscarOrden: " . $e->getMessage());
+            return [
+                'ordenes' => [],
+                'total_ordenes' => 0,
+                'error' => $e->getMessage()
+            ];
         }
     }
+
 
     public function AnularOrdenCargue($numero)
     {
@@ -748,7 +945,7 @@ class transporteModel extends Model
             return 'true';
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
             return 'false';
         }
     }
@@ -770,7 +967,7 @@ class transporteModel extends Model
             return $resultado->fetch();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -801,7 +998,7 @@ class transporteModel extends Model
             return $consultm->fetch();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -826,7 +1023,7 @@ class transporteModel extends Model
             return $consultm->fetchall();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -858,59 +1055,9 @@ class transporteModel extends Model
             return $consultm->fetchall();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
-
-    // public function Buscarordenpdf($id)
-    // {
-    //     $resultado = $this->_db2->conectar();
-    //     try {
-    //         $sqlpdf =
-    //             "SELECT oc.id, oc.ve_fletecotizacion, oc.ve_fletepactado,
-    // 			oc.ve_idestudiosegu, oc.mer_idservicio, oc.mer_producto,
-    // 			oc.mer_empaque, oc.mer_cantidad, oc.mer_pesomercancia,
-    // 			oc.mer_volumen, oc.mer_contenedor1, oc.mer_contenedor2,
-    // 			oc.ca_condiciones, oc.ca_observacion, oc.ca_embalaje,
-    // 			oc.ca_fechacargue, oc.ca_horacargue, oc.ca_pesocargue,
-    // 			ve.placa, b.color, b.anio_fabricacion, b.marca, b.cod_rndc_carroceria,
-    // 			b.tipo_vinculacion, b.clase_vehiculo,
-    // 			co.nombre AS nombreconductor, co.apellido1, co.apellido2,
-    // 			co.numero_documento, co.celular,
-    // 			cli.nombre AS cliente, cli.documento, t.placa AS placatrailer,
-    // 			rd.nombre, rtp.direccion_entrega, rtp.telefono,
-    // 			mre.municipio AS origen,
-    // 			colo.color AS color_texto,
-    // 			desi.nombre AS destinatario,
-    // 			bdes.direccion_entrega AS dire_destinatario,
-    // 			bdes.telefono AS tel_destinatario,
-    // 			mde.municipio AS destino,
-    // 			ma.marca AS marca_letra,oc.mer_idservicio AS solicitud_servicio,ag.nombre AS Nombre_Agencia,ss.nundoc_solicitud
-    // 			FROM cmx_orden_cargue oc
-    // 			INNER JOIN cmx_vehiculos ve ON oc.ve_idcarro=ve.numdoc_vehiculo
-    // 			INNER JOIN cmx_vehiculo2 b ON ve.numdoc_vehiculo=b.id_vehiculo
-    // 			LEFT JOIN cmx_rndc_clase_vehiculo cl ON b.clase_vehiculo=cl.id
-    // 			LEFT JOIN cmx_rndc_vehiculos_color colo ON b.color=colo.id
-    // 			LEFT JOIN cmx_rndc_vehiculos_marcas ma ON b.marca=ma.id
-    // 			INNER JOIN cmx_proveedores co ON oc.ve_id_conductor=co.numdoc_nexos
-    // 			INNER JOIN cmx_clientes cli ON oc.cli_id=cli.id
-    // 			LEFT JOIN cmx_trailer t ON oc.ve_idtrailer=t.id
-    // 			LEFT JOIN cmx_ruta_puntosentrega rtp ON oc.id_remitente=rtp.id
-    // 			LEFT JOIN cmx_remitente_destinatario rd ON rtp.cliente=rd.id
-    // 			LEFT JOIN cmx_municipios mre ON rtp.municipio_entrega=mre.id
-    // 			LEFT JOIN cmx_destinatarios_ss bdes ON rtp.id_punto=bdes.id_punto AND bdes.solicitud_servicio=oc.mer_idservicio
-    // 			LEFT JOIN cmx_remitente_destinatario desi ON bdes.cliente=desi.id
-    // 			LEFT JOIN cmx_municipios mde ON bdes.municipio_entrega=mde.id
-    //             LEFT JOIN cmx_solicitud_vehiculo2 ss ON oc.mer_idservicio=ss.id
-    //             LEFT JOIN cmx_agencias ag ON ss.agencia=ag.id
-    // 			WHERE oc.id=" . $id;
-    //         $consultpdf = $resultado->query($sqlpdf);
-    //         return $consultpdf->fetch();
-    //     } catch (PDOException $e) {
-    //         $error = $e->getMessage();
-    //         $this->_db2->rollBack();
-    //     }
-    // }
 
     public function Buscarprecipdf($id)
     {
@@ -921,7 +1068,7 @@ class transporteModel extends Model
             return $consultpdf->fetchall();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -945,7 +1092,7 @@ class transporteModel extends Model
             return $consultm->fetchall();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -964,7 +1111,7 @@ class transporteModel extends Model
             return $consulta->fetch();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -983,7 +1130,7 @@ class transporteModel extends Model
             return 'true';
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -1003,7 +1150,7 @@ class transporteModel extends Model
             return $consultv->fetchall();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -1035,7 +1182,7 @@ class transporteModel extends Model
 
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -1054,7 +1201,7 @@ class transporteModel extends Model
             return $consultv->fetch();
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // // $this->_db2->rollBack();;
         }
     }
 
@@ -1135,7 +1282,8 @@ class transporteModel extends Model
                         CASE 
                             WHEN TIMESTAMPDIFF(SECOND, NOW(), CONCAT(s.fecha_finaliza, ' ', s.hora_finaliza)) <= 0 THEN 1 
                         ELSE 0 
-                        END AS subasta_vencida
+                        END AS subasta_vencida,
+                        s.escenario_id
                     FROM cmx_subasta s
                     INNER JOIN cmx_estado_subasta e ON s.id = e.id_subasta
                     WHERE s.fecha BETWEEN :inicia AND :fin
@@ -1146,12 +1294,11 @@ class transporteModel extends Model
                 $resultado->execute();
                 $resultado->setFetchMode(PDO::FETCH_ASSOC);
 
-
                 return $resultado->fetchAll();
             }
 
             if ($filtro == 'placa') {
-                $sql = "SELECT s.*, e.estado,TIMESTAMPDIFF(HOUR, NOW(),CONCAT(s.fecha_finaliza,'',s.hora_finaliza))
+                $sql = "SELECT s.*, e.estado,TIMESTAMPDIFF(HOUR, NOW(),CONCAT(s.fecha_finaliza,'',s.hora_finaliza)), s.escenario_id
                 FROM cmx_subasta s
                 INNER JOIN cmx_estado_subasta e ON s.id=e.id_subasta
                 INNER JOIN cmx_subasta_flete sf ON s.id=sf.id_suba
@@ -1162,7 +1309,7 @@ class transporteModel extends Model
             }
 
             if ($filtro == 'ss') {
-                $sql = "SELECT s.*, e.estado,TIMESTAMPDIFF(HOUR, NOW(),CONCAT(s.fecha_finaliza,'',s.hora_finaliza))
+                $sql = "SELECT s.*, e.estado,TIMESTAMPDIFF(HOUR, NOW(),CONCAT(s.fecha_finaliza,'',s.hora_finaliza)), s.escenario_id
                 FROM cmx_subasta s
                 INNER JOIN cmx_estado_subasta e ON s.id=e.id_subasta
                 INNER JOIN cmx_subasta_flete sf ON s.id=sf.id_suba
@@ -1219,20 +1366,19 @@ class transporteModel extends Model
     }
 
     #Consulta pera traser las solicitudes de servicio qeu tienen una subasta
-
     public function Consulta_solicitudes_Servicio($filtro, $inicia, $fin, $placa, $servicio)
     {
         try {
-            // $this->_db3->beginTransaction();
 
             if ($filtro == 'fecha') {
                 $sql = "SELECT DISTINCT ss.numer_solservicio AS 'solicitud_servicio', s.id AS 'subasta_id',pe.fecha_estimada_entrega AS fecha_cargue,pe.hora_estimada AS hora_cargue
                 FROM cmx_subasta s
                 INNER JOIN cmx_estado_subasta e ON s.id = e.id_subasta
                 INNER JOIN cmx_subasta_solicitud_servicio ss ON s.id = ss.id_subasta
-                 INNER JOIN cmx_solicitud_vehiculo2 se ON ss.numer_solservicio = se.nundoc_solicitud
-                        INNER JOIN cmx_ruta_puntosentrega pe ON se.nundoc_solicitud=pe.cod_ini_ruta
+                INNER JOIN cmx_solicitud_vehiculo2 se ON ss.numer_solservicio = se.nundoc_solicitud
+                INNER JOIN cmx_ruta_puntosentrega pe ON se.nundoc_solicitud=pe.cod_ini_ruta
                 WHERE s.fecha BETWEEN :inicia AND :fin
+                GROUP BY ss.id_subasta
                 ORDER BY s.fecha DESC, s.hora DESC";
                 $stmt = $this->_db3->prepare($sql);
                 $stmt->bindParam(':inicia', $inicia);
@@ -1276,7 +1422,6 @@ class transporteModel extends Model
             throw new Exception("Error al realizar la consulta: " . $e->getMessage());
         }
     }
-
 
     public function Consultarsubasta_servicio($num_subasta)
     {
@@ -1582,7 +1727,6 @@ class transporteModel extends Model
         }
     }
 
-
     public function Consulta_estado_estudio($id_suba)
     {
         try {
@@ -1780,7 +1924,7 @@ class transporteModel extends Model
             return 'true';
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -1881,33 +2025,63 @@ class transporteModel extends Model
     {
         try {
             $fecha = date('Y-m-d');
+            // $sql = "SELECT
+            //     oc.id AS id_orden,
+            //     pe1.id AS id_remitente,
+            //     pe2.id AS id_destinatario,
+            //     oc.mer_idservicio,
+            //     pe2.id_punto,
+            //     rema.nombre AS remitente,
+            //     desa.nombre AS destinatario,
+            //     v.placa,
+            //     pe2.peso,
+            //     pe2.valor_tarifa
+            // FROM cmx_orden_cargue oc
+            // INNER JOIN cmx_ruta_puntosentrega pe1 ON oc.mer_idservicio = pe1.cod_ini_ruta
+            // AND oc.id_remitente   = pe1.id
+            // AND pe1.tipo          = 'punto recogida'
+            // INNER JOIN cmx_remitente_destinatario rema ON pe1.cliente = rema.id
+
+            // -- ✅ AQUÍ ESTÁ EL CAMBIO IMPORTANTE: NO AMARRAR A pe1.id_punto
+            // INNER JOIN cmx_destinatarios_ss pe2 ON oc.mer_idservicio = pe2.solicitud_servicio
+            // AND pe2.tipo          = 'punto entrega'
+
+            // INNER JOIN cmx_remitente_destinatario desa ON pe2.cliente = desa.id
+
+            // INNER JOIN cmx_vehiculos v ON oc.ve_id_conductor = v.id_conductor
+            // WHERE (oc.estado_remesa='pendiente' OR pe2.estado_destinatario='PENDIENTE')
+            // AND oc.estado = 1
+            // AND oc.fecha_orden = '" . $fecha . "'
+            // AND v.numdoc_vehiculo = oc.ve_idcarro
+            // GROUP BY pe2.id_punto
+            // ORDER BY pe2.id_punto";
+
             $sql = "SELECT oc.id, pe1.id AS id_remitente,
 			pe2.id AS id_destinatario, oc.mer_idservicio,
 			oc.ca_pesocargue, pe1.id_punto,
 			rema.nombre AS remitente,
 			desa.nombre AS destinatario,
-            v.placa AS placa
+            v.placa AS placa,
+            pe2.valor_tarifa
 			FROM cmx_orden_cargue oc
-			INNER JOIN cmx_ruta_puntosentrega pe1
-			ON oc.mer_idservicio=pe1.cod_ini_ruta
+			INNER JOIN cmx_ruta_puntosentrega pe1 ON oc.mer_idservicio=pe1.cod_ini_ruta
 			AND oc.id_remitente=pe1.id
-			INNER JOIN cmx_remitente_destinatario rema
-			ON pe1.cliente=rema.id
-			INNER JOIN cmx_destinatarios_ss pe2
-			ON oc.mer_idservicio=pe2.solicitud_servicio
+			INNER JOIN cmx_remitente_destinatario rema ON pe1.cliente=rema.id
+			INNER JOIN cmx_destinatarios_ss pe2 ON oc.mer_idservicio=pe2.solicitud_servicio
 			AND pe1.id_punto=pe2.id_punto
-			INNER JOIN cmx_remitente_destinatario desa
-			ON pe2.cliente=desa.id
+			INNER JOIN cmx_remitente_destinatario desa ON pe2.cliente=desa.id
             INNER JOIN cmx_vehiculos v ON oc.ve_id_conductor=v.id_conductor
             WHERE pe1.tipo='punto recogida' AND
 			pe2.tipo='punto entrega' AND (oc.estado_remesa='pendiente' OR pe2.estado_destinatario='PENDIENTE')
 			AND oc.estado=1 AND oc.fecha_orden='" . $fecha . "' AND v.numdoc_vehiculo=oc.ve_idcarro";
+
             // -- WHERE pe1.tipo='punto recogida'  AND
             // -- 	pe2.tipo='punto entrega' AND
             // -- 	oc.estado_remesa='pendiente' AND
             // --     pe2.estado_destinatario='PENDIENTE' AND
             // -- 	oc.estado=1 AND oc.fecha_orden='" . $fecha . "' AND v.numdoc_vehiculo=oc.ve_idcarro";
             // -- // oc.estado=1 AND oc.fecha_orden='" . $fecha . "' GROUP BY oc.mer_idservicio";
+
             $resultado = $this->_db3->query($sql);
             $resultado->setFetchMode(PDO::FETCH_ASSOC);
             return $resultado->fetchall();
@@ -2087,140 +2261,306 @@ class transporteModel extends Model
         }
     }
 
-    public function Insertar_remesa($num_orden, $id_remite, $id_dest, $sol_servicio, $r_contado, $rcontra_remesa, $valor, $seguro, $hcargue, $fcargue, $hdescarga, $fdescarga, $cantidad_real, $tipo_nove, $desc_nove, $facturara, $fecha_creacion, $hora_creacion, $nomarchivo, $id_puntorem, $horaspactocargue, $minutospactocargue, $horaspactodescargue, $minutospactodescargue, $obsercliente)
-    {
-        $resultado = $this->_db2->conectar();
-        $resultado2 = $this->_db2->conectar();
-        //santizar
-        (int) $num_orden;
-        (int) $id_remite;
-        (int) $id_dest;
-        (int) $sol_servicio;
-        (int) $r_contado;
-        (int) $rcontra_remesa;
-        (int) $valor;
-        (int) $seguro;
-        (int) $cantidad_real;
+    public function Insertar_remesa(
+        int $num_orden,
+        int $id_remite,
+        int $id_dest,
+        int $sol_servicio,
+        int $r_contado,
+        int $rcontra_remesa,
+        float $valor,
+        float $seguro,
+        string $hcargue,
+        string $fcargue,
+        string $hdescarga,
+        string $fdescarga,
+        int $cantidad_real,
+        string $tipo_nove,
+        string $desc_nove,
+        string $facturara,
+        string $fecha_creacion,
+        string $hora_creacion,
+        string $nomarchivo,
+        int $id_puntorem,
+        int $horaspactocargue,
+        int $minutospactocargue,
+        int $horaspactodescargue,
+        int $minutospactodescargue,
+        string $obsercliente,
+        string $tarifa_remesa,
+    ): array {
+        /** @var PDO $pdo */
+        $pdo = $this->_db2->conectar();
+
+        $factual   = date('Y-m-d');
+        $horactual = date('H:i:s');
+
+        $id_usuario = $_SESSION["usuario"]["nom_usuario"] ?? 'SYSTEM';
+        $empresa_id = $_SESSION['usuario']['empresa_id'] ?? null;
+
+        if (!$empresa_id) {
+            return [
+                'status'           => false,
+                'numero_documento' => null,
+                'error'            => 'Empresa no definida en la sesión.',
+            ];
+        }
 
         try {
-            $factual = date('Y-m-d');
-            $horactual = date('H:i:s');
-            $id_usuario = $_SESSION["usuario"]["nom_usuario"];
+            // 🔹 Iniciar transacción
+            $pdo->beginTransaction();
 
-            $empresa_id = $_SESSION['usuario']['empresa_id'];
-            $sqlm = "select numero_actual from cmx_maestro where tipo='RM' and numero_actual>=numero_inicial and numero_actual<=numero_final and empresa_id='" . $empresa_id . "'";
-            $number = $resultado->query($sqlm);
-            $number1 = $number->fetch();
-            $number2 = $number1['numero_actual'];
-            $operacion = ($number2 + 1);
-            $resultado->prepare('update cmx_maestro set numero_actual=:numero where tipo=:tipo and empresa_id=:empresa')->execute(array(':numero' => $operacion, ':tipo' => 'RM', ':empresa' => $empresa_id));
+            // 1) Obtener consecutivo de remesa con bloqueo
+            $sqlm = "
+            SELECT numero_actual
+            FROM cmx_maestro
+            WHERE tipo = :tipo
+              AND numero_actual >= numero_inicial
+              AND numero_actual <= numero_final
+              AND empresa_id = :empresa_id
+            FOR UPDATE
+        ";
 
-            $ruta = "../public/files/remesa/" . $number2 . "/";
-            $rutab = "public/files/remesa/" . $number2 . "/";
-            $estado_manifi = 'pendiente';
+            $stmt = $pdo->prepare($sqlm);
+            $stmt->execute([
+                ':tipo'       => 'RM',
+                ':empresa_id' => $empresa_id,
+            ]);
 
-            //registro
-            $resultado2->prepare("insert into cmx_remesa(id,id_destinatario,remesa_contado,remesa_contraentrega,valor_declarado,aplica_seguro,hora_cargue,fecha_cargue,hora_descarga,fecha_descargue,cantidad_real_cargada,tipo_novedad,descripcion_novedad,
-			soporte_novedad,nombre_archivo,facturar_a,fecha_creacion,hora_creacion,usuario_creacion,estado,mer_idservicio,id_remitente,id_punto_remitente,horaspactocarga,minutospactocarga,horaspactodescargue,minutospactodescargue,estado_manifiesto,empresa_id,obs_cliente) 
-            values(:num_orden,:id_dest,:r_contado,
-			:rcontra_remesa,:valor,:seguro,:hcargue,:fcargue,:hdescarga,:fdescarga,:creal,:tipo_nove,:desc_nove,:ruta,:namearchivo,
-			:facturara,:factual,:horactual,:id_usuario,:statu,:solicitud_servicio,:id_remitente,:puntorem,:can_horas_cargue,:can_min_cargue,:can_horas_descargue,:can_min_descargue,:estado_manifiesto,:empresa_id,:obscliente)")
-                ->execute(
-                    array(
-                        ':num_orden' => $number2,
-                        ':id_dest' => $id_dest,
-                        ':r_contado' => $r_contado,
-                        ':rcontra_remesa' => $rcontra_remesa,
-                        ':valor' => $valor,
-                        ':seguro' => $seguro == '' ? '0' : $seguro,
-                        ':hcargue' => $hcargue,
-                        ':fcargue' => $fcargue,
-                        ':hdescarga' => $hdescarga,
-                        ':fdescarga' => $fdescarga,
-                        ':creal' => $cantidad_real,
-                        ':tipo_nove' => $tipo_nove,
-                        ':desc_nove' => $desc_nove,
-                        ':facturara' => $facturara,
-                        ':factual' => $factual,
-                        ':horactual' => $horactual,
-                        ':id_usuario' => $id_usuario,
-                        ':ruta' => $rutab,
-                        ':namearchivo' => $nomarchivo,
-                        ':statu' => 1,
-                        ':solicitud_servicio' => $sol_servicio,
-                        ':id_remitente' => $id_remite,
-                        ':puntorem' => $id_puntorem,
-                        ':can_horas_cargue' => $horaspactocargue,
-                        ':can_min_cargue' => $minutospactocargue,
-                        ':can_horas_descargue' => $horaspactodescargue,
-                        ':can_min_descargue' => $minutospactodescargue,
-                        ':estado_manifiesto' => $estado_manifi,
-                        ':empresa_id' => $empresa_id,
-                        ':obscliente' => $obsercliente
+            $number1 = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    )
-                );
-
-            if ($resultado2) {
-                //insertar remsa+orden
-                $resultado->prepare("insert into cmx_remesa_ordencargue
-					(id,id_orden_cargue,id_remesa,estado)
-					values(null,:orden,:remesa,:status)")->execute(
-                    array(
-                        ':orden' => $num_orden,
-                        ':remesa' => $number2,
-                        ':status' => 1,
-                    )
-                );
-                //crear estado remesa
-                $resultado->prepare("insert into cmx_estado_remesa
-					(id,id_remesa,estado,fecha,hora,usuario)values(null,:idremesa,:statu,:fecha,:hora,:usuario)")->execute(
-                    array(
-                        ':idremesa' => $number2,
-                        ':statu' => 1,
-                        ':fecha' => $factual,
-                        ':hora' => $horactual,
-                        ':usuario' => $id_usuario,
-                    )
-                );
-                //crear directorio
-                if (!file_exists($rutab)) {
-                    mkdir($rutab, 0777, true);
-                }
-
-                /* Actualizar el estado del destinatarios */
-                $estado_destinatario = 'REALIZADO';
-                $resultado->prepare("update cmx_destinatarios_ss set estado_destinatario=:estado_destinatario where id=:detinatario_id")->execute(
-                    array(
-                        ':detinatario_id' => $id_dest,
-                        ':estado_destinatario' => $estado_destinatario,
-                    )
-                );
-
-                //actualizar estado de la orden de cargue asociada a la remesa
-                $estadoremi = 'completado';
-                $resultado->prepare("update cmx_orden_cargue set estado_remesa=:estadoremesa where id=:orden")->execute(
-                    array(
-                        ':orden' => $num_orden,
-                        ':estadoremesa' => $estadoremi,
-                    )
-                );
+            if (!$number1) {
+                $pdo->rollBack();
+                return [
+                    'status'           => false,
+                    'numero_documento' => null,
+                    'error'            => 'No hay rango de numeración configurado para remesas.',
+                ];
             }
 
-            $return["status"] = true;
-            $return["numero_documento"] = $number2;
-            $return["error"] = "";
-            return $return;
+            $number2     = (int) $number1['numero_actual']; // número actual
+            $nuevoNumero = $number2 + 1;
+
+            // 2) Actualizar maestro
+            $stmtUpdate = $pdo->prepare("
+                UPDATE cmx_maestro
+                SET numero_actual = :numero
+                WHERE tipo       = :tipo
+                AND empresa_id = :empresa
+            ");
+
+            $stmtUpdate->execute([
+                ':numero'  => $nuevoNumero,
+                ':tipo'    => 'RM',
+                ':empresa' => $empresa_id,
+            ]);
+
+            // 3) Rutas de archivo
+            $estado_manifiesto = 'pendiente';
+            $estado_facturacion = 'Pendiente';
+
+            // Ruta para guardar en BD
+            $rutaBd = "public/files/remesa/{$number2}/";
+            // Ruta física en servidor (ajusta si tu estructura es distinta)
+            $rutaFs = __DIR__ . "/../../{$rutaBd}";
+
+            // 4) Insertar remesa
+            $sqlRemesa = "
+            INSERT INTO cmx_remesa (
+                id,
+                id_destinatario,
+                remesa_contado,
+                remesa_contraentrega,
+                valor_declarado,
+                aplica_seguro,
+                hora_cargue,
+                fecha_cargue,
+                hora_descarga,
+                fecha_descargue,
+                cantidad_real_cargada,
+                tipo_novedad,
+                descripcion_novedad,
+                soporte_novedad,
+                nombre_archivo,
+                facturar_a,
+                fecha_creacion,
+                hora_creacion,
+                usuario_creacion,
+                estado,
+                mer_idservicio,
+                id_remitente,
+                id_punto_remitente,
+                horaspactocarga,
+                minutospactocarga,
+                horaspactodescargue,
+                minutospactodescargue,
+                estado_manifiesto,
+                empresa_id,
+                obs_cliente,
+                estado_facturacion,
+                valor_tarifa
+                )
+            VALUES (
+                :id,
+                :id_dest,
+                :r_contado,
+                :rcontra_remesa,
+                :valor,
+                :seguro,
+                :hcargue,
+                :fcargue,
+                :hdescarga,
+                :fdescarga,
+                :creal,
+                :tipo_nove,
+                :desc_nove,
+                :ruta,
+                :namearchivo,
+                :facturara,
+                :factual,
+                :horactual,
+                :id_usuario,
+                :estado,
+                :solicitud_servicio,
+                :id_remitente,
+                :puntorem,
+                :can_horas_cargue,
+                :can_min_cargue,
+                :can_horas_descargue,
+                :can_min_descargue,
+                :estado_manifiesto,
+                :empresa_id,
+                :obscliente,
+                :estado_facturacion,
+                :valor_tarifa
+                )
+            ";
+
+            $stmtRemesa = $pdo->prepare($sqlRemesa);
+
+            $stmtRemesa->execute([
+                ':id'                  => $number2,
+                ':id_dest'             => $id_dest,
+                ':r_contado'           => $r_contado,
+                ':rcontra_remesa'      => $rcontra_remesa,
+                ':valor'               => $valor,
+                ':seguro'              => $seguro ?: 0,
+                ':hcargue'             => $hcargue,
+                ':fcargue'             => $fcargue,
+                ':hdescarga'           => $hdescarga,
+                ':fdescarga'           => $fdescarga,
+                ':creal'               => $cantidad_real,
+                ':tipo_nove'           => $tipo_nove,
+                ':desc_nove'           => $desc_nove,
+                ':ruta'                => $rutaBd,
+                ':namearchivo'         => $nomarchivo,
+                ':facturara'           => $facturara,
+                ':factual'             => $factual,
+                ':horactual'           => $horactual,
+                ':id_usuario'          => $id_usuario,
+                ':estado'              => 1,
+                ':solicitud_servicio'  => $sol_servicio,
+                ':id_remitente'        => $id_remite,
+                ':puntorem'            => $id_puntorem,
+                ':can_horas_cargue'    => $horaspactocargue,
+                ':can_min_cargue'      => $minutospactocargue,
+                ':can_horas_descargue' => $horaspactodescargue,
+                ':can_min_descargue'   => $minutospactodescargue,
+                ':estado_manifiesto'   => $estado_manifiesto,
+                ':empresa_id'          => $empresa_id,
+                ':obscliente'          => $obsercliente,
+                ':estado_facturacion'  => $estado_facturacion,
+                ':valor_tarifa'        => $tarifa_remesa
+            ]);
+
+            // 5) Insertar relación remesa - orden de cargue
+            $stmtRel = $pdo->prepare("
+                INSERT INTO cmx_remesa_ordencargue (id, id_orden_cargue, id_remesa, estado)
+                VALUES (NULL, :orden, :remesa, :estado)
+            ");
+            $stmtRel->execute([
+                ':orden'  => $num_orden,
+                ':remesa' => $number2,
+                ':estado' => 1,
+            ]);
+
+            // 6) Crear estado inicial de la remesa
+            $stmtEstado = $pdo->prepare("
+                INSERT INTO cmx_estado_remesa (id, id_remesa, estado, fecha, hora, usuario)
+                VALUES (NULL, :idremesa, :estado, :fecha, :hora, :usuario)
+            ");
+            $stmtEstado->execute([
+                ':idremesa' => $number2,
+                ':estado'   => 1,
+                ':fecha'    => $factual,
+                ':hora'     => $horactual,
+                ':usuario'  => $id_usuario,
+            ]);
+
+            // 7) Actualizar estado destinatario
+            $estado_destinatario = 'REALIZADO';
+            $stmtDest = $pdo->prepare("
+                UPDATE cmx_destinatarios_ss
+                SET estado_destinatario = :estado_destinatario
+                WHERE id = :destinatario_id
+            ");
+            $stmtDest->execute([
+                ':destinatario_id'    => $id_dest,
+                ':estado_destinatario' => $estado_destinatario,
+            ]);
+
+            // 8) Actualizar estado de la orden de cargue
+            $estadoremi = 'completado';
+            $stmtOrden = $pdo->prepare("
+                UPDATE cmx_orden_cargue
+                SET estado_remesa = :estadoremesa
+                WHERE id = :orden
+            ");
+            $stmtOrden->execute([
+                ':orden'       => $num_orden,
+                ':estadoremesa' => $estadoremi,
+            ]);
+
+            // 9) Crear directorio físico si no existe
+            if (!is_dir($rutaFs)) {
+                @mkdir($rutaFs, 0777, true);
+            }
+
+            // ✅ Confirmamos todo
+            $pdo->commit();
+
+            return [
+                'status'           => true,
+                'numero_documento' => $number2, // ← ESTE ES EL NÚMERO DE REMESA
+                'error'            => '',
+            ];
         } catch (PDOException $e) {
-            $error = $e->getMessage();
-            $this->_db2->rollBack();
-            $_msg_error = "Error";
-            $return["status"] = false;
-            $return["numero_documento"] = "";
-            $return["error"] = $_msg_error;
-            return $return;
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            error_log('Error Insertar_remesa: ' . $e->getMessage());
+
+            return [
+                'status'           => false,
+                'numero_documento' => null,
+                'error'            => 'Error al registrar la remesa.',
+            ];
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            error_log('Error general Insertar_remesa: ' . $e->getMessage());
+
+            return [
+                'status'           => false,
+                'numero_documento' => null,
+                'error'            => 'Error inesperado al registrar la remesa.',
+            ];
         }
     }
+
 
     public function Dato_Id_Remesa($idorden, $remit, $dest)
     {
@@ -2388,7 +2728,7 @@ class transporteModel extends Model
             return 'true';
         } catch (PDOException $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
             return 'false';
         }
     }
@@ -2442,7 +2782,7 @@ class transporteModel extends Model
             return 'true';
         } catch (Exception $e) {
             $error = $e->getMessage();
-            $this->_db2->rollBack();
+            // $this->_db2->rollBack();;
         }
     }
 
@@ -2776,5 +3116,145 @@ class transporteModel extends Model
         $sql->execute();
         $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
         return $resultado;
+    }
+
+    public function Listar_Precintos_Disponibles($Agencia, $Cliente)
+    {
+        $Cliente_Session = $_SESSION['usuario']['id_cliente'];
+
+        #Validar si el cliente tiene bodegas para consualr los precintos
+        // 1. 🛑 CONSULTA: Validar si el cliente SOLICITANTE ($Cliente) tiene bodegas y obtener el nombre.
+        $sqlValidarBodega = $this->_db3->prepare("SELECT nombre_bodega FROM cmx_bodega WHERE cliente_id = :cliente_id");
+        $sqlValidarBodega->bindParam(':cliente_id', $Cliente, PDO::PARAM_STR);
+        $sqlValidarBodega->execute();
+        // Usamos fetchAll para saber si hay resultados y obtener el nombre si existe
+        $bodegas = $sqlValidarBodega->fetchAll(PDO::FETCH_ASSOC);
+
+
+        $sql = $this->_db3->prepare("SELECT pr.codigo_precinto,pr.tipo_precinto FROM cmx_precinto pr WHERE pr.agencia_asignada=:Agencia AND pr.estado_precinto='disponible'");
+        $sql->bindParam(':Agencia', $Agencia, PDO::PARAM_STR);
+        $sql->execute();
+        $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
+        return $resultado;
+    }
+
+    public function Listar_Documento_precintos($fecha_inicial, $fecha_final, $num_criterio)
+    {
+        $response = [];
+
+        $sqlDocumentos = $this->_db3->prepare("SELECT 
+            ma.id AS Manifiesto,
+            r.id AS Remesa, 
+            oc.id AS Orden_Cargue,
+            CASE ss.agencia
+                WHEN 1 THEN 'Bogotá'
+                WHEN 2 THEN 'Cartagena'
+                WHEN 4 THEN 'Buenaventura'
+                ELSE 'Otra'
+            END AS Agencia
+        FROM cmx_manifiesto ma
+        INNER JOIN cmx_manifiesto_remesa mr ON ma.id = mr.id_manifiesto
+        INNER JOIN cmx_remesa r ON mr.id_remesa = r.id
+        INNER JOIN cmx_remesa_ordencargue ro ON r.id = ro.id_remesa
+        INNER JOIN cmx_orden_cargue oc ON ro.id_orden_cargue = oc.id
+        INNER JOIN cmx_solicitud_vehiculo2 ss ON oc.mer_idservicio = ss.nundoc_solicitud
+        WHERE ma.estado_seguimiento <> 'CUMPLIDO' AND oc.id = :CriterioId");
+        $sqlDocumentos->bindParam(':CriterioId', $num_criterio);
+        $sqlDocumentos->execute();
+        $resultados = $sqlDocumentos->fetchAll(PDO::FETCH_ASSOC);
+        //Listar los precintos asociados a la orden de cargue si los tiene.
+
+        $sqlPrecintos = $this->_db3->prepare("SELECT pr.serie_precinto, pr.tipo_precinto,
+            CONCAT(pr.fecha, ' ', pr.hora) AS Fecha_asignacion
+        FROM
+            cmx_orden_cargue oc
+            LEFT JOIN cmx_planilla_detalle2 pr ON oc.id = pr.id_planilla
+        WHERE
+            oc.estado = 1
+            AND oc.id =:CriterioId");
+        $sqlPrecintos->bindParam(':CriterioId', $num_criterio);
+        $sqlPrecintos->execute();
+        $resultadosPrecintos = $sqlPrecintos->fetchAll(PDO::FETCH_ASSOC);
+
+
+        $response = ['resultados' => $resultados, 'resultadosPrecintos' => $resultadosPrecintos];
+
+        return $response;
+    }
+
+    public function Actualizar_documento_precinto($precintos, $Ordenescargue)
+    {
+        $factual = date('Y-m-d');
+        $horactual = date('H:i:s');
+        $id_usuario = $_SESSION["usuario"]["nom_usuario"];
+
+        try {
+            // Iniciar transacción
+            $this->_db3->beginTransaction();
+
+            for ($u = 0; $u < count($precintos->num_preci); $u++) {
+                $tipo_prec = $precintos->tipoprecinto[$u];
+                $num_preci = $precintos->num_preci[$u];
+
+                // Insertar en la planilla
+                $stmtInsert = $this->_db3->prepare("
+                INSERT INTO cmx_planilla_detalle2(id, id_planilla, serie_precinto, tipo_precinto, hora, fecha, usuario)
+                VALUES (NULL, :num_orden, :num_precinto, :tipo_precinto, :hhoy, :fhoy, :user)");
+                $stmtInsert->execute([
+                    ':num_orden' => $Ordenescargue,
+                    ':num_precinto' => $num_preci,
+                    ':tipo_precinto' => $tipo_prec,
+                    ':fhoy' => $factual,
+                    ':hhoy' => $horactual,
+                    ':user' => $id_usuario,
+                ]);
+
+                // Actualizar estado del precinto
+                $stmtUpdate = $this->_db3->prepare("
+                UPDATE cmx_precinto 
+                SET estado_precinto = :estado_precinto 
+                WHERE codigo_precinto = :codigo_precinto AND tipo_precinto = :tipo_precinto");
+                $stmtUpdate->execute([
+                    ':estado_precinto' => 'asignado',
+                    ':codigo_precinto' => $num_preci,
+                    ':tipo_precinto' => $tipo_prec
+                ]);
+            }
+
+            // Confirmar cambios
+            $this->_db3->commit();
+
+            // Retornar respuesta de éxito
+            return [
+                'status' => 'success',
+                'message' => 'Precintos actualizados correctamente.'
+            ];
+        } catch (Exception $e) {
+            // Revertir todo si ocurre un error
+            $this->_db3->rollBack();
+
+            // Retornar error
+            return [
+                'status' => 'error',
+                'message' => 'Error al actualizar los precintos: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function Listar_Tipo_Precintos($Tipo_Precinto, $Agencia)
+    {
+        $sql = $this->_db3->prepare("SELECT
+            pr.codigo_precinto
+        FROM
+            cmx_precinto pr
+        WHERE
+           	pr.tipo_precinto = :TipoPrecinto
+            AND pr.estado_precinto = 'disponible'
+            AND pr.agencia_asignada =:Agencia");
+        $sql->bindParam(':TipoPrecinto', $Tipo_Precinto);
+        $sql->bindParam(':Agencia', $Agencia);
+        $sql->execute();
+        $resultados = $sql->fetchAll(PDO::FETCH_ASSOC);
+        return  $resultados;
     }
 }

@@ -1,0 +1,71 @@
+<div class="container-fluid py-3">
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+    <div class="row">
+
+        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+            <h5 class="mb-3 fw-bold text-primary">Registrar Nueva Tarjeta</h5>
+            <div class="row">
+                <div class="col-12 col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label" for="txt_numero_tarjeta">Número de Tarjeta</label>
+                        <input type="text" id="txt_numero_tarjeta" class="form-control form-control-sm" required>
+                    </div>
+                </div>
+                <div class="col-12 col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label" for="slct_banco">Banco</label>
+                        <select class="form-select form-select-sm" id="slct_banco" required>
+                            <option value="">Seleccione...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label" for="slct_tipo_cuenta">Tipo de Cuenta</label>
+                        <select class="form-select form-select-sm" id="slct_tipo_cuenta" required>
+                            <option value="">Seleccione...</option>
+                            <option value="1">Cuenta de Ahorros</option>
+                            <option value="2">Cuenta Corriente</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 text-end mt-3">
+                    <button class="btn btn-primary btn-sm" id="btn_guardar_tarjeta" type="button">Guardar Tarjeta</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-9 col-lg-9 col-xl-9 col-xxl-9">
+            <h5 class="mb-3 fw-bold text-primary">Listado General de Tarjetas</h5>
+            <div class="table-responsive my-2 vh-100">
+                <table class='table table-striped table-sm text-center' style="font-size:12px;" id="tabla-general-tarjetas">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style="width: auto; white-space: nowrap;">Número Tarjeta</th>
+                            <th style="width: auto; white-space: nowrap;">Banco</th>
+                            <th style="width: auto; white-space: nowrap;">Tipo Cuenta</th>
+                            <th style="width: auto; white-space: nowrap;">Estado</th>
+                            <th style="width: auto; white-space: nowrap;">Fecha Registro</th>
+                            <th style="width: auto; white-space: nowrap;">Usuario Creación</th>
+                            <th style="width: auto; white-space: nowrap;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-tarjetas-registradas">
+                    </tbody>
+                    <!-- <tfoot>
+                        <tr>
+                            <th colspan="6" class="text-end fw-bold">Total Tarjetas Registradas:</th>
+                            <th id="total-tarjetas-general" class="text-center"></th>
+                        </tr>
+                    </tfoot> -->
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

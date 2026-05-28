@@ -205,13 +205,10 @@ class dashboardModel extends Model
 		}
 
 		// Consulta para registro de cargue 
-		$sql = '
-				SELECT 
-					cia.id, cia.estado, cip.importacion, cc.nombre CLIENTE, 
+		$sql = 'SELECT cia.id, cia.estado, cip.importacion, cc.nombre CLIENTE, 
 					crd.nombre, CONCAT(cm.municipio," (",cm.depto," - ",cm.pais,")") CIUDAD_ORIGEN, 
 					SUM( cam.peso ) PESO, 
-					( 
-						SELECT
+					(SELECT
 							COUNT( DISTINCT(cia1.id_material) )
 						FROM
 							cmx_importacion_proyecto cip1
@@ -248,7 +245,10 @@ class dashboardModel extends Model
 				LIMIT 20
 			';
 		// echo "<pre>" . $sql . "</pre>";
-		$request = $this->_db->getConsulta($sql);
+		// $request = $this->_db->getConsulta($sql);
+		$request = $this->_db3->prepare($sql);
+		$request->execute();
+		$request = $request->fetchAll(PDO::FETCH_ASSOC);
 
 		return $request;
 	}
@@ -838,7 +838,7 @@ class dashboardModel extends Model
 					HAVING 
 						(ESTADO_ACTIVIDAD_OPERACIONES = 2 OR ESTADO_ACTIVIDAD_CLIENTE = 2)
 				';
-		} elseif ($usuario["id_perfil"] == 23) {
+		} elseif ($usuario["id_perfil"] == 23 || $usuario["id_perfil"] == 24) {
 			$sql = '
 					SELECT 
 						cip.id ID_PROYECTO, cip.numero_importacion, cip.importacion, cip.tipo_operacion, cis.id ID_PROYECTO_INTERNACIONAL,
@@ -1205,14 +1205,16 @@ class dashboardModel extends Model
 						INNER JOIN cmx_clientes cc ON cc.id = cip.id_cliente
 					WHERE 
 						cip.estado NOT IN (0,4)
-					HAVING 
+						HAVING 
+						(ESTADO_ACTIVIDAD_OPERACIONES = 2 OR ESTADO_ACTIVIDAD_CLIENTE = 2)
+					/*HAVING 
 						(ESTADO_ACTIVIDAD_OPERACIONES = 2)
 						AND (
 							SELECT
 								COUNT(cia1.perfil_responsable)
 							FROM cmx_importacion_actividades cia1
 								INNER JOIN cmx_usuario_cliente cus1 ON cus1.id_perfil = cia1.perfil_responsable
-								INNER JOIN cmx_clientes_serv_responsables ccdr1 ON ccdr1.id_usuario = cus1.id_usuario
+								LEFT JOIN cmx_clientes_serv_responsables ccdr1 ON ccdr1.id_usuario = cus1.id_usuario
 								INNER JOIN cmx_clientes_serv_contratados ccsc1 ON ccsc1.id = ccdr1.id_serv_contratado
 							WHERE cia1.id_importacion = cip.id
 								AND ccsc1.id_cliente = cip.id_cliente
@@ -1221,7 +1223,7 @@ class dashboardModel extends Model
 								AND ccsc1.estado = 1
 								AND cus1.id_perfil = ' . $usuario["id_perfil"] . '
 								AND ccdr1.id_usuario = ' . $usuario["id_usuario"] . '
-						) > 0
+						) > 0*/
 				';
 		} else {
 			$sql = '
@@ -1541,13 +1543,25 @@ class dashboardModel extends Model
 						) > 0
 				';
 		}
-		$request["general"] = $this->_db->getConsulta($sql);
+		// $request["general"] = $this->_db->getConsulta($sql);
+		$requestsql = $this->_db3->prepare($sql);
+		$requestsql->execute();
+		// Número de filas encontradas
+		$rowCount = $requestsql->rowCount();
+		$request["general"] = $requestsql->fetchAll(PDO::FETCH_ASSOC);
+		// Puedes incluir el rowCount si quieres usarlo después
+		$request["total_rows"] = $rowCount;
+		// print_r("<pre>");
+		// print_r($request["general"]);
+		// print_r("</pre>");
+
 
 		if ($request["general"]) {
-			$origen = array();
-			$destino = array();
-			foreach ($request["general"]["rowsData"] as $key => $value) {
+			$origen = [];
+			$destino = [];
+			foreach ($request["general"] as $key => $value) {
 				// Se busca los origenes
+				// print_r($value[0]);
 				$sql = '
 						SELECT 
 							cit.id, cit.tipo_tramo, crd.sigla,
@@ -1558,13 +1572,17 @@ class dashboardModel extends Model
 							INNER JOIN cmx_remitente_destinatario crd ON crd.id = cit.id_remitente_destinatario
 							INNER JOIN cmx_municipios cm ON cm.id = crd.id_ciudad
 						WHERE 
-							cis.id_proyecto = ' . $value[0] . '
+							cis.id_proyecto = ' . $value['ID_PROYECTO'] . '
 							AND cit.tipo_tramo = "Cargue"
 					';
-				$result = $this->_db->getConsulta($sql);
+				// $result = $this->_db->getConsulta($sql);
+				$result_sql = $this->_db3->prepare($sql);
+				$result_sql->execute();
+				$result = $result_sql->fetchAll(PDO::FETCH_ASSOC);
+
 				if ($result) {
-					foreach ($result["rowsData"] as $key_01 => $value_01) {
-						$origen[$value[0]][] = $value_01;
+					foreach ($result as $key_01 => $value_01) {
+						$origen[$value['ID_PROYECTO']][] = $value_01;
 					}
 				}
 
@@ -1579,13 +1597,16 @@ class dashboardModel extends Model
 							INNER JOIN cmx_remitente_destinatario crd ON crd.id = cit.id_remitente_destinatario
 							INNER JOIN cmx_municipios cm ON cm.id = crd.id_ciudad
 						WHERE 
-							cis.id_proyecto = ' . $value[0] . '
+							cis.id_proyecto = ' . $value['ID_PROYECTO'] . '
 							AND cit.tipo_tramo = "Descargue"
 					';
-				$result = $this->_db->getConsulta($sql);
+				// $result = $this->_db->getConsulta($sql);
+				$result = $this->_db3->prepare($sql);
+				$result->execute();
+				$result = $result->fetchAll(PDO::FETCH_ASSOC);
 				if ($result) {
-					foreach ($result["rowsData"] as $key_01 => $value_01) {
-						$destino[$value[0]][] = $value_01;
+					foreach ($result as $key_01 => $value_01) {
+						$destino[$value['ID_PROYECTO']][] = $value_01;
 					}
 				}
 
@@ -1652,18 +1673,27 @@ class dashboardModel extends Model
 								cmx_intr_solicitudes cis
 							WHERE cis.id = ' . $value["ID_PROYECTO_INTERNACIONAL"] . '
 						';
-					$result = $this->_db->getConsulta($sql);
-					$array[$value[0]] = $result["rowsData"][0];
+					// $result = $this->_db->getConsulta($sql);
+					$result = $this->_db3->prepare($sql);
+					$result->execute();
+					$result = $result->fetch(PDO::FETCH_ASSOC);
+					$array[$value['ID_PROYECTO']] = $result;
 				}
 			}
 
+
 			$request["info_internacional"] = $array;
+
+			// print_r("<pre>");
+			// print_r($array);
+			// print_r("</pre>");
 			$request["origen"] = $origen;
 			$request["destino"] = $destino;
 		}
 		return $request;
 	}
 	/****** FIN CONSULTAS DE SEGUIMIENTOS INTERNACIONAL ******/
+
 
 	/****** CONSULTAS DE SEGUIMIENTOS INTERNACIONAL ******/
 	public function getIntrSeguimientosCliente($usuario)
@@ -1941,7 +1971,7 @@ class dashboardModel extends Model
 		}
 		return $request;
 	}
-	
+
 	/****** FIN CONSULTAS DE SEGUIMIENTOS INTERNACIONAL ******/
 	public function getInitials($nombres)
 	{
@@ -1954,5 +1984,61 @@ class dashboardModel extends Model
 			$initials .= strtoupper($word[0]);
 		}
 		return $initials;
+	}
+
+
+	/**
+	 * Obtiene el primer Ejecutivo Comercial y el primer Ejecutivo de Servicio al Cliente 
+	 * para un cliente específico que tienen estado activo, usando subconsulta correlacionada.
+	 *
+	 * @param int $cliente El ID del cliente a consultar.
+	 * @return array Retorna un array con los responsables encontrados (máx. 2) o un array vacío.
+	 */
+	public function getComercialSac(int $cliente): array
+	{
+		// Usamos una subconsulta correlacionada en el WHERE para encontrar el registro
+		// cuyo ID es el mínimo para su respectivo tipo_ejecutivo.
+		$sql = "SELECT
+                t1.id AS id_responsable,
+                t1.tipo_ejecutivo,
+                u.nom_usuario
+            FROM
+                cmx_clientes_serv_responsables t1
+                INNER JOIN cmx_usuarios u ON t1.id_usuario = u.id
+                INNER JOIN cmx_clientes_serv_contratados sc ON sc.id = t1.id_serv_contratado
+            WHERE
+                sc.id_cliente = :cliente
+                AND t1.estado = 1
+                AND t1.tipo_ejecutivo IN ('Ejecutivo Comercial', 'Ejecutivo Servicio al Cliente')
+                
+                -- 🛑 LÓGICA CLAVE: Solo selecciona t1 si su ID es el ID MÍNIMO para ese TIPO DE EJECUTIVO
+                AND t1.id = (
+                    SELECT MIN(csr_min.id)
+                    FROM cmx_clientes_serv_responsables csr_min
+                    INNER JOIN cmx_clientes_serv_contratados sc_min ON sc_min.id = csr_min.id_serv_contratado
+                    WHERE sc_min.id_cliente = sc.id_cliente  -- Correlaciona por cliente
+                    AND csr_min.tipo_ejecutivo = t1.tipo_ejecutivo -- Correlaciona por tipo de ejecutivo
+                    AND csr_min.estado = 1
+                )
+                
+            -- Opcional: ORDER BY para asegurar que el orden de los tipos sea consistente (Comercial, SAC)
+            ORDER BY t1.tipo_ejecutivo";
+
+		try {
+			$stmt = $this->_db3->prepare($sql);
+
+			// Vinculación del parámetro
+			$stmt->bindParam(':cliente', $cliente, PDO::PARAM_INT);
+
+			$stmt->execute();
+
+			// Devuelve las dos filas (Comercial y SAC)
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			error_log("Error en getComercialSac (Subconsulta Correlacionada): " . $e->getMessage());
+			// Si tienes el error de comillas, asegúrate de que no haya espacios extra o saltos de línea 
+			// en la cadena SQL cuando la construyes fuera de esta función.
+			return [];
+		}
 	}
 }

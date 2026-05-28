@@ -15,8 +15,6 @@ class servicios_especialesModel extends Model
 		$sql->execute();
 		$conceptos = $sql->fetchAll(PDO::FETCH_ASSOC);
 		return $conceptos;
-		// $return = $this->_db->getConsulta($sql);
-		// return $return;
 	}
 
 	public function getEnumSlctTipoServicio_sm($name, $id, $value_select)
@@ -35,9 +33,6 @@ class servicios_especialesModel extends Model
 
 			$array = explode(",", $value["Type"]);
 		}
-		// print_r("<pre>");
-		// print_r($array);
-		// print_r("</pre>");
 
 		$select = '<select class="form-control input-sm" name="' . $name . '" id="slct_tipo_operacion_' . $id . '">';
 		$select .= '<option disabled selected>Seleccione</option>';
@@ -77,9 +72,9 @@ class servicios_especialesModel extends Model
 			}
 			$consulta = $resultado->query($sql);
 			return $consulta->fetch();
-		} catch (PDOExeption $e) {
+		} catch (Exception $e) {
 			$error = $e->getMessage();
-			// $this->_db2->rollBack();
+			return $error;
 		}
 	}
 }

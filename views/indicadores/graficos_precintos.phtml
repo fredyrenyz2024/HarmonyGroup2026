@@ -1,0 +1,37 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+    <div class="row">
+        <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+            <!-- Contenedor gráfica -->
+            <div id="grafica-general-precintos" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive mt-4">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-general-precintos">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style='width:auto; white-space: nowrap;'>Agencia</th>
+                            <th style='width:auto; white-space: nowrap;'>Ingreso</th>
+                            <th style='width:auto; white-space: nowrap;'>Disponibles</th>
+                            <th style='width:auto; white-space: nowrap;'>Asignados</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-3 col-sm-12 col-md-9 col-lg-9 col-xl-9 col-xxl-9">
+            <!-- Contenedor gráficos -->
+            <div id="graficoCruce" style="width:100%; height:400px;"></div>
+            <div id="tablaDetalle" class="mt-3"></div>
+        </div>
+    </div>
+</div>

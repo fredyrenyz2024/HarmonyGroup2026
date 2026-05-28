@@ -1,0 +1,96 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+
+                <h5 class="card-title mb-3">Seleccione los Criterios de Búsqueda</h5>
+
+                <div class="nexos-messages"></div>
+                <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+                <div id="log_proceso" class="mt-3"></div>
+
+                <form class="row g-3 align-items-end">
+
+                    <div class="col-md-3 col-lg-2">
+                        <label for="filtro_no_manifiesto" class="form-label fw-bold">No Manifiesto</label>
+                        <input type="text" id="filtro_no_manifiesto" class="form-control form-control-sm">
+                    </div>
+
+                    <div class="col-md-3 col-lg-2 pt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="check_fecha_programada">
+                            <label class="form-check-label fw-bold" for="check_fecha_programada">
+                                Fecha Programada
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-lg-2 pt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="check_fecha_vencimiento">
+                            <label class="form-check-label fw-bold" for="check_fecha_vencimiento">
+                                Fecha Vencimiento
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-lg-2">
+                        <label class="form-label fw-bold">Fecha inicial</label>
+                        <input type="date" id="finicial" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+
+                    <div class="col-md-3 col-lg-2">
+                        <label class="form-label fw-bold">Fecha final</label>
+                        <input type="date" id="ffinal" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+
+                    <div class="col-md-3 col-lg-2">
+                        <button type="button" class="btn btn-primary btn-sm w-100" id="buscar_manifies">
+                            <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12" id="tbl_programacion">
+            <div class="table-responsive mt-5">
+                <table class='table table-bordered table-striped table-sm text-center' style="font-size:12px;" id="tabla-general-tipo-vehiculos">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style="width: auto; white-space: nowrap;"></th>
+                            <th style="width: auto; white-space: nowrap;">NIt o C.C</th>
+                            <th style="width: auto; white-space: nowrap;">Poseedor</th>
+                            <th style="width: auto; white-space: nowrap;">Manifiesto</th>
+                            <th style="width: auto; white-space: nowrap;">Vehiculo</th>
+                            <th style="width: auto; white-space: nowrap;">Origen</th>
+                            <th style="width: auto; white-space: nowrap;">Destino</th>
+                            <th style="width: auto; white-space: nowrap;">Agencia</th>
+                            <th style="width: auto; white-space: nowrap;">Flete</th>
+                            <th style="width: auto; white-space: nowrap;">Anticipo</th>
+                            <th style="width: auto; white-space: nowrap;">Saldo a Pagar</th>
+                            <th style="width: auto; white-space: nowrap;">Valor a Pagar</th>
+                            <th style="width: auto; white-space: nowrap;">Fecha Programada</th>
+                            <th style="width: auto; white-space: nowrap;">Fecha Vencimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-pagos-manifiestos"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="5" class="text-end fw-bold">Total Por Pagar:</th>
+                            <th id="total-manifiestos-pagos"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

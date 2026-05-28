@@ -1,9 +1,10 @@
-$(document).ready(function() {
+$(document).ready(function () {
   $('#contenedor_dato').css('display', 'none');
   $('#tabla_filtro').css('display', 'block');
   $('#seccion_placa').css('display', 'none');
   $('#seccion_ss').css('display', 'none');
-  $('#filtro_subastaa').change(function() {
+
+  $('#filtro_subastaa').change(function () {
     let filtro = $('#filtro_subastaa').val();
     if (filtro === 'fecha') {
       $('#seccion_placa').css('display', 'none');
@@ -21,7 +22,8 @@ $(document).ready(function() {
       $('#seccion_ss').css('display', 'block');
     }
   });
-  $('#buscar_datos').click(function() {
+  
+  $('#buscar_datos').click(function () {
     consultar_tabla2();
   });
 });
@@ -39,7 +41,7 @@ function consultar_tabla2() {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Consultasubasta2',
     'filtro=' + filtro + '&fi=' + finicio + '&ff=' + ffinal + '&placa=' + placa + '&servicio=' + sservicio,
-    function(dato) {
+    function (dato) {
       if (dato && dato[0].length > 0) {
         //tabla principal
         for (var i = 0; i < dato[0].length; i++) {
@@ -102,7 +104,7 @@ function consultar_tabla2() {
                   boton = ``;
                 } else {
                   boton = `<button class="btn btn-space btn-success btn-sm mdi mdi-refresh-alt" title="Automatización" onClick="Calculo_Nuevo(this);" data-id="${dato[0][i]
-                    .id}" data-id2="${finicio}" data-id3="${ffinal}" data-id4="${dato[0][i].estado}"></button>`;
+                    .id}" data-id2="${finicio}" data-id3="${ffinal}" data-id4="${dato[0][i].estado}" data-id5="${dato[0][i].escenario_id}"></button>`;
                 }
               } else {
                 boton = ``;
@@ -182,7 +184,7 @@ function Ver_subasta_s(id) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Consulta_subasta_vs',
     'id_subasta=' + id,
-    function(data) {
+    function (data) {
       if (data) {
         $('.mg_title').html('Solicitudes de servicio');
         for (var i = 0; i < data.length; i++) {
@@ -205,7 +207,7 @@ function Ver_subasta(id) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Consulta_subasta_v',
     'id_subasta=' + id,
-    function(data) {
+    function (data) {
       if (data) {
         for (var i = 0; i < data.length; i++) {
           let readonly = '';
@@ -246,7 +248,7 @@ function Ver_subasta(id) {
             <td> 
               <input type='text' class='form-control input-xs' value='Sac_acepta flete("${data[i]['acepta_flete']}") Sac_tarifa('${data[i]['estado_sac']}')  Estado Final("${data[i][
             'estado_final'
-          ]}")' readonly='readonly'>
+            ]}")' readonly='readonly'>
               <input type='hidden' class='' id='tarif${i}' value='${data[i]['tarifa_promedio']}'>
               <input type='hidden' class='' id='rent${i}' value='${rent}'>
               <input type='hidden' class='' id='util${i}' value='${util}'>
@@ -358,9 +360,9 @@ function rta_sac(id, numsubasta) {
   $.ajax({
     url: $('#id_url_ajax').val() + 'transporte/respuesta_operacion',
     method: 'POST',
-    data: {subasta: sub, prop: prop, tari: tari, rent: rent, util: util, placa: placa, numsubasta: numsubasta},
+    data: { subasta: sub, prop: prop, tari: tari, rent: rent, util: util, placa: placa, numsubasta: numsubasta },
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data == 'true') {
         alert('Registro existosamente!!');
         consultar_tabla2();
@@ -369,7 +371,7 @@ function rta_sac(id, numsubasta) {
         consultar_tabla2();
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
@@ -397,7 +399,7 @@ function Validar_subasta(id) {
       $.post(
         $('#id_url_ajax').val() + 'transporte/Valide_subasta',
         'id_subasta=' + id,
-        function(data) {
+        function (data) {
           var id_flete = data[0]['id_suba_flete'];
           var status = data[0]['estado'];
           var valor_sub = data[0]['id_suba'];
@@ -417,7 +419,7 @@ function Cancelar_subasta(idflete, idsub) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Cancelar_subasta',
     'idflete=' + idflete + '&id_subasta=' + idsub,
-    function(data) {
+    function (data) {
       if (data.success === true) {
         // alert('Subasta Finalizada Exitosamente!!');
         Swal.fire({
@@ -442,7 +444,7 @@ function Resultado(idsub) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Estado_estudio',
     'id_subasta=' + idsub,
-    function(data) {
+    function (data) {
       $('#cuerpo_estado').html('');
       $('.mg_title').html('');
       if (data) {
@@ -506,7 +508,7 @@ function Calcular(element) {
     $.post(
       $('#id_url_ajax').val() + 'transporte/Consultar_fletes',
       'id_subasta=' + idsub,
-      function(data) {
+      function (data) {
         $('#flete_ganador').val('');
         $('#id_fleteg').val('');
         if (data) {
@@ -537,7 +539,7 @@ function Calcular(element) {
                   $.post(
                     $('#id_url_ajax').val() + 'transporte/Valida_Vigencia',
                     'num_estudio=' + num_estudiosegu + '&placa=' + plak,
-                    function(data) {
+                    function (data) {
                       if (data) {
                         //validar vigencia del estudio de seguridad
                         var fhoy = moment();
@@ -566,7 +568,7 @@ function Calcular(element) {
                     $.post(
                       $('#id_url_ajax').val() + 'transporte/Valida_Vigencia',
                       'num_estudio=' + num_estudiosegu + '&placa=' + plak,
-                      function(data) {
+                      function (data) {
                         if (data) {
                           var fhoy = moment();
                           var tf = fhoy.diff(data[0]['fecha'], 'days');
@@ -592,7 +594,7 @@ function Calcular(element) {
                     $.post(
                       $('#id_url_ajax').val() + 'transporte/Valida_Vigencia',
                       'num_estudio=' + num_estudiosegu + '&placa=' + plak,
-                      function(data) {
+                      function (data) {
                         if (data) {
                           var fhoy = moment();
                           var tf = fhoy.diff(data[0]['fecha'], 'days');
@@ -638,7 +640,7 @@ function Calcular(element) {
               $.post(
                 $('#id_url_ajax').val() + 'transporte/Valida_Vigencia',
                 'num_estudio=' + num_estudiosegu + '&placa=' + plak,
-                function(data) {
+                function (data) {
                   if (data) {
                     var fhoy = moment();
                     var tf = fhoy.diff(data[0]['fecha'], 'days');
@@ -669,7 +671,7 @@ function Calcular(element) {
                 $.post(
                   $('#id_url_ajax').val() + 'transporte/Valida_Vigencia',
                   'num_estudio=' + num_estudiosegu + '&placa=' + plak,
-                  function(data) {
+                  function (data) {
                     if (data) {
                       var fhoy = moment();
                       var tf = fhoy.diff(data[0]['fecha'], 'days');
@@ -695,7 +697,7 @@ function Calcular(element) {
                 $.post(
                   $('#id_url_ajax').val() + 'transporte/Valida_Vigencia',
                   'num_estudio=' + num_estudiosegu + '&placa=' + plak,
-                  function(data) {
+                  function (data) {
                     if (data) {
                       var fhoy = moment();
                       var tf = fhoy.diff(data[0]['fecha'], 'days');
@@ -755,12 +757,10 @@ function Calculo_Nuevo(element) {
     var idsub = elemento.data('id');
     var finicio = elemento.data('id2');
     var ffin = elemento.data('id3');
-    var estado = elemento.data('id4');
+    var estado = elemento.data('id5');
+    var escenario_id = elemento.data('id4');
     var fecha_actual = moment().format('YYYY-MM-DD hh:mm:ss');
-    //alert(ffin);
-    //alert(fecha_actual);
-    //if(ffin > fecha_actual){//SUBASTA VIGENTE
-    //if(ffin == fecha_actual){
+
     if (estado == 1) {
       a = 'Class="text-success"';
       e = 'Activo';
@@ -779,7 +779,7 @@ function Calculo_Nuevo(element) {
     $.post(
       $('#id_url_ajax').val() + 'transporte/Estado_estudio',
       'id_subasta=' + idsub,
-      function(data) {
+      function (data) {
         $('#cuerpo_estado2').html('');
         if (data) {
           var body = '';
@@ -828,7 +828,7 @@ function Calculo_Nuevo(element) {
     $.post(
       $('#id_url_ajax').val() + 'transporte/Consultar_fletes',
       'id_subasta=' + idsub,
-      function(data) {
+      function (data) {
         if (data) {
           var cantidad = data.length;
           if (cantidad > 1) {
@@ -953,7 +953,7 @@ function Actualiza_Flete() {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Actualiza_Subasta',
     'id_subasta=' + idsub + '&id_flete=' + idflete + '&statu=' + estado + '&placa=' + placa,
-    function(data) {
+    function (data) {
       if (data == true) {
         alert('Datos Ganados!!');
         //Calcular();
@@ -967,7 +967,7 @@ function Actualiza_Flete() {
 function Buscar_Regla() {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Consultar_Regla',
-    function(data) {
+    function (data) {
       if (data) {
         var respuesta = data['valor'];
         return respuesta;

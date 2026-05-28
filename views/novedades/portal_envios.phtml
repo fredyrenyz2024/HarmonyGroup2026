@@ -1,0 +1,241 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<!-- <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0 fw-bold">Administrador de Clientes</h5>
+    <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasConfiguracionEnvios" aria-controls="offcanvasConfiguracionEnvios">
+        <i class="fa-solid fa-plus me-1"></i> Nuevo Cliente
+    </button>
+</div> -->
+
+<div class="container-fluid vh-100">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+        <div class="row">
+            <table id='table1' class='table table-bordered table-sm' data-page-length='100' style=" font-size:12px;">
+                <thead class="table-primary" id="manThead">
+                    <tr>
+                        <!-- <th></th> -->
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Placa</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Solicitud</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Cliente</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Manifiesto</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Remesa</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Orden Cargue</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Ruta</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Ultimo Sitio</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Observación</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Fecha</th>
+                        <th class='text-center' style='color:black;width: auto; white-space: nowrap;'>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id='manbodyseguimiento' class='text-center'>
+                    <tr>
+                        <td colspan="9" id="remload"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas de configuraciones -->
+<div class="offcanvas offcanvas-end" id="offcanvasConfiguracionEnvios" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasConfiguracionEnviosLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasConfiguracionEnviosLabel">Configuración Envios</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <!-- Contenedor donde se mostrará todo -->
+        <div id="contenedor_configuraciones"></div>
+    </div>
+    <div class="offcanvas-foote">
+        <div class="text-end my-1">
+            <button id="btn_guardar_cliente" class="btn btn-success btn-sm me-1 px-1 py-1"><i class="fa-regular fa-floppy-disk"></i> Guardar Configuración</button>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvasNotificacionesEnviadas" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasNotificacionesEnviadasLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasNotificacionesEnviadasLabel">Configuración Envios</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                color: #000;
+            }
+
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 10px;
+            }
+
+            .logo {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            /* .logo img {
+            width: 600px;
+            height: auto;
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        } */
+
+            .title {
+                font-size: 22px;
+                font-weight: bold;
+                color: #333;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .section-title {
+                font-size: 16px;
+                font-weight: bold;
+                margin-top: 20px;
+                color: #333;
+            }
+
+            .info {
+                font-size: 15px;
+                margin-bottom: 20px;
+            }
+
+            .table-container {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            .table-container th,
+            .table-container td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+                color: black;
+                font-size: 12px;
+            }
+
+            /* .btn {
+                display: inline-block;
+                padding: 10px 16px;
+                background-color: #007BFF;
+                color: #fff !important;
+                text-decoration: none;
+                border-radius: 5px;
+                margin-top: 20px;
+                font-size: 15px;
+            }
+
+            .btn:hover {
+                background-color: #0056b3;
+            } */
+
+            .footer {
+                margin-top: 25px;
+                font-size: 13px;
+                color: #555;
+            }
+        </style>
+        <div class="container">
+
+            <!-- Logo -->
+            <div class="logo">
+                {{-- <img src="{{ $message->embed(public_path('img/banner.jpeg')) }}" alt="Logo"> --}}
+                <img src="{{ $message->embed(public_path('img/banner.png')) }}" width="1000" height="100"
+                    style="display:block; width:600px; height:74px; max-width:600px;" alt="Logo">
+            </div>
+
+            <!-- Título -->
+            {{-- <div class="title">📦 Seguimiento en Ruta</div> --}}
+
+            <!-- Mensaje -->
+            <div class="info">
+                {{-- Hola <strong>{{ $nombre_cliente }}</strong>, --}}<br><br>
+                Te informamos que tu envío se encuentra actualmente en estado de
+                <strong>{{ $estado_seguimiento }}</strong>.<br>
+                A continuación te dejamos la información más reciente:
+
+                {{-- Te informamos que tu envío con número de manifiesto
+            <strong>{{ $manifiesto_Id }}</strong> se encuentra actualmente
+                <strong>{{ $estado_seguimiento }}</strong>.<br>
+                A continuación te dejamos la información más reciente: --}}
+            </div>
+
+            <!-- Información básica del cliente -->
+            <div class="section-title">📄 Información del Cliente</div>
+            <ul>
+                <li><strong>Nombre:</strong> {{ $nombre_cliente }}</li>
+                <li><strong>Email:</strong> {{ $email }}</li>
+                {{-- <li><strong>Celular:</strong> {{ $celular }}</li> --}}
+            </ul>
+
+            <!-- Información básica del conductor -->
+            <div class="section-title">🚚 Información del Despacho</div>
+            <ul>
+                <li><strong>Inicio Servicio:</strong> {{ $Hora_Salida }}</li>
+                <li><strong>Ultimo Reporte:</strong> {{ $Fecha_Hora }}</li>
+                <li><strong>Código de ruta:</strong> {{ $cod_ini_ruta }}</li>
+            </ul>
+
+            <div class="section-title">🚚 Información del Conductor</div>
+            <ul>
+                <li><strong>Nombre:</strong> {{ $nombre_conductor }}</li>
+                <li><strong>Placa del vehículo:</strong> {{ $placa }}</li>
+                {{-- <li><strong>Código de ruta:</strong> {{ $cod_ini_ruta }}</li> --}}
+            </ul>
+
+            <!-- Tabla de estado -->
+            <table class="table-container">
+                <tr style="background-color: #3874ff;">
+                    <th style="color: white;width: auto; white-space: nowrap;">Fecha/Hora</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Referencia</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Contenedor</th>
+                    {{-- <th style="color: white;width: auto; white-space: nowrap;">Producto</th> --}}
+                    <th style="color: white;width: auto; white-space: nowrap;">Origen</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Destino</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Última ubicación</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Observación</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Estado</th>
+                </tr>
+                <tr>
+                    <td style="width: auto; white-space: nowrap;">{{ $Fecha_Hora }}</td>
+                    <td style="width: auto; white-space: nowrap;">{{ $Referencia }}</td>
+                    <td style="width: auto; white-space: nowrap;">{{ $Contenedor }}</td>
+                    {{-- <td style="width: auto; white-space: nowrap;">{{ $mer_producto }}</td> --}}
+                    <td style="width: auto; white-space: nowrap;">{{ $origen }}</td>
+                    <td style="width: auto; white-space: nowrap;">{{ $destino }}</td>
+                    <td style="width: auto; white-space: nowrap;">{{ $Municipio }}</td>
+                    <td style="width: auto; white-space: nowrap;">{{ $novedad }}</td>
+                    <td style="width: auto; white-space: nowrap;">{{ $estado_seguimiento }}</td>
+                </tr>
+            </table>
+
+            <!-- Botón -->
+            <!-- @if(!empty($urlSeguimiento))
+            <div style="text-align:center;">
+                <a href="{{ $urlSeguimiento }}" class="btn">🔍 Ver seguimiento en tiempo real</a>
+            </div>
+            @endif -->
+
+            <!-- Footer -->
+            <div class="footer">
+                Gracias por confiar en nosotros.<br>
+                Si tienes dudas, responde a este correo o contáctanos por nuestros canales oficiales.<br><br>
+                Saludos cordiales,<br>
+                <strong>{{ config('app.name') }}</strong>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="offcanvas-foote">
+        <div class="text-end my-1">
+            <button id="btn_guardar_cliente" class="btn btn-success btn-sm me-1 px-1 py-1"><i class="fa-regular fa-floppy-disk"></i> Guardar Configuración</button>
+        </div>
+    </div>
+</div>

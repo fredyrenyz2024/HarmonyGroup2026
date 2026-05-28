@@ -1,0 +1,3162 @@
+<div class="container-fluid py-3">
+    <style>
+        /* ============================================================
+           VARIABLES DE DISEÑO
+           Paleta: Azul marino industrial + ámbar de acento
+        ============================================================ */
+        :root {
+            --navy: #0f1f3d;
+            --navy-mid: #1a3260;
+            --blue: #1a5ce5;
+            --blue-soft: #dbeafe;
+            --amber: #f59e0b;
+            --amber-soft: #fef3c7;
+            --green: #10b981;
+            --green-soft: #d1fae5;
+            --red: #ef4444;
+            --red-soft: #fee2e2;
+            --orange: #f97316;
+            --orange-soft: #ffedd5;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-600: #475569;
+            --slate-800: #1e293b;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 2px 4px rgba(0, 0, 0, .06);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, .12), 0 4px 8px rgba(0, 0, 0, .06);
+        }
+
+        /* * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--slate-100);
+            padding: 24px;
+            color: var(--slate-800);
+        } */
+
+        /* ── PAGE HEADER ────────────────────────────── */
+        .page-header {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px 28px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            right: 120px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(26, 92, 229, .15);
+        }
+
+        .ph-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(245, 158, 11, .15);
+            border: 2px solid rgba(245, 158, 11, .35);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--amber);
+            flex-shrink: 0;
+        }
+
+        .ph-title {
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -.3px;
+            margin: 0;
+        }
+
+        .ph-sub {
+            color: rgba(255, 255, 255, .55);
+            font-size: .78rem;
+            margin-top: 2px;
+        }
+
+        .ph-badge {
+            background: var(--amber);
+            color: var(--navy);
+            font-weight: 700;
+            font-size: .78rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        /* ── KPI CARDS ──────────────────────────────── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .kpi-card {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: box-shadow .2s, transform .2s, border-color .2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-card.active {
+            border-color: currentColor;
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-card.c-green::before {
+            background: var(--green);
+        }
+
+        .kpi-card.c-amber::before {
+            background: var(--amber);
+        }
+
+        .kpi-card.c-red::before {
+            background: var(--red);
+        }
+
+        .kpi-card.c-slate::before {
+            background: var(--slate-400);
+        }
+
+        .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .kpi-card.c-green .kpi-icon {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .kpi-card.c-amber .kpi-icon {
+            background: var(--amber-soft);
+            color: #d97706;
+        }
+
+        .kpi-card.c-red .kpi-icon {
+            background: var(--red-soft);
+            color: var(--red);
+        }
+
+        .kpi-card.c-slate .kpi-icon {
+            background: var(--slate-100);
+            color: var(--slate-600);
+        }
+
+        .kpi-num {
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .kpi-card.c-green .kpi-num {
+            color: var(--green);
+        }
+
+        .kpi-card.c-amber .kpi-num {
+            color: #d97706;
+        }
+
+        .kpi-card.c-red .kpi-num {
+            color: var(--red);
+        }
+
+        .kpi-card.c-slate .kpi-num {
+            color: var(--slate-600);
+        }
+
+        .kpi-label {
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--slate-400);
+            margin-top: 3px;
+        }
+
+        /* ── FILTER CARD ────────────────────────────── */
+        .filter-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-200);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .filter-card-header {
+            background: var(--slate-50);
+            border-bottom: 1px solid var(--slate-200);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-card-header .fc-title {
+            font-size: .78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--slate-600);
+        }
+
+        .filter-card-header i {
+            color: var(--blue);
+            font-size: .9rem;
+        }
+
+        .filter-card-body {
+            padding: 18px 20px;
+        }
+
+        /* Labels y controles */
+        .f-label {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--slate-600);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .f-control {
+            width: 100%;
+            height: 34px;
+            padding: 0 10px;
+            border: 1.5px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: var(--slate-800);
+            background: #fff;
+            transition: border-color .15s, box-shadow .15s;
+            outline: none;
+        }
+
+        .f-control:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+        }
+
+        .f-control::placeholder {
+            color: var(--slate-400);
+        }
+
+        select.f-control {
+            cursor: pointer;
+        }
+
+        /* Separador de sección dentro de filtros */
+        .filter-divider {
+            height: 1px;
+            background: var(--slate-200);
+            margin: 14px 0;
+            position: relative;
+        }
+
+        .filter-divider span {
+            position: absolute;
+            top: -9px;
+            left: 10px;
+            background: #fff;
+            padding: 0 8px;
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--slate-400);
+        }
+
+        /* Botones de acción */
+        .btn-search {
+            height: 34px;
+            padding: 0 20px;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            font-family: 'IBM Plex Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background .15s, box-shadow .15s;
+            white-space: nowrap;
+        }
+
+        .btn-search:hover {
+            background: #1449c4;
+            box-shadow: 0 2px 8px rgba(26, 92, 229, .3);
+        }
+
+        .btn-clear {
+            height: 34px;
+            padding: 0 16px;
+            background: #fff;
+            color: var(--slate-600);
+            border: 1.5px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            font-family: 'IBM Plex Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .btn-clear:hover {
+            border-color: var(--slate-400);
+            color: var(--slate-800);
+        }
+
+        .btn-add {
+            height: 34px;
+            padding: 0 16px;
+            background: var(--navy);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            font-family: 'IBM Plex Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background .15s;
+            white-space: nowrap;
+        }
+
+        .btn-add:hover {
+            background: var(--navy-mid);
+        }
+
+        .btn-import {
+            height: 34px;
+            padding: 0 16px;
+            background: #fff;
+            color: var(--green);
+            border: 1.5px solid var(--green);
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            font-family: 'IBM Plex Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .btn-import:hover {
+            background: var(--green-soft);
+        }
+
+        /* Toggle de filtros avanzados */
+        .toggle-advanced {
+            font-size: .76rem;
+            font-weight: 600;
+            color: var(--blue);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+            background: none;
+            padding: 0;
+            font-family: 'IBM Plex Sans', sans-serif;
+            transition: color .15s;
+        }
+
+        .toggle-advanced:hover {
+            color: #1449c4;
+        }
+
+        .toggle-advanced .ti-icon {
+            transition: transform .2s;
+        }
+
+        .toggle-advanced.open .ti-icon {
+            transform: rotate(180deg);
+        }
+
+        .advanced-filters {
+            display: none;
+            animation: fadeIn .2s ease;
+        }
+
+        .advanced-filters.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Chip de filtro activo */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--blue-soft);
+            color: var(--navy-mid);
+            font-size: .72rem;
+            font-weight: 600;
+            padding: 3px 10px 3px 8px;
+            border-radius: 20px;
+        }
+
+        .filter-chip button {
+            background: none;
+            border: none;
+            padding: 0;
+            color: var(--navy-mid);
+            cursor: pointer;
+            line-height: 1;
+            font-size: .8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ── TABLE CARD ─────────────────────────────── */
+        .table-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-200);
+            overflow: hidden;
+        }
+
+        .table-card-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tc-title {
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tc-title i {
+            color: var(--blue);
+        }
+
+        .tc-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-inline {
+            height: 32px;
+            padding: 0 10px 0 32px;
+            border: 1.5px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: .8rem;
+            font-family: 'IBM Plex Sans', sans-serif;
+            outline: none;
+            position: relative;
+            transition: border-color .15s;
+            width: 200px;
+        }
+
+        .search-inline:focus {
+            border-color: var(--blue);
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+            font-size: .8rem;
+            pointer-events: none;
+        }
+
+        .btn-refresh {
+            width: 32px;
+            height: 32px;
+            border: 1.5px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            background: #fff;
+            color: var(--slate-600);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .15s;
+        }
+
+        .btn-refresh:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .8rem;
+        }
+
+        .data-table thead th {
+            background: var(--navy);
+            color: rgba(255, 255, 255, .85);
+            font-weight: 600;
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            padding: 10px 14px;
+            white-space: nowrap;
+            border: none;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .data-table thead th:first-child {
+            border-radius: 0;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--slate-100);
+            transition: background .1s;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--slate-50);
+        }
+
+        .data-table tbody td {
+            padding: 10px 14px;
+            color: var(--slate-800);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state .es-icon {
+            font-size: 2.8rem;
+            color: var(--slate-200);
+            margin-bottom: 16px;
+        }
+
+        .empty-state .es-title {
+            font-weight: 700;
+            color: var(--slate-600);
+            font-size: .95rem;
+            margin-bottom: 6px;
+        }
+
+        .empty-state .es-sub {
+            font-size: .8rem;
+            color: var(--slate-400);
+        }
+
+        /* Badges de estado */
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .02em;
+        }
+
+        .bs-active {
+            background: var(--green-soft);
+            color: #065f46;
+        }
+
+        .bs-inactive {
+            background: var(--slate-100);
+            color: var(--slate-600);
+        }
+
+        .bs-pending {
+            background: var(--amber-soft);
+            color: #92400e;
+        }
+
+        .bs-expired {
+            background: var(--red-soft);
+            color: #991b1b;
+        }
+
+        /* Acciones de tabla */
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            transition: all .15s;
+        }
+
+        .ab-view {
+            background: var(--blue-soft);
+            color: var(--blue);
+        }
+
+        .ab-edit {
+            background: var(--amber-soft);
+            color: #d97706;
+        }
+
+        .ab-del {
+            background: var(--red-soft);
+            color: var(--red);
+        }
+
+        .action-btn:hover {
+            filter: brightness(.9);
+            transform: scale(1.08);
+        }
+
+        /* Pagination */
+        .pagination-bar {
+            padding: 12px 20px;
+            border-top: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: .78rem;
+            color: var(--slate-400);
+        }
+
+        .pag-info strong {
+            color: var(--slate-800);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* --- ESTILOS DEL OFFCANVAS --- */
+        .offcanvas-center {
+            /* Centrado y flotante */
+            bottom: auto !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+
+            width: 90% !important;
+            /* Ajuste responsive */
+            max-width: 1000px;
+            height: 800px !important;
+            max-height: 95vh;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border: none;
+            overflow: hidden;
+            /* Para el border-radius */
+        }
+
+        .offcanvas-header-custom {
+            background-color: #f8fbff;
+            border-bottom: 1px solid #e3e8ef;
+            height: 70px;
+            /* Altura fija para el listón */
+            padding: 0;
+            /* Padding manejado internamente */
+            position: relative;
+        }
+
+        /* --- EL LISTÓN (RIBBON) --- */
+        .ribbon-box {
+            position: relative;
+            background-color: #1a73e8;
+            /* Azul Corporativo */
+            color: white;
+            width: 50px;
+            height: 70px;
+            /* Mismo alto que el header */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-left: 20px;
+            box-shadow: 0 4px 6px rgba(26, 115, 232, 0.2);
+        }
+
+        /* El recorte triangular inferior del listón */
+        .ribbon-box::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            border-left: 25px solid transparent;
+            /* Mitad del ancho */
+            border-right: 25px solid transparent;
+            border-bottom: 15px solid #f8fbff;
+            /* Color de fondo del header */
+        }
+
+        /* --- TEXTOS Y BADGES --- */
+        .text-primary-custom {
+            color: #1a73e8;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .badge-custom-light {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(26, 115, 232, 0.1);
+        }
+
+        .badge-custom-dark {
+            background-color: #5f6368;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- PRO TABS (TU SELECCIÓN CSS MEJORADA) --- */
+        .custom-tabs-container-venta {
+            margin-top: 1.5rem;
+        }
+
+        .nav-tabs-custom {
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            /* Más espacio entre tabs */
+            padding-left: 10px;
+        }
+
+        .nav-tabs-custom .nav-link {
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 12px 10px;
+            position: relative;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tabs-custom .nav-link:hover {
+            color: #1a73e8;
+        }
+
+        .nav-tabs-custom .nav-link.active {
+            color: #1a73e8 !important;
+            background: transparent;
+        }
+
+        /* Indicador de pestaña activa (Línea inferior) */
+        .nav-tabs-custom .nav-link.active::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #1a73e8;
+            border-radius: 3px 3px 0 0;
+            box-shadow: 0 -2px 5px rgba(26, 115, 232, 0.1);
+        }
+
+        .custom-tab-content {
+            background-color: #ffffff;
+            /* Eliminamos bordes para un look más limpio */
+            padding-top: 20px;
+            min-height: 150px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+
+        /* --- FORMULARIOS --- */
+        .form-label-sm {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.25rem;
+        }
+
+        .req {
+            color: #dc3545;
+        }
+
+        .btn-save {
+            background-color: #1a73e8;
+            border-color: #1a73e8;
+            font-weight: 500;
+            padding: 8px 24px;
+        }
+
+        .btn-save:hover {
+            background-color: #1557b0;
+        }
+
+        /* Asegura que el contenedor de TomSelect use todo el espacio disponible */
+        .ts-wrapper {
+            width: 100% !important;
+        }
+
+        /* Ajusta la altura para que coincida con los inputs de Bootstrap */
+        .ts-control {
+            min-height: 31px !important;
+            /* Altura para form-control-sm */
+            padding: 0.25rem 0.5rem !important;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Ajuste para que la fila de filtros no sea tan alta */
+        thead tr.filters th {
+            padding: 5px !important;
+            background-color: #f8f9fa !important;
+        }
+
+        thead tr.filters input {
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        /* Estilos para el efecto "Hoja de Informe" */
+        #offcanvasDetalleTarifa {
+            border-left: 1px solid #e2e8f0;
+            box-shadow: -15px 0 45px rgba(0, 0, 0, 0.08);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .report-header {
+            background: #0f172a;
+            /* Slate 900 */
+            color: white;
+            border-bottom: 4px solid #3b82f6;
+        }
+
+        .card-finance {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+            margin-left: 10px;
+        }
+
+        .border-dashed-custom {
+            border: 2px dashed #cbd5e1 !important;
+            background-color: #f1f5f9;
+            border-radius: 12px;
+        }
+
+        .point-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #3b82f6;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .point-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .list-group-item-custom {
+            border-left: 4px solid #10b981;
+            margin-bottom: 8px;
+            border-radius: 8px !important;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .badge-price {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 0.7rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Ocultar elementos en la impresión excepto el reporte */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #offcanvasDetalleTarifa,
+            #offcanvasDetalleTarifa * {
+                visibility: visible;
+            }
+
+            #offcanvasDetalleTarifa {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+
+            .btn-close,
+            .offcanvas-footer {
+                display: none;
+            }
+
+            .resumen-card {
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+
+            .resumen-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+            }
+
+            .resumen-card.active {
+                border: 2px solid #0d6efd;
+            }
+        }
+    </style>
+
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+    <!-- =====================================================
+        PAGE HEADER
+    ===================================================== -->
+    <div class="page-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="ph-icon">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <div>
+                <h1 class="ph-title">Tarifas de Venta</h1>
+                <div class="ph-sub">Gestión y consulta de tarifas · Parámetros del sistema</div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2" style="z-index:1">
+            <!-- Botón Importar -->
+            <!-- <button class="btn-import"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasImporteMasivo">
+                <i class="bi bi-file-earmark-arrow-up"></i>
+                Importación masiva
+            </button> -->
+            <!-- ✅ DESPUÉS — apunta al nuevo offcanvas -->
+            <button class="btn-import"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasImporteMasivoVentas"
+                aria-controls="offcanvasImporteMasivoVentas">
+                <i class="bi bi-file-earmark-arrow-up"></i>
+                Importación masiva
+            </button>
+            <!-- Botón Nueva Tarifa -->
+            <button class="btn-add"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasBottomVenta">
+                <i class="bi bi-plus-lg"></i>
+                Nueva tarifa
+            </button>
+        </div>
+    </div>
+
+    <!-- =====================================================
+        KPI CARDS — Resumen de vigencias
+    ===================================================== -->
+    <!-- <div class="kpi-grid">
+        <div class="kpi-card c-green resumen-card" data-filtro="vigente">
+            <div class="kpi-icon"><i class="bi bi-shield-check"></i></div>
+            <div>
+                <div class="kpi-num" id="total_vigentes">0</div>
+                <div class="kpi-label">Vigentes</div>
+            </div>
+        </div>
+
+        <div class="kpi-card c-amber resumen-card" data-filtro="por_vencer">
+            <div class="kpi-icon"><i class="bi bi-clock-history"></i></div>
+            <div>
+                <div class="kpi-num" id="total_por_vencer">0</div>
+                <div class="kpi-label">Por vencer</div>
+            </div>
+        </div>
+
+        <div class="kpi-card c-red resumen-card" data-filtro="vencida">
+            <div class="kpi-icon"><i class="bi bi-x-circle"></i></div>
+            <div>
+                <div class="kpi-num" id="total_vencidas">0</div>
+                <div class="kpi-label">Vencidas</div>
+            </div>
+        </div>
+
+        <div class="kpi-card c-red resumen-card" data-filtro="vencida">
+            <div class="kpi-icon"><i class="bi bi-x-circle"></i></div>
+            <div>
+                <div class="kpi-num" id="total_inactivas">0</div>
+                <div class="kpi-label">Inactivas</div>
+            </div>
+        </div>
+
+        <div class="kpi-card c-slate resumen-card" data-filtro="por_aprobar">
+            <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div>
+                <div class="kpi-num" id="total_por_aprobar">0</div>
+                <div class="kpi-label">Por aprobar</div>
+            </div>
+        </div>
+    </div> -->
+
+    <!-- =====================================================
+        FILTROS DE CONSULTA
+    ===================================================== -->
+    <div class="filter-card">
+
+        <div class="filter-card-header">
+            <i class="bi bi-funnel-fill"></i>
+            <span class="fc-title">Filtros de consulta</span>
+        </div>
+
+        <div class="filter-card-body">
+
+            <!-- FILA 1 — Fechas + Búsqueda libre + Tipo vehículo -->
+            <div class="row g-3 align-items-end">
+
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <label class="f-label" for="f_fecha_desde">Fecha desde</label>
+                    <!-- <input type="date" id="f_fecha_desde" class="f-control" value="<?= date('Y-m-01') ?>"> -->
+                    <input type="date" id="f_fecha_desde" class="f-control">
+                </div>
+
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <label class="f-label" for="f_fecha_hasta">Fecha hasta</label>
+                    <!-- <input type="date" id="f_fecha_hasta" class="f-control" value="<?= date('Y-m-t') ?>"> -->
+                    <input type="date" id="f_fecha_hasta" class="f-control">
+                </div>
+
+                <!-- <div class="col-sm-12 col-md-6 col-lg-3">
+                    <label class="f-label" for="f_search">Buscar cliente</label>
+                    <div class="position-relative">
+                        <i class="bi bi-search" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--slate-400);font-size:.78rem;pointer-events:none;"></i>
+                        <select id="f_cliente" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4 col-lg-2">
+                    <label class="f-label" for="f_tipo_vehiculo">Tipo vehículo</label>
+                    <select id="f_tipo_vehiculo" class="f-control">
+                        <option value="">Todos</option>
+                        <option value="NHR_2">NHR — Sencillo &gt;2500 Kg</option>
+                        <option value="2">Sencillo &gt;10500 Kg</option>
+                        <option value="2_7_8">Sencillo 7500-8000 Kg</option>
+                        <option value="2_8_9">Sencillo 8001-9000 Kg</option>
+                        <option value="2_9_105">Sencillo 9001-10500 Kg</option>
+                        <option value="2S2">Tractomula 2+2 ejes</option>
+                        <option value="2S3">Tractomula 2+3 ejes</option>
+                        <option value="3">Dobletroque 3 ejes</option>
+                        <option value="3S2">Tractomula 3+2 ejes</option>
+                        <option value="3S3">Tractomula 3+3 ejes</option>
+                        <option value="V2">Volqueta 2 ejes</option>
+                        <option value="V3">Volqueta 3 ejes</option>
+                        <option value="V4">Volqueta 4 ejes</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <label class="f-label" for="f_estado_tarifa">Estado tarifa</label>
+                    <select id="f_estado_tarifa" class="f-control">
+                        <option value="">Todos</option>
+                        <option value="Activa">Activa</option>
+                        <option value="Inactiva">Inactiva</option>
+                    </select>
+                </div> -->
+
+                <!-- Acciones -->
+                <div class="col-sm-12 col-md-auto ms-md-auto">
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <!-- <button class="toggle-advanced" id="toggleAdvanced" type="button" onclick="toggleFilters()">
+                            <i class="bi bi-sliders2 me-1"></i> Filtros avanzados
+                            <i class="bi bi-chevron-down ti-icon"></i>
+                        </button> 
+                        <button class="btn-clear" id="btn_limpiar_filtros" type="button" onclick="limpiarFiltros()">
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+                        </button>-->
+                        <button class="btn-search" id="btn_filtrar_tarifas" type="button">
+                            <i class="bi bi-search"></i> Consultar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FILTROS AVANZADOS (colapsables) -->
+            <!-- <div class="advanced-filters" id="advancedFilters">
+
+                <div class="filter-divider"><span>Filtros avanzados</span></div>
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="f-label" for="f_origen">Origen (municipio ID)</label>
+                        <input type="text" id="f_origen" class="f-control" placeholder="Ej: 11001">
+                        <select id="f_origen" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="f-label" for="f_destino">Destino (municipio ID)</label>
+                        <input type="text" id="f_destino" class="f-control" placeholder="Ej: 76001">
+                        <select id="f_destino" style="width: 100%; height: auto;" placeholder="Select a person..." autocomplete="off"></select>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="f-label" for="f_semana_desde">Semana desde</label>
+                        <input type="number" id="f_semana_desde" class="f-control" placeholder="1" min="1" max="53">
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="f-label" for="f_semana_hasta">Semana hasta</label>
+                        <input type="number" id="f_semana_hasta" class="f-control" placeholder="52" min="1" max="53">
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="f-label" for="f_mes_desde">Mes desde</label>
+                        <select id="f_mes_desde" class="f-control">
+                            <option value="">—</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3 col-lg-2">
+                        <label class="f-label" for="f_mes_hasta">Mes hasta</label>
+                        <select id="f_mes_hasta" class="f-control">
+                            <option value="">—</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-auto">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" id="f_pendientes" class="form-check-input"
+                                style="width:16px;height:16px;cursor:pointer;border-color:var(--slate-400);">
+                            <label class="f-label mb-0" for="f_pendientes" style="cursor:pointer;">
+                                Solo con aprobación pendiente
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                Chips de filtros activos
+                <div class="active-filters" id="activeFilterChips"></div>
+
+            </div> -->
+
+        </div><!-- /.filter-card-body -->
+    </div><!-- /.filter-card -->
+
+    <!-- =====================================================
+        TABLA DE RESULTADOS
+    ===================================================== -->
+    <div class="table-card">
+
+        <div class="table-card-header">
+            <div class="tc-title">
+                <i class="bi bi-table"></i>
+                Listado de tarifas
+                <span style="color:var(--slate-400);font-weight:400;font-size:.72rem;" id="tc-count"></span>
+            </div>
+            <div class="tc-actions">
+                <!-- <div class="search-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="search-inline" id="filtro_tabla_local" placeholder="Filtrar tabla...">
+                </div> 
+                <button class="btn-refresh" id="btn_refrescar" title="Refrescar">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>-->
+                <!-- Excel export link (mantiene id original) -->
+                <!-- <a href="javascript:void(0);" id="exportar_excel_tarifa_venta"
+                    style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;
+                      font-size:.78rem;font-weight:600;color:#1a6b3a;
+                      border:1.5px solid #d1fae5;border-radius:6px;padding:4px 12px;
+                      background:var(--green-soft);transition:all .15s;"
+                    onmouseover="this.style.background='#bbf7d0'"
+                    onmouseout="this.style.background='var(--green-soft)'">
+                    <i class="bi bi-file-earmark-excel" style="font-size:.9rem;"></i>
+                    Excel
+                </a> -->
+            </div>
+        </div>
+
+        <div class="table-wrap m-2">
+            <table id="tarifa_venta_export" class="data-table table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center">
+                <thead>
+                    <tr>
+                        <th style='width:auto; white-space: nowrap;'>#</th>
+                        <th style='width:auto; white-space: nowrap;'>Código</th>
+                        <th style='width:auto; white-space: nowrap;'>Cliente</th>
+                        <th style='width:auto; white-space: nowrap;'>F. Inicio</th>
+                        <th style='width:auto; white-space: nowrap;'>F. Fin</th>
+                        <th style='width:auto; white-space: nowrap;'>Origen</th>
+                        <th style='width:auto; white-space: nowrap;'>Destino</th>
+                        <th style='width:auto; white-space: nowrap;'>Zona Origen</th>
+                        <th style='width:auto; white-space: nowrap;'>Zona Destino</th>
+                        <th style='width:auto; white-space: nowrap;'>Vehículo</th>
+                        <th style='width:auto; white-space: nowrap;'>Tarifa</th>
+                        <th style='width:auto; white-space: nowrap;'>Tarifa Sicetac</th>
+                        <th style='width:auto; white-space: nowrap;'>Porcentaje Variación</th>
+                        <th style='width:auto; white-space: nowrap;'>Vigencia</th>
+                        <th style='width:auto; white-space: nowrap;'>Estado</th>
+                        <th style='width:auto; white-space: nowrap;'>Aprobación</th>
+                        <th style='width:auto; white-space: nowrap;'>F. Registro</th>
+                        <th style='width:auto; white-space: nowrap;'>Usuario</th>
+                        <th style='width:auto; white-space: nowrap;'>Empresa</th>
+                        <th style='width:auto; white-space: nowrap;'>Causales</th>
+                        <th style='width:auto; white-space: nowrap;'>Observación</th>
+                        <!-- <th>Acciones</th> -->
+                    </tr>
+                </thead>
+                <tbody id="tarifa_body">
+                    <tr>
+                        <td colspan="18">
+                            <div class="empty-state">
+                                <div class="es-icon"><i class="bi bi-filter-square"></i></div>
+                                <div class="es-title">Aplica los filtros para consultar</div>
+                                <div class="es-sub">Selecciona un rango de fechas y presiona <strong>Consultar</strong></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-bar">
+            <div class="pag-info" id="pag-info">Usa los filtros para cargar registros</div>
+            <div id="pag-actions"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- OFFCANVAS -->
+<div class="offcanvas offcanvas-bottom offcanvas-center" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasBottomVenta" aria-labelledby="offcanvasWithBackdropLabel">
+
+    <!-- HEADER -->
+    <div class="offcanvas-header offcanvas-header-custom">
+        <div class="d-flex align-items-center w-100 h-100">
+
+            <!-- Ribbon Icon -->
+            <div class="ribbon-box">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+
+            <!-- Title -->
+            <div class="ms-3 flex-grow-1">
+                <h5 class="mb-0 fw-bold text-primary-custom">Nueva Tarifa Venta</h5>
+                <small class="text-muted" style="font-size: 0.8rem;">Gestión de Localizaciones</small>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="d-flex align-items-center gap-3 me-4">
+                <!-- <div class="badge-custom-light">
+                    <i class="bi bi-diagram-3-fill me-1"></i> Entidad Raíz
+                </div> -->
+
+                <!-- <div class="badge-custom-dark">
+                    <div class="form-check form-switch min-h-0 mb-0 d-flex align-items-center">
+                        <input class="form-check-input mt-0 me-2" type="checkbox" id="subentidades">
+                        <label class="form-check-label text-white cursor-pointer" for="subentidades" style="font-size: 0.8rem;">Subentidades</label>
+                    </div>
+                </div> -->
+            </div>
+
+            <button type="button" class="btn-close me-3 btn-close-offcanvas" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="offcanvas-body px-4 pb-1">
+        <div class="row g-3">
+            <div class="col-md-12">
+                <label class="form-label-sm">Cliente <span class="req">*</span></label>
+                <div class="input-group input-group-sm">
+                    <select id="cliente_instruccion" style="width: 100%;"></select>
+                </div>
+            </div>
+
+            <!-- Origen -->
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-2">
+                    <label style="font-size: 12px;">Oriogen&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <div class="input-group input-group-sm">
+                        <select id="origen_tarifa" style="width: 100%;">
+                            <option value="" selected>Seleccione</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destino -->
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-2">
+                    <label style="font-size: 12px;">Destino&nbsp;<span style="color:red;"><i>(*)</i></span></label>
+                    <div class="input-group input-group-sm">
+                        <select id="destino_tarifa" style="width: 100%;">
+                            <option value="" selected>Seleccione</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipo Vehículo -->
+            <div class="col-md-6">
+                <label class="form-label-sm">Tipo Vehículo <span class="req">*</span></label>
+                <div class="input-group input-group-sm">
+                    <select name="slct_tipo_vehiculo_" id="slct_tipo_vehiculo_" style="width: 100%;">
+                        <option value="" selected>Seleccione</option>
+                        <option value="NHR_2">NHR Camión dos ejes - Sencillo PBV mas de 2500 Kg Cap Max Pm 2.5tn</option>
+                        <option value="2">Camión dos ejes - Sencillo PBV mas de 10500 Kg Cap Max Pm 9tn</option>
+                        <option value="2_7_8">Camion dos ejes - Sencillo PBV 7500-8000 Kg Cap Max Pm 4tn</option>
+                        <option value="2_8_9">Camion dos ejes - Sencillo PBV 8001-9000 Kg Cap Max Pm 5tn</option>
+                        <option value="2_9_105">Camion dos ejes - Sencillo PBV 9001-10500 Kg Cap Max Pm 6tn</option>
+                        <option value="2S2">Tractocamión dos ejes - semiremolque de dos ejes Cap Max Pm 22tn</option>
+                        <option value="2S3">Tractocamión dos ejes - semiremolque de tres ejes Cap Max Pm 27tn</option>
+                        <option value="3">Camión tres ejes - Cap Max Pm 16tn</option>
+                        <option value="3S2">Tractocamión tres ejes - semiremolque de dos ejes Cap Max Pm 31tn</option>
+                        <option value="3S3">Tractocamión tres ejes - semiremolque de tres ejes Cap Max Pm 34tn</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Costo -->
+            <div class="col-md-6">
+                <label class="form-label-sm">Tarifa Costo <span class="req">*</span></label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" name="tarifa-venta" id="tarifa-venta" placeholder="0.00" oninput="this.value = this.value.toUpperCase();" onchange="currencyMask2(this)">
+                </div>
+            </div>
+
+            <!-- Vigencia -->
+            <div class="col-md-6">
+                <label class="form-label-sm">Vigencia <span class="req">*</span></label>
+                <div class="d-flex gap-2">
+                    <input type="date" class="form-control form-control-sm" id="fecha-inicio-venta" name="fecha-inicio-venta" value="<?= date('Y-m-01') ?>">
+                    <input type="date" class="form-control form-control-sm" id="fecha-fin-venta" name="fecha-fin-venta" value="<?= date('Y-m-d') ?>">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label-sm">Estado <span class="req">*</span></label>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" name="esatdo" id="estado-tarifa-venta">
+                        <option value="Activa">Activo</option>
+                        <option value="Inactiva">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input" id="switch-config-extra-venta" type="checkbox">
+                <label class="form-check-label" for="switch-config-extra-venta"> Activar Configuración Avanzada </label>
+            </div>
+        </div>
+
+        <!-- PRO TABS NAVIGATION -->
+        <div class="custom-tabs-container-venta">
+            <ul class="nav nav-tabs-custom" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#tab-home" type="button" role="tab" aria-controls="tab-home" aria-selected="true" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="La tarifa por MULTIRECOGIDA  se debe aplicar cuando exista una seguda recogida en la ciudad Origen del bloque definido como ruta principal, estas se liquidan como N-1,
+                        Nro de remitentes que estan en la misma cidudad que se definio como ruta principal">
+                        <i class="bi bi-truck"></i> MultiRecogida
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#tab-history" type="button" role="tab" aria-controls="tab-history" aria-selected="false" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="La tarifa por MULTIORIGEN por primera operación se debe aplicar cuando exista una seguda recogida en una  ciudad distinta a la ciudad Origen del bloque de mercancias definido como ruta principal, 
+                        despues de la segunda recogida se liquidara en base a la tarifa registrada como Recogida adicional.">
+                        <i class="bi bi-graph-up"></i> MultiOrigen
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#tab-config" type="button" role="tab" aria-controls="tab-config" aria-selected="false" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="La tarifa por MULTIENTREGA por primera operación se debe aplicar cuando exista una seguda recogida en la ciudad Origen del bloque definido como ruta principal, 
+                         Nro de remitentes que estan en la misma cidudad que se definio como ruta principal.">
+                        <i class="bi bi-gear"></i> MultiEntrega
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="multidestino-tab" data-bs-toggle="tab" data-bs-target="#tab-multidestino" type="button" role="tab" aria-controls="tab-multidestino" aria-selected="false" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="La tarifa por MULTIDESTINO por primera operación se debe aplicar cuando exista una seguda recogida en la ciudad Origen del bloque definido como ruta principal, 
+                        despues de la segunda recogida se liquidara en base a la tarifa registrada como Recogida adicional.">
+                        <i class="bi bi-gear"></i> MultiDestino
+                    </button>
+                </li>
+            </ul>
+
+            <!-- TAB CONTENT -->
+            <div class="tab-content custom-tab-content" id="myTabContentVenta">
+
+                <!-- TAB 1: MULTIRECOGIDA -->
+                <div class="tab-pane fade show active" id="tab-home" role="tabpanel" aria-labelledby="home-tab">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label-sm">Tarifa Adicional<span class="req">*</span></label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">$</span>
+                                <input type="text" class="form-control js-extra-venta-origen" placeholder="0.00" id="js-extra-venta-origen" name="js-extra-venta-origen" oninput="this.value = this.value.toUpperCase();" onchange="currencyMask2(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: MULTIORIGEN -->
+                <div class="tab-pane fade" id="tab-history" role="tabpanel" aria-labelledby="history-tab">
+                    <div class="d-flex justify-content-end my-1">
+                        <button class="btn btn-subtle-primary btn-sm me-1 px-1 py-0" type="button" id="btn-add-multiorigen">
+                            Agregar
+                        </button>
+                    </div>
+                    <div id="multiorigen-container"></div>
+                </div>
+
+                <!-- TAB 3: MULTIENTREGA -->
+                <div class="tab-pane fade" id="tab-config" role="tabpanel" aria-labelledby="config-tab">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label-sm">Tarifa Adicional<span class="req">*</span></label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">$</span>
+                                <input type="text" class="form-control js-extra-venta-destino" placeholder="0.00" id="js-extra-venta-destino" name="js-extra-venta-destino" oninput="this.value = this.value.toUpperCase();" onchange="currencyMask2(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: MULTIDESTINO -->
+                <div class="tab-pane fade" id="tab-multidestino" role="tabpanel" aria-labelledby="multidestino-tab">
+                    <div class="d-flex justify-content-end my-1">
+                        <button class="btn btn-subtle-primary btn-sm me-1 px-1 py-0" type="button" id="btn-add-multidestino">
+                            Agregar
+                        </button>
+                    </div>
+                    <div id="multidestino-container"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- HISTÓRICO — siempre visible, fuera del sistema de tabs -->
+        <div class="mt-0">
+            <label class="form-label-sm">
+                <i class="bi bi-clock-history me-1"></i> Histórico de Tarifas
+            </label>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover style-table" style="font-size: 0.75rem;">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tarifa Base</th>
+                            <th>Vigencia</th>
+                            <th>Estado</th>
+                            <th>Estado Aprobación</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historico-tarifas-container"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER ACTION -->
+        <div class="offcanvas-footer border-top border-translucent border-dashed p-2 mt-4 text-end">
+            <button type="button" class="btn btn-light btn-sm me-2 btn-close-offcanvas" data-bs-dismiss="offcanvas">Cancelar</button>
+            <button class="btn btn-save text-white btn-sm shadow-sm" type="button" id="btn_guardar_tarifa">
+                <i class="bi bi-save me-1"></i> Guardar Tarifa
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- OFFCANVAS DETALLE TARIFA -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasDetalleTarifa" style="width: 780px;">
+    <!-- HEADER ESTILO CORPORATIVO -->
+    <div class="offcanvas-header report-header p-4">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary rounded-3 p-2 me-3 shadow-sm">
+                <i class="bi bi-graph-up-arrow text-white fs-4"></i>
+            </div>
+            <div>
+                <h5 class="mb-0 text-white fw-bold">Análisis Técnico de Operación</h5>
+                <small class="text-white-50" id="det-codigo-tarifa">EXPEDIENTE: --</small>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+
+    <div class="offcanvas-body p-4 bg-white">
+        <!-- SECCIÓN: CLIENTE -->
+        <div class="text-center mb-4">
+            <span id="det-estado" class="badge rounded-pill px-3 py-1 mb-2">---</span>
+            <h3 class="fw-bold text-dark mb-0" id="det-cliente">Nombre del Cliente</h3>
+            <p class="text-muted small">Configuración de Ruta Estratégica</p>
+        </div>
+
+        <!-- SECCIÓN: RUTA PRINCIPAL -->
+        <div class="section-title">Itinerario y Puntos de Control</div>
+        <div class="row g-3 mb-4 text-center">
+            <div class="col-5">
+                <div class="p-3 bg-light rounded-3 border">
+                    <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Origen Principal</small>
+                    <span class="fw-bold text-primary" id="det-origen">--</span>
+                </div>
+            </div>
+            <div class="col-2 d-flex align-items-center justify-content-center">
+                <i class="bi bi-chevron-right fs-4 text-muted"></i>
+            </div>
+            <div class="col-5">
+                <div class="p-3 bg-light rounded-3 border">
+                    <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Destino Final</small>
+                    <span class="fw-bold text-primary" id="det-destino">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESGLOSE MULTIPUNTOS (DINÁMICO: MULTIORIGEN / MULTIDESTINO) -->
+        <div id="det-seccion-puntos" class="mb-4" style="display: none;">
+            <div class="section-title" id="det-titulo-puntos">Puntos Adicionales de Ruta</div>
+            <div class="row g-2" id="det-lista-puntos">
+                <!-- Se llena vía JS -->
+            </div>
+        </div>
+
+        <!-- SECCIÓN: RESUMEN FINANCIERO -->
+        <div class="section-title">Estructura de Costos Totales</div>
+        <div class="row g-3 mb-4">
+            <div class="col-7">
+                <div class="card h-100 card-finance shadow">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Tarifa Base de Venta</small>
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+                        <h2 class="fw-bold mb-0" id="det-precio-base">$ 0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-5">
+                <div class="card h-100 border shadow-sm bg-light">
+                    <div class="card-body p-3">
+                        <small class="text-muted d-block mb-1 text-uppercase fw-bold" style="font-size: 0.65rem;">Suma Adicionales</small>
+                        <h4 class="fw-bold text-dark mb-0" id="det-total-adicionales">$ 0</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: GRÁFICO COMPARATIVO -->
+        <div class="card border-0 shadow-sm mb-4 bg-light">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold m-0 text-dark">Variación vs Mercado</h6>
+                    <span class="badge bg-white text-primary border small shadow-sm" id="det-variacion-badge">0%</span>
+                </div>
+                <div style="height: 160px;">
+                    <canvas id="chartComparativo"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: COMPONENTES EXTRA (Gastos, peajes, etc) -->
+        <div id="det-seccion-extra" class="mb-4" style="display: none;">
+            <div class="section-title">Conceptos Complementarios</div>
+            <div class="list-group list-group-flush" id="det-lista-extras">
+                <!-- Se llena vía JS -->
+            </div>
+        </div>
+
+        <!-- SECCIÓN: VIGENCIA -->
+        <div class="p-4 border-dashed-custom text-center mb-2">
+            <div class="row">
+                <div class="col-6 border-end">
+                    <small class="d-block text-muted text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Inicio de Convenio</small>
+                    <span class="fw-bold text-dark" id="det-fecha-inicio">--/--/--</span>
+                </div>
+                <div class="col-6">
+                    <small class="d-block text-muted text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Fin de Vigencia</small>
+                    <span class="fw-bold text-dark" id="det-fecha-fin">--/--/--</span>
+                </div>
+            </div>
+        </div>
+        <p class="text-center text-muted mt-2" style="font-size: 0.7rem;">Este documento es una representación técnica de la oferta comercial vigente.</p>
+
+        <div class="mb-3">
+            <div class="section-title">
+                <i class="bi bi-clipboard2-check-fill me-2 text-warning"></i> Causales por Componente
+            </div>
+            <div id="det-lista-causales"></div>
+        </div>
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="offcanvas-footer p-3 bg-light border-top d-flex gap-2">
+        <button class="btn btn-dark w-100 fw-bold shadow-sm py-2" type="button" onclick="window.print()">
+            <i class="bi bi-printer me-2"></i>Imprimir Reporte
+        </button>
+        <button class="btn btn-outline-primary w-100 fw-bold shadow-sm py-2" type="button">
+            <i class="bi bi-send me-2"></i>Compartir
+        </button>
+    </div>
+</div>
+
+<!-- =====================================================================
+     Offcanvas — Importación Masiva de Tarifas de Venta
+     Flujo: 1) Cargar archivo  2) Previsualizar  3) Importar + Resultados
+     ===================================================================== -->
+<!-- <div class="offcanvas offcanvas-end" style="width: 70%; min-width: 640px;" id="offcanvasImporteMasivo" tabindex="-1" aria-labelledby="offcanvasImporteMasivoLabel">
+    <div class="offcanvas-header border-bottom py-3">
+        <h5 id="offcanvasImporteMasivoLabel" class="mb-0 fw-bold">
+            <i class="fas fa-file-excel text-success me-2"></i>
+            Importación Masiva de Tarifas de Venta
+        </h5>
+        <button class="btn-close text-reset" type="button"
+            data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body p-4 overflow-auto">
+
+        <!-- ══════════════════════════════════════════════
+             PASO 1 — Cargar archivo
+        ══════════════════════════════════════════════ --
+        <div id="im-step-upload">
+
+            <!-- Instrucciones y descarga de plantilla --
+            <div class="card border-0 bg-light mb-4">
+                <div class="card-body py-3">
+                    <h6 class="fw-bold mb-2">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Instrucciones
+                    </h6>
+                    <ol class="mb-2 ps-3 small">
+                        <li>Descarga la plantilla Excel y completa los datos.</li>
+                        <li>La hoja <strong>archivo</strong> contiene una tarifa por fila.</li>
+                        <li>Las hojas <strong>multiorigen</strong> y <strong>multidestino</strong>
+                            usan la columna <strong>fila_ref</strong> para vincular
+                            sus municipios con la tarifa correspondiente de la hoja <em>archivo</em>.</li>
+                        <li>Las tarifas que superen el umbral de variación configurado
+                            se enviarán a <em>Pendiente de Aprobación</em> automáticamente;
+                            la tarifa anterior permanece activa.</li>
+                    </ol>
+                    <button class="btn btn-sm btn-outline-success" onclick="descargarPlantillaMasivo()">
+                        <i class="fas fa-download me-1"></i>
+                        Descargar plantilla (.xlsx)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input de archivo --
+            <div class="mb-4">
+                <label for="im_archivo_excel" class="form-label fw-bold">
+                    <i class="fas fa-upload me-2"></i>Seleccionar archivo Excel
+                </label>
+                <input type="file"
+                    class="form-control"
+                    id="im_archivo_excel"
+                    accept=".xlsx,.xls"
+                    onchange="im_onArchivoSeleccionado()">
+                <div class="form-text">Formatos aceptados: .xlsx, .xls</div>
+            </div>
+
+            <!-- Botón previsualizar (se habilita al seleccionar archivo) --
+            <div class="d-grid">
+                <button class="btn btn-primary btn-lg"
+                    id="im_btn_preview"
+                    onclick="im_previsualizarArchivo()"
+                    disabled>
+                    <i class="fas fa-eye me-2"></i>
+                    Previsualizar archivo
+                </button>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             PASO 2 — Previsualización
+        ══════════════════════════════════════════════ --
+        <div id="im-step-preview" style="display:none;">
+
+            <!-- Resumen de hojas --
+            <div class="row g-3 mb-4" id="im-preview-summary">
+                <div class="col-4">
+                    <div class="card border-0 bg-primary bg-opacity-10 text-center py-3">
+                        <div class="fs-4 fw-bold text-primary" id="im-count-tarifas">0</div>
+                        <div class="small text-muted">Tarifas (hoja archivo)</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card border-0 bg-success bg-opacity-10 text-center py-3">
+                        <div class="fs-4 fw-bold text-success" id="im-count-origen">0</div>
+                        <div class="small text-muted">Detalles MultiOrigen</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card border-0 bg-warning bg-opacity-10 text-center py-3">
+                        <div class="fs-4 fw-bold text-warning" id="im-count-destino">0</div>
+                        <div class="small text-muted">Detalles MultiDestino</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de previsualización --
+            <div class="table-responsive mb-4" style="max-height: 340px; overflow-y: auto;">
+                <table class="table table-sm table-bordered table-hover align-middle mb-0">
+                    <thead class="table-dark sticky-top">
+                        <tr>
+                            <th class="text-center" style="width:50px;">Fila</th>
+                            <th>Cliente ID</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Tipo Vehículo</th>
+                            <th class="text-end">Plena</th>
+                            <th>F. Inicio</th>
+                            <th>F. Fin</th>
+                            <th class="text-center">Multi Rec.</th>
+                            <th class="text-center">Multi Ent.</th>
+                            <th class="text-center">Orígenes</th>
+                            <th class="text-center">Destinos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="im-preview-tbody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Advertencias detectadas localmente --
+            <div id="im-preview-warnings" class="mb-4" style="display:none;">
+                <div class="alert alert-warning py-2 mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong id="im-preview-warn-count">0</strong> fila(s) con datos faltantes
+                    (cliente, origen, destino o tipo de vehículo vacíos).
+                    Esas filas serán ignoradas al importar.
+                </div>
+            </div>
+
+            <!-- Acciones --
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary flex-grow-1"
+                    onclick="im_volverAlUpload()">
+                    <i class="fas fa-arrow-left me-1"></i> Cambiar archivo
+                </button>
+                <button class="btn btn-success flex-grow-1 btn-lg"
+                    onclick="im_ejecutarImportacion()">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    Iniciar importación
+                </button>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             PASO 3 — Progreso
+        ══════════════════════════════════════════════ --
+        <div id="im-step-progress" style="display:none;">
+
+            <div class="text-center mb-4">
+                <div class="spinner-border text-primary"
+                    style="width:4rem;height:4rem;" role="status">
+                    <span class="visually-hidden">Procesando...</span>
+                </div>
+                <p class="mt-3 fw-bold fs-5">Procesando importación...</p>
+            </div>
+
+            <!-- Barra de progreso --
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold small">Progreso</span>
+                    <span id="im-progress-pct" class="fw-bold small text-primary">0%</span>
+                </div>
+                <div class="progress" style="height:28px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                        id="im-progress-bar"
+                        role="progressbar"
+                        style="width:0%"
+                        aria-valuenow="0"
+                        aria-valuemin="0"
+                        aria-valuemax="100">0%</div>
+                </div>
+            </div>
+
+            <!-- Log de pasos --
+            <div class="card border-0 bg-light">
+                <div class="card-body py-3">
+                    <h6 class="fw-bold mb-2">
+                        <i class="fas fa-terminal me-2 text-secondary"></i>
+                        Registro de pasos
+                    </h6>
+                    <div id="im-progress-log"
+                        style="font-size:0.82rem; max-height:200px; overflow-y:auto; font-family: monospace;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-3 py-2">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                No cierres esta ventana hasta que finalice el proceso.
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             PASO 4 — Resultados
+        ══════════════════════════════════════════════ --
+        <div id="im-step-result" style="display:none;">
+
+            <!-- Ícono de estado --
+            <div class="text-center mb-4">
+                <i id="im-result-icon"
+                    class="fas fa-check-circle text-success"
+                    style="font-size:4.5rem;"></i>
+                <h5 id="im-result-title" class="mt-3 fw-bold">Importación completada</h5>
+            </div>
+
+            <!-- Tarjetas de resumen numérico --
+            <div class="row g-3 mb-4" id="im-result-cards">
+                <div class="col-6">
+                    <div class="card border-0 bg-primary bg-opacity-10 text-center py-3">
+                        <div class="fs-3 fw-bold text-primary" id="im-res-total">0</div>
+                        <div class="small text-muted">Filas procesadas</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-0 bg-success bg-opacity-10 text-center py-3">
+                        <div class="fs-3 fw-bold text-success" id="im-res-activadas">0</div>
+                        <div class="small text-muted">Tarifas activadas</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-0 bg-warning bg-opacity-10 text-center py-3">
+                        <div class="fs-3 fw-bold text-warning" id="im-res-pendientes">0</div>
+                        <div class="small text-muted">Enviadas a aprobación</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-0 bg-danger bg-opacity-10 text-center py-3">
+                        <div class="fs-3 fw-bold text-danger" id="im-res-fallidas">0</div>
+                        <div class="small text-muted">Con error</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensaje contextual --
+            <div id="im-result-msg" class="alert mb-4 py-2"></div>
+
+            <!-- Lista de errores (si los hay) --
+            <div id="im-result-errores-wrap" style="display:none;" class="mb-4">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger bg-opacity-10 py-2">
+                        <strong class="text-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Errores detectados
+                        </strong>
+                    </div>
+                    <div class="card-body py-2 p-0">
+                        <ul id="im-result-errores-list"
+                            class="list-group list-group-flush mb-0"
+                            style="max-height:180px;overflow-y:auto;font-size:0.82rem;">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aviso de aprobación pendiente --
+            <div id="im-result-aprob-aviso" class="alert alert-warning py-2 mb-4" style="display:none;">
+                <i class="fas fa-hourglass-half me-2"></i>
+                <strong>Algunas tarifas quedaron en espera de aprobación.</strong>
+                Las tarifas anteriores permanecen activas hasta que sean aprobadas.
+                Revísalas en el módulo de <strong>Aprobación de Tarifas</strong>.
+            </div>
+
+            <!-- Acciones finales --
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary flex-grow-1"
+                    onclick="im_resetear()">
+                    <i class="fas fa-redo me-1"></i> Importar otro archivo
+                </button>
+                <button class="btn btn-primary flex-grow-1"
+                    onclick="im_cerrar()">
+                    <i class="fas fa-check me-1"></i> Finalizar
+                </button>
+            </div>
+        </div>
+
+    </div><!-- /.offcanvas-body --
+</div> -->
+<!-- /.offcanvas -->
+
+<!-- ============================================================
+     Archivo: offcanvas_importacion_masiva_ventas.phtml
+     Incluir dentro de tarifa_ventas.phtml donde corresponda.
+     Trigger botón:
+       data-bs-toggle="offcanvas"
+       data-bs-target="#offcanvasImporteMasivoVentas"
+     ============================================================ -->
+
+<div class="offcanvas offcanvas-end" id="offcanvasImporteMasivoVentas" tabindex="-1" aria-labelledby="offcanvasImporteMasivoVentasLabel" style="width: 580px; max-width: 96vw;">
+    <style>
+        /* ============================================================
+           IMPORT MASIVO VENTAS — variables del sistema de diseño
+           ============================================================ */
+        #offcanvasImporteMasivoVentas {
+            --im-navy: #0f1f3d;
+            --im-blue: #1a3c6b;
+            --im-accent: #e8a020;
+            --im-green: #16a34a;
+            --im-red: #dc2626;
+            --im-orange: #f59e0b;
+            --im-gray: #64748b;
+            --im-light: #f0f4f8;
+            --im-border: #dde3ef;
+            --im-white: #ffffff;
+            --im-shadow: 0 2px 12px rgba(15, 31, 61, .08);
+            --im-radius: 10px;
+            font-family: inherit;
+        }
+
+        /* ── Header ── */
+        #offcanvasImporteMasivoVentas .im-v-header {
+            background: linear-gradient(135deg, var(--im-navy) 0%, var(--im-blue) 100%);
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-header-icon {
+            width: 42px;
+            height: 42px;
+            background: rgba(232, 160, 32, .2);
+            border: 2px solid var(--im-accent);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--im-accent);
+            flex-shrink: 0;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-header-title {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-header-sub {
+            color: rgba(255, 255, 255, .55);
+            font-size: .75rem;
+            margin: 0;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-close-btn {
+            background: rgba(255, 255, 255, .1);
+            border: none;
+            border-radius: 7px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background .2s;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-close-btn:hover {
+            background: rgba(255, 255, 255, .2);
+        }
+
+        /* ── Body general ── */
+        #offcanvasImporteMasivoVentas .im-v-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px 22px 16px;
+            background: #f8fafc;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-body::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-body::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        /* ── ZONA DE UPLOAD ── */
+        #offcanvasImporteMasivoVentas .im-v-dropzone {
+            border: 2px dashed var(--im-border);
+            border-radius: var(--im-radius);
+            background: var(--im-white);
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .25s, background .25s;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-dropzone:hover,
+        #offcanvasImporteMasivoVentas .im-v-dropzone.dragover {
+            border-color: var(--im-blue);
+            background: #eff6ff;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-dropzone-icon {
+            font-size: 2.5rem;
+            color: var(--im-blue);
+            margin-bottom: 10px;
+            opacity: .7;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-dropzone-title {
+            font-size: .92rem;
+            font-weight: 700;
+            color: var(--im-navy);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-dropzone-sub {
+            font-size: .78rem;
+            color: var(--im-gray);
+            margin-top: 4px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-dropzone-badge {
+            display: inline-block;
+            background: var(--im-light);
+            color: var(--im-blue);
+            border: 1px solid var(--im-border);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: .72rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        #archivo_excel_ventas {
+            display: none;
+        }
+
+        /* Archivo seleccionado */
+        #offcanvasImporteMasivoVentas .im-v-file-selected {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-top: 12px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-file-selected.show {
+            display: flex;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-file-icon {
+            font-size: 1.6rem;
+            color: #16a34a;
+            flex-shrink: 0;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-file-name {
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--im-navy);
+            word-break: break-all;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-file-size {
+            font-size: .72rem;
+            color: var(--im-gray);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-file-clear {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--im-red);
+            cursor: pointer;
+            font-size: .95rem;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: background .15s;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-file-clear:hover {
+            background: #fee2e2;
+        }
+
+        /* ── INFO SHEETS ── */
+        #offcanvasImporteMasivoVentas .im-v-sheets-info {
+            background: var(--im-white);
+            border: 1px solid var(--im-border);
+            border-radius: var(--im-radius);
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheets-info-header {
+            background: var(--im-light);
+            border-bottom: 1px solid var(--im-border);
+            padding: 10px 14px;
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--im-blue);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheet-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--im-border);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheet-row:last-child {
+            border-bottom: none;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheet-tab {
+            background: var(--im-navy);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 4px;
+            font-size: .7rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheet-tab.green {
+            background: #16a34a;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheet-tab.amber {
+            background: #d97706;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheet-tab.purple {
+            background: #7c3aed;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheet-desc {
+            font-size: .78rem;
+            color: var(--im-gray);
+            line-height: 1.45;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-sheet-cols {
+            font-size: .72rem;
+            color: var(--im-navy);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* ── BOTÓN PRINCIPAL ── */
+        #offcanvasImporteMasivoVentas .im-v-btn-import {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--im-navy) 0%, var(--im-blue) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: .9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity .2s, transform .1s;
+            margin-top: 18px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-btn-import:hover:not(:disabled) {
+            opacity: .9;
+            transform: translateY(-1px);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-btn-import:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        /* ── SECCIÓN PROGRESO ── */
+        #offcanvasImporteMasivoVentas .im-v-prog-header {
+            text-align: center;
+            padding: 20px 0 16px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-spinner-wrap {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 14px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-spinner-ring {
+            width: 72px;
+            height: 72px;
+            border: 5px solid var(--im-light);
+            border-top-color: var(--im-blue);
+            border-radius: 50%;
+            animation: imv-spin 1s linear infinite;
+        }
+
+        @keyframes imv-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-spinner-pct {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .85rem;
+            font-weight: 800;
+            color: var(--im-navy);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-prog-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--im-navy);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-prog-sub {
+            font-size: .82rem;
+            color: var(--im-gray);
+            margin-top: 3px;
+        }
+
+        /* Barra de progreso */
+        #offcanvasImporteMasivoVentas .im-v-progress-track {
+            background: var(--im-light);
+            border-radius: 8px;
+            height: 10px;
+            overflow: hidden;
+            margin: 14px 0 6px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--im-blue) 0%, #3b82f6 100%);
+            border-radius: 8px;
+            transition: width .6s ease;
+            width: 0%;
+        }
+
+        /* Steps de proceso */
+        #offcanvasImporteMasivoVentas .im-v-steps {
+            margin-top: 14px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 7px;
+            margin-bottom: 4px;
+            font-size: .8rem;
+            color: var(--im-gray);
+            transition: background .2s, color .2s;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-step.active {
+            background: #eff6ff;
+            color: var(--im-blue);
+            font-weight: 600;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-step.done {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-step.error {
+            background: #fef2f2;
+            color: var(--im-red);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-step-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: .7rem;
+            background: #e2e8f0;
+            color: var(--im-gray);
+            transition: background .2s, color .2s;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-step.active .im-v-step-dot {
+            background: var(--im-blue);
+            color: #fff;
+            animation: imv-pulse 1.2s ease-in-out infinite;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-step.done .im-v-step-dot {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-step.error .im-v-step-dot {
+            background: var(--im-red);
+            color: #fff;
+        }
+
+        @keyframes imv-pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(26, 60, 107, .4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(26, 60, 107, 0);
+            }
+        }
+
+        /* ── SECCIÓN RESULTADO ── */
+        #offcanvasImporteMasivoVentas .im-v-result-hero {
+            text-align: center;
+            padding: 20px 0 14px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-result-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-result-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--im-navy);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-result-sub {
+            font-size: .82rem;
+            color: var(--im-gray);
+            margin-top: 4px;
+        }
+
+        /* Tarjetas de resumen */
+        #offcanvasImporteMasivoVentas .im-v-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-summary-card {
+            background: var(--im-white);
+            border: 1px solid var(--im-border);
+            border-radius: 9px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--im-shadow);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-summary-card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .95rem;
+            flex-shrink: 0;
+        }
+
+        #offcanvasImporteMasivoVentas .iv-ic-activas {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        #offcanvasImporteMasivoVentas .iv-ic-pendientes {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        #offcanvasImporteMasivoVentas .iv-ic-saltadas {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        #offcanvasImporteMasivoVentas .iv-ic-errores {
+            background: #fee2e2;
+            color: var(--im-red);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-summary-num {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--im-navy);
+            line-height: 1;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-summary-label {
+            font-size: .7rem;
+            color: var(--im-gray);
+            margin-top: 1px;
+        }
+
+        /* Acordeón de detalle */
+        #offcanvasImporteMasivoVentas .im-v-detail-section {
+            background: var(--im-white);
+            border: 1px solid var(--im-border);
+            border-radius: var(--im-radius);
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-toggle {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 11px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--im-navy);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-toggle:hover {
+            background: var(--im-light);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-toggle .badge-count {
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: .7rem;
+            font-weight: 700;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-body {
+            display: none;
+            border-top: 1px solid var(--im-border);
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-body.open {
+            display: block;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-row {
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--im-border);
+            font-size: .78rem;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-row .ruta {
+            font-weight: 600;
+            color: var(--im-navy);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-detail-row .meta {
+            color: var(--im-gray);
+            font-size: .72rem;
+            margin-top: 2px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-var-chip {
+            display: inline-block;
+            padding: 1px 7px;
+            border-radius: 3px;
+            font-size: .68rem;
+            font-weight: 700;
+            margin: 1px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-var-chip.alta {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-var-chip.normal {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        /* Botones del footer resultado */
+        #offcanvasImporteMasivoVentas .im-v-result-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-btn-finalizar {
+            padding: 11px;
+            background: var(--im-blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: .88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-btn-finalizar:hover {
+            background: var(--im-navy);
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-btn-otro {
+            padding: 10px;
+            background: transparent;
+            color: var(--im-gray);
+            border: 1px solid var(--im-border);
+            border-radius: 8px;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #offcanvasImporteMasivoVentas .im-v-btn-otro:hover {
+            background: var(--im-light);
+            color: var(--im-navy);
+        }
+
+        /* ── WARNING ── */
+        #offcanvasImporteMasivoVentas .im-v-warn {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--im-orange);
+            border-radius: 7px;
+            padding: 10px 12px;
+            font-size: .78rem;
+            color: #92400e;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 14px;
+        }
+    </style>
+
+    <!-- ── HEADER ── -->
+    <div class="im-v-header">
+        <div class="im-v-header-left">
+            <div class="im-v-header-icon"><i class="fas fa-file-excel"></i></div>
+            <div>
+                <p class="im-v-header-title">Importación Masiva — Tarifas de Venta</p>
+                <p class="im-v-header-sub">Carga de plantilla Excel · Hasta 3 hojas simultáneas</p>
+            </div>
+        </div>
+        <button class="im-v-close-btn" data-bs-dismiss="offcanvas" title="Cerrar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Instrucciones y descarga de plantilla -->
+    <div class="card border-0 bg-light mb-4">
+        <div class="card-body py-3">
+            <h6 class="fw-bold mb-2">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                Instrucciones
+            </h6>
+            <ol class="mb-2 ps-3 small">
+                <li>Descarga la plantilla Excel y completa los datos.</li>
+                <li>La hoja <strong>archivo</strong> contiene una tarifa por fila con Cliente, Origen, Destino, Tipo vehículo, Tarifa, Fechas y Código.</li>
+                <li>Las hojas <strong>multiorigen</strong> y <strong>multidestino</strong>
+                    usan la columna <strong>Codigo</strong> para vincular
+                    sus municipios con la tarifa correspondiente de la hoja <em>archivo</em>.</li>
+                <li>Las tarifas que superen el umbral de variación configurado
+                    se enviarán a <em>Pendiente de Aprobación</em> automáticamente;
+                    la tarifa anterior permanece activa.</li>
+            </ol>
+            <button class="btn btn-sm btn-outline-success"
+                onclick="imvDescargarPlantilla()">
+                <i class="fas fa-download me-1"></i>
+                Descargar plantilla (.xlsx)
+            </button>
+        </div>
+    </div>
+
+    <!-- ── BODY ── -->
+    <div class="im-v-body" id="imv-body-wrap">
+
+        <!-- ======================================================
+             SECCIÓN 1: UPLOAD
+             ====================================================== -->
+        <div id="imv-upload-section">
+
+            <!-- Drop zone -->
+            <div class="im-v-dropzone" id="imv-dropzone"
+                onclick="document.getElementById('archivo_excel_ventas').click()">
+                <div class="im-v-dropzone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <div class="im-v-dropzone-title">Arrastra tu archivo aquí o haz clic para seleccionar</div>
+                <div class="im-v-dropzone-sub" style="margin-top:8px;">
+                    <span class="im-v-dropzone-badge">.xlsx</span>
+                    <span class="im-v-dropzone-badge">.xls</span>
+                </div>
+            </div>
+            <input type="file" id="archivo_excel_ventas" accept=".xlsx,.xls"
+                onchange="imvOnFileSelected(this)">
+
+            <!-- Archivo seleccionado -->
+            <div class="im-v-file-selected" id="imv-file-preview">
+                <div class="im-v-file-icon"><i class="fas fa-file-excel"></i></div>
+                <div>
+                    <div class="im-v-file-name" id="imv-file-name">—</div>
+                    <div class="im-v-file-size" id="imv-file-size">—</div>
+                </div>
+                <button class="im-v-file-clear" onclick="imvLimpiarArchivo()" title="Quitar archivo">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Estructura esperada del Excel -->
+            <div class="im-v-sheets-info">
+                <div class="im-v-sheets-info-header">
+                    <i class="fas fa-table"></i> Estructura del archivo Excel
+                </div>
+                <div class="im-v-sheet-row">
+                    <span class="im-v-sheet-tab green">archivo</span>
+                    <div>
+                        <div class="im-v-sheet-desc">Tarifa principal por cliente, ruta y vehículo</div>
+                        <div class="im-v-sheet-cols">Columnas: Cliente · Origen · Destino · Tipo vehículo · Tarifa · Fecha Inicio · Fecha Fin · Config. Extra · Multi-Recogida · Multi-Entrega · Codigo</div>
+                    </div>
+                </div>
+                <div class="im-v-sheet-row">
+                    <span class="im-v-sheet-tab amber">multiorigen</span>
+                    <div>
+                        <div class="im-v-sheet-desc">Detalles de Multi-Origen por municipio</div>
+                        <div class="im-v-sheet-cols">Columnas: Codigo (ref.) · Municipio · TarifaAdicional 1 · TarifaAdicional 2</div>
+                    </div>
+                </div>
+                <div class="im-v-sheet-row">
+                    <span class="im-v-sheet-tab purple">multidestino</span>
+                    <div>
+                        <div class="im-v-sheet-desc">Detalles de Multi-Destino por municipio</div>
+                        <div class="im-v-sheet-cols">Columnas: Codigo (ref.) · Municipio · TarifaAdicional 1 · TarifaAdicional 2</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advertencia -->
+            <div class="im-v-warn">
+                <i class="fas fa-exclamation-triangle" style="flex-shrink:0; margin-top:1px;"></i>
+                <span>Las tarifas que superen el umbral de variación permitido quedarán <strong>INACTIVAS</strong> y entrarán a la bandeja de aprobación. Las demás se activarán automáticamente.</span>
+            </div>
+
+            <!-- Botón iniciar -->
+            <button class="im-v-btn-import" id="imv-btn-start"
+                onclick="importarTarifasVentasMasivo()" disabled>
+                <i class="fas fa-cloud-upload-alt"></i>
+                Iniciar Importación
+            </button>
+
+        </div>
+
+        <!-- ======================================================
+             SECCIÓN 2: PROGRESO
+             ====================================================== -->
+        <div id="imv-progress-section" style="display:none;">
+
+            <div class="im-v-prog-header">
+                <div class="im-v-spinner-wrap">
+                    <div class="im-v-spinner-ring"></div>
+                    <div class="im-v-spinner-pct" id="imv-pct-label">0%</div>
+                </div>
+                <div class="im-v-prog-title" id="imv-prog-title">Procesando archivo...</div>
+                <div class="im-v-prog-sub" id="imv-prog-sub">Por favor espera, esto puede tomar unos minutos</div>
+            </div>
+
+            <div class="im-v-progress-track">
+                <div class="im-v-progress-fill" id="imv-progress-fill"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:.72rem; color:var(--im-gray); margin-bottom:14px;">
+                <span>0%</span><span id="imv-pct-right">0%</span>
+            </div>
+
+            <!-- Pasos del proceso -->
+            <div class="im-v-steps" id="imv-steps-list">
+                <div class="im-v-step" id="imv-step-archivo">
+                    <div class="im-v-step-dot">1</div>
+                    <span>Procesando hoja <strong>archivo</strong> — clientes, rutas y tarifas base</span>
+                </div>
+                <div class="im-v-step" id="imv-step-multiorigen">
+                    <div class="im-v-step-dot">2</div>
+                    <span>Procesando hoja <strong>multiorigen</strong></span>
+                </div>
+                <div class="im-v-step" id="imv-step-multidestino">
+                    <div class="im-v-step-dot">3</div>
+                    <span>Procesando hoja <strong>multidestino</strong></span>
+                </div>
+                <div class="im-v-step" id="imv-step-variaciones">
+                    <div class="im-v-step-dot"><i class="fas fa-chart-line"></i></div>
+                    <span>Evaluando variaciones y reglas de aprobación</span>
+                </div>
+                <div class="im-v-step" id="imv-step-finalizando">
+                    <div class="im-v-step-dot"><i class="fas fa-check"></i></div>
+                    <span>Finalizando y actualizando lista de tarifas</span>
+                </div>
+            </div>
+
+            <div class="im-v-warn" style="margin-top:16px;">
+                <i class="fas fa-lock" style="flex-shrink:0; margin-top:1px;"></i>
+                <span>No cierres esta ventana hasta que el proceso finalice.</span>
+            </div>
+
+        </div>
+
+        <!-- ======================================================
+             SECCIÓN 3: RESULTADO
+             ====================================================== -->
+        <div id="imv-result-section" style="display:none;">
+
+            <!-- Hero resultado -->
+            <div class="im-v-result-hero">
+                <div class="im-v-result-icon" id="imv-result-icon">✅</div>
+                <div class="im-v-result-title" id="imv-result-title">¡Importación completada!</div>
+                <div class="im-v-result-sub" id="imv-result-sub">Todas las filas fueron procesadas</div>
+            </div>
+
+            <!-- Resumen en cards -->
+            <div class="im-v-summary-grid" id="imv-summary-grid">
+                <div class="im-v-summary-card">
+                    <div class="im-v-summary-card-icon iv-ic-activas"><i class="fas fa-check-circle"></i></div>
+                    <div>
+                        <div class="im-v-summary-num" id="imv-sum-activas">0</div>
+                        <div class="im-v-summary-label">Activadas</div>
+                    </div>
+                </div>
+                <div class="im-v-summary-card">
+                    <div class="im-v-summary-card-icon iv-ic-pendientes"><i class="fas fa-hourglass-half"></i></div>
+                    <div>
+                        <div class="im-v-summary-num" id="imv-sum-pendientes">0</div>
+                        <div class="im-v-summary-label">A bandeja aprobación</div>
+                    </div>
+                </div>
+                <div class="im-v-summary-card">
+                    <div class="im-v-summary-card-icon iv-ic-saltadas"><i class="fas fa-forward"></i></div>
+                    <div>
+                        <div class="im-v-summary-num" id="imv-sum-saltadas">0</div>
+                        <div class="im-v-summary-label">Saltadas (pend. previa)</div>
+                    </div>
+                </div>
+                <div class="im-v-summary-card">
+                    <div class="im-v-summary-card-icon iv-ic-errores"><i class="fas fa-times-circle"></i></div>
+                    <div>
+                        <div class="im-v-summary-num" id="imv-sum-errores">0</div>
+                        <div class="im-v-summary-label">Con error</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalle pendientes de aprobación -->
+            <div class="im-v-detail-section" id="imv-block-pendientes" style="display:none;">
+                <button class="im-v-detail-toggle" onclick="imvToggleDetalle('pendientes')">
+                    <span>
+                        <i class="fas fa-hourglass-half me-2" style="color:#d97706;"></i>
+                        Tarifas enviadas a bandeja de aprobación
+                    </span>
+                    <span class="badge-count" id="imv-badge-pendientes"
+                        style="background:#fef3c7; color:#854d0e;">0</span>
+                </button>
+                <div class="im-v-detail-body" id="imv-detail-pendientes"></div>
+            </div>
+
+            <!-- Detalle errores -->
+            <div class="im-v-detail-section" id="imv-block-errores" style="display:none;">
+                <button class="im-v-detail-toggle" onclick="imvToggleDetalle('errores')">
+                    <span>
+                        <i class="fas fa-exclamation-circle me-2" style="color:#dc2626;"></i>
+                        Filas con error
+                    </span>
+                    <span class="badge-count" id="imv-badge-errores"
+                        style="background:#fee2e2; color:#991b1b;">0</span>
+                </button>
+                <div class="im-v-detail-body" id="imv-detail-errores"></div>
+            </div>
+
+            <!-- Botones -->
+            <div class="im-v-result-footer">
+                <button class="im-v-btn-finalizar" onclick="imvCerrar()">
+                    <i class="fas fa-check"></i> Finalizar y ver tarifas
+                </button>
+                <button class="im-v-btn-otro" onclick="imvReset()">
+                    <i class="fas fa-redo"></i> Importar otro archivo
+                </button>
+            </div>
+
+        </div>
+    </div>
+    <!-- /im-v-body -->
+</div>
+<!-- /offcanvas importacion masiva ventas -->
+
+
+
+<!-- =====================================================
+     JAVASCRIPT (solo la lógica de la UI de filtros)
+     La función listar_Tarifas_cliente() y demás
+     permanecen en tarifa_ventas.js sin cambios.
+===================================================== -->
+<!-- <script>
+    /* ── Toggle filtros avanzados ───────────────────── */
+    function toggleFilters() {
+        const panel = document.getElementById('advancedFilters');
+        const btn = document.getElementById('toggleAdvanced');
+        const isOpen = panel.classList.contains('show');
+
+        panel.classList.toggle('show', !isOpen);
+        btn.classList.toggle('open', !isOpen);
+    }
+
+    /* ── Limpiar todos los filtros ───────────────────── */
+    function limpiarFiltros() {
+        const fields = [
+            'f_fecha_desde', 'f_fecha_hasta',
+            'f_search', 'f_tipo_vehiculo', 'f_estado_tarifa',
+            'f_origen', 'f_destino',
+            'f_semana_desde', 'f_semana_hasta',
+            'f_mes_desde', 'f_mes_hasta',
+        ];
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        const pend = document.getElementById('f_pendientes');
+        if (pend) pend.checked = false;
+        document.getElementById('activeFilterChips').innerHTML = '';
+    }
+
+    /* ── Renderizar chips de filtros activos ─────────── */
+    function renderChips() {
+        const map = {
+            f_origen: 'Origen',
+            f_destino: 'Destino',
+            f_semana_desde: 'Sem. desde',
+            f_semana_hasta: 'Sem. hasta',
+            f_mes_desde: 'Mes desde',
+            f_mes_hasta: 'Mes hasta',
+        };
+
+        const container = document.getElementById('activeFilterChips');
+        container.innerHTML = '';
+
+        Object.entries(map).forEach(([id, label]) => {
+            const el = document.getElementById(id);
+            if (el && el.value) {
+                const chip = document.createElement('div');
+                chip.className = 'filter-chip';
+                chip.innerHTML = `
+                    <span>${label}: <strong>${el.value}</strong></span>
+                    <button onclick="clearField('${id}')" title="Quitar filtro">
+                        <i class="bi bi-x-lg" style="font-size:.65rem;"></i>
+                    </button>
+                `;
+                container.appendChild(chip);
+            }
+        });
+
+        const pend = document.getElementById('f_pendientes');
+        if (pend && pend.checked) {
+            const chip = document.createElement('div');
+            chip.className = 'filter-chip';
+            chip.innerHTML = `
+                <span>Solo pendientes</span>
+                <button onclick="document.getElementById('f_pendientes').checked=false;renderChips();" title="Quitar">
+                    <i class="bi bi-x-lg" style="font-size:.65rem;"></i>
+                </button>
+            `;
+            container.appendChild(chip);
+        }
+    }
+
+    function clearField(id) {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+        renderChips();
+    }
+
+    /* ── Actualizar listar_Tarifas_cliente para leer
+          los nuevos filtros del backend ───────────────
+       Sobre-escribe la construcción del objeto `filtros`
+       en la función original del JS.
+       Agrega este bloque ANTES del fetch en listar_Tarifas_cliente():
+    
+       const filtros = {
+           empresa_id:    document.getElementById("empresa_id")?.value || "",
+           fecha_desde:   document.getElementById("f_fecha_desde")?.value || "",
+           fecha_hasta:   document.getElementById("f_fecha_hasta")?.value || "",
+           search:        document.getElementById("f_search")?.value || "",
+           tipo_vehiculo: document.getElementById("f_tipo_vehiculo")?.value || "",
+           estado_tarifa: document.getElementById("f_estado_tarifa")?.value || "",
+           origen:        document.getElementById("f_origen")?.value || "",
+           destino:       document.getElementById("f_destino")?.value || "",
+           semana_desde:  document.getElementById("f_semana_desde")?.value || "",
+           semana_hasta:  document.getElementById("f_semana_hasta")?.value || "",
+           mes_desde:     document.getElementById("f_mes_desde")?.value || "",
+           mes_hasta:     document.getElementById("f_mes_hasta")?.value || "",
+           pendientes:    document.getElementById("f_pendientes")?.checked ? 1 : "",
+       };
+    ─────────────────────────────────────────────────── */
+
+    /* ── Render chips al cambiar filtros avanzados ───── */
+    ['f_origen', 'f_destino', 'f_semana_desde', 'f_semana_hasta',
+        'f_mes_desde', 'f_mes_hasta', 'f_pendientes'
+    ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', renderChips);
+    });
+
+    /* ── Demo: Animar contadores ─────────────────────── */
+    function animateCounter(id, to) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let v = 0;
+        const step = Math.ceil(to / 20);
+        const iv = setInterval(() => {
+            v = Math.min(v + step, to);
+            el.textContent = v;
+            if (v >= to) clearInterval(iv);
+        }, 30);
+    }
+
+    /* Demo values */
+    setTimeout(() => {
+        animateCounter('total_vigentes', 12);
+        animateCounter('total_por_vencer', 4);
+        animateCounter('total_vencidas', 2);
+        animateCounter('total_por_aprobar', 1);
+    }, 400);
+</script> -->

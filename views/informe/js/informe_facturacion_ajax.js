@@ -87,9 +87,9 @@ document.addEventListener('DOMContentLoaded', async (e) => {
                 fila.appendChild(columnaCumplido);
                 fila.appendChild(columnaRemesa);
                 fila.appendChild(columnaCliente);
-                fila.appendChild(columnaS);
-                fila.appendChild(columnaL);
-                fila.appendChild(columnaFacturacion);
+                // fila.appendChild(columnaS);
+                // fila.appendChild(columnaL);
+                // fila.appendChild(columnaFacturacion);
                 fila.appendChild(columnaAprobado);
                 fila.appendChild(columnaRadicado);
                 tbody.appendChild(fila);

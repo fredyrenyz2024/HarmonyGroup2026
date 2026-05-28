@@ -110,7 +110,7 @@ class manifiestoController extends Controller
         $cargue = $_POST["cargue"];
         $descargue = $_POST["descargue"];
         $obs = $_POST["obs"];
-        $r_anti = $_POST["r_anti"];
+        $r_anti = empty($_POST["r_anti"]) ? 0 : $_POST["r_anti"];
         $porcentaje = $_POST["porcentaje"];
         $valor = $_POST["valor"];
         $metodo = $_POST["metodo"];
@@ -120,13 +120,15 @@ class manifiestoController extends Controller
         $rem = json_decode($_POST['remesas']);
 
         $remitr = json_decode($_POST['remesaitr']);
+        $manitr = 'NO';
         for ($i = 0; $i < count($remitr->manifiesto_itr); $i++) {
-            if ($remitr->manifiesto_itr[$i] == "Si") {
+            if (strtoupper($remitr->manifiesto_itr[$i]) === "SI") {
                 $manitr = 'SI';
-            } else {
-                $manitr = 'NO';
+                break; // No necesitamos seguir, ya sabemos que al menos una es "SI"
             }
         }
+        $plan_ruta = $_POST["plan_ruta"] ?? null;
+
         $this->man = $this->_modelo->Insertar_manifiesto(
             $placa,
             $fecha_expe,
@@ -152,7 +154,8 @@ class manifiestoController extends Controller
             $total_peso,
             $total_volumen,
             $rem,
-            $manitr
+            $manitr,
+            $plan_ruta
         );
         echo json_encode($this->man);
     }

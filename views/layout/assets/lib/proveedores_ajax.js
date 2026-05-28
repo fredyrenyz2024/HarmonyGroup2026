@@ -1,11 +1,11 @@
 let valores = '';
-$(document).ready(function() {
+$(document).ready(function () {
   valores = window.location.search;
   // console.log('🚀 ~ valores:', valores);
   // let loadingOverlay = $("#loading-overlay");
   $('#actividades').hide();
   $('.select2').select2();
-  $('#elmodalito2').click(function() {
+  $('#elmodalito2').click(function () {
     $('#actividades').hide();
     $('#num_val').val('');
     $('#token_val').val('');
@@ -72,7 +72,7 @@ $(document).ready(function() {
 
   // Contador de campos
   let contadorCampos = 0;
-  $('#agregar_campo').click(function() {
+  $('#agregar_campo').click(function () {
     if (contadorCampos < 4) {
       // Verificar el límite de 3 campos
       contadorCampos++;
@@ -107,7 +107,7 @@ $(document).ready(function() {
     }
   });
 
-  document.addEventListener('click', function(e) {
+  document.addEventListener('click', function (e) {
     if (e.target.classList.contains('btn_delete') || e.target.classList.contains('btn_delete *')) {
       const id = e.target.dataset.id;
       if (window.confirm(`¿Estás seguro de que deseas eliminar el documento ${id}?`)) {
@@ -209,7 +209,7 @@ $(document).ready(function() {
         $('#crea_vehiculos').css('display', 'none');
         $('#mensaje_token_estudio').html(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><i class="fas fa-times"></i></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Ha ocurrrido un error ' +
-            'Error en la primera solicitud:',
+          'Error en la primera solicitud:',
           error + '.</div></div>',
         );
         throw error;
@@ -391,7 +391,7 @@ $(document).ready(function() {
     });
   }
 
-  $('#btn_cancelar_registro').click(function() {
+  $('#btn_cancelar_registro').click(function () {
     if (window.confirm('¿Esta seguro que sea cancelar la creación del proveedor?')) {
       sessionStorage.clear();
       // location.reload();
@@ -401,7 +401,7 @@ $(document).ready(function() {
   });
 
   /* Validar token de prefiltro par vehicuslos y proveedores nuevos */
-  $('#validar_token').click(async function() {
+  $('#validar_token').click(async function () {
     if ($('#num_val').val() === '' && $('#token_val').val() == '' && $('#documen_conductor').val() == '' && $('#document_propietario').val() == '' && $('#documento_tenedor').val() == '') {
       $('#mensaje_token').html(`
 			<div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
@@ -519,7 +519,7 @@ $(document).ready(function() {
         $('#crea_vehiculos').css('display', 'none');
         $('#mensaje_token_estudio').html(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><i class="fas fa-times"></i></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Ha ocurrrido un error ' +
-            'Error en la primera solicitud:',
+          'Error en la primera solicitud:',
           error + '.</div></div>',
         );
         throw error;
@@ -531,7 +531,7 @@ $(document).ready(function() {
   });
 
   /* Validar token de estudio de seguridad en actualizacion para crear recursos a nuevos a vehiculos existentes. */
-  $('#validar_token_estudio_nuevo').click(async function() {
+  $('#validar_token_estudio_nuevo').click(async function () {
     if ($('#num_val_estudio').val() === '' && $('#token_val_estudio').val() === '') {
       $('#mensaje_token_estudio').html(`
       <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
@@ -660,9 +660,9 @@ $(document).ready(function() {
         $('#crea_vehiculos').css('display', 'none');
         $('#mensaje_token_estudio').html(
           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><i class="fas fa-times"></i></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Ha ocurrrido un error ' +
-            'Error en la primera solicitud:' +
-            error +
-            '.</div></div>',
+          'Error en la primera solicitud:' +
+          error +
+          '.</div></div>',
         );
         throw error;
       } finally {
@@ -1557,30 +1557,31 @@ $(document).ready(function() {
                 $('.datos_val').hide();
                 $('#actividades').show();
                 $('#acciones').show();
-                $('#frm_proveedores').css('display', 'block');
+                $('#frm_proveedores').css('display', '');
                 $('#Proveedor').hide();
 
-                if (data.resultado.documento_conductor == data.validar.Conductor) {
+                if (data.resultado.documento_conductor === data.validar.Conductor) {
                   $conductor_existe = `#aed5c0`;
                   $texto = 'Conductor ya cuenta con hoja de vida';
                   $validado = 'SI';
                 } else {
+                  $conductor_existe = `#FFFFFF`;
                   $texto = 'Conductor no cuenta con hoja de vida';
                   $validado = 'NO';
                 }
 
-                if (data.resultado.documento_propietario == data.validar.Propietario && data.resultado.documento_poseedor == data.validar.Poseedor) {
+                if (data.resultado.documento_propietario === data.validar.Propietario && data.resultado.documento_poseedor === data.validar.Poseedor) {
                   $propietario_existe = `#aed5c0`;
                   $texto_propieetario = 'Existen Propietario y Poseedor creados con este documento';
                   $validado_propietario = 'SI';
-                  $('#Conductor').hide();
+                  $('#Conductor').show();
                   $('#propietario_vehiculo').hide();
                   $('#poseedor_vehiculo').hide();
                 } else {
                   $propietario_existe = `#FFFFFF`;
                   $texto_propieetario = 'NO existen Propietario y Poseedor creados con este documento';
                   $validado_propietario = 'NO';
-                  $('#Conductor').hide();
+                  $('#Conductor').show();
                   $('#propietario_vehiculo').show();
                   $('#poseedor_vehiculo').show();
                 }
@@ -4242,7 +4243,7 @@ $(document).ready(function() {
     }
   }
 
-  $('#pasar_municipio').click(function() {
+  $('#pasar_municipio').click(function () {
     if ($('#municipio').val() === '') {
       $('.mesanje_error').html(`
 			<div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
@@ -4258,7 +4259,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#elmodalito2').click(function(event) {
+  $('#elmodalito2').click(function (event) {
     event.preventDefault();
     $('#div_mascara').hide(); //ocultar formato de direccion
     $('#div_complemento').hide();
@@ -4281,7 +4282,7 @@ $(document).ready(function() {
     //ocultar o mostrar datos si se salio del
     //modal y tiene un checkbox seleccionado
     var tipo_actividad = false;
-    $('.tipo_actividad').each(function() {
+    $('.tipo_actividad').each(function () {
       if ($(this).is(':checked')) {
         tipo_actividad = true;
         if ($(this).attr('id') == 'Conductor') {
@@ -4304,7 +4305,7 @@ $(document).ready(function() {
     });
   });
 
-  $('#tipo_documento').change(function() {
+  $('#tipo_documento').change(function () {
     // Se busca si el proveedor ya existe en el sistema
     var params = {
       accion: 'verProveedorDoc',
@@ -4316,12 +4317,12 @@ $(document).ready(function() {
       url: url,
       data: params,
       dataType: 'json',
-      success: function(data) {
+      success: function (data) {
         // console.log(data);
         $('.nexos-messages').empty();
         if (data.success) {
           funct_msg_error('#nexos_messages_popup', 'El proveedor ya se encuentra registrado, cualquier cambio lo puede realizar editando la información dentro de la lista.');
-          $('#crea_proveedores').animate({scrollTop: 0}, 600);
+          $('#crea_proveedores').animate({ scrollTop: 0 }, 600);
           $('#rndc_nombre').val('');
           $('#rndc_nombre').attr('disabled', true);
           $('#btn_agregar_proveedor').hide();
@@ -4338,7 +4339,7 @@ $(document).ready(function() {
     });
   });
 
-  $('#btn_agregar_proveedor').click(async function(event) {
+  $('#btn_agregar_proveedor').click(async function (event) {
     Swal.fire({
       title: '¿Esta seguro de crear este proveedor?',
       text: '¡No podrás revertir esto!',
@@ -4358,7 +4359,7 @@ $(document).ready(function() {
         var flag_abreviatura = true;
         var flag_telefono = true;
         var tipo_actividad = false;
-        $('.tipo_actividad').each(function() {
+        $('.tipo_actividad').each(function () {
           if ($(this).is(':checked')) {
             tipo_actividad = true;
             if ($(this).attr('id') == 'Conductor') {
@@ -4367,7 +4368,7 @@ $(document).ready(function() {
                 msg_error += '<p>Debe diligenciar el campo <strong>Tipo Documento</strong> para poder crear el Proveedor.</p>';
                 AplicaFoco('#tipo_documento');
                 $('#tipo_documento + p').remove();
-                const ERROR = $('<p></p>').text('Debe seleccionar el tipo de documento').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe seleccionar el tipo de documento').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#tipo_documento').after(ERROR);
                 // $("#tipo_documento").before(ERROR);
               } else {
@@ -4378,7 +4379,7 @@ $(document).ready(function() {
               if (!$('#categoria_licencia').val()) {
                 // msg_error += "<p>Debe seleccionar una <strong>Catergoría Licencia</strong> para poder crear el Proveedor.</p>";
                 $('#categoria_licencia + p').remove();
-                const ERROR = $('<p></p>').text('Debe seleccionar una catergoría de Licencia').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe seleccionar una catergoría de Licencia').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#categoria_licencia').after(ERROR);
                 AplicaFoco('#categoria_licencia');
               } else {
@@ -4388,7 +4389,7 @@ $(document).ready(function() {
               if (!$('#numero_licencia').val()) {
                 // msg_error += "<p>Debe diligenciar el campo <strong>Número de Licencia</strong> para poder crear el Proveedor.</p>";
                 $('#numero_licencia + p').remove();
-                const ERROR = $('<p></p>').text('Debe diligenciar el campo numero de licencia').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe diligenciar el campo numero de licencia').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#numero_licencia').after(ERROR);
                 AplicaFoco('#numero_licencia');
               } else {
@@ -4399,27 +4400,27 @@ $(document).ready(function() {
               if ($('#numero_licencia').val().length < 5) {
                 // alert("hola desde menos 5");
                 $('#numero_licencia + p').remove();
-                const ERROR = $('<p></p>').text('El Número de Licencia debe tener mínimo 5 carácteres').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('El Número de Licencia debe tener mínimo 5 carácteres').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#numero_licencia').after(ERROR);
                 AplicaFoco('#numero_licencia');
               } else if ($('#numero_licencia').val().length > 12) {
                 $('#numero_licencia + p').remove();
-                const ERROR = $('<p></p>').text('El Número de Licencia debe tener maximo 12 carácteres').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('El Número de Licencia debe tener maximo 12 carácteres').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#numero_licencia').after(ERROR);
                 AplicaFoco('#numero_licencia');
               } else if ($('#numero_licencia').val() === '00000') {
                 $('#numero_licencia + p').remove();
-                const ERROR = $('<p></p>').text('El Número de Licencia debe contener ceros').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('El Número de Licencia debe contener ceros').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#numero_licencia').after(ERROR);
                 AplicaFoco('#numero_licencia');
               } else if ($('#numero_licencia').val() === '00000000000') {
                 $('#numero_licencia + p').remove();
-                const ERROR = $('<p></p>').text('El Número de Licencia debe contener ceros').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('El Número de Licencia debe contener ceros').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#numero_licencia').after(ERROR);
                 AplicaFoco('#numero_licencia');
               } else if ($('#numero_licencia').val() === '') {
                 $('#numero_licencia + p').remove();
-                const ERROR = $('<p></p>').text('Debe diligenciar el numero de licencia').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe diligenciar el numero de licencia').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#numero_licencia').after(ERROR);
                 AplicaFoco('#numero_licencia');
               } else {
@@ -4431,7 +4432,7 @@ $(document).ready(function() {
               // Verifica si se ha seleccionado un archivo
               if (!fileInput) {
                 $('#licencia + p').remove();
-                const ERROR = $('<p></p>').text('Debe seleccionar un documento').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe seleccionar un documento').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#licencia').after(ERROR);
                 AplicaFoco('#licencia');
               } else {
@@ -4444,7 +4445,7 @@ $(document).ready(function() {
               // Verifica si se ha seleccionado un archivo
               if (!fileInput) {
                 $('#documentos + p').remove();
-                const ERROR = $('<p></p>').text('Debe seleccionar un documento').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe seleccionar un documento').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#documentos').after(ERROR);
                 AplicaFoco('#documentos');
               } else {
@@ -4455,7 +4456,7 @@ $(document).ready(function() {
               if (!$('#vencimiento_licencia').val()) {
                 // msg_error += "<p>Debe diligenciar el campo <strong>Vencimiento Licencia</strong> para poder crear el Proveedor.</p>";
                 $('#vencimiento_licencia + p').remove();
-                const ERROR = $('<p></p>').text('Debe diligenciar el campo vencimiento Licencia').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe diligenciar el campo vencimiento Licencia').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#vencimiento_licencia').after(ERROR);
                 AplicaFoco('#vencimiento_licencia');
               } else {
@@ -4488,22 +4489,22 @@ $(document).ready(function() {
               if (!$('#celular2').val()) {
                 // msg_error += "<p>Debe diligenciar el campo <strong>Celular 2</strong> para poder crear el Proveedor.</p>";
                 $('#celular2 + p').remove();
-                const ERROR = $('<p></p>').text('Debe diligenciar el campo celular 2').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe diligenciar el campo celular 2').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#celular2').after(ERROR);
                 AplicaFoco('#celular2');
               } else {
                 if ($('#celular2').length < 7) {
                   // alert("el ceular debe ser mayor a 7 caracteres");
                   $('#celular2 + p').remove();
-                  const ERROR = $('<p></p>').text('El ceular debe tener minimo 10 caracteres').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                  const ERROR = $('<p></p>').text('El ceular debe tener minimo 10 caracteres').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                   $('#celular2').after(ERROR);
                 } else if ($('#celular2').length > 30) {
                   $('#celular2 + p').remove();
-                  const ERROR = $('<p></p>').text('El ceular no debe supearr los 30 caracteres').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                  const ERROR = $('<p></p>').text('El ceular no debe supearr los 30 caracteres').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                   $('#celular2').after(ERROR);
                 } else if ($('#celular2').val() == '0000000') {
                   $('#celular2 + p').remove();
-                  const ERROR = $('<p></p>').text('El ceular no es valido').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                  const ERROR = $('<p></p>').text('El ceular no es valido').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                   $('#celular2').after(ERROR);
                 } else {
                   RemueveFoco('#celular2');
@@ -4513,7 +4514,7 @@ $(document).ready(function() {
               if (!$('#celular').val()) {
                 // msg_error += "<p>Debe diligenciar el campo <strong>Celular 1</strong> para poder crear el Proveedor.</p>";
                 $('#celular + p').remove();
-                const ERROR = $('<p></p>').text('Debe diligenciar el campo celular 1').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+                const ERROR = $('<p></p>').text('Debe diligenciar el campo celular 1').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
                 $('#celular').after(ERROR);
                 AplicaFoco('#celular');
               } else {
@@ -4741,7 +4742,7 @@ $(document).ready(function() {
           msg_error += '<p>Debe diligenciar el campo <strong>Tipo Documento</strong> para poder crear el Proveedor.</p>';
           AplicaFoco('#tipo_documento');
           $('#tipo_documento + p').remove();
-          const ERROR = $('<p></p>').text('Debe seleccionar el tipo de documento').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+          const ERROR = $('<p></p>').text('Debe seleccionar el tipo de documento').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
           $('#tipo_documento').after(ERROR);
         } else {
           RemueveFoco('#tipo_documento');
@@ -4752,7 +4753,7 @@ $(document).ready(function() {
           if (!$('#celular').val()) {
             msg_error += '<p>Debe diligenciar el campo <strong>Celular</strong> para poder crear el Proveedor.</p>';
             $('#celular + p').remove();
-            const ERROR = $('<p></p>').text('Debe diligenciar el celular de contacto').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+            const ERROR = $('<p></p>').text('Debe diligenciar el celular de contacto').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
             $('#celular').after(ERROR);
             AplicaFoco('#celular');
           } else {
@@ -4763,7 +4764,7 @@ $(document).ready(function() {
           if (!$('#celular').val()) {
             msg_error += '<p>Debe diligenciar el campo <strong>Celular</strong> para poder crear el Proveedor.</p>';
             $('#celular + p').remove();
-            const ERROR = $('<p></p>').text('Debe diligenciar el celular de contacto').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+            const ERROR = $('<p></p>').text('Debe diligenciar el celular de contacto').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
             $('#celular').after(ERROR);
             AplicaFoco('#celular');
           } else {
@@ -4788,27 +4789,27 @@ $(document).ready(function() {
           if ($('#tipo_documento').val() === 'Cedula de Ciudadania') {
             if (!$('#numero_documento').val()) {
               $('#numero_documento + p').remove();
-              const ERROR = $('<p></p>').text('Debe diligenciar el numero de documento').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+              const ERROR = $('<p></p>').text('Debe diligenciar el numero de documento').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
               $('#numero_documento').after(ERROR);
               AplicaFoco('#numero_documento');
             } else if ($('#numero_documento').val().length < 8) {
               $('#numero_documento + p').remove();
-              const ERROR = $('<p></p>').text('Debe diligenciar minimo 8 caracteres para crear el proveedor').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+              const ERROR = $('<p></p>').text('Debe diligenciar minimo 8 caracteres para crear el proveedor').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
               $('#numero_documento').after(ERROR);
               AplicaFoco('#numero_documento');
             } else if ($('#numero_documento').val().length > 12) {
               $('#numero_documento + p').remove();
-              const ERROR = $('<p></p>').text('Debe diligenciar maximo 12 caracteres para crear el proveedor').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+              const ERROR = $('<p></p>').text('Debe diligenciar maximo 12 caracteres para crear el proveedor').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
               $('#numero_documento').after(ERROR);
               AplicaFoco('#numero_documento');
             } else if (/^0+$/.test($('#numero_documento').val())) {
               $('#numero_documento + p').remove();
-              const ERROR = $('<p></p>').text('El campo no puede contener solo ceros.').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+              const ERROR = $('<p></p>').text('El campo no puede contener solo ceros.').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
               $('#numero_documento').after(ERROR);
               AplicaFoco('#numero_documento');
             } else if ($('#numero_documento').val() === '000000000000') {
               $('#numero_documento + p').remove();
-              const ERROR = $('<p></p>').text('El campo no puede contener solo ceros.').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+              const ERROR = $('<p></p>').text('El campo no puede contener solo ceros.').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
               $('#numero_documento').after(ERROR);
               AplicaFoco('#numero_documento');
             } else {
@@ -4833,7 +4834,7 @@ $(document).ready(function() {
         /* 3) Validar que el campo tipo documento no este vacio */
         if (!$('#numero_documento').val()) {
           $('#numero_documento + p').remove();
-          const ERROR = $('<p></p>').text('Debe diligenciar numero documento').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+          const ERROR = $('<p></p>').text('Debe diligenciar numero documento').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
           $('#numero_documento').after(ERROR);
           AplicaFoco('#numero_documento');
         }
@@ -4842,7 +4843,7 @@ $(document).ready(function() {
         if (!$('#rndc_nombre').val()) {
           // msg_error += "<p>Debe diligenciar el campo <strong>Nombre o Razón social</strong> para poder crear el Proveedor.</p>";
           $('#rndc_nombre + p').remove();
-          const ERROR = $('<p></p>').text('Debe diligenciar el campo Nombre o Razón social').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+          const ERROR = $('<p></p>').text('Debe diligenciar el campo Nombre o Razón social').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
           $('#rndc_nombre').after(ERROR);
           AplicaFoco('#rndc_nombre');
         } else {
@@ -4854,7 +4855,7 @@ $(document).ready(function() {
         if (!flag_primer_apellido) {
           // msg_error += "<p>Debe diligenciar el campo <strong>Primer Apellido</strong> para poder crear el Proveedor.</p>";
           $('#primer_apellido + p').remove();
-          const ERROR = $('<p></p>').text('Debe diligenciar el campo primer apellido').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+          const ERROR = $('<p></p>').text('Debe diligenciar el campo primer apellido').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
           $('#primer_apellido').after(ERROR);
         }
 
@@ -4870,7 +4871,7 @@ $(document).ready(function() {
         if (!$('#direccion').val()) {
           // msg_error += "<p>Debe diligenciar el campo <strong>Dirección</strong> para poder crear el Proveedor.</p>";
           $('#direccion + p').remove();
-          const ERROR = $('<p></p>').text('Debe diligenciar el campo Dirección').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+          const ERROR = $('<p></p>').text('Debe diligenciar el campo Dirección').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
           $('#direccion').after(ERROR);
           AplicaFoco('#direccion');
           if (!$('#di_tipovia').val()) {
@@ -4886,7 +4887,7 @@ $(document).ready(function() {
         if (!$('#id_municipio').val() && !$('#rndc_id_municipio').val()) {
           // msg_error += "<p>Debe seleccionar(Click) <strong>Municipio</strong> para poder crear el Proveedor.</p>";
           $('#municipio_tabla + p').remove();
-          const ERROR = $('<p></p>').text('Debe dar (Click) para seleccionar elegir el Municipio').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+          const ERROR = $('<p></p>').text('Debe dar (Click) para seleccionar elegir el Municipio').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
           $('#municipio_tabla').after(ERROR);
           // municipio_tabla
           AplicaFoco('#municipio');
@@ -4909,17 +4910,17 @@ $(document).ready(function() {
           if (celula < 10) {
             msg_error += '<p>El campo <strong>Celular 1</strong> debe tener 10 dígitos para poder crear el Proveedor.</p>';
             $('#celular + p').remove();
-            const ERROR = $('<p></p>').text('Campo Requerido').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+            const ERROR = $('<p></p>').text('Campo Requerido').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
             $('#celular').after(ERROR);
             AplicaFoco('#celular');
           } else if (celula > 10) {
             $('#celular + p').remove();
-            const ERROR = $('<p></p>').text('El campo debe tener maximo 10 caracteres.').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+            const ERROR = $('<p></p>').text('El campo debe tener maximo 10 caracteres.').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
             $('#celular').after(ERROR);
             AplicaFoco('#celular');
           } else if (/^0+$/.test($('#celular').val())) {
             $('#celular + p').remove();
-            const ERROR = $('<p></p>').text('El campo no puede contener solo ceros.').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+            const ERROR = $('<p></p>').text('El campo no puede contener solo ceros.').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
             $('#celular').after(ERROR);
             AplicaFoco('#celular');
           } else {
@@ -4933,17 +4934,17 @@ $(document).ready(function() {
           if (celula < 10) {
             msg_error += '<p>El campo <strong>Celular 1</strong> debe tener 10 dígitos para poder crear el Proveedor.</p>';
             $('#celular2 + p').remove();
-            const ERROR = $('<p></p>').text('El campo debe tener minimo 10 caracteres.').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+            const ERROR = $('<p></p>').text('El campo debe tener minimo 10 caracteres.').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
             $('#celular2').after(ERROR);
             AplicaFoco('#celular2');
           } else if (celula > 10) {
             $('#celular2 + p').remove();
-            const ERROR = $('<p></p>').text('El campo debe tener maximo 10 caracteres.').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+            const ERROR = $('<p></p>').text('El campo debe tener maximo 10 caracteres.').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
             $('#celular2').after(ERROR);
             AplicaFoco('#celular2');
           } else if (/^0+$/.test($('#celular2').val())) {
             $('#celular2 + p').remove();
-            const ERROR = $('<p></p>').text('El campo no puede contener solo ceros.').addClass('bg-danger text-center').css({color: '#FFF', 'font-size': '11px', margin: 0});
+            const ERROR = $('<p></p>').text('El campo no puede contener solo ceros.').addClass('bg-danger text-center').css({ color: '#FFF', 'font-size': '11px', margin: 0 });
             $('#celular2').after(ERROR);
             AplicaFoco('#celular2');
           } else {
@@ -5187,7 +5188,7 @@ $(document).ready(function() {
             // timer: 1500,
           });
 
-          $('#crea_proveedores').animate({scrollTop: 0}, 600);
+          $('#crea_proveedores').animate({ scrollTop: 0 }, 600);
         }
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         /* Read more about handling dismissals below */
@@ -5200,30 +5201,30 @@ $(document).ready(function() {
     });
   });
 
-  $('#btn_editar_proveedor').click(function() {
+  $('#btn_editar_proveedor').click(function () {
     editarProveedor();
   });
 
-  $('#btn_editar_proveedornew').click(function() {
+  $('#btn_editar_proveedornew').click(function () {
     editarProveedornew();
   });
 
-  $('#btn_activar_proveedor').click(function() {
+  $('#btn_activar_proveedor').click(function () {
     activarProveedor();
   });
 
-  $('#btn_inactivar_proveedor').click(function() {
+  $('#btn_inactivar_proveedor').click(function () {
     inactivarProveedor();
   });
 
-  $('#e_numero_documento').blur(function() {
+  $('#e_numero_documento').blur(function () {
     $('#e_digito_verificacion').val(calcularDigitoVerificacion($('#e_numero_documento').val()));
   });
 
   cargarmunicipios();
   paisesinternacional();
 
-  $('#tipo_documento').change(function() {
+  $('#tipo_documento').change(function () {
     if ($('#tipo_documento').val() == 'NIT') {
       $('#tipo_identificacion').val('31');
     } else if ($('#tipo_documento').val() == 'Cedula de Ciudadania') {
@@ -5235,7 +5236,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#e_tipo_documento').change(function() {
+  $('#e_tipo_documento').change(function () {
     if ($('#e_tipo_documento').val() == 'NIT') {
       $('#e_tipo_identificacion').val('31');
     } else if ($('#e_tipo_documento').val() == 'Cedula de Ciudadania') {
@@ -5247,7 +5248,7 @@ $(document).ready(function() {
 
   //mostrar segun lo seleccionado
 
-  $('#Conductor').change(function() {
+  $('#Conductor').change(function () {
     $('#datos_conductor').html('');
     if ($(this).is(':checked')) {
       /* Consultar datos desde el prefiltro */
@@ -5262,7 +5263,7 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data) {
               $('#numero_documento').val(data.documento_conductor);
               $('#numero_documento').prop('disabled', true);
@@ -5417,7 +5418,7 @@ $(document).ready(function() {
               console.log('Error al traer los datos');
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -5434,7 +5435,7 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data) {
               $('#numero_documento').val(data.datos.documento_conductor);
               $('#numero_documento').prop('disabled', true);
@@ -5665,7 +5666,7 @@ $(document).ready(function() {
            `);
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -5699,7 +5700,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#poseedor_vehiculo').change(function() {
+  $('#poseedor_vehiculo').change(function () {
     if ($(this).is(':checked')) {
       /* Consultar datos desde el prefiltro */
       var datos = JSON.parse(sessionStorage.getItem('datos_valida'));
@@ -5713,7 +5714,7 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data) {
               $('#numero_documento').val(data.documento_poseedor);
               $('#numero_documento').prop('disabled', true);
@@ -5747,7 +5748,7 @@ $(document).ready(function() {
               console.log('Error al traer los datos');
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -5758,32 +5759,33 @@ $(document).ready(function() {
         var consulta_datos = {
           action: 'Consulta_Datos_Financieros',
         };
+        
         $.ajax({
           url: $('#id_url_ajax').val() + 'libs/hojas_de_vida_ajax.php',
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             $('#banco').html('<option value="">Seleccione</option>');
             $('#tributaria').val();
             $('#acti_economica').val();
             if (data.result) {
-              data.result.forEach(function(element, index) {
+              data.result.forEach(function (element, index) {
                 $('#banco').append('<option value="' + element.id + '">' + element.abreviatura + '</option>');
               });
             }
             if (data.result2) {
-              data.result2.forEach(function(element, index) {
+              data.result2.forEach(function (element, index) {
                 $('#tributaria').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
               });
             }
             if (data.result3) {
-              data.result3.forEach(function(element, index) {
+              data.result3.forEach(function (element, index) {
                 $('#acti_economica').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
               });
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -5838,6 +5840,11 @@ $(document).ready(function() {
                   <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
                     <input type="number" id="num_cuenta" style="width: 100%;">
                   </td>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    Certificado Cuenta:</th>
+                  <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+                    <input type="file" id="certificado_cuenta" style="width: 100%;">
+                  </td>
               </tr>
             </thead>
           </table>`);
@@ -5851,7 +5858,7 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_poseedor,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data) {
               $('#numero_documento').val(data.datos.documento_tenedor);
               $('#numero_documento').prop('disabled', true);
@@ -5884,7 +5891,7 @@ $(document).ready(function() {
               }
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -5900,27 +5907,27 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             $('#banco').html('<option value="">Seleccione</option>');
             $('#tributaria').val();
             $('#acti_economica').val();
             if (data.result) {
-              data.result.forEach(function(element, index) {
+              data.result.forEach(function (element, index) {
                 $('#banco').append('<option value="' + element.id + '">' + element.abreviatura + '</option>');
               });
             }
             if (data.result2) {
-              data.result2.forEach(function(element, index) {
+              data.result2.forEach(function (element, index) {
                 $('#tributaria').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
               });
             }
             if (data.result3) {
-              data.result3.forEach(function(element, index) {
+              data.result3.forEach(function (element, index) {
                 $('#acti_economica').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
               });
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -5974,6 +5981,11 @@ $(document).ready(function() {
                   <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
                     <input type="number" id="num_cuenta" style="width: 100%;">
                   </td>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    Certificado Cuenta:</th>
+                  <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+                    <input type="file" id="certificado_cuenta" style="width: 100%;">
+                  </td>
               </tr>
             </thead>
           </table>`);
@@ -5999,7 +6011,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#propietario_vehiculo').change(function() {
+  $('#propietario_vehiculo').change(function () {
     if ($(this).is(':checked')) {
       var datos = JSON.parse(sessionStorage.getItem('datos_valida'));
       if (datos.operacion === 'Recurso Nuevo') {
@@ -6012,7 +6024,7 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data) {
               $('#numero_documento').val(data.documento_propietario);
               $('#numero_documento').prop('disabled', true);
@@ -6046,7 +6058,7 @@ $(document).ready(function() {
               console.log('Error al traer los datos');
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -6061,27 +6073,27 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             $('#banco').html('');
             $('#tributaria').val();
             $('#acti_economica').val();
             if (data.result) {
-              data.result.forEach(function(element, index) {
+              data.result.forEach(function (element, index) {
                 $('#banco').append('<option value="' + element.id + '">' + element.abreviatura + '</option>');
               });
             }
             if (data.result2) {
-              data.result2.forEach(function(element, index) {
+              data.result2.forEach(function (element, index) {
                 $('#tributaria').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
               });
             }
             if (data.result3) {
-              data.result3.forEach(function(element, index) {
+              data.result3.forEach(function (element, index) {
                 $('#acti_economica').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
               });
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -6135,6 +6147,11 @@ $(document).ready(function() {
                   <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
                     <input type="number" id="num_cuenta" style="width: 100%;">
                   </td>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    Certificado Cuenta:</th>
+                  <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+                    <input type="file" id="certificado_cuenta" style="width: 100%;">
+                  </td>
               </tr>
             </thead>
           </table>`);
@@ -6148,7 +6165,7 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_propietario,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data) {
               $('#numero_documento').val(data.datos.documento_propietario);
               $('#numero_documento').prop('disabled', true);
@@ -6181,7 +6198,7 @@ $(document).ready(function() {
               }
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -6196,27 +6213,27 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             $('#banco').html('<option value="">Seleccione</option>');
             $('#tributaria').val();
             $('#acti_economica').val();
             if (data.result) {
-              data.result.forEach(function(element, index) {
+              data.result.forEach(function (element, index) {
                 $('#banco').append('<option value="' + element.id + '">' + element.abreviatura + '</option>');
               });
             }
             if (data.result2) {
-              data.result2.forEach(function(element, index) {
+              data.result2.forEach(function (element, index) {
                 $('#tributaria').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
               });
             }
             if (data.result3) {
-              data.result3.forEach(function(element, index) {
+              data.result3.forEach(function (element, index) {
                 $('#acti_economica').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
               });
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -6224,55 +6241,60 @@ $(document).ready(function() {
           },
         });
         $('#datos_financieros').html(`
-        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
-          <thead>
-              <tr>
-                <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
-                  Actividad económica CIIU</th>
-                <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
-                  <select id="acti_economica" class="select2" style="width: 100%;">
-                    <option value="">Seleccione</option>
-                  </select>
-                </td>
-              </tr>
-          </thead>
-        </table>
-        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
-          <thead>
-              <tr>
-                <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
-                  Obligaciones tributarias:</th>
-                <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
-                  <select id="tributaria" class="select2" style="width: 100%;">
-                    <option value="">Seleccione</option>
-                  </select>
-                </td>
-                <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
-                  Banco:</th>
-                <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
-                  <select id="banco" style="width: 100%;">
-                    <option value="">Seleccione</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
-                  Tipo de Cuenta:</th>
-                <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
-                  <select id="tipo_cuenta" style="width: 100%;">
-                    <option value="">Seleccione</option>
-                    <option value="1">Cuenta de Ahorros</option>
-                    <option value="2">Cuenta Corriente</option>
-                  </select>	
-                </td>
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
                   <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
-                    Número de Cuenta:</th>
+                    Actividad económica CIIU</th>
                   <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
-                    <input type="number" id="num_cuenta" style="width: 100%;">
+                    <select id="acti_economica" class="select2" style="width: 100%;">
+                      <option value="">Seleccione</option>
+                    </select>
                   </td>
-              </tr>
+                </tr>
             </thead>
-          </table>`);
+          </table>
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                  <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    Obligaciones tributarias:</th>
+                  <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    <select id="tributaria" class="select2" style="width: 100%;">
+                      <option value="">Seleccione</option>
+                    </select>
+                  </td>
+                  <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    Banco:</th>
+                  <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    <select id="banco" style="width: 100%;">
+                      <option value="">Seleccione</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th style="background-color: #F5F5F5; width: 250px; font-weight: bold; font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    Tipo de Cuenta:</th>
+                  <td style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    <select id="tipo_cuenta" style="width: 100%;">
+                      <option value="">Seleccione</option>
+                      <option value="1">Cuenta de Ahorros</option>
+                      <option value="2">Cuenta Corriente</option>
+                    </select>	
+                  </td>
+                    <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                      Número de Cuenta:</th>
+                    <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+                      <input type="number" id="num_cuenta" style="width: 100%;">
+                    </td>
+                    <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                      Certificado Cuenta:</th>
+                    <td style="border: 1px solid #ddd; padding: 1px; padding: 1px 1px 1px; width: auto; white-space: nowrap;">
+                      <input type="file" id="certificado_cuenta" style="width: 100%;">
+                    </td>
+                </tr>
+              </thead>
+            </table>`);
       }
       $('.titulogeneral').show();
       $('#datos_generalest').show();
@@ -6294,30 +6316,30 @@ $(document).ready(function() {
     }
   });
 
-  $('#Proveedor').change(function() {
-    if ($(this).is(':checked')) {
-      $('.titulogeneral').show();
-      $('#datos_generalest').show();
-      $('#datos_proveedor').show();
-      $('#datos_contacto').show();
-      $('datos_conductor').hide();
-      document.getElementById('tbl_detalle_proveedor').style.display = 'block';
-      document.getElementById('tbl_contactos').style.display = 'block';
-      // document.getElementById('tbl_datos_generales').style.display = 'block';
-    } else {
-      $('.titulogeneral').hide();
-      $('#datos_generalest').hide();
-      $('#datos_proveedor').hide();
-      $('#datos_contacto').hide();
-      $('datos_conductor').hide();
-      document.getElementById('tbl_detalle_proveedor').style.display = 'none';
-      document.getElementById('tbl_contactos').style.display = 'none';
-      // document.getElementById('tbl_datos_generales').style.display = 'none';
-    }
-  });
+  // $('#Proveedor').change(function () {
+  //   if ($(this).is(':checked')) {
+  //     $('.titulogeneral').show();
+  //     $('#datos_generalest').show();
+  //     $('#datos_proveedor').show();
+  //     $('#datos_contacto').show();
+  //     $('datos_conductor').hide();
+  //     document.getElementById('tbl_detalle_proveedor').style.display = 'block';
+  //     document.getElementById('tbl_contactos').style.display = 'block';
+  //     // document.getElementById('tbl_datos_generales').style.display = 'block';
+  //   } else {
+  //     $('.titulogeneral').hide();
+  //     $('#datos_generalest').hide();
+  //     $('#datos_proveedor').hide();
+  //     $('#datos_contacto').hide();
+  //     $('datos_conductor').hide();
+  //     document.getElementById('tbl_detalle_proveedor').style.display = 'none';
+  //     document.getElementById('tbl_contactos').style.display = 'none';
+  //     // document.getElementById('tbl_datos_generales').style.display = 'none';
+  //   }
+  // });
 
   /* Propiertario Trailer */
-  $('#propietario_trailer').change(function() {
+  $('#propietario_trailer').change(function () {
     if ($(this).is(':checked')) {
       var datos = JSON.parse(sessionStorage.getItem('datos_valida'));
       if (datos.operacion === 'Recurso Nuevo') {
@@ -6330,7 +6352,7 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_datos,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data) {
               $('#numero_documento').val(data.documento_propi_trailer);
               $('#numero_documento').prop('disabled', true);
@@ -6364,7 +6386,7 @@ $(document).ready(function() {
               console.log('Error al traer los datos');
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -6389,7 +6411,7 @@ $(document).ready(function() {
           type: 'POST',
           data: consulta_propietario,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data) {
               $('#numero_documento').val(data.datos.documento_propietario_trailer);
               $('#numero_documento').prop('disabled', true);
@@ -6422,7 +6444,7 @@ $(document).ready(function() {
               }
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo datos');
             console.log(jqXHR);
             console.log(textStatus);
@@ -6452,15 +6474,15 @@ $(document).ready(function() {
   //final del seleccionado
 
   //PROVEEDORES INTERNACIONAL
-  $('#agregar_fila').click(function() {
+  $('#agregar_fila').click(function () {
     agregar_contacto();
   });
 
-  $('#agregar_filam').click(function() {
+  $('#agregar_filam').click(function () {
     agregar_contactom();
   });
 
-  $('#pv_localizacion').change(function() {
+  $('#pv_localizacion').change(function () {
     var local = $('#pv_localizacion').val();
     if (local == '') {
       $('#pv_zona').val('');
@@ -6470,7 +6492,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#pv_tiposervice').change(function() {
+  $('#pv_tiposervice').change(function () {
     //limpiar los campos de cada tipo de servicio
     var tipo_service = $('#pv_tiposervice').val();
     if (tipo_service == '') {
@@ -6558,7 +6580,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#pv_via').change(function() {
+  $('#pv_via').change(function () {
     $('#pv_select').html('');
     var via = $('#pv_via').val();
     if (via == '') {
@@ -6568,9 +6590,9 @@ $(document).ready(function() {
     if (via == 'Aerea') {
       $('#pv_select').html(
         '<option value="Aerolinea de carga/pasajeros">Aerolinea de carga/pasajeros</option>' +
-          '<option value="Courier Internacional">Courier Internacional</option>' +
-          '<option value="Agentes aereos">Agentes aereos</option>' +
-          '<option value="Aereos nacional">Aereos nacional</option>',
+        '<option value="Courier Internacional">Courier Internacional</option>' +
+        '<option value="Agentes aereos">Agentes aereos</option>' +
+        '<option value="Aereos nacional">Aereos nacional</option>',
       );
     }
 
@@ -6581,8 +6603,8 @@ $(document).ready(function() {
     if (via == 'Terrestre') {
       $('#pv_select').html(
         '<option value="Transportadores terrestres">Transportadores terrestres</option>' +
-          '<option value="Nacionales">Nacionales</option>' +
-          '<option value="Transportadores urbanos">Transportadores urbanos</option>',
+        '<option value="Nacionales">Nacionales</option>' +
+        '<option value="Transportadores urbanos">Transportadores urbanos</option>',
       );
     }
   });
@@ -6597,12 +6619,12 @@ $(document).ready(function() {
       type: 'POST',
       data: paises,
       dataType: 'json',
-      success: function(data) {
-        data.result.forEach(function(element, index) {
+      success: function (data) {
+        data.result.forEach(function (element, index) {
           $('#pv_localizacion').append('<option value="' + element.id + '">' + element.municipio + '  -  ' + element.depto + '  -  ' + element.pais + '</option>');
         });
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.log('no trajo paises localizacion operacional');
         console.log(jqXHR);
         console.log(textStatus);
@@ -6611,7 +6633,7 @@ $(document).ready(function() {
     });
   }
 
-  $(document).on('click', '.borrar2', function(event) {
+  $(document).on('click', '.borrar2', function (event) {
     event.preventDefault();
     $(this).closest('tr').remove();
     var v = this.id;
@@ -6682,7 +6704,7 @@ $(document).ready(function() {
   }
 
   // Función de ajuste de nombre del proveedor dependiendo el tipo de documento
-  $('#tipo_documento').change(function() {
+  $('#tipo_documento').change(function () {
     // Se filtran las validaciones de los campos contacto y celular dependiendo el tipo de documento seleccionado
     $('#contacto').removeAttr('maxlength');
     $('#celular').removeAttr('maxlength');
@@ -6714,7 +6736,7 @@ $(document).ready(function() {
 
   //Agregar datos bancarios a tabla proveedor - poseedor
   var cont_finan = 0;
-  $('#adicione_cuenta').click(function() {
+  $('#adicione_cuenta').click(function () {
     cont_finan++;
     var buscar_datos = {
       action: 'Consulta_Datos_Financieros',
@@ -6724,28 +6746,28 @@ $(document).ready(function() {
       type: 'POST',
       data: buscar_datos,
       dataType: 'json',
-      success: function(data) {
+      success: function (data) {
         if (data.result != null) {
           //bancos
           $('#bank' + cont_finan + '').html('<option value="">Seleccione</option>');
-          data.result.forEach(function(element, index) {
+          data.result.forEach(function (element, index) {
             $('#bank' + cont_finan + '').append('<option value="' + element.id + '">' + element.abreviatura + '</option>');
           });
         }
         if (data.result2 != null) {
           $('#tributaria' + cont_finan + '').html('<option value="">Seleccione</option>');
-          data.result2.forEach(function(element, index) {
+          data.result2.forEach(function (element, index) {
             $('#tributaria' + cont_finan + '').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
           });
         }
         if (data.result3 != null) {
           $('#ciuu' + cont_finan + '').html('<option value="">Seleccione</option>');
-          data.result3.forEach(function(element, index) {
+          data.result3.forEach(function (element, index) {
             $('#ciuu' + cont_finan + '').append('<option value="' + element.id + '">' + element.descripcion + '</option>');
           });
         }
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.log('no datos bancarios');
         console.log(jqXHR);
         console.log(textStatus);
@@ -6797,7 +6819,7 @@ $(document).ready(function() {
     $('#dato_bancario').append(tabla);
   });
 
-  $('#btn_crear_cuentas').click(function() {
+  $('#btn_crear_cuentas').click(function () {
     var msg_error = '';
     if (!$('.rciuu').val()) {
       msg_error += '<p>Debe diligenciar el campo <strong>Actividad economica CIIU</strong> para poder crear la cuenta.</p>';
@@ -6834,19 +6856,19 @@ $(document).ready(function() {
     } else {
       $('#nexos_messages_finan').html(
         '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-          msg_error +
-          '</div></div>',
+        msg_error +
+        '</div></div>',
       );
-      $('#Agrega_Financiero').animate({scrollTop: 0}, 600);
+      $('#Agrega_Financiero').animate({ scrollTop: 0 }, 600);
     }
   });
 });
 
-$('#btnmascarae_direccion').click(function() {
+$('#btnmascarae_direccion').click(function () {
   $('#div_mascarae').toggle();
 });
 
-$('#btnmascara_direccion').click(function() {
+$('#btnmascara_direccion').click(function () {
   $('#div_mascara').toggle();
 });
 
@@ -6894,11 +6916,11 @@ function insertcontac() {
         processData: false, // Don't process the files
         contentType: false, // Set content type to false as jQuery will tell the server its a query string request
         dataType: 'json',
-        success: function(data, textStatus, jqXHR) {
+        success: function (data, textStatus, jqXHR) {
           console.log('si inserto contactos del proveedor');
           // alert('!!Registro Vehiculo exitosamente!!!');
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function (jqXHR, textStatus, errorThrown) {
           console.log('no inserto contactos del proveedor');
           console.log(jqXHR);
           console.log(textStatus);
@@ -7015,7 +7037,7 @@ async function crear_Dato_Ministerio(respuesta) {
       } else if (!$('#Conductor').is(':checked') && !$('#poseedor_vehiculo').is(':checked') && !$('#propietario_vehiculo').is(':checked')) {
         //proveedor
         // alert('Hola');
-        setTimeout(function() {
+        setTimeout(function () {
           location.reload(false);
         }, 1000);
       }
@@ -7126,26 +7148,26 @@ function tipo_service() {
 
     $('#edetalle2').html(
       '<option disabled="disabled">AEREA</option>' +
-        '<option value="Courier Internacional">Courier Internacional</option>' +
-        '<option value="Aerolinea de carga/pasajeros">Aerolinea de carga/pasajeros</option>' +
-        '<option value="Agentes aereos">Agentes aereos</option>' +
-        '<option value="Aereos nacional">Aereos nacional</option>' +
-        '<option disabled="disabled">MARITIMA</option>' +
-        '<option value="Navieras">Navieras</option>' +
-        '<option value="Agentes maritimos">Agentes maritimos</option>' +
-        '<option disabled="disabled">TERRESTRE</option>' +
-        '<option value="Transportadores terrestres">Transportadores terrestres</option>' +
-        '<option value="Nacionales">Nacionales</option>' +
-        '<option value="Transportadores urbanos">Transportadores urbanos</option>',
+      '<option value="Courier Internacional">Courier Internacional</option>' +
+      '<option value="Aerolinea de carga/pasajeros">Aerolinea de carga/pasajeros</option>' +
+      '<option value="Agentes aereos">Agentes aereos</option>' +
+      '<option value="Aereos nacional">Aereos nacional</option>' +
+      '<option disabled="disabled">MARITIMA</option>' +
+      '<option value="Navieras">Navieras</option>' +
+      '<option value="Agentes maritimos">Agentes maritimos</option>' +
+      '<option disabled="disabled">TERRESTRE</option>' +
+      '<option value="Transportadores terrestres">Transportadores terrestres</option>' +
+      '<option value="Nacionales">Nacionales</option>' +
+      '<option value="Transportadores urbanos">Transportadores urbanos</option>',
     );
   }
 
   if (tp == 'Porteadores') {
     $('#edetalle1').html(
       '<option value="Puertos">Puertos</option>' +
-        '<option value="Aeropuertos">Aeropuertos</option>' +
-        '<option value="Entes regulatorios">Entes regulatorios</option>' +
-        '<option value="Tramites en frontera">Trámites en frontera</option>',
+      '<option value="Aeropuertos">Aeropuertos</option>' +
+      '<option value="Entes regulatorios">Entes regulatorios</option>' +
+      '<option value="Tramites en frontera">Trámites en frontera</option>',
     );
     $('#edetalle2').html('<option value="">No aplica</option>');
   }
@@ -7163,9 +7185,9 @@ function tipo_service() {
   if (tp == 'Tramites administrativos') {
     $('#edetalle1').html(
       '<option value="Navidad">Navidad</option>' +
-        '<option value="Calendarios">Calendarios</option>' +
-        '<option value="Dotaciones">Dotaciones</option>' +
-        '<option value="Servicios públicos">Servicios públicos</option>',
+      '<option value="Calendarios">Calendarios</option>' +
+      '<option value="Dotaciones">Dotaciones</option>' +
+      '<option value="Servicios públicos">Servicios públicos</option>',
     );
     $('#edetalle2').html('<option value="">No aplica</option>');
   }
@@ -7180,23 +7202,23 @@ function Crear_Cuenta() {
     tcuenta: [],
     ncuenta: [],
   };
-  $('.rciuu').each(function(index) {
+  $('.rciuu').each(function (index) {
     var ciu = $(this).val();
     dato.ciu[index] = ciu;
   });
-  $('.rtributaria').each(function(index) {
+  $('.rtributaria').each(function (index) {
     var tribu = $(this).val();
     dato.obligacion[index] = tribu;
   });
-  $('.rbanco').each(function(index) {
+  $('.rbanco').each(function (index) {
     var bank = $(this).val();
     dato.banco[index] = bank;
   });
-  $('.rtipologia').each(function(index) {
+  $('.rtipologia').each(function (index) {
     var tipo = $(this).val();
     dato.tcuenta[index] = tipo;
   });
-  $('.rnum').each(function(index) {
+  $('.rnum').each(function (index) {
     var numero = $(this).val();
     dato.ncuenta[index] = numero;
   });
@@ -7206,7 +7228,7 @@ function Crear_Cuenta() {
   $.post(
     $('#id_url_ajax').val() + 'solicitudes/Registro_Cuentas',
     envio_paquete,
-    function(data) {
+    function (data) {
       if (data == 'true') {
         alert('Datos Registrados Exitosamente!!');
         location.reload();
@@ -7260,11 +7282,11 @@ function update_cuenta(cuenta, idtabla) {
     type: 'POST',
     data: actualiza_cuenta,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       alert('Datos Actualizados Exitosamente!!');
       location.reload();
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
@@ -7272,7 +7294,7 @@ function update_cuenta(cuenta, idtabla) {
   });
 }
 
-$(document).on('click', '.borrar2', function(event) {
+$(document).on('click', '.borrar2', function (event) {
   event.preventDefault();
   $(this).closest('tr').remove();
   var v = this.id;
@@ -7397,12 +7419,12 @@ function delete_asocia(btn, id) {
     type: 'POST',
     data: delete_conta,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       event.preventDefault();
       $('.tr' + id).remove();
       $(this).closest('tr').remove();
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       alert('No elimino contacto');
       console.log(jqXHR);
       console.log(textStatus);
@@ -7423,13 +7445,13 @@ function historicodatosProveedor(id) {
     type: 'POST',
     data: datos,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       // console.log('hay historico');
       console.log(data);
       if (data) {
         // console.log('data si');
         if (data.result) {
-          data.result.forEach(function(element, index) {
+          data.result.forEach(function (element, index) {
             $('#vehiculo').append(
               '<tr>' + '<td>' + element.estado + '</td>' + '<td>' + element.cod_vehiculo + '</td>' + '<td>' + element.fecha_anterior + '</td>' + '<td>' + element.fecha_actual + '</td>' + '</tr>',
             );
@@ -7437,7 +7459,7 @@ function historicodatosProveedor(id) {
         }
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no hay historico');
       console.log(jqXHR);
       console.log(textStatus);
@@ -7464,7 +7486,7 @@ function verProveedor(id_proveedor) {
     type: 'POST',
     data: datos,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data.resultados) {
         Consulta_Dato_Rndc(data.resultados[0].tipo_documento, data.resultados[0].numero_documento, data.resultados[0].digito_verificacion);
         Consulta_Dato_Oet(data.resultados[0].tipo_documento, data.resultados[0].numero_documento, data.resultados[0].digito_verificacion);
@@ -7475,7 +7497,7 @@ function verProveedor(id_proveedor) {
         $('#v_propietario_vehiculo').prop('checked', false);
         $('#v_Proveedor').prop('checked', false);
 
-        data.resultado_actividad.forEach(function(element, index) {
+        data.resultado_actividad.forEach(function (element, index) {
           let actividad = element.acti;
 
           if (actividad === 'Conductor') {
@@ -7531,7 +7553,7 @@ function verProveedor(id_proveedor) {
         if (document.getElementById('v_Conductor').checked) {
           document.getElementById('datos_conductor').style.display = 'block';
           document.getElementById('datos_proveedor_internacional').style.display = 'none';
-          data.resultado_actividad.forEach(function(element, index) {
+          data.resultado_actividad.forEach(function (element, index) {
             actividad = element.acti;
             //$("#e_primer_apellido").val(data.result[0].acti);
             if (actividad == 'Conductor') {
@@ -7682,7 +7704,7 @@ function verProveedor(id_proveedor) {
           var cont = 0,
             i;
           if (data.resultado_referencias) {
-            data.resultado_referencias.forEach(function(element, index) {
+            data.resultado_referencias.forEach(function (element, index) {
               cont++;
               $('#v_referencias_empresariales' + cont).html(element.nombre_empresa);
               $('#v_fechari' + cont).html(element.fecha_ingreso);
@@ -7696,7 +7718,7 @@ function verProveedor(id_proveedor) {
 
           var contp = 0;
           if (data.resultado_referencias_personales) {
-            data.resultado_referencias_personales.forEach(function(element, index) {
+            data.resultado_referencias_personales.forEach(function (element, index) {
               contp++;
               var pare = element.parentezco;
               if (pare == 0) {
@@ -7743,7 +7765,7 @@ function verProveedor(id_proveedor) {
           if (data.resultados[0].name_cfrontal !== '' && data.resultados[0].name_cfrontal !== null) {
             document.getElementById('foto_frontal').innerHTML = `
         <button class="btn btn-primary btn-xs" style="width: 100%;height: 100%;" onclick="abrir_fotos('${data.resultados[0].foto_conductor}', '${data.resultados[0]
-              .name_cfrontal}')"><i class="fa-regular fa-image"></i> Foto Frontal</button>
+                .name_cfrontal}')"><i class="fa-regular fa-image"></i> Foto Frontal</button>
         `;
           } else {
             document.getElementById('foto_frontal').innerHTML = 'Sin documento';
@@ -7754,7 +7776,7 @@ function verProveedor(id_proveedor) {
           if (data.resultados[0].name_cderecha !== '' && data.resultados[0].name_cderecha !== null) {
             document.getElementById('foto_frontal_derecha').innerHTML = `
         <button class="btn btn-primary btn-xs" style="width: 100%;height: 100%;" onclick="abrir_fotos('${data.resultados[0].foto_derecha}', '${data.resultados[0]
-              .name_cderecha}')"><i class="fa-regular fa-image"></i> Foto Derecha</button>
+                .name_cderecha}')"><i class="fa-regular fa-image"></i> Foto Derecha</button>
         `;
           } else {
             document.getElementById('foto_frontal_derecha').innerHTML = 'Sin documento';
@@ -7765,7 +7787,7 @@ function verProveedor(id_proveedor) {
           if (data.resultados[0].name_cizquierda !== '' && data.resultados[0].name_cizquierda !== null) {
             document.getElementById('foto_frontal_izquierda').innerHTML = `
         <button class="btn btn-primary btn-xs" style="width: 100%;height: 100%;" onclick="abrir_fotos('${data.resultados[0].foto_izquierda}', '${data.resultados[0]
-              .name_cizquierda}')"><i class="fa-regular fa-image"></i> Foto Izquierda</button>
+                .name_cizquierda}')"><i class="fa-regular fa-image"></i> Foto Izquierda</button>
         `;
           } else {
             document.getElementById('foto_frontal_izquierda').innerHTML = 'Sin documento';
@@ -7776,7 +7798,7 @@ function verProveedor(id_proveedor) {
           if (data.resultados[0].name_cindu !== '' && data.resultados[0].name_cindu !== null) {
             document.getElementById('foto_indumentaria').innerHTML = `
         <button class="btn btn-primary btn-xs" style="width: 100%;height: 100%;" onclick="abrir_fotos('${data.resultados[0].foto_indumentaria}', '${data.resultados[0]
-              .name_cindu}')"><i class="fa-regular fa-image"></i> Foto Indumentaria</button>
+                .name_cindu}')"><i class="fa-regular fa-image"></i> Foto Indumentaria</button>
         `;
           } else {
             document.getElementById('foto_indumentaria').innerHTML = 'Sin documento';
@@ -7822,31 +7844,31 @@ function verProveedor(id_proveedor) {
           }
           $('#tcontactos').html('');
           if (data.resultado_contacto != null) {
-            data.resultado_contacto.forEach(function(element, index) {
+            data.resultado_contacto.forEach(function (element, index) {
               $('#tcontactos').append(
                 '<tr>' +
-                  '<td>' +
-                  element.nombres_apellidos +
-                  '</td>' +
-                  '<td>' +
-                  element.cargo +
-                  '</td>' +
-                  '<td>' +
-                  element.telefono +
-                  '</td>' +
-                  '<td>' +
-                  element.celular +
-                  '</td>' +
-                  '<td>' +
-                  element.correo +
-                  '</td>' +
-                  '<td>' +
-                  element.inf_critica +
-                  '</td>' +
-                  '<td>' +
-                  element.referencias +
-                  '</td>' +
-                  +'</tr>',
+                '<td>' +
+                element.nombres_apellidos +
+                '</td>' +
+                '<td>' +
+                element.cargo +
+                '</td>' +
+                '<td>' +
+                element.telefono +
+                '</td>' +
+                '<td>' +
+                element.celular +
+                '</td>' +
+                '<td>' +
+                element.correo +
+                '</td>' +
+                '<td>' +
+                element.inf_critica +
+                '</td>' +
+                '<td>' +
+                element.referencias +
+                '</td>' +
+                +'</tr>',
               );
             });
           } else {
@@ -7857,7 +7879,7 @@ function verProveedor(id_proveedor) {
         console.log('no hay datos');
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('error dato proveedor');
       console.log(jqXHR);
       console.log(textStatus);
@@ -7873,7 +7895,7 @@ function Consulta_Dato_Rndc(tipo, numero, digito) {
   $.post(
     $('#id_url_ajax').val() + 'web_service/Consulta_Tercero_Rndc',
     paquete_transmite,
-    function(data) {
+    function (data) {
       var tablas_locales = '';
       if (data.status == 'true') {
         $('#panel_rndc').html('<p class="text-center text-success">' + data.resultado + '</p>');
@@ -7896,7 +7918,7 @@ function Consulta_Dato_Oet(tipo, numero, digito) {
   $.post(
     $('#id_url_ajax').val() + 'integrar_oet/Consulta_Recurso',
     paquete,
-    function(data) {
+    function (data) {
       console.log(data);
       if (data.status == true || data.status == 'true') {
         $('#panel_oet').html('<p class="text-center text-success">' + data.resultado + '</p>');
@@ -7919,7 +7941,7 @@ function editarProveedor() {
   var flag_telefono = true;
   var tipo_actividad = false;
 
-  $('.e_tipo_actividad').each(function() {
+  $('.e_tipo_actividad').each(function () {
     if ($(this).is(':checked')) {
       tipo_actividad = true;
       if ($(this).attr('id') == 'e_Conductor') {
@@ -8057,36 +8079,36 @@ function editarProveedor() {
       processData: false, // Don't process the files
       contentType: false, // Set content type to false as jQuery will tell the server its a query string request
       dataType: 'json',
-      beforeSend: function(jqXHR, settings) {
+      beforeSend: function (jqXHR, settings) {
         $('.nexos-messages').html(
           '<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="' +
-            $('#id_url_ajax').val() +
-            'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>',
+          $('#id_url_ajax').val() +
+          'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>',
         );
 
         console.log(data);
       },
-      success: function(data, textStatus, jqXHR) {
+      success: function (data, textStatus, jqXHR) {
         // console.log(data);
         if (!data.error) {
           $('.nexos-messages').html(
             '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se ha actualizado el registro con éxito.</div></div>',
           );
-          $('html, body').animate({scrollTop: 0}, 600);
-          setTimeout(function() {
+          $('html, body').animate({ scrollTop: 0 }, 600);
+          setTimeout(function () {
             location.reload(false);
           }, 800);
         } else {
           var msg_error = data.error.replace(/\n/g, '</p><p>');
           $('.nexos-messages').html(
             '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-              msg_error +
-              '</div></div>',
+            msg_error +
+            '</div></div>',
           );
-          $('html, body').animate({scrollTop: 0}, 600);
+          $('html, body').animate({ scrollTop: 0 }, 600);
         }
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.log(jqXHR);
         console.log(textStatus);
         console.log(errorThrown);
@@ -8095,10 +8117,10 @@ function editarProveedor() {
   } else {
     $('.nexos-messages').html(
       '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-        msg_error +
-        '</div></div>',
+      msg_error +
+      '</div></div>',
     );
-    $('html, body').animate({scrollTop: 0}, 600);
+    $('html, body').animate({ scrollTop: 0 }, 600);
   }
 }
 
@@ -8111,7 +8133,7 @@ function datosinactivarproveedor(id_proveedor) {
   $.post(
     url,
     params,
-    function(data) {
+    function (data) {
       // console.log(data);
       if (data.success) {
         // $("#titulo_inactivar").text("¿Desea inactivar el proveedor con numero de documento "+data.content["numero_documento"]+"?");
@@ -8131,7 +8153,7 @@ function datosactivarproveedor(id_proveedor) {
   $.post(
     url,
     params,
-    function(data) {
+    function (data) {
       // console.log(data);
       if (data.success) {
         // $("#titulo_activar").text("¿Desea activar el proveedor con numero de documento "+data.content["numero_documento"]+"?");
@@ -8150,7 +8172,7 @@ function inactivarProveedor() {
   $.post(
     url,
     params,
-    function(data) {
+    function (data) {
       // console.log(data);
       if (data.success) {
         $('#btn_inactivar_proveedor').attr('data-dismiss', 'modal');
@@ -8171,7 +8193,7 @@ function activarProveedor() {
   $.post(
     url,
     params,
-    function(data) {
+    function (data) {
       // console.log(data);
       if (data.success) {
         $('#btn_activar_proveedor').attr('data-dismiss', 'modal');
@@ -8238,7 +8260,7 @@ function cargarmunicipios() {
   data = new FormData();
   data.append('accion', 'cargarmunicipios');
   municipios = [];
-  $.ajaxSetup({async: false});
+  $.ajaxSetup({ async: false });
   $.ajax({
     url: url,
     type: 'POST',
@@ -8247,7 +8269,7 @@ function cargarmunicipios() {
     processData: false, // Don't process the files
     contentType: false, // Set content type to false as jQuery will tell the server its a query string request
     dataType: 'json',
-    success: function(data, textStatus, jqXHR) {
+    success: function (data, textStatus, jqXHR) {
       // console.log(data);
       if (data.success) {
         for (let x = 0; x < data.content.length; x++) {
@@ -8266,8 +8288,8 @@ function cargarmunicipios() {
           },
         );
 
-        $.ajaxSetup({async: false});
-        $('#caja_municipio').bind('typeahead:selected', function(obj, datum, name) {
+        $.ajaxSetup({ async: false });
+        $('#caja_municipio').bind('typeahead:selected', function (obj, datum, name) {
           var params = {
             accion: 'obtenerdatosmunicipio',
             municipio: datum,
@@ -8275,7 +8297,7 @@ function cargarmunicipios() {
           $.post(
             url,
             params,
-            function(data) {
+            function (data) {
               if (data.success) {
                 var nombre = data.content.nombre;
                 $('#municipio').val(nombre);
@@ -8290,8 +8312,8 @@ function cargarmunicipios() {
             'json',
           );
         });
-        $.ajaxSetup({async: true});
-        $('#municipio').focusout(function() {
+        $.ajaxSetup({ async: true });
+        $('#municipio').focusout(function () {
           if ($.inArray($('#municipio').val(), municipios) == -1) {
           } else {
           }
@@ -8306,8 +8328,8 @@ function cargarmunicipios() {
           },
         );
 
-        $.ajaxSetup({async: false});
-        $('#e_caja_municipio').bind('typeahead:selected', function(obj, datum, name) {
+        $.ajaxSetup({ async: false });
+        $('#e_caja_municipio').bind('typeahead:selected', function (obj, datum, name) {
           var params = {
             accion: 'obtenerdatosmunicipio',
             municipio: datum,
@@ -8315,7 +8337,7 @@ function cargarmunicipios() {
           $.post(
             url,
             params,
-            function(data) {
+            function (data) {
               // console.log(data);
               if (data.success) {
                 var nombre = data.content.nombre;
@@ -8330,8 +8352,8 @@ function cargarmunicipios() {
             'json',
           );
         });
-        $.ajaxSetup({async: true});
-        $('#e_municipio').focusout(function() {
+        $.ajaxSetup({ async: true });
+        $('#e_municipio').focusout(function () {
           // console.log($.inArray($("#e_municipio").val(), municipios));
           if ($.inArray($('#e_municipio').val(), municipios) == -1) {
             //$("#nombre_propietario").val("");
@@ -8341,16 +8363,16 @@ function cargarmunicipios() {
       } else {
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
     },
   });
-  $.ajaxSetup({async: true});
+  $.ajaxSetup({ async: true });
 }
 
-var substringMatcher = function(strs) {
+var substringMatcher = function (strs) {
   return function findMatches(q, cb) {
     var matches, substringRegex;
     // an array that will be populated with substring matches
@@ -8359,7 +8381,7 @@ var substringMatcher = function(strs) {
     substrRegex = new RegExp(q, 'i');
     // iterate through the pool of strings and for any string that
     // contains the substring `q`, add it to the `matches` array
-    $.each(strs, function(i, str) {
+    $.each(strs, function (i, str) {
       if (substrRegex.test(str)) {
         matches.push(str);
       }

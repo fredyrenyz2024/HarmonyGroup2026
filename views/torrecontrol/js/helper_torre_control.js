@@ -5,6 +5,19 @@ $(document).ready(function () {
     sessionStorage.setItem("carrito", JSON.stringify([]));
   }
 
+  // let ArrayDespachos = [];
+  if (!window.ArrayDespachos) {
+    window.ArrayDespachos = [];
+  } else {
+    console.log('El array de despachos ya está creado.');
+  }
+
+  if (!window.ArrayServiciosEspeciales) {
+    window.ArrayServiciosEspeciales = [];
+  } else {
+    console.log('El array de despachos ya está creado.');
+  }
+
   const hoy = new Date();
   const opciones = { timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit" };
 
@@ -30,7 +43,7 @@ $(document).ready(function () {
           <div class="row g-3 justify-content-end">
             <div class="col-auto">
               <button class="btn btn-primary btn-sm py-1" id="btn_asignacion_proveedor" type="button" data-numdoc_solicitud="${dataId}" data-ClienteId="${dataId2}">
-                <span class="uil uil-save"></span> Asignar
+                <span class="uil uil-save"></span> Asignares
               </button>
             </div>
           </div>
@@ -104,7 +117,6 @@ $(document).ready(function () {
       myOffcanvas.updateContent(contenidoActual);
     }
 
-    // 🚀 Evento para listar servicios cuando se haga clic en "Servicios"
     if (e.target.matches("#btn_listar_servicios") || e.target.matches("#btn_listar_servicios *")) {
       let enlace = e.target.closest("#btn_listar_servicios");
       let proveedorId = enlace.getAttribute("data-id");
@@ -138,28 +150,65 @@ $(document).ready(function () {
                       <div class="row align-items-center mb-2 gap-2">
                         <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 d-flex justify-content-start mt-4">
                           <div class="form-check form-switch">
-                            <input type="checkbox" class="form-check-input" name="servicioProveedor" id="servicio_${proveedorId}_${servicio.id}" value="${servicio.id}" data-idProveedor="${proveedorId}" data-index="${index}"
-                            onchange="accionesServicio(${proveedorId}, this.value, this.id,'${TipoServicio}', ${index})">
+                            <input type="checkbox" class="form-check-input servicioProveedor" name="servicioProveedor"
+                              id="servicio_${proveedorId}_${servicio.id}" value="${servicio.id}" data-idProveedor="${proveedorId}"
+                              data-index="${index}"
+                              onchange="accionesServicio(${proveedorId}, this.value, this.id,'${TipoServicio}', ${index})">
                             <label class="form-label">${servicio.tipo_servicio}</label>
                           </div>
                         </div>
-                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3" id="contenido_fecha_vencimiento_${proveedorId}_${index}" style="display:none;">
+                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2"
+                          id="contenido_fecha_vencimiento_${proveedorId}_${index}" style="display:none;">
                           <div class="mb-1">
                             <label class="form-label">(*) Fecha Vencimiento:</label>
-                            <input type="date" class="form-control form-control-sm" id="fecha_vencimiento_${proveedorId}_${index}" name="fecha_vencimiento">
+                            <input type="date" class="form-control form-control-sm" id="fecha_vencimiento_${proveedorId}_${index}"
+                              name="fecha_vencimiento">
                           </div>
                         </div>
-                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3" id="contenido_hora_vencimiento_${proveedorId}_${index}" style="display:none;">
+                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2"
+                          id="contenido_hora_vencimiento_${proveedorId}_${index}" style="display:none;">
                           <div class="mb-1">
                             <label class="form-label">(*) Hora Vencimiento:</label>
-                            <input type="time" class="form-control form-control-sm" id="hora_vencimiento_${proveedorId}_${index}" name="hora_vencimiento">
+                            <input type="time" class="form-control form-control-sm" id="hora_vencimiento_${proveedorId}_${index}"
+                              name="hora_vencimiento">
                           </div>
                         </div>
-                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3" id="contenido_tipo_vehiculo_${proveedorId}_${index}" style="display:none;">
+                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3"
+                          id="contenido_tipo_vehiculo_${proveedorId}_${index}" style="display:none;">
                           <div class="mb-1">
                             <label class="form-label">(*) Tipo de Vehiculo:</label>
-                            <select class="form-select form-select-sm fs-9" id="tipo_vehiculo_${proveedorId}_${index}" name="tipo_vehiculo" style="width: 100%;font-size: 10px;">
+                            <select class="form-select form-select-sm fs-9" id="tipo_vehiculo_${proveedorId}_${index}" name="tipo_vehiculo"
+                              style="width: 100%;font-size: 10px;">
                             </select>
+                          </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xxl-2 mt-4"
+                          id="contenido_servicio_especial_${proveedorId}_${index}" style="display:none;">
+                          <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input servicioEspecialProveedor" name="servicioEspecialProveedor"
+                              id="servicio_especial${proveedorId}_${servicio.id}" value="Si" data-idProveedor="${proveedorId}"
+                              data-index="${index}" onchange="accionesServicioEspecial(${proveedorId}, this.value, this.id, ${index})">
+                            <label class="form-label">Servicio Especial</label>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6"
+                            id="contenido_servicio_especial_list_${proveedorId}_${index}" style="display:none;">
+                            <div class="mb-1">
+                              <label class="form-label">(*) Tipo de Vehiculo:</label>
+                              <select class="form-select form-select-sm fs-9" id="list_servicio_especial_${proveedorId}_${index}"
+                                name="list_servicio_especial_[]" multiple="multiple" style="width: 100%;font-size: 10px;">
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6"
+                            id="contenido_observacion_${proveedorId}_${index}" style="display:none;">
+                            <div class="mb-1">
+                              <label class="form-label">Observaciones:</label>
+                              <textarea class="form-control form-control-sn observacion_opcion" id="observacion_${proveedorId}_${servicio.id}" rows=" 1"
+                                placeholder="Observaciones" oninput="this.value = this.value.toUpperCase();"></textarea>
+                              </select>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -184,9 +233,9 @@ $(document).ready(function () {
     }
 
     if (e.target.matches("#btn_asignacion_proveedor") || e.target.matches("#btn_asignacion_proveedor *")) {
-      // let enlace = e.target.closest("#btn_asignacion_proveedor");
       let ClienteId = e.target.getAttribute("data-ClienteId");
       let asignaciones = [];
+      let servicios_especiales = [];
 
       document.querySelectorAll('input[name="servicioProveedor"]:checked').forEach((checkbox) => {
         let servicioId = checkbox.value;
@@ -195,6 +244,8 @@ $(document).ready(function () {
         let fecha_vencimiento = document.getElementById(`fecha_vencimiento_${proveedorId}_${Index}`).value.trim();
         let hora_vencimiento = document.getElementById(`hora_vencimiento_${proveedorId}_${Index}`).value.trim();
         let tipo_vehiculo = document.getElementById(`tipo_vehiculo_${proveedorId}_${Index}`).value.trim();
+        let servicio_especial = Array.from(document.getElementById(`list_servicio_especial_${proveedorId}_${Index}`).selectedOptions).map(option => option.value);
+        let Observacion = document.getElementById(`observacion_${proveedorId}_${servicioId}`).value.trim();
 
         asignaciones.push({
           servicio_id: servicioId,
@@ -202,13 +253,36 @@ $(document).ready(function () {
           fecha_vencimiento: fecha_vencimiento,
           hora_vencimiento: hora_vencimiento,
           tipo_vehiculo: tipo_vehiculo ? (tipo_vehiculo || 0) : 0,// Evita valores undefined
+          // servicio_especial: servicio_especial.length ? servicio_especial : [0] // Evita valores undefined
+          observacion: Observacion ? Observacion : 0 // Evita valores undefined
         });
+
+        servicios_especiales.push({
+          servicio_id: servicioId,
+          proveedor_id: proveedorId,
+          servicio_especial: servicio_especial.length ? servicio_especial : [0] // Evita valores undefined
+        });
+
       });
 
       if (asignaciones.length === 0) {
         alert("Debe seleccionar al menos un servicio y un proveedor.");
         return;
       }
+
+      let valorCheckboxes = [];
+      const checkboxes = Array.from(document.getElementsByName('servicioEspecialProveedor'));
+      checkboxes.forEach((checkbox) => {
+        if (checkbox.checked) {
+          valorCheckboxes.push(checkbox.value);
+        }
+      });
+
+      console.log('Valores seleccionados:', valorCheckboxes);
+
+      // Si quieres convertirlo en string separado por comas:
+      const valoresString = valorCheckboxes.join(',');
+      console.log('Valores concatenados:', valoresString);
 
       const result = await Swal.fire({
         title: "Seguro",
@@ -232,8 +306,11 @@ $(document).ready(function () {
 
         let formData = new FormData();
         formData.append("asignaciones", JSON.stringify(asignaciones));
+        formData.append("servicios_especiales", JSON.stringify(servicios_especiales));
         formData.append("solicitudes", sessionStorage.getItem("carrito"));
         formData.append("ClienteId", ClienteId);
+        formData.append("observacion", asignaciones[0].observacion);
+        formData.append("valorCheckboxes", valorCheckboxes.length ? valorCheckboxes : 'No'); // Evita valores undefined
 
         try {
           const response = await fetch($('#base_url').val() + 'torrecontrol/insertar_asignacion', {
@@ -253,6 +330,7 @@ $(document).ready(function () {
             if (result.isConfirmed) {
               myOffcanvas.hide();
               sessionStorage.clear();
+              window.ArrayDespachos = [];
               actualizarContadorCarrito();
               listar_pedidos_administrador(fechaColombia, fechaColombia);
             }
@@ -368,6 +446,7 @@ $(document).ready(function () {
 
       let seleccionados = [];
       let ArrayProveedoresseleccionados = [];
+      let servicios_especiales = [];
 
       // document.querySelectorAll("input[name='ProveedorServicio']:checked").forEach((checkbox) => {
       //   let servicioId = checkbox.value;
@@ -394,7 +473,6 @@ $(document).ready(function () {
       //   });
       // });
 
-
       document.querySelectorAll("input[name='ProveedorServicio']:checked").forEach((checkbox) => {
         let servicioId = checkbox.value;
         let proveedores = document.querySelectorAll(`#proveedores_${servicioId} input[name='ServiciosProveedores']`);
@@ -406,6 +484,9 @@ $(document).ready(function () {
         let fechaVencimiento = fechaVencimientoElem ? fechaVencimientoElem.value.trim() : "";
         let horaVencimiento = horaVencimientoElem ? horaVencimientoElem.value.trim() : "";
         let tipoVehiculo = tipoVehiculoElem ? (tipoVehiculoElem.value.trim() || 0) : 0; // Evita valores undefined
+
+        let servicio_especial = Array.from(document.getElementById(`list_servicio_especial_${servicioId}`).selectedOptions).map(option => option.value);
+        let Observacion = document.getElementById(`observacion_${servicioId}`).value.trim();
 
         let proveedoresSeleccionados = [];
 
@@ -421,13 +502,21 @@ $(document).ready(function () {
           fecha_vencimiento: fechaVencimiento,
           hora_vencimiento: horaVencimiento,
           tipo_vehiculo: tipoVehiculo,
-          proveedores: proveedoresSeleccionados
+          proveedores: proveedoresSeleccionados,
+          observacion: Observacion ? Observacion : 0 // Evita valores undefined
+        });
+
+        servicios_especiales.push({
+          servicio_id: servicioId,
+          // proveedor_id: proveedorId,
+          servicio_especial: servicio_especial.length ? servicio_especial : [0] // Evita valores undefined
         });
 
       });
 
       if (seleccionados.length === 0) {
         Swal.fire("Error", "Debe seleccionar al menos un servicio y un proveedor.", "error");
+
         return;
       }
 
@@ -438,6 +527,33 @@ $(document).ready(function () {
       //   Swal.fire("Error", "Debe seleccionar fecha y hora de vencimiento.", "error");
       //   return;
       // }
+
+      // const checkboxes = document.querySelectorAll('.servicioEspecialProveedor');
+
+      // checkboxes.forEach((checkbox) => {
+      //   if (checkbox.checked) {
+      //     console.log('Marcado ✅');
+      //     console.log('ID:', checkbox.id);
+      //     console.log('Valor:', checkbox.value); // "Si"
+      //     console.log('Proveedor ID:', checkbox.dataset.idproveedor);
+      //     console.log('Index:', checkbox.dataset.index);
+      //   } else {
+      //     console.log('No marcado ❌');
+      //   }
+      // });
+
+      let valorCheckboxes = '';
+      // console.log("🚀 ~ document.addEventListener ~ valorCheckboxes:", valorCheckboxes)
+      const checkboxes = Array.from(document.getElementsByName('servicioEspecialProveedor'));
+
+      checkboxes.forEach((checkbox) => {
+        if (checkbox.checked) {
+          valorCheckboxes += checkbox.value;
+          // console.log('✅ Marcado:', checkbox.id, checkbox.value);
+        }
+      });
+
+
 
       const result = await Swal.fire({
         title: "¿Seguro?",
@@ -459,10 +575,13 @@ $(document).ready(function () {
 
         let formData = new FormData();
         formData.append("seleccionados", JSON.stringify(seleccionados));
+        formData.append("servicios_especiales", JSON.stringify(servicios_especiales));
         formData.append("solicitudes", sessionStorage.getItem("carrito"));
         formData.append("Proveedoresseleccionados", JSON.stringify(ArrayProveedoresseleccionados));
         formData.append("proceso", 'Publicación');
         formData.append("ClienteId", ClienteId);
+        formData.append("observacion", seleccionados[0].observacion);
+        formData.append("valorCheckboxes", valorCheckboxes);
 
         try {
           const response = await fetch($('#base_url').val() + "torrecontrol/publicar_pedido", {
@@ -523,8 +642,8 @@ $(document).ready(function () {
               <span class="badge badge-phoenix badge-phoenix-primary rounded-pill me-2" id="servicios_postulados">0</span>
           </li>
 
-            <!-- Botón al lado de la segunda li -->
-          <button class="btn btn-subtle-primary btn-sm text-right" type="button" id="btn_subastar" style="display: none;" data-id="${Solicitud}">Subastar Servicios</button>
+            <!-- Botón al lado de la segunda li 
+          <button class="btn btn-subtle-primary btn-sm text-right" type="button" id="btn_subastar" style="display: none;" data-id="${Solicitud}">Subastar Servicios</button>-->
         </ul>
         <hr class="my-1">
         <h5 class="mt-3"> SERVICIOS</h5>
@@ -542,7 +661,7 @@ $(document).ready(function () {
           <tbody id="tbody_detalle_proceso"></tbody>
         </table>
 
-        <h5> SUBASTA</h5>
+        <h5>GESTION</h5>
 
         <table class="table table-sm" style="font-size:10px;">
           <thead>
@@ -560,7 +679,7 @@ $(document).ready(function () {
           <tbody id="tbody_subasta_proceso"></tbody>
         </table>
 
-      <h5>RESULTADOS DE LA SUBASTA</h5>
+      <!--<h5>RESULTADOS DE LA SUBASTA</h5>
 
       <table class="table table-sm" style="font-size:10px;">
           <thead>
@@ -576,7 +695,7 @@ $(document).ready(function () {
             </tr>
           </thead>
           <tbody id="tbody_subasta_resultados"></tbody>
-        </table>
+        </table>-->
       `);
 
       try {
@@ -646,11 +765,11 @@ $(document).ready(function () {
         document.getElementById("servicios_gestionados").innerHTML = data.total_gestionados.total_gestionados;
         document.getElementById("servicios_postulados").innerHTML = data.total_servicios.total_servicios;
 
-        if (data.total_gestionados.total_gestionados === data.total_servicios.total_servicios) {
-          document.getElementById("btn_subastar").style.display = "";
-        } else {
-          document.getElementById("btn_subastar").style.display = "none";
-        }
+        // if (data.total_gestionados.total_gestionados === data.total_servicios.total_servicios) {
+        //   document.getElementById("btn_subastar").style.display = "";
+        // } else {
+        //   document.getElementById("btn_subastar").style.display = "none";
+        // }
 
       } catch (error) {
         console.error("Error al obtener proveedores:", error);
@@ -737,6 +856,7 @@ $(document).ready(function () {
       let Proceso = enlace.getAttribute("data-Proceso");
       let MaestroId = enlace.getAttribute("data-MaestroId");
       let ClienteId = enlace.getAttribute("data-ClienteId");
+      let Modalidad = enlace.getAttribute("data-modalidad");
       let ReferenciaPedidos = JSON.parse(enlace.getAttribute("data-ReferenciaPedidos"));
 
       // let SolicitudesId = enlace.getAttribute("data-SolicitudesId");
@@ -781,13 +901,13 @@ $(document).ready(function () {
           });
         });
 
-        console.log(solicitudes);
+        // console.log(solicitudes);
       }
 
       const result = await Swal.fire({
         title: "Seguro",
         text: "¿Desea Autorizar la subasta?",
-        icon: "warning",
+        icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#3B71CA",
         cancelButtonColor: "#9FA6B2",
@@ -809,6 +929,7 @@ $(document).ready(function () {
         formData.append("proceso", Proceso);
         formData.append("MaestroId", MaestroId);
         formData.append("ClienteId", ClienteId);
+        formData.append("Modalidad", Modalidad);
         formData.append("ReferenciaPedidos", JSON.stringify(ReferenciaPedidos));
 
         try {
@@ -821,23 +942,23 @@ $(document).ready(function () {
           const data = await response.json();
 
           /* LLenar tabla de subasta */
-          if (data.length > 0) {
-            let rows = "";
-            data.forEach((proveedor, index) => {
-              rows += `
-                <tr>
-                  <th scope="row">${index + 1}</th>
-                  <td>${proveedor.tipo_servicio}</td>
-                  <td>${proveedor.valor_ganador}</td>
-                  <td>${proveedor.razon_social}</td>
-                  <td>${proveedor.Fecha_registro}</td>
-                  <td>${proveedor.Fecha_Inicio}</td>
-                </tr>
-              `;
+          if (data) {
+            Swal.fire({
+              title: "Mensaje!",
+              text: data.message,
+              icon: data.success
+                ? "success"  // Si success es true, mostrar "success"
+                : data.code === 503
+                  ? "warning"  // Si el código es 503, mostrar "warning"
+                  : "error",// En cualquier otro caso, mostrar "error"
+              draggable: true
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // location.reload(); // Recargar la página
+                myOffcanvas.hide();
+                // resultados_subasta(MaestroId);
+              }
             });
-            document.getElementById("tbody_subasta_resultados").innerHTML = rows;
-          } else {
-            document.getElementById("tbody_subasta_resultados").innerHTML = `<tr><td colspan="8" class="text-center text-danger">${data.message}</td></tr>`;
           }
         } catch (err) {
           console.error(err);
@@ -853,12 +974,29 @@ $(document).ready(function () {
     if (e.target.matches("#btn_subastar_recurso") || e.target.matches("#btn_subastar_recurso *")) {
       let enlace = e.target.closest("#btn_subastar_recurso");
       let MaestroId = enlace.getAttribute("data-MaestroId");
+      let ClienteId = enlace.getAttribute("data-ClienteId");
       let Criterio = document.getElementById("slct_criterio").value;
+      let ReferenciaPedidos = JSON.parse(enlace.getAttribute("data-ReferenciaPedidos"));
 
+      if (Criterio === "") {
+        Swal.fire({
+          title: "Advertencia!",
+          text: 'Debe seleccionar un criterio de subasta.',
+          icon: "warning",
+          draggable: true
+        });
+
+        const criterioElement = document.getElementById("slct_criterio");
+        criterioElement.style.border = "1px solid red";
+        criterioElement.style.backgroundColor = "#f2dede";
+        criterioElement.focus();
+
+        return;
+      }
       const result = await Swal.fire({
         title: "Seguro",
         text: "¿Desea Autorizar la subasta?",
-        icon: "warning",
+        icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#3B71CA",
         cancelButtonColor: "#9FA6B2",
@@ -877,7 +1015,9 @@ $(document).ready(function () {
 
         let formData = new FormData();
         formData.append("MaestroId", MaestroId);
+        formData.append("ClienteId", ClienteId);
         formData.append("Criterio", Criterio);
+        formData.append("ReferenciaPedidos", JSON.stringify(ReferenciaPedidos));
 
         try {
           const response = await fetch($('#base_url').val() + 'torrecontrol/Subastar_Pedido', {
@@ -888,25 +1028,43 @@ $(document).ready(function () {
 
           const data = await response.json();
 
-          /* LLenar tabla de subasta */
-          if (data.length > 0) {
-            let rows = "";
-            data.forEach((proveedor, index) => {
-              rows += `
-                <tr>
-                  <th scope="row">${index + 1}</th>
-                  <td>${proveedor.tipo_servicio}</td>
-                  <td>${proveedor.valor_ganador}</td>
-                  <td>${proveedor.razon_social}</td>
-                  <td>${proveedor.Fecha_registro}</td>
-                  <td>${proveedor.Fecha_Inicio}</td>
-                </tr>
-              `;
+          if (data) {
+            Swal.fire({
+              title: "Mensaje!",
+              text: data.message,
+              icon: data.success
+                ? "success"  // Si success es true, mostrar "success"
+                : data.code === 503
+                  ? "warning"  // Si el código es 503, mostrar "warning"
+                  : "error",// En cualquier otro caso, mostrar "error"
+              draggable: true
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // location.reload(); // Recargar la página
+                myOffcanvas.hide();
+                // resultados_subasta(MaestroId);
+              }
             });
-            document.getElementById("tbody_subasta_resultados").innerHTML = rows;
-          } else {
-            document.getElementById("tbody_subasta_resultados").innerHTML = `<tr><td colspan="8" class="text-center text-danger">${data.message}</td></tr>`;
           }
+          /* LLenar tabla de subasta */
+          // if (data.length > 0) {
+          //   let rows = "";
+          //   data.forEach((proveedor, index) => {
+          //     rows += `
+          //       <tr>
+          //         <th scope="row">${index + 1}</th>
+          //         <td>${proveedor.tipo_servicio}</td>
+          //         <td>${proveedor.valor_ganador}</td>
+          //         <td>${proveedor.razon_social}</td>
+          //         <td>${proveedor.Fecha_registro}</td>
+          //         <td>${proveedor.Fecha_Inicio}</td>
+          //       </tr>
+          //     `;
+          //   });
+          //   document.getElementById("tbody_subasta_resultados").innerHTML = rows;
+          // } else {
+          //   document.getElementById("tbody_subasta_resultados").innerHTML = `<tr><td colspan="8" class="text-center text-danger">${data.message}</td></tr>`;
+          // }
         } catch (err) {
           console.error(err);
           Swal.fire("Error", "Error al enviar datos al servidor.", "error");
@@ -980,7 +1138,95 @@ $(document).ready(function () {
     /* Cerrar el offcanvas y limpiar el carrito */
     if (e.target.matches(".btn-close") || e.target.matches(".btn-close *")) {
       sessionStorage.clear();
-      actualizarContadorCarrito();
+      // actualizarContadorCarrito();
+    }
+
+    if (e.target.matches("#btn_cancelar_recurso") || e.target.matches("#btn_cancelar_recurso *")) {
+      e.preventDefault();
+
+      const enlace = e.target.closest("#btn_cancelar_recurso");
+      const MaestroId = enlace.dataset.maestroid;
+      const ProveedoresId = enlace.dataset.Proveedoresid;
+
+      if (!MaestroId) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo identificar el recurso a cancelar'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Rechazar asignación',
+        text: 'Seleccione el motivo de cancelación:',
+        icon: 'warning',
+
+        /** ✅ INPUT SELECT NATIVO DE SWEETALERT */
+        input: 'select',
+        inputOptions: {
+          'Proveedor no disponible': 'Proveedor no disponible',
+          'Cambio de proveedor': 'Cambio de proveedor',
+          'Error en asignación': 'Error en asignación',
+          'Solicitud del cliente': 'Solicitud del cliente',
+          'Otro': 'Otro'
+        },
+        inputPlaceholder: '-- Seleccione --',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Debe seleccionar un motivo';
+          }
+        },
+
+        showCancelButton: true,
+        confirmButtonText: 'Rechazar recurso',
+        cancelButtonText: 'Cerrar',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+      }).then((result) => {
+
+        if (!result.isConfirmed) return;
+
+        /** 🔥 AQUÍ SÍ LLEGA EL VALOR CORRECTO */
+        const motivoCancelacion = result.value;
+        // console.log("🚀 ~ motivoCancelacion:", motivoCancelacion)
+
+        const formData = new FormData();
+        formData.append('RecursoId', MaestroId);
+        formData.append('ProveedoresId', ProveedoresId);
+        formData.append('motivo_cancelacion', motivoCancelacion);
+
+        fetch($('#base_url').val() + 'torrecontrol/cancelar_asignacion_recurso_subasta', {
+          method: 'POST',
+          body: formData
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Cancelado',
+                text: data.message
+              }).then(() => {
+                // listar_pedidos_pendientes();
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message
+              });
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error inesperado',
+              text: 'No fue posible cancelar la asignación'
+            });
+          });
+      });
     }
   });
 
@@ -991,73 +1237,8 @@ $(document).ready(function () {
       let clienId = e.target.getAttribute("data-clienId");
       await mostrarProveedores(clienId, ServicioId);
     }
-
-
-    // let ArrayDespachos = [];
-
-    // if (e.target.matches("input[name='servicioProveedor']")) {
-    //   let ServicioId = e.target.value;
-    //   // Verifica si el ID ya existe antes de agregarlo
-    //   if (!ArrayDespachos.includes(ServicioId)) {
-    //     ArrayDespachos.push(ServicioId);
-    //   } else {
-    //     console.log("El servicio ya está agregado:", ServicioId);
-    //   }
-    // }
-
-
   });
 
-  // Evento para seleccionar/deseleccionar todos los checkboxes
-  $('#selectAll').on('change', function () {
-    let isChecked = $(this).prop('checked');
-    $('.pedido-checkbox').prop('checked', isChecked);
-    let carrito = isChecked ? obtenerTodosLosPedidos() : [];
-    sessionStorage.setItem("carrito", JSON.stringify(carrito));
-    document.getElementById(`campo-16-carrito`).style.display = isChecked ? "" : "none";
-    actualizarContadorCarrito();
-  });
-
-  // Evento para manejar cambios en los checkboxes individuales
-  $(document).on('change', '.pedido-checkbox', function () {
-    let carrito = JSON.parse(sessionStorage.getItem("carrito")) || [];
-    let pedido = {
-      id: $(this).val(),
-      dataId: $(this).data('id'),  // Obtiene el atributo data-id
-      dataId2: $(this).data('id2'),
-      dataId3: $(this).data('id3'),
-      dataId4: $(this).data('id4'),
-      dataId5: $(this).data('id5'),
-      dataId6: $(this).data('id6'),
-      dataId7: $(this).data('id7'),
-      dataId8: $(this).data('id8'),
-      dataId9: $(this).data('id9'),
-      dataId10: $(this).data('id10'),
-      dataId11: $(this).data('id11'),
-      dataId12: $(this).data('id12'),
-      dataId13: $(this).data('id13'),
-      dataId14: $(this).data('id14'),
-    };
-
-    if ($(this).prop('checked')) {
-      // Agregar solo si no existe en el carrito
-      if (!carrito.some(item => item.id === pedido.id)) {
-        carrito.push(pedido);
-      }
-    } else {
-      // Filtrar para eliminar el elemento
-      carrito = carrito.filter(item => item.id !== pedido.id);
-    }
-
-    // Si todos los checkboxes están seleccionados, marcar el selectAll
-    $('#selectAll').prop('checked', $('.pedido-checkbox:checked').length === $('.pedido-checkbox').length);
-    sessionStorage.setItem("carrito", JSON.stringify(carrito));
-    // Mostrar o ocultar el campo del carrito
-    carrito.length > 0 ? document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = "" : document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = "none";
-    document.getElementById(`campo-${window.VENTANA}-carrito`).setAttribute("data-idPedido", pedido.id);
-    document.getElementById(`campo-${window.VENTANA}-carrito`).setAttribute("data-idCliente", pedido.dataId14);
-    actualizarContadorCarrito();
-  });
 });
 
 function obtenerTodosLosPedidos() {
@@ -1082,20 +1263,72 @@ function obtenerTodosLosPedidos() {
   }).get();
 }
 
-// Función para actualizar el contador del carrito
-function actualizarContadorCarrito() {
-  let carrito = JSON.parse(sessionStorage.getItem("carrito")) || [];
-  $("#contadorCarrito").text(carrito.length);
+// function actualizarContadorCarrito() {
+//   let carrito = JSON.parse(sessionStorage.getItem("carrito")) || [];
+//   $("#contadorCarrito").text(carrito.length);
 
-  if (carrito.length === 0) {
-    // Ocultar el campo del carrito
-    document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = "none";
+//   if (carrito.length === 0) {
+//     // Ocultar el campo del carrito
+//     document.getElementById(`campo-${window.VENTANA}-carrito`).style.display = "none";
 
-    // Deseleccionar todos los checkboxes de pedidos
-    $('.pedido-checkbox').prop('checked', false);
+//     // Deseleccionar todos los checkboxes de pedidos
+//     $('.pedido-checkbox').prop('checked', false);
 
-    // Deseleccionar el checkbox "Seleccionar todos"
-    $('#selectAll').prop('checked', false);
+//     // Deseleccionar el checkbox "Seleccionar todos"
+//     $('#selectAll').prop('checked', false);
+
+//     // 🔄 Quitar el resaltado de todas las filas
+//     $('.pedido-checkbox').each(function () {
+//       let rowId = $(this).data('row'); // Asegúrate de que cada checkbox tenga data-row="id_fila"
+//       let row = document.getElementById(rowId);
+//       if (row) {
+//         row.style.backgroundColor = ''; // Elimina el resaltado
+//       }
+//     });
+//   }
+// }
+
+// function actualizarContadorCarrito() {
+//   let carrito = JSON.parse(sessionStorage.getItem('carrito')) || [];
+//   let btn = document.getElementById('btn-carrito-pedidos');
+//   let contador = document.getElementById('carrito-contador');
+
+//   if (!btn) return;
+//   btn.style.display = carrito.length > 0 ? '' : 'none';
+//   if (contador) contador.textContent = carrito.length;
+// }
+
+async function resultados_subasta(MaestroId) {
+  /* LLenar tabla de subasta */
+
+  let formData = new FormData();
+  formData.append("MaestroId", MaestroId);
+
+  let response = await fetch($('#base_url').val() + 'torrecontrol/listar_subasta', {
+    method: "POST",
+    body: formData
+  });
+
+  let data = await response.json();
+
+
+  if (data.length > 0) {
+    let rows = "";
+    data.forEach((proveedor, index) => {
+      rows += `
+        <tr>
+          <th scope="row">${index + 1}</th>
+          <td>${proveedor.tipo_servicio}</td>
+          <td>${proveedor.valor_ganador}</td>
+          <td>${proveedor.razon_social}</td>
+          <td>${proveedor.Fecha_registro}</td>
+          <td>${proveedor.Fecha_Inicio}</td>
+        </tr>
+      `;
+    });
+    document.getElementById("tbody_subasta_resultados").innerHTML = rows;
+  } else {
+    document.getElementById("tbody_subasta_resultados").innerHTML = `<tr><td colspan="8" class="text-center text-danger">${data.message}</td></tr>`;
   }
 }
 
@@ -1107,8 +1340,11 @@ function DynamicOffcanvas(options) {
     id: 'dynamicOffcanvas',
     title: 'Default Title',
     content: 'Default Content',
+    class: 'offcanvas-end',
     scroll: true,
-    backdrop: false
+    backdrop: false,
+    width: '60%', // Nuevo valor por defecto
+    height: 'auto' // Puedes agregar height también
   };
 
   // Fusionar opciones con defaults
@@ -1125,17 +1361,17 @@ DynamicOffcanvas.prototype.initialize = function () {
 
 DynamicOffcanvas.prototype.createOffcanvas = function () {
   var offcanvasHTML = `
-    <div class="offcanvas offcanvas-end" 
+    <div class="offcanvas ${this.settings.class}" 
         id="${this.settings.id}" 
-        data-bs-scroll="${this.settings.scroll}" 
-        data-bs-backdrop="${this.settings.backdrop}" 
+        data-bs-scroll="${this.settings.scroll ? 'true' : 'false'}"
+        data-bs-backdrop="${this.settings.backdrop ? 'true' : 'false'}"
         tabindex="-1" 
-        aria-labelledby="${this.settings.id}-label" style="width: 1000px;">
+        aria-labelledby="${this.settings.id}-label" style="width: ${this.settings.width}; height: ${this.settings.height}">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title fw-bold" id="${this.settings.id}-label">
             ${this.settings.title}
           </h5>
-          <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas"></button>
+          <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" id="btn-close-${this.settings.id}"></button>
         </div>
       <div class="offcanvas-body">
         ${this.settings.content}
@@ -1159,6 +1395,36 @@ DynamicOffcanvas.prototype.updateTitle = function (newTitle) {
   title.innerHTML = newTitle;
 };
 
+DynamicOffcanvas.prototype.updateClass = function (newClass) {
+  var offcanvas = this.offcanvasElement;
+
+  // Eliminar todas las clases de posición de offcanvas
+  Array.from(offcanvas.classList)
+    .filter(cls => cls.startsWith('offcanvas-') && cls !== 'offcanvas')
+    .forEach(cls => offcanvas.classList.remove(cls));
+
+  // Agregar la nueva clase
+  offcanvas.classList.add(newClass);
+
+  // ⚡⚡ Destruir la instancia anterior
+  if (this.bsOffcanvas) {
+    this.bsOffcanvas.dispose();
+  }
+
+  // ⚡⚡ Crear nueva instancia con las nuevas clases
+  this.bsOffcanvas = new bootstrap.Offcanvas(this.offcanvasElement);
+};
+
+// Función para modificar el ancho
+DynamicOffcanvas.prototype.updateWidth = function (newWidth) {
+  this.offcanvasElement.style.width = newWidth;
+};
+
+// Función para modificar el alto
+DynamicOffcanvas.prototype.updateHeight = function (newHeight) {
+  this.offcanvasElement.style.height = newHeight;
+};
+
 DynamicOffcanvas.prototype.show = function () {
   this.bsOffcanvas.show();
 };
@@ -1172,7 +1438,6 @@ DynamicOffcanvas.prototype.getContent = function () {
   return body.innerHTML; // Devuelve el contenido actual
 };
 
-// Función para obtener y mostrar proveedores
 async function mostrarProveedores(clienId, ServicioId) {
   let filaProveedores = document.getElementById(`proveedores_${ServicioId}`);
 
@@ -1202,7 +1467,7 @@ async function mostrarProveedores(clienId, ServicioId) {
 
           if (ServicioId === '2') {
             tipo_vehiculo = `
-              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
                 <div class="mb-1">
                   <label class="form-label">(*) Tipo de Vehiculo:</label>
                   <select class="form-select form-select-sm fs-9" id="tipo_vehiculo_publicacion${ServicioId}" name="tipo_vehiculo" style="width: 100%;font-size: 10px;">
@@ -1216,20 +1481,49 @@ async function mostrarProveedores(clienId, ServicioId) {
 
           let control_servicio = `
             <div class="row">
-              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
                 <div class="mb-3">
                   <label class="control-label">(*) Fecha Vencimiento:</label>
                   <input type="date" class="form-control form-control-sm" id="fecha_vencimiento_${ServicioId}" name="fecha_vencimiento">
                 </div>
               </div>
 
-              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
                 <div class="mb-3">
                   <label class="control-label">(*) Hora Vencimiento:</label>
                   <input type="time" class="form-control form-control-sm" id="hora_vencimiento_${ServicioId}" name="hora_vencimiento">
                 </div>
               </div>
               ${tipo_vehiculo}
+              <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 mt-4"
+                id="contenido_servicio_especial_${ServicioId}_">
+                <div class="form-check form-switch">
+                  <input type="checkbox" class="form-check-input servicioEspecialProveedor" name="servicioEspecialProveedor"
+                    id="servicio_especial${ServicioId}" value="Si" data-idProveedor="${ServicioId}"
+                    data-index="${ServicioId}" onchange="accionesServicioEspecialPublicacion(${ServicioId},'Publicacion',this.id)">
+                  <label class="form-label">Servicio Especial</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6"
+                id="contenido_servicio_especial_list_${ServicioId}" style="display:none;">
+                <div class="mb-1">
+                  <label class="form-label">(*) Tipo de Vehiculo:</label>
+                  <select class="form-select form-select-sm fs-9" id="list_servicio_especial_${ServicioId}"
+                    name="list_servicio_especial_[]" multiple="multiple" style="width: 100%;font-size: 10px;">
+                  </select>
+                </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6"
+                id="contenido_observacion_${ServicioId}">
+                <div class="mb-1">
+                  <label class="form-label">Observaciones:</label>
+                  <textarea class="form-control form-control-sn observacion_opcion" id="observacion_${ServicioId}" rows=" 1"
+                    placeholder="Observaciones" oninput="this.value = this.value.toUpperCase();"></textarea>
+                  </select>
+                </div>
+              </div>
             </div>
           `;
 
@@ -1290,12 +1584,13 @@ async function mostrarProveedores(clienId, ServicioId) {
 }
 
 /* Funcion para obtener y mostrar proveedores */
-let ArrayDespachos = [];
 async function accionesServicio(proveedorId, servicioId, pedidoId, tipoServicio, index) {
   let pedidoCheckbox = document.getElementById(pedidoId);
   let fechaVencimiento = document.getElementById(`contenido_fecha_vencimiento_${proveedorId}_${index}`);
   let horaVencimiento = document.getElementById(`contenido_hora_vencimiento_${proveedorId}_${index}`);
   let tipoVehiculo = document.getElementById(`contenido_tipo_vehiculo_${proveedorId}_${index}`);
+  let ServicioESpecial = document.getElementById(`contenido_servicio_especial_${proveedorId}_${index}`);
+  let contenido_observacion = document.getElementById(`contenido_observacion_${proveedorId}_${index}`);
 
   if (!pedidoCheckbox || !fechaVencimiento || !horaVencimiento || !tipoVehiculo) {
     console.error("Algunos elementos no fueron encontrados.");
@@ -1303,14 +1598,17 @@ async function accionesServicio(proveedorId, servicioId, pedidoId, tipoServicio,
   }
 
   if (pedidoCheckbox.checked) {
-    console.log(`✅ Mostrando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
+    // console.log(`✅ Mostrando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
     // Verifica si el ID ya existe antes de agregarlo
     if (!ArrayDespachos.includes(servicioId)) {
       ArrayDespachos.push(servicioId);
       fechaVencimiento.style.display = "";
       horaVencimiento.style.display = "";
+      contenido_observacion.style.display = "";
       if (tipoServicio === "Despachos") {
         tipoVehiculo.style.display = "";
+        ServicioESpecial.style.display = "";
+        contenido_observacion.style.display = "";
         $(`#tipo_vehiculo_${proveedorId}_${index}`).html('');
         $.ajax({
           url: $('#base_url').val() + 'serviciocliente/Tipo_Vehiculos',
@@ -1341,15 +1639,136 @@ async function accionesServicio(proveedorId, servicioId, pedidoId, tipoServicio,
       console.log("El servicio ya está agregado:", servicioId);
       pedidoCheckbox.checked = false; // Desmarcar el checkbox si ya está en el array
     }
-    console.log("🚀 ~ accionesServicio ~ ArrayDespachos:", ArrayDespachos)
+    // console.log("🚀 ~ accionesServicio ~ ArrayDespachos:", ArrayDespachos)
 
   } else {
-    console.log(`❌ Ocultando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
+    // console.log(`❌ Ocultando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
     fechaVencimiento.style.display = "none";
     tipoVehiculo.style.display = "none";
     horaVencimiento.style.display = "none";
+    ServicioESpecial.style.display = "none";
     // Si se desmarca, eliminarlo del array
     ArrayDespachos = ArrayDespachos.filter(id => id !== servicioId);
-    console.log(`❌ Eliminado ${servicioId} de ArrayDespachos`);
+    // console.log(`❌ Eliminado ${servicioId} de ArrayDespachos`);
   }
+}
+
+async function accionesServicioEspecial(proveedorId, Valor, Id, index) {
+  let ServicioEspecialCheckbox = document.getElementById(Id);
+  let contenido_servicio_especial_list_ = document.getElementById(`contenido_servicio_especial_list_${proveedorId}_${index}`);
+  // let horaVencimiento = document.getElementById(`contenido_hora_vencimiento_${proveedorId}_${index}`);
+
+  if (!ServicioEspecialCheckbox) {
+    console.error("Algunos elementos no fueron encontrados.");
+    return;
+  }
+
+  if (ServicioEspecialCheckbox.checked) {
+    // console.log(`✅ Mostrando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
+    // Verifica si el ID ya existe antes de agregarlo
+    if (!ArrayServiciosEspeciales.includes(Valor)) {
+      // ArrayServiciosEspeciales.push(Valor);
+      contenido_servicio_especial_list_.style.display = "";
+      // horaVencimiento.style.display = "";
+      $(`#list_servicio_especial_${proveedorId}_${index}`).html('');
+      $.ajax({
+        url: $('#base_url').val() + 'torrecontrol/Servicios_Especiales',
+        type: 'POST',
+        dataType: 'json',
+        success: function (data) {
+          //traer el tipo de vehiculo
+          $(`#list_servicio_especial_${proveedorId}_${index}`).append('<option value="">Seleccione</option>');
+          data.forEach(function (element, index1) {
+            $(`#list_servicio_especial_${proveedorId}_${index}`).append('<option value="' + element.id + '" style="width: 100%;font-size: 10px;"   >' + element.nombre + '</option>');
+          });
+          // Inicializar los selects con Select2
+          $(`#list_servicio_especial_${proveedorId}_${index}`).select2({
+            placeholder: 'Seleccione una opción',
+            allowClear: true,
+            width: '100%',
+          });
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log('no entro ');
+          console.log(jqXHR);
+          console.log(textStatus);
+          console.log(errorThrown);
+        },
+      });
+    } else {
+      // console.log("El servicio ya está agregado:", servicioId);
+      ServicioEspecialCheckbox.checked = false; // Desmarcar el checkbox si ya está en el array
+    }
+    // console.log("🚀 ~ accionesServicio ~ ArrayServiciosEspeciales:", ArrayServiciosEspeciales)
+
+  } else {
+    // console.log(`❌ Ocultando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
+    // fechaVencimiento.style.display = "none";
+    // horaVencimiento.style.display = "none";
+    // // Si se desmarca, eliminarlo del array
+    // ArrayServiciosEspeciales = ArrayServiciosEspeciales.filter(id => id !== servicioId);
+    // console.log(`❌ Eliminado ${servicioId} de ArrayServiciosEspeciales`);
+  }
+  // console.log("🚀 ~ accionesServicio ~ ArrayServiciosEspeciales:", ArrayServiciosEspeciales)
+}
+
+function accionesServicioEspecialPublicacion(servicioId, tipo, Id) {
+  // console.log(`Servicio ID: ${servicioId}, Tipo: ${tipo}`);
+  // Aquí puedes agregar la lógica que necesites para manejar el cambio
+  let ServicioEspecialCheckbox = document.getElementById(Id);
+  let contenido_servicio_especial_list_ = document.getElementById(`contenido_servicio_especial_list_${servicioId}`);
+  // let horaVencimiento = document.getElementById(`contenido_hora_vencimiento_${proveedorId}_${index}`);
+
+  if (!ServicioEspecialCheckbox) {
+    console.error("Algunos elementos no fueron encontrados.");
+    return;
+  }
+
+  if (ServicioEspecialCheckbox.checked) {
+    // console.log(`✅ Mostrando elementos para ${tipoServicio} - Proveedor: ${proveedorId}, Índice: ${index}`);
+    // Verifica si el ID ya existe antes de agregarlo
+    if (!ArrayServiciosEspeciales.includes(servicioId)) {
+      // ArrayServiciosEspeciales.push(Valor);
+      contenido_servicio_especial_list_.style.display = "";
+      // horaVencimiento.style.display = "";
+      $(`#list_servicio_especial_${servicioId}`).html('');
+      $.ajax({
+        url: $('#base_url').val() + 'torrecontrol/Servicios_Especiales',
+        type: 'POST',
+        dataType: 'json',
+        success: function (data) {
+          //traer el tipo de vehiculo
+          $(`#list_servicio_especial_${servicioId}`).append('<option value="">Seleccione</option>');
+          data.forEach(function (element, index1) {
+            $(`#list_servicio_especial_${servicioId}`).append('<option value="' + element.id + '" style="width: 100%;font-size: 10px;"   >' + element.nombre + '</option>');
+          });
+          // Inicializar los selects con Select2
+          $(`#list_servicio_especial_${servicioId}`).select2({
+            placeholder: 'Seleccione una opción',
+            allowClear: true,
+            width: '100%',
+          });
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log('no entro ');
+          console.log(jqXHR);
+          console.log(textStatus);
+          console.log(errorThrown);
+        },
+      });
+    } else {
+      // console.log("El servicio ya está agregado:", servicioId);
+      ServicioEspecialCheckbox.checked = false; // Desmarcar el checkbox si ya está en el array
+    }
+    // console.log("🚀 ~ accionesServicio ~ ArrayServiciosEspeciales:", ArrayServiciosEspeciales)
+
+  } else {
+    // console.log(`❌ Ocultando elementos para ${tipoServicio} - Proveedor: ${servicioId}, Índice: ${index}`);
+    // fechaVencimiento.style.display = "none";
+    // horaVencimiento.style.display = "none";
+    // // Si se desmarca, eliminarlo del array
+    // ArrayServiciosEspeciales = ArrayServiciosEspeciales.filter(id => id !== servicioId);
+    // console.log(`❌ Eliminado ${servicioId} de ArrayServiciosEspeciales`);
+  }
+  // console.log("🚀 ~ accionesServicio ~ ArrayServiciosEspeciales:", ArrayServiciosEspeciales)
 }

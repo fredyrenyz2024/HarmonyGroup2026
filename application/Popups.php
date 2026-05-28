@@ -731,39 +731,105 @@ class Popup
 										$(".nexos-messages").html("");
 										console.log("Se puede crear el registro en el rndc");
 										var rndc_id = "";
+										// $.ajax({
+										// 	url: "' . BASE_URL . 'libs/remitentes_ajax.php?action=rndcGuardaRemitente",
+										// 	type: \'POST\',
+										// 	data: form_content,
+										// 	cache: false,
+										// 	dataType: \'json\',
+										// 	beforeSend	: function(jqXHR, settings){
+										// 		console.log("Entro en el proceso de creación del remitente/destinatario");
+										// 		/*
+										// 		$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="\' + $("#id_url_ajax").val() + \'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
+										// 		*/
+										// 	},
+										// 	success: function (data, textStatus, jqXHR)
+										// 	{
+										// 		console.log(data);
+										// 		if (data.error){
+
+										// 			msg_error+= data.error.replace(/\n/g , "</p><p>");
+										// 				$(".nexos-messages").append(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>No se creo el registro con éxito RNDC msg_error  .</div></div>\');
+										// 		} else {
+
+										// 			rndc_id = data.crea_tercero_id_crea
+										// 			$(".nexos-messages").append(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong>Se ha creado el registro con éxito RNDC rndc_id.</div></div>\');
+										// 		}
+										// 	},
+										// 	error: function (jqXHR, textStatus, errorThrown)
+										// 	{
+										// 		console.log(jqXHR);
+										// 		console.log(textStatus);
+										// 		console.log(errorThrown);
+										// 	}
+										// });
 										$.ajax({
-											url: "' . BASE_URL . 'libs/remitentes_ajax.php?action=rndcGuardaRemitente",
-											type: \'POST\',
-											data: form_content,
-											cache: false,
-											dataType: \'json\',
-											beforeSend	: function(jqXHR, settings){
-												console.log("Entro en el proceso de creación del remitente/destinatario");
-												/*
-												$(".nexos-messages").html(\'<div id="clock" role="modal" class="modal" style="display: block; background-color: rgba(0,0,0,0.5););"><div style="text-align: center; margin-top: 10%; background-color: #fff; padding: 30px; min-width: 20%; max-width: 60%; border-radius: 5px; border: 1px solid rgba(0,0,0,0.8); margin: 10% auto;"><img src="\' + $("#id_url_ajax").val() + \'public/img/nexos_loading.gif" height="60" width="60"><h3>Solicitud en proceso...</h3><h4>Por favor, espere unos segundos.</h4></div></div>\');
-												*/
-											},
-											success: function (data, textStatus, jqXHR)
-											{
-												console.log(data);
-												if (data.error){
+												url: "<?php echo BASE_URL; ?>libs/remitentes_ajax.php?action=rndcGuardaRemitente",
+												type: "POST",
+												data: form_content,
+												cache: false,
+												dataType: "json",
 
-													msg_error+= data.error.replace(/\n/g , "</p><p>");
-														$(".nexos-messages").append(\'<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>No se creo el registro con éxito RNDC msg_error  .</div></div>\');
-												} else {
+												beforeSend: function() {
+														console.log("Enviando remitente/destinatario a RNDC...");
+												},
 
-													rndc_id = data.crea_tercero_id_crea
-													$(".nexos-messages").append(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong>Se ha creado el registro con éxito RNDC rndc_id.</div></div>\');
+												success: function(data) {
+
+														console.log("Respuesta API:", data);
+														$(".nexos-messages").empty();
+
+														// ❌ Si hubo error en API
+														if (data.success === false) {
+
+																$(".nexos-messages").append(`
+																		<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible">
+																				<div class="icon"><span class="mdi mdi-close"></span></div>
+																				<div class="message">
+																						<button type="button" data-dismiss="alert" aria-label="Close" class="close">
+																								<span aria-hidden="true" class="mdi mdi-close"></span>
+																						</button>
+																						<strong>Error!</strong> ${data.message}<br>
+																						<small>${data.error ?? ""}</small>
+																				</div>
+																		</div>
+																`);
+
+																return;
+														}
+
+														// ✔ Si todo salió bien
+														const rndc_id = data.rndc_id ?? "N/A";
+
+														$(".nexos-messages").append(`
+																<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible">
+																		<div class="icon"><span class="mdi mdi-check"></span></div>
+																		<div class="message">
+																				<button type="button" data-dismiss="alert" aria-label="Close" class="close">
+																						<span aria-hidden="true" class="mdi mdi-close"></span>
+																				</button>
+																				<strong>Proceso terminado!</strong> ${data.message}<br>
+																				<b>ID RNDC:</b> ${rndc_id}
+																		</div>
+																</div>
+														`);
+												},
+
+												error: function(jqXHR, textStatus, errorThrown) {
+														console.log("ERROR AJAX:", jqXHR.responseText);
+
+														$(".nexos-messages").append(`
+																<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible">
+																		<div class="icon"><span class="mdi mdi-alert"></span></div>
+																		<div class="message">
+																				<strong>Error de conexión!</strong><br>
+																				No se pudo contactar la API.<br>
+																				Detalle: ${errorThrown}
+																		</div>
+																</div>
+														`);
 												}
-											},
-											error: function (jqXHR, textStatus, errorThrown)
-											{
-												console.log(jqXHR);
-												console.log(textStatus);
-												console.log(errorThrown);
-											}
 										});
-										
 									}
 									break;
 
@@ -842,9 +908,8 @@ class Popup
 						if( flag_origen && origen == "clientes/bodegas" && $("#slct_pais_").val() == "COLOMBIA" ){
 							params = $("#form_%id%").serialize() + "&rndc_id=" + rndc_id;
 						}
-						//console.log( params );
+						
 						if(!msg_error){
-							// hola
 							$.ajax({
 								type		: "POST",
 								cache		: false,
@@ -879,7 +944,7 @@ class Popup
 												});
 											}		
 											$("html, body").animate({ scrollTop: 0 }, 600);
-											setTimeout(function() { location.reload(false);  }, 1000);
+											// setTimeout(function() { location.reload(false);  }, 1000);
 													
 								}
 							});
@@ -1016,7 +1081,7 @@ class Popup
 											}
 											$(".nexos-messages").append(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong>Se ha creado el registro con éxito NEXOSAPP.</div></div>\');
 										$("#table1").hide();
-										setTimeout(function() { location.reload(false);  }, 1000);
+										// setTimeout(function() { location.reload(false);  }, 1000);
 							}
 						});
 					});
@@ -1933,7 +1998,7 @@ class Popup
 							if(!msg_error){
 								$(".nexos-messages").html(\'<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Proceso terminado!</strong> Se ha creado el registro con éxito.</div></div>\');
 								$("html, body").animate({ scrollTop: 0 }, 600);
-								$setTimeout(function() { location.reload(false); }, 800);
+								setTimeout(function() { location.reload(false); }, 800);
 
 							}
 							if(msg_error){
@@ -2177,7 +2242,7 @@ class Popup
 								</div>
 								<div class="modal-footer">
 									<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
-									<button id="btn_%id%" type="button" data-dismiss="modal" class="btn btn-success md-close">GuardarES</button>
+									<button id="btn_%id%" type="button" data-dismiss="modal" class="btn btn-success md-close">Guardar</button>
 								</div>
 							</form>
 						</div>

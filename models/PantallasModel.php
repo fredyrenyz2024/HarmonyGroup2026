@@ -13,6 +13,7 @@ class PantallasModel extends Model
     $sql = $this->_db3->prepare("SELECT * FROM cmx_modulos");
     $sql->execute();
     $resultados = $sql->fetchAll(PDO::FETCH_ASSOC);
+
     $sql_menu = $this->_db3->prepare("SELECT * FROM cmx_submenu");
     $sql_menu->execute();
     $resultados_menu = $sql_menu->fetchAll(PDO::FETCH_ASSOC);

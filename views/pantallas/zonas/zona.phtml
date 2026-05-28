@@ -1,0 +1,205 @@
+<div class="container-fluid py-3">
+
+  <!-- Variables de sesión -->
+  <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+  <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+  <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+  <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+  <input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+  <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+  <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+  <!-- ⚠️ Estos dos son requeridos por el JS -->
+  <input type="hidden" id="base_url" value="<?= BASE_URL ?>">
+  <input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+  <!-- ── Barra de acciones ──────────────────────────────── -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="JavaScript:void(0);" id="exportar_excel"
+      class="text-decoration-none d-flex align-items-center text-success fw-bold">
+      <img src="<?= BASE_URL ?>public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+      Exportar a Excel
+    </a>
+    <button class="btn btn-primary btn-sm"
+      type="button"
+      onclick="_zdNuevaZona()">
+      <i class="fas fa-plus me-1"></i> Nueva Zona
+    </button>
+  </div>
+
+  <!-- ── Tabla principal ────────────────────────────────── -->
+  <div class="table-responsive shadow-sm rounded">
+    <table id="ordenes_manifiesto_export"
+      class="table table-hover table-striped table-bordered table-sm align-middle mb-0"
+      style="font-size:12px;">
+      <thead class="table-primary">
+        <tr>
+          <th style="white-space:nowrap; min-width:180px">Nombre Zona</th>
+          <th style="white-space:nowrap">Descripción</th>
+          <th style="white-space:nowrap; width:140px">Fecha creación</th>
+          <th style="white-space:nowrap; width:120px; text-align:center">Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tarifa_flete_body">
+        <!-- Cargado por zonas_despacho_tabla.js -->
+        <tr>
+          <td colspan="4" class="text-center py-4">
+            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+            Cargando zonas...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     OFFCANVAS DERECHO — Crear / Editar Zona
+     ═══════════════════════════════════════════════════════════ -->
+<div class="offcanvas offcanvas-end" style="width:820px"
+  id="offcanvasRight" tabindex="-1"
+  aria-labelledby="offcanvasRightLabel">
+
+  <div class="offcanvas-header border-bottom"
+    style="background:#f8f9fa">
+    <h6 class="offcanvas-title fw-bold d-flex align-items-center gap-2"
+      id="offcanvasRightLabel">
+      <i class="fas fa-map-marked-alt" style="color:#7c3aed"></i>
+      Nueva zona de despacho
+    </h6>
+    <button class="btn-close" type="button"
+      data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+  </div>
+
+  <div class="offcanvas-body" style="overflow-y:auto">
+
+    <!-- Mensaje de error/éxito inline -->
+    <div class="sms mb-2"></div>
+
+    <!-- ID oculto para edición -->
+    <input type="hidden" id="zona_edit_id" value="">
+
+    <!-- ── Datos básicos ── -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-header py-2 fw-bold"
+        style="font-size:.8rem;background:#f3e8ff;color:#7c3aed;border-bottom:1px solid #ddd6fe">
+        <i class="fas fa-info-circle me-1"></i> Información de la Zona
+      </div>
+      <div class="card-body pb-2">
+        <div class="row g-2">
+
+          <div class="col-8">
+            <label class="form-label fw-semibold mb-1" style="font-size:.76rem">
+              Nombre de la Zona <span class="text-danger">*</span>
+            </label>
+            <input type="text" id="nombre_zona"
+              class="form-control form-control-sm"
+              placeholder="Ej: Zona Norte, Zona Caribe..."
+              oninput="this.value = this.value.toUpperCase()">
+          </div>
+
+          <div class="col-4">
+            <label class="form-label fw-semibold mb-1" style="font-size:.76rem">Estado</label>
+            <select class="form-select form-select-sm" id="estado_zona">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="col-4">
+            <label class="form-label fw-semibold mb-1" style="font-size:.76rem">Fecha</label>
+            <input type="date" id="fecha"
+              class="form-control form-control-sm"
+              value="<?= date('Y-m-d') ?>" disabled>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold mb-1" style="font-size:.76rem">Descripción</label>
+            <textarea id="descripcion"
+              class="form-control form-control-sm"
+              rows="2"
+              placeholder="Describe brevemente el alcance geográfico de la zona..."
+              oninput="this.value = this.value.toUpperCase()"></textarea>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Municipios ── -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-header py-2 fw-bold d-flex align-items-center gap-2"
+        style="font-size:.8rem;background:#f3e8ff;color:#7c3aed;border-bottom:1px solid #ddd6fe">
+        <i class="fas fa-map-pin"></i>
+        Municipios de la Zona
+        <span id="mun_contador"
+          class="badge rounded-pill ms-auto"
+          style="background:#7c3aed;font-size:.68rem">0</span>
+      </div>
+      <div class="card-body pb-2">
+
+        <!-- Buscador -->
+        <div class="position-relative mb-2">
+          <i class="fas fa-search position-absolute"
+            style="left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:.78rem;pointer-events:none"></i>
+          <input type="text" id="buscar_municipio"
+            class="form-control form-control-sm ps-4"
+            placeholder="Buscar municipio por nombre o departamento..."
+            autocomplete="off"
+            oninput="_zdBuscarMun(this.value)">
+          <!-- Dropdown resultados -->
+          <div id="drop_municipios"
+            class="dropdown-menu w-100 shadow-sm"
+            style="display:none;max-height:200px;overflow-y:auto;font-size:.8rem">
+          </div>
+        </div>
+
+        <!-- Tags de municipios agregados -->
+        <div id="tags_municipios"
+          class="border border-dashed rounded p-2"
+          style="min-height:40px;background:#fafafa;border-color:#ddd6fe!important">
+          <span class="text-muted" style="font-size:.75rem">
+            Agrega municipios desde el buscador
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /offcanvas-body -->
+
+  <!-- ── Footer con botones ── -->
+  <div class="offcanvas-footer d-flex justify-content-between align-items-center
+              px-3 py-2 border-top"
+    style="background:#f8f9fa">
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary btn-sm"
+        type="button"
+        data-bs-dismiss="offcanvas">
+        <i class="fas fa-times me-1"></i>Cancelar
+      </button>
+      <button class="btn btn-outline-danger btn-sm"
+        type="button"
+        id="btn_inactivar_zona"
+        style="display:none"
+        onclick="_zdToggleEstado(document.getElementById('zona_edit_id').value,'Activo')">
+        <i class="fas fa-ban me-1"></i>Inactivar
+      </button>
+    </div>
+    <button class="btn btn-primary btn-sm"
+      type="button"
+      id="btn_guardar_zona"
+      onclick="_zdGuardarZona()">
+      <i class="fas fa-save me-1"></i>Guardar
+    </button>
+  </div>
+
+</div><!-- /offcanvasRight -->
+
+<!-- SheetJS (si aún no está incluido globalmente) -->
+<!-- <?php if (!defined('XLSX_LOADED')): define('XLSX_LOADED', true); ?>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<?php endif; ?>
+
+<!-- JS del módulo --
+<script src="<?= BASE_URL ?>assets/js/parametros/zonas_despacho_tabla.js"></script> -->

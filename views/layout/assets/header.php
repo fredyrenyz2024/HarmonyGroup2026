@@ -14,7 +14,7 @@ $vista = '
 				<meta http-equiv="X-UA-Compatible" content="IE=edge">
 				<meta name="description" content="">
 				<meta name="author" content="">
-				<link rel="shortcut icon" href="%root_file%img/logo-fav.png">
+			<!--	<link rel="shortcut icon" href="%root_file%img/logo-fav.png">-->
 
 				<link rel="stylesheet" type="text/css" href="%root_file%lib/perfect-scrollbar/css/perfect-scrollbar.min.css"/>
 				<link rel="stylesheet" type="text/css" href="%root_file%lib/material-design-icons/css/material-design-iconic-font.min.css"/>
@@ -928,7 +928,8 @@ if (isset($_SESSION['usuario']) == true) {
 					}
 					$tmpIdmenu = $_GET['idmenu'];
 					/*** Se dibuja el menu en pantalla ***/
-					$menu .= '<li ' . $_activo . '><a href="' . $value1["enlace"] . '/' . $value1["metodo"] . '/?idmenu=' . $tmpIdmenu . '">' . $value1["titulo"] . '</a></li>';
+					//$menu .= '<li ' . $_activo . '><a href="' . $value1["enlace"] . '/' . $value1["metodo"] . '/?idmenu=' . $tmpIdmenu . '">' . $value1["titulo"] . '</a></li>';
+					$menu .= '<li ' . $_activo . '><a href="' . $value1["enlace"] . '/' . $value1["metodo"] . '?idmenu=' . $tmpIdmenu . '&submenu=' . $value1["submenu_id"] . '">' . $value1["titulo"] . '</a></li>';
 					$_activo = "";
 				}
 

@@ -959,119 +959,119 @@ echo $vista;
     //   document.getElementById("btn_edit_descargue").style.display = "none";
     // }
 
-    // if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
-    //   if (window.confirm("¿Esta seguro que quiere actualizar las fechas de la solicitud de servicio?")) {
-    //     //let fechacargue= document.getElementById(fecha_cargue_edit);
-    //     let msg_error = '';
-    //     let fechacargue = $("#fecha_cargue_edit").val();
-    //     let horacargue = $("#hora_cargue_edit").val();
-    //     let fechadescargue = $("#fecha_descargue_edit").val();
-    //     let horadescargue = $("#hora_descargue_edit").val();
-    //     let num_sol = $("#mer_idservicio").val();
-    //     let punto_rem = $("#punto_rem").val();
-    //     let punto_des = $("#punto_des").val();
-    //     var fc = (fechacargue + ' ' + horacargue);
-    //     var fd = (fechadescargue + ' ' + horadescargue);
+      // if (e.target.matches("#guarda_solicitud") || e.target.matches("#guarda_solicitud *")) {
+      //   if (window.confirm("¿Esta seguro que quiere actualizar las fechas de la solicitud de servicio?")) {
+      //     //let fechacargue= document.getElementById(fecha_cargue_edit);
+      //     let msg_error = '';
+      //     let fechacargue = $("#fecha_cargue_edit").val();
+      //     let horacargue = $("#hora_cargue_edit").val();
+      //     let fechadescargue = $("#fecha_descargue_edit").val();
+      //     let horadescargue = $("#hora_descargue_edit").val();
+      //     let num_sol = $("#mer_idservicio").val();
+      //     let punto_rem = $("#punto_rem").val();
+      //     let punto_des = $("#punto_des").val();
+      //     var fc = (fechacargue + ' ' + horacargue);
+      //     var fd = (fechadescargue + ' ' + horadescargue);
 
-    //     /* Validar que actualizacion se va a realizar */
-    //     let agencia = document.getElementById("servicio_agencia").value.trim();
-    //     let tipo_servicio = document.getElementById("servicio_cliente").value.trim();
+      //     /* Validar que actualizacion se va a realizar */
+      //     let agencia = document.getElementById("servicio_agencia").value.trim();
+      //     let tipo_servicio = document.getElementById("servicio_cliente").value.trim();
 
-    //     if (agencia === "" && tipo_servicio === "") {
-    //       if (fc > fd) {
-    //         msg_error += "La Fecha - Hora de cargue no puede ser mayor a la Fecha Descargue";
-    //         alert(msg_error);
-    //       } else {
-    //         let datos = new FormData();
-    //         datos.append("fecha_cargue", fechacargue);
-    //         datos.append("hora_cargue", horacargue);
-    //         datos.append("fecha_descargue", fechadescargue);
-    //         datos.append("hora_descargue", horadescargue);
-    //         datos.append("solicitud", num_sol);
-    //         datos.append("punto_rem", punto_rem);
-    //         datos.append("punto_des", punto_des);
-    //         try {
-    //           const response = await fetch($("#id_url_ajax").val() + "solicitudes/update_cargue", {
-    //             method: "POST",
-    //             body: datos,
-    //             cache: "no-cache",
-    //           });
-    //           const data = await response.json();
-    //           if (data.numero === 200) {
-    //             document.getElementById("Mensaje_update").innerHTML = `
-    //               <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-    //                 <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-    //                 <div class="message">
-    //                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-    //                   <strong>Mensaje!</strong> ${data.mensaje}
-    //                 </div>
-    //                 </div>`;
-    //             window.location.reload();
-    //           } else {
-    //             document.getElementById("Mensaje_update").innerHTML = `
-    //                 <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-    //                   <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-    //                   <div class="message">
-    //                     <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-    //                     <strong>Mensaje!</strong> ${data.mensaje}
-    //                   </div>
-    //                 </div>`;
-    //           }
-    //         } catch (error) {
-    //           console.error("Error en la primera solicitud:", error);
-    //           throw error;
-    //         } finally {
-    //           document.getElementById("fecha_cargue_edit").disabled = true;
-    //           document.getElementById("hora_cargue_edit").disabled = true;
-    //           document.getElementById("btn_edit_cargue").style.display = "block";
-    //           document.getElementById("fecha_descargue_edit").disabled = true;
-    //           document.getElementById("hora_descargue_edit").disabled = true;
-    //           document.getElementById("btn_edit_descargue").style.display = "block";
-    //         }
-    //       }
-    //     } else {
-    //       let datos = new FormData();
-    //       datos.append("agencia", agencia);
-    //       datos.append("tipo_servicio", tipo_servicio);
-    //       datos.append("solicitud", num_sol);
-    //       datos.append("numero_cotizacion", document.getElementById("numero_cotizacion").value);
-    //       try {
-    //         const response = await fetch($("#id_url_ajax").val() + "serviciocliente/update_solicitud", {
-    //           method: "POST",
-    //           body: datos,
-    //           cache: "no-cache",
-    //         });
-    //         const data = await response.json();
-    //         if (data.status === 200) {
-    //           document.getElementById("Mensaje_update").innerHTML = `
-    //           <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-    //             <div class="icon"><span class="mdi mdi-check-circle"></span></div>
-    //             <div class="message">
-    //               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-    //               <strong>Mensaje!</strong> ${data.message}
-    //             </div>
-    //           </div>`;
-    //           window.location.reload();
-    //         } else {
-    //           document.getElementById("Mensaje_update").innerHTML = `
-    //           <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-    //             <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-    //             <div class="message">
-    //               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-    //               <strong>Mensaje!</strong> ${data.message}
-    //             </div>
-    //           </div>`;
-    //         }
+      //     if (agencia === "" && tipo_servicio === "") {
+      //       if (fc > fd) {
+      //         msg_error += "La Fecha - Hora de cargue no puede ser mayor a la Fecha Descargue";
+      //         alert(msg_error);
+      //       } else {
+      //         let datos = new FormData();
+      //         datos.append("fecha_cargue", fechacargue);
+      //         datos.append("hora_cargue", horacargue);
+      //         datos.append("fecha_descargue", fechadescargue);
+      //         datos.append("hora_descargue", horadescargue);
+      //         datos.append("solicitud", num_sol);
+      //         datos.append("punto_rem", punto_rem);
+      //         datos.append("punto_des", punto_des);
+      //         try {
+      //           const response = await fetch($("#id_url_ajax").val() + "solicitudes/update_cargue", {
+      //             method: "POST",
+      //             body: datos,
+      //             cache: "no-cache",
+      //           });
+      //           const data = await response.json();
+      //           if (data.numero === 200) {
+      //             document.getElementById("Mensaje_update").innerHTML = `
+      //               <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+      //                 <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+      //                 <div class="message">
+      //                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+      //                   <strong>Mensaje!</strong> ${data.mensaje}
+      //                 </div>
+      //                 </div>`;
+      //             window.location.reload();
+      //           } else {
+      //             document.getElementById("Mensaje_update").innerHTML = `
+      //                 <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+      //                   <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+      //                   <div class="message">
+      //                     <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+      //                     <strong>Mensaje!</strong> ${data.mensaje}
+      //                   </div>
+      //                 </div>`;
+      //           }
+      //         } catch (error) {
+      //           console.error("Error en la primera solicitud:", error);
+      //           throw error;
+      //         } finally {
+      //           document.getElementById("fecha_cargue_edit").disabled = true;
+      //           document.getElementById("hora_cargue_edit").disabled = true;
+      //           document.getElementById("btn_edit_cargue").style.display = "block";
+      //           document.getElementById("fecha_descargue_edit").disabled = true;
+      //           document.getElementById("hora_descargue_edit").disabled = true;
+      //           document.getElementById("btn_edit_descargue").style.display = "block";
+      //         }
+      //       }
+      //     } else {
+      //       let datos = new FormData();
+      //       datos.append("agencia", agencia);
+      //       datos.append("tipo_servicio", tipo_servicio);
+      //       datos.append("solicitud", num_sol);
+      //       datos.append("numero_cotizacion", document.getElementById("numero_cotizacion").value);
+      //       try {
+      //         const response = await fetch($("#id_url_ajax").val() + "serviciocliente/update_solicitud", {
+      //           method: "POST",
+      //           body: datos,
+      //           cache: "no-cache",
+      //         });
+      //         const data = await response.json();
+      //         if (data.status === 200) {
+      //           document.getElementById("Mensaje_update").innerHTML = `
+      //           <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+      //             <div class="icon"><span class="mdi mdi-check-circle"></span></div>
+      //             <div class="message">
+      //               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+      //               <strong>Mensaje!</strong> ${data.message}
+      //             </div>
+      //           </div>`;
+      //           window.location.reload();
+      //         } else {
+      //           document.getElementById("Mensaje_update").innerHTML = `
+      //           <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+      //             <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+      //             <div class="message">
+      //               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+      //               <strong>Mensaje!</strong> ${data.message}
+      //             </div>
+      //           </div>`;
+      //         }
 
-    //       } catch (error) {
-    //         console.error("Error en la primera solicitud:", error);
-    //         throw error;
-    //       } finally {
+      //       } catch (error) {
+      //         console.error("Error en la primera solicitud:", error);
+      //         throw error;
+      //       } finally {
 
-    //       }
-    //     }
-    //   }
-    // }
+      //       }
+      //     }
+      //   }
+      // }
 
     // /* Boton para gaurar el contenedor en las solicitudes */
     // if (e.target.matches("#btn_save_contenedor") || e.target.matches("#btn_save_contenedor *")) {

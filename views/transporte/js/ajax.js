@@ -1,76 +1,38 @@
-$(document).ready(function() {
-  // window.modal1.showModal();
-  // $("#loading-overlay-nexosapp ").css("display", "flex");
-  // $("#loading-overlay-oet ").css("display", "flex");
+$(document).ready(function () {
   //llamar la placa
   $.post(
     $('#id_url_ajax').val() + 'transporte/Seleccione_Placa',
-    function(data) {
+    function (data) {
       if (data) {
-        for (var i = 0; i < data.length; i++) {
-          var valor = data[i]['placa'];
-          var service = data[i]['id_servicio_cliente'];
-          var estudy = data[i]['idestudi'];
-          var idemit = data[i]['idremitente'];
-          var place = data[i]['lugar'];
-          var fp = data[i]['flete_propuesto'];
-          var idpuntorem = data[i]['id_punto'];
-          var pesoremi = data[i]['peso_remitente'];
-          var tarifa = data[i]['tarifa_promedio'];
-          var id_subastaflete = data[i]['id_subastaflete'];
-          var id_estadoflete = data[i]['id_estadoflete'];
+        // Limpiar el select
+        $('#placao').empty();
 
-          //alert(fp);
-          $('#placao').append(
-            '<option value="' +
-              valor +
-              '" data-year="' +
-              service +
-              '" data-est="' +
-              estudy +
-              '"  data-remi="' +
-              idemit +
-              '" data-fp="' +
-              fp +
-              '" data-prem="' +
-              idpuntorem +
-              '" data-pesorem="' +
-              pesoremi +
-              '" data-tarifa="' +
-              tarifa +
-              '" data-idflete="' +
-              id_subastaflete +
-              '" data-idef="' +
-              id_estadoflete +
-              '">Placa: ' +
-              data[i]['placa'] +
-              '  /N estudio: ' +
-              data[i]['num_estudioseguridad'] +
-              ' /N servicio: ' +
-              data[i]['id_servicio_cliente'] +
-              ' /Id remitente: ' +
-              data[i]['idremitente'] +
-              ' ' +
-              data[i]['nombre'] +
-              ' /Lugar: ' +
-              place +
-              '</option>',
-          );
-          //$("#placao").append('<option value="'+data[i]['placa']+'">'+data[i]['placa']+'</option>');
+        // Agregar la opción inicial
+        $('#placao').append('<option value="">-- Seleccione una placa --</option>');
+        for (var i = 0; i < data.length; i++) {
+          const item = data[i];
+          const optionHtml = `
+          <option value="${item.placa}"  data-year="${item.id_servicio_cliente}"  data-est="${item.idestudi}"  data-remi="${item.idremitente}"  data-fp="${item.flete_propuesto}" 
+            data-prem="${item.id_punto}" data-pesorem="${item.peso_remitente}" data-tarifa="${item.tarifa_promedio}" data-idflete="${item.id_subastaflete}" data-idef="${item.id_estadoflete}" data-agencia='${item.agencia}'>
+            Placa: ${item.placa} /N estudio: ${item.num_estudioseguridad} /N servicio: ${item.id_servicio_cliente} /Id remitente: ${item.idremitente} ${item.nombre} /Lugar: ${item.lugar}
+          </option>
+        `;
+          $('#placao').append(optionHtml);
         }
       }
     },
-    'json',
+    'json'
   );
+
 });
 
 var c = 0;
-$('#adicione_remitente').click(function() {
+$('#adicione_remitente').click(function () {
   c++;
   var num_service = $('#id_servicio').val();
   $.post(
     $('#id_url_ajax').val() + 'transporte/Consulta_Municipios',
-    function(data) {
+    function (data) {
       if (data) {
         for (var z = 0; z < data.length; z++) {
           $('#p_ciudad' + c + '').append('<option value="' + data[z]['id'] + '">' + data[z]['municipio'] + ' - ' + data[z]['depto'] + '</option>');
@@ -82,7 +44,7 @@ $('#adicione_remitente').click(function() {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Consulta_Cliente',
     'id_servi=' + num_service,
-    function(datu) {
+    function (datu) {
       if (datu) {
         $('#clientea' + c + '').html('<option value="' + datu['id'] + '">' + datu['nombre'] + '</option>');
       }
@@ -90,209 +52,408 @@ $('#adicione_remitente').click(function() {
     'json',
   );
 
-  var ch = '<input type="button" id="p' + c + '" class="btn-primary" value="Remover"  onclick="delete_remi(' + c + ')">';
+  //   var ch = '<input type="button" id="p' + c + '" class="btn-primary" value="Remover"  onclick="delete_remi(' + c + ')">';
 
-  var city = "<select id='p_ciudad" + c + "' class='form-control input-xs acremtin'>" + '<option value="" readonly="readonly">Seleccione</option>' + '</select>';
-  var cliente = "<select id='clientea" + c + "' class='form-control input-xs acremtincli'></select>";
-  var suma =
-    '<tr class="td' +
-    c +
-    '">' +
-    '<tr class="td' +
-    c +
-    '" style="text-align:left; color:white; background-color:#33b5e5; height:20px; "><th>#</th><th>Origen</th><th>Dirección</th></tr>' +
-    '<td class="td' +
-    c +
-    '"><span id="bgi' +
-    c +
-    '" class="badge badge-primary acbdgn">' +
-    c +
-    '</span></td>' +
-    '<td class="td' +
-    c +
-    '">' +
-    city +
-    '</td>' +
-    '<td class="td' +
-    c +
-    '"><input type="text" id="dire' +
-    c +
-    '" class="form-control acremtdiden" style=" height:14px; font-size:90%;"></td>' +
-    '</tr>' +
-    '<tr class="td' +
-    c +
-    '"><th>Fecha</th><th>Cliente</th><th>Observación</th></tr>' +
-    '<td><input type="date" id="fecha' +
-    c +
-    '" class="form-control acremtiden"   style="width:169px; height:14px; font-size:90%;"></td>' +
-    '<td>' +
-    cliente +
-    '</td>' +
-    '<td><textarea id="observa' +
-    c +
-    '" class="form-control acobservaren" style="width:169px; height:14px; font-size:90%; "></textarea></td>' +
-    '</tr><tr class="td' +
-    c +
-    '"><th>Hora</th><th>Tipo Punto</th><th>Orden</th></tr>' +
-    '<tr><td><input type="time" id="hora' +
-    c +
-    '" class="form-control achoraden" style="width:110px; height:14px; font-size:90%;" ></td>' +
-    '<td><select id="tipo' +
-    c +
-    '" class="acdestipn" style="width:169px; height:17px; font-size:90%; " ><option value="punto recogida">Punto recogida</option></select></td>' +
-    '<td><input type="text" id="orden' +
-    c +
-    '"  class="form-control acdesorn" style="width:167px; height:14px; font-size:90%;  "  value="' +
-    c +
-    '" readonly="readonly"></td>' +
-    '</tr><tr id="btne' +
-    c +
-    '"><td>' +
-    ch +
-    '</td>' +
-    '</tr>';
+  //   var city = "<select id='p_ciudad" + c + "' class='form-control input-xs acremtin'>" + '<option value="" readonly="readonly">Seleccione</option>' + '</select>';
+  //   var cliente = "<select id='clientea" + c + "' class='form-control input-xs acremtincli'></select>";
+  //   var suma =
+  //     '<tr class="td' +
+  //     c +
+  //     '">' +
+  //     '<tr class="td' +
+  //     c +
+  //     '" style="text-align:left; color:white; background-color:#33b5e5; height:20px; "><th>#</th><th>Origen</th><th>Dirección</th></tr>' +
+  //     '<td class="td' +
+  //     c +
+  //     '"><span id="bgi' +
+  //     c +
+  //     '" class="badge badge-primary acbdgn">' +
+  //     c +
+  //     '</span></td>' +
+  //     '<td class="td' +
+  //     c +
+  //     '">' +
+  //     city +
+  //     '</td>' +
+  //     '<td class="td' +
+  //     c +
+  //     '"><input type="text" id="dire' +
+  //     c +
+  //     '" class="form-control acremtdiden" style=" height:14px; font-size:90%;"></td>' +
+  //     '</tr>' +
+  //     '<tr class="td' +
+  //     c +
+  //     '"><th>Fecha</th><th>Cliente</th><th>Observación</th></tr>' +
+  //     '<td><input type="date" id="fecha' +
+  //     c +
+  //     '" class="form-control acremtiden"   style="width:169px; height:14px; font-size:90%;"></td>' +
+  //     '<td>' +
+  //     cliente +
+  //     '</td>' +
+  //     '<td><textarea id="observa' +
+  //     c +
+  //     '" class="form-control acobservaren" style="width:169px; height:14px; font-size:90%; "></textarea></td>' +
+  //     '</tr><tr class="td' +
+  //     c +
+  //     '"><th>Hora</th><th>Tipo Punto</th><th>Orden</th></tr>' +
+  //     '<tr><td><input type="time" id="hora' +
+  //     c +
+  //     '" class="form-control achoraden" style="width:110px; height:14px; font-size:90%;" ></td>' +
+  //     '<td><select id="tipo' +
+  //     c +
+  //     '" class="acdestipn" style="width:169px; height:17px; font-size:90%; " ><option value="punto recogida">Punto recogida</option></select></td>' +
+  //     '<td><input type="text" id="orden' +
+  //     c +
+  //     '"  class="form-control acdesorn" style="width:167px; height:14px; font-size:90%;  "  value="' +
+  //     c +
+  //     '" readonly="readonly"></td>' +
+  //     '</tr><tr id="btne' +
+  //     c +
+  //     '"><td>' +
+  //     ch +
+  //     '</td>' +
+  //     '</tr>';
+  //   $('#adicione_remite').append(suma);
+  // });
+  // var b = 0;
+
+  const ch = `<input type="button" id="p${c}" class="btn-primary" value="Remover" onclick="delete_remi(${c})">`;
+
+  const city = `
+  <select id="p_ciudad${c}" class="form-control input-xs acremtin">
+    <option value="" readonly="readonly">Seleccione</option>
+  </select>
+`;
+
+  const cliente = `<select id="clientea${c}" class="form-control input-xs acremtincli"></select>`;
+
+  const suma = `
+  <tr class="td${c}">
+    <tr class="td${c}" style="text-align:left; color:white; background-color:#33b5e5; height:20px;">
+      <th>#</th><th>Origen</th><th>Dirección</th>
+    </tr>
+    <td class="td${c}">
+      <span id="bgi${c}" class="badge badge-primary acbdgn">${c}</span>
+    </td>
+    <td class="td${c}">${city}</td>
+    <td class="td${c}">
+      <input type="text" id="dire${c}" class="form-control acremtdiden" style="height:14px; font-size:90%;">
+    </td>
+  </tr>
+  <tr class="td${c}">
+    <th>Fecha</th><th>Cliente</th><th>Observación</th>
+  </tr>
+  <tr>
+    <td>
+      <input type="date" id="fecha${c}" class="form-control acremtiden" style="width:169px; height:14px; font-size:90%;">
+    </td>
+    <td>${cliente}</td>
+    <td>
+      <textarea id="observa${c}" class="form-control acobservaren" style="width:169px; height:14px; font-size:90%;"></textarea>
+    </td>
+  </tr>
+  <tr class="td${c}">
+    <th>Hora</th><th>Tipo Punto</th><th>Orden</th>
+  </tr>
+  <tr>
+    <td>
+      <input type="time" id="hora${c}" class="form-control achoraden" style="width:110px; height:14px; font-size:90%;">
+    </td>
+    <td>
+      <select id="tipo${c}" class="acdestipn" style="width:169px; height:17px; font-size:90%;">
+        <option value="punto recogida">Punto recogida</option>
+      </select>
+    </td>
+    <td>
+      <input type="text" id="orden${c}" class="form-control acdesorn" style="width:167px; height:14px; font-size:90%;" value="${c}" readonly="readonly">
+    </td>
+  </tr>
+  <tr id="btne${c}">
+    <td>${ch}</td>
+  </tr>
+`;
   $('#adicione_remite').append(suma);
 });
 var b = 0;
-$('#adicione_destina').click(function() {
+
+
+// $('#adicione_destina').click(function () {
+//   b++;
+//   var num_service = $('#id_servicio').val();
+//   $.post(
+//     $('#id_url_ajax').val() + 'transporte/Busque_Municipios',
+//     function (data) {
+//       if (data) {
+//         for (var t = 0; t < data.length; t++) {
+//           $('#p_ciudadd' + b + '').append('<option value="' + data[t]['id'] + '">' + data[t]['municipio'] + ' - ' + data[t]['depto'] + '</option>');
+//         }
+//       }
+//     },
+//     'json',
+//   );
+//   $.post(
+//     $('#id_url_ajax').val() + 'transporte/Consulta_Cliente',
+//     'id_servi=' + num_service,
+//     function (note) {
+//       if (note) {
+//         $('#clientead' + b + '').html('<option value="' + note['id'] + '">' + note['nombre'] + '</option>');
+//       }
+//     },
+//     'json',
+//   );
+
+//   var ch = '<input type="button" id="f' + b + '" class="btn-primary tf' + b + '" value="Remover"  onclick="delete_destinew(' + b + ')">';
+
+//   var city = "<select id='p_ciudadd" + b + "' class='form-control input-xs idescity'>" + '<option value="" readonly="readonly">Seleccione</option>' + '</select>';
+//   var cliente = "<select id='clientead" + b + "' class='form-control input-xs idescli'></select>";
+//   var destino =
+//     '<tr class="tf' +
+//     b +
+//     '">' +
+//     '<tr class="tf' +
+//     b +
+//     '" style="text-align:left; color:white; background-color:#33b5e5; height:20px; "><th>#</th><th>Destino</th><th>Dirección</th></tr>' +
+//     '<td class="tf' +
+//     b +
+//     '"><span class="badge badge-primary tf' +
+//     b +
+//     '">' +
+//     b +
+//     '</span></td>' +
+//     '<td class="tf' +
+//     b +
+//     '">' +
+//     city +
+//     '</td>' +
+//     '<td class="tf' +
+//     b +
+//     '"><input type="text" id="dired' +
+//     b +
+//     '" class="form-control idesdir" style=" height:14px; font-size:90%;"></td>' +
+//     '</tr>' +
+//     '<tr class="tf' +
+//     b +
+//     '"><th>Fecha</th><th>Cliente</th><th>Observación</th></tr>' +
+//     '<td class="tf' +
+//     b +
+//     '"><input type="date" id="fechad' +
+//     b +
+//     '" class="form-control idesfec"   style="width:169px; height:14px; font-size:90%;"></td>' +
+//     '<td class="tf' +
+//     b +
+//     '">' +
+//     cliente +
+//     '</td>' +
+//     '<td class="tf' +
+//     b +
+//     '"><textarea id="observad' +
+//     b +
+//     '" class="form-control idesobs" style="width:169px; height:14px; font-size:90%; "></textarea></td>' +
+//     '</tr><tr class="tf' +
+//     b +
+//     '"><th>Hora</th><th>Tipo Punto</th><th>Orden</th></tr>' +
+//     '<tr class="tf' +
+//     b +
+//     '"><td><input type="time" id="horad' +
+//     b +
+//     '" class="form-control ideshora" style="width:110px; height:14px; font-size:90%;" ></td>' +
+//     '<td class="tf' +
+//     b +
+//     '"><select id="tipod' +
+//     b +
+//     '" class="idestipo"  style="width:169px; height:17px; font-size:90%; " ><option value="punto entrega">punto entrega</option></select></td>' +
+//     '<td class="tf' +
+//     b +
+//     '"><input type="text" id="ordend' +
+//     b +
+//     '"  class="form-control idesorden" style="width:167px; height:14px; font-size:90%;  "  value="' +
+//     b +
+//     '" readonly="readonly"></td>' +
+//     '</tr><tr class="tf' +
+//     b +
+//     '"><td>' +
+//     ch +
+//     '</td></tr>';
+
+//   $('#adicione_desti').append(destino);
+// });
+$('#adicione_destina').click(function () {
   b++;
-  var num_service = $('#id_servicio').val();
+  const num_service = $('#id_servicio').val();
+
+  // Cargar municipios
   $.post(
     $('#id_url_ajax').val() + 'transporte/Busque_Municipios',
-    function(data) {
+    function (data) {
       if (data) {
-        for (var t = 0; t < data.length; t++) {
-          $('#p_ciudadd' + b + '').append('<option value="' + data[t]['id'] + '">' + data[t]['municipio'] + ' - ' + data[t]['depto'] + '</option>');
+        for (let t = 0; t < data.length; t++) {
+          $(`#p_ciudadd${b}`).append(`
+            <option value="${data[t]['id']}">
+              ${data[t]['municipio']} - ${data[t]['depto']}
+            </option>
+          `);
         }
       }
     },
-    'json',
+    'json'
   );
+
+  // Cargar cliente
   $.post(
     $('#id_url_ajax').val() + 'transporte/Consulta_Cliente',
-    'id_servi=' + num_service,
-    function(note) {
+    `id_servi=${num_service}`,
+    function (note) {
       if (note) {
-        $('#clientead' + b + '').html('<option value="' + note['id'] + '">' + note['nombre'] + '</option>');
+        $(`#clientead${b}`).html(`
+          <option value="${note['id']}">${note['nombre']}</option>
+        `);
       }
     },
-    'json',
+    'json'
   );
 
-  var ch = '<input type="button" id="f' + b + '" class="btn-primary tf' + b + '" value="Remover"  onclick="delete_destinew(' + b + ')">';
+  const ch = `<input type="button" id="f${b}" class="btn-primary tf${b}" value="Remover" onclick="delete_destinew(${b})">`;
 
-  var city = "<select id='p_ciudadd" + b + "' class='form-control input-xs idescity'>" + '<option value="" readonly="readonly">Seleccione</option>' + '</select>';
-  var cliente = "<select id='clientead" + b + "' class='form-control input-xs idescli'></select>";
-  var destino =
-    '<tr class="tf' +
-    b +
-    '">' +
-    '<tr class="tf' +
-    b +
-    '" style="text-align:left; color:white; background-color:#33b5e5; height:20px; "><th>#</th><th>Destino</th><th>Dirección</th></tr>' +
-    '<td class="tf' +
-    b +
-    '"><span class="badge badge-primary tf' +
-    b +
-    '">' +
-    b +
-    '</span></td>' +
-    '<td class="tf' +
-    b +
-    '">' +
-    city +
-    '</td>' +
-    '<td class="tf' +
-    b +
-    '"><input type="text" id="dired' +
-    b +
-    '" class="form-control idesdir" style=" height:14px; font-size:90%;"></td>' +
-    '</tr>' +
-    '<tr class="tf' +
-    b +
-    '"><th>Fecha</th><th>Cliente</th><th>Observación</th></tr>' +
-    '<td class="tf' +
-    b +
-    '"><input type="date" id="fechad' +
-    b +
-    '" class="form-control idesfec"   style="width:169px; height:14px; font-size:90%;"></td>' +
-    '<td class="tf' +
-    b +
-    '">' +
-    cliente +
-    '</td>' +
-    '<td class="tf' +
-    b +
-    '"><textarea id="observad' +
-    b +
-    '" class="form-control idesobs" style="width:169px; height:14px; font-size:90%; "></textarea></td>' +
-    '</tr><tr class="tf' +
-    b +
-    '"><th>Hora</th><th>Tipo Punto</th><th>Orden</th></tr>' +
-    '<tr class="tf' +
-    b +
-    '"><td><input type="time" id="horad' +
-    b +
-    '" class="form-control ideshora" style="width:110px; height:14px; font-size:90%;" ></td>' +
-    '<td class="tf' +
-    b +
-    '"><select id="tipod' +
-    b +
-    '" class="idestipo"  style="width:169px; height:17px; font-size:90%; " ><option value="punto entrega">punto entrega</option></select></td>' +
-    '<td class="tf' +
-    b +
-    '"><input type="text" id="ordend' +
-    b +
-    '"  class="form-control idesorden" style="width:167px; height:14px; font-size:90%;  "  value="' +
-    b +
-    '" readonly="readonly"></td>' +
-    '</tr><tr class="tf' +
-    b +
-    '"><td>' +
-    ch +
-    '</td></tr>';
+  const city = `
+      <select id="p_ciudadd${b}" class="form-control input-xs idescity">
+        <option value="" readonly="readonly">Seleccione</option>
+      </select>
+    `;
+
+  const cliente = `
+      <select id="clientead${b}" class="form-control input-xs idescli"></select>
+    `;
+
+  const destino = `
+      <tr class="tf${b}">
+        <tr class="tf${b}" style="text-align:left; color:white; background-color:#33b5e5; height:20px;">
+          <th>#</th><th>Destino</th><th>Dirección</th>
+        </tr>
+        <td class="tf${b}">
+          <span class="badge badge-primary tf${b}">${b}</span>
+        </td>
+        <td class="tf${b}">${city}</td>
+        <td class="tf${b}">
+          <input type="text" id="dired${b}" class="form-control idesdir" style="height:14px; font-size:90%;">
+        </td>
+      </tr>
+      <tr class="tf${b}">
+        <th>Fecha</th><th>Cliente</th><th>Observación</th>
+      </tr>
+      <tr>
+        <td>
+          <input type="date" id="fechad${b}" class="form-control idesfec" style="width:169px; height:14px; font-size:90%;">
+        </td>
+        <td>${cliente}</td>
+        <td>
+          <textarea id="observad${b}" class="form-control idesobs" style="width:169px; height:14px; font-size:90%;"></textarea>
+        </td>
+      </tr>
+      <tr class="tf${b}">
+        <th>Hora</th><th>Tipo Punto</th><th>Orden</th>
+      </tr>
+      <tr class="tf${b}">
+        <td>
+          <input type="time" id="horad${b}" class="form-control ideshora" style="width:110px; height:14px; font-size:90%;">
+        </td>
+        <td>
+          <select id="tipod${b}" class="idestipo" style="width:169px; height:17px; font-size:90%;">
+            <option value="punto entrega">punto entrega</option>
+          </select>
+        </td>
+        <td>
+          <input type="text" id="ordend${b}" class="form-control idesorden" style="width:167px; height:14px; font-size:90%;" value="${b}" readonly="readonly">
+        </td>
+      </tr>
+      <tr class="tf${b}">
+        <td>${ch}</td>
+      </tr>
+    `;
 
   $('#adicione_desti').append(destino);
 });
 var conta = 0;
-$('#adicione_precinto').click(function() {
-  conta++;
-  var pre =
-    '<select id="tipopre' +
-    conta +
-    '" class="form-control input-xs ipretipo"> <option value="Botella">Botella</option><option value="Metalico" disabled="disabled">Metalico</option><option value="Plastico" disabled="disabled">Plastico</option><option value="Adhesivo">Adhesivo</option><option value="Correilla">Correilla</option> </select>';
 
-  var mg = '<input type="button" id="r' + conta + '" class="btn-primary ps' + conta + '" value="Eliminar" onclick="delete_precinto(' + conta + ')">';
-  var observar = '<textarea id="sellos' + conta + '" class="form-control input-xs ipreobs"></textarea>';
-  var agrega =
-    '<tr class="ps' +
-    conta +
-    '">' +
-    '<td class="ps' +
-    conta +
-    '"><p><strong>' +
-    conta +
-    '</strong></p><input type="hidden" id="sk' +
-    conta +
-    '" value="1" class="ps' +
-    conta +
-    '"></td>' +
-    '<td class="ps' +
-    conta +
-    '"><input type="number" id="num_preci' +
-    conta +
-    '" class="form-control input-xs inumprecinto" min="0"  > </td>' +
-    '<td class="ps' +
-    conta +
-    '">' +
-    pre +
-    '</td><td class="ps' +
-    conta +
-    '">' +
-    mg +
-    '</td></tr>';
-  $('#tabla_precintos').append(agrega);
-});
+// $('#adicione_precinto').click(function () {
+//   conta++;
+//   var pre =
+//     '<select id="tipopre' +
+//     conta +
+//     '" class="form-control input-xs ipretipo"> <option value="Botella">Botella</option><option value="Metalico" disabled="disabled">Metalico</option><option value="Plastico" disabled="disabled">Plastico</option><option value="Adhesivo">Adhesivo</option><option value="Correilla">Correilla</option> </select>';
+
+//   var mg = '<input type="button" id="r' + conta + '" class="btn-primary ps' + conta + '" value="Eliminar" onclick="delete_precinto(' + conta + ')">';
+//   var observar = '<textarea id="sellos' + conta + '" class="form-control input-xs ipreobs"></textarea>';
+//   var agrega =
+//     '<tr class="ps' +
+//     conta +
+//     '">' +
+//     '<td class="ps' +
+//     conta +
+//     '"><p><strong>' +
+//     conta +
+//     '</strong></p><input type="hidden" id="sk' +
+//     conta +
+//     '" value="1" class="ps' +
+//     conta +
+//     '"></td>' +
+//     '<td class="ps' +
+//     conta +
+//     '"><input type="number" id="num_preci' +
+//     conta +
+//     '" class="form-control input-xs inumprecinto" min="0"  > </td>' +
+//     '<td class="ps' +
+//     conta +
+//     '">' +
+//     pre +
+//     '</td><td class="ps' +
+//     conta +
+//     '">' +
+//     mg +
+//     '</td></tr>';
+//   $('#tabla_precintos').append(agrega);
+// });
+
+// $('#adicione_precinto').click(function () {
+//   conta++;
+//   // SELECT pr.codigo_precinto,pr.tipo_precinto FROM cmx_precinto pr WHERE pr.agencia_asignada='Bogotá' AND pr.estado_precinto='disponible'
+//   const pre = `
+//     <select id="tipopre${conta}" class="form-control input-xs ipretipo">
+//       <option value="Botella">Botella</option>
+//       <option value="Metalico" disabled="disabled">Metalico</option>
+//       <option value="Plastico" disabled="disabled">Plastico</option>
+//       <option value="Adhesivo">Adhesivo</option>
+//       <option value="Correilla">Correilla</option>
+//     </select>
+//   `;
+
+//   const mg = `
+//   <button id="r${conta}" class="btn btn-danger btn-sm ps${conta}" onclick="delete_precinto(${conta})">
+//     <i class="fa fa-trash"></i> Eliminar
+//   </button>
+// `;
+
+
+//   const observar = `
+//     <textarea id="sellos${conta}" class="form-control input-xs ipreobs"></textarea>
+//   `;
+
+//   const agrega = `
+//     <tr class="ps${conta}">
+//       <td class="ps${conta}">
+//         <p><strong>${conta}</strong></p>
+//         <input type="hidden" id="sk${conta}" value="1" class="ps${conta}">
+//       </td>
+//       <td class="ps${conta}">
+//         <input type="number" id="num_preci${conta}" class="form-control input-xs inumprecinto" min="0">
+//       </td>
+//       <td class="ps${conta}">${pre}</td>
+//       <td class="ps${conta} text-center">${mg}</td>
+//     </tr>
+//   `;
+
+//   $('#tabla_precintos').append(agrega);
+// });
+
 
 //ELIMINAR BLOQUES DE CODIGO
 //eliminar remitente del dom
@@ -323,6 +484,7 @@ function delete_remi(id) {
   $(this).closest('btne').remove();
   alert('Dato Eliminado!!');
 }
+
 //eliminar destinanatario del dom
 function delete_destinew(id) {
   event.preventDefault();
@@ -348,22 +510,22 @@ function delete_destinew(id) {
 }
 
 //eliminar precintos del dom
-function delete_precinto(id) {
-  event.preventDefault();
-  $('.ps' + id).remove();
-  $('#tipo_precinto' + id).remove();
-  $('#r' + id).remove();
-  $('#sellos' + id).remove();
-  $('#sk' + id).remove();
-  $('#num_preci' + id).remove();
-  $(this).closest('ps').remove();
-  $(this).closest('tipo_precinto').remove();
-  $(this).closest('r').remove();
-  $(this).closest('sellos').remove();
-  $(this).closest('sk').remove();
-  $(this).closest('num_preci').remove();
-  alert('Dato Eliminado!!');
-}
+// function delete_precinto(id) {
+//   event.preventDefault();
+//   $('.ps' + id).remove();
+//   $('#tipo_precinto' + id).remove();
+//   $('#r' + id).remove();
+//   $('#sellos' + id).remove();
+//   $('#sk' + id).remove();
+//   $('#num_preci' + id).remove();
+//   $(this).closest('ps').remove();
+//   $(this).closest('tipo_precinto').remove();
+//   $(this).closest('r').remove();
+//   $(this).closest('sellos').remove();
+//   $(this).closest('sk').remove();
+//   $(this).closest('num_preci').remove();
+//   alert('Dato Eliminado!!');
+// }
 
 //eliminar remitentes de BD
 function delete_asocia(id) {
@@ -371,7 +533,7 @@ function delete_asocia(id) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Eliminar_Dato',
     'id=' + codigo,
-    function(datu) {
+    function (datu) {
       if (datu == 'true') {
         event.preventDefault();
         $('.tr' + id).remove();
@@ -407,7 +569,7 @@ function delete_desty(id) {
   $.post(
     $('#id_url_ajax').val() + 'transporte/Eliminar_Dato',
     'id=' + codi,
-    function(datee) {
+    function (datee) {
       if (datee == 'true') {
         event.preventDefault();
         $('.tm' + id).remove();
@@ -438,7 +600,8 @@ function delete_desty(id) {
 }
 
 //TRAER DATOS QUE CONFORMAN LA ORDEN
-$('#placao').change(function() {
+let precintosDisponibles = [];
+$('#placao').change(function () {
   //carga los datos de la placa seleccionada
   var placa = $('#placao').val();
   $('#msg_present').html('');
@@ -452,6 +615,8 @@ $('#placao').change(function() {
     var tarifapro = $(this).find(':selected').data('tarifa');
     var idfletesub = $(this).find(':selected').data('idflete');
     var idestsub = $(this).find(':selected').data('idef');
+    var agenciaId = $(this).find(':selected').data('agencia');
+    // console.log("🚀 ~ agenciaId:", agenciaId)
 
     $('#id_puntoremitente').val(idpunto);
     $('#o_flete_pactado').val(valor_propuesto);
@@ -463,7 +628,7 @@ $('#placao').change(function() {
     $.post(
       $('#id_url_ajax').val() + 'transporte/Datos_Placa_Seleccionada',
       'eleccion_placa=' + placa,
-      function(data) {
+      function (data) {
         if (data) {
           var trailer = '';
           var idt = '';
@@ -522,10 +687,11 @@ $('#placao').change(function() {
     $('#id_servicio').val(idservicio);
     $('#id_estudios').val(idestudio);
     $('#id_remitente').val(idremitente);
+
     $.post(
       $('#id_url_ajax').val() + 'transporte/Datos_solicitud_servicio',
       'id_servicio=' + idservicio,
-      function(dato) {
+      function (dato) {
         if (dato) {
           $('#id_cliente').val(dato['id_cliente']);
           $('#o_identificacion').val(dato['documento'] + '-' + dato['digito_verificacion']);
@@ -565,11 +731,12 @@ $('#placao').change(function() {
       },
       'json',
     );
+
     //consulta datos del remitente
     $.post(
       $('#id_url_ajax').val() + 'transporte/Datos_remitentes',
       'id_service=' + idservicio + '&id_remi=' + idremitente,
-      function(data) {
+      function (data) {
         if (data) {
           $('#datos_remite').html('');
           var cont = 0;
@@ -633,11 +800,12 @@ $('#placao').change(function() {
       },
       'json',
     );
+
     //consutla datos del destinatario
     $.post(
       $('#id_url_ajax').val() + 'transporte/Datos_destinatario',
       'id_service=' + idservicio + '&id_puntoremi=' + idpunto,
-      function(data) {
+      function (data) {
         $('#datos_destino').html('');
         if (data) {
           var cent = 0;
@@ -703,17 +871,41 @@ $('#placao').change(function() {
       },
       'json',
     );
+
     //semaforo de datos sujetos del vencimiento
     $.post(
       $('#id_url_ajax').val() + 'transporte/Consulta_Vencimiento',
       'num_estudio=' + idestudio,
-      function(data) {
+      function (data) {
         if (data) {
           $('#vlicencia').val(data['rndc_vencimiento_licencia']);
           $('#vplanilla').val(data['fecha_vence_eps']);
           $('#vmercancia').val(data['vence_curso']);
           $('#vsoat').val(data['vence_soat']);
           $('#vtecnomecanica').val(data['tecno_fecha_vigencia']);
+        }
+      },
+      'json',
+    );
+
+    //LLenar el select de los precintos de la agencia para el inventario
+    let Agencia = '';
+    if (agenciaId === 1) {
+      Agencia = 'Bogotá';
+    } else if (agenciaId === 2) {
+      Agencia = 'Cartagena';
+    } else if (agenciaId === 4) {
+      Agencia = 'Buenaventura';
+    }
+
+    $.post(
+      $('#id_url_ajax').val() + 'transporte/Consultar_Precintos',
+      'Agencia=' + Agencia,
+      function (data) {
+        if (data) {
+          // console.log("🚀 ~ data:", data);
+          precintosDisponibles = data; // guardar para uso posterior
+          agregarFilaPrecinto(); // insertar la primera fila
         }
       },
       'json',
@@ -762,7 +954,7 @@ $('#placao').change(function() {
 });
 
 //CONTENEDOR 2
-$('#cnt_opcion').change(function() {
+$('#cnt_opcion').change(function () {
   var conte = $('#cnt_opcion').val();
   if (conte == 0) {
     $('#cnt_municipio2').html('');
@@ -786,7 +978,7 @@ $('#cnt_opcion').change(function() {
 
     $.post(
       $('#id_url_ajax').val() + 'transporte/Tipo_Contenedor',
-      function(data) {
+      function (data) {
         $('#cnt_tipocon2').html('<option value="">Seleccione</option>');
         if (data) {
           for (var m = 0; m < data.length; m++) {
@@ -799,7 +991,7 @@ $('#cnt_opcion').change(function() {
 
     $.post(
       $('#id_url_ajax').val() + 'transporte/Municipio_Contenedor',
-      function(data) {
+      function (data) {
         $('#cnt_municipio2').html('<option value="">Seleccione</option>');
         if (data) {
           for (var m = 0; m < data.length; m++) {
@@ -813,7 +1005,7 @@ $('#cnt_opcion').change(function() {
 });
 
 //VALIDACIONES DEL BOTON GUARDAR
-$('#Registrar_orden').click(function() {
+$('#Registrar_orden').click(function () {
   if (window.confirm('¿Deseas guardar la orden de cargue?')) {
     // Código a ejecutar si el usuario hace clic en "Aceptar"
     var msg_error = '';
@@ -872,7 +1064,7 @@ $('#Registrar_orden').click(function() {
     //validar datos del precinto
     let filas_precinto = $('#tabla_precintos').find('tbody tr').length;
     if (filas_precinto > 0) {
-      $('.inumprecinto').each(function(index) {
+      $('.inumprecinto').each(function (index) {
         if (!$(this).val()) {
           msg_error += '<p>Debe diligenciar  <strong>Código precinto</strong> para registrar orden de cargue</p>';
           AplicaFoco('.inumprecinto');
@@ -961,10 +1153,10 @@ $('#Registrar_orden').click(function() {
     } else {
       $('#msg_present').html(
         '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-          msg_error +
-          '</div></div>',
+        msg_error +
+        '</div></div>',
       );
-      $('.panel-body').animate({scrollTop: 0}, 600);
+      $('.panel-body').animate({ scrollTop: 0 }, 600);
     }
   } else {
     // Código a ejecutar si el usuario hace clic en "Cancelar"
@@ -977,6 +1169,7 @@ function Formatear(ele) {
   var elemento = $(ele);
   elemento.val(parseFloat(elemento.val(), 100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').toString());
 }
+
 //Mayusculas
 function mayuscula(elemento) {
   let texto = elemento.value;
@@ -1068,27 +1261,27 @@ async function Registro_orden() {
   };
   //se recogen cada uno de los datos de los inputs que tengan la misma clase
   //debe existir una clase por cada tipo de dato ej: direccion, teléfono y con el index se recorre
-  $('.acremitedi').each(function(index) {
+  $('.acremitedi').each(function (index) {
     var a = $(this).val();
     dato.dire[index] = a;
   });
-  $('.acremitete').each(function(index) {
+  $('.acremitete').each(function (index) {
     var tel = $(this).val();
     dato.tel[index] = tel;
   });
-  $('.acremitefe').each(function(index) {
+  $('.acremitefe').each(function (index) {
     var fecha = $(this).val();
     dato.fech[index] = fecha;
   });
-  $('.acremiteho').each(function(index) {
+  $('.acremiteho').each(function (index) {
     var hora = $(this).val();
     dato.hor[index] = hora;
   });
-  $('.acremiteobs').each(function(index) {
+  $('.acremiteobs').each(function (index) {
     var obs = $(this).val();
     dato.obs[index] = obs;
   });
-  $('.acremiteid').each(function(index) {
+  $('.acremiteid').each(function (index) {
     var id = $(this).val();
     dato.idremi[index] = id;
   });
@@ -1105,42 +1298,42 @@ async function Registro_orden() {
     tipo: [],
     orden: [],
   };
-  $('.acremtin').each(function(index) {
+  $('.acremtin').each(function (index) {
     //ciudad
     var city = $(this).val();
     datonuevo.p_ciudad[index] = city;
   });
-  $('.acremtincli').each(function(index) {
+  $('.acremtincli').each(function (index) {
     //cliente
     var cliente = $(this).val();
     datonuevo.clientea[index] = cliente;
   });
-  $('.acremtdiden').each(function(index) {
+  $('.acremtdiden').each(function (index) {
     //direccion
     var direccion = $(this).val();
     datonuevo.dire[index] = direccion;
   });
-  $('.acremtiden').each(function(index) {
+  $('.acremtiden').each(function (index) {
     //fecha
     var fech = $(this).val();
     datonuevo.fecha[index] = fech;
   });
-  $('.acobservaren').each(function(index) {
+  $('.acobservaren').each(function (index) {
     //observacion
     var obsr = $(this).val();
     datonuevo.observa[index] = obsr;
   });
-  $('.achoraden').each(function(index) {
+  $('.achoraden').each(function (index) {
     //hora
     var hor = $(this).val();
     datonuevo.hora[index] = hor;
   });
-  $('.acdestipn').each(function(index) {
+  $('.acdestipn').each(function (index) {
     //tipo punto
     var tipop = $(this).val();
     datonuevo.tipo[index] = tipop;
   });
-  $('.acdesorn').each(function(index) {
+  $('.acdesorn').each(function (index) {
     //orden
     var ordenr = $(this).val();
     datonuevo.orden[index] = ordenr;
@@ -1156,27 +1349,27 @@ async function Registro_orden() {
     observacion: [],
     iddest: [],
   };
-  $('.acdesdir').each(function(index) {
+  $('.acdesdir').each(function (index) {
     var dir = $(this).val();
     impu.direccion[index] = dir;
   });
-  $('.acdescity').each(function(index) {
+  $('.acdescity').each(function (index) {
     var city = $(this).val();
     impu.destino[index] = city;
   });
-  $('.acdesfec').each(function(index) {
+  $('.acdesfec').each(function (index) {
     var dat = $(this).val();
     impu.fecha_entrega[index] = dat;
   });
-  $('.acdeshour').each(function(index) {
+  $('.acdeshour').each(function (index) {
     var tiempo = $(this).val();
     impu.horaentre[index] = tiempo;
   });
-  $('.acdesobs').each(function(index) {
+  $('.acdesobs').each(function (index) {
     var note = $(this).val();
     impu.observacion[index] = note;
   });
-  $('.iddeti').each(function(index) {
+  $('.iddeti').each(function (index) {
     var iddesty = $(this).val();
     impu.iddest[index] = iddesty;
   });
@@ -1193,35 +1386,35 @@ async function Registro_orden() {
     tipod: [],
     ordend: [],
   };
-  $('.idescity').each(function(index) {
+  $('.idescity').each(function (index) {
     var ciudad = $(this).val();
     impunew.p_ciudadd[index] = ciudad;
   });
-  $('.idescli').each(function(index) {
+  $('.idescli').each(function (index) {
     var cliente = $(this).val();
     impunew.clientead[index] = cliente;
   });
-  $('.idesdir').each(function(index) {
+  $('.idesdir').each(function (index) {
     var direccion = $(this).val();
     impunew.dired[index] = direccion;
   });
-  $('.idesfec').each(function(index) {
+  $('.idesfec').each(function (index) {
     var fecha = $(this).val();
     impunew.fechad[index] = fecha;
   });
-  $('.idesobs').each(function(index) {
+  $('.idesobs').each(function (index) {
     var noteo = $(this).val();
     impunew.observad[index] = noteo;
   });
-  $('.ideshora').each(function(index) {
+  $('.ideshora').each(function (index) {
     var hora = $(this).val();
     impunew.horad[index] = hora;
   });
-  $('.idestipo').each(function(index) {
+  $('.idestipo').each(function (index) {
     var tipologia = $(this).val();
     impunew.tipod[index] = tipologia;
   });
-  $('.idesorden').each(function(index) {
+  $('.idesorden').each(function (index) {
     var orden = $(this).val();
     impunew.ordend[index] = orden;
   });
@@ -1232,11 +1425,12 @@ async function Registro_orden() {
     tipoprecinto: [],
     num_preci: [],
   };
-  $('.ipretipo').each(function(index) {
+  $('.ipretipo').each(function (index) {
     var tipor = $(this).val();
     preci.tipoprecinto[index] = tipor;
   });
-  $('.inumprecinto').each(function(index) {
+  // $('.inumprecinto').each(function (index) {
+  $('.iselectprecinto').each(function (index) {
     var numero = $(this).val();
     preci.num_preci[index] = numero;
   });
@@ -1304,16 +1498,16 @@ async function Registro_orden() {
       pal = 'Proceso terminado';
       $('#msg_present').html(
         '<div role="alert" class="alert alert-' +
-          color +
-          ' alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-' +
-          icon +
-          '"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>' +
-          pal +
-          '!</strong> ' +
-          msg_texto +
-          '</div></div>',
+        color +
+        ' alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-' +
+        icon +
+        '"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>' +
+        pal +
+        '!</strong> ' +
+        msg_texto +
+        '</div></div>',
       );
-      $('.panel-body').animate({scrollTop: 0}, 100);
+      $('.panel-body').animate({ scrollTop: 0 }, 100);
       // Crear_Dato_Oet(data.numero_documento);
       numero_orden_cargue = data.numero_documento;
       //setTimeout(function() { location.reload(false); }, 2000);
@@ -1324,18 +1518,18 @@ async function Registro_orden() {
       pal = 'Proceso terminado';
       $('#msg_present').html(
         '<div role="alert" class="alert alert-' +
-          color +
-          ' alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-' +
-          icon +
-          '"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>' +
-          pal +
-          '!</strong> ' +
-          msg_texto +
-          '</div></div>',
+        color +
+        ' alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-' +
+        icon +
+        '"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>' +
+        pal +
+        '!</strong> ' +
+        msg_texto +
+        '</div></div>',
       );
-      $('.panel-body').animate({scrollTop: 0}, 3000);
+      $('.panel-body').animate({ scrollTop: 0 }, 3000);
       $('#Registrar_orden').css('display', 'none');
-      setTimeout(function() {
+      setTimeout(function () {
         location.reload(false);
       }, 5000);
     }
@@ -1367,14 +1561,14 @@ async function Crear_Dato_Oet(numero) {
       msg_texto = 'Datos Registrados Exitosamente OET ' + data.id_orden;
       $('#msg_present').append(
         '<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-check"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>' +
-          pal +
-          '! </strong>' +
-          msg_texto +
-          '</div></div>',
+        pal +
+        '! </strong>' +
+        msg_texto +
+        '</div></div>',
       );
-      $('.panel-body').animate({scrollTop: 0}, 600);
+      $('.panel-body').animate({ scrollTop: 0 }, 600);
       $('#Registrar_orden').css('display', 'none');
-      setTimeout(function() {
+      setTimeout(function () {
         location.reload(false);
       }, 5000);
     } else if (data.status == false || data.status == 'false') {
@@ -1382,16 +1576,16 @@ async function Crear_Dato_Oet(numero) {
       msg_texto = 'Datos No Registrados Exitosamente OET ' + data.id_orden;
       $('#msg_present').append(
         '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>' +
-          pal +
-          '! </strong>' +
-          msg_texto +
-          ' ' +
-          data.error +
-          '</div></div>',
+        pal +
+        '! </strong>' +
+        msg_texto +
+        ' ' +
+        data.error +
+        '</div></div>',
       );
-      $('.panel-body').animate({scrollTop: 0}, 600);
+      $('.panel-body').animate({ scrollTop: 0 }, 600);
       $('#Registrar_orden').css('display', 'none');
-      setTimeout(function() {
+      setTimeout(function () {
         location.reload(false);
       }, 5000);
     }
@@ -1403,3 +1597,161 @@ async function Crear_Dato_Oet(numero) {
     location.reload(true);
   }
 }
+
+// function agregarFilaPrecinto() {
+//   conta++;
+
+//   // Obtener los precintos ya seleccionados
+//   const seleccionados = $('.iselectprecinto')
+//     .map(function () {
+//       return $(this).val();
+//     })
+//     .get();
+
+//   // Filtrar los disponibles
+//   const opcionesFiltradas = precintosDisponibles.filter(p => !seleccionados.includes(p.codigo_precinto));
+
+//   if (opcionesFiltradas.length === 0) {
+//     alert('Ya se han asignado todos los precintos disponibles.');
+//     return;
+//   }
+
+//   // Generar las opciones
+//   let opciones = '<option value="">-- Seleccione un precinto --</option>';
+//   for (const p of opcionesFiltradas) {
+//     opciones += `<option value="${p.codigo_precinto}">${p.codigo_precinto} (${p.tipo_precinto})</option>`;
+//   }
+
+//   // Select de precintos
+//   const selectPrecinto = `
+//     <select id="num_preci${conta}" class="form-control input-xs iselectprecinto">
+//       ${opciones}
+//     </select>
+//   `;
+
+//   // Select de tipo (puedes eliminarlo si ya viene en la opción)
+//   const tipoSelect = `
+//     <select id="tipopre${conta}" class="form-control input-xs ipretipo">
+//       <option value="Botella">Botella</option>
+//       <option value="Metalico" disabled>Metalico</option>
+//       <option value="Plastico" disabled>Plastico</option>
+//       <option value="Adhesivo">Adhesivo</option>
+//       <option value="Correilla">Correilla</option>
+//     </select>
+//   `;
+
+//   // Observación y botón
+//   const observar = `<textarea id="sellos${conta}" class="form-control input-xs ipreobs"></textarea>`;
+//   const eliminar = `
+//     <button class="btn btn-danger btn-sm ps${conta}" onclick="delete_precinto(${conta})">
+//       <i class="fa fa-trash"></i> Eliminar
+//     </button>
+//   `;
+
+//   // Fila completa
+//   const fila = `
+//     <tr class="ps${conta}">
+//       <td><strong>${conta}</strong><input type="hidden" id="sk${conta}" value="1"></td>
+//       <td>${selectPrecinto}</td>
+//       <td>${tipoSelect}</td>
+//       <td class="text-center">${eliminar}</td>
+//     </tr>
+//   `;
+
+//   $('#tabla_precintos tbody').append(fila);
+// }
+
+function agregarFilaPrecinto() {
+  conta++;
+
+  // Obtener precintos ya usados
+  const seleccionados = $('.iselectprecinto')
+    .map(function () {
+      return $(this).val();
+    })
+    .get();
+
+  // Filtrar disponibles
+  const disponibles = precintosDisponibles.filter(p => !seleccionados.includes(p.codigo_precinto));
+
+  if (disponibles.length === 0) {
+    alert('Ya no hay más precintos disponibles.');
+    return;
+  }
+
+  // Opciones de precintos (código)
+  let opcionesPrecinto = '<option value="">-- Seleccione un precinto --</option>';
+  for (const p of disponibles) {
+    opcionesPrecinto += `<option value="${p.codigo_precinto}">${p.codigo_precinto}</option>`;
+  }
+
+  // Obtener tipos únicos
+  const tipos = [...new Set(precintosDisponibles.map(p => p.tipo_precinto))];
+
+  // Opciones de tipos
+  let opcionesTipo = '<option value="">-- Tipo --</option>';
+  for (const t of tipos) {
+    opcionesTipo += `<option value="${t}">${t}</option>`;
+  }
+
+  // Selects
+  const selectPrecinto = `
+    <select id="num_preci${conta}" class="form-control input-xs iselectprecinto">
+      ${opcionesPrecinto}
+    </select>
+  `;
+
+  const selectTipo = `
+    <select id="tipopre${conta}" class="form-control input-xs ipretipo">
+      ${opcionesTipo}
+    </select>
+  `;
+
+  const observar = `<textarea id="sellos${conta}" class="form-control input-xs ipreobs"></textarea>`;
+
+  const eliminar = `
+    <button class="btn btn-danger btn-sm ps${conta}" onclick="delete_precinto(${conta})">
+      <i class="fa fa-trash"></i>
+    </button>
+  `;
+
+  // const eliminar = `
+  //   <button class="btn btn-danger btn-sm ps${conta}" onclick="delete_precinto(${conta})">
+  //     <i class="fa fa-trash"></i> Eliminar
+  //   </button>
+  // `;
+
+  const fila = `
+    <tr class="ps${conta}">
+      <td><strong>${conta}</strong><input type="hidden" id="sk${conta}" value="1"></td>
+      <td>${selectPrecinto}</td>
+      <td>${selectTipo}</td>
+      <td class="text-center">${eliminar}</td>
+    </tr>
+  `;
+
+  $('#tabla_precintos tbody').append(fila);
+}
+
+function delete_precinto(id) {
+  // Elimina la fila
+  $('.ps' + id).remove();
+
+  // Reiniciar contador y reasignar clases/IDs a todas las filas
+  conta = 0;
+  $('#tabla_precintos tbody tr').each(function () {
+    conta++;
+
+    // Reasignar clase principal
+    $(this).attr('class', 'ps' + conta);
+
+    // Reasignar cada elemento dentro de la fila
+    $(this).find('td:eq(0)').html(`<strong>${conta}</strong><input type="hidden" id="sk${conta}" value="1">`);
+
+    $(this).find('select.iselectprecinto').attr('id', 'num_preci' + conta);
+    $(this).find('select.ipretipo').attr('id', 'tipopre' + conta);
+    $(this).find('textarea.ipreobs').attr('id', 'sellos' + conta);
+    $(this).find('button').attr('onclick', 'delete_precinto(' + conta + ')').attr('class', 'btn btn-danger btn-sm ps' + conta).attr('id', 'r' + conta);
+  });
+}
+

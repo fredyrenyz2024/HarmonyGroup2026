@@ -51,7 +51,7 @@ class bodegasModel extends Model
 					INNER JOIN cmx_municipios cmu ON crd.id_ciudad = cmu.id
 					INNER JOIN cmx_clientes cc ON cc.id = crd.id_cliente
 					INNER JOIN cmx_municipios cmu1 ON cmu1.id = cc.ciudad
-				ORDER BY crd.rndc_id DESC, crd.estado DESC, crd.id_cliente, crd.nombre';
+				ORDER BY crd.rndc_id DESC, crd.estado DESC, crd.id_cliente, crd.nombre LIMIT 10';
 		} else {
 			$sql = 'SELECT crd.*,
 					cc.nombre NOM_CLIENTE,
@@ -74,7 +74,7 @@ class bodegasModel extends Model
 					AND ccsc1.estado = 1
 					AND ccsr1.estado = 1
 				ORDER BY crd.rndc_id DESC, crd.estado DESC,
-				crd.id_cliente, crd.nombre';
+				crd.id_cliente, crd.nombre LIMIT 10';
 		}
 		$bodega = $this->_db->getConsulta($sql);
 		return $bodega;

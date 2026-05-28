@@ -1,0 +1,296 @@
+<div class="container-fluid" style="">
+    <input type="hidden" name="ssn_id_cliente" id="ssn_id_cliente" value="<?= $_SESSION["usuario"]["id_cliente"] ?>">
+    <input type="hidden" name="ssn_id_usuario" id="ssn_id_usuario" value="<?= $_SESSION["usuario"]["id_usuario"] ?>">
+    <input type="hidden" name="ssn_nombre" id="ssn_nombre" value="<?= $_SESSION["usuario"]["nom_usuario"] ?>">
+    <input type="hidden" name="ssn_id_perfil" id="ssn_id_perfil" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+    <input type="hidden" name="fecha_dia_solicitud" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" name="hora_dia_solicitud" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+        <div class="row">
+            <div class='table-responsive p-1'>
+                <table class='table table-bordered table-striped table-sm' style=" font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Tipo Contenedor</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Palca</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Conductor</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Celular</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Agencia</th>
+                            <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Estado Contenedor</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Estado Operación</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Fecha vencimiento</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Dias</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Numero Contenedor</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Cliente</th>
+                            <th class='text-center' style="color:black;width:auto; white-space: nowrap;">Municipio Devolución</th>
+                            <th class='text-center' style='color:black;width:auto; white-space: nowrap;'>Dirección Devolución</th>
+                            <!-- <th class='text-center' style="color:black;width:auto; white-space: nowrap;">P.Neto Vacio</th> -->
+                        </tr>
+                    </thead>
+                    <tbody id='tbl-contenedores-vacios' class='text-center'></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<!-- <div class="modal fade" id="verticallyCentered" tabindex="-1" aria-labelledby="verticallyCenteredModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verticallyCenteredModalLabel">Actualiziar Fecha Vencimiento</h5>
+                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="mb-1">
+                            <label for="fecha_actual">Fecha Vencimiento actual</label>
+                            <input type="date" name="fecha_actual" id="fecha_actual" class="form-control form-control-sm" disabled>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-1">
+                            <label for="fecha_actual">Nueva Fecha vencimiento</label>
+                            <input type="date" name="fecha_nueva" id="fecha_nueva" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" id="btn-update-fecha-vencimiento">Actualizar</button>
+                <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+
+<!-- Right Offcanvas-->
+<!-- <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasGestion" aria-controls="offcanvasGestion">Right Offcanvas</button>  -->
+<div class="offcanvas offcanvas-end" id="offcanvasGestion" tabindex="-1" aria-labelledby="offcanvasGestionLabel" style="width: 1000px;">
+    <div class="offcanvas-header bg-primary text-white">
+        <h5 id="offcanvasGestionLabel" class="mb-0 fw-bold text-white">Gestión de Contenedor Vacío</h5>
+        <button class="btn-close text-reset btn-close-white" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <!-- <form action="" id="formGestion"></form> -->
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="estado_gestion">Estado gestión</label>
+                    <select name="estado_gestion" id="estado_gestion" class="form-control form-control-sm">
+                        <option value="" selected>Seleccionar...</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Iniciado">Iniciado</option>
+                        <option value="Finalizado">Finalizado</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="fecha_devolucion">Fecha devolucion</label>
+                    <input type="date" name="fecha_devolucion" id="fecha_devolucion" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="patio">Patio</label>
+                    <select name="patio" id="patio" class="form-control form-control-sm" disabled>
+                        <option value="" selected>Seleccionar...</option>
+                        <optgroup label="Puertos y Terminales">
+                            <option value="Puerto Bahia">Puerto Bahía</option>
+                            <option value="Contecar">Contecar</option>
+                            <option value="Sociedad Portuaria">Sociedad Portuaria (SPRC)</option>
+                            <option value="Puerto Barranquilla">Puerto Barranquilla</option>
+                            <option value="Compas - Muelles del Bosque">Compas - Muelles del Bosque</option>
+                            <option value="Puerto Santa Marta">Puerto Santa Marta</option>
+                        </optgroup>
+
+                        <optgroup label="Patios y Depósitos">
+                            <option value="Simaritima - Mega Patio y Las Olas">Simaritima - Mega Patio y Las Olas</option>
+                            <option value="CY">CY (Container Yard)</option>
+                            <option value="APM">APM Terminals</option>
+                            <option value="Intermodal">Intermodal</option>
+                            <option value="Depotras">Depotras</option>
+                            <option value="3T">3T Depósito</option>
+                            <option value="ZAL">ZAL (Zona de Actividades Logísticas)</option>
+                            <option value="Muelle San Andres">Muelle San Andrés</option>
+                        </optgroup>
+
+                        <optgroup label="Servicios Logísticos">
+                            <option value="Almaviva">Almaviva</option>
+                            <option value="Ecolavado">Ecolavado</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="municipio">Municipio</label>
+                    <select name="municipio" id="municipio" class="form-control form-control-sm municipio-select" disabled>
+                        <option value="" selected>Seleccionar...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="tirilla">Tirilla</label>
+                    <input type="file" name="tirilla" id="tirilla" class="form-control form-control-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top border-translucent border-dashed"></div>
+        <div class="row my-3">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex align-items-center">
+                <div class="mb-1">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" id="flexSwitchCheckRedireccionado" type="checkbox">
+                        <label class="form-label fw-bold" class="form-check-label" for="flexSwitchCheckRedireccionado">Redireccionado</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="fecha_cita">Fecha cita</label>
+                    <input type="date" name="fecha_cita" id="fecha_cita" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="soporte">Documento Cita</label>
+                    <input type="file" name="soporte" id="soporte" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="patio_redireccion">Patio Redirección</label>
+                    <select name="patio_redireccion" id="patio_redireccion" class="form-control form-control-sm" disabled>
+                        <option value="" selected>Seleccionar...</option>
+                        <optgroup label="Puertos y Terminales">
+                            <option value="Puerto Bahia">Puerto Bahía</option>
+                            <option value="Contecar">Contecar</option>
+                            <option value="Sociedad Portuaria">Sociedad Portuaria (SPRC)</option>
+                            <option value="Puerto Barranquilla">Puerto Barranquilla</option>
+                            <option value="Compas - Muelles del Bosque">Compas - Muelles del Bosque</option>
+                            <option value="Puerto Santa Marta">Puerto Santa Marta</option>
+                        </optgroup>
+
+                        <optgroup label="Patios y Depósitos">
+                            <option value="Simaritima - Mega Patio y Las Olas">Simaritima - Mega Patio y Las Olas</option>
+                            <option value="CY">CY (Container Yard)</option>
+                            <option value="APM">APM Terminals</option>
+                            <option value="Intermodal">Intermodal</option>
+                            <option value="Depotras">Depotras</option>
+                            <option value="3T">3T Depósito</option>
+                            <option value="ZAL">ZAL (Zona de Actividades Logísticas)</option>
+                            <option value="Muelle San Andres">Muelle San Andrés</option>
+                        </optgroup>
+
+                        <optgroup label="Servicios Logísticos">
+                            <option value="Almaviva">Almaviva</option>
+                            <option value="Ecolavado">Ecolavado</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top border-translucent border-dashed"></div>
+
+        <div class="row my-3">
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3 d-flex align-items-center">
+                <div class="mb-1">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" id="flexSwitchCheckDevolcucion" type="checkbox">
+                        <label class="form-label fw-bold" class="form-check-label" for="flexSwitchCheckDevolcucion">Devolucion Mismo Vehiculo</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="numdoc_solicitud">Solicitud Servicio</label>
+                    <input type="number" name="numdoc_solicitud" id="numdoc_solicitud" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="manifiesto">Manifiesto</label>
+                    <input type="number" name="manifiesto" id="manifiesto" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="mb-1">
+                    <label class="form-label fw-bold" for="nueva_placa">Placa</label>
+                    <input type="text" name="nueva_placa" id="nueva_placa" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+        </div>
+
+        <?php if ($_SESSION['usuario']['id_perfil'] == 1 || $_SESSION['usuario']['id_perfil'] == 8): ?>
+            <div class="border-top border-translucent border-dashed"></div>
+            <div class="row my-3">
+                <div class="col-6">
+                    <div class="mb-1">
+                        <label class="form-label fw-bold" for="fecha_actual">Fecha Vencimiento actual</label>
+                        <input type="date" name="fecha_actual" id="fecha_actual" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="mb-1">
+                        <label class="form-label fw-bold" for="fecha_actual">Nueva Fecha vencimiento</label>
+                        <input type="date" name="fecha_nueva" id="fecha_nueva" class="form-control form-control-sm">
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="border-top border-translucent border-dashed"></div>
+        <div class="row">
+            <div class="mb-1">
+                <label class="form-label fw-bold" for="obsrvacion_gestion">Observaciones</label>
+                <textarea name="obsrvacion_gestion" id="obsrvacion_gestion" class="form-control form-control-sm" rows="2"></textarea>
+            </div>
+        </div>
+
+        <div class="offcanvas-footer border-top p-3 d-flex justify-content-end bg-light">
+            <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="offcanvas">
+                Cancelar
+            </button>
+
+            <button type="submit" id="btnGuardarGestion" class="btn btn-success btn-sm ">
+                <i class="uil uil-save"></i> Guardar Gestión
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Right Offcanvas-->
+
+<!-- <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Right Offcanvas</button> -->
+<div class="offcanvas offcanvas-end" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+        <h5 id="offcanvasRightLabel">Historico de actualizaciones</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="timeline-container" class="timeline"></div>
+    </div>
+</div>

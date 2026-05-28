@@ -1,0 +1,1110 @@
+<div class="container-fluid py-3" id="modulo-exportar-tarifas">
+  <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+  <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+  <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+  <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+  <input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+  <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+  <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+  <input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+  <!-- {{-- ══════════════════════════════════════════════════════
+         ESTILOS: Reutilizados del módulo tarifa_ventas.phtml
+    ══════════════════════════════════════════════════════ --}} -->
+  <style>
+    /* ── VARIABLES DE DISEÑO (heredadas de tarifa_ventas) ── */
+    #modulo-exportar-tarifas {
+      --navy: #0f1f3d;
+      --navy-mid: #1a3260;
+      --blue: #1a5ce5;
+      --blue-soft: #dbeafe;
+      --amber: #f59e0b;
+      --amber-soft: #fef3c7;
+      --green: #10b981;
+      --green-soft: #d1fae5;
+      --red: #ef4444;
+      --red-soft: #fee2e2;
+      --orange: #f97316;
+      --orange-soft: #ffedd5;
+      --purple: #7c3aed;
+      --purple-soft: #ede9fe;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-600: #475569;
+      --slate-800: #1e293b;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 2px 4px rgba(0, 0, 0, .06);
+      --shadow-lg: 0 10px 25px rgba(0, 0, 0, .12), 0 4px 8px rgba(0, 0, 0, .06);
+      font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+      color: var(--slate-800);
+    }
+
+    /* ── PAGE HEADER ── */
+    #modulo-exportar-tarifas .page-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      border-radius: var(--radius-lg);
+      padding: 20px 28px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #modulo-exportar-tarifas .page-header::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .04);
+    }
+
+    #modulo-exportar-tarifas .page-header::after {
+      content: '';
+      position: absolute;
+      bottom: -30px;
+      right: 120px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(26, 92, 229, .15);
+    }
+
+    #modulo-exportar-tarifas .ph-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(245, 158, 11, .15);
+      border: 2px solid rgba(245, 158, 11, .35);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--amber);
+      flex-shrink: 0;
+    }
+
+    #modulo-exportar-tarifas .ph-title {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -.3px;
+      margin: 0;
+    }
+
+    #modulo-exportar-tarifas .ph-sub {
+      color: rgba(255, 255, 255, .55);
+      font-size: .78rem;
+      margin-top: 2px;
+    }
+
+    #modulo-exportar-tarifas .ph-badge {
+      background: var(--amber);
+      color: var(--navy);
+      font-weight: 700;
+      font-size: .78rem;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    /* ── FILTER CARD ── */
+    #modulo-exportar-tarifas .filter-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--slate-200);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    #modulo-exportar-tarifas .filter-card-header {
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #modulo-exportar-tarifas .filter-card-header .fc-title {
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--slate-600);
+    }
+
+    #modulo-exportar-tarifas .filter-card-header i {
+      color: var(--blue);
+      font-size: .9rem;
+    }
+
+    #modulo-exportar-tarifas .filter-card-body {
+      padding: 18px 20px;
+    }
+
+    /* ── LABELS Y CONTROLES ── */
+    #modulo-exportar-tarifas .f-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--slate-600);
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    #modulo-exportar-tarifas .f-control {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: var(--slate-800);
+      background: #fff;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+
+    #modulo-exportar-tarifas .f-control:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+    }
+
+    #modulo-exportar-tarifas .f-control::placeholder {
+      color: var(--slate-400);
+    }
+
+    #modulo-exportar-tarifas select.f-control {
+      cursor: pointer;
+    }
+
+    /* ── FILTER DIVIDER ── */
+    #modulo-exportar-tarifas .filter-divider {
+      height: 1px;
+      background: var(--slate-200);
+      margin: 14px 0;
+      position: relative;
+    }
+
+    #modulo-exportar-tarifas .filter-divider span {
+      position: absolute;
+      top: -9px;
+      left: 10px;
+      background: #fff;
+      padding: 0 8px;
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--slate-400);
+    }
+
+    /* ── TIPO TARIFA TOGGLE ── */
+    #modulo-exportar-tarifas .tipo-toggle-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    #modulo-exportar-tarifas .tipo-btn {
+      flex: 1;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--slate-200);
+      background: #fff;
+      color: var(--slate-600);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .18s;
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+
+    #modulo-exportar-tarifas .tipo-btn:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    #modulo-exportar-tarifas .tipo-btn.active-ventas {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    #modulo-exportar-tarifas .tipo-btn.active-costos {
+      background: var(--orange-soft);
+      border-color: var(--orange);
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    /* ── BOTONES ── */
+    #modulo-exportar-tarifas .btn-search {
+      height: 34px;
+      padding: 0 20px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: 'IBM Plex Sans', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+
+    #modulo-exportar-tarifas .btn-search:hover {
+      background: #1449c4;
+      box-shadow: 0 2px 8px rgba(26, 92, 229, .3);
+    }
+
+    #modulo-exportar-tarifas .btn-search:disabled {
+      background: var(--slate-400);
+      cursor: not-allowed;
+    }
+
+    #modulo-exportar-tarifas .btn-clear {
+      height: 34px;
+      padding: 0 16px;
+      background: #fff;
+      color: var(--slate-600);
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: 'IBM Plex Sans', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+
+    #modulo-exportar-tarifas .btn-clear:hover {
+      border-color: var(--slate-400);
+      color: var(--slate-800);
+    }
+
+    #modulo-exportar-tarifas .btn-export {
+      height: 34px;
+      padding: 0 18px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: 'IBM Plex Sans', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+
+    #modulo-exportar-tarifas .btn-export:hover {
+      background: #059669;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, .3);
+    }
+
+    #modulo-exportar-tarifas .btn-export:disabled {
+      background: var(--slate-400);
+      cursor: not-allowed;
+    }
+
+    #modulo-exportar-tarifas .btn-refresh {
+      width: 32px;
+      height: 32px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--slate-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+    }
+
+    #modulo-exportar-tarifas .btn-refresh:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── FILTROS AVANZADOS TOGGLE ── */
+    #modulo-exportar-tarifas .toggle-advanced {
+      font-size: .76rem;
+      font-weight: 600;
+      color: var(--blue);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: none;
+      background: none;
+      padding: 0;
+      font-family: 'IBM Plex Sans', sans-serif;
+      transition: color .15s;
+    }
+
+    #modulo-exportar-tarifas .toggle-advanced:hover {
+      color: #1449c4;
+    }
+
+    #modulo-exportar-tarifas .toggle-advanced .ti-icon {
+      transition: transform .2s;
+    }
+
+    #modulo-exportar-tarifas .toggle-advanced.open .ti-icon {
+      transform: rotate(180deg);
+    }
+
+    #modulo-exportar-tarifas .advanced-filters {
+      display: none;
+      animation: expFadeIn .2s ease;
+    }
+
+    #modulo-exportar-tarifas .advanced-filters.show {
+      display: block;
+    }
+
+    @keyframes expFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── FILTER CHIPS ── */
+    #modulo-exportar-tarifas .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    #modulo-exportar-tarifas .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--blue-soft);
+      color: var(--navy-mid);
+      font-size: .72rem;
+      font-weight: 600;
+      padding: 3px 10px 3px 8px;
+      border-radius: 20px;
+    }
+
+    #modulo-exportar-tarifas .filter-chip.chip-costos {
+      background: var(--orange-soft);
+      color: #9a3412;
+    }
+
+    #modulo-exportar-tarifas .filter-chip button {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+      cursor: pointer;
+      line-height: 1;
+      font-size: .8rem;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── TABLE CARD ── */
+    #modulo-exportar-tarifas .table-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--slate-200);
+      overflow: hidden;
+    }
+
+    #modulo-exportar-tarifas .table-card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #modulo-exportar-tarifas .tc-title {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #modulo-exportar-tarifas .tc-title i {
+      color: var(--blue);
+    }
+
+    #modulo-exportar-tarifas .tc-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #modulo-exportar-tarifas .search-wrap {
+      position: relative;
+    }
+
+    #modulo-exportar-tarifas .search-wrap i {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--slate-400);
+      font-size: .8rem;
+      pointer-events: none;
+    }
+
+    #modulo-exportar-tarifas .search-inline {
+      height: 32px;
+      padding: 0 10px 0 32px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-family: 'IBM Plex Sans', sans-serif;
+      outline: none;
+      transition: border-color .15s;
+      width: 200px;
+    }
+
+    #modulo-exportar-tarifas .search-inline:focus {
+      border-color: var(--blue);
+    }
+
+    /* ── DATA TABLE ── */
+    #modulo-exportar-tarifas .table-wrap {
+      overflow-x: auto;
+    }
+
+    #modulo-exportar-tarifas .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .8rem;
+    }
+
+    #modulo-exportar-tarifas .data-table thead th {
+      background: var(--navy);
+      color: rgba(255, 255, 255, .85);
+      font-weight: 600;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 10px 14px;
+      white-space: nowrap;
+      border: none;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    #modulo-exportar-tarifas .data-table tbody tr {
+      border-bottom: 1px solid var(--slate-100);
+      transition: background .1s;
+    }
+
+    #modulo-exportar-tarifas .data-table tbody tr:hover {
+      background: var(--slate-50);
+    }
+
+    #modulo-exportar-tarifas .data-table tbody td {
+      padding: 10px 14px;
+      color: var(--slate-800);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    #modulo-exportar-tarifas .data-table .td-mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .78rem;
+    }
+
+    #modulo-exportar-tarifas .data-table .td-muted {
+      color: var(--slate-400);
+      font-size: .75rem;
+    }
+
+    /* ── BADGES DE ESTADO ── */
+    #modulo-exportar-tarifas .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    #modulo-exportar-tarifas .bs-active {
+      background: var(--green-soft);
+      color: #065f46;
+    }
+
+    #modulo-exportar-tarifas .bs-inactive {
+      background: var(--slate-100);
+      color: var(--slate-600);
+    }
+
+    #modulo-exportar-tarifas .bs-pending {
+      background: var(--amber-soft);
+      color: #92400e;
+    }
+
+    #modulo-exportar-tarifas .bs-expired {
+      background: var(--red-soft);
+      color: #991b1b;
+    }
+
+    #modulo-exportar-tarifas .bs-approved {
+      background: var(--blue-soft);
+      color: var(--navy-mid);
+    }
+
+    #modulo-exportar-tarifas .bs-rejected {
+      background: var(--red-soft);
+      color: #991b1b;
+    }
+
+    /* ── PAGINATION BAR ── */
+    #modulo-exportar-tarifas .pagination-bar {
+      padding: 12px 20px;
+      border-top: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .78rem;
+      color: var(--slate-400);
+    }
+
+    #modulo-exportar-tarifas .pag-info strong {
+      color: var(--slate-800);
+    }
+
+    /* ── EMPTY STATE ── */
+    #modulo-exportar-tarifas .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    #modulo-exportar-tarifas .empty-state .es-icon {
+      font-size: 2.8rem;
+      color: var(--slate-200);
+      margin-bottom: 16px;
+    }
+
+    #modulo-exportar-tarifas .empty-state .es-title {
+      font-weight: 700;
+      color: var(--slate-600);
+      font-size: .95rem;
+      margin-bottom: 6px;
+    }
+
+    #modulo-exportar-tarifas .empty-state .es-sub {
+      font-size: .8rem;
+      color: var(--slate-400);
+    }
+
+    /* ── LOADING OVERLAY ── */
+    #modulo-exportar-tarifas .loading-row td {
+      text-align: center;
+      padding: 40px;
+      color: var(--slate-400);
+      font-size: .85rem;
+    }
+
+    #modulo-exportar-tarifas .spinner-sm {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--slate-200);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── INDICADOR DE TIPO ACTIVO ── */
+    #modulo-exportar-tarifas .tipo-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    #modulo-exportar-tarifas .tipo-indicator.ventas {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    #modulo-exportar-tarifas .tipo-indicator.costos {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    /* Ocultar filtro de cliente cuando no aplica */
+    #modulo-exportar-tarifas .filtro-cliente {
+      transition: all .2s;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #modulo-exportar-tarifas .tc-actions {
+        flex-wrap: wrap;
+      }
+
+      #modulo-exportar-tarifas .search-inline {
+        width: 140px;
+      }
+    }
+
+    /* Ajuste para que la fila de filtros no sea tan alta */
+    thead tr.filters th {
+      padding: 5px !important;
+      background-color: #f8f9fa !important;
+    }
+
+    thead tr.filters input {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+  </style>
+
+  <!-- {{-- ══════════════════════════════════════════════════════
+         ENCABEZADO DE PÁGINA
+    ══════════════════════════════════════════════════════ --}} -->
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <div class="ph-icon">
+        <i class="ti ti-file-spreadsheet"></i>
+      </div>
+      <div>
+        <h1 class="ph-title">Exportar Tarifas</h1>
+        <div class="ph-sub">Consulta y exportación de tarifas de costos y ventas</div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2" style="z-index:1;">
+      <span class="tipo-indicator ventas" id="badge-tipo-activo">
+        <i class="ti ti-tag"></i>
+        <span id="label-tipo-activo">Ventas</span>
+      </span>
+      <span class="ph-badge">
+        <i class="ti ti-download"></i>
+        Exportar
+      </span>
+    </div>
+  </div>
+
+  <!-- {{-- ══════════════════════════════════════════════════════
+         CARD DE FILTROS
+    ══════════════════════════════════════════════════════ --}} -->
+  <div class="filter-card">
+    <div class="filter-card-header">
+      <i class="ti ti-adjustments-horizontal"></i>
+      <span class="fc-title">Filtros de Consulta</span>
+    </div>
+    <div class="filter-card-body">
+
+      <!-- {{-- FILA 1: Tipo de tarifa (toggle principal) --}} -->
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+          <label class="f-label">
+            <i class="ti ti-toggle-left me-1"></i>
+            Tipo de Tarifa <span class="text-danger">*</span>
+          </label>
+          <div class="tipo-toggle-wrap">
+            <!-- {{-- Botón Ventas --}} -->
+            <button class="tipo-btn active-ventas" id="btn-tipo-ventas"
+              onclick="ExportarTarifas.setTipo('ventas')" type="button">
+              <i class="ti ti-trending-up"></i> Ventas
+            </button>
+            <!-- {{-- Botón Costos --}} -->
+            <button class="tipo-btn" id="btn-tipo-costos"
+              onclick="ExportarTarifas.setTipo('costos')" type="button">
+              <i class="ti ti-trending-down"></i> Costos
+            </button>
+          </div>
+        </div>
+
+        <!-- {{-- Filtro Cliente (solo visible en ventas) --}} -->
+        <div class="col-12 col-md-4 filtro-cliente" id="filtro-cliente-wrap">
+          <label class="f-label" for="sel-cliente">
+            <i class="ti ti-building me-1"></i>
+            Cliente
+          </label>
+          <select id="sel-cliente" onchange="ExportarTarifas.setFiltro('cliente_id', this.value)">
+            <!-- <option value="">— Todos los clientes —</option> -->
+          </select>
+        </div>
+
+        <!-- {{-- Filtro Tipo de Vehículo --}} -->
+        <div class="col-12 col-md-4">
+          <label class="f-label" for="sel-vehiculo">
+            <i class="ti ti-truck me-1"></i>
+            Configuración de Vehículo
+          </label>
+          <select class="f-control" id="sel-vehiculo" onchange="ExportarTarifas.setFiltro('tipo_vehiculo', this.value)">
+            <option value="">— Todos los vehículos —</option>
+            <option value="NHR_2">NHR — Sencillo &gt;2500 Kg</option>
+            <option value="2">Sencillo &gt;10500 Kg</option>
+            <option value="2_7_8">Sencillo 7500-8000 Kg</option>
+            <option value="2_8_9">Sencillo 8001-9000 Kg</option>
+            <option value="2_9_105">Sencillo 9001-10500 Kg</option>
+            <option value="2S2">Tractomula 2+2 ejes</option>
+            <option value="2S3">Tractomula 2+3 ejes</option>
+            <option value="3">Dobletroque 3 ejes</option>
+            <option value="3S2">Tractomula 3+2 ejes</option>
+            <option value="3S3">Tractomula 3+3 ejes</option>
+            <option value="V2">Volqueta 2 ejes</option>
+            <option value="V3">Volqueta 3 ejes</option>
+            <option value="V4">Volqueta 4 ejes</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- {{-- FILA 2: Origen, Destino, Estado --}} -->
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+          <label class="f-label" for="sel-origen">
+            <i class="ti ti-map-pin me-1"></i>
+            Origen (Municipio)
+          </label>
+          <select class="f-control" id="sel-origen-exportar" onchange="ExportarTarifas.setFiltro('origen', this.value)">
+            <option value="">— Todos los orígenes —</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="f-label" for="sel-destino">
+            <i class="ti ti-map-pin-2 me-1"></i>
+            Destino (Municipio)
+          </label>
+          <select class="f-control" id="sel-destino-exportar" onchange="ExportarTarifas.setFiltro('destino', this.value)">
+            <option value="">— Todos los destinos —</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="f-label" for="sel-estado">
+            <i class="ti ti-circle-dot me-1"></i>
+            Estado de Tarifa
+          </label>
+          <select class="f-control" id="sel-estado" onchange="ExportarTarifas.setFiltro('estado_tarifa', this.value)">
+            <option value="">— Todos los estados —</option>
+            <option value="Activa">Activa</option>
+            <option value="Inactiva">Inactiva</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- {{-- SEPARADOR: Filtros avanzados --}} -->
+      <div class="filter-divider"><span>Filtros Avanzados</span></div>
+
+      <!-- {{-- TOGGLE DE FILTROS AVANZADOS --}} -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <button class="toggle-advanced" id="btn-toggle-advanced"
+          onclick="ExportarTarifas.toggleAdvanced()" type="button">
+          <i class="ti ti-chevron-down ti-icon"></i>
+          Mostrar más filtros
+        </button>
+        <div class="d-flex gap-2">
+          <button class="btn-clear" onclick="ExportarTarifas.limpiarFiltros()" type="button">
+            <i class="ti ti-x"></i> Limpiar
+          </button>
+          <button class="btn-search" id="btn-consultar"
+            onclick="ExportarTarifas.consultar()" type="button">
+            <i class="ti ti-search"></i> Consultar
+          </button>
+        </div>
+      </div>
+
+      <!-- {{-- FILTROS AVANZADOS (colapsables) --}} -->
+      <div class="advanced-filters" id="advanced-filters-panel">
+
+        <div class="row g-3 mb-3">
+
+          <!-- {{-- Filtro de Zona --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="sel-zona">
+              <i class="ti ti-world me-1"></i>
+              Zona
+            </label>
+            <select class="f-control" id="sel-zona" onchange="ExportarTarifas.setFiltro('zona_id', this.value)">
+              <option value="">— Todas las zonas —</option>
+            </select>
+          </div>
+
+          <!-- {{-- Filtro Estado de Aprobación --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="sel-aprobacion">
+              <i class="ti ti-checks me-1"></i>
+              Estado de Aprobación
+            </label>
+            <select class="f-control" id="sel-aprobacion"
+              onchange="ExportarTarifas.setFiltro('estado_aprobacion', this.value)">
+              <option value="">— Todos —</option>
+              <option value="Aprobado">Aprobado</option>
+              <option value="Pendiente Aprobacion">Pendiente Aprobación</option>
+              <option value="Rechazado">Rechazado</option>
+            </select>
+          </div>
+
+          <!-- {{-- Filtro Estado de Vigencia --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="sel-vigencia">
+              <i class="ti ti-calendar-check me-1"></i>
+              Vigencia de Tarifa
+            </label>
+            <select class="f-control" id="sel-vigencia"
+              onchange="ExportarTarifas.setFiltro('estado_vigencia', this.value)">
+              <option value="">— Todas —</option>
+              <option value="Vigente">Vigente</option>
+              <option value="Por Vencer">Por Vencer</option>
+              <option value="Vencida">Vencida</option>
+            </select>
+          </div>
+
+          <!-- {{-- Año de Vigencia --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="inp-vigencia-anio">
+              <i class="ti ti-calendar me-1"></i>
+              Año de Vigencia
+            </label>
+            <select class="f-control" id="inp-vigencia-anio"
+              onchange="ExportarTarifas.setFiltro('vigencia', this.value)">
+              <option value="">— Todos los años —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+
+          <!-- {{-- Rango de Fechas: Desde --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="inp-fecha-desde">
+              <i class="ti ti-calendar-event me-1"></i>
+              Fecha Desde
+            </label>
+            <input type="date" class="f-control" id="inp-fecha-desde"
+              onchange="ExportarTarifas.setFiltro('fecha_desde', this.value)" />
+          </div>
+
+          <!-- {{-- Rango de Fechas: Hasta --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="inp-fecha-hasta">
+              <i class="ti ti-calendar-event me-1"></i>
+              Fecha Hasta
+            </label>
+            <input type="date" class="f-control" id="inp-fecha-hasta"
+              onchange="ExportarTarifas.setFiltro('fecha_hasta', this.value)" />
+          </div>
+
+          <!-- {{-- Semana Desde --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="inp-semana-desde">
+              <i class="ti ti-clock me-1"></i>
+              Semana Desde
+            </label>
+            <input type="number" class="f-control" id="inp-semana-desde"
+              min="1" max="53" placeholder="Ej: 1"
+              onchange="ExportarTarifas.setFiltro('semana_desde', this.value)" />
+          </div>
+
+          <!-- {{-- Semana Hasta --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="inp-semana-hasta">
+              <i class="ti ti-clock me-1"></i>
+              Semana Hasta
+            </label>
+            <input type="number" class="f-control" id="inp-semana-hasta"
+              min="1" max="53" placeholder="Ej: 52"
+              onchange="ExportarTarifas.setFiltro('semana_hasta', this.value)" />
+          </div>
+        </div>
+
+        <div class="row g-3">
+
+          <!-- {{-- Mes Desde --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="inp-mes-desde">
+              <i class="ti ti-calendar-month me-1"></i>
+              Mes Desde
+            </label>
+            <select class="f-control" id="inp-mes-desde"
+              onchange="ExportarTarifas.setFiltro('mes_desde', this.value)">
+              <option value="">— Seleccionar —</option>
+              <option value="1">Enero</option>
+              <option value="2">Febrero</option>
+              <option value="3">Marzo</option>
+              <option value="4">Abril</option>
+              <option value="5">Mayo</option>
+              <option value="6">Junio</option>
+              <option value="7">Julio</option>
+              <option value="8">Agosto</option>
+              <option value="9">Septiembre</option>
+              <option value="10">Octubre</option>
+              <option value="11">Noviembre</option>
+              <option value="12">Diciembre</option>
+            </select>
+          </div>
+
+          <!-- {{-- Mes Hasta --}} -->
+          <div class="col-12 col-md-3">
+            <label class="f-label" for="inp-mes-hasta">
+              <i class="ti ti-calendar-month me-1"></i>
+              Mes Hasta
+            </label>
+            <select class="f-control" id="inp-mes-hasta"
+              onchange="ExportarTarifas.setFiltro('mes_hasta', this.value)">
+              <option value="">— Seleccionar —</option>
+              <option value="1">Enero</option>
+              <option value="2">Febrero</option>
+              <option value="3">Marzo</option>
+              <option value="4">Abril</option>
+              <option value="5">Mayo</option>
+              <option value="6">Junio</option>
+              <option value="7">Julio</option>
+              <option value="8">Agosto</option>
+              <option value="9">Septiembre</option>
+              <option value="10">Octubre</option>
+              <option value="11">Noviembre</option>
+              <option value="12">Diciembre</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- {{-- CHIPS DE FILTROS ACTIVOS --}} -->
+      <div class="active-filters" id="chips-filtros-activos"></div>
+
+    </div>
+  </div>
+
+  <!-- {{-- ══════════════════════════════════════════════════════
+         CARD DE TABLA DE RESULTADOS
+    ══════════════════════════════════════════════════════ --}} -->
+  <div class="table-card">
+    <div class="table-card-header">
+      <div class="tc-title">
+        <i class="ti ti-table"></i>
+        <span>Resultados</span>
+        <span id="badge-count" class="badge-status bs-approved ms-1" style="display:none;"></span>
+      </div>
+      <div class="tc-actions">
+        <!-- {{-- Búsqueda rápida en tabla --}} -->
+        <div class="search-wrap">
+          <i class="ti ti-search"></i>
+          <input type="text" class="search-inline" id="buscar-tabla"
+            placeholder="Buscar en tabla…"
+            oninput="ExportarTarifas.filtrarTablaLocal(this.value)" />
+        </div>
+        <!-- {{-- Refrescar --}} -->
+        <button class="btn-refresh" title="Refrescar"
+          onclick="ExportarTarifas.consultar()" type="button">
+          <i class="ti ti-refresh"></i>
+        </button>
+        <!-- {{-- Exportar a Excel --}} -->
+        <button class="btn-export" id="btn-exportar" onclick="ExportarTarifas.exportarExcel()" type="button">
+          <i class="ti ti-file-spreadsheet"></i> Exportar Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- {{-- TABLA --}} -->
+    <div class="table-wrap">
+      <table class="data-table" id="tabla-tarifas">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Tipo Vehículo</th>
+            <th>Región / Zona</th>
+            <th>Última Tarifa</th>
+            <th>Tarifa SICE-TAC</th>
+            <th>Tarifa Mercado</th>
+            <th>Semana</th>
+            <th>Mes</th>
+            <th>Año (Vigencia)</th>
+            <th>Estado</th>
+            <th>Aprobación</th>
+            <th>Vigencia</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-tarifas">
+          <!-- {{-- Estado inicial: invitar a consultar --}} -->
+          <tr>
+            <td colspan="14">
+              <div class="empty-state">
+                <div class="es-icon"><i class="ti ti-file-search"></i></div>
+                <div class="es-title">Sin datos cargados</div>
+                <div class="es-sub">Aplica los filtros deseados y presiona <strong>Consultar</strong> para cargar resultados.</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- {{-- PAGINATION BAR --}} -->
+    <div class="pagination-bar" id="pagination-bar" style="display:none;">
+      <div class="pag-info" id="pag-info-text">
+        Mostrando <strong>0</strong> registros
+      </div>
+      <div style="font-size:.75rem; color:var(--slate-400);">
+        <i class="ti ti-info-circle me-1"></i>
+        Use el botón <strong>Exportar Excel</strong> para descargar todos los datos.
+      </div>
+    </div>
+  </div>
+</div>

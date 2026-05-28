@@ -1,0 +1,707 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <input type="hidden" id="url_api_dsnube" value="<?= URLAPI_DSNUBE ?>">
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 fw-bold"><!-- Órdenes de Cargue --></h5>
+        <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvaExpedirManifiesto" aria-controls="offcanvaExpedirManifiesto">
+            <i class="fa-solid fa-plus me-1"></i> Nuevo Manifiesto
+        </button>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+
+            <div class="nexos-messages"></div>
+            <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+            <div id="log_proceso" class="mt-3"></div>
+
+            <form class="row g-3 align-items-center">
+                <div class="col-6 col-md-3">
+                    <label class="form-label fw-bold">Fecha inicial</label>
+                    <input type="date" id="finicial" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="col-6 col-md-3 divfechas">
+                    <label class="form-label fw-bold">Fecha final</label>
+                    <input type="date" id="ffinal" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="col-12 col-md-2 d-flex align-items-end pt-4 align-content-center divbtnbusqueda">
+                    <button type="button" class="btn btn-primary btn-sm w-100" id="buscar_manifies">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla paera listar las remesas en el sistema -->
+    <div class="row" id="tabla_datos">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge badge-phoenix badge-phoenix-info" style="font-size: 13px;">
+                    Numero de Manifiestos: <span class="fw-bold badge-phoenix-info contador">0</span>
+                </span>
+                <a href="JavaScript:void(0);" id="exportar_excel" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="<?= BASE_URL ?>public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+            </div>
+
+            <div class="table-responsive shadow-sm rounded" style="overflow: hidden;">
+                <table id="ordenes_manifiesto_export" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style='width:auto; white-space: nowrap;'>Manifiesto</th>
+                            <th style='width:auto; white-space: nowrap;'>Placa</th>
+                            <th style='width:auto; white-space: nowrap;'>Conductor</th>
+                            <th style='width:auto; white-space: nowrap;'>Tipo</th>
+                            <th style='width:auto; white-space: nowrap;'>Estado Mnf</th>
+                            <th style='width:auto; white-space: nowrap;'>Cumplido</th>
+                            <th style='width:auto; white-space: nowrap;'>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manfbody">
+                        <tr>
+                            <td colspan="6" id="remload"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvasDetalleManifiesto" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasDetalleManifiestoLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasDetalleManifiestoLabel">Detalle de Manifiesto</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <!-- Contenedor Datos -->
+        <div class="row" id="contenedor_datos">
+            <div class="col-12">
+                <!-- Título -->
+                <div class="bg-dark text-white text-center py-2 rounded mb-3">
+                    <h6 class="mb-0" id="titulo">Manifiesto</h6>
+                </div>
+
+                <!-- Datos Generales -->
+                <div class="mb-3">
+                    <label class="form-label">N° Manifiesto</label>
+                    <input type="text" id="v_mani" class="form-control form-control-sm text-center" disabled>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo Manifiesto</label>
+                        <input type="text" id="v_tipomnf" class="form-control form-control-sm text-center" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Origen</label>
+                        <input type="text" id="v_origenmnf" class="form-control form-control-sm text-center" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Destino</label>
+                        <input type="text" id="v_destinomnf" class="form-control form-control-sm text-center" disabled>
+                    </div>
+                </div>
+
+                <!-- Sección Conductor -->
+                <div class="mt-4">
+                    <h6 class="fw-bold border-bottom pb-1">Conductor</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" id="v_nombrecon" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Número de Identificación</label>
+                            <input type="text" id="v_numerocon" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" id="v_numdire" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" id="v_telecondu" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">N° Licencia</label>
+                            <input type="text" id="v_numlicencon" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" id="v_ciudadcon" class="form-control form-control-sm" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Poseedor -->
+                <div class="mt-4">
+                    <h6 class="fw-bold border-bottom pb-1">Poseedor</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" id="v_nombreten" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">N° Identificación</label>
+                            <input type="text" id="v_numeroten" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" id="v_direten" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" id="v_telten" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" id="v_cityten" class="form-control form-control-sm" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehículo -->
+                <div class="mt-4">
+                    <h6 class="fw-bold border-bottom pb-1">Vehículo</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Placa</label>
+                            <input type="text" id="v_placa" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Marca</label>
+                            <input type="text" id="v_marca" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Configuración</label>
+                            <input type="text" id="v_config" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Peso</label>
+                            <input type="text" id="v_peso" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Póliza</label>
+                            <input type="text" id="v_poliza" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Seguro</label>
+                            <input type="text" id="v_seguro" class="form-control form-control-sm" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valores -->
+                <div class="mt-4">
+                    <h6 class="fw-bold border-bottom pb-1">Valores</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Valor Total</label>
+                            <input type="text" id="v_total" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Retefuente</label>
+                            <input type="text" id="v_retefuente" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Reteica</label>
+                            <input type="text" id="v_reteica" class="form-control form-control-sm" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Remesas -->
+                <div class="mt-4">
+                    <h6 class="fw-bold border-bottom pb-1">Remesas</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light text-center">
+                                <tr>
+                                    <th>Remesa</th>
+                                    <th>Unidad</th>
+                                    <th>Cantidad</th>
+                                    <th>Naturaleza</th>
+                                    <th>Producto</th>
+                                    <th>Remitente</th>
+                                    <th>Destinatario</th>
+                                    <th>Póliza</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla_remesas"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Botón -->
+                <div class="mt-3 text-end">
+                    <button id="btn_imprimir" class="btn btn-success btn-sm">Imprimir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvaExpedirManifiesto" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvaExpedirManifiestoLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvaExpedirManifiestoLabel">Expedir Manifiesto</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <!-- Contenedor Datos -->
+        <!-- <div class="nexos-messages"></div>
+        <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+        <div id="log_proceso" class="mt-3"></div> -->
+
+        <form id="formNuevoManifiesto">
+
+            <div class="d-flex flex-wrap justify-content-start mt-2">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Información de la mercancía transportada</h6>
+                </div>
+            </div>
+            <hr class="my-1 text-dark">
+
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label class="form-label">Escoger Placa</label>
+                    <select id="escoger" class="form-select form-select-sm">
+                        <option value="">Seleccione</option>
+                    </select>
+
+                    <input type="hidden" name="configuracion_vehiculo" id="configuracion_vehiculo">
+                    <input type="hidden" name="codigo_origen_manifesto" id="codigo_origen_manifesto">
+                    <input type="hidden" name="codigo_destino_manifesto" id="codigo_destino_manifesto">
+                    <input type="hidden" name="nombre_agencia_manifiesto" id="nombre_agencia_manifiesto">
+                </div>
+
+                <!-- <div class="col-12 my-3">
+                        <label class="fw-bold mb-2">Remesas pertenecientes a la placa seleccionada</label>
+                        <div id="remesas_container"></div>
+                    </div> -->
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 my-2">
+                    <label class="form-label">Remesas pertenecientes a la placa seleccionada</label>
+                    <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th style='width:auto; white-space: nowrap;'>Remesa</th>
+                                <th style='width:auto; white-space: nowrap;'>Origen-Destino</th>
+                                <th style='width:auto; white-space: nowrap;'>Servicio-Cant</th>
+                                <th style='width:auto; white-space: nowrap;'>Producto</th>
+                                <th style='width:auto; white-space: nowrap;'>Destinatario</th>
+                                <th style='width:auto; white-space: nowrap;'>Remitente</th>
+                                <th style='width:auto; white-space: nowrap;'>Itr</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_remesa"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos Manifiesto</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <div class="row my-2">
+                <!-- <div class="card shadow-sm p-3 mb-3">
+                <h5 class="mb-3 fw-bold">Información del Manifiesto</h5>
+                <div class="row g-3">
+                </div>
+            </div> -->
+
+                <!-- Fecha de expedición -->
+                <div class="col-md-6">
+                    <label for="fecha_expe" class="form-label fw-semibold">Fecha de Expedición</label>
+                    <input type="text" id="fecha_expe" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>" disabled>
+                </div>
+
+                <!-- Tipo de Manifiesto -->
+                <div class="col-md-6">
+                    <label for="tipo_manifiesto" class="form-label fw-semibold">Tipo de Manifiesto</label>
+                    <select id="tipo_manifiesto" class="form-select form-select-sm">
+                        <option value="">Seleccione</option>
+                        <option value="1">General</option>
+                        <option value="2">Multiparada</option>
+                        <option value="3">Viaje Vacío</option>
+                        <option value="4">Varios viajes en el Día</option>
+                        <option value="8" disabled>Viaje de Ida y Regreso</option>
+                    </select>
+                </div>
+
+                <!-- Origen y destino -->
+                <div class="col-md-6">
+                    <label for="origen_viaje" class="form-label fw-semibold">Origen del Viaje</label>
+                    <select id="origen_viaje" class="form-select form-select-sm">
+                        <option value="">Seleccionar</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="destino_viaje" class="form-label fw-semibold">Destino del Viaje</label>
+                    <select id="destino_viaje" class="form-select form-select-sm">
+                        <option value="">Seleccionar</option>
+                    </select>
+                </div>
+
+                <!-- Datos adicionales -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">N° Autorización</label>
+                    <input type="text" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label for="suma_remesas" class="form-label fw-semibold">Peso Total (Remesas)</label>
+                    <input type="text" id="suma_remesas" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label for="suma_volumen" class="form-label fw-semibold">Volumen Total</label>
+                    <input type="text" id="suma_volumen" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Información del vehículo y conductor</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <!-- <div class="p-2 my-4"></div> -->
+            <div class="card shadow-sm p-4 my-4">
+                <h5 class="fw-bold text-primary mb-3">Datos del Titular</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Titular del Manifiesto</label>
+                        <input type="text" id="titular" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Documento Identificación</label>
+                        <input type="text" id="tidentificacion" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" id="ttelefono" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" id="tdireccion" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Ciudad</label>
+                        <input type="text" id="tciudad" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- <div class="p-2"></div> -->
+            <!-- <h5 class="fw-bold text-dark mb-3">Datos del Vehículo</h5> -->
+            <div class="card shadow-sm p-4 my-4">
+                <h5 class="fw-bold text-primary mb-3">Datos del Vehículo</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Placa</label>
+                        <input type="text" id="plak" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Marca</label>
+                        <input type="text" id="mark" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Placa Semirremolque</label>
+                        <input type="text" id="trailer" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Configuración</label>
+                        <input type="text" id="config" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Peso Vacío (Kg)</label>
+                        <input type="text" id="peso" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Capacidad de Carga (Kg)</label>
+                        <input type="number" id="capacidad_carga" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">N° Póliza (Soat)</label>
+                        <input type="text" id="poliza" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Fecha de Vencimiento (Soat)</label>
+                        <input type="text" id="fechavence" class="form-control form-control-sm" disabled>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Compañía de Seguros</label>
+                        <input type="text" id="seguro" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card shadow-sm p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Datos del Conductor</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Conductor</label>
+                        <input type="text" id="cnombre" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Documento Identificación</label>
+                        <input type="text" id="cidentifica" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" id="cdireccion" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" id="ctelefono" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">N° Licencia</label>
+                        <input type="text" id="clicencia" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Ciudad</label>
+                        <input type="text" id="cciudad" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Datos del Segundo Conductor</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Nombre 2° Conductor</label>
+                        <input type="text" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Documento Identificación</label>
+                        <input type="text" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">N° Licencia</label>
+                        <input type="text" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Ciudad</label>
+                        <input type="text" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Datos del Tenedor</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Poseedor o Tenedor del Vehículo</label>
+                        <input type="text" id="tnombre" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Documento Identificación</label>
+                        <input type="text" id="tnumero" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" id="tedireccion" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" id="tetelefono" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Ciudad</label>
+                        <input type="text" id="teciudad" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Valores</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <div class="card shadow-sm p-4 my-4">
+                <h5 class="fw-bold text-primary mb-3">Resumen Financiero del Viaje</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Valor Total del Viaje</label>
+                        <input type="text" id="total_viaje" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Retención en la Fuente (1%)</label>
+                        <input type="text" id="valor_retefuente" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Retención ICA (4 x 1.000)</label>
+                        <input type="text" id="valor_reteica" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Retención FOPAT (0.1%)</label>
+                        <input type="text" id="valor_fopat" class="form-control form-control-sm" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Anticipos y Desembolsos</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Requiere Anticipo</label>
+                        <select id="requiere_anticipo" class="form-select form-select-sm">
+                            <option value="">Seleccione</option>
+                            <option value="1">Sí</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Valor Límite Anticipo (65%)</label>
+                        <input type="text" id="valor_anticipo_lim" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Valor Anticipo</label>
+                        <input type="text" id="valor_anticipo" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Porcentaje de Anticipo (%)</label>
+                        <input type="text" id="porcentaje_anticipo" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Método de Desembolso</label>
+                        <select id="metodo_desembolsa" class="form-select form-select-sm">
+                            <option value="">Seleccione</option>
+                            <option value="2">Efectivo</option>
+                            <option value="3">Transferencia</option>
+                            <option value="4">Transferencia propia</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Detalle de Pago</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Valor Neto a Pagar</label>
+                        <input type="text" id="valor_neto" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Saldo</label>
+                        <input type="text" id="saldo_manifi" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Lugar</label>
+                        <input type="text" id="agencia" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Fecha Sugerida de Pago</label>
+                        <input type="text" id="fecha_pago" class="form-control form-control-sm" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Cargue Pagado por</label>
+                        <select id="cargue" class="form-select form-select-sm">
+                            <option value="">Seleccione</option>
+                            <option value="2">Destinatario</option>
+                            <option value="3">Remitente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Descargue Pagado por</label>
+                        <select id="descargue" class="form-select form-select-sm">
+                            <option value="">Seleccione</option>
+                            <option value="2">Destinatario</option>
+                            <option value="3">Remitente</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="card shadow-sm p-4">
+            <h5 class="fw-bold text-dark mb-3">Observación</h5>
+            <textarea id="obs" class="form-control" rows="3" readonly>SI EL MANIFIESTO NO PUDO SUBIRSE A LA PLATAFORMA RNDC y según Resolución 377 de 2013 art. 10 parágrafo 1 inciso B, LA EMPRESA TIENE 24 horas para reportar el MANIFIESTO VIA ELECTRÓNICA. Señor Conductor: en caso de emergencia o inconvenientes en ruta, comuníquese con Tráfico y Seguridad a los números 316 7432712 – 316 7422131 (Atención 24H). HORARIO DE TRÁNSITO DE 04 A 23. EL INCUMPLIMIENTO GENERA SANCIONES DISCIPLINARIAS Y/O ECONÓMICAS.</textarea>
+        </div>
+
+        <div class="card shadow-sm p-4 my-4">
+            <h5 class="fw-bold text-dark mb-3">Plan de ruta</h5>
+
+            <label class="form-label fw-semibold">Seleccionar plan</label>
+            <select id="select-plan-ruta" class="form-select form-select-sm"></select>
+        </div>
+
+        <!-- Botón imprimir -->
+        <div class="row mt-2">
+            <div class="col-12 text-end">
+                <input type='hidden' id='cab' value='1'>
+                <input type='hidden' id='pun' value='2'>
+                <button id="Registrar_manifiesto" class="btn btn-success btn-sm offset-10" disabled><i class="fa-regular fa-floppy-disk"></i> Guardar Manifiesto</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<div id="loading-overlay-oet" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para Oet...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<div id="loading-overlay-rndc" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para el Ministerio...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<div id="loading-overlay-dsnube" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para DsNube...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>

@@ -2523,11 +2523,6 @@ switch ($_GET["action"]) {
 									<textarea id="sede_instruccion" class="form-control input-sm"></textarea>
 								</div>
 
-								<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-										<label>(*)Empresa Cliente:</label>
-									' . $Obligacion_tribu->Listar_Empresas() . '
-								</div>
-
 							</div>
 
 						</div>
@@ -3014,11 +3009,8 @@ switch ($_GET["action"]) {
 									</div>
 									<input type="text" class="form-control input-sm" id="valor_sede">
 								</div>
-								<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-										<label>(*)Empresa Cliente:</label>
-										' . $Obligacion_tribu->Listar_Empresas() . '
-								</div>
-							</div>-->
+							</div>
+							-->
 							<input type="hidden" class="form-control input-sm" id="valor_sede">
 
 						</div>
@@ -3031,7 +3023,7 @@ switch ($_GET["action"]) {
 		$_msg_control .= "Entro en la accion crearCliente.\n";
 		// $return["post"] = $_POST;
 		// $return["files"] = $_FILES;
-		session_start();
+		// session_start();
 		if (!isset($_SESSION['usuario']['nom_usuario'])) {
 			session_start();
 			$id_usuario = $_SESSION["usuario"]["nom_usuario"];
@@ -3040,7 +3032,6 @@ switch ($_GET["action"]) {
 		}
 		$factual = date('Y-m-d');
 		$horactual = date('H:i:s');
-		$user_empresa_id = $_SESSION['usuario']['empresa_id'];
 		// Se adiciona el Cliente
 		$arrayCliente = array(
 			'tipo_documento' => $_POST["tipo_documento"],
@@ -3058,7 +3049,8 @@ switch ($_GET["action"]) {
 			'telefono' => $Clientes->limpiaTexto($_POST["telefono"]),
 			'email' => $Clientes->limpiaTexto($_POST["email"]),
 			'indicaciones_llegada' => $Clientes->limpiaTexto($_POST["indicaciones_llegada"]),
-			'estado' => '1',
+			// 'estado' => '1',
+			'estado' => '0',
 			'nom_sede' => $Clientes->limpiaTexto($_POST["name_sede"]),
 			'encargado' => $Clientes->limpiaTexto($_POST["encargado_sede"]),
 			'dia_informacion' => $Clientes->limpiaTexto($_POST["atencion_sede"]),
@@ -3067,7 +3059,6 @@ switch ($_GET["action"]) {
 			'condicion_facturacion' => $Clientes->limpiaTexto($_POST["factura_sede"]),
 			'obligacion_tributaria' => $Clientes->limpiaTexto($_POST["tributaria"]),
 			'instruccion_especial' => $Clientes->limpiaTexto($_POST["instruccion_sede"]),
-			'empresa' => $Clientes->limpiaTexto($_POST["empresa_cliente"]),
 		);
 		$result = $Data->setRegistro("cmx_clientes", $arrayCliente);
 		if ($result) {
@@ -3076,14 +3067,6 @@ switch ($_GET["action"]) {
 			);
 			$results = $Data->updateRegistro("cmx_clientes", $update_sede, (int) $result);
 		}
-
-		//se registra movimiento de cuando se crea el cliente
-		// insertar el movimiento del cambio
-		$sql_historico = "INSERT INTO cmx_movimientos_sistema (tipo_movimiento, modulo, objeto, objeto_anterior, referencia, descripcion, usuario, fecha, hora, empresa_id)
-			VALUES ('Crear', 'Clientes', '" . $_POST["empresa_cliente"] . "','', '" . $result . "', 'Crear Cliente', '" . $id_usuario . "', '" . $factual . "', '" . $horactual . "', '" . $user_empresa_id . "')";
-		$Data->ejecuteRegistro($sql_historico);
-
-
 		// Se crea los responsables del cliente
 		foreach ($Clientes->getEnumTipoServicio() as $key => $value) {
 			$_servicio = strtolower(str_replace(" ", "_", $value));
@@ -3210,11 +3193,13 @@ switch ($_GET["action"]) {
 		break;
 
 	case 'formEditaInfoCliente':
+
 		$_msg_control .= "Entro en la accion formEditaInfoCliente.\n";
 
 		// Se busca la información del Cliente
-		$result = $Clientes->getClienteInfoCompleta($_POST["id"]); //aqui no
+		$result = $Clientes->getClienteInfoCompleta($_POST["id"]);
 		$return["result"] = $result;
+		// exit();
 
 		$cliente = $result["general"]["rowsData"][0];
 		// $return["cliente"] = $cliente;
@@ -3870,10 +3855,6 @@ switch ($_GET["action"]) {
 						<label class="control-label">Instrucción especial:</label>
 						<textarea id="instrusede' . $cliente["id"] . '" class="form-control input-xs">' . $cliente["instruccion_especial"] . '</textarea>
 					</div>
-					<div class="form-group col-xs-4">
-						<label class="control-label">Empresa:</label>
-							' . $Clientes->getEmpresaCliente($cliente["empresa_cliente"], $cliente["id"]) . '
-					</div>
 				</div>
 			';
 
@@ -4097,466 +4078,227 @@ switch ($_GET["action"]) {
 		break;
 
 	case 'editaInfoCliente':
+		// echo "HOLA ENTRO AQUI";
 		$_msg_control .= "Entro en la accion editaInfoCliente.\n";
+		// $return["post"] = $_POST;
+		// $return["files"] = $_FILES;
+		//Crear
 
-		//consultar si la empresa del cliente ha cambiado
-		$result = $Clientes->ValidarEmpresaCambio($_POST["empresa_cliente"], $_POST["id_cliente"]);
-		$empresa = $result["rowsData"][0]["empresa"];
+		ini_set('log_errors', 1);
+		ini_set('error_log.txt', __DIR__ . '/php_error.log');
+		session_start();
+		$fecha = date('Y-m-d');
+		$hora = date('H:i:s');
+		$user = $_SESSION["usuario"]["nom_usuario"];
 
-		if ($empresa == $_POST["empresa_cliente"]) {
-			ini_set('log_errors', 1);
-			ini_set('error_log.txt', __DIR__ . '/php_error.log');
-			// $return["post"] = $_POST;
-			// $return["files"] = $_FILES;
-			//Crear
-			session_start();
-			$fecha = date('Y-m-d');
-			$hora = date('H:i:s');
-			$user = $_SESSION["usuario"]["nom_usuario"];
-			/*$sql1="INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,fecha,hora,usuario,tipo_tercero,accion)VALUES(null,'".$_POST["documento"]."','Tercero',0,1,'".$fecha."','".$hora."','".$user."','Cliente','Actualizar')";
-					$Data->ejecuteRegistro($sql1);*/
+		// Se actualiza la información del cliente
+		$arrayCliente = array();
+		$arrayCliente["tipo_documento"] = $_POST["tipo_documento"];
+		$arrayCliente["regimen"] = $_POST["regimen"];
+		$arrayCliente["nombre"] = $Clientes->limpiaTexto($_POST["nombre"] . " " . $_POST["tipo_sociedad"]);
+		$arrayCliente["tipo_sociedad"] = $_POST["tipo_sociedad"];
+		$arrayCliente["sigla"] = $Clientes->limpiaTexto($_POST["sigla"]);
+		$arrayCliente["actividad_cliente"] = $Clientes->limpiaTexto($_POST["actividad_cliente"]);
+		$arrayCliente["ciudad"] = $_POST["ciudad"];
+		$arrayCliente["codigo_postal"] = $Clientes->limpiaTexto($_POST["codigo_postal"]);
+		$arrayCliente["direccion"] = $Clientes->limpiaTexto($_POST["direccion"]);
+		$arrayCliente["telefono"] = $Clientes->limpiaTexto($_POST["telefono"]);
+		$arrayCliente["email"] = $Clientes->limpiaTexto($_POST["email"]);
+		$arrayCliente["indicaciones_llegada"] = $Clientes->limpiaTexto($_POST["indicaciones_llegada"]);
 
-			// Se actualiza la información del cliente
-			$arrayCliente = array();
-			$arrayCliente["tipo_documento"] = $_POST["tipo_documento"];
-			$arrayCliente["regimen"] = $_POST["regimen"];
-			$arrayCliente["nombre"] = $Clientes->limpiaTexto($_POST["nombre"] . " " . $_POST["tipo_sociedad"]);
-			$arrayCliente["tipo_sociedad"] = $_POST["tipo_sociedad"];
-			$arrayCliente["sigla"] = $Clientes->limpiaTexto($_POST["sigla"]);
-			$arrayCliente["actividad_cliente"] = $Clientes->limpiaTexto($_POST["actividad_cliente"]);
-			$arrayCliente["ciudad"] = $_POST["ciudad"];
-			$arrayCliente["codigo_postal"] = $Clientes->limpiaTexto($_POST["codigo_postal"]);
-			$arrayCliente["direccion"] = $Clientes->limpiaTexto($_POST["direccion"]);
-			$arrayCliente["telefono"] = $Clientes->limpiaTexto($_POST["telefono"]);
-			$arrayCliente["email"] = $Clientes->limpiaTexto($_POST["email"]);
-			$arrayCliente["indicaciones_llegada"] = $Clientes->limpiaTexto($_POST["indicaciones_llegada"]);
+		$arrayCliente["nom_sede"] = $Clientes->limpiaTexto($_POST["namesede"]);
+		$arrayCliente["encargado"] = $Clientes->limpiaTexto($_POST["personsede"]);
+		$arrayCliente["dia_informacion"] = $Clientes->limpiaTexto($_POST["infosede"]);
+		$arrayCliente["condicion_pago"] = $Clientes->limpiaTexto($_POST["condicionsede"]);
+		$arrayCliente["condicion_facturacion"] = $Clientes->limpiaTexto($_POST["factusede"]);
+		$arrayCliente["obligacion_tributaria"] = $Clientes->limpiaTexto($_POST["oblisede"]);
+		$arrayCliente["restriccion_acceso"] = $Clientes->limpiaTexto($_POST["restrisede"]);
+		$arrayCliente["instruccion_especial"] = $Clientes->limpiaTexto($_POST["instrusede"]);
 
-			$arrayCliente["nom_sede"] = $Clientes->limpiaTexto($_POST["namesede"]);
-			$arrayCliente["encargado"] = $Clientes->limpiaTexto($_POST["personsede"]);
-			$arrayCliente["dia_informacion"] = $Clientes->limpiaTexto($_POST["infosede"]);
-			$arrayCliente["condicion_pago"] = $Clientes->limpiaTexto($_POST["condicionsede"]);
-			$arrayCliente["condicion_facturacion"] = $Clientes->limpiaTexto($_POST["factusede"]);
-			$arrayCliente["obligacion_tributaria"] = $Clientes->limpiaTexto($_POST["oblisede"]);
-			$arrayCliente["restriccion_acceso"] = $Clientes->limpiaTexto($_POST["restrisede"]);
-			$arrayCliente["instruccion_especial"] = $Clientes->limpiaTexto($_POST["instrusede"]);
-			$arrayCliente["empresa"] = $Clientes->limpiaTexto($_POST["empresa_cliente"]);
+		if (!$_POST["cod_cliente"]) {
+			$arrayCliente["cod_cliente"] = 'CLI-' . $time;
+		}
+		$result = $Data->updateRegistro("cmx_clientes", $arrayCliente, (int) $_POST["id_cliente"]);
 
-			if (!$_POST["cod_cliente"]) {
-				$arrayCliente["cod_cliente"] = 'CLI-' . $time;
-			}
-			$result = $Data->updateRegistro("cmx_clientes", $arrayCliente, (int) $_POST["id_cliente"]);
 
-			// Se inactivan los servicios actuales del cliente
-			$sql = '
-					UPDATE cmx_clientes_serv_contratados
-					SET estado = 0
-					WHERE id_cliente = ' . $_POST["id_cliente"] . '
-				';
-			$Data->ejecuteRegistro($sql);
+		// Se inactivan los servicios actuales del cliente
+		$sql = 'UPDATE cmx_clientes_serv_contratados
+				SET estado = 0
+				WHERE id_cliente = ' . (int) $_POST["id_cliente"] . '
+			';
+		$Data->ejecuteRegistro($sql);
 
-			// Se inactivan los responsables actuales de los servicios
-			$sql = '
-					UPDATE cmx_clientes_serv_responsables
-					SET estado = 0
-					WHERE id_serv_contratado IN (
-							SELECT id
-							FROM cmx_clientes_serv_contratados
-							WHERE id_cliente = ' . $_POST["id_cliente"] . '
-						)
-				';
-			$Data->ejecuteRegistro($sql);
+		// Se inactivan los responsables actuales de los servicios
+		$sql = 'UPDATE cmx_clientes_serv_responsables
+				SET estado = 0
+				WHERE id_serv_contratado IN (
+						SELECT id
+						FROM cmx_clientes_serv_contratados
+						WHERE id_cliente = ' . (int)  $_POST["id_cliente"] . '
+					)
+			';
+		$Data->ejecuteRegistro($sql);
 
-			// Se crea los responsables del cliente
-			foreach ($Clientes->getEnumTipoServicio() as $key => $value) {
-				$_servicio = strtolower(str_replace(" ", "_", $value));
-				if (isset($_POST["slct_" . $_servicio . "_comercial_1"]) and isset($_POST["slct_" . $_servicio . "_servicio_1"])) {
-					// Se consulta si el servicio existe
-					$_flag_servicio = $Clientes->getServicioCliente($_POST["id_cliente"], $value);
-					if ($_flag_servicio) {
-						$_array_servicio = $_flag_servicio["rowsData"][0];
-						// Se actualiza el registro del documento
-						$arrayServicio = array();
-						$arrayServicio["estado"] = 1;
-						$Data->updateRegistro("cmx_clientes_serv_contratados", $arrayServicio, (int) $_array_servicio["id"]);
+		// Se crea los responsables del cliente
+		foreach ($Clientes->getEnumTipoServicio() as $key => $value) {
 
-						// Se guarda los responsables de comerciales del servicio propuesto al cliente
-						$i = 1;
-						$_flag_comercial = true;
-						do {
-							if (isset($_POST["slct_" . $_servicio . "_comercial_" . $i])) {
-								// Se pregunta si el responsable ya existe
-								$_flag_responsable = $Clientes->getResponsable($_array_servicio["id"], 'Ejecutivo Comercial', $_POST["slct_" . $_servicio . "_comercial_" . $i]);
-								if ($_flag_responsable) {
-									// Si existe se actualiza
-									$_array_responsable = $_flag_responsable["rowsData"][0];
-									$arrayResponsableComercial = array(
-										'estado' => 1,
-									);
-									$Data->updateRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial, (int) $_array_responsable["id"]);
-								} else {
-									// Si no existe se crea
-									$arrayResponsableComercial = array(
-										'id_serv_contratado' => $_array_servicio[0],
-										'id_usuario' => $_POST["slct_" . $_servicio . "_comercial_" . $i],
-										'tipo_ejecutivo' => 'Ejecutivo Comercial',
-									);
-									$Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial);
-								}
-							} else {
-								$_flag_comercial = false;
-							}
-							$i++;
-						} while ($_flag_comercial);
+			$_servicio = strtolower(str_replace(" ", "_", $value));
+			if (isset($_POST["slct_" . $_servicio . "_comercial_1"]) and isset($_POST["slct_" . $_servicio . "_servicio_1"])) {
+				// Se consulta si el servicio existe
+				$_flag_servicio = $Clientes->getServicioCliente($_POST["id_cliente"], $value);
+				if ($_flag_servicio) {
+					$_array_servicio = $_flag_servicio["rowsData"][0];
+					// Se actualiza el registro del documento
+					$arrayServicio = array();
+					$arrayServicio["estado"] = 1;
+					$Data->updateRegistro("cmx_clientes_serv_contratados", $arrayServicio, (int) $_array_servicio["id"]);
 
-						// Se guarda los responsables de servicio al cliente del servicio propuesto al cliente
-						$i = 1;
-						$_flag_servicio = true;
-						do {
-							if (isset($_POST["slct_" . $_servicio . "_servicio_" . $i])) {
-								// Se pregunta si el responsable ya existe
-								$_flag_responsable = $Clientes->getResponsable($_array_servicio["id"], 'Ejecutivo Servicio al Cliente', $_POST["slct_" . $_servicio . "_servicio_" . $i]);
-								if ($_flag_responsable) {
-									// Si existe se actualiza
-									$_array_responsable = $_flag_responsable["rowsData"][0];
-									$arrayResponsableServicio = array(
-										'estado' => 1,
-									);
-									$Data->updateRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio, $_array_responsable["id"]);
-								} else {
-									// Si no existe se crea
-									$arrayResponsableServicio = array(
-										'id_serv_contratado' => $_array_servicio["id"],
-										'id_usuario' => $_POST["slct_" . $_servicio . "_servicio_" . $i],
-										'tipo_ejecutivo' => 'Ejecutivo Servicio al Cliente',
-									);
-									$Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio);
-								}
-							} else {
-								$_flag_servicio = false;
-							}
-							$i++;
-						} while ($_flag_servicio);
-					} else {
-						// Se guarda el servicio propuesto al cliente
-						$arrayServicio = array(
-							'id_cliente' => $_POST["id_cliente"],
-							'servicio' => $value,
-						);
-						$result_01 = $Data->setRegistro("cmx_clientes_serv_contratados", $arrayServicio);
-
-						// Se guarda los responsables de comerciales del servicio propuesto al cliente
-						$i = 1;
-						$_flag_comercial = true;
-						do {
-							if (isset($_POST["slct_" . $_servicio . "_comercial_" . $i])) {
+					// Se guarda los responsables de comerciales del servicio propuesto al cliente
+					$i = 1;
+					$_flag_comercial = true;
+					do {
+						if (isset($_POST["slct_" . $_servicio . "_comercial_" . $i])) {
+							// Se pregunta si el responsable ya existe
+							$_flag_responsable = $Clientes->getResponsable($_array_servicio["id"], 'Ejecutivo Comercial', $_POST["slct_" . $_servicio . "_comercial_" . $i]);
+							if ($_flag_responsable) {
+								// Si existe se actualiza
+								$_array_responsable = $_flag_responsable["rowsData"][0];
 								$arrayResponsableComercial = array(
-									'id_serv_contratado' => $result_01,
+									'estado' => 1,
+								);
+								$Data->updateRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial, (int) $_array_responsable["id"]);
+							} else {
+								// Si no existe se crea
+								$arrayResponsableComercial = array(
+									'id_serv_contratado' => $_array_servicio[0],
 									'id_usuario' => $_POST["slct_" . $_servicio . "_comercial_" . $i],
 									'tipo_ejecutivo' => 'Ejecutivo Comercial',
 								);
-								$result_02 = $Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial);
-							} else {
-								$_flag_comercial = false;
+								$Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial);
 							}
-							$i++;
-						} while ($_flag_comercial);
+						} else {
+							$_flag_comercial = false;
+						}
+						$i++;
+					} while ($_flag_comercial);
 
-						// Se guarda los responsables de servicio al cliente del servicio propuesto al cliente
-						$i = 1;
-						$_flag_servicio = true;
-						do {
-							if (isset($_POST["slct_" . $_servicio . "_servicio_" . $i])) {
+					// Se guarda los responsables de servicio al cliente del servicio propuesto al cliente
+					$i = 1;
+					$_flag_servicio = true;
+					do {
+						if (isset($_POST["slct_" . $_servicio . "_servicio_" . $i])) {
+							// Se pregunta si el responsable ya existe
+							$_flag_responsable = $Clientes->getResponsable($_array_servicio["id"], 'Ejecutivo Servicio al Cliente', $_POST["slct_" . $_servicio . "_servicio_" . $i]);
+							if ($_flag_responsable) {
+								// Si existe se actualiza
+								$_array_responsable = $_flag_responsable["rowsData"][0];
 								$arrayResponsableServicio = array(
-									'id_serv_contratado' => $result_01,
+									'estado' => 1,
+								);
+								$Data->updateRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio, $_array_responsable["id"]);
+							} else {
+								// Si no existe se crea
+								$arrayResponsableServicio = array(
+									'id_serv_contratado' => $_array_servicio["id"],
 									'id_usuario' => $_POST["slct_" . $_servicio . "_servicio_" . $i],
 									'tipo_ejecutivo' => 'Ejecutivo Servicio al Cliente',
 								);
-								$result_02 = $Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio);
-							} else {
-								$_flag_servicio = false;
+								$Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio);
 							}
-							$i++;
-						} while ($_flag_servicio);
-					}
-				}
-			}
-
-			// Se pregunta si es neceario subir la información del RUT
-			if (isset($_FILES) and $_FILES) {
-				// Se sube el documento adjunto al servidor
-				$arrayFile = array(
-					'id_cliente' => $_POST["id_cliente"],
-					'documento' => $_POST["documento"],
-					'tipo_documento' => 20,
-					'fecha_expedicion' => $_POST["fecha_expedicion"],
-				);
-				$result_1 = $Clientes->setDocumentoCliente($_FILES, "url_rut", $arrayFile);
-				// $return["sube_documento"] = $result_1;
-				// Se inactiva el los registros anteriores de la cámara de comercio
-				$sql = '
-						UPDATE cmx_clientes_documentos
-						SET estado = "0"
-						WHERE
-							id_cliente = ' . $_POST["id_cliente"] . '
-							AND id_tipo_documento = 20
-					';
-				$Data->getConsulta($sql);
-
-				if ($result_1["result"]) {
-					// Se adiciona el documento del cliente en la base de datos
-					$arrayDocumento = array(
+						} else {
+							$_flag_servicio = false;
+						}
+						$i++;
+					} while ($_flag_servicio);
+				} else {
+					// Se guarda el servicio propuesto al cliente
+					$arrayServicio = array(
 						'id_cliente' => $_POST["id_cliente"],
-						'id_tipo_documento' => 20,
-						'numero_documento' => $_POST["numero_documento"],
-						'fecha_expedicion' => $_POST["fecha_expedicion"],
-						'url_documento' => $_POST["fecha_expedicion"] . "-" . $_POST["id_cliente"] . "." . $Clientes->get_extension_archivo($_FILES["url_rut"]["name"]),
+						'servicio' => $value,
 					);
-					$result = $Data->setRegistro("cmx_clientes_documentos", $arrayDocumento);
-					// $return["arrayDocumento_result"] = $result;
-					// $return["arrayDocumento"] = $arrayDocumento;
+					$result_01 = $Data->setRegistro("cmx_clientes_serv_contratados", $arrayServicio);
 
-					// Se guarda la información del RUT
-					$arrayRut = array();
-					$arrayRut["id_documento"] = $result;
-					$arrayRut["ciiu_principal"] = $_POST["ciiu_principal"];
-					if ($_POST["actividad_aduanera"]) {
-						$arrayRut["actividad_aduanera"] = $_POST["actividad_aduanera"];
-					}
-					$result = $Data->setRegistro("cmx_clientes_rut", $arrayRut);
-				}
-			}
-		} else {
-			// echo "No son iguales";
+					// Se guarda los responsables de comerciales del servicio propuesto al cliente
+					$i = 1;
+					$_flag_comercial = true;
+					do {
+						if (isset($_POST["slct_" . $_servicio . "_comercial_" . $i])) {
+							$arrayResponsableComercial = array(
+								'id_serv_contratado' => $result_01,
+								'id_usuario' => $_POST["slct_" . $_servicio . "_comercial_" . $i],
+								'tipo_ejecutivo' => 'Ejecutivo Comercial',
+							);
+							$result_02 = $Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial);
+						} else {
+							$_flag_comercial = false;
+						}
+						$i++;
+					} while ($_flag_comercial);
 
-			ini_set('log_errors', 1);
-			ini_set('error_log.txt', __DIR__ . '/php_error.log');
-			// $return["post"] = $_POST;
-			// $return["files"] = $_FILES;
-			//Crear
-			session_start();
-			$fecha = date('Y-m-d');
-			$hora = date('H:i:s');
-			$user = $_SESSION["usuario"]["nom_usuario"];
-			$user_empresa_id = $_SESSION['usuario']['empresa_id'];
-			/*$sql1="INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,fecha,hora,usuario,tipo_tercero,accion)VALUES(null,'".$_POST["documento"]."','Tercero',0,1,'".$fecha."','".$hora."','".$user."','Cliente','Actualizar')";
-					$Data->ejecuteRegistro($sql1);*/
-
-			// Se actualiza la información del cliente
-			$arrayCliente = array();
-			$arrayCliente["tipo_documento"] = $_POST["tipo_documento"];
-			$arrayCliente["regimen"] = $_POST["regimen"];
-			$arrayCliente["nombre"] = $Clientes->limpiaTexto($_POST["nombre"] . " " . $_POST["tipo_sociedad"]);
-			$arrayCliente["tipo_sociedad"] = $_POST["tipo_sociedad"];
-			$arrayCliente["sigla"] = $Clientes->limpiaTexto($_POST["sigla"]);
-			$arrayCliente["actividad_cliente"] = $Clientes->limpiaTexto($_POST["actividad_cliente"]);
-			$arrayCliente["ciudad"] = $_POST["ciudad"];
-			$arrayCliente["codigo_postal"] = $Clientes->limpiaTexto($_POST["codigo_postal"]);
-			$arrayCliente["direccion"] = $Clientes->limpiaTexto($_POST["direccion"]);
-			$arrayCliente["telefono"] = $Clientes->limpiaTexto($_POST["telefono"]);
-			$arrayCliente["email"] = $Clientes->limpiaTexto($_POST["email"]);
-			$arrayCliente["indicaciones_llegada"] = $Clientes->limpiaTexto($_POST["indicaciones_llegada"]);
-
-			$arrayCliente["nom_sede"] = $Clientes->limpiaTexto($_POST["namesede"]);
-			$arrayCliente["encargado"] = $Clientes->limpiaTexto($_POST["personsede"]);
-			$arrayCliente["dia_informacion"] = $Clientes->limpiaTexto($_POST["infosede"]);
-			$arrayCliente["condicion_pago"] = $Clientes->limpiaTexto($_POST["condicionsede"]);
-			$arrayCliente["condicion_facturacion"] = $Clientes->limpiaTexto($_POST["factusede"]);
-			$arrayCliente["obligacion_tributaria"] = $Clientes->limpiaTexto($_POST["oblisede"]);
-			$arrayCliente["restriccion_acceso"] = $Clientes->limpiaTexto($_POST["restrisede"]);
-			$arrayCliente["instruccion_especial"] = $Clientes->limpiaTexto($_POST["instrusede"]);
-			$arrayCliente["empresa"] = $Clientes->limpiaTexto($_POST["empresa_cliente"]);
-
-			if (!$_POST["cod_cliente"]) {
-				$arrayCliente["cod_cliente"] = 'CLI-' . $time;
-			}
-			$result = $Data->updateRegistro("cmx_clientes", $arrayCliente, (int) $_POST["id_cliente"]);
-
-			// Se inactivan los servicios actuales del cliente
-			$sql = '
-					UPDATE cmx_clientes_serv_contratados
-					SET estado = 0
-					WHERE id_cliente = ' . $_POST["id_cliente"] . '
-				';
-			$Data->ejecuteRegistro($sql);
-
-			// Se inactivan los responsables actuales de los servicios
-			$sql = '
-					UPDATE cmx_clientes_serv_responsables
-					SET estado = 0
-					WHERE id_serv_contratado IN (
-							SELECT id
-							FROM cmx_clientes_serv_contratados
-							WHERE id_cliente = ' . $_POST["id_cliente"] . '
-						)
-				';
-			$Data->ejecuteRegistro($sql);
-
-			// insertar el movimiento del cambio
-			$sql_historico = "INSERT INTO cmx_movimientos_sistema (tipo_movimiento, modulo, objeto, objeto_anterior, referencia, descripcion, usuario, fecha, hora, empresa_id)
-			VALUES ('Actualizar', 'Clientes', '" . $_POST["empresa_cliente"] . "', '" . $empresa . "', '" . $_POST["id_cliente"] . "', 'Actualizar Empresa', '" . $user . "', '" . $fecha . "', '" . $hora . "', '" . $user_empresa_id . "')";
-			$Data->ejecuteRegistro($sql_historico);
-
-			// Se crea los responsables del cliente
-			foreach ($Clientes->getEnumTipoServicio() as $key => $value) {
-				$_servicio = strtolower(str_replace(" ", "_", $value));
-				if (isset($_POST["slct_" . $_servicio . "_comercial_1"]) and isset($_POST["slct_" . $_servicio . "_servicio_1"])) {
-					// Se consulta si el servicio existe
-					$_flag_servicio = $Clientes->getServicioCliente($_POST["id_cliente"], $value);
-					if ($_flag_servicio) {
-						$_array_servicio = $_flag_servicio["rowsData"][0];
-						// Se actualiza el registro del documento
-						$arrayServicio = array();
-						$arrayServicio["estado"] = 1;
-						$Data->updateRegistro("cmx_clientes_serv_contratados", $arrayServicio, (int) $_array_servicio["id"]);
-
-						// Se guarda los responsables de comerciales del servicio propuesto al cliente
-						$i = 1;
-						$_flag_comercial = true;
-						do {
-							if (isset($_POST["slct_" . $_servicio . "_comercial_" . $i])) {
-								// Se pregunta si el responsable ya existe
-								$_flag_responsable = $Clientes->getResponsable($_array_servicio["id"], 'Ejecutivo Comercial', $_POST["slct_" . $_servicio . "_comercial_" . $i]);
-								if ($_flag_responsable) {
-									// Si existe se actualiza
-									$_array_responsable = $_flag_responsable["rowsData"][0];
-									$arrayResponsableComercial = array(
-										'estado' => 1,
-									);
-									$Data->updateRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial, (int) $_array_responsable["id"]);
-								} else {
-									// Si no existe se crea
-									$arrayResponsableComercial = array(
-										'id_serv_contratado' => $_array_servicio[0],
-										'id_usuario' => $_POST["slct_" . $_servicio . "_comercial_" . $i],
-										'tipo_ejecutivo' => 'Ejecutivo Comercial',
-									);
-									$Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial);
-								}
-							} else {
-								$_flag_comercial = false;
-							}
-							$i++;
-						} while ($_flag_comercial);
-
-						// Se guarda los responsables de servicio al cliente del servicio propuesto al cliente
-						$i = 1;
-						$_flag_servicio = true;
-						do {
-							if (isset($_POST["slct_" . $_servicio . "_servicio_" . $i])) {
-								// Se pregunta si el responsable ya existe
-								$_flag_responsable = $Clientes->getResponsable($_array_servicio["id"], 'Ejecutivo Servicio al Cliente', $_POST["slct_" . $_servicio . "_servicio_" . $i]);
-								if ($_flag_responsable) {
-									// Si existe se actualiza
-									$_array_responsable = $_flag_responsable["rowsData"][0];
-									$arrayResponsableServicio = array(
-										'estado' => 1,
-									);
-									$Data->updateRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio, $_array_responsable["id"]);
-								} else {
-									// Si no existe se crea
-									$arrayResponsableServicio = array(
-										'id_serv_contratado' => $_array_servicio["id"],
-										'id_usuario' => $_POST["slct_" . $_servicio . "_servicio_" . $i],
-										'tipo_ejecutivo' => 'Ejecutivo Servicio al Cliente',
-									);
-									$Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio);
-								}
-							} else {
-								$_flag_servicio = false;
-							}
-							$i++;
-						} while ($_flag_servicio);
-					} else {
-						// Se guarda el servicio propuesto al cliente
-						$arrayServicio = array(
-							'id_cliente' => $_POST["id_cliente"],
-							'servicio' => $value,
-						);
-						$result_01 = $Data->setRegistro("cmx_clientes_serv_contratados", $arrayServicio);
-
-						// Se guarda los responsables de comerciales del servicio propuesto al cliente
-						$i = 1;
-						$_flag_comercial = true;
-						do {
-							if (isset($_POST["slct_" . $_servicio . "_comercial_" . $i])) {
-								$arrayResponsableComercial = array(
-									'id_serv_contratado' => $result_01,
-									'id_usuario' => $_POST["slct_" . $_servicio . "_comercial_" . $i],
-									'tipo_ejecutivo' => 'Ejecutivo Comercial',
-								);
-								$result_02 = $Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableComercial);
-							} else {
-								$_flag_comercial = false;
-							}
-							$i++;
-						} while ($_flag_comercial);
-
-						// Se guarda los responsables de servicio al cliente del servicio propuesto al cliente
-						$i = 1;
-						$_flag_servicio = true;
-						do {
-							if (isset($_POST["slct_" . $_servicio . "_servicio_" . $i])) {
-								$arrayResponsableServicio = array(
-									'id_serv_contratado' => $result_01,
-									'id_usuario' => $_POST["slct_" . $_servicio . "_servicio_" . $i],
-									'tipo_ejecutivo' => 'Ejecutivo Servicio al Cliente',
-								);
-								$result_02 = $Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio);
-							} else {
-								$_flag_servicio = false;
-							}
-							$i++;
-						} while ($_flag_servicio);
-					}
-				}
-			}
-
-			// Se pregunta si es neceario subir la información del RUT
-			if (isset($_FILES) and $_FILES) {
-				// Se sube el documento adjunto al servidor
-				$arrayFile = array(
-					'id_cliente' => $_POST["id_cliente"],
-					'documento' => $_POST["documento"],
-					'tipo_documento' => 20,
-					'fecha_expedicion' => $_POST["fecha_expedicion"],
-				);
-				$result_1 = $Clientes->setDocumentoCliente($_FILES, "url_rut", $arrayFile);
-				// $return["sube_documento"] = $result_1;
-				// Se inactiva el los registros anteriores de la cámara de comercio
-				$sql = '
-						UPDATE cmx_clientes_documentos
-						SET estado = "0"
-						WHERE
-							id_cliente = ' . $_POST["id_cliente"] . '
-							AND id_tipo_documento = 20
-					';
-				$Data->getConsulta($sql);
-
-				if ($result_1["result"]) {
-					// Se adiciona el documento del cliente en la base de datos
-					$arrayDocumento = array(
-						'id_cliente' => $_POST["id_cliente"],
-						'id_tipo_documento' => 20,
-						'numero_documento' => $_POST["numero_documento"],
-						'fecha_expedicion' => $_POST["fecha_expedicion"],
-						'url_documento' => $_POST["fecha_expedicion"] . "-" . $_POST["id_cliente"] . "." . $Clientes->get_extension_archivo($_FILES["url_rut"]["name"]),
-					);
-					$result = $Data->setRegistro("cmx_clientes_documentos", $arrayDocumento);
-					// $return["arrayDocumento_result"] = $result;
-					// $return["arrayDocumento"] = $arrayDocumento;
-
-					// Se guarda la información del RUT
-					$arrayRut = array();
-					$arrayRut["id_documento"] = $result;
-					$arrayRut["ciiu_principal"] = $_POST["ciiu_principal"];
-					if ($_POST["actividad_aduanera"]) {
-						$arrayRut["actividad_aduanera"] = $_POST["actividad_aduanera"];
-					}
-					$result = $Data->setRegistro("cmx_clientes_rut", $arrayRut);
+					// Se guarda los responsables de servicio al cliente del servicio propuesto al cliente
+					$i = 1;
+					$_flag_servicio = true;
+					do {
+						if (isset($_POST["slct_" . $_servicio . "_servicio_" . $i])) {
+							$arrayResponsableServicio = array(
+								'id_serv_contratado' => $result_01,
+								'id_usuario' => $_POST["slct_" . $_servicio . "_servicio_" . $i],
+								'tipo_ejecutivo' => 'Ejecutivo Servicio al Cliente',
+							);
+							$result_02 = $Data->setRegistro("cmx_clientes_serv_responsables", $arrayResponsableServicio);
+						} else {
+							$_flag_servicio = false;
+						}
+						$i++;
+					} while ($_flag_servicio);
 				}
 			}
 		}
 
+		// Se pregunta si es neceario subir la información del RUT
+		if (isset($_FILES) and $_FILES) {
+			// Se sube el documento adjunto al servidor
+			$arrayFile = array(
+				'id_cliente' => $_POST["id_cliente"],
+				'documento' => $_POST["documento"],
+				'tipo_documento' => 20,
+				'fecha_expedicion' => $_POST["fecha_expedicion"],
+			);
+			$result_1 = $Clientes->setDocumentoCliente($_FILES, "url_rut", $arrayFile);
+			// $return["sube_documento"] = $result_1;
+			// Se inactiva el los registros anteriores de la cámara de comercio
+			$sql = '
+					UPDATE cmx_clientes_documentos
+					SET estado = "0"
+					WHERE
+						id_cliente = ' . $_POST["id_cliente"] . '
+						AND id_tipo_documento = 20
+				';
+			$Data->getConsulta($sql);
+
+			if ($result_1["result"]) {
+				// Se adiciona el documento del cliente en la base de datos
+				$arrayDocumento = array(
+					'id_cliente' => $_POST["id_cliente"],
+					'id_tipo_documento' => 20,
+					'numero_documento' => $_POST["numero_documento"],
+					'fecha_expedicion' => $_POST["fecha_expedicion"],
+					'url_documento' => $_POST["fecha_expedicion"] . "-" . $_POST["id_cliente"] . "." . $Clientes->get_extension_archivo($_FILES["url_rut"]["name"]),
+				);
+				$result = $Data->setRegistro("cmx_clientes_documentos", $arrayDocumento);
+				// $return["arrayDocumento_result"] = $result;
+				// $return["arrayDocumento"] = $arrayDocumento;
+
+				// Se guarda la información del RUT
+				$arrayRut = array();
+				$arrayRut["id_documento"] = $result;
+				$arrayRut["ciiu_principal"] = $_POST["ciiu_principal"];
+				if ($_POST["actividad_aduanera"]) {
+					$arrayRut["actividad_aduanera"] = $_POST["actividad_aduanera"];
+				}
+				$result = $Data->setRegistro("cmx_clientes_rut", $arrayRut);
+			}
+		}
 		break;
 
 	case 'formEditaCliente':
@@ -4572,7 +4314,7 @@ switch ($_GET["action"]) {
 				$_flag_cambia_archivo = false;
 				if (
 					$_POST["id_perfil"] == 1 or $_POST["id_perfil"] == 13
-					or $_POST["id_perfil"] == 22 or $_POST["id_perfil"] == 32
+					or $_POST["id_perfil"] == 22 or $_POST["id_perfil"] == 32 or $_POST["id_perfil"] == 37
 				) {
 					$_flag_cambia_archivo = true;
 				}
@@ -6851,7 +6593,7 @@ switch ($_GET["action"]) {
 
 				// Se filtra lo que se debe mostrar de acuerdo con el perfil del usuario
 				switch ($_POST["id_perfil"]) {
-						// Perfil "User master"
+					// Perfil "User master"
 					case 1:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -6864,7 +6606,19 @@ switch ($_GET["action"]) {
 						$tab_content = $serv_cliente . $calidad . $ficha_tecnica . $finanzas;
 						break;
 
-						// Perfil "Comercial - Ejecutivo Comercial"
+					case 37:
+						$nav_tabs = '
+								<ul class="nav nav-tabs nav-tabs-warning">
+									<li><a href="#serv_cliente" data-toggle="tab">Servicio al Cliente</a></li>
+									<li><a href="#calidad" data-toggle="tab">Calidad</a></li>
+									<!--<li><a href="#ficha_tecnica" data-toggle="tab">Ficha Técnica</a></li>
+									<li><a href="#finanzas" data-toggle="tab">Finanzas</a></li>-->
+								</ul>
+							';
+						$tab_content = $serv_cliente . $calidad . $ficha_tecnica . $finanzas;
+						break;
+
+					// Perfil "Comercial - Ejecutivo Comercial"
 					case 6:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -6874,7 +6628,7 @@ switch ($_GET["action"]) {
 						$tab_content = $ficha_tecnica;
 						break;
 
-						// Perfil "Comercial - Ejecutivo Servicio al Cliente"
+					// Perfil "Comercial - Ejecutivo Servicio al Cliente"
 					case 7:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -6885,7 +6639,7 @@ switch ($_GET["action"]) {
 						$tab_content = $serv_cliente . $ficha_tecnica;
 						break;
 
-						// Perfil "Administrador"
+					// Perfil "Administrador"
 					case 13:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -6898,7 +6652,7 @@ switch ($_GET["action"]) {
 						$tab_content = $serv_cliente . $calidad . $ficha_tecnica . $finanzas;
 						break;
 
-						// Perfil "Facturacion"
+					// Perfil "Facturacion"
 					case 14:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -6909,7 +6663,7 @@ switch ($_GET["action"]) {
 						$tab_content = $serv_cliente . $ficha_tecnica;
 						break;
 
-						// Perfil "Calidad"
+					// Perfil "Calidad"
 					case 19:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -6919,7 +6673,7 @@ switch ($_GET["action"]) {
 						$tab_content = $calidad;
 						break;
 
-						// Perfil "Contabilidad"
+					// Perfil "Contabilidad"
 					case 20:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -6929,7 +6683,7 @@ switch ($_GET["action"]) {
 						$tab_content = $finanzas;
 						break;
 
-						// Perfil "Gerencia"
+					// Perfil "Gerencia"
 					case 21:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -6939,7 +6693,7 @@ switch ($_GET["action"]) {
 						$tab_content = $aprobaciones;
 						break;
 
-						// Perfil "Internacional - Servicio al Cliente"
+					// Perfil "Internacional - Servicio al Cliente"
 					case 22:
 						$nav_tabs = '
 								<ul class="nav nav-tabs nav-tabs-warning">
@@ -7000,538 +6754,359 @@ switch ($_GET["action"]) {
 		break;
 
 	case 'editarCliente':
-		$_msg_control .= "Entro en la accion editarCliente.\n";
+		$_msg_control .= "Entro en la acción editarCliente.\n";
 		$return["post"] = $_POST;
 		$return["files"] = $_FILES;
 
-		$arrayCliente = array();
-		$id_cliente = $_POST["id"];
+		// 1. Validar ID del cliente
+		if (!isset($_POST["id"]) || !is_numeric($_POST["id"])) {
+			$return["error"] = "ID de cliente no válido";
+			break;
+		}
 
-		// Se valida si la información del formulario es de adicion de documentos o de Aprobación de datos
-		if (isset($_POST["aprobaciones"]) and $_POST["aprobaciones"]) {
+		$arrayCliente = [];
+		$id_cliente = (int)$_POST["id"];
+		$time = time(); // Definimos $time aquí
+
+		// 2. Procesar aprobaciones (si existen)
+		if (isset($_POST["aprobaciones"]) && !empty($_POST["aprobaciones"])) {
 			$aprobacion = $_POST["aprobaciones"];
 
-			if (isset($aprobacion["plazo_pago_autorizado"]) and isset($aprobacion["cupo_autorizado"]) and isset($aprobacion["aprobacion"]) and isset($aprobacion["listado_documentacion_file"])) {
-				// Se crea array de actualización del cliente
-				$arrayCliente["tes_plazo_pagos"] = $aprobacion["plazo_pago_autorizado"];
-				$arrayCliente["cupo_credito_base"] = $aprobacion["cupo_autorizado"];
-				$arrayCliente["estado"] = $aprobacion["aprobacion"];
+			// 2.1. Datos básicos de aprobación
+			if (isset(
+				$aprobacion["plazo_pago_autorizado"],
+				$aprobacion["cupo_autorizado"],
+				$aprobacion["aprobacion"],
+				$aprobacion["listado_documentacion_file"]
+			)) {
 
-				// Se guarda el registro del documento
-				$arrayDocumento = array();
-				$arrayDocumento["id_cliente"] = $id_cliente;
-				$arrayDocumento["id_tipo_documento"] = 22;
-				$arrayDocumento["fecha_expedicion"] = date('Y-m-d', $time);
-				$arrayDocumento["url_documento"] = date('Y-m-d', $time) . "-" . $id_cliente . "." . $Clientes->get_extension_archivo($aprobacion["listado_documentacion_file"]);
-				$Data->setRegistro("cmx_clientes_documentos", $arrayDocumento);
+				$arrayCliente = [
+					"tes_plazo_pagos" => $aprobacion["plazo_pago_autorizado"],
+					"cupo_credito_base" => $aprobacion["cupo_autorizado"],
+					"estado" => $aprobacion["aprobacion"]
+				];
+
+				// Registrar documento de aprobación
+				$ext = $Clientes->get_extension_archivo($aprobacion["listado_documentacion_file"]);
+				$Data->setRegistro("cmx_clientes_documentos", [
+					"id_cliente" => $id_cliente,
+					"id_tipo_documento" => 22,
+					"fecha_expedicion" => date('Y-m-d', $time),
+					"url_documento" => date('Y-m-d', $time) . "-" . $id_cliente . "." . $ext
+				]);
 			}
 
-			if (isset($_POST["aprobaciones"]["participacion"])) {
-				foreach ($_POST["aprobaciones"]["participacion"] as $key => $value) {
-					foreach ($value as $key_01 => $value_01) {
-						$arrayParticipacion = array();
-						$arrayParticipacion["participacion"] = $value_01["participacion"];
-						$Data->updateRegistro("cmx_clientes_serv_responsables", $arrayParticipacion, (int) $value_01["id"]);
+			// 2.2. Procesar participaciones
+			if (isset($aprobacion["participacion"])) {
+				foreach ($aprobacion["participacion"] as $grupo) {
+					foreach ($grupo as $item) {
+						if (isset($item["id"], $item["participacion"])) {
+							$Data->updateRegistro("cmx_clientes_serv_responsables", [
+								"participacion" => $item["participacion"]
+							], (int)$item["id"]);
+						}
 					}
 				}
 			}
-		} else {
+		}
+		// 3. Procesamiento normal de edición
+		else {
 			$arrayCliente["op_poliza_nexos"] = '';
-			// Se adiciona informacion de la pestaña de Servicio al CLiente
+			echo $_msg_control;
+			// 3.1. Pestaña Servicio al Cliente
 			if (isset($_POST["serv_cliente"])) {
-				$return["serv_cliente"] = $_POST["serv_cliente"];
-				foreach ($_POST["serv_cliente"] as $key => $value) {
+				foreach ($_POST["serv_cliente"] as $key => $seccion) {
+					if (empty($seccion)) continue;
+
 					switch ($key) {
-						case '0': // Pestaña de Cámara de Comercio
-							if ($_POST["serv_cliente"][$key]) {
-								$serv_cliente = $_POST["serv_cliente"][$key];
+						// 3.1.1. Cámara de Comercio
+						case '0':
+							// Validar documento
+							$_flag_documento = $Clientes->buscarDocumentoByNumDocumento(
+								$id_cliente,
+								$seccion["numero_documento"],
+								$seccion["id_tipo_documento"]
+							);
 
-								// Se pregunta si ya existe la cámara de comercio
-								$_flag_documento = $Clientes->buscarDocumentoByNumDocumento($id_cliente, $serv_cliente["numero_documento"], $serv_cliente["id_tipo_documento"]);
+							// Inactivar documentos anteriores
+							if (!$_flag_documento) {
+								$Data->ejecuteRegistro("
+                                UPDATE cmx_clientes_documentos 
+                                SET estado = '0' 
+                                WHERE id_cliente = $id_cliente 
+                                AND id_tipo_documento = {$seccion["id_tipo_documento"]}
+                            ");
+							}
 
-								if (!$_flag_documento) {
-									// Se inactiva el los registros anteriores de la cámara de comercio
-									$sql = '
-											UPDATE cmx_clientes_documentos
-											SET estado = "0"
-											WHERE
-												id_cliente = ' . $id_cliente . '
-												AND id_tipo_documento = ' . $serv_cliente["id_tipo_documento"] . '
-										';
-									$Data->ejecuteRegistro($sql);
+							// Registrar/Actualizar documento
+							$docData = [
+								"id_cliente" => $id_cliente,
+								"id_tipo_documento" => $seccion["id_tipo_documento"],
+								"numero_documento" => $seccion["numero_documento"]
+							];
 
-									// Se guarda el registro del documento
-									$arrayDocumento = array();
+							if (!empty($seccion["url_documento"])) {
+								$ext = $Clientes->get_extension_archivo($seccion["url_documento"]);
+								$docData["fecha_expedicion"] = $seccion["fecha_renovacion"];
+								$docData["url_documento"] = $seccion["fecha_renovacion"] . "-" . $id_cliente . "." . $ext;
+							}
 
-									$id = $serv_cliente["id"];
-									$arrayDocumento["id_cliente"] = $id_cliente;
-									$arrayDocumento["id_tipo_documento"] = $serv_cliente["id_tipo_documento"];
-									$arrayDocumento["numero_documento"] = $serv_cliente["numero_documento"];
-									$arrayDocumento["fecha_expedicion"] = $serv_cliente["fecha_renovacion"];
-									$arrayDocumento["url_documento"] = $serv_cliente["fecha_renovacion"] . "-" . $id_cliente . "." . $Clientes->get_extension_archivo($serv_cliente["url_documento"]);
-									$Data->setRegistro("cmx_clientes_documentos", $arrayDocumento);
-								} else {
-									// Se actualiza el registro del documento
-									$arrayDocumento = array();
-									$arrayDocumento["id_cliente"] = $id_cliente;
-									$arrayDocumento["id_tipo_documento"] = $serv_cliente["id_tipo_documento"];
-									$arrayDocumento["numero_documento"] = $serv_cliente["numero_documento"];
+							if ($_flag_documento) {
+								$Data->updateRegistro("cmx_clientes_documentos", $docData, $id_cliente);
+							} else {
+								$Data->setRegistro("cmx_clientes_documentos", $docData);
+							}
 
-									//$id =  $_flag_documento["rowsData"][0]  ;
+							// Procesar cámara de comercio (capitales)
+							$camaraData = $Clientes->getCamComercioCliente($id_cliente);
+							$camaraUpdate = [
+								"fecha_constitucion" => $seccion["fecha_expedicion"]
+							];
 
-									if ($serv_cliente["url_documento"]) {
-										$arrayDocumento["fecha_expedicion"] = $serv_cliente["fecha_renovacion"];
-										$arrayDocumento["url_documento"] = $serv_cliente["fecha_renovacion"] . "-" . $id_cliente . "." . $Clientes->get_extension_archivo($serv_cliente["url_documento"]);
-									}
-									$Data->updateRegistro("cmx_clientes_documentos", $arrayDocumento, $id_cliente);
-								}
+							if (!empty($seccion["capital_pagado"]) && !empty($seccion["capital_suscrito"]) && !empty($seccion["capital_autorizado"])) {
+								$camaraUpdate += [
+									"capital_pagado" => $seccion["capital_pagado"],
+									"capital_suscrito" => $seccion["capital_suscrito"],
+									"capital_autorizado" => $seccion["capital_autorizado"]
+								];
+							}
 
-								// Si no se ha registrado una cámara de comercio se crea
-								$result = $Clientes->getCamComercioCliente($id_cliente);
-								if (!$result) {
-									// Se guarda el registro de cámara de comercio
-									$arrayCamComercio = array();
-									$arrayCamComercio["id_cliente"] = $id_cliente;
-									$arrayCamComercio["fecha_constitucion"] = $serv_cliente["fecha_expedicion"];
-									$id_camara = $arrayCamComercio["id"];
-									if ($serv_cliente["capital_pagado"] and $serv_cliente["capital_pagado"] > 0 and $serv_cliente["capital_suscrito"] and $serv_cliente["capital_suscrito"] > 0 and $serv_cliente["capital_autorizado"] and $serv_cliente["capital_autorizado"] > 0) {
-										$arrayCamComercio["capital_pagado"] = $serv_cliente["capital_pagado"];
-										$arrayCamComercio["capital_suscrito"] = $serv_cliente["capital_suscrito"];
-										$arrayCamComercio["capital_autorizado"] = $serv_cliente["capital_autorizado"];
-									}
-									$Data->setRegistro("cmx_clientes_cam_comercio", $arrayCamComercio);
-								} else {
-									// Se actualiza el registro de cámara de comercio
-									if ($serv_cliente["capital_pagado"] and $serv_cliente["capital_pagado"] > 0 and $serv_cliente["capital_suscrito"] and $serv_cliente["capital_suscrito"] > 0 and $serv_cliente["capital_autorizado"] and $serv_cliente["capital_autorizado"] > 0) {
-										if ($result) {
-											foreach ($result["rowsData"] as $key => $value) {
-												$id_cam_comercio = $value['id'];
-											}
-										}
-										$arrayCamComercio = array();
-										$arrayCamComercio["capital_pagado"] = $serv_cliente["capital_pagado"];
-										$arrayCamComercio["capital_suscrito"] = $serv_cliente["capital_suscrito"];
-										$arrayCamComercio["capital_autorizado"] = $serv_cliente["capital_autorizado"];
-										$result = $Data->updateRegistro("cmx_clientes_cam_comercio", $arrayCamComercio, $id_cam_comercio);
-									}
-								}
+							if (!$camaraData) {
+								$camaraUpdate["id_cliente"] = $id_cliente;
+								$Data->setRegistro("cmx_clientes_cam_comercio", $camaraUpdate);
+							} else {
+								$Data->updateRegistro("cmx_clientes_cam_comercio", $camaraUpdate, $camaraData["rowsData"][0]['id']);
+							}
 
-								// Si no exite el representante legal activo se inactiva el anterior y se guarda el nuevo
-								$representante_legal = $serv_cliente["representante_legal"];
-								$validaRepresentante = $Clientes->getMiembroClienteActivo($id_cliente, $representante_legal["documento"], $representante_legal["tipo_miembro"]);
-								if (!$validaRepresentante) {
-									// Se inactiva el los registros anteriores del representante legal
-									$sql = '
-											UPDATE
-												cmx_clientes_miembros_documentos
-											SET estado = 0
-											WHERE
-												id_tipo_documento = 1
-												AND id_miembro IN (
-													SELECT id
-													FROM cmx_clientes_miembros
-													WHERE id_cliente = ' . $id_cliente . '
-												)
-										';
-									$Data->ejecuteRegistro($sql);
+							// Procesar representante legal
+							$this->procesarMiembro(
+								$seccion["representante_legal"],
+								$id_cliente,
+								"Representante Legal",
+								$Clientes,
+								$Data,
+								$time
+							);
 
-									// Se guarda la información del Representante legal
-									$arrayRepresentante = array();
-									$arrayRepresentante["id_cliente"] = $id_cliente;
-									$arrayRepresentante["documento"] = $representante_legal["documento"];
-									$arrayRepresentante["nombre_miembro"] = $representante_legal["nombre_miembro"];
-									$arrayRepresentante["tipo_miembro"] = $representante_legal["tipo_miembro"];
-									$id_miembro = $Data->setRegistro("cmx_clientes_miembros", $arrayRepresentante);
+							// Procesar revisor fiscal
+							$this->procesarMiembro(
+								$seccion["revisor_fiscal"],
+								$id_cliente,
+								"Revisor Fiscal",
+								$Clientes,
+								$Data,
+								$time
+							);
 
-									// Se guarda la información del documento del Representante legal
-									$arrayRepresentanteDocumento = array();
-									$arrayRepresentanteDocumento["id_miembro"] = $id_miembro;
-									$arrayRepresentanteDocumento["id_tipo_documento"] = 1;
-									if ($representante_legal["url"]) {
-										$arrayRepresentanteDocumento["fecha_expedicion"] = date("Y-m-d", $time);
-										$arrayRepresentanteDocumento["url"] = date("Y-m-d", $time) . "-" . $id_miembro . "." . $Clientes->get_extension_archivo($representante_legal["url"]);
-									}
-									$Data->setRegistro("cmx_clientes_miembros_documentos", $arrayRepresentanteDocumento);
-								} else {
-									// Si existe se actualiza la informacion
-									$arrayRepresentante = array();
-									$arrayRepresentante["nombre_miembro"] = $representante_legal["nombre_miembro"];
-									$representante_legal["nombre_miembro"];
+							// Procesar socios
+							if (!empty($seccion["socios"])) {
+								$docsSocios = [];
+								foreach ($seccion["socios"] as $socio) {
+									if (!empty($socio["documento"]) && !empty($socio["nombre_miembro"])) {
+										$docsSocios[] = "'" . $socio["documento"] . "'";
 
-									//$id = $validaRepresentante["rowsData"][0][0] ?? null;
-									if ($validaRepresentante) {
-										foreach ($validaRepresentante["rowsData"] as $key => $value) {
-											$idrepresente = $value['id'];
-										}
-									}
-									$Data->updateRegistro("cmx_clientes_miembros", $arrayRepresentante, $idrepresente);
-									if ($representante_legal["url"]) {
-										// Se actualiza la información del documento del Representante legal
-										$result = $Clientes->buscarDocumentoMiembro($id_cliente, 1, $representante_legal["tipo_miembro"]);
-										if ($result) {
-											foreach ($result["rowsData"] as $key_01 => $value_01) {
-												$arrayRepresentanteDocumento = array();
-												$arrayRepresentanteDocumento["fecha_expedicion"] = date("Y-m-d", $time);
-												$arrayRepresentanteDocumento["url"] = date("Y-m-d", $time) . "-" . $id . "." . $Clientes->get_extension_archivo($representante_legal["url"]);
-												$Data->updateRegistro("cmx_clientes_miembros_documentos", $arrayRepresentanteDocumento, $value_01["id"]);
-											}
+										$miembroData = [
+											"id_cliente" => $id_cliente,
+											"documento" => $socio["documento"],
+											"nombre_miembro" => $socio["nombre_miembro"],
+											"tipo_miembro" => "Socio",
+											"estado" => 1
+										];
+
+										$existente = $Clientes->getMiembroClienteActivo(
+											$id_cliente,
+											$socio["documento"],
+											"Socio"
+										);
+
+										if ($existente) {
+											$Data->updateRegistro(
+												"cmx_clientes_miembros",
+												$miembroData,
+												$existente["rowsData"][0]['id']
+											);
+										} else {
+											$Data->setRegistro("cmx_clientes_miembros", $miembroData);
 										}
 									}
 								}
 
-								// Si no exite el representante legal activo se inactiva el anterior y se guarda el nuevo
-								$revisor_fiscal = $serv_cliente["revisor_fiscal"];
-								$validaRevisor = $Clientes->getMiembroClienteActivo($id_cliente, $revisor_fiscal["documento"], $revisor_fiscal["tipo_miembro"]);
-								if (!$validaRevisor) {
-									// Se inactiva el los registros anteriores del representante legal
-									$sql = '
-											UPDATE
-												cmx_clientes_miembros_documentos
-											SET estado = 0
-											WHERE
-												id_tipo_documento = 1
-												AND id_miembro IN (
-													SELECT id
-													FROM cmx_clientes_miembros
-													WHERE id_cliente = ' . $id_cliente . '
-												)
-										';
-									$Data->ejecuteRegistro($sql);
-
-									// Se guarda la información del Representante legal
-									$arrayRevisor = array();
-									$arrayRevisor["id_cliente"] = $id_cliente;
-									$arrayRevisor["documento"] = $revisor_fiscal["documento"];
-									$arrayRevisor["nombre_miembro"] = $revisor_fiscal["nombre_miembro"];
-									$arrayRevisor["tipo_miembro"] = $revisor_fiscal["tipo_miembro"];
-									$id_miembro = $Data->setRegistro("cmx_clientes_miembros", $arrayRevisor);
-
-									// Se guarda la información del documento del Representante legal
-									$arrayRevisorDocumento = array();
-									$arrayRevisorDocumento["id_miembro"] = $id_miembro;
-									$arrayRevisorDocumento["id_tipo_documento"] = 1;
-									if ($revisor_fiscal["url"]) {
-										$arrayRevisorDocumento["fecha_expedicion"] = date("Y-m-d", $time);
-										$arrayRevisorDocumento["url"] = date("Y-m-d", $time) . "-" . $id_miembro . "." . $Clientes->get_extension_archivo($revisor_fiscal["url"]);
-									}
-									$Data->setRegistro("cmx_clientes_miembros_documentos", $arrayRevisorDocumento);
-								} else {
-									// Si existe se actualiza la informacion
-									$arrayRevisor = array();
-									$arrayRevisor["nombre_miembro"] = $revisor_fiscal["nombre_miembro"];
-
-									if ($validaRevisor) {
-										foreach ($validaRevisor["rowsData"] as $key => $value) {
-											$idrevisor = $value['id'];
-										}
-									}
-									$Data->updateRegistro("cmx_clientes_miembros", $arrayRevisor, $idrevisor);
-									if ($revisor_fiscal["url"]) {
-										// Se actualiza la información del documento del Representante legal
-										$result = $Clientes->buscarDocumentoMiembro($id_cliente, 1, $revisor_fiscal["tipo_miembro"]);
-										if ($result) {
-											foreach ($result["rowsData"] as $key_01 => $value_01) {
-												$arrayRevisorDocumento = array();
-												$arrayRevisorDocumento["fecha_expedicion"] = date("Y-m-d", $time);
-												$arrayRevisorDocumento["url"] = date("Y-m-d", $time) . "-" . $idrevisor . "." . $Clientes->get_extension_archivo($revisor_fiscal["url"]);
-												$Data->updateRegistro("cmx_clientes_miembros_documentos", $arrayRevisorDocumento, $value_01["id"]);
-											}
-										}
-									}
-								}
-
-								// Se insertan los registros de los socios
-								if ($serv_cliente["socios"]) {
-									$socios = $serv_cliente["socios"];
-									$documentosSocios = "";
-									foreach ($socios as $key_socios => $value_socios) {
-										if (isset($value_socios["documento"]) and $value_socios["documento"] and isset($value_socios["nombre_miembro"]) and $value_socios["nombre_miembro"]) {
-											if ($value_socios != 0) {
-												$documentosSocios .= "'" . $value_socios["documento"] . "',";
-												$validaSocio = $Clientes->getMiembroClienteActivo($id_cliente, $value_socios["documento"], $value_socios["tipo_miembro"]);
-												if (!$validaSocio) {
-													// Se guarda la información del Socio
-													$arraySocios = array();
-													$arraySocios["id_cliente"] = $id_cliente;
-													$arraySocios["documento"] = $value_socios["documento"];
-													$arraySocios["nombre_miembro"] = $value_socios["nombre_miembro"];
-													$arraySocios["tipo_miembro"] = $value_socios["tipo_miembro"];
-													$Data->setRegistro("cmx_clientes_miembros", $arraySocios);
-												} else {
-													// Si existe se actualiza la informacion
-													$arraySocios = array();
-													$arraySocios["nombre_miembro"] = $value_socios["nombre_miembro"];
-													$arraySocios["estado"] = 1;
-													if ($validaSocio) {
-														foreach ($validaSocio["rowsData"] as $key => $value) {
-															$idsocio = $value['id'];
-														}
-													}
-													$Data->updateRegistro("cmx_clientes_miembros", $arraySocios, $idsocio);
-												}
-											}
-										}
-									}
-									// Se inactiva los socios que no se encontraron en la lista
-									if ($documentosSocios) {
-										$sql = '
-												UPDATE cmx_clientes_miembros
-												SET estado = 0
-												WHERE
-													id_cliente = ' . $id_cliente . '
-													AND tipo_miembro = "Socio"
-													AND documento NOT IN (' . $documentosSocios . '0)
-											';
-										$Data->ejecuteRegistro($sql);
-									}
+								// Inactivar socios no incluidos
+								if (!empty($docsSocios)) {
+									$Data->ejecuteRegistro("
+                                    UPDATE cmx_clientes_miembros 
+                                    SET estado = 0 
+                                    WHERE id_cliente = $id_cliente 
+                                    AND tipo_miembro = 'Socio' 
+                                    AND documento NOT IN (" . implode(",", $docsSocios) . ", '0')
+                                ");
 								}
 							}
 							break;
 
-						case '1': // Pestaña de Estados Financieros
-							if ($_POST["serv_cliente"][$key]) {
-								// $_msg_control.= "Si hay información en la pestaña Servicio al cliente - Estados Financieros\n";
-								$Clientes->guardarDatosDocumentos($_POST["serv_cliente"][$key], $id_cliente);
-							}
+						// 3.1.2. Estados Financieros
+						case '1':
+							$Clientes->guardarDatosDocumentos($seccion, $id_cliente);
 							break;
 
-						case '2': // Pestaña de Póliza
-							// $_msg_control.= "Entro en la pestaña de Servicio al cliente - Póliza\n";
-							if ($_POST["serv_cliente"][$key]) {
-								$serv_cliente = $_POST["serv_cliente"][$key];
-								$_flag_documento = $Clientes->buscarDocumentoByNumDocumento($id_cliente, $serv_cliente["numero_documento"], $serv_cliente["id_tipo_documento"]);
-								if (!$_flag_documento) {
-									$arrayCliente["op_poliza_nexos"] = 1;
-								}
-								$Clientes->guardarDatosDocumentos($_POST["serv_cliente"][$key], $id_cliente);
-							}
-							break;
-
-						case '3': // Pestaña de Referencias Comerciales
-							if ($_POST["serv_cliente"][$key]) {
-								$serv_cliente = $_POST["serv_cliente"][$key];
-
-								if (isset($serv_cliente["referencias_comerciales"]) and $serv_cliente["referencias_comerciales"]) {
-									$referencias_comerciales = $serv_cliente["referencias_comerciales"];
-									$_flag_ref_comercial = "";
-									foreach ($referencias_comerciales as $key_ref_comercial => $value_ref_comercial) {
-										if (isset($value_ref_comercial["id"]) and $value_ref_comercial["id"]) {
-											//$_flag_ref_comercial .= $value_ref_comercial["id"] . ",";
-											$_flag_ref_comercial .= $value_ref_comercial["id"];
-										}
-										if (isset($value_ref_comercial) != 0 and isset($value_ref_comercial["url_documento"])) {
-											// $_flag_ref_comercial .= $Clientes->guardarDatosRefComercial($value_ref_comercial, $id_cliente) . ",";
-											$_flag_ref_comercial .= $Clientes->guardarDatosRefComercial($value_ref_comercial, $id_cliente);
-										}
-									}
-									// Se inactivan las cuentas no registradas en el formulario
-									$Clientes->setInactivaRefComercial($id_cliente, $_flag_ref_comercial);
-								}
-							}
-							break;
-
-						case '4': // Pestaña de Certificaciones
-							if ($_POST["serv_cliente"][$key]) {
-								$serv_cliente = $_POST["serv_cliente"][$key];
-
-								// Se guarda el registro del documento basc
-								if (isset($serv_cliente["basc"]) and $serv_cliente["basc"]) {
-									$Clientes->guardarDatosDocumentos($serv_cliente["basc"], $id_cliente);
-								}
-
-								// Se guarda el registro del documento ctpat
-								if (isset($serv_cliente["ctpat"]) and $serv_cliente["ctpat"]) {
-									$Clientes->guardarDatosDocumentos($serv_cliente["ctpat"], $id_cliente);
-								}
-
-								// Se guarda el registro del documento oea
-								if (isset($serv_cliente["oea"]) and $serv_cliente["oea"]) {
-									$Clientes->guardarDatosDocumentos($serv_cliente["oea"], $id_cliente);
-								}
-
-								// Se guarda el registro del documento ISO28000
-								if (isset($serv_cliente["ISO28000"]) and $serv_cliente["ISO28000"]) {
-									$Clientes->guardarDatosDocumentos($serv_cliente["ISO28000"], $id_cliente);
-								}
-
-								// Se guarda el registro del documento ISO9001
-								if (isset($serv_cliente["ISO9001"]) and $serv_cliente["ISO9001"]) {
-									$Clientes->guardarDatosDocumentos($serv_cliente["ISO9001"], $id_cliente);
-								}
-							}
-							break;
-
-						case '5': // Pestaña de Referencias Bancarias
-							if ($_POST["serv_cliente"][$key]) {
-								$serv_cliente = $_POST["serv_cliente"][$key];
-
-								if ($serv_cliente["referencias_bancarias"]) {
-									$referencias_bancarias = $serv_cliente["referencias_bancarias"];
-									$_flag_bancos = "";
-									foreach ($referencias_bancarias as $key_ref_bancaria => $value_ref_bancaria) {
-										if ($value_ref_bancaria != 0) {
-											if (is_array($value_ref_bancaria)) {
-												//$_flag_bancos .= '"' . $value_ref_bancaria["numero_cuenta"] . '",';
-												$_flag_bancos .= '"' . $value_ref_bancaria["numero_cuenta"] . '"';
-												$Clientes->guardarDatosBanco($value_ref_bancaria, $id_cliente);
-											}
-										}
-									}
-									// Se inactivan las cuentas no registradas en el formulario
-									$Clientes->setInactivaCuentasCliente($id_cliente, $_flag_bancos);
-								}
-							}
-							break;
-
-						case '6': // Pestañas de formatos BASC
-							if ($_POST["serv_cliente"][$key]) {
-								foreach ($_POST["serv_cliente"][$key] as $key_formato => $value_formato) {
-									$Clientes->guardarDatosDocumentos($value_formato, $id_cliente);
-								}
-							}
-							break;
-
-						default:
-							$_msg_control .= "Error en el acceso a la pestaña de Servicio al Cliente\n";
-							break;
-					}
-				}
-			}
-
-			// Se adiciona informacion de la pestaña de Calidad
-			if (isset($_POST["calidad"])) {
-				$return["calidad"] = $_POST["calidad"];
-				foreach ($_POST["calidad"] as $key => $value) {
-					switch ($key) {
-						case '0': // Pestaña de Cliente
-							if ($_POST["calidad"][$key]) {
-								$calidad = $_POST["calidad"][$key];
-
-								if (isset($calidad["ofac"]) and $calidad["ofac"]) {
-									$Clientes->guardarDatosDocumentos($calidad["ofac"], $id_cliente);
-								}
-
-								if (isset($calidad["cifin"]) and $calidad["cifin"]) {
-									$Clientes->guardarDatosDocumentos($calidad["cifin"], $id_cliente);
-								}
-
-								if (isset($calidad["rues"]) and $calidad["rues"]) {
-									$Clientes->guardarDatosDocumentos($calidad["rues"], $id_cliente);
-								}
-							}
-							break;
-
-						case '1': // Pestaña de Representante Legal
-							if (isset($_POST["calidad"][$key]) and $_POST["calidad"][$key]) {
-								$calidad = $_POST["calidad"][$key];
-
-								if (isset($calidad["antecedentes"]) and $calidad["antecedentes"]) {
-									$Clientes->guardarDatosDocumentosMiembros($calidad["antecedentes"], "Representante Legal");
-								}
-
-								if (isset($calidad["ofac"]) and $calidad["ofac"]) {
-									$Clientes->guardarDatosDocumentosMiembros($calidad["ofac"], "Representante Legal");
-								}
-							}
-							break;
-
+						// 3.1.3. Póliza
 						case '2':
-							if (isset($_POST["calidad"][$key]) and $_POST["calidad"][$key]) {
-								$calidad = $_POST["calidad"][$key];
+							$_flag_documento = $Clientes->buscarDocumentoByNumDocumento(
+								$id_cliente,
+								$seccion["numero_documento"],
+								$seccion["id_tipo_documento"]
+							);
+							if (!$_flag_documento) {
+								$arrayCliente["op_poliza_nexos"] = 1;
+							}
+							$Clientes->guardarDatosDocumentos($seccion, $id_cliente);
+							break;
 
-								if (isset($calidad["antecedentes"]) and $calidad["antecedentes"]) {
-									$Clientes->guardarDatosDocumentosMiembros($calidad["antecedentes"], "Representante Legal");
+						// 3.1.4. Referencias Comerciales
+						case '3':
+							if (!empty($seccion["referencias_comerciales"])) {
+								$idsRef = [];
+								foreach ($seccion["referencias_comerciales"] as $ref) {
+									if (!empty($ref)) {
+										$idRef = $Clientes->guardarDatosRefComercial($ref, $id_cliente);
+										if ($idRef) $idsRef[] = $idRef;
+									}
 								}
+								$Clientes->setInactivaRefComercial($id_cliente, implode(",", $idsRef));
+							}
+							break;
 
-								if (isset($calidad["ofac"]) and $calidad["ofac"]) {
-									$Clientes->guardarDatosDocumentosMiembros($calidad["ofac"], "Representante Legal");
+						// 3.1.5. Certificaciones
+						case '4':
+							$certs = ["basc", "ctpat", "oea", "ISO28000", "ISO9001"];
+							foreach ($certs as $cert) {
+								if (!empty($seccion[$cert])) {
+									$Clientes->guardarDatosDocumentos($seccion[$cert], $id_cliente);
 								}
 							}
 							break;
 
-						case '3': // Pestaña de Socios
-							if ($_POST["calidad"][$key]) {
-								$calidad = $_POST["calidad"][$key];
-
-								if (isset($calidad["socios_antecedentes"]) and $calidad["socios_antecedentes"]) {
-									$antecedentes = $calidad["socios_antecedentes"];
-									foreach ($antecedentes as $key_antecedentes => $value_antecedentes) {
-										if ($value_antecedentes) {
-											if (isset($value_antecedentes["id_miembro"])) {
-												$Clientes->guardarDatosDocumentosMiembros($value_antecedentes, "Socio");
-											}
-										}
+						// 3.1.6. Referencias Bancarias
+						case '5':
+							if (!empty($seccion["referencias_bancarias"])) {
+								$cuentas = [];
+								foreach ($seccion["referencias_bancarias"] as $banco) {
+									if (!empty($banco) && is_array($banco)) {
+										$cuentas[] = '"' . $banco["numero_cuenta"] . '"';
+										$Clientes->guardarDatosBanco($banco, $id_cliente);
 									}
 								}
-
-								if (isset($calidad["socios_ofac"]) and $calidad["socios_ofac"]) {
-									$ofac = $calidad["socios_ofac"];
-									foreach ($ofac as $key_ofac => $value_ofac) {
-										if ($value_ofac) {
-											if (isset($value_ofac["id_miembro"])) {
-												$Clientes->guardarDatosDocumentosMiembros($value_ofac, "Socio");
-											}
-										}
-									}
-								}
+								$Clientes->setInactivaCuentasCliente($id_cliente, implode(",", $cuentas));
 							}
 							break;
 
-						default:
-							$_msg_control .= "Error en el acceso a la pestaña de Calidad\n";
+						// 3.1.7. Formatos BASC
+						case '6':
+							foreach ($seccion as $formato) {
+								$Clientes->guardarDatosDocumentos($formato, $id_cliente);
+							}
 							break;
 					}
 				}
 			}
 
-			// Se adiciona informacion de la pestaña de Ficha Técnica
-			if (isset($_POST["ficha_tecnica"])) {
-				$return["ficha_tecnica"] = $_POST["ficha_tecnica"];
+			// 3.2. Pestaña Calidad
+			if (isset($_POST["calidad"])) {
+				foreach ($_POST["calidad"] as $key => $seccion) {
+					if (empty($seccion)) continue;
 
-				// Se genera el array de actualización de datos del cliente
-				foreach ($_POST["ficha_tecnica"] as $key => $value) {
-					if (!empty($value)) {
-						foreach ($value as $key_1 => $value_1) {
-							$arrayCliente[$key_1] = $value_1;
+					switch ($key) {
+						case '0': // Cliente
+							$docs = ["ofac", "cifin", "rues"];
+							foreach ($docs as $doc) {
+								if (!empty($seccion[$doc])) {
+									$Clientes->guardarDatosDocumentos($seccion[$doc], $id_cliente);
+								}
+							}
+							break;
+
+						case '1': // Representante Legal
+						case '2': // Revisor Fiscal
+							$tipo = ($key == 1) ? "Representante Legal" : "Revisor Fiscal";
+							if (!empty($seccion["antecedentes"])) {
+								$Clientes->guardarDatosDocumentosMiembros($seccion["antecedentes"], $tipo);
+							}
+							if (!empty($seccion["ofac"])) {
+								$Clientes->guardarDatosDocumentosMiembros($seccion["ofac"], $tipo);
+							}
+							break;
+
+						case '3': // Socios
+							if (!empty($seccion["socios_antecedentes"])) {
+								foreach ($seccion["socios_antecedentes"] as $antecedente) {
+									if (!empty($antecedente)) {
+										$Clientes->guardarDatosDocumentosMiembros($antecedente, "Socio");
+									}
+								}
+							}
+							if (!empty($seccion["socios_ofac"])) {
+								foreach ($seccion["socios_ofac"] as $ofac) {
+									if (!empty($ofac)) {
+										$Clientes->guardarDatosDocumentosMiembros($ofac, "Socio");
+									}
+								}
+							}
+							break;
+					}
+				}
+			}
+
+			// 3.3. Pestaña Ficha Técnica
+			if (isset($_POST["ficha_tecnica"])) {
+				foreach ($_POST["ficha_tecnica"] as $seccion) {
+					if (!empty($seccion)) {
+						foreach ($seccion as $campo => $valor) {
+							$arrayCliente[$campo] = $valor;
 						}
 					}
 				}
 			}
 
-			// Se adiciona informacion de la pestaña de Finanzas
+			// 3.4. Pestaña Finanzas
 			if (isset($_POST["finanzas"])) {
-				$return["finanzas"] = $_POST["finanzas"];
 				$finanzas = $_POST["finanzas"];
-
-				foreach ($finanzas as $key => $value) {
-					if (!empty($value) and $key != "calificacion_cifin") {
-						$arrayCliente[$key] = $value;
+				foreach ($finanzas as $campo => $valor) {
+					if (!empty($valor) && $campo != "calificacion_cifin") {
+						$arrayCliente[$campo] = $valor;
 					}
 				}
 
-				if (isset($finanzas["calificacion_cifin"])) {
-					foreach ($finanzas["calificacion_cifin"] as $key => $value) {
-						if (isset($value["id_cliente_documento"]) and $value["entidad_financiera"] and $value["calificacion"]) {
-							if (!$Clientes->getVerificaCifin($value["id_cliente_documento"], $value["entidad_financiera"], $value["calificacion"])) {
-								$arrayCifinCalificacion = array();
-								$arrayCifinCalificacion["id_cliente_documento"] = $value["id_cliente_documento"];
-								$arrayCifinCalificacion["entidad_financiera"] = $value["entidad_financiera"];
-								$arrayCifinCalificacion["calificacion"] = $value["calificacion"];
-								$Data->setRegistro("cmx_clientes_cifin", $arrayCifinCalificacion);
+				if (!empty($finanzas["calificacion_cifin"])) {
+					foreach ($finanzas["calificacion_cifin"] as $cifin) {
+						if (!empty($cifin["id_cliente_documento"]) && !empty($cifin["entidad_financiera"]) && !empty($cifin["calificacion"])) {
+							if (!$Clientes->getVerificaCifin(
+								$cifin["id_cliente_documento"],
+								$cifin["entidad_financiera"],
+								$cifin["calificacion"]
+							)) {
+								$Data->setRegistro("cmx_clientes_cifin", [
+									"id_cliente_documento" => $cifin["id_cliente_documento"],
+									"entidad_financiera" => $cifin["entidad_financiera"],
+									"calificacion" => $cifin["calificacion"]
+								]);
 							}
 						}
 					}
 				}
 			}
 		}
-		$arrayCliente["op_poliza_nexos"] = '';
-		if (!$_POST["cod_cliente"]) {
+
+		// 4. Generar código de cliente si no existe
+		if (empty($_POST["cod_cliente"])) {
 			$arrayCliente["cod_cliente"] = 'CLI-' . $time;
 		}
-		if (COUNT($arrayCliente) > 0) {
-			// $return["arrayCliente"] = $arrayCliente;
-			$result = $Data->updateRegistro("cmx_clientes", $arrayCliente, (int) $_POST["id"]);
+
+		// 5. Actualizar datos principales del cliente
+		if (!empty($arrayCliente)) {
+			$result = $Data->updateRegistro("cmx_clientes", $arrayCliente, $id_cliente);
+			$return["result"] = $result;
 		}
+
 		break;
 
 	case 'editarClienteAdjuntos':
@@ -8062,6 +7637,7 @@ switch ($_GET["action"]) {
 			$arrayMinTrans["variables"]["CODSEDETERCERO"] = $_POST["id_sede"];
 			$arrayMinTrans["variables"]["NOMSEDETERCERO"] = $_POST["namesede"];
 			$cadena = implode(",", $arrayMinTrans["variables"]);
+
 			$result = $Data->getRNDCQueryArray($arrayMinTrans);
 			$return["edita_cliente_result"] = $result;
 			if (isset($result["ErrorMSG"])) {
@@ -8076,8 +7652,6 @@ switch ($_GET["action"]) {
 				$return["edita_cliente_id_crea"] = $rndc_ingresoid;
 			}
 		} else {
-
-
 			$arrayMinTrans = array();
 			// Solicitud
 			$arrayMinTrans["solicitud"] = array(
@@ -8127,145 +7701,146 @@ switch ($_GET["action"]) {
 	case 'rndcEditarCliente':
 		$_msg_control .= "Entro en la accion rndcEditarCliente.\n";
 
-		/******** INSERCION DE CONTENIDO DEL CLIENTE EN EL RNDC  ********/
-		$arrayMinTrans = array();
-		// Solicitud
-		$arrayMinTrans["solicitud"] = array(
-			"tipo" => 1,
-			"procesoid" => 11,
-		);
+		// /******** INSERCION DE CONTENIDO DEL CLIENTE EN EL RNDC  ********/
+		// $arrayMinTrans = array();
+		// // Solicitud
+		// $arrayMinTrans["solicitud"] = array(
+		// 	"tipo" => 1,
+		// 	"procesoid" => 11,
+		// );
 
-		//registra en tabla del ministerio
-		session_start();
-		$fecha = date('Y-m-d');
-		$hora = date('H:i:s');
-		$user = $_SESSION["usuario"]["nom_usuario"];
+		// //registra en tabla del ministerio
+		// session_start();
+		// $fecha = date('Y-m-d');
+		// $hora = date('H:i:s');
+		// $user = $_SESSION["usuario"]["nom_usuario"];
 
-		//CONSULTA EN EL MINISTERIO
-		$arrayMinTrans["variables"] = "INGRESOID";
-		$documento_tercero = $_POST["documento"];
-		if ($_POST["tipo_documento"] == "Juridico") {
-			$documento_tercero = $_POST["documento"] . $_POST["digito"];
-			$tp = "NIT";
-		} else {
-			$documento_tercero = $_POST["documento"];
-			$tp = "Cedula de Ciudadania";
-		}
-		$arrayMinTrans["documento"] = array(
-			"NUMNITEMPRESATRANSPORTE" 	=> MINTRANS_NIT,
-			"CODTIPOIDTERCERO" 			=>	$Data->getRNDCTipoDocumento($tp),
-			"NUMIDTERCERO"				=> "'" . $documento_tercero . "'"
+		// //CONSULTA EN EL MINISTERIO
+		// $arrayMinTrans["variables"] = "INGRESOID";
+		// $documento_tercero = $_POST["documento"];
+		// if ($_POST["tipo_documento"] == "Juridico") {
+		// 	$documento_tercero = $_POST["documento"] . $_POST["digito"];
+		// 	$tp = "NIT";
+		// } else {
+		// 	$documento_tercero = $_POST["documento"];
+		// 	$tp = "Cedula de Ciudadania";
+		// }
+		// $arrayMinTrans["documento"] = array(
+		// 	"NUMNITEMPRESATRANSPORTE" 	=> MINTRANS_NIT,
+		// 	"CODTIPOIDTERCERO" 			=>	$Data->getRNDCTipoDocumento($tp),
+		// 	"NUMIDTERCERO"				=> "'" . $documento_tercero . "'"
 
-		);
-		$return["verifica_tercero_array"] = $arrayMinTrans;
-		$result = $Data->getRNDCQueryArray($arrayMinTrans);
-		$return["verifica_tercero_result"] = $result;
-		//Buscar ciudad
-		$result = $Clientes->getCiudadById($_POST["municipio"]);
-		if ($result) {
-			$municipio = $result['rowsData'][0]['rndc_codigo_ciudad'] . 1;
-		}
+		// );
+		// $return["verifica_tercero_array"] = $arrayMinTrans;
+		// $result = $Data->getRNDCQueryArray($arrayMinTrans);
+		// $return["verifica_tercero_result"] = $result;
+		// //Buscar ciudad
+		// $result = $Clientes->getCiudadById($_POST["municipio"]);
+		// if ($result) {
+		// 	$municipio = $result['rowsData'][0]['rndc_codigo_ciudad'] . 1;
+		// }
 
-		//buscar la sede del cliente
-		$result_sede = $Clientes->getSedeClienteE($_POST["tipo_documento"], $_POST["documento"], $_POST["digito"]);
-		if ($result_sede) {
-			$sede = $result_sede['rowsData'][0]['codigo_sede'];
-		}
-		if (isset($result["ErrorMSG"])) { //No existe cliente RNDC
-			// Variable que se envían para la realizació del proceso 
-			$arrayMinTrans["variables"] = array(
-				"NUMNITEMPRESATRANSPORTE"	=> MINTRANS_NIT,
-				"CODTIPOIDTERCERO"			=> $Data->getRNDCTipoDocumento($tp),
-				"NUMIDTERCERO"				=> $documento_tercero,
-				"NOMIDTERCERO"				=> $_POST["rndc_nombre"],
-				"NOMENCLATURADIRECCION"		=> $_POST["direccion"],
-				// "LATITUD"					=> substr($_POST["latitud"], 0 , 15),
-				// "LONGITUD"					=> substr($_POST["longitud"], 0, 15),
-				"CODMUNICIPIORNDC"			=> $municipio,
-			);
-			$arrayMinTrans["variables"]["CODSEDETERCERO"] = $sede;
-			$arrayMinTrans["variables"]["NOMSEDETERCERO"] = $_POST["namesede"];
-			// $return["edita_cliente_array"] = $arrayMinTrans;
-			$cadena = implode(",", $arrayMinTrans["variables"]);
-			/*$sql2="INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena,fecha,hora,usuario,tipo_tercero,accion)VALUES(null,'".$_POST["documento"]."','Tercero',1,1,'".$cadena."','".$fecha."','".$hora."','".$user."','Cliente','Crear')";
-				$Data->ejecuteRegistro($sql2);*/
-			// Se ejecuta la consulta hacia el RNDC del ministerio de transporte 
-			$result = $Data->getRNDCQueryArray($arrayMinTrans);
-			$return["edita_cliente_result"] = $result;
-			// Se valida si la operación fue exitosa
-			if (isset($result["ErrorMSG"])) {
-				$_msg_error .= "<p><strong>Registro no actualizado en RNDC - Cliente.</strong></p>";
-				$_msg_error .= $result["ErrorMSG"];
-				$sql3 = "INSERT INTO web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)VALUES(null,'" . $_POST["documento"] . "','Tercero',0,1,'" . $cadena . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $result["ErrorMSG"] . "','Remitente','Actualizar')";
-				$Data->ejecuteRegistro($sql3);
-			} else {
-				$rndc_ingresoid = $result["ingresoid"];
-				$sql3 = "INSERT INTO web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)VALUES(null,'" . $_POST["documento"] . "','Tercero',1,1,'" . $cadena . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $result["ingresoid"] . "','Remitente','Actualizar')";
-				$Data->ejecuteRegistro($sql3);
-				$return["edita_cliente_id_crea"] = $rndc_ingresoid;
-			}
-		} else { //Existe cliente RNDC
-			// Variable que se envían para la realizació del proceso 
-			if ($_POST["tipo_documento"] == "Juridico") {
-				$documento_tercero = $_POST["documento"] . $_POST["digito"];
-				$tp = "NIT";
-			} else {
-				$documento_tercero = $_POST["documento"];
-				$tp = "Cedula de Ciudadania";
-			}
-			//Buscar ciudad
-			$result = $Clientes->getCiudadById($_POST["municipio"]);
-			if ($result) {
-				$municipio = $result['rowsData'][0]['rndc_codigo_ciudad'];
-			}
+		// //buscar la sede del cliente
+		// $result_sede = $Clientes->getSedeClienteE($_POST["tipo_documento"], $_POST["documento"], $_POST["digito"]);
+		// if ($result_sede) {
+		// 	$sede = $result_sede['rowsData'][0]['id'];
+		// }
+		// if (isset($result["ErrorMSG"])) { //No existe cliente RNDC
+		// 	// Variable que se envían para la realizació del proceso 
+		// 	$arrayMinTrans["variables"] = array(
+		// 		"NUMNITEMPRESATRANSPORTE"	=> MINTRANS_NIT,
+		// 		"CODTIPOIDTERCERO"			=> $Data->getRNDCTipoDocumento($tp),
+		// 		"NUMIDTERCERO"				=> $documento_tercero,
+		// 		"NOMIDTERCERO"				=> $_POST["rndc_nombre"],
+		// 		"NOMENCLATURADIRECCION"		=> $_POST["direccion"],
+		// 		// "LATITUD"					=> substr($_POST["latitud"], 0 , 15),
+		// 		// "LONGITUD"					=> substr($_POST["longitud"], 0, 15),
+		// 		"CODMUNICIPIORNDC"			=> $municipio,
+		// 	);
+		// 	$arrayMinTrans["variables"]["CODSEDETERCERO"] = $sede;
+		// 	$arrayMinTrans["variables"]["NOMSEDETERCERO"] = $_POST["namesede"];
+		// 	// $return["edita_cliente_array"] = $arrayMinTrans;
+		// 	$cadena = implode(",", $arrayMinTrans["variables"]);
+		// 	/*$sql2="INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena,fecha,hora,usuario,tipo_tercero,accion)VALUES(null,'".$_POST["documento"]."','Tercero',1,1,'".$cadena."','".$fecha."','".$hora."','".$user."','Cliente','Crear')";
+		// 		$Data->ejecuteRegistro($sql2);*/
+		// 	// Se ejecuta la consulta hacia el RNDC del ministerio de transporte 
+		// 	$result = $Data->getRNDCQueryArray($arrayMinTrans);
+		// 	$return["edita_cliente_result"] = $result;
+		// 	// Se valida si la operación fue exitosa
+		// 	if (isset($result["ErrorMSG"])) {
+		// 		$_msg_error .= "<p><strong>Registro no actualizado en RNDC - Cliente.</strong></p>";
+		// 		$_msg_error .= $result["ErrorMSG"];
+		// 		$sql3 = "INSERT INTO web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)VALUES(null,'" . $_POST["documento"] . "','Tercero',0,1,'" . $cadena . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $result["ErrorMSG"] . "','Remitente','Actualizar')";
+		// 		$Data->ejecuteRegistro($sql3);
+		// 	} else {
+		// 		$rndc_ingresoid = $result["ingresoid"];
+		// 		$sql3 = "INSERT INTO web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)VALUES(null,'" . $_POST["documento"] . "','Tercero',1,1,'" . $cadena . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $result["ingresoid"] . "','Remitente','Actualizar')";
+		// 		$Data->ejecuteRegistro($sql3);
+		// 		$return["edita_cliente_id_crea"] = $rndc_ingresoid;
+		// 	}
+		// } else { 
+		// 	//Existe cliente RNDC
+		// 	// Variable que se envían para la realizació del proceso 
+		// 	if ($_POST["tipo_documento"] == "Juridico") {
+		// 		$documento_tercero = $_POST["documento"] . $_POST["digito"];
+		// 		$tp = "NIT";
+		// 	} else {
+		// 		$documento_tercero = $_POST["documento"];
+		// 		$tp = "Cedula de Ciudadania";
+		// 	}
+		// 	//Buscar ciudad
+		// 	$result = $Clientes->getCiudadById($_POST["municipio"]);
+		// 	if ($result) {
+		// 		$municipio = $result['rowsData'][0]['rndc_codigo_ciudad'];
+		// 	}
 
-			//buscar la sede del cliente
-			$result_sede = $Clientes->getSedeClienteE($_POST["tipo_documento"], $_POST["documento"], $_POST["digito"]);
-			if ($result_sede) {
-				$sede = $result_sede['rowsData'][0]['codigo_sede'];
-			}
-			$arrayMinTrans["variables"] = array(
-				"NUMNITEMPRESATRANSPORTE"	=> MINTRANS_NIT,
-				"CODTIPOIDTERCERO"			=> $Data->getRNDCTipoDocumento($tp),
-				"NUMIDTERCERO"				=> $documento_tercero,
-				"NOMIDTERCERO"				=> $_POST["rndc_nombre"],
-				"NOMENCLATURADIRECCION"		=> $_POST["direccion"],
-				"CODMUNICIPIORNDC"			=> $municipio,
-			);
-			$arrayMinTrans["variables"]["CODSEDETERCERO"] = $sede;
-			$arrayMinTrans["variables"]["NOMSEDETERCERO"] = $_POST["namesede"];
-			// $return["edita_cliente_array"] = $arrayMinTrans;
-			$cadena = implode(",", $arrayMinTrans["variables"]);
-			/*$sql2="INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena,fecha,hora,usuario,tipo_tercero,accion)VALUES(null,'".$_POST["documento"]."','Tercero',1,1,'".$cadena."','".$fecha."','".$hora."','".$user."','Cliente','Actualizar')";
-				// Se ejecuta la consulta hacia el RNDC del ministerio de transporte */
-			$result = $Data->getRNDCQueryArray($arrayMinTrans);
-			$return["edita_cliente_result"] = $result;
+		// 	//buscar la sede del cliente
+		// 	$result_sede = $Clientes->getSedeClienteE($_POST["tipo_documento"], $_POST["documento"], $_POST["digito"]);
+		// 	if ($result_sede) {
+		// 		$sede = $result_sede['rowsData'][0]['id'];
+		// 	}
+		// 	$arrayMinTrans["variables"] = array(
+		// 		"NUMNITEMPRESATRANSPORTE"	=> MINTRANS_NIT,
+		// 		"CODTIPOIDTERCERO"			=> $Data->getRNDCTipoDocumento($tp),
+		// 		"NUMIDTERCERO"				=> $documento_tercero,
+		// 		"NOMIDTERCERO"				=> $_POST["rndc_nombre"],
+		// 		"NOMENCLATURADIRECCION"		=> $_POST["direccion"],
+		// 		"CODMUNICIPIORNDC"			=> $municipio,
+		// 	);
+		// 	$arrayMinTrans["variables"]["CODSEDETERCERO"] = $sede;
+		// 	$arrayMinTrans["variables"]["NOMSEDETERCERO"] = $_POST["namesede"];
+		// 	// $return["edita_cliente_array"] = $arrayMinTrans;
+		// 	$cadena = implode(",", $arrayMinTrans["variables"]);
+		// 	/*$sql2="INSERT INTO web_service_RNDC(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena,fecha,hora,usuario,tipo_tercero,accion)VALUES(null,'".$_POST["documento"]."','Tercero',1,1,'".$cadena."','".$fecha."','".$hora."','".$user."','Cliente','Actualizar')";
+		// 		// Se ejecuta la consulta hacia el RNDC del ministerio de transporte */
+		// 	$result = $Data->getRNDCQueryArray($arrayMinTrans);
+		// 	$return["edita_cliente_result"] = $result;
 
-			// Se valida si la operación fue exitosa
+		// 	// Se valida si la operación fue exitosa
 
-			if (isset($result["ErrorMSG"])) {
-				$sql3 = "INSERT INTO web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)VALUES(null,'" . $_POST["documento"] . "','Tercero',0,1,'" . $cadena . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $result["ErrorMSG"] . "','Remitente','Actualizar')";
-				$Data->ejecuteRegistro($sql3);
-				$_msg_error .= "<p><strong>Registro no actualizado en RNDC - Cliente.</strong></p>";
-				$_msg_error .= $result["ErrorMSG"];
-			} else {
-				$rndc_ingresoid = $result["ingresoid"];
-				$sql3 = "INSERT INTO web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)VALUES(null,'" . $_POST["documento"] . "','Tercero',1,1,'" . $cadena . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $result["ingresoid"] . "','Remitente','Actualizar')";
-				$Data->ejecuteRegistro($sql3);
-				$return["edita_cliente_id_crea"] = $rndc_ingresoid;
-			}
-		}
-		/******** FIN - INSERCIÓN DE CONTENIDO DEL CLIENTE EN EL RNDC  ********/
-		// Se actualiza la información del Cliente
-		if (!$_msg_error) {
-			$sql = "UPDATE cmx_clientes SET
-					rndc_id=" . $rndc_ingresoid . ",
-					direccion='" . $_POST["direccion"] . "',
-					telefono=" . $_POST["contacto"] . ",
-					email='" . $_POST["email"] . "'
-					WHERE documento=" . $_POST["documento"];
-			$Data->ejecuteRegistro($sql);
-		}
+		// 	if (isset($result["ErrorMSG"])) {
+		// 		$sql3 = "INSERT INTO web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)VALUES(null,'" . $_POST["documento"] . "','Tercero',0,1,'" . $cadena . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $result["ErrorMSG"] . "','Remitente','Actualizar')";
+		// 		$Data->ejecuteRegistro($sql3);
+		// 		$_msg_error .= "<p><strong>Registro no actualizado en RNDC - Cliente.</strong></p>";
+		// 		$_msg_error .= $result["ErrorMSG"];
+		// 	} else {
+		// 		$rndc_ingresoid = $result["ingresoid"];
+		// 		$sql3 = "INSERT INTO web_service_rndc(id,codigo_proceso,tipo,estado_envio_rndc,estado,cadena_xml,fecha,hora,usuario,rta_ministerio,tipo_tercero,accion)VALUES(null,'" . $_POST["documento"] . "','Tercero',1,1,'" . $cadena . "','" . $fecha . "','" . $hora . "','" . $user . "','" . $result["ingresoid"] . "','Remitente','Actualizar')";
+		// 		$Data->ejecuteRegistro($sql3);
+		// 		$return["edita_cliente_id_crea"] = $rndc_ingresoid;
+		// 	}
+		// }
+		// /******** FIN - INSERCIÓN DE CONTENIDO DEL CLIENTE EN EL RNDC  ********/
+		// // Se actualiza la información del Cliente
+		// if (!$_msg_error) {
+		// 	$sql = "UPDATE cmx_clientes SET
+		// 			rndc_id=" . $rndc_ingresoid . ",
+		// 			direccion='" . $_POST["direccion"] . "',
+		// 			telefono=" . $_POST["contacto"] . ",
+		// 			email='" . $_POST["email"] . "'
+		// 			WHERE documento=" . $_POST["documento"];
+		// 	$Data->ejecuteRegistro($sql);
+		// }
 		break;
 
 	case 'verRemiDestId':
@@ -8333,7 +7908,7 @@ switch ($_GET["action"]) {
 		$return["response"] = $result;
 		break;
 
-	case 'rndcGuardaRemitente':
+	case 'rndcGuardaRemitente': // Ya
 		$_msg_control .= "Entro en la accion rndcGuardaRemitente.\n";
 		/******** INSERCION DE CONTENIDO DEL TERCERO EN EL RNDC  ********/
 		$arrayMinTrans = array();
@@ -9023,7 +8598,7 @@ switch ($_GET["action"]) {
 		}
 		break;
 
-	case 'rndc_GuardaCliente':
+	case 'rndc_GuardaCliente': // ya
 		$_msg_control .= "Entro en la accion rndcCreaCliente.\n";
 		/******** INSERCION DE CONTENIDO DEL CLIENTE EN EL RNDC  ********/
 		$id_usuario = $_POST["user"];

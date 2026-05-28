@@ -1,0 +1,35 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= isset($_SESSION['usuario']['proveedor_id']) ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="container-fluid vh-100">
+  <!-- <div class="d-flex justify-content-center"></div> -->
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row ">
+      <!-- <div class='table-responsive noSwipe' id='tabla_lista_cotizaciones'></div> -->
+      <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:10px;">
+        <thead class="p-1">
+          <tr>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Pedidos</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Cliente</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Modalidad</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Proceso</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha reg. recurso</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha cargue</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Usuario</th>
+            <!-- <th class='text-center' style='width: auto; white-space: nowrap;'>Estado recurso</th> -->
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Proveedor</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Estado servicio (Transporte)</th>
+            <th class='text-center' style='width: auto; white-space: nowrap;'>Estado servicio especial (Transporte)</th>
+          </tr>
+        </thead>
+        <tbody id='tbl_pendientes_pedidos' class='text-center'>
+          <tr id="load_info" style="display: none;">
+            <td colspan="11" class="text-center" style="font-size:15px;font-weight:bold;">
+              <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25"> Esperando Información
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

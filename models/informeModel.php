@@ -150,22 +150,14 @@ class informeModel extends Model
           WHERE rndc.codigo_proceso IN(ma.id)
           ORDER BY rndc.codigo_proceso DESC LIMIT 1) AS estado_rndc
         FROM cmx_manifiesto ma
-        INNER JOIN cmx_manifiesto_remesa mr
-        ON ma.id=mr.id_manifiesto AND mr.estado=1
-        INNER JOIN cmx_remesa re
-        ON mr.id_remesa=re.id
-        INNER JOIN cmx_municipios m1
-        ON ma.origen_viaje=m1.id
-        INNER JOIN cmx_municipios m2
-        ON ma.destino_viaje=m2.id
-        INNER JOIN cmx_solicitud_vehiculo2 ss
-        ON re.mer_idservicio=ss.nundoc_solicitud
-        INNER JOIN cmx_agencias age
-        ON ss.agencia=age.id
-        LEFT JOIN cmx_manifiesto_anticipo ant
-        ON ma.id=ant.id_manifiesto
-        LEFT JOIN cmx_cumplido cu
-        ON ma.id=cu.manifiesto
+        INNER JOIN cmx_manifiesto_remesa mr  ON ma.id=mr.id_manifiesto AND mr.estado=1
+        INNER JOIN cmx_remesa re  ON mr.id_remesa=re.id
+        INNER JOIN cmx_municipios m1  ON ma.origen_viaje=m1.id
+        INNER JOIN cmx_municipios m2  ON ma.destino_viaje=m2.id
+        INNER JOIN cmx_solicitud_vehiculo2 ss  ON re.mer_idservicio=ss.nundoc_solicitud
+        INNER JOIN cmx_agencias age  ON ss.agencia=age.id
+        LEFT JOIN cmx_manifiesto_anticipo ant  ON ma.id=ant.id_manifiesto
+        LEFT JOIN cmx_cumplido cu  ON ma.id=cu.manifiesto
         WHERE ma.fecha_expedicion  BETWEEN  '" . $fecha_inicial . "' AND '" . $fecha_final . "'
         ORDER BY ma.id ASC";
         $sql = $this->_db3->prepare($consulta);
@@ -180,58 +172,119 @@ class informeModel extends Model
     public function Informe_Calidad($fecha_inicial, $fecha_final)
     {
         try {
-
+            $fecha_inicial1 = $fecha_inicial . ' 00:00:00';
+            $fecha_final1   = $fecha_final . ' 23:59:00';
+            $inicio = (new DateTime($fecha_inicial, new DateTimeZone('America/Bogota')))->format('Y-m-d');
+            $fin    = (new DateTime($fecha_final, new DateTimeZone('America/Bogota')))->format('Y-m-d');
             // Consulta 1: Datos del manifiesto y vehículo
-            $stmt1 = $this->_db3->prepare("SELECT ma.id AS numero_manifiesto, ma.fecha_expedicion, ma.placa, IFNULL(t.placa, 'No Aplica') AS Trailer, vc.nombre AS Configuracion, v2.tipo_vinculacion, v2.num_chasis
+            $stmt1 = $this->_db3->prepare("SELECT
+            ma.id AS numero_manifiesto, ma.fecha_expedicion, ma.placa, IFNULL(t.placa, '-') AS Trailer, vc.nombre AS Configuracion, v2.tipo_vinculacion, v2.num_chasis
                 FROM cmx_manifiesto ma
                 INNER JOIN cmx_vehiculos v ON ma.placa = v.placa
                 INNER JOIN cmx_vehiculo2 v2 ON v.numdoc_vehiculo = v2.id_vehiculo
                 INNER JOIN cmx_rndc_vehiculos_configuracion vc ON v2.configuracion = vc.id
-                LEFT JOIN cmx_trailer_vehiculo tv ON v.numdoc_vehiculo = tv.id_vehiculo
-                LEFT JOIN cmx_trailer t ON tv.id_trailer = t.numdoc_trailer
-                WHERE ma.fecha_expedicion BETWEEN :fecha_inicio AND :fecha_fin");
-            $stmt1->bindParam(':fecha_inicio', $fecha_inicial);
-            $stmt1->bindParam(':fecha_fin', $fecha_final);
+                INNER JOIN cmx_manifiesto_remesa mr ON ma.id=mr.id_manifiesto
+                LEFT JOIN cmx_trailer_vehiculo tv ON v.numdoc_vehiculo = tv.id_vehiculo AND tv.estado=1
+                LEFT JOIN cmx_trailer t ON tv.id_trailer = t.id
+                WHERE ma.fecha_expedicion BETWEEN :fecha_inicio
+                    AND :fecha_fin");
+            $stmt1->bindParam(':fecha_inicio', $inicio);
+            $stmt1->bindParam(':fecha_fin', $fin);
             $stmt1->execute();
             $manifiestoData = $stmt1->fetchAll(PDO::FETCH_ASSOC);
 
-            // Consulta 2: Datos de remesas, orden de cargue y cumplidos
-            $stmt2 = $this->_db3->prepare("SELECT mr.id_manifiesto, mr.id_remesa, ro.id_orden_cargue, CONCAT(rm.fecha_creacion, ' ', rm.hora_creacion) AS fecha_remesa, CONCAT(c.fecha, ' ', c.hora) AS fecha_cumplido, 
-                CONCAT(IF(tco.tipo_fecha = 'fec_llegada', CONCAT(tco.fecha_cargue, ' ', tco.hora_cargue), '')) AS fecha_llegada_cargue, 
-                CONCAT(IF(tco2.tipo_fecha = 'fec_salida', CONCAT(tco2.fecha_cargue, ' ', tco2.hora_cargue), '')) AS fecha_salida_cargue, 
-                CONCAT(IF(tdr.tipo_fecha = 'fec_llegada', CONCAT(tdr.fecha_descargue, ' ', tdr.hora_descargue), '')) AS fecha_llegada_descargue,
-                CONCAT(IF(tdr2.tipo_fecha = 'fec_salida', CONCAT(tdr2.fecha_descargue, ' ', tdr2.hora_descargue), '')) AS fecha_salida_descargue,
-                rm.cantidad_real_cargada
-                FROM cmx_manifiesto_remesa mr
-                INNER JOIN cmx_remesa rm ON mr.id_remesa = rm.id
-                INNER JOIN cmx_remesa_ordencargue ro ON mr.id_remesa = ro.id_remesa
-                INNER JOIN cmx_cumplido c ON mr.id_manifiesto = c.manifiesto AND c.estado = 1
-                INNER JOIN cmx_cumplido_remesa cr ON c.id = cr.id_cumplido AND cr.tipo_fecha = 'fec_salida'
-                INNER JOIN cmx_tiempo_cargue_ordenes tco ON ro.id_orden_cargue = tco.id_orden_cargue AND tco.tipo_fecha = 'fec_llegada'
-                INNER JOIN cmx_tiempo_cargue_ordenes tco2 ON ro.id_orden_cargue = tco2.id_orden_cargue AND tco2.tipo_fecha = 'fec_salida'
-                INNER JOIN cmx_tiempo_descargue_rem tdr ON rm.id = tdr.id_remesa AND tdr.tipo_fecha = 'fec_llegada'
-                INNER JOIN cmx_tiempo_descargue_rem tdr2 ON rm.id = tdr2.id_remesa AND tdr2.tipo_fecha = 'fec_salida'
-                WHERE mr.id_manifiesto IN (SELECT id FROM cmx_manifiesto WHERE fecha_expedicion BETWEEN :fecha_inicio AND :fecha_fin) GROUP BY mr.id_manifiesto, rm.id");
+            $stmt2 = $this->_db3->prepare("SELECT
+                    mr.id_manifiesto,
+                    mr.id_remesa,
+                    ro.id_orden_cargue,
+                    CONCAT(
+                        rm.fecha_creacion, ' ', rm.hora_creacion
+                    ) AS fecha_remesa,
+                    IFNULL(
+                        CONCAT(c.fecha, ' ', c.hora),
+                        '-'
+                    ) AS fecha_cumplido,
+                    CONCAT(
+                        IF(
+                            tco.tipo_fecha = 'fec_llegada',
+                            CONCAT(
+                                tco.fecha_cargue, ' ', tco.hora_cargue
+                            ),
+                            ''
+                        )
+                    ) AS fecha_llegada_cargue,
+                    CONCAT(
+                        IF(
+                            tco2.tipo_fecha = 'fec_salida',
+                            CONCAT(
+                                tco2.fecha_cargue, ' ', tco2.hora_cargue
+                            ),
+                            ''
+                        )
+                    ) AS fecha_salida_cargue,
+                    CONCAT(
+                        IF (
+                            tdr.tipo_fecha = 'fec_llegada',
+                            CONCAT(
+                                tdr.fecha_descargue, ' ', tdr.hora_descargue
+                            ),
+                            ''
+                        )
+                    ) AS fecha_llegada_descargue,
+                    CONCAT(
+                        IF(
+                            tdr2.tipo_fecha = 'fec_salida',
+                            CONCAT(
+                                tdr2.fecha_descargue, ' ', tdr2.hora_descargue
+                            ),
+                            ''
+                        )
+                    ) AS fecha_salida_descargue,
+                    rm.cantidad_real_cargada
+                FROM
+                    cmx_manifiesto m
+                    INNER JOIN cmx_manifiesto_remesa mr ON m.id = mr.id_manifiesto
+                    INNER JOIN cmx_remesa rm ON mr.id_remesa = rm.id
+                    INNER JOIN cmx_remesa_ordencargue ro ON rm.id = ro.id_remesa
+                    INNER JOIN cmx_orden_cargue oc ON ro.id_orden_cargue = oc.id
+                    LEFT JOIN cmx_cumplido c ON m.id = c.manifiesto
+                    AND c.estado = 1
+                    LEFT JOIN cmx_cumplido_remesa cr ON c.id = cr.id_cumplido
+                    AND cr.tipo_fecha = 'fec_salida'
+                    LEFT JOIN cmx_tiempo_cargue_ordenes tco ON ro.id_orden_cargue = tco.id_orden_cargue
+                    AND tco.tipo_fecha = 'fec_llegada'
+                    LEFT JOIN cmx_tiempo_cargue_ordenes tco2 ON ro.id_orden_cargue = tco2.id_orden_cargue
+                    AND tco2.tipo_fecha = 'fec_salida'
+                    LEFT JOIN cmx_tiempo_descargue_rem tdr ON rm.id = tdr.id_remesa
+                    AND tdr.tipo_fecha = 'fec_llegada'
+                    LEFT JOIN cmx_tiempo_descargue_rem tdr2 ON rm.id = tdr2.id_remesa
+                    AND tdr2.tipo_fecha = 'fec_salida'
+                WHERE
+                    m.fecha_expedicion BETWEEN STR_TO_DATE(:fecha_inicio, '%Y-%m-%d')
+                    AND STR_TO_DATE(:fecha_fin, '%Y-%m-%d')
+                GROUP BY
+                    m.id,
+                    rm.id");
+
             $stmt2->bindParam(':fecha_inicio', $fecha_inicial);
             $stmt2->bindParam(':fecha_fin', $fecha_final);
             $stmt2->execute();
             $remesaData = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
             // Consulta 3: Datos de clientes, órdenes de cargue y mercancías
-            $stmt3 = $this->_db3->prepare("SELECT oc.id AS id_orden_cargue, oc.mer_empaque AS Espaque, 
-                dm.peso_neto_tn AS peso_pedido, cl.nombre, cl.nom_sede, ma.Lugar AS Agencia,
-                oc.mer_pesomercancia,ma.total_peso,CONCAT(ori.municipio,'-',ori.depto) AS origen_rem,
+            $stmt3 = $this->_db3->prepare("SELECT oc.id AS id_orden_cargue, cl.nombre, ma.Lugar AS Agencia,
+                CONCAT(ori.municipio,'-',ori.depto) AS origen_rem,
                 CONCAT(dest.municipio,'-',dest.depto) AS destino_rem,dm.tipo_mercancia,cond.numero_documento AS cedula_conductor,
-                cond.celular AS ceular_conductor,CONCAT(cond.nombre,' ',IFNULL(cond.apellido1,''),' ',IFNULL(cond.apellido2,' ')) AS Conductor,
+                cond.celular AS celular_conductor,CONCAT(cond.nombre,' ',IFNULL(cond.apellido1,''),' ',IFNULL(cond.apellido2,' ')) AS Conductor,
                 CONCAT(pose.nombre,' ',IFNULL(pose.apellido1,''),' ',IFNULL(pose.apellido2,' ')) AS Poseedor,
                 pose.numero_documento AS cedula_poseedor,pose.celular AS celular_poseedor,mr.usuario AS elaborado,
                 -- IF(ma.estadomnf_actual = 1, 'Activo', 'Anulado') AS estado_manifiesto,
                 CASE WHEN ma.estado_seguimiento = 'CUMPLIDO' THEN 'Activo'
-                WHEN ma.estado_seguimiento = 'FINALIZADO' THEN 'Activo' 
-                WHEN ma.estado_seguimiento = 'ANULADO' THEN 'Anulado' 
-                WHEN ma.estado_seguimiento = 'SEGUIMIENTO' THEN 'Seguimiento' 
+                WHEN ma.estado_seguimiento = 'FINALIZADO' THEN 'Activo'
+                WHEN ma.estado_seguimiento = 'ANULADO' THEN 'Anulado'
+                WHEN ma.estado_seguimiento = 'SEGUIMIENTO' THEN 'Seguimiento'
                 WHEN ma.estado_seguimiento = 'LLEGADA' THEN 'Llegada'
-                WHEN ma.estado_seguimiento = 'SALIDA' THEN 'Salida' 
+                WHEN ma.estado_seguimiento = 'SALIDA' THEN 'Salida'
                 ELSE 'Desconocido' END AS estado_manifiesto,
                 ss.nundoc_solicitud
                 FROM cmx_orden_cargue oc
@@ -246,8 +299,8 @@ class informeModel extends Model
                 INNER JOIN cmx_municipios dest ON dm.destino=dest.rndc_codigo_ciudad
                 INNER JOIN cmx_proveedores cond ON ma.conductor_manifiesto=cond.numero_documento
                 INNER JOIN cmx_proveedores pose ON ma.titular_manifiesto=pose.numero_documento
-                WHERE ma.fecha_expedicion BETWEEN :fecha_inicio AND :fecha_fin");
-            #WHERE ma.fecha_expedicion BETWEEN :fecha_inicio AND :fecha_fin GROUP BY ma.id");
+                WHERE ma.fecha_expedicion BETWEEN STR_TO_DATE(:fecha_inicio, '%Y-%m-%d') AND STR_TO_DATE(:fecha_fin, '%Y-%m-%d')");
+
             $stmt3->bindParam(':fecha_inicio', $fecha_inicial);
             $stmt3->bindParam(':fecha_fin', $fecha_final);
             $stmt3->execute();
@@ -298,21 +351,21 @@ class informeModel extends Model
                 foreach ($manifiesto['remesas'] as &$remesa) {
                     if ($remesa['id_orden_cargue'] == $idOrdenCargue) {
                         // Añadir datos del cliente
-                        $remesa['mer_empaque'] = $cliente['Espaque'];
-                        $remesa['peso_pedido'] = $cliente['peso_pedido'];
+                        // $remesa['mer_empaque'] = $cliente['Espaque'];
+                        // $remesa['peso_pedido'] = $cliente['peso_pedido'];
                         $remesa['nombre_cliente'] = $cliente['nombre'];
-                        $remesa['nom_sede'] = $cliente['nom_sede'];
+                        // $remesa['nom_sede'] = $cliente['nom_sede'];
                         $remesa['Agencia'] = $cliente['Agencia'];
-                        $toneladas = $this->kilolitrosAToneladas($cliente['mer_pesomercancia']);
-                        $remesa['mer_pesomercancia'] = $toneladas;
-                        $toneladas_cumplido = $this->kilolitrosAToneladas((int) $cliente['total_peso']);
-                        $remesa['total_peso'] = $toneladas_cumplido;
+                        // $toneladas = $this->kilolitrosAToneladas($cliente['mer_pesomercancia']);
+                        // $remesa['mer_pesomercancia'] = $toneladas;
+                        // $toneladas_cumplido = $this->kilolitrosAToneladas((int) $cliente['total_peso']);
+                        // $remesa['total_peso'] = $toneladas_cumplido;
                         $remesa['origen_rem'] = $cliente['origen_rem'];
                         $remesa['destino_rem'] = $cliente['destino_rem'];
                         $remesa['tipo_mercancia'] = $cliente['tipo_mercancia'];
                         $remesa['Conductor'] = $cliente['Conductor'];
                         $remesa['cedula_conductor'] = $cliente['cedula_conductor'];
-                        $remesa['ceular_conductor'] = $cliente['ceular_conductor'];
+                        $remesa['celular_conductor'] = $cliente['celular_conductor'];
                         $remesa['Poseedor'] = $cliente['Poseedor'];
                         $remesa['cedula_poseedor'] = $cliente['cedula_poseedor'];
                         $remesa['celular_poseedor'] = $cliente['celular_poseedor'];
@@ -358,6 +411,7 @@ class informeModel extends Model
         ];
         return $response;
     }
+
     public function Informe_precintos($fecha_inicial, $fecha_final)
     {
         $consulta = "SELECT m.id AS MANIFIESTO, rm.id AS REMESA_ID, oc.id AS ORDEN_CARGUE, GROUP_CONCAT(pre.serie_precinto ORDER BY pre.serie_precinto SEPARATOR ', ') AS PRECINTOS, 
@@ -387,37 +441,55 @@ class informeModel extends Model
 
         try {
             if ($filtro == "Fecha") {
-                // $sql = $this->_db3->prepare(" SELECT COUNT(rm.id) AS Cantidad_remesas, SUM(oc.ve_tarifacalculada) AS Total_valor_remesa 
-                // FROM cmx_orden_cargue oc
-                // INNER JOIN cmx_remesa_ordencargue ro ON oc.id=ro.id_orden_cargue
-                // INNER JOIN cmx_remesa rm ON ro.id_remesa=rm.id
-                // INNER JOIN cmx_manifiesto_remesa mr ON rm.id=mr.id_remesa
-                // INNER JOIN cmx_manifiesto m ON mr.id_manifiesto=m.id
-                // INNER JOIN cmx_solicitud_vehiculo2 ss ON oc.mer_idservicio=ss.nundoc_solicitud
-                // INNER JOIN cmx_cotizaciones_serviciocliente cs ON ss.n_cotizacion=cs.n_cotizacion
-                // WHERE oc.fecha_orden BETWEEN :fecha_inicio AND :fecha_fin 
-                // AND rm.estado=1 AND oc.estado=1 AND m.estadomnf_actual=1 AND mr.estado=1 AND ss.estado='Realizada'");
+                // CONSULTA 1: Cantidad de remesas
+                $sql1 = $this->_db3->prepare("
+                    SELECT COUNT(rm.id) AS Cantidad_remesas
+                    FROM cmx_remesa rm
+                    LEFT JOIN cmx_remesa_ordencargue ro ON rm.id = ro.id_remesa
+                    LEFT JOIN cmx_orden_cargue oc ON ro.id_orden_cargue = oc.id
+                    WHERE rm.fecha_creacion BETWEEN STR_TO_DATE(:fecha_inicio, '%Y-%m-%d') 
+                    AND STR_TO_DATE(:fecha_fin, '%Y-%m-%d')
+                    AND rm.estado = 1 AND oc.estado = 1
+                ");
 
-                $sql = $this->_db3->prepare(" SELECT COUNT(rm.id) AS Cantidad_remesas, SUM(oc.ve_tarifacalculada) AS Total_valor_remesa 
-                FROM cmx_remesa rm
-                LEFT JOIN cmx_remesa_ordencargue ro ON rm.id = ro.id_remesa
-                LEFT JOIN cmx_orden_cargue oc ON ro.id_orden_cargue = oc.id
-                WHERE rm.fecha_creacion BETWEEN :fecha_inicio AND :fecha_fin 
-                AND rm.estado = 1 AND oc.estado = 1");
+                $sql1->bindParam(':fecha_inicio', $fecha_inicial);
+                $sql1->bindParam(':fecha_fin', $fecha_final);
+                $sql1->execute();
+                $data1 = $sql1->fetch(PDO::FETCH_ASSOC);
 
-                $sql->bindParam(':fecha_inicio', $fecha_inicial);
-                $sql->bindParam(':fecha_fin', $fecha_final);
-                $sql->execute();
+                // CONSULTA 2: Suma del valor de remesas
+                $sql2 = $this->_db3->prepare("
+                    SELECT SUM(oc.ve_tarifacalculada) AS Total_valor_remesa
+                    FROM cmx_remesa rm
+                    INNER JOIN cmx_remesa_ordencargue ro ON rm.id = ro.id_remesa
+                    INNER JOIN cmx_orden_cargue oc ON ro.id_orden_cargue = oc.id
+                    INNER JOIN cmx_manifiesto_remesa mr ON rm.id = mr.id_remesa
+                    AND mr.estado = 1
+                    INNER JOIN cmx_manifiesto ma ON mr.id_manifiesto = ma.id
+                    INNER JOIN cmx_solicitud_vehiculo2 ss ON oc.mer_idservicio=ss.nundoc_solicitud
+                    WHERE rm.fecha_creacion BETWEEN STR_TO_DATE(:fecha_inicio, '%Y-%m-%d') 
+                    AND STR_TO_DATE(:fecha_fin, '%Y-%m-%d')
+                    AND rm.estado = 1
+                    AND oc.estado = 1
+                    AND ro.estado = 1
+                    AND ma.estadomnf_actual = 1
+                    AND ma.estado_seguimiento = 'CUMPLIDO'
+                    AND ss.estado='Realizada'
+                ");
 
-                $data = $sql->fetch(PDO::FETCH_ASSOC);
+                $sql2->bindParam(':fecha_inicio', $fecha_inicial);
+                $sql2->bindParam(':fecha_fin', $fecha_final);
+                $sql2->execute();
+                $data2 = $sql2->fetch(PDO::FETCH_ASSOC);
 
-                if ($data && $data['Cantidad_remesas'] > 0) {
+                // CONSTRUCCIÓN DE RESPUESTA
+                if ($data1 && $data1['Cantidad_remesas'] > 0) {
                     $response = [
                         'status' => 200,
                         'message' => 'Operación exitosa',
                         'data' => [
-                            'Cantidad_remesas' => $data['Cantidad_remesas'],
-                            'Total_valor_remesa' => $data['Total_valor_remesa']
+                            'Cantidad_remesas' => $data1['Cantidad_remesas'],
+                            'Total_valor_remesa' => $data2['Total_valor_remesa'] ?? 0
                         ]
                     ];
                 } else {
@@ -540,7 +612,8 @@ class informeModel extends Model
                 INNER JOIN cmx_remesa rm ON ro.id_remesa=rm.id
                 INNER JOIN cmx_manifiesto_remesa mr ON rm.id=mr.id_remesa
                 INNER JOIN cmx_manifiesto m ON mr.id_manifiesto=m.id
-                WHERE oc.fecha_orden BETWEEN :fecha_inicio AND :fecha_fin AND rm.estado=1 AND oc.estado=1  AND m.estadomnf_actual=1 AND mr.estado=1");
+                WHERE oc.fecha_orden BETWEEN STR_TO_DATE(:fecha_inicio, '%Y-%m-%d') 
+                    AND STR_TO_DATE(:fecha_fin, '%Y-%m-%d') AND rm.estado=1 AND oc.estado=1  AND m.estadomnf_actual=1 AND mr.estado=1");
 
                 $sql->bindParam(':fecha_inicio', $fecha_inicial);
                 $sql->bindParam(':fecha_fin', $fecha_final);
@@ -1180,8 +1253,8 @@ class informeModel extends Model
         SUM(CASE WHEN estado = 'Pendiente' THEN 1 ELSE 0 END) AS Pendientes,
         SUM(CASE WHEN estado = 'Rechazado' THEN 1 ELSE 0 END) AS Rechazados,
         SUM(CASE WHEN estado IN ('Aprobado', 'Pendiente', 'Rechazado') THEN 1 ELSE 0 END) AS Total_Parcial
-    FROM cmx_estudiov_completo ec
-    WHERE ec.fecha BETWEEN :fecha_inicio AND :fecha_fin");
+        FROM cmx_estudiov_completo ec
+        WHERE DATE_FORMAT(ec.fecha,'%Y-%m-%d') BETWEEN :fecha_inicio AND :fecha_fin");
         $sql->bindParam(':fecha_inicio', $fecha_inicial);
         $sql->bindParam(':fecha_fin', $fecha_final);
         $sql->execute();
@@ -1208,7 +1281,6 @@ class informeModel extends Model
         $response = ["respuesta" => $resultado_ssp];
         return $response;
     }
-
 
     public function Informe_responsable_placas($fecha_inicial, $fecha_final, $responsable)
     {
@@ -1285,7 +1357,7 @@ class informeModel extends Model
         return $resultado;
     }
 
-    public function Informe_pedidos(/* $fecha_inicial, $fecha_final, */ $num_pedido)
+    public function Informe_pedidos(/* $fecha_inicial, $fecha_final, */$num_pedido)
     {
         $response = [];
         $sql = $this->_db3->prepare("SELECT tot.nombre_opcion,CONCAT(dop.fecha_creacion,' ',dop.hora) AS Fecha_registro,dop.costo_actividad,dop.costo_promedio,dop.estado_actividad
@@ -1357,148 +1429,17 @@ class informeModel extends Model
         }
 
         return $response;
-        // if ($fecha_inicial === "" && $fecha_final === "") {
-        //     // $sql = $this->_db3->prepare("SELECT  * FROM cmx_trazabilidad_proceso WHERE");
-        // } else {
-        //     // $sql = $this->_db3->prepare("SELECT tot.nombre_opcion,CONCAT(dop.fecha_creacion,' ',dop.hora) AS Fecha_registro,dop.costo_actividad,dop.costo_promedio
-        //     // FROM cmx_trazabilidad_proceso tp
-        //     // INNER JOIN cmx_detalle_opcion_trazabilidad dop  ON tp.numdoc =dop.numdoc_detalle_opcion
-        //     // INNER JOIN cmx_tipo_opcion_trazabilidad tot ON dop.detalle_proceso=tot.id
-        //     // WHERE /* numdoc=:numdoc OR */ referencia=:referencia");
-        //     // $sql->bindParam(':referencia', $num_pedido);
-        //     // $sql->execute();
-        //     // $datos = $sql->fetchAll(PDO::FETCH_ASSOC);
-
-        //     // $sql1 = $this->_db3->prepare("SELECT ps.fecha AS fecha_gestion FROM cmx_trazabilidad_proceso tp 
-        //     // INNER JOIN cmx_pedidos_solicitudes_detalles ps ON tp.numdoc=ps.num_pedido
-        //     // WHERE tp.referencia=:referencia");
-        //     // $sql1->bindParam(':referencia', $num_pedido);
-        //     // $sql1->execute();
-        //     // $datos1 = $sql1->fetchAll(PDO::FETCH_ASSOC);
-
-        //     // foreach ($datos as $key => $dato) {
-        //     //     $response[] = [
-        //     //         "nombre_opcion"   => $dato["nombre_opcion"],
-        //     //         "fecha_registro"  => $dato["Fecha_registro"],
-        //     //         "costo_actividad" => $dato["costo_actividad"],
-        //     //         "costo_promedio"  => $dato["costo_promedio"],
-        //     //         "fecha_gestion"   => $datos1[$key]["fecha_gestion"] ?? null  // Evitar errores si no hay gestión
-        //     //     ];
-        //     // }
-        //     // return $response;
-        //     //         $sql = $this->_db3->prepare("SELECT 
-        //     //     tot.nombre_opcion,
-        //     //     CONCAT(dop.fecha_creacion,' ',dop.hora) AS Fecha_registro,
-        //     //     dop.costo_actividad,
-        //     //     dop.costo_promedio
-        //     // FROM cmx_trazabilidad_proceso tp
-        //     // INNER JOIN cmx_detalle_opcion_trazabilidad dop  
-        //     //     ON tp.numdoc = dop.numdoc_detalle_opcion
-        //     // INNER JOIN cmx_tipo_opcion_trazabilidad tot 
-        //     //     ON dop.detalle_proceso = tot.id
-        //     // WHERE referencia = :referencia");
-        //     //         $sql->bindParam(':referencia', $num_pedido);
-        //     //         $sql->execute();
-        //     //         $datos = $sql->fetchAll(PDO::FETCH_ASSOC);
-
-        //     //         $sql1 = $this->_db3->prepare("SELECT 
-        //     //     ps.fecha AS fecha_gestion 
-        //     // FROM cmx_trazabilidad_proceso tp 
-        //     // INNER JOIN cmx_pedidos_solicitudes_detalles ps 
-        //     //     ON tp.numdoc = ps.num_pedido
-        //     // WHERE tp.referencia = :referencia");
-        //     //         $sql1->bindParam(':referencia', $num_pedido);
-        //     //         $sql1->execute();
-        //     //         $datos1 = $sql1->fetchAll(PDO::FETCH_ASSOC);
-
-        //     //         // Asegurar que la lista de gestión esté bien indexada
-        //     //         $fechas_gestion = array_column($datos1, 'fecha_gestion');
-
-        //     //         // Combinar resultados en un solo array
-        //     //         $response = [];
-        //     //         foreach ($datos as $key => $dato) {
-        //     //             $response[] = [
-        //     //                 "nombre_opcion"   => $dato["nombre_opcion"],
-        //     //                 "fecha_registro"  => $dato["Fecha_registro"],
-        //     //                 "costo_actividad" => $dato["costo_actividad"],
-        //     //                 "costo_promedio"  => $dato["costo_promedio"],
-        //     //                 "fecha_gestion"   => isset($fechas_gestion[$key]) ? $fechas_gestion[$key] : 'No gestionada'
-        //     //             ];
-        //     //         }
-
-        //     //         return $response;
-        //     $sql = $this->_db3->prepare("SELECT tot.nombre_opcion,CONCAT(dop.fecha_creacion,' ',dop.hora) AS Fecha_registro,dop.costo_actividad,dop.costo_promedio,dop.estado_actividad
-        //     FROM cmx_trazabilidad_proceso tp
-        //     INNER JOIN cmx_detalle_opcion_trazabilidad dop  ON tp.numdoc = dop.numdoc_detalle_opcion
-        //     INNER JOIN cmx_tipo_opcion_trazabilidad tot ON dop.detalle_proceso = tot.id
-        //     WHERE referencia = :referencia");
-        //     $sql->bindParam(':referencia', $num_pedido);
-        //     $sql->execute();
-        //     $datos = $sql->fetchAll(PDO::FETCH_ASSOC);
-
-        //     $sql1 = $this->_db3->prepare("SELECT MAX(ps.fecha) AS fecha_gestion 
-        //     FROM cmx_trazabilidad_proceso tp 
-        //     INNER JOIN cmx_pedidos_solicitudes_detalles ps  ON tp.numdoc = ps.num_pedido
-        //     WHERE tp.referencia = :referencia");
-        //     $sql1->bindParam(':referencia', $num_pedido);
-        //     $sql1->execute();
-        //     $datos1 = $sql1->fetchAll(PDO::FETCH_ASSOC);
-
-        //     // Asegurar que la lista de gestión esté bien indexada
-        //     $fechas_gestion = array_column($datos1, 'fecha_gestion');
-
-        //     // Combinar resultados en un solo array
-        //     $response = [];
-        //     foreach ($datos as $key => $dato) {
-        //         // // Convertir las fechas a objetos DateTime
-        //         // $fecha_registro = new DateTime($dato["Fecha_registro"]);
-        //         // $fecha_gestion = isset($fechas_gestion[$key]) ? new DateTime($fechas_gestion[$key]) : null;
-
-        //         // // Si la fecha de gestión no está disponible, asignar 'No gestionada'
-        //         // if ($fecha_gestion) {
-        //         //     // Calcular la diferencia
-        //         //     $diferencia = $fecha_registro->diff($fecha_gestion);
-
-        //         //     // Crear un string con la diferencia en formato legible (días, horas, minutos)
-        //         //     $diferencia_formateada = $diferencia->days . ' días, ' . $diferencia->h . ' horas, ' . $diferencia->i . ' minutos';
-        //         // } else {
-        //         //     $diferencia_formateada = 'No gestionada';
-        //         // }
-
-        //         // Convertir las fechas a objetos DateTime
-        //         $fecha_registro = new DateTime($dato["Fecha_registro"]);
-
-        //         // Si no hay fecha de gestión, usar la fecha actual
-        //         $fecha_gestion = isset($fechas_gestion[$key]) ? new DateTime($fechas_gestion[$key]) : new DateTime();
-
-        //         // Calcular la diferencia
-        //         $diferencia = $fecha_registro->diff($fecha_gestion);
-
-        //         // Crear un string con la diferencia en formato legible (días, horas, minutos)
-        //         $diferencia_formateada = $diferencia->days . ' días, ' . $diferencia->h . ' horas, ' . $diferencia->i . ' minutos';
-
-        //         // Añadir los resultados al array de respuesta
-        //         $response[] = [
-        //             "nombre_opcion"   => $dato["nombre_opcion"],
-        //             "fecha_registro"  => $dato["Fecha_registro"],
-        //             "costo_actividad" => $dato["costo_actividad"],
-        //             "costo_promedio"  => $dato["costo_promedio"],
-        //             "estado_actividad"  => $dato["estado_actividad"],
-        //             "fecha_gestion"   => isset($fechas_gestion[$key]) ? $fechas_gestion[$key] : 'No gestionada',
-        //             "diferencia"      => $diferencia_formateada
-        //         ];
-        //     }
-
-        //     return $response;
-        // }
     }
 
     public function Informe_cumplidos($fecha_inicial, $fecha_final, $num_pedido)
     {
-        if ($fecha_inicial && $fecha_final !== "" && $num_pedido !== "") {
-            $sql = $this->_db3->prepare("SELECT m.placa,m.id AS manifesto,m.fecha_expedicion,rem.id AS remesa, cl.nombre AS Cliente,
+        if ($fecha_inicial !== "" && $fecha_final !== "" && $num_pedido !== "") {
+            // $fecha_inicial = $fecha_inicial . ' 06:00:00';
+            // $fecha_final   = $fecha_final . ' 23:00:00';
+            $sql = $this->_db3->prepare("SELECT m.placa, m.id AS manifesto,m.fecha_expedicion,rem.id AS remesa, cl.nombre AS Cliente,
             CONCAT(ori.municipio,'-',ori.depto) AS Origen, CONCAT(des.municipio,'-',des.depto) AS Destino,m.Lugar AS Agencia,me.usuario AS Planillador,
-            me.estado AS Estado_Manifiesto,rme.estado AS Estado_Remesa, eoc.estado AS Estado_Orden_Cargue,cu.id AS cumplido, CONCAT(cu.fecha,' ',cu.hora) AS fecha_cumplido,cu.usuario,m.estado_seguimiento
+            me.estado AS Estado_Manifiesto,rme.estado AS Estado_Remesa, eoc.estado AS Estado_Orden_Cargue,cu.id AS cumplido, 
+            CONCAT(cu.fecha,' ',cu.hora) AS fecha_cumplido,cu.usuario,m.estado_seguimiento,cu.novedad AS observacion
             FROM  cmx_manifiesto m 
             INNER JOIN cmx_manifiesto_estado me ON m.id=me.id_manifiesto
             INNER JOIN cmx_manifiesto_remesa mr ON m.id=mr.id_manifiesto
@@ -1512,7 +1453,12 @@ class informeModel extends Model
             INNER JOIN cmx_municipios des ON m.destino_viaje=des.id
             LEFT  JOIN cmx_cumplido cu ON cu.manifiesto=m.id
             LEFT  JOIN cmx_cumplido_remesa cr ON cu.id=cr.id_cumplido
-            WHERE m.id=:dato OR rem.id=:dato OR m.placa=:dato AND m.fecha_expedicion BETWEEN :Fecha_inicio AND :Fecha_final GROUP BY m.id ORDER BY m.id DESC");
+            WHERE
+                m.fecha_expedicion BETWEEN STR_TO_DATE(:Fecha_inicio, '%Y-%m-%d' ) 
+                AND STR_TO_DATE(:Fecha_final, '%Y-%m-%d' )
+            GROUP BY m.id ORDER BY m.id DESC");
+            // WHERE m.id=:dato OR rem.id=:dato OR m.placa=:dato AND m.fecha_expedicion BETWEEN :Fecha_inicio AND :Fecha_final
+            // WHERE DATE_FORMAT(m.fecha_expedicion,'%Y-%m-%d') BETWEEN :Fecha_inicio AND :Fecha_final");
             $sql->bindParam(':dato', $num_pedido);
             $sql->bindParam(':Fecha_inicio', $fecha_inicial);
             $sql->bindParam(':Fecha_final', $fecha_final);
@@ -1520,10 +1466,13 @@ class informeModel extends Model
             $sql->execute();
             $datos = $sql->fetchAll(PDO::FETCH_ASSOC);
             return $datos;
-        } else if ($fecha_inicial && $fecha_final !== "" && $num_pedido === "") {
-            $sql = $this->_db3->prepare("SELECT m.placa,m.id AS manifesto,m.fecha_expedicion,rem.id AS remesa, cl.nombre AS Cliente,
+        } else if ($fecha_inicial !== "" && $fecha_final !== "" && $num_pedido === "") {
+            $fecha_inicial = $fecha_inicial . ' 06:00:00';
+            $fecha_final   = $fecha_final . ' 23:00:00';
+            $sql = $this->_db3->prepare("SELECT m.placa,m.id AS manifesto, m.fecha_expedicion, rem.id AS remesa, cl.nombre AS Cliente,
             CONCAT(ori.municipio,'-',ori.depto) AS Origen, CONCAT(des.municipio,'-',des.depto) AS Destino,m.Lugar AS Agencia,me.usuario AS Planillador,
-            me.estado AS Estado_Manifiesto,rme.estado AS Estado_Remesa, eoc.estado AS Estado_Orden_Cargue,cu.id AS cumplido, CONCAT(cu.fecha,' ',cu.hora) AS fecha_cumplido,cu.usuario,m.estado_seguimiento
+            me.estado AS Estado_Manifiesto,rme.estado AS Estado_Remesa, eoc.estado AS Estado_Orden_Cargue,cu.id AS cumplido, 
+            CONCAT(cu.fecha,' ',cu.hora) AS fecha_cumplido,cu.usuario,m.estado_seguimiento,cu.novedad AS observacion
             FROM  cmx_manifiesto m 
             INNER JOIN cmx_manifiesto_estado me ON m.id=me.id_manifiesto
             INNER JOIN cmx_manifiesto_remesa mr ON m.id=mr.id_manifiesto
@@ -1537,8 +1486,8 @@ class informeModel extends Model
             INNER JOIN cmx_municipios des ON m.destino_viaje=des.id
             LEFT  JOIN cmx_cumplido cu ON cu.manifiesto=m.id
             LEFT  JOIN cmx_cumplido_remesa cr ON cu.id=cr.id_cumplido
-            WHERE  m.fecha_expedicion BETWEEN :Fecha_inicio AND :Fecha_final GROUP BY m.id ORDER BY m.id DESC");
-
+            WHERE m.fecha_expedicion BETWEEN :Fecha_inicio AND :Fecha_final
+            GROUP BY m.id ORDER BY m.id DESC");
             $sql->bindParam(':Fecha_inicio', $fecha_inicial);
             $sql->bindParam(':Fecha_final', $fecha_final);
             // $sql->bindParam(':dato', $num_pedido);
@@ -1548,7 +1497,8 @@ class informeModel extends Model
         } else {
             $sql = $this->_db3->prepare("SELECT m.placa,m.id AS manifesto,m.fecha_expedicion,rem.id AS remesa, cl.nombre AS Cliente,
             CONCAT(ori.municipio,'-',ori.depto) AS Origen, CONCAT(des.municipio,'-',des.depto) AS Destino,m.Lugar AS Agencia,me.usuario AS Planillador,
-            me.estado AS Estado_Manifiesto,rme.estado AS Estado_Remesa, eoc.estado AS Estado_Orden_Cargue,cu.id AS cumplido, CONCAT(cu.fecha,' ',cu.hora) AS fecha_cumplido,cu.usuario,m.estado_seguimiento
+            me.estado AS Estado_Manifiesto,rme.estado AS Estado_Remesa, eoc.estado AS Estado_Orden_Cargue,cu.id AS cumplido, 
+            CONCAT(cu.fecha,' ',cu.hora) AS fecha_cumplido,cu.usuario,m.estado_seguimiento,cu.novedad AS observacion
             FROM  cmx_manifiesto m 
             INNER JOIN cmx_manifiesto_estado me ON m.id=me.id_manifiesto
             INNER JOIN cmx_manifiesto_remesa mr ON m.id=mr.id_manifiesto
@@ -1570,54 +1520,6 @@ class informeModel extends Model
         }
     }
 
-    // public function Informe_historico_seguimiento($fecha_inicial, $fecha_final, $criterio_busqueda)
-    // {
-    //     if ($fecha_inicial && $fecha_final !== "" && $criterio_busqueda !== "") {
-    //         $sql = $this->_db3->prepare("SELECT m.id AS Manifiesto,mr.id_remesa AS Remesa,cl.nombre AS Cliente,m.fecha_expedicion,m.placa,CONCAT(cond.nombre,' ',cond.apellido1,' ',cond.apellido2) AS Conductor,
-    //         CONCAT(ori.municipio,'-',ori.depto) AS Origen, CONCAT(des.municipio,'-',des.depto) AS Destino,m.Lugar AS Agencia FROM cmx_manifiesto m 
-    //         -- INNER JOIN cmx_manifiesto_estado me ON m.id=me.id_manifiesto
-    //         INNER JOIN cmx_manifiesto_remesa mr ON m.id=mr.id_manifiesto
-    //         INNER JOIN cmx_remesa rem ON mr.id_remesa=rem.id
-    //         -- INNER JOIN cmx_estado_remesa rme ON rem.id=rme.id_remesa
-    //         INNER JOIN cmx_remesa_ordencargue ro ON rem.id=ro.id_remesa
-    //         INNER JOIN cmx_orden_cargue oc ON ro.id_orden_cargue=oc.id 
-    //         -- INNER JOIN cmx_estado_ordencargue eoc ON oc.id=eoc.id_orden
-    //         INNER JOIN cmx_clientes cl ON oc.cli_id=cl.id
-    //         INNER JOIN cmx_municipios ori ON m.origen_viaje=ori.id
-    //         INNER JOIN cmx_municipios des ON m.destino_viaje=des.id
-    //         INNER JOIN cmx_vehiculos v ON m.placa=v.placa
-    //         INNER JOIN cmx_proveedores cond ON m.conductor_manifiesto=cond.numero_documento
-    //         WHERE m.placa=:placa AND m.fecha_expedicion BETWEEN :Fecha_inicio AND :Fecha_final AND m.fecha_expedicion>='2024-08-02' GROUP BY m.id ORDER BY m.id DESC");
-    //         $sql->bindParam(':placa', $criterio_busqueda);
-    //         $sql->bindParam(':Fecha_inicio', $fecha_inicial);
-    //         $sql->bindParam(':Fecha_final', $fecha_final);
-    //         // $sql->bindParam(':dato', $num_pedido);
-    //         $sql->execute();
-    //         $datos = $sql->fetchAll(PDO::FETCH_ASSOC);
-    //         return $datos;
-    //     } else {
-    //         $sql = $this->_db3->prepare("SELECT m.id AS Manifiesto,mr.id_remesa AS Remesa,cl.nombre AS Cliente,m.fecha_expedicion,m.placa,CONCAT(cond.nombre,' ',cond.apellido1,' ',cond.apellido2) AS Conductor,
-    //         CONCAT(ori.municipio,'-',ori.depto) AS Origen, CONCAT(des.municipio,'-',des.depto) AS Destino,m.Lugar AS Agencia FROM cmx_manifiesto m 
-    //         -- INNER JOIN cmx_manifiesto_estado me ON m.id=me.id_manifiesto
-    //         INNER JOIN cmx_manifiesto_remesa mr ON m.id=mr.id_manifiesto
-    //         INNER JOIN cmx_remesa rem ON mr.id_remesa=rem.id
-    //         -- INNER JOIN cmx_estado_remesa rme ON rem.id=rme.id_remesa
-    //         INNER JOIN cmx_remesa_ordencargue ro ON rem.id=ro.id_remesa
-    //         INNER JOIN cmx_orden_cargue oc ON ro.id_orden_cargue=oc.id 
-    //         -- INNER JOIN cmx_estado_ordencargue eoc ON oc.id=eoc.id_orden
-    //         INNER JOIN cmx_clientes cl ON oc.cli_id=cl.id
-    //         INNER JOIN cmx_municipios ori ON m.origen_viaje=ori.id
-    //         INNER JOIN cmx_municipios des ON m.destino_viaje=des.id
-    //         INNER JOIN cmx_vehiculos v ON m.placa=v.placa
-    //         INNER JOIN cmx_proveedores cond ON m.conductor_manifiesto=cond.numero_documento
-    //         WHERE m.id=:dato OR rem.id=:dato OR m.placa=:dato AND m.fecha_expedicion>='2024-08-02' GROUP BY m.id ORDER BY m.id DESC");
-    //         $sql->bindParam(':dato', $criterio_busqueda);
-    //         $sql->execute();
-    //         $datos = $sql->fetchAll(PDO::FETCH_ASSOC);
-    //         return $datos;
-    //     }
-    // }
-
     public function Informe_historico_seguimiento($fecha_inicial, $fecha_final, $criterio_busqueda)
     {
         if ($fecha_inicial && $fecha_final !== "" && $criterio_busqueda !== "") {
@@ -1636,9 +1538,9 @@ class informeModel extends Model
             INNER JOIN cmx_vehiculos v ON m.placa=v.placa
             INNER JOIN cmx_proveedores cond ON m.conductor_manifiesto=cond.numero_documento
             WHERE m.placa=:placa AND m.fecha_expedicion BETWEEN :Fecha_inicio AND :Fecha_final AND m.fecha_expedicion>='2024-08-02' GROUP BY 
-    m.id, mr.id_remesa, cl.nombre, m.fecha_expedicion, m.placa, 
-    cond.nombre, cond.apellido1, cond.apellido2, ori.municipio, 
-    ori.depto, des.municipio, des.depto, m.Lugar");
+            m.id, mr.id_remesa, cl.nombre, m.fecha_expedicion, m.placa, 
+            cond.nombre, cond.apellido1, cond.apellido2, ori.municipio, 
+            ori.depto, des.municipio, des.depto, m.Lugar");
             $sql->bindParam(':placa', $criterio_busqueda);
             $sql->bindParam(':Fecha_inicio', $fecha_inicial);
             $sql->bindParam(':Fecha_final', $fecha_final);
@@ -1662,13 +1564,96 @@ class informeModel extends Model
             INNER JOIN cmx_vehiculos v ON m.placa=v.placa
             INNER JOIN cmx_proveedores cond ON m.conductor_manifiesto=cond.numero_documento
             WHERE m.id=:dato OR rem.id=:dato OR m.placa=:dato AND m.fecha_expedicion>='2024-08-02' GROUP BY 
-    m.id, mr.id_remesa, cl.nombre, m.fecha_expedicion, m.placa, 
-    cond.nombre, cond.apellido1, cond.apellido2, ori.municipio, 
-    ori.depto, des.municipio, des.depto, m.Lugar");
+            m.id, mr.id_remesa, cl.nombre, m.fecha_expedicion, m.placa, 
+            cond.nombre, cond.apellido1, cond.apellido2, ori.municipio, 
+            ori.depto, des.municipio, des.depto, m.Lugar");
             $sql->bindParam(':dato', $criterio_busqueda);
             $sql->execute();
             $datos = $sql->fetchAll(PDO::FETCH_ASSOC);
             return $datos;
         }
+    }
+
+    public function Informe_Vehiculos($fecha_inicial, $fecha_final)
+    {
+        if ($fecha_inicial && $fecha_final !== "") {
+            $sql = $this->_db3->prepare("SELECT
+                v.placa,
+                cv.clase,
+                vca.descripcion AS tipo_vehiculo,
+                vco.descripcion AS configuracion,
+                CONCAT( cond.nombre, ' ', cond.apellido1, ' ', cond.apellido2 ) AS Conductor,
+                CONCAT(cond.celular,' - ',dc.celular2) AS Celular,
+                CONCAT( pose.nombre, ' ', pose.apellido1, ' ', pose.apellido2 ) AS Poseedor,
+                pose.celular AS Celular_Poseedor,
+                v.estado
+            FROM
+                cmx_vehiculos v
+                INNER JOIN cmx_vehiculo2 v2 ON v.numdoc_vehiculo = v2.id_vehiculo
+                INNER JOIN cmx_rndc_vehiculos_carroceria vca ON v.tipo_carroceria = vca.id
+                INNER JOIN cmx_rndc_vehiculos_configuracion vco ON v2.configuracion = vco.id
+                INNER JOIN cmx_rndc_clase_vehiculo cv ON v2.clase_vehiculo = cv.id
+                INNER JOIN cmx_proveedores cond ON v.id_conductor = cond.numdoc_nexos
+                INNER JOIN cmx_detalle_conductor dc ON cond.numdoc_nexos = dc.id_proveedor
+                INNER JOIN cmx_proveedores pose ON v.id_conductor = pose.numdoc_nexos
+                INNER JOIN cmx_log_vehiculos logv ON v.numdoc_vehiculo = logv.id_vehiculo AND logv.operacion = 'Crear'
+            WHERE
+                DATE(logv.fecha_hora_operacion) BETWEEN :fecha_inicio AND :fecha_final GROUP BY v.placa");
+
+            $sql->bindParam(':fecha_inicio', $fecha_inicial);
+            $sql->bindParam(':fecha_final', $fecha_final);
+            $sql->execute();
+            $datos = $sql->fetchAll(PDO::FETCH_ASSOC);
+            return $datos;
+        }
+    }
+
+    public function Informe_instruccion_facturacion($fecha_inicial = null, $fecha_final = null, $criterio_busqueda = null)
+    {
+        $sql = "
+            SELECT
+                cl.nombre AS Cliente,
+                rm.id AS Remesa,
+                mr.id_manifiesto AS Manifiesto,
+                CONCAT(rm.fecha_creacion, ' ', rm.hora_creacion) AS Fecha_Remesa,
+                ifa.id AS Instruccion,
+                CONCAT(ifa.fecha, ' ', ifa.hora) AS Fecha_Instruccion,
+                ifa.estado_instruccion AS Estado_Instruccion
+            FROM cmx_instruccion_facturacion ifa
+            INNER JOIN cmx_detalle_instruccion_facturacion dif 
+                ON ifa.id = dif.instruccion_id
+            INNER JOIN cmx_clientes cl 
+                ON ifa.cliente_id = cl.id
+            INNER JOIN cmx_remesa rm 
+                ON dif.remesa_id = rm.id
+            LEFT JOIN cmx_manifiesto_remesa mr 
+                ON mr.id_remesa = rm.id
+            WHERE 1 = 1
+        ";
+
+        $params = [];
+
+        // 🔹 Filtro por rango de fechas
+        if (!empty($fecha_inicial) && !empty($fecha_final) && empty($criterio_busqueda)) {
+            $sql .= " AND ifa.fecha BETWEEN :fecha_inicio AND :fecha_final ";
+            $params[':fecha_inicio'] = $fecha_inicial;
+            $params[':fecha_final']  = $fecha_final;
+        }
+
+        // 🔹 Filtro por remesa o manifiesto
+        if (!empty($criterio_busqueda)) {
+            $sql .= "
+            AND (
+                rm.id = :criterio
+                OR mr.id_manifiesto = :criterio
+            )
+        ";
+            $params[':criterio'] = $criterio_busqueda;
+        }
+
+        $stmt = $this->_db3->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

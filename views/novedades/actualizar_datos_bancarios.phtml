@@ -1,0 +1,212 @@
+<input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+<input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+<div class="container-fluid py-3">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7 col-xxl-7">
+            <h5 class="mb-3 fw-bold text-primary">Actualizar Datos de Pago y Documentación</h5>
+
+            <div class="row">
+
+                <div class="col-12 mb-3">
+                    <div class="d-flex justify-content-start">
+                        <div class="form-check form-switch form-check-inline">
+                            <input class="form-check-input check-actividad" id="checkConductor" type="checkbox" value="Conductor">
+                            <label class="form-check-label" for="checkConductor">Conductor</label>
+                        </div>
+                        <div class="form-check form-switch form-check-inline">
+                            <input class="form-check-input check-actividad" id="checkPoseedor" type="checkbox" value="Poseedor Vehiculo">
+                            <label class="form-check-label" for="checkPoseedor">Poseedor Vehículo</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="slct_proveedores_activos">Proveedor</label>
+                        <select class="form-select form-select-sm" id="slct_proveedores_activos" required></select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="acti_economica">Actividad económica CIIU</label>
+                        <select class="form-select form-select-sm" id="acti_economica">
+                            <option selected>Seleccione</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="tributaria">Obligaciones tributarias</label>
+                        <select class="form-select form-select-sm" id="tributaria">
+                            <option selected>Seleccione</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="banco">Bancos</label>
+                        <select class="form-select form-select-sm" id="banco" style="width: 100%;">
+                            <option selected>Seleccione</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="tipo_cuenta">Tipo de Cuenta</label>
+                        <select class="form-select form-select-sm" id="tipo_cuenta">
+                            <option selected>Seleccione</option>
+                            <option value="1">Cuenta de Ahorros</option>
+                            <option value="2">Cuenta Corriente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="num_cuenta">Número de Cuenta</label>
+                        <input type="number" id="num_cuenta" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-12 mb-3" style="display: none;" id="flexSwitchSectionDocumentos">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" id="flexSwitchCheckDocumentos" type="checkbox">
+                        <label class="form-check-label fw-bold text-primary" for="flexSwitchCheckDocumentos">Actulizar Documentos</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" id="flexSwitchCheckCertificadoCuenta" type="checkbox" style="display: none;">
+                            <!-- <label class="form-label" for="exampleFormControlInput">Seguridad Social</label> -->
+                            <label class="form-label" for="certificado_cuenta">Certificado Cuenta</label>
+                        </div>
+                        <input type="file" id="certificado_cuenta" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                    <div class="mb-3">
+                        <label class="form-label" for="certificado_rut">Certificado Rut</label>
+                        <input type="file" id="certificado_rut" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                    <div class="mb-3">
+                        <label class="form-label" for="certificado_seguridad">Seguridad Social</label>
+                        <input type="file" id="certificado_seguridad" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                    <div class="mb-3">
+                        <label class="form-label" for="certificado_seguridad">Fecha Vencimiento Seguridad Social</label>
+                        <input type="date" id="fecha_vencimiento_seguridad" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" id="flexSwitchCheckBeneficiario" type="checkbox">
+                        <label class="form-check-label fw-bold text-primary" for="flexSwitchCheckBeneficiario">Tercero Beneficiario</label>
+                    </div>
+                </div>
+
+                <div class="col-12" id="datos_beneficiarios" style="display: none;">
+                    <h6 class="text-secondary fw-bold mb-3 border-bottom pb-2">Datos del Tercero</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="num_documento_beneficiario">Documento Beneficiario</label>
+                            <input type="number" id="num_documento_beneficiario" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="nombres_beneficiario">Nombres Beneficiario</label>
+                            <input type="text" id="nombres_beneficiario" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="apellidos_beneficiario">Apellidos Beneficiario</label>
+                            <input type="text" id="apellidos_beneficiario" class="form-control form-control-sm">
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="banco_beneficiario">Bancos Beneficiario</label>
+                            <select class="form-select form-select-sm" id="banco_beneficiario" style="width: 100%;">
+                                <option selected>Seleccione</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="tipo_cuenta_beneficiario">Tipo de Cuenta Beneficiario</label>
+                            <select class="form-select form-select-sm" id="tipo_cuenta_beneficiario">
+                                <option selected>Seleccione</option>
+                                <option value="1">Cuenta de Ahorros</option>
+                                <option value="2">Cuenta Corriente</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="num_cuenta_beneficiario">Número de Cuenta Beneficiario</label>
+                            <input type="number" id="num_cuenta_beneficiario" class="form-control form-control-sm">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label" for="certificado_cuenta_beneficiario">Certificado Cuenta Beneficiario</label>
+                            <input type="file" id="certificado_cuenta_beneficiario" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label" for="certificado_rut_beneficiario">Certificado Rut Beneficiario</label>
+                            <input type="file" id="certificado_rut_beneficiario" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label" for="certificado_seguridad_beneficiario">Seguridad Social Beneficiario</label>
+                            <input type="file" id="certificado_seguridad_beneficiario" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label" for="acuerdo_beneficiario">Acuerdo Beneficiario</label>
+                            <input type="file" id="acuerdo_beneficiario" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 gy-5">
+                    <div class="row justify-content-end">
+                        <div class="col-auto">
+                            <button class="btn btn-phoenix-primary btn-sm px-5" type="button" id="btn-cancelar"> Cancelar</button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary btn-sm px-5" id="btn-update-datos" type="button"> Actualizar Datos</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
+            <h5 class="mb-3 fw-bold text-primary">Cuentas Bancarias Registradas</h5>
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style="font-size:11px;" id="tabla-datos-financieros">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: auto; white-space: nowrap;">Banco</th>
+                            <th style="width: auto; white-space: nowrap;">Tipo Cuenta</th>
+                            <th style="width: auto; white-space: nowrap;">Número</th>
+                            <th style="width: auto; white-space: nowrap;">Estado</th>
+                            <th style="width: auto; white-space: nowrap;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-datos-financieros">
+                    </tbody>
+                </table>
+            </div>
+            <div id="contenedor-beneficiario-detalle"></div>
+        </div>
+    </div>
+</div>

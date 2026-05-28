@@ -1,0 +1,159 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-3 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <div class="row">
+                <div class="col-3 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <!-- Contenedor gráfica -->
+                    <div id="IndicadoresGeneralRemesas" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+
+                    <!-- Tabla resultados -->
+                    <div class="table-responsive">
+                        <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-general-tipo-vehiculos">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Total Instrucciones</th>
+                                    <th id="total-general-tipo-vehiculo"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-3 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6">
+                    <!-- Contenedor gráfica -->
+                    <div id="IndicadoresRemesasAgencias" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+                    <!-- Tabla resultados -->
+                    <div class="table-responsive">
+                        <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-remesas-agencias">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Agencia</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Total Instrucciones</th>
+                                    <th id="total-remesas-agecias"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-3 col-sm-12 col-md12 col-lg12 col-xl12 col-xxl12">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <!-- <span class="badge badge-phoenix badge-phoenix-info" style="font-size: 13px;">
+                    Número de órdenes de cargue: <span class="fw-bold badge-phoenix-info contador">0</span>
+                </span> -->
+                        <a href="JavaScript:void(0);" id="exportar_excel_detalle" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                            <img src="<?= BASE_URL ?>public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                            Exportar a Excel
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-remesas-detalle">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Remesa</th>
+                                    <th>Fecha Remesa</th>
+                                    <th>Cliente</th>
+                                    <th>Agencia</th>
+                                    <th>Tarifa</th>
+                                    <th>Cumplida</th>
+                                    <th>Fecha Cumplida</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Total Instrucciones</th>
+                                    <th class="text-end" colspan="5" id="total-remesas-detalle"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-3 col-sm-12 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+            <!-- Contenedor gráfica -->
+            <div id="IndicadoresRemesasClientes" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <!-- <span class="badge badge-phoenix badge-phoenix-info" style="font-size: 13px;">
+                    Número de órdenes de cargue: <span class="fw-bold badge-phoenix-info contador">0</span>
+                </span> -->
+                <a href="JavaScript:void(0);" id="exportar_excel_detalle_cliente" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="<?= BASE_URL ?>public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+            </div>
+            <!-- Tabla resultados -->
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-remesas-clientes">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Clientes</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total Instrucciones</th>
+                            <th id="total-remesas-cliente"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="row">
+        <div class="col-3 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-remesas-detalle">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>#</th>
+                            <th>Remesa</th>
+                            <th>Fecha Remesa</th>
+                            <th>Cliente</th>
+                            <th>Agencia</th>
+                            <th>Tarifa</th>
+                            <th>Cumplida</th>
+                            <th>Fecha Cumplida</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total Instrucciones</th>
+                            <th id="total-remesas-detalle"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+
+    </div> -->
+</div>

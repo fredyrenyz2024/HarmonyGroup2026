@@ -1,0 +1,2603 @@
+<?php
+$ssn_id_cliente = $_SESSION["usuario"]["id_cliente"];
+$ssn_id_usuario = $_SESSION["usuario"]["id_usuario"];
+$ssn_nombre = $_SESSION["usuario"]["nom_usuario"];
+$ssn_id_perfil = $_SESSION["usuario"]["id_perfil"];
+
+$vista = '';
+$table_content = '';
+
+$table_solicitud = '';
+
+if (isset($this->index_preestudio)) {
+  $arrayPermisos = $this->index_preestudio->permisosPerfil($ssn_id_perfil, 114);
+  $_permisos = $arrayPermisos;
+
+  $vista .= '
+  <div class="nexos-messages"></div>
+  <div class="nexos-content">
+    %content%
+  </div>
+  <div class="row">
+    <div class="col-sm-12"></div>
+  </div>
+  ';
+  $table_content .= '
+  <!--<div class="row"></div>-->
+  <div class="panel panel-border panel-contrast">
+    <div class="panel-body">
+      <div class="form-group row text-left">
+        <!--<label class="col-12 col-sm-3 col-form-label text-sm-right">Full Color</label>-->
+        <div class="col-12 col-sm-12 col-lg-12 form-check mt-1">
+          <label class="custom-control custom-radio custom-control-inline"  style="margin-right: 10px;">
+            <input class="custom-control-input" type="radio" name="operacion" id="prefiltro_seguridad"
+              style="transform: scale(2);margin-right: 5px;" value="prefiltro_seguridad" wfd-id="id38"><span
+              class="custom-control-label custom-control-color">
+              Prefiltro de Seguridad</span>
+          </label>
+          <label class="custom-control custom-radio custom-control-inline">
+            <input class="custom-control-input" type="radio" name="operacion" id="estudio_seguridad_id"
+              style="transform: scale(2);margin-right: 10px;" value="estudio_seguridad" wfd-id="id39"><span
+              class="custom-control-label custom-control-color">Estudio de
+              Seguridad</span>
+          </label>
+        </div>
+      </div>
+      <div class="campos" style="display: none;">
+        <div class="form-group col-xs-6 col-sm-6 col-md-3">
+          <label>Seleccione el estado</label>
+          <select class="form-control input-sm" id="estadotb">
+            <option value="t" selected>Todos</option>
+            <optgroup label="Prefiltro" id="list_prefiltro" style="display: none;">
+              <option value="aprobado">Aprobado prefiltro</option>
+              <option value="pendiente_iniciar">Pendiente de iniciar prefiltro</option>
+              <option value="iniciado">Iniciado prefiltro</option>
+              <option value="rechazado">Rechazado prefiltro</option>
+              <option value="cancelado">Cancelado prefiltro</option>
+              <option value="vencida">Vencido prefiltro</option>
+              <option value="placa">Buscar placa</option>
+            </optgroup>
+
+            <optgroup label="Estudio de Seguridad" id="list_estudio_seguridad" style="display: none;">
+              <option value="pendiente_iniciar_e">Pendiente iniciar estudio seguridad</option>
+              <option value="Aprobado_e">Aprobado estudio seguridad</option>
+              <option value="iniciado_e">Iniciado estudio seguridad</option>
+              <option value="Pendiente_e">Pendiente estudio seguridad</option>
+              <option value="Rechazado_e">Rechazado estudio seguridad</option>
+              <option value="Rechazado_modificar_e">Rechazado para modificar estudio seguridad</option>
+              <option value="Cancelado_e">Cancelado estudio seguridad</option>
+              <option value="Placa_e">Buscar placa</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group col-xs-6 col-sm-6 col-md-3">
+          <label>Fecha Inicial</label>
+          <input type="date" id="fecha_inicial" date-format="yyyy/mm/dd" class="form-control input-sm"
+            value="' . date('Y-m-d') . '">
+        </div>
+        <div class="form-group col-xs-6 col-sm-6 col-md-3">
+          <label>Fecha Final</label>
+          <input type="date" id="fecha_final" date-format="yyyy/mm/dd" class="form-control input-sm"
+            value="' . date('Y-m-d') . '">
+        </div>
+        <div class="form-group col-xs-6 col-sm-6 col-md-3" id="buscar_placa" style="display:none;">
+        <label>Placa</label>
+        <input type="text" id="placa_filtro" class="form-control input-sm" oninput="this.value = this.value.toUpperCase();">
+      </div>
+        <div class="form-group col-xs-6 col-sm-6 col-md-3" style="margin-top:26px;">
+          <!--<button class="form-control input-sm btn btn-info mdi mdi-search " id="consulte"  onclick="push();"> Probar Push </button>-->
+          <button class="form-control input-sm btn btn-info mdi mdi-search" id="consulta_solicitudes"> Consultar </button>
+        </div>
+      </div>
+    </div>
+  </div>
+';
+
+  $table_content .= '
+      <div id="esconder">
+          <table id="table1" class="table table-striped table-hover table-condensed">
+            <thead style="background-color:#332D2D;color:#fff;text-align:center;">
+              <tr>
+                <th>#</th>
+                <th>Numero</th>
+                <th>Itr</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Vehiculo</th>
+                <th>Operación</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="body_esconder"></tbody>
+          </table>
+      </div>';
+} ?>
+
+
+<!-- Modal para omstyrar la validaicon de campo placa -->
+<div class="modal fade" id="md-footer-warning" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="close" type="button" data-dismiss="modal" aria-hidden="true"><span class="mdi mdi-close"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          <div class="text-warning"><span class="modal-main-icon mdi mdi-alert-triangle"></span></div>
+          <h3>Advertencia!</h3>
+          <p id="mensaje_validacion"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+        <button class="btn btn-warning" type="button" data-dismiss="modal">Proceed</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!--SOLICITUDES DIARIAS -->
+<div id="solicitud_dia" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+  <div class=".modal-dialog-modal-lg.modal-dialog ">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title">Solicitudes Diarias</h3>
+      </div>
+      <div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+        <div id="nexos_messages_popup"></div>
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <?php echo $table_solicitud; ?>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--STATUS tabla filtros -->
+<div id="versolicitud" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+  <div class=".modal-dialog-modal-lg.modal-dialog ">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title">
+          <label style="font-size:16pt; color:white; text-align:center;">Status</label>
+        </h3>
+      </div>
+      <div class="modal-body" style=" margin-top:20px; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+        <div id="nexos_messages_popup"></div>
+        <!--COTIZACIONES-->
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h3 class="text-center">
+              <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Cotización</p>
+            </h3>
+            <table class="table">
+              <thead style="text-align:left; ">
+                <tr>
+                  <th>Cotización</th>
+                  <th>Item</th>
+                  <th>Mercancía</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                  <th>Hora</th>
+                  <th>Usuario</th>
+                  <th>Proceso</th>
+                </tr>
+              </thead>
+              <tbody id="body_cotizacion">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!--SOLICITUDES DE SERVICIO-->
+        <div class="row">
+          <h3 class="text-center">
+            <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Solicitud servicios</p>
+          </h3>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <table class="table">
+              <thead style="text-align:left; ">
+                <tr>
+                  <th>Solicitud</th>
+                  <th>Cotización</th>
+                  <th>Item</th>
+                  <th>Fecha</th>
+                  <th>Hora</th>
+                  <th>Usuario</th>
+                  <th>Proceso</th>
+                </tr>
+              </thead>
+              <tbody id="body_servicio">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!--SEGURIDAD ESTADOS-->
+        <div class="row">
+          <h3 class="text-center" id="tbtres">
+            <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Estados</p>
+          </h3>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <table class="table">
+              <thead style="text-align:left; ">
+                <tr>
+                  <th style="width:20%;">Área</th>
+                  <th style="width:20%;">Estado</th>
+                  <th style="width:20%;">Fecha</th>
+                  <th style="width:20%;">Hora</th>
+                  <th style="width:20%;">Usuario</th>
+                </tr>
+              </thead>
+              <tbody id="body_status">
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!--SOLICITUDES PREESTUDIO-->
+        <div class="row">
+          <h3 class="text-center" id="tbtres">
+            <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Solicitud preestudio</p>
+          </h3>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <table class="table">
+              <thead style="text-align:left; ">
+                <tr>
+                  <th>Solicitud preeS</th>
+                  <th>servicio</th>
+                  <th>fecha</th>
+                  <th>Hora</th>
+                  <th>Usuario</th>
+                  <th>Proceso</th>
+                </tr>
+              </thead>
+              <tbody id="body_preestu">
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!--RESPUESTAS SEGURIDAD-->
+        <div class="row">
+          <h3 class="text-center" id="">
+            <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Respuestas seguridad</p>
+          </h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>Causalidad</th>
+                <th>Usuario</th>
+                <th>Fecha / Hora</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody id="respuestas_seguridad2">
+            </tbody>
+          </table>
+        </div>
+        <!--EDICION DE OPERACIONES-->
+        <div class="row">
+          <h3 class="text-center" id="">
+            <p style="font-size:16pt; font-weight:500; color:#2E2E2E;">Respuestas de operaciones</p>
+          </h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Solicitud</th>
+                <th>Cambios</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody id="respuestas_operacion">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="consultesolicitud" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+  <div class=".modal-dialog-modal-lg.modal-dialog ">
+    <div class="modal-content ">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close" style="color: #fff;">
+          <span class="mdi mdi-close"></span></button>
+        <h4 class="modal-title"><b><span class="mdi mdi-filter-list"></span> Consultar Solicitudes</b></h4>
+      </div>
+      <div class="modal-body" style="padding: 1px,1px,1px;max-height: 500px; overflow-y: auto;">
+        <div id="nexos_messages_popup"></div>
+        <label id="estado_ver_seguridad" style="font-size:16pt; font-weight:500; color:#2E2E2E;"></label>
+        <div class="row">
+          <!-- <h4 class="text-center" style="font-size:14pt; font-weight:500; color:#2E2E2E;">
+            <strong>Datos de la Solicitud de estudio de seguridad</strong>
+          </h4> class="table-responsive" -->
+          <div>
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Datos de la Solicitud de estudio de seguridad</b>
+                  </td>
+                </tr>
+                <tr>
+                </tr>
+              </tbody>
+            </table>
+            <!-- <table class="table table-bordered table-condensed table-striped"> -->
+            <table cellpadding="0" cellspacing="0" width="100%">
+              <tbody>
+                <tr>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Solicitud</th>
+                  <td id="vid" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Fecha</th>
+                  <td id="vfecha" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                </tr>
+                <tr>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">PLaca</th>
+                  <td id="vplaca" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Hora</th>
+                  <td id="vhora" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                </tr>
+                <tr>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Consecutivo</th>
+                  <td id="vconse" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Usuario</th>
+                  <td id="vuser" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 15px;">
+          <!-- <h4 class="text-center" style="font-size:14pt; font-weight:500; color:#2E2E2E;"><strong>Datos del
+              vehículo</strong></h4> -->
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2 text-center" style="margin:25px;">
+                  <b>Datos del Vehículo</b>
+                </td>
+              </tr>
+              <tr>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <table class="table table-bordered table-condensed"> -->
+          <table cellpadding="0" cellspacing="0" width="100%" id="tbl_datos_prefiltro">
+            <tbody>
+              <tr class="text-center active">
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Propietario</th>
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Estado</th>
+              </tr>
+              <tr>
+                <td id="vpropi" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                <td id="vpdocumento" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                <td id="estado_tercero_propietario" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+              </tr>
+              <tr>
+              <tr class="text-center active">
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Poseedor</th>
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Estado</th>
+              </tr>
+              <td id="vtene" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+              <td id="vtdocumento" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+              <td id="estado_tercero_poseedor" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+              </tr>
+              <tr>
+              <tr class="text-center active">
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Conductor</th>
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento</th>
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Estado</th>
+              </tr>
+              <td id="vcondu" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+              <td id="vcdocumento" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+              <td id="estado_tercero_conductor" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+              </tr>
+              <tr>
+              <tr class="text-center active">
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Nombre Propietario Trailer</th>
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Documento Propietarioi Trailer</th>
+                <th style="color: #332D2D;background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">Estado</th>
+              </tr>
+              <td id="ptcondu" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+              <td id="ptcdocumento" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+              <td id="estado_tercero_pro_trailer" class="text-left" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- REFERENCIAS-->
+        <div class="row" style="margin-top: 15px;">
+          <!-- <h4 class="text-center" style="font-size:14pt; font-weight:500; color:#2E2E2E;"><strong>Referencias</strong></h4> -->
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2 text-center" style="margin:25px;">
+                  <b>Referencias</b>
+                </td>
+              </tr>
+              <tr>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <table class="table table-bordered table-condensed"> -->
+          <table cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px #fff solid;">
+            <thead style="text-align:left;color:white; background-color:#332D2D;">
+              <tr>
+                <th class="text-center" style="width:30%;">Empresa</th>
+                <th class="text-center" style="width:15%;">Ingreso</th>
+                <th class="text-center" style="width:15%;">Retiro</th>
+                <th class="text-center" style="width:20%;">Contacto</th>
+                <th class="text-center" style="width:15%;">Celular</th>
+                <th class="text-center" style="width:15%;">Cargo</th>
+              </tr>
+            </thead>
+            <tbody id="consulta_referencia">
+            </tbody>
+          </table>
+        </div>
+
+        <!--SOLICITUDES SERVICIO-->
+        <div class="row" style="margin-top: 15px;">
+          <!-- <h4 class="text-center" style="font-size:14pt; font-weight:500; color:#2E2E2E;"><strong>Solicitudes Servicio</strong></h4>
+         -->
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2 text-center" style="margin:25px;">
+                  <b>Solicitudes Servicio</b>
+                </td>
+              </tr>
+              <tr>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <table class="table table-bordered table-condensed"> -->
+          <table cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px #fff solid;">
+            <thead style="text-align:left;color:white; background-color:#332D2D;">
+              <tr>
+                <th class="text-center" style="width:3%;">#</th>
+                <th class="text-center" style="width:15%;">Cliente</th>
+                <th class="text-center" style="width:35%;" colspan="2">Ruta</th>
+                <!-- <th class="text-center" style="width:50%;">Destino</th> -->
+                <th class="text-center" style="width:20%;">Peso/vehículo</th>
+                <th class="text-center" style="width:10%;">Usuario</th>
+                <th class="text-center" style="width:20%;">Fecha - Hora</th>
+              </tr>
+            </thead>
+            <tbody id="consulta_servicio">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Observaciones de sevicio al cliente -->
+        <!-- <div class="row" style="margin-top: 5px;">
+          <div class="col-md-6" style="padding: 1px 1px 1px;">
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Observaciones Servicio al cliente</b>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <textarea id="observacion_servicio_cliente" rows="2" style="width: 100%;font-size: 10px;" disabled></textarea>
+          </div>
+          <div class="col-md-6" style="padding: 1px 1px 1px;">
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Observaciones Operaciones</b>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <textarea id="observacion_operaciones" rows="2" style="width: 100%;font-size: 10px;" disabled></textarea>
+          </div>
+        </div> -->
+
+        <!-- <div class="row">
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2 text-center" style="margin:25px;">
+                  <b>Datos del contenedor en la solictud de servicio</b>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px #fff solid;">
+            <thead style="text-align:left;color:white; background-color:#332D2D;">
+              <tr>
+                <th class="text-center" style="width: auto; white-space: nowrap;">Numero</th>
+                <th class="text-center" style="width: auto; white-space: nowrap;">Tipo Contenedor</th>
+                <th class="text-center" style="width: auto; white-space: nowrap;">Fecha Vencimiento</th>
+                <th class="text-center" style="width: auto; white-space: nowrap;">Ciudad Devolución</th>
+                <th class="text-center" style="width: auto; white-space: nowrap;">Direccion</th>
+              </tr>
+            </thead>
+            <tbody id="datos_contenedor"></tbody>
+          </table>
+        </div> -->
+
+        <!--DOCUMENTOS-->
+        <div class="row" style="margin-top: 15px;">
+          <!-- <h4 class="text-center" style="font-size:14pt; font-weight:500; color:#2E2E2E;"><strong>Documentos</strong>
+          </h4> -->
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2 text-center" style="margin:25px;">
+                  <b>Documentos</b>
+                </td>
+              </tr>
+              <tr>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <table class="table table-bordered table-condensed"> -->
+          <table cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px #fff solid;">
+            <thead style="text-align:left;color:white; background-color:#332D2D;">
+              <tr>
+                <th style="width:3%;">Tipo hoja</th>
+                <th style="width:3%;">Clase</th>
+                <th style="width:14%;">Documento/Img</th>
+                <th style="width:10%;">Usuario</th>
+                <th style="width:13%;">Fecha - Hora</th>
+              </tr>
+            </thead>
+            <tbody id="consulta_documentos">
+            </tbody>
+          </table>
+        </div>
+
+        <!--OBSERVACIONES-->
+        <div class="row" style="margin-top: 15px;">
+          <!-- <h4 class="text-center" style="font-size:14pt; font-weight:500; color:#2E2E2E;"><strong>Observaciones</strong> -->
+          <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+            <tbody>
+              <tr>
+                <td class="celda_titulo2 text-center" style="margin:25px;">
+                  <b>Observaciones</b>
+                </td>
+              </tr>
+              <tr>
+              </tr>
+            </tbody>
+          </table>
+          </h4>
+          <!-- <table class="table table-bordered table-condensed"> -->
+          <table cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px #fff solid;">
+            <thead style="text-align:left;color:white; background-color:#332D2D;">
+              <tr>
+                <th class="number text-center">#</th>
+                <th class="text-center" style="width:250px;">Observación</th>
+                <th class="number text-center">Fecha-Hora</th>
+                <th class="number text-center">Usuario</th>
+                <!-- <th class="number">Estado</th> -->
+              </tr>
+            </thead>
+            <tbody id="tbl_observaciones">
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Respuestas de seguridad status -->
+<div id="respuesta_seguridad" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+  <div class=".modal-dialog-modal-lg.modal-dialog ">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title">
+          <label style="font-size:19pt; color:white; text-align:center;">
+            Respuestas de Seguridad</label>
+        </h3>
+      </div>
+      <div class="modal-body" style=" margin-top:20pt; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+        <div id="nexos_messages_popup"></div>
+        <div class="row">
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label style="font-weight:800; margin-top:20px;">Placa</label>
+            <input type="text" id="rplaca" class="form-control input-sm text-center" readonly="readonly">
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <h4 class="text-center text-primary"><strong>Respuestas area de Seguridad</strong></h4>
+          </div><br>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="panel-body">
+              <table class="table">
+                <thead style=" text-align:left; color:white; background-color:#33b5e5;">
+                  <tr>
+                    <th>Estado</th>
+                    <th>Causalidad</th>
+                    <th>Observaciones</th>
+                    <th>Usuario</th>
+                    <th>Fecha / Hora</th>
+                  </tr>
+                </thead>
+                <tbody id="respuestas_seguridad">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Respuestas de operaciones -->
+<div id="respuesta_operacion" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" style="overflow-y: scroll;">
+  <div class=".modal-dialog-modal-lg.modal-dialog ">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title">Respuestas de Operaciones</h3>
+      </div>
+      <div class="modal-body" style=" margin-top:20pt; margin-bottom:20px;  margin-right:20px;  margin-left:20px;">
+        <div id="nexos_messages_popup"></div>
+        <div class="row">
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <h3 class="text-center text-primary">
+              <label style="font-size:19pt; color:white; text-align:center;">
+                Respuestas area de Operaciones
+              </label>
+            </h3>
+          </div><br>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="panel-body">
+              <table class="table">
+                <thead style=" text-align:left; color:white; background-color:#33b5e5;">
+                  <tr>
+                    <th>N° Solicitud</th>
+                    <th>Edito</th>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                  </tr>
+                </thead>
+                <tbody id="respuestas_operacion">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src=<?php echo BASE_URL; ?>views/seguridad_prefiltro/js/prefiltro_seguridad.js type="text/javascript"></script>
+<script src=<?php echo BASE_URL; ?>public/helpers/helpers.js type="text/javascript"></script>
+<?php
+$vista .= '
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+<script src="%root_file%lib/jquery/jquery.min.js" type="text/javascript"></script>
+<script src="%root_file%lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+
+<script src="%root_file%js/main.js" type="text/javascript"></script>
+<script src="%root_file%lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="%root_file%lib/datatables/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="%root_file%lib/datatables/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+<script src="%root_file%lib/datatables/plugins/buttons/js/dataTables.buttons.js" type="text/javascript"></script>
+<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.html5.js" type="text/javascript"></script>
+<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.flash.js" type="text/javascript"></script>
+<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.print.js" type="text/javascript"></script>
+<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.colVis.js" type="text/javascript"></script>
+<script src="%root_file%lib/datatables/plugins/buttons/js/buttons.bootstrap.js" type="text/javascript"></script>
+<script src="%root_file%js/app-tables-datatables.js" type="text/javascript"></script>
+
+<script src="%root_file%lib/fuelux/js/wizard.js" type="text/javascript"></script>
+<script src="%root_file%lib/select2/js/select2.min.js" type="text/javascript"></script>
+<script src="%root_file%lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+<link  rel="stylesheet" type="text/css" href="assets/lib/select2/css/select2.min.css"/>
+
+<link rel="stylesheet" type="text/css" src="%root_file%lib/assets/lib/select2/css/select2.min.css"/>
+
+
+<script src="%root_file%lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+<script src="%root_file%js/app-form-wizard.js" type="text/javascript"></script>
+
+<!-- CARGA DE ARCHIVOS JS DE CALENDARIOS -->
+<script src="%root_file%lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+<script src="%root_file%lib/datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+<script src="%root_file%js/app-form-elements.js" type="text/javascript"></script>
+
+<!-- CARGA DE ARCHIVOS JS DE VENTANAS EMERGENTES -->
+<script src="%root_file%lib/jquery.niftymodals/dist/jquery.niftymodals.js" type="text/javascript"></script>
+<script type="text/javascript">
+$.fn.niftyModal(\'setDefaults\',{
+	overlaySelector: \'.modal-overlay\',
+	closeSelector: \'.modal-close\',
+	classAddAfterOpen: \'modal-show\',
+	});
+	$(document).ready(function(){
+					//initialize the javascript
+		App.init();
+		});
+		$(document).ready(function(){
+					//initialize the javascript
+			App.init();
+			App.dataTables();
+			});
+			$(document).ready(function(){
+					//initialize the javascript
+				App.init();
+				App.wizard();
+				});
+				</script>
+				'; ?>
+
+<!--MODALES DE ESTUDIO DE SEGURIDAD-->
+<!--Lista de comrpobacion de estudio de seguridad-->
+<div id="ver_lista" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" data-backdrop="static">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close" style="color: #fff;">
+          <span class="mdi mdi-close"></span></button>
+        <h4 class="modal-title" id="editar_title"><b><span class="mdi mdi-format-list-bulleted"></span> Lista de comprobación</b></h4>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;max-height: 700px; overflow-y: auto;overflow-x: hidden;">
+        <div id="msg_lista"></div><!-- id para manejar los mensajes de errordel popup -->
+        <div class="row">
+          <div id="historico"></div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="table-responsive">
+              <!-- <table class="table table-bordered table-condensed">
+                <tbody>
+                  <tr class="text-center active">
+                    <th style="color: #332D2D;" class="text-center">Solicitud</th>
+                    <th style="color: #332D2D;" class="text-center">Acción</th>
+                  </tr>
+                  <tr>
+                    <td class="text-center id_soli"></td>
+                    <input type="hidden" id="id_soli" class="form-control input-sm" readonly="">
+                    <td class="text-center">
+                      <button id="inicio_estudio" class="btn btn-primary btn-sm text-center"><span class="mdi mdi-play"></span>
+                        Iniciar Estudio
+                        <input type="hidden" id="fechag" value="<?php echo date('Y-m-d'); ?>">
+                        <input type="hidden" id="horag" value="<?php echo date('G:i:s'); ?>">
+                        <input type="hidden" id="usuariog" value="<?php echo $ssn_nombre; ?>">
+                        <input type="hidden" id="solicitudg">
+                        <input type="hidden" id="id_conductor">
+                        <input type="hidden" id="id_vehiculo">
+                        <input type="hidden" id="id_estudio">
+                        <input type="hidden" id="id_escenario">
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div> -->
+
+            <!--DATOS A ACTUALIZAR ENVIADOS POR OPERACIONES-->
+            <div class="card">
+              <div class="tab-container">
+                <ul class="nav nav-tabs" role="tablist"> <!-- card-nav-tabs -->
+                  <li class="nav-item"><a class="nav-link active" href="#solicitudes_servicios" data-toggle="tab" role="tab" aria-selected="true">Solicitudes de Servicio</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#documentos_update" data-toggle="tab" role="tab" aria-selected="false">Documentos a actualizar</a></li>
+                  <!-- <li class="nav-item"><a class="nav-link disabled" href="#disabled2" data-toggle="tab" role="tab">Disabled</a></li> -->
+                </ul>
+              </div>
+              <div class="tab-content" style="padding: 1px 1px 1px;">
+                <div class="tab-pane active" id="solicitudes_servicios" role="tabpanel">
+                  <!-- <table class="table table-bordered table-condensed">
+                    <thead style="text-align:left;color:white; background-color:#332D2D;">
+                      <tr>
+                        <th style="width:5%;font-size:11px;">SS</th>
+                        <th style="width:15%;font-size:11px;">Cliente</th>
+                        <th style="width:35%;font-size:11px;" colspan="2">Ruta</th>
+                        <th style="width:20%;font-size:11px;">Peso / Tipo Vehículo</th>
+                        <th style="width:10%;font-size:11px;">Usuario</th>
+                        <th style="width:20%;font-size:11px;">Fecha-Hora</th>
+                      </tr>
+                    </thead>
+                    <tbody id="consulta_tbservicio_estudio"></tbody>
+                  </table> -->
+
+                  <!-- <div class="col-md-6" style="padding: 1px 1px 1px;">
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+                      <tbody>
+                        <tr>
+                          <td class="celda_titulo2 text-center" style="margin:25px;">
+                            <b>Observaciones Servicio al cliente</b>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <textarea id="observacion_servicio_cliente_estudio" rows="2" style="width: 100%;font-size: 10px;" disabled></textarea>
+                  </div>
+                  <div class="col-md-6" style="padding: 1px 1px 1px;">
+                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+                      <tbody>
+                        <tr>
+                          <td class="celda_titulo2 text-center" style="margin:25px;">
+                            <b>Observaciones Operaciones</b>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <textarea id="observacion_operaciones_estudio" rows="2" style="width: 100%;font-size: 10px;" disabled></textarea>
+                  </div> -->
+
+                  <!-- <div class="row"></div> -->
+                  <!-- <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #BDBDBD;color:#000000;">
+                    <tbody>
+                      <tr>
+                        <td class="celda_titulo2 text-center" style="margin:25px;">
+                          <b>Datos del contenedor en la solictud de servicio</b>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <table cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px #fff solid;">
+                    <thead style="text-align:left;color:white; background-color:#332D2D;">
+                      <tr>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Numero</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Tipo Contenedor</th>
+                        <th class="t  ext-center" style="width: auto; white-space: nowrap;">Fecha Vencimiento</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Ciudad Devolución</th>
+                        <th class="text-center" style="width: auto; white-space: nowrap;">Direccion</th>
+                      </tr>
+                    </thead>
+                    <tbody id="datos_contenedor_estudio"></tbody>
+                  </table> -->
+
+                </div>
+
+                <!-- <div class="tab-pane" id="documentos_update" role="tabpanel">
+                  <table class="table table-striped table-bordered table-condensed ">
+                    <thead style="text-align:left;color:white; background-color:#332D2D;">
+                      <tr>
+                        <th style="width:3%;font-size:11px;">#</th>
+                        <th style="width:14%;font-size:11px;">Tipo hoja</th>
+                        <th style="width:10%;font-size:11px;">Tipo Campo</th>
+                        <th style="width:30%;font-size:11px;">Dato</th>
+                        <th style="width:20%;font-size:11px;">Usuario</th>
+                        <th style="width:23%;font-size:11px;">Fecha - Hora</th>
+                      </tr>
+                    </thead>
+                    <tbody id="consulta_datoupdate"></tbody>
+                  </table
+                </div> -->
+              </div>
+            </div>
+<!-- 
+            <div class="col-md-12" style="margin-top:10px;margin-bottom:10px;">
+              <label id="title" style="font-weight:800;">Seleccione el estudio:</label>
+              <select class="form-control input-sm text-center" id="select_option"></select>
+            </div> -->
+
+
+            <div id="mensaje_rndc"></div>
+            <div id="mensaje_oet"></div>
+
+            <!-- <div>
+              <input type="hidden" id="valor_vehiculo">
+              <input type="hidden" id="valor_conductor">
+              <input type="hidden" id="conductor_id">
+            </div> -->
+          </div>
+
+          <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="content_vehiculo">
+            <div class="row">
+              <h3 class="text-center text-primary"><strong>HOJA DE VIDA VEHÍCULO </strong></h3>
+            </div>
+            Tabs para las hojas de vida
+            <div class="col-12 col-lg-12">
+              <div class="card">
+                <div class="card-header">Default Tabs</div>
+                <div class="tab-container">
+                  <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" href="#datos_vehiculo" data-toggle="tab" role="tab" aria-selected="true">Datos del vehículo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#propietario_poseedor" data-toggle="tab" role="tab" aria-selected="false">Propietario & Poseedor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#messages" data-toggle="tab" role="tab" aria-selected="false">Messages</a></li>
+                  </ul>
+                  <div class="text-right">
+                    <button class="btn btn-warning btn-xs" id="btn_editar_vehiculo"><i class="fas fa-pencil-alt"></i> Editar Vehiculo</button>
+                  </div>
+                  <div class="tab-content">
+                    <div class="tab-pane active" id="datos_vehiculo" role="tabpanel">
+                      <div class="row">
+                        <h4 class="text-center text-primary">Datos del vehículo</h4>
+                        <div class="editar"></div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <input type="hidden" id="id_tvehiculo" class="form-control input-sm">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Placa</label>
+                          <input type="text" id="placa" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Configuración</label>
+                          <input type="text" id="confi" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Color vehículo</label>
+                          <input type="text" id="color" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Marca</label>
+                          <input type="text" id="marca" class="form-control input-xs text-center" readonly="">
+                        </div>
+
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Línea</label>
+                          <input type="text" id="linea" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Modelo</label>
+                          <input type="text" id="anio" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Tipo combustible</label>
+                          <input type="text" id="tip_combustible" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Clase de Vehículo</label>
+                          <input type="text" id="clase_vehi" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Tipo Carrocería</label>
+                          <input type="text" id="tipo_caro" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Carrocería</label>
+                          <input type="text" id="carroceria" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Número Soat</label>
+                          <input type="text" id="nsoat" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Vencimiento Soat</label>
+                          <input type="text" id="vsoat" class="form-control input-sm text-center" readonly="">
+                        </div>
+                        <div class="col-xs-12 col-md-12 col-sm-4-- col-lg-4--">
+                          <label style="font-weight:800; margin-top:20px;">Aseguradora</label>
+                          <input type="text" id="ase" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Tecnomecánica</label>
+                          <input type="text" id="tecno" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Vencimiento Tecnomecánica</label>
+                          <input type="text" id="vtecno" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Web satélital</label>
+                          <input type="text" id="webs" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Usuario satélital</label>
+                          <input type="text" id="usuarios" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Clave satélital</label>
+                          <input type="text" id="claves" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Peso Vacío</label>
+                          <input type="text" id="peso" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Capacidad carga(Kg)</label>
+                          <input type="text" id="capacidad" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Peso bruto(kg)</label>
+                          <input type="text" id="peso_bruto" class="form-control input-xs" readonly="readonly">
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Licencia tránsito</label>
+                          <input type="text" id="licen_vehi" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-8 col-md-8 col-sm-8 col-lg-8">
+                          <label style="font-weight:800; margin-top:20px;">Placa trailer</label>
+                          <input type="text" id="ptrailer" class="form-control input-xs text-center" readonly="">
+                        </div>
+
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12" style="margin-top: 20px;">
+                          <h5 class="text-primary"><strong>Documentos</strong></h5>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:2px;">Fotos vehículo</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left; color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:15%;">Nombre</th>
+                                <th style="width:10%;">Tipo</th>
+                              </tr>
+                            </thead>
+                            <tbody id="fotos_vehiculo">
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:2px;">Documentos Vehiculos</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left; color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:15%;">Nombre</th>
+                                <th style="width:10%;">Tipo</th>
+                              </tr>
+                            </thead>
+                            <tbody id="fotos_vehiculo_documentos">
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <br>
+                      TRAILER
+                      <div class="row" id="recoger_trailer">
+                        <h4 class="text-center text-primary"><strong>Trailer</strong></h4>
+                      </div>
+                      <div class="row" id="recoger_trailer2">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Placa Trailer</label>
+                          <input type="text" id="tra_placa" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Marca Trailer</label>
+                          <input type="text" id="tra_marca" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Modelo Trailer</label>
+                          <input type="text" id="tra_anio" class="form-control input-xs" disabled="disabled">
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Peso Vacío Trailer</label>
+                          <input type="text" id="tra_peso" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Alto Trailer</label>
+                          <input type="text" id="tra_alto" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Volumen Trailer</label>
+                          <input type="text" id="tra_volu" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Tipo de trámite Trailer</label>
+                          <input type="text" id="tra_tramite" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Configuración Trailer</label>
+                          <input type="text" id="tra_confi" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Chásis Trailer</label>
+                          <input type="text" id="tra_chasis" class="form-control input-xs" disabled="disabled">
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Ancho Trailer</label>
+                          <input type="text" id="tra_ancho" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Largo Trailer</label>
+                          <input type="text" id="tra_largo" class="form-control input-xs" disabled="disabled">
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Capacidad Trailer</label>
+                          <input type="text" id="tra_capacidad" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Carroceria Trailer</label>
+                          <input type="text" id="tra_carroceria" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Foto Trailer</label><br>
+                          <label id="tra_foto">t</label>
+                          <div id="tra_foto"></div>
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Característica Trailer</label>
+                          <input type="text" id="tra_caracteris" class="form-control input-xs" disabled="disabled">
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Licencia Trailer</label>
+                          <input type="text" id="tra_liencia" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Foto Licencia Trailer</label><br>
+                          <label id="tra_licen_foto">t</label>
+                          <div id="tra_licen_foto"></div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12" style="margin-top: 10px;">
+                          <h5 class="text-primary"><strong>Seguro</strong></h5>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Aseguradora Trailer</label>
+                          <input type="text" id="tra_aseguradora" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">N° resposabilidad civil</label>
+                          <input type="text" id="tra_civil" class="form-control input-xs" disabled="disabled">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800;">Fecha vencimiento</label>
+                          <input type="text" id="tra_vence" class="form-control input-xs" disabled="disabled">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane" id="propietario_poseedor" role="tabpanel">
+                      DATOS PROPIETARIO Y TENEDOR , OBSERVACIONES
+                      <div class="row">
+                        <div class="row">
+                          <h4 class="text-center text-primary" tyle="font-weight:800;">Datos de propietario</h4>
+                          <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                            <label style="font-weight:600;">Nombre Propietario</label>
+                            <input type="text" id="nom_propi" class="form-control input-xs text-center" readonly="">
+                          </div>
+                          <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                            <label style="font-weight:600;">Documento Propietario</label>
+                            <input type="text" id="docu_propi" class="form-control input-xs text-center" readonly="">
+                          </div>
+                          <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                            <label style="font-weight:600;">Número celular propietario</label>
+                            <input type="text" id="celular_propietario" class="form-control input-xs" readonly="readonly">
+                          </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                          <h4 class="text-center text-primary" tyle="font-weight:800;">Datos de poseedor</h4>
+                          <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                            <label style="font-weight:600;">Nombre Poseedor</label>
+                            <input type="text" id="nom_pose" class="form-control input-xs text-center" readonly="">
+                          </div>
+                          <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                            <label style="font-weight:600;">Documento Poseedor</label>
+                            <input type="text" id="docu_pose" class="form-control input-xs text-center" readonly="">
+                          </div>
+                          <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                            <label style="font-weight:600;">Número celular poseedor</label>
+                            <input type="text" id="celular_tenedor" class="form-control input-xs" readonly="readonly">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12" style="margin-top:-20px;">
+                    <label style="font-weight:800;">Observaciones</label>
+                    <textarea id="observeheciulo" class="form-control input-sm text-center"></textarea>
+                  </div>
+                  <div class="row"></div>
+                  <br>
+                  <div class="row" id="botonescar" style="text-align:center;"></div>
+                </div>
+              </div>
+            </div>
+          </div> -->
+
+          <!--contenedor del conductor -->
+          <!-- <div class="col-xs-12 col-sm-12 col-md-12" id="content_conductor">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <input type="hidden" id="id_tconductor" class="form-control input-sm">
+            </div>
+            <div class="row">
+              <h4 class="text-center text-primary"><strong>HOJA DE VIDA CONDUCTOR</strong></h4>
+            </div>
+            <div class="col-12 col-xs-12 col-md-12 col-sm-12 col-lg-12">
+              <div class="card">
+                <div class="tab-container">
+                  <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" href="#conductor" data-toggle="tab" role="tab" aria-selected="true">Conductor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#referencias" data-toggle="tab" role="tab" aria-selected="false">Referencias</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#documentos" data-toggle="tab" role="tab" aria-selected="false">Documentos</a></li>
+                  </ul>
+                  <div class="tab-content">
+                    <div class="tab-pane active" id="conductor" role="tabpanel">
+                      <div class="text-right">
+                        <div class="btn-group btn-group-xs" role="group" aria-label="Extra-small button group">
+                          <button type="button" class="btn btn-warning" id="btn_editar_conductor"><i class="fas fa-user-cog"></i> Editar Conductor</button>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Nombre</label>
+                            <input type="text" id="name" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Tipo Documento</label>
+                            <input type="text" id="tdocumento" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Número Documento</label>
+                            <input type="text" id="documento" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Celular 1</label>
+                            <input type="text" id="numero" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;"> Celular 2</label>
+                            <input type="text" id="numero2" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Dirección</label>
+                            <input type="text" id="dire" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Municipio</label>
+                            <input type="text" id="muni" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Número licencia</label>
+                            <input type="text" id="num_li" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-4 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Categoría Licencia</label>
+                            <input type="text" id="cate_li" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <div class="form-group">
+                            <label style="font-weight:600;">Fecha Vencimineto Licencia</label>
+                            <input type="text" id="fecha_vencimiento_licencia" class="form-control input-xs text-center" readonly="">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane" id="referencias" role="tabpanel">
+                      <div class="row">
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                          <h5 class="text-success">
+                            <strong>Referencia laboral 1</strong>
+                          </h5>
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Nombre Empresa 1</label>
+                          <input type="text" id="refl1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Fecha Inicio 1</label>
+                          <input type="text" id="fechal1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Fecha Final 1</label>
+                          <input type="text" id="fechafinall1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Persona Contacto</label>
+                          <input type="text" id="contactol1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Celular Contacto</label>
+                          <input type="text" id="cel1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Cargo</label>
+                          <input type="text" id="cargo1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-1 col-sm-1 col-lg-1">
+                          <label style="font-weight:600; margin-top:5px;">Antig</label>
+                          <input type="text" id="antig1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                          <h5 class="text-success">
+                            <strong>Referencia laboral 2</strong>
+                          </h5>
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4;">Nombre Empresa 2</label>
+                          <input type="text" id="refl2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Fecha Inicio 2</label>
+                          <input type="text" id="fechal2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Fecha Final 2</label>
+                          <input type="text" id="fechafinall2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Persona Contacto</label>
+                          <input type="text" id="contactol2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Celular Contacto</label>
+                          <input type="text" id="cel2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Cargo</label>
+                          <input type="text" id="cargo2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-1 col-sm-1  col-lg-1 ">
+                          <label style="font-weight:600; margin-top:5px;">Antig</label>
+                          <input type="text" id="antig2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                          <h5 class="text-success">
+                            <strong>Referencia laboral 3</strong>
+                          </h5>
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Nombre Empresa 3</label>
+                          <input type="text" id="refl3" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Fecha Inicio 3</label>
+                          <input type="text" id="fechal3" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Fecha Final 3</label>
+                          <input type="text" id="fechafinall3" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Persona Contacto</label>
+                          <input type="text" id="contactol3" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-4 col-sm-4 col-lg-4">
+                          <label style="font-weight:600; margin-top:5px;">Celular Contacto</label>
+                          <input type="text" id="cel3" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Cargo</label>
+                          <input type="text" id="cargo3" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-1 col-sm-1 col-lg-1">
+                          <label style="font-weight:600; margin-top:5px;">Antig</label>
+                          <input type="text" id="antig3" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                          <h5 class="text-success">
+                            <strong>Contacto en caso de emergencia</strong>
+                          </h5>
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Nombre Persona 1</label>
+                          <input type="text" id="refp1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Fecha 1</label>
+                          <input type="text" id="fechap1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Parentezo</label>
+                          <input type="text" id="parenp1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Teléfono</label>
+                          <input type="text" id="telp1" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                          <h5 class="text-success">
+                            <strong>Referencia personal</strong>
+                          </h5>
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Nombre Personal 2</label>
+                          <input type="text" id="refp2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Fecha 2</label>
+                          <input type="text" id="fechap2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Parentezo</label>
+                          <input type="text" id="parenp2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                        <div class="col-xs-6 col-md-3 col-sm-3 col-lg-3">
+                          <label style="font-weight:600; margin-top:5px;">Teléfono</label>
+                          <input type="text" id="telp2" class="form-control input-xs text-center" readonly="">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane" id="documentos" role="tabpanel">
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Fotos conductor</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left;color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:15%;">Nombre</th>
+                                <th style="width:10%;">Tipo</th>
+                              </tr>
+                            </thead>
+                            <tbody id="fotos_conductor">
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Fotos cedula</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left;color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:15%;">Nombre</th>
+                              </tr>
+                            </thead>
+                            <tbody id="fotos_cedulas">
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Foto EPPS</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left;color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:10%;">Nombre</th>
+
+                              </tr>
+                            </thead>
+                            <tbody id="foto_indumentaria">
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Referencia laboral</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left;color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:10%;">Nombre</th>
+
+                              </tr>
+                            </thead>
+                            <tbody id="documentos_laborales">
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Referencia Personal</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left;color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:10%;">Nombre</th>
+
+                              </tr>
+                            </thead>
+                            <tbody id="documentos_personal">
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Licencia</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left;  color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:10%;">Nombre</th>
+                              </tr>
+                            </thead>
+                            <tbody id="documentos_licencia">
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Rut</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left; color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:10%;">Nombre</th>
+                              </tr>
+                            </thead>
+                            <tbody id="documentos_rut">
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Planilla seguridad</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left; color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:10%;">Nombre</th>
+
+                              </tr>
+                            </thead>
+                            <tbody id="documentos_eps">
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Curso Mercancías peligrosas</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left;color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:10%;">Nombre</th>
+                              </tr>
+                            </thead>
+                            <tbody id="documentos_peligro">
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          <label style="font-weight:800; margin-top:20px;">Acuerdo</label>
+                          <table class="table table-striped table-hover table-condensed">
+                            <thead style="text-align:left;color:white; background-color:#332D2D;">
+                              <tr>
+                                <th style="width:3%;">#</th>
+                                <th style="width:5%;">Documento/Img</th>
+                                <th style="width:10%;">Nombre</th>
+                              </tr>
+                            </thead>
+                            <tbody id="documentos_acuerdo">
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                      <label style="font-weight:800; margin-top:20px;">Observaciones Conductor</label>
+                      <textarea id="obse_condu" class="form-control input-sm text-center"></textarea>
+                    </div>
+                    <br>
+                    <div class="row" id="botondriver" style="text-align:center;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> -->
+
+          <!--contenedor del risk -->
+          <!-- <div class="col-xs-12 col-sm-12 col-md-12" id="content_risk">
+            <div class="col-12 col-lg-12">
+              <div class="card">
+                <div class="tab-container">
+                  <div class="tab-content">
+                    <div class="tab-pane active" id="home" role="tabpanel">
+
+                      <h4 class="text-center text-primary"><strong>Plataforma</strong></h4>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <input type="hidden" id="id_totros" class="form-control input-sm">
+                      </div>
+                      <div id="divdatopreestudio">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Id Preestudio</label>
+                          <input type="text" id="idpreed" class="form-control input-sm" disabled="">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">vehiculo</label>
+                          <input type="text" id="placad" class="form-control input-sm" disabled="">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                          <label style="font-weight:800; margin-top:20px;">Estado preestudio</label>
+                          <input type="text" id="estadod" class="form-control input-sm" disabled="">
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                          <label style="font-weight:800; margin-top:20px;">Usuario realizo preestudio</label>
+                          <input type="text" id="usuariod" class="form-control input-sm" disabled="">
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                          <label style="font-weight:800; margin-top:20px;">Fecha/Hora realización preestudio</label>
+                          <input type="text" id="fhd" class="form-control input-sm" disabled="">
+                        </div>
+                      </div>
+                      <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
+                        <label style="font-weight:800; margin-top:20px;">Usuario</label>
+                        <input type="text" id="userr" value="<?php echo $ssn_nombre ?>" class="form-control input-sm" readonly="">
+                      </div>
+                      <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
+                        <label style="font-weight:800; margin-top:20px;">Fecha:</label>
+                        <input type="text" id="fechar" value="<?php echo date('Y-m-d'); ?>" class="form-control input-sm" readonly="">
+                      </div>
+                      <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
+                        <label style="font-weight:800; margin-top:20px;">Hora</label>
+                        <input type="text" id="horar" value="<?php echo date('G:i:s'); ?>" class="form-control input-sm" readonly="">
+                      </div>
+                      <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
+                        <label style="font-weight:800; margin-top:20px;">Tipo:</label>
+                        <input type="text" id="tipo_plataforma" class="form-control input-sm" readonly="">
+                      </div>
+                      <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
+                        <label style="font-weight:800; margin-top:20px;">Evidencia:</label>
+                        <input type="file" id="evi_plataforma" onchange="evidencia(this.value);" class="form-control input-sm">
+                      </div>
+                      <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
+                        <label style="font-weight:800; margin-top:20px;">Nombre documento</label>
+                        <input type="text" id="name_eviden" class="form-control input-sm" disabled="disabled">
+                      </div>
+                      <div class="col-md-6 col-sm-6 col-xs-6 col-lg-6">
+                        <label style="font-weight:800; margin-top:20px;">Ruta archivo</label>
+                        <input type="text" id="ruta_eviden" class="form-control input-sm" disabled="disabled">
+                      </div>
+                      <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+                        <label style="font-weight:800; margin-top:20px;">Observaciones</label>
+                        <textarea id="obse_todo" class="form-control input-sm text-center"></textarea>
+                      </div>
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="losbototnes" style="text-align:center;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> -->
+        </div>
+
+        <!-- <div class="row"> </div> -->
+        <!-- Hojas de vida para valdiar en los endpont de RNDC y OET -->
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-bottom: 15px;">
+          <table cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px #fff solid;" id="tbl_recursos_sistema">
+            <thead style="text-align:left;color:white; background-color:#332D2D;">
+              <tr class="text-center active">
+                <th style="width: auto; white-space: nowrap;" class="text-center">Recurso</th>
+                <th style="width: auto; white-space: nowrap;" class="text-center">RNDC</th>
+                <th style="width: auto; white-space: nowrap;" class="text-center">Oet</th>
+                <th style="width: auto; white-space: nowrap;" class="text-center">Mensaje RNDC</th>
+                <th style="width: auto; white-space: nowrap;" class="text-center">Mensaje Oet</th>
+                <th style="width: auto; white-space: nowrap;" class="text-center">Acción RNDC</th>
+                <th style="width: auto; white-space: nowrap;" class="text-center">Acción Oet</th>
+              </tr>
+            </thead>
+            <tbody style="border: 1px solid #9FA6B2;">
+              <tr style="border: 1px solid #9FA6B2;" class="tr_pripietario">
+                <td class="text-left">Propietario</td>
+                <input type="hidden" id="id_propietario_ministerio" class="form-control input-sm">
+                <td class="text-center id_ministerio_propietario" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <!-- <input type="hidden" id="id_ministerio" class="form-control input-sm"><i class="fas fa-paper-plane"></i> <i class="mdi mdi-plus-circle-o"></i>  <span class="mdi mdi-mail-send"></span>-->
+                <td class="text-center id_oet_propietario" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <input type="hidden" id="id_propietario_oet" class="form-control input-sm">
+                <td class="text-center estado_ministerio_propietario" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center estado_oet_propietario" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center col_rndc" style="display: none;" id="col_rndc_propietario"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_rndc" style="width: 50px;display: none;"></td>
+                <td class="text-center col_oet" style="display: none;" id="col_oet_propietario"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_oet" style="width: 50px;display: none;"></td>
+                <!-- <input type="hidden" id="estado_endponit" class="form-control input-sm"> -->
+              </tr>
+              <tr style="border: 1px solid #9FA6B2;" class="tr_poseedor">
+                <td class="text-left">Poseedor</td>
+                <input type="hidden" id="id_poseedor_ministerio" class="form-control input-sm">
+                <td class="text-center id_ministerio_poseedor" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <!-- <input type="hidden" id="id_ministerio" class="form-control input-sm"> -->
+                <td class="text-center id_oet_poseedor" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <input type="hidden" id="id_poseedor_oet" class="form-control input-sm">
+                <td class="text-center estado_ministerio_poseedor" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center estado_oet_poseedor" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center col_rndc" style="display: none;" id="col_rndc_poseedor"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_rndc" style="width: 50px;display: none;"></td>
+                <td class="text-center col_oet" style="display: none;" id="col_oet_poseedor"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_oet" style="width: 50px;display: none;"></td>
+                <!-- <input type="hidden" id="estado_endponit" class="form-control input-sm"> -->
+              </tr>
+
+              <tr style="border: 1px solid #9FA6B2;" class="tr_conductor">
+                <td class="text-left">Conductor</td>
+                <input type="hidden" id="id_conductor_ministerio" class="form-control input-sm">
+                <td class="text-center id_ministerio_conductor" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <!-- <input type="hidden" id="id_ministerio" class="form-control input-sm"> -->
+                <td class="text-center id_oet_conductor" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <input type="hidden" id="id_conductor_oet" class="form-control input-sm">
+                <td class="text-center estado_ministerio_conductor" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center estado_oet_conductor" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center col_rndc" style="display: none;" id="col_rndc_conductor"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_rndc" style="width: 50px;display: none;"></td>
+                <td class="text-center  col_oet" style="display: none;" id="col_oet_conductor"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_oet" style="width: 50px;display: none;"></td>
+                <!-- <input type="hidden" id="estado_endponit" class="form-control input-sm"> -->
+              </tr>
+
+              <tr style="border: 1px solid #9FA6B2;">
+                <td class="text-left">Propietario Trailer</td>
+                <input type="hidden" id="id_propietario_trailer_ministerio" class="form-control input-sm">
+                <td class="text-center id_ministerio_propietario_trailer" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <!-- <input type="hidden" id="id_ministerio" class="form-control input-sm"> -->
+                <td class="text-center id_oet_propietario_trailer" style="color: #54B4D3;font-size: 12px;">No aplica</td>
+                <input type="hidden" id="id_propietario_trailer_oet" class="form-control input-sm">
+                <td class="text-center estado_ministerio_propietario_trailer" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center estado_oet_propietario_trailer" style="color: #DC4C64;font-size: 12px;">No Aplica</td>
+                <td class="text-center col_rndc" style="display: none;" id="col_rndc_propietario_trailer"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_rndc" style="width: 50px;display: none;"></td>
+                <td class="text-center col_oet" style="display: none;"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_oet" style="width: 50px;display: none;"></td>
+                <!-- <input type="hidden" id="estado_endponit" class="form-control input-sm"> -->
+              </tr>
+
+              <tr style="border: 1px solid #9FA6B2;" class="tr_vehiculo">
+                <td class="text-left">Vehiculo</td>
+                <input type="hidden" id="id_vehiculo_minsterio" class="form-control input-sm">
+                <td class="text-center id_ministerio_vehiculo" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <!-- <input type="hidden" id="id_ministerio" class="form-control input-sm"> -->
+                <td class="text-center id_oet_vehiculo" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <input type="hidden" id="id_vehiculo_oet" class="form-control input-sm">
+                <td class="text-center estado_ministerio_vehiculo" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center estado_oet_vehiculo" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center col_rndc" style="display: none;" id="col_rndc_vehiculo"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_rndc" style="width: 50px;display: none;"></td>
+                <td class="text-center col_oet" style="display: none;" id="col_oet_vehiculo"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_oet" style="width: 50px;display: none;"></td>
+                <!-- <input type="hidden" id="estado_endponit" class="form-control input-sm"> -->
+              </tr>
+              <tr style="border: 1px solid #9FA6B2;" class="tr_trailer">
+                <td class="text-left">Trailer</td>
+                <input type="hidden" id="id_trailer_ministerio" class="form-control input-sm">
+                <td class="text-center id_ministerio_trailer" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <!-- <input type="hidden" id="id_ministerio" class="form-control input-sm"> -->
+                <td class="text-center id_oet_trailer" style="color: #DC4C64;font-size: 12px;"><span class="text-danger mdi mdi-dot-circle icon"></span></td>
+                <input type="hidden" id="id_trailer_oet" class="form-control input-sm">
+                <td class="text-center estado_ministerio_trailer" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center estado_oet_trailer" style="color: #DC4C64;font-size: 12px;">Sin valdiar</td>
+                <td class="text-center col_rndc" style="display: none;" id="col_rndc_trailer"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_rndc" style="width: 50px;display: none;"></td>
+                <td class="text-center col_oet" style="display: none;" id="col_oet_trailer"><img src="<?php echo BASE_URL; ?>public/img/verificar_datos.gif" alt="" class="load_oet" style="width: 50px;display: none;"></td>
+                <!-- <input type="hidden" id="estado_endponit" class="form-control input-sm"> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-bottom: 15px;">
+          <div id="mensaje_error_validacion"></div>
+        </div>
+        <!--Acordeon de respuestas de seguridad -->
+        <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 15px;">
+          <div class="table-responsive">
+            <table class="table table-bordered table-condensed">
+              <tbody>
+                <tr class="text-center active">
+                  <th style="color: #332D2D;" class="text-center">Vehiculo</th>
+                  <th style="color: #332D2D;" class="text-center">Conductor</th>
+                  <th style="color: #332D2D;" class="text-center">Estudio</th>
+                  <th style="color: #332D2D;" class="text-center">Estado Estudio</th>
+                </tr>
+                <tr>
+                  <td class="text-center idvehiculo"></td>
+                  <input type="hidden" id="idvehiculo" class="form-control input-sm">
+                  <input type="hidden" id="placavehiculo" class="form-control input-sm">
+                  <td class="text-center idconductor"></td>
+                  <input type="hidden" id="idconductor" class="form-control input-sm">
+                  <input type="hidden" id="nameconductor" class="form-control input-sm">
+                  <td class="text-center idstudy"></td>
+                  <input type="hidden" id="idstudy" class="form-control input-sm">
+                  <td class="text-center estadostudy"></td>
+                  <input type="hidden" id="estadostudy" class="form-control input-sm">
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div> -->
+
+        <div class="col-xs-12  col-md-12 col-sm-12 col-lg-12">
+          <div class="row">
+            <table class="table table-condensed table-hover table-bordered table-striped">
+              <thead style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+                <tr>
+                  <!-- <th>#</th> -->
+                  <th>Estudio</th>
+                  <th class="text-center">Iniciado</th>
+                  <th class="text-center">Aprobación</th>
+                  <th class="text-center">Evidencia</th>
+                </tr>
+              </thead>
+              <tbody id="body_lista">
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Hoja de Vida Vehículo</td>
+                  <td id="ini"></td>
+                  <td id="apro"></td>
+                  <td id="aevi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Hoja de Hoja de Vida Conductor</td>
+                  <td id="cini"></td>
+                  <td id="capro"></td>
+                  <td id="cevi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Riskc</td>
+                  <td id="rini"></td>
+                  <td id="rapro"></td>
+                  <td id="revi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Runt</td>
+                  <td id="ruini"></td>
+                  <td id="ruapro"></td>
+                  <td id="ruevi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Antecedentes Policivos</td>
+                  <td id="pini"></td>
+                  <td id="poapro"></td>
+                  <td id="poevi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Procuraduria</td>
+                  <td id="proini"></td>
+                  <td id="proapro"></td>
+                  <td id="proevi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Simit</td>
+                  <td id="smini"></td>
+                  <td id="sipro"></td>
+                  <td id="smevi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Siscomn</td>
+                  <td id="siscini"></td>
+                  <td id="siscompro"></td>
+                  <td id="sievi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Adres</td>
+                  <td id="aini"></td>
+                  <td id="adrpro"></td>
+                  <td id="adevi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Gps</td>
+                  <td id="gini"></td>
+                  <td id="gpro"></td>
+                  <td id="gevi" class="text-center"></td>
+                </tr>
+                <tr>
+                  <!-- <td id="reque"></td> -->
+                  <td>Dato preestudio</td>
+                  <td id="preini"></td>
+                  <td id="prepro"></td>
+                  <td id="previ" class="text-center"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-xs-12  col-md-12 col-sm-12 col-lg-12">
+          <!-- separar contenido entre el body y el footer-->
+          <!-- <div class="row">
+            <div id="historico_estudios"></div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="select_estados">
+              <label style="font-weight:800; margin-top:20px;">estado</label>
+              <select id="estado_estu" class="form-control input-xs text-center">
+                <option value="" readonly="">Seleccione</option>
+                <option value="Aprobado">Aprobado</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Rechazado">Rechazado</option>
+                <option value="Rechazado_modificar">Rechazado para modificar</option>
+              </select>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="input_proceso">
+              <label style="font-weight:800; margin-top:20px;">Proceso</label><br>
+              <input type="text" id="proceso_estudio" value="Pen_Sol_Rut" class="form-control input-xs text-center" readonly="readonly">
+              <input type="hidden" id="proceso" class="form-control input-sm" readonly="readonly">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="textarea_observacion">
+              <label style="font-weight:800; margin-top:20px;">Causalidad</label>
+              <textarea id="obse_estu" class="form-control input-xs"></textarea>
+            </div>
+          </div> -->
+
+        </div>
+        <div class="row"></div>
+        <div class="modal-footer">
+          <!-- <div class="row"></div> -->
+          <button type="button" data-dismiss="modal" class="btn btn-danger btn-xs md-close"><i class="fas fa-times"></i> Cancelar</button>
+          <button type="button" class="btn btn-primary btn-xs" id="aprobar_estudio_total"><i class="far fa-save"></i> Guardar estudio de seguridad</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Lista de comrpobacion PREFILTRO -->
+<div id="ver_lista_prefiltro" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" data-backdrop="static">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close" style="color: #fff;">
+          <span class="mdi mdi-close"></span></button>
+        <h4 class="modal-title" id="editar_title">
+          <b><span class="mdi mdi-calendar-note"></span> Lista de comprobación Prefiltro</b>
+        </h4>
+      </div>
+      <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+        <div id="msg_lista_p"></div>
+        <!-- id para manejar los mensajes de errordel popup -->
+        <!--Iniciar PREFILTRO -->
+        <div class="row" id="iniciaprefiltro">
+          <div class="bs-example" data-example-id="condensed-table">
+            <!-- <table class="table table-bordered table-condensed "> -->
+            <table cellpadding="0" cellspacing="0" width="100%">
+              <thead style="background-color:#332D2D;color:#FFFFFF;">
+                <tr>
+                  <th class="text-center">Solicitud</th>
+                  <th class="text-center">Estao Actual</th>
+                  <th class="text-center">Vehiculo</th>
+                  <th class="text-center">Placa</th>
+                  <th class="text-center">Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th id="idsolici" class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></th>
+                  <td id="solover" class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                  <td id="idvehiculoini" class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                  <td id="idplacaini" class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"></td>
+                  <td class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    <button type="button" class="btn btn-info btn-xs" id="iniciacion_preestudio">
+                      <span class="mdi mdi-play"></span><b> Iniciar Prefiltro</b>
+                      <input type="hidden" name="solicitud_id" id="solicitud_id">
+                      <input type="hidden" name="vehiculo_id" id="vehiculo_id">
+                    </button>
+                  </td>
+                  <input type="hidden" id="status" class="form-control" value="iniciado" readonly="readonly">
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!--Responder Estudio de seguridad -->
+        <div id="respondeprefiltro">
+          <div class="row">
+            <label id="estado_ver" style="font-size:16pt; font-weight:500; color:#2E2E2E;"></label>
+            <br>
+            <!-- <h3 class="text-center" style="font-weight:500; color:#2E2E2E;"><b>Solicitud</b></h3> -->
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Solicitud</b>
+                  </td>
+                </tr>
+                <tr>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="bs-example" data-example-id="condensed-table">
+              <!-- <table class="table table-bordered table-condensed"> -->
+              <table cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px #fff solid;">
+                <thead style="background-color:#332D2D;color:#FFFFFF;">
+                  <tr>
+                    <th class="text-center">Solicitud</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Hora</th>
+                    <th class="text-center">Usuario</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th id="p_nsoli" class="text-center"></th>
+                    <td id="p_fecha" class="text-center"></td>
+                    <td id="p_hora" class="text-center"></td>
+                    <td id="p_user" class="text-center"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tabla detalles del vehiculo -->
+            <h4 class="text-center"><b>Datos Terceros</b></h4>
+            <div class="table-responsive">
+              <table class="table table-bordered table-condensed" cellpadding="0" cellspacing="0" border="0">
+                <thead style="background-color:#332D2D;color:#FFFFFF;"></thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Nombre Propietario</b></th>
+                    <td id="p_propi"></td>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Documento</b></th>
+                    <td id="p_docupropi"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Nombre Poseedor</b></th>
+                    <td id="p_tenedor"></td>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Documento</b></th>
+                    <td id="p_docutenedor"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Nombre Conductor</b></th>
+                    <td id="p_condu"></td>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Documento</b></th>
+                    <td id="p_docucondu"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Web</b></th>
+                    <td id="p_web"></td>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Usuario</b></th>
+                    <td id="p_userweb"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Clave</b></th>
+                    <td id="p_claveweb"></td>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Placa</b></th>
+                    <td id="p_placa"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="color: #332D2D;"><b>Placa Trailer</b></th>
+                    <td id="p_placat"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 class="text-center"><b>Referencias Laborales</b></h4>
+            <!-- <table class="table table-bordered table-condensed"> -->
+            <table cellpadding="0" cellspacing="0" border="1" style="width:100%; border-collapse: collapse;font-size: 11px;">
+              <thead style="background-color:#332D2D;color:#FFFFFF;">
+                <tr>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Empresa</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Ingreso</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Retiro</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Contacto</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Celular</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Cargo</th>
+                </tr>
+              </thead>
+              <tbody id="p_refe" class="text-center"></tbody>
+            </table>
+
+            <!--DATOS SOLICITUD DE SERVICIO AL CLIENTE -->
+            <h4 class="text-center"><b>Solicitudes de servicio</b></h4>
+            <!-- <table class="table table-bordered table-condensed"> -->
+            <table cellpadding="0" cellspacing="0" border="1" style="width:100%; border-collapse: collapse;font-size: 11px;">
+              <thead style="background-color:#332D2D;color:#FFFFFF;">
+                <tr>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">N°</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Cliente</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center" colspan="2">Ruta</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Peso/Tipo Vehículo</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Usuario</th>
+                  <th style="width: auto; white-space: nowrap;" class="text-center">Fecha - Hora</th>
+                </tr>
+              </thead>
+              <tbody id="p_servi"></tbody>
+            </table>
+
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 12px;margin-top: 5px;">
+              <t>
+                <tr>
+                  <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Estado de Preestudio:</th>
+                  <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                    <select id="estado_seguridad" style="width: 100%;height: 24px;">
+                      <option value="">Seleccione</option>
+                      <option value="aprobado">Autorizado para registrar HV</option>
+                      <option value="rechazado">Rechazado</option>
+                      <option value="cancelado">Cancelado</option>
+                    </select>
+                  </td>
+                  <th style="background-color: #F5F5F5; width: 200px;font-weight: bold;border: 1px solid #ddd;padding: 5px;">Proceso:</th>
+                  <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;">
+                    <input type="text" id="procesoprefiltro" readonly="readonly" style="width: 100%;">
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="4">
+                    <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
+                    <textarea id="seguridad_observa" style="width: 100%;height: 24px;" placeholder="Causalidad"></textarea>
+                  </td>
+                </tr>
+                </thead>
+            </table>
+
+            <!-- DATOS DE SOLICITUD DE PREESTUDIO-->
+            <!-- <div class="col-xs-4 col-sm-6 col-md-6 col-lg-6" style="margin-top: 15px;">
+              <label>Estado de Preestudio</label>
+              <select class="form-control input-sm" id="estado_seguridad">
+                <option value="">Seleccione</option>
+                <option value="aprobado">Autorizado para registrar HV</option>
+                <option value="rechazado">Rechazado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div> -->
+            <!-- 
+            <div class="col-xs-4 col-sm-6 col-md-6 col-lg-6">
+              <label>Proceso</label>
+              <input type="text" id="procesoprefiltro" class="form-control input-sm" readonly="readonly">
+            </div> -->
+            <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <label>Causalidad</label>
+              <textarea id="seguridad_observa" class="form-control input-sm"></textarea>
+            </div> -->
+          </div>
+        </div>
+      </div>
+
+      <div class="row"></div>
+      <div class="modal-footer">
+        <div class="row" id="btn_opciones">
+          <button type="button" data-dismiss="modal" class="btn btn-danger btn-xs md-close"><i class="fas fa-times"></i> Cancelar</button>
+          <button type="button" class="btn btn-success btn-xs btn-md" id="enviar_seguridad"><i class="far fa-save"></i> Guardar Prefiltro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--respuestas de operaciones -->
+<div id="ver_rta_operaciones" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+        <h3 class="modal-title" id="editar_title">
+          <label id="titulo" style="font-size:16pt; color:white; text-align:center;"><i class="fas fa-list-ol"></i>
+            Respuestas de operaciones</label>
+        </h3>
+      </div>
+      <div class="modal-body" style="padding: 1px 1px 1px;max-height: 500px; overflow-y: auto;overflow-x: hidden;">
+        <div id="msg_rta_opera"></div><!-- id para manejar los mensajes de errordel popup -->
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h4 class="text-primary">Operaciones</h4>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <table class="table table-bordered table-condensed">
+              <thead style="background-color:#332D2D;color:#FFFFFF;">
+                <tr>
+                  <th class="number">Estudio</th>
+                  <th style="width:10%;">Fecha</th>
+                  <th class="number">Hora</th>
+                  <th class="number">Usuario</th>
+                  <th style="width:50%;">Respuesta</th>
+                  <th class="actions">Archivo</th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbr_opera">
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br><br>
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h4 class="text-primary">Seguridad</h4>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <table class="table table-bordered table-condensed">
+              <thead style="background-color:#332D2D;color:#FFFFFF;">
+                <tr>
+                  <th class="number">Estudio</th>
+                  <th style="width:10%;">Fecha</th>
+                  <th class="number">Hora</th>
+                  <th class="number">Usuario</th>
+                  <th style="width:50%;">Respuesta</th>
+                  <th class="number">Estado</th>
+                  <th class="actions">Archivo</th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbr_seguri">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h4 class="text-primary">Observaciones - Causalidades</h4>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <table class="table table-bordered table-condensed">
+              <thead style="background-color:#332D2D;color:#FFFFFF;">
+                <tr>
+                  <th class="number">#</th>
+                  <th style="width:50%;">Observación</th>
+                  <!-- <th style="width:25%;">Causalidad</th> -->
+                  <th class="number">Fecha-Hora</th>
+                  <th class="number">Usuario</th>
+                  <th class="number">Estado</th>
+                </tr>
+              </thead>
+              <tbody class="no-border-x" id="tbr_observaciones">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="row"></div>
+        <div class="modal-footer">
+          <div class="row">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Solicitudes de prefiltro de nuevo recursos -->
+<div id="ver_lista_prefiltro_nuevo_recurso" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" data-backdrop="static">
+  <div class="modal-dialog custom-width">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#332D2D;color:#fff;text-align:left;height: 50px;padding: 19px;">
+        <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close" style="color: #fff;">
+          <span class="mdi mdi-close"></span></button>
+        <h5 class="modal-title" id="editar_title">
+          <b><span class="mdi mdi-calendar-note"></span> Lista de comprobación nuevo recurso</b>
+        </h5>
+      </div>
+      <div class="modal-body" style="padding: 1px;max-height: 650px; overflow-y: auto;overflow-x: hidden;">
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div id="historicos"></div>
+            <!--Iniciar PREFILTRO -->
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="background-color: #F5F5F5; width: 150px; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">
+                    Estado:</th>
+                  <td class="text-center" style="border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" id="estado_prefiltro_recurso_nuevo"></td>
+                </tr>
+              </thead>
+            </table>
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Solicitud</b>
+                  </td>
+                </tr>
+                <tr>
+                </tr>
+              </tbody>
+            </table>
+            <div class="bs-example" data-example-id="condensed-table">
+              <table cellpadding="0" cellspacing="0" width="100%" border="1">
+                <thead style="background-color:#332D2D;color:#FFFFFF;border-top: 1px #fff solid">
+                  <tr>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Solicitud</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Placa</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Fecha</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Hora</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Usuario</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td id="num_solicitud" class="text-center"></td>
+                    <td id="placa_solicitud" class="text-center"></td>
+                    <td id="solicitud_fecha" class="text-center"></td>
+                    <td id="solicitud_hora" class="text-center"></td>
+                    <td id="solicitud_user" class="text-center"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;margin-top: 5px;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Datos Actuales</b>
+                  </td>
+                </tr>
+                <tr>
+                </tr>
+              </tbody>
+            </table>
+            <div class="table-responsive">
+              <table cellpadding="0" cellspacing="0" width="100%" border="1" style="border-top: 1px #fff solid;">
+                <thead>
+                  <tr>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Nombre Propietario</b></th>
+                    <td id="propietario_actual" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Documento</b></th>
+                    <td id="documento_propietario_actual" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Nombre Poseedor</b></th>
+                    <td id="tenedor_actual" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Documento</b></th>
+                    <td id="documento_tenedor_actual" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Nombre Conductor</b></th>
+                    <td id="conductor_actual" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Documento</b></th>
+                    <td id="documento_conductor_actual" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Placa Trailer</b></th>
+                    <td id="actual_placa_trailer" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Propietario Trailer</b></th>
+                    <td id="actual_propietario_trailer" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="active" style="background-color: #F5F5F5;  font-weight: bold;font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;"><b>Documento Propietario Trailer</b></th>
+                    <td id="documento_actual_propietario_trailer" style="border: 1px solid #ddd; width: auto; white-space: nowrap;margin: 0;"></td>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;margin-top: 5px;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Datos del satelital</b>
+                  </td>
+                </tr>
+                <tr>
+                </tr>
+              </tbody>
+            </table>
+            <div class="bs-example" data-example-id="condensed-table">
+              <table cellpadding="0" cellspacing="0" width="100%" border="1">
+                <thead style="background-color:#332D2D;color:#FFFFFF;border-top: 1px #fff solid">
+                  <tr>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Web</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Usuario</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Clave</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td id="web_satelital"></td>
+                    <td id="usuario_satelital"></td>
+                    <td id="clave_satelital"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;margin-top: 5px;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Datos Recursos Nuevos</b>
+                  </td>
+                </tr>
+                <tr>
+                </tr>
+              </tbody>
+            </table>
+            <!-- Tabla detalles del vehiculo -->
+            <div class="table-responsive">
+              <table cellpadding="0" cellspacing="0" width="100%" border="1" style="border-top: 1px #fff solid;">
+                <thead id="tbl_datos"></thead>
+              </table>
+            </div>
+            <!-- Referencias -->
+            <div id="tbl_referencias">
+              <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;margin-top: 5px;">
+                <tbody>
+                  <tr>
+                    <td class="celda_titulo2 text-center" style="margin:25px;">
+                      <b>Referencias Laborales</b>
+                    </td>
+                  </tr>
+                  <tr>
+                  </tr>
+                </tbody>
+              </table>
+              <table cellpadding="0" cellspacing="0" width="100%" border="1">
+                <thead style="background-color:#332D2D;color:#FFFFFF;border-top: 1px #fff solid;">
+                  <tr>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Empresa</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Ingreso</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Retiro</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Contacto</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Celular</th>
+                    <th style="color: white;width: auto; white-space: nowrap;" class="text-center">Cargo</th>
+                  </tr>
+                </thead>
+                <tbody id="referencias_nuevas" class="text-center"></tbody>
+              </table>
+            </div>
+            <!-- DATOS DE SOLICITUD DE PREESTUDIO-->
+            <table cellpadding="0" cellspacing="0" width="100%" border="0" style="background-color: #332D2D;color:#fff;border-top: 1px #fff solid;margin-top: 5px;">
+              <tbody>
+                <tr>
+                  <td class="celda_titulo2 text-center" style="margin:25px;">
+                    <b>Acción</b>
+                  </td>
+                </tr>
+                <tr>
+                </tr>
+              </tbody>
+            </table>
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="background-color: #F5F5F5; font-weight: bold;font-size: 12px; border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" class="text-left"> Estado de Preestudio:</th>
+                  <td style="border: 1px solid #ddd; width: auto; white-space: nowrap;">
+                    <select style="width: 100%;height: 24px;" id="estado_prefiltro_nuevo">
+                      <option value="">Seleccione</option>
+                      <option value="Iniciado">Iniciado</option>
+                      <option value="Rechazado">Rechazado</option>
+                      <option value="Aprobado">Aprobado</option>
+                    </select>
+                  </td>
+                  <input type="hidden" id="name_foto" class="form-control input-sm" disabled="disabled">
+                  <th style="background-color: #F5F5F5; font-weight: bold; font-size: 12px; border: 1px solid #ddd;width: auto; white-space: nowrap;" class="text-left">
+                    Observacion:</th>
+                  <td style="border: 1px solid #ddd;width: auto; white-space: nowrap; ">
+                    <textarea name="observacion_prefiltro_nuevo" id="observacion_prefiltro_nuevo" rows="1" style="width: 100%;"></textarea>
+                  </td>
+                </tr>
+              </thead>
+            </table>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left" style="padding: 1px;">
+              <ul id="lista_log_estdo" style="font-weight: 500;margin-left: -25px;font-size: 11px;"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="row" id="btn_opciones">
+          <button type="button" data-dismiss="modal" class="btn btn-danger btn-xs md-close"><i class="fas fa-times"></i> Cancelar</button>
+          <button type="button" class="btn btn-success btn-xs btn-md" id="btn_guardar_prefiltro_nuevo"><i class="far fa-save"></i> Guardar Prefiltro
+            <input type="hidden" id="num_solicitud_prefiltro_nuevo">
+            <input type="hidden" id="plac_solicitud_prefiltro_nuevo">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<?php
+
+$vista = str_replace("%root_file%", $_layoutParams["ruta_layout"], $vista);
+$vista = str_replace("%content%", $table_content, $vista);
+echo $vista;
+
+?>
+<script type="text/javascript">
+  /*seleccionar la respuesta del preestudio
+segun el estado seleccionado */
+  // function evidencia(fic) {
+  //   fic = fic.split('\\');
+  //   if (fic == '' || fic == null) {
+  //     $("#name_eviden").val('');
+  //   } else {
+  //     $("#name_eviden").val(fic[fic.length - 1]);
+  //   }
+  // }
+
+  $(document).ready(function() {
+
+    //estudio de seguridad
+    // $("#estado_estu").change(function() {
+    //   var estado = $("#estado_estu").val();
+    //   if (estado == 'Aprobado') {
+    //     $("#proceso").val('Rea_Sol_Seg');
+    //   }
+    //   if (estado == 'Pendiente') {
+    //     $("#proceso").val('Pen_Sol_Seg');
+    //   }
+    //   if (estado == 'Rechazado') {
+    //     $("#proceso").val('Rec_Sol_Seg');
+    //   }
+    // });
+
+
+    // $("#estado_seguridad").change(function() {
+    //   var url2 = $("#id_url_ajax").val() + "libs/preestudio2_ajax.php";
+    //   var estado = $("#estado_seguridad").val();
+    //   //llenar el select segun el estado que seleccione
+    //   var dato = {
+    //     estado: estado,
+    //     action: 'llenar_causalidad'
+    //   };
+    //   //causalidad
+    //   if (estado == 'pendiente' || estado == 'rechazado' || estado == 'cancelado' || estado == 'aprobado' ||
+    //     estado == 'rechazado para modificar') {
+    //     $('#causalidad_seguridad').prop('disabled', false);
+    //   } else {
+    //     $('#causalidad_seguridad').prop('disabled', true);
+    //   }
+    
+    //   //proceso
+    //   if (estado == 'pendiente') {
+    //     $("#procesoprefiltro").val('Pen_Sol_PreR');
+    //   }
+
+    //   if (estado == 'rechazado') {
+    //     $("#procesoprefiltro").val('Rec_Sol_PreR');
+    //   }
+
+    //   if (estado == 'cancelado') {
+    //     $("#procesoprefiltro").val('Can_Sol_PreR');
+    //   }
+
+    //   if (estado == 'aprobado') {
+    //     $("#procesoprefiltro").val('Rea_Sol_PreR');
+    //   }
+    //   if (estado == 'rechazado para modificar') {
+    //     $("#procesoprefiltro").val('Rec_mod_Sol_PreR');
+    //   }
+
+
+    //   $("#causalidad_seguridad").html('');
+    //   $.ajax({
+    //     url: url2,
+    //     type: 'POST',
+    //     data: dato,
+    //     dataType: 'json',
+    //     success: function(data) {
+    //       if (data) {
+    //         data.result.forEach(function(element, index) {
+    //           $("#causalidad_seguridad").append('<option value="' + element.id + '">' + element
+    //             .respuesta + '</option>');
+    //         });
+    //       }
+    //     },
+    //     error: function(jqXHR, textStatus, errorThrown) {
+    //       console.log('no trajo causalidad');
+    //       console.log(jqXHR);
+    //       console.log(textStatus);
+    //       console.log(errorThrown);
+    //     }
+    //   });
+    // });
+  });
+
+  var url2 = $("#id_url_ajax").val() + "libs/preestudio2_ajax.php";
+  //responder preestudio
+  $("#idsolici").val('');
+</script>

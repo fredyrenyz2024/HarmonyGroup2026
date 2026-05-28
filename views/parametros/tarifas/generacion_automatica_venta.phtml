@@ -1,0 +1,1114 @@
+<!-- Variables ocultas de sesión -->
+<input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="empresa_id" value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+<input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --navy: #0f1f3d;
+    --navy2: #1a3c6b;
+    --accent: #059669;
+    --accent2: #10b981;
+    --green: #16a34a;
+    --red: #dc2626;
+    --yellow: #d97706;
+    --bg: #f0f4f9;
+    --card: #ffffff;
+    --border: #dde3ef;
+    --text: #1e293b;
+    --muted: #64748b;
+    --shadow: 0 2px 14px rgba(15, 31, 61, .09);
+    --radius: 10px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ── PAGE HEADER ── */
+  .vta-header {
+    background: linear-gradient(135deg, #0f2b1e 0%, #065f46 60%, #047857 100%);
+    padding: 20px 26px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vta-header::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, .03);
+    border-radius: 50%;
+  }
+
+  .vta-header-icon {
+    width: 46px;
+    height: 46px;
+    background: rgba(5, 150, 105, .22);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    border: 1px solid rgba(5, 150, 105, .3);
+  }
+
+  .vta-header-info {
+    flex: 1;
+  }
+
+  .vta-header-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .vta-header-sub {
+    font-size: .68rem;
+    color: rgba(255, 255, 255, .5);
+    margin-top: 3px;
+  }
+
+  .vta-header-badge {
+    background: rgba(5, 150, 105, .2);
+    border: 1px solid rgba(5, 150, 105, .35);
+    border-radius: 20px;
+    padding: 5px 13px;
+    font-size: .7rem;
+    color: var(--accent);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ── MAIN LAYOUT: igual a imagen de referencia ──
+     Columna izquierda fija 300px | Columna derecha ocupa el resto
+  */
+  .vta-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* ── SIDEBAR (columna izquierda) ── */
+  .vta-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* ── PARAM CARD ── */
+  .vta-param-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .vta-param-head {
+    background: linear-gradient(135deg, #0f2b1e, #065f46);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .vta-param-head-icon {
+    width: 30px;
+    height: 30px;
+    background: rgba(5, 150, 105, .2);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: .8rem;
+  }
+
+  .vta-param-head-text {
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+  }
+
+  .vta-param-head-sub {
+    color: rgba(255, 255, 255, .5);
+    font-size: .62rem;
+  }
+
+  .vta-param-body {
+    padding: 14px 16px;
+  }
+
+  /* ── SLIDER ── */
+  .slider-wrap {
+    margin: 12px 0 4px;
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: .6rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  input[type=range] {
+    width: 100%;
+    height: 6px;
+    border-radius: 4px;
+    appearance: none;
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 80%), #e2e8f0 var(--pct, 80%), #e2e8f0 100%);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 5px rgba(5, 150, 105, .4);
+    cursor: pointer;
+  }
+
+  .slider-display {
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .slider-val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .slider-unit {
+    font-size: .68rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .preset-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .preset-btn {
+    flex: 1;
+    min-width: 38px;
+    padding: 5px 0;
+    border-radius: 6px;
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .15s;
+  }
+
+  .preset-btn:hover,
+  .preset-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* ── FILTER CARD ── */
+  .vta-filter-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .vta-filter-head {
+    background: linear-gradient(135deg, #0f2b1e, #065f46);
+    padding: 11px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vta-filter-head-icon {
+    width: 26px;
+    height: 26px;
+    background: rgba(5, 150, 105, .2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: .75rem;
+  }
+
+  .vta-filter-head-text {
+    color: #fff;
+    font-size: .76rem;
+    font-weight: 700;
+  }
+
+  .vta-filter-body {
+    padding: 13px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  /* ── FORM CONTROLS ── */
+  .form-label {
+    font-size: .62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .form-control,
+  .form-select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: .8rem;
+    background: #fff;
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, .1);
+  }
+
+  /* ── BOTONES ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: .78rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: .15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: #047857;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-sm {
+    padding: 4px 11px;
+    font-size: .72rem;
+  }
+
+  /* ── COLUMNA DERECHA ── */
+  .vta-main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* ── STATS ROW — 6 tarjetas ── */
+  .vta-stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 9px;
+  }
+
+  .vta-stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 11px 10px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+
+  .vta-stat-label {
+    font-size: .58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .vta-stat-val {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .vta-stat.danger .vta-stat-val {
+    color: var(--red);
+  }
+
+  .vta-stat.warning .vta-stat-val {
+    color: var(--yellow);
+  }
+
+  .vta-stat.success .vta-stat-val {
+    color: var(--green);
+  }
+
+  /* ── PARETO BAR ── */
+  .vta-pareto {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 13px 16px;
+    display: none;
+    box-shadow: var(--shadow);
+  }
+
+  .vta-pareto-label {
+    font-size: .62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    margin-bottom: 7px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .vta-pareto-bar {
+    height: 13px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .vta-pareto-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    transition: width .6s ease;
+    width: 0%;
+  }
+
+  /* ── RESULTS CARD ── */
+  .vta-results {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .vta-results-header {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .vta-table-count {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 9px;
+  }
+
+  /* ── TABS ── */
+  .vta-tab-row {
+    display: flex;
+    gap: 3px;
+    padding: 9px 13px 0;
+  }
+
+  .vta-tab-btn {
+    padding: 5px 13px;
+    font-size: .7rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 7px 7px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: #f8fafc;
+    color: var(--muted);
+    transition: .15s;
+  }
+
+  .vta-tab-btn.active {
+    background: #fff;
+    color: var(--accent);
+    border-color: var(--border);
+  }
+
+  /* ── ACTIONS BAR ── */
+  .vta-actions-bar {
+    display: none;
+    padding: 9px 13px;
+    background: #f0fdf4;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* ── TABLA ── */
+  #vta-table-wrap {
+    overflow-x: auto;
+    min-height: 160px;
+  }
+
+  table.vta-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .76rem;
+  }
+
+  table.vta-table thead th {
+    background: linear-gradient(135deg, #0f2b1e, #065f46);
+    color: #fff;
+    padding: 8px 9px;
+    text-align: left;
+    white-space: nowrap;
+    font-size: .63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  table.vta-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .12s;
+  }
+
+  table.vta-table tbody tr:hover {
+    background: #f0fdf4;
+  }
+
+  table.vta-table tbody td {
+    padding: 7px 9px;
+    vertical-align: middle;
+  }
+
+  table.vta-table tfoot td {
+    background: #f8fafc;
+    border-top: 2px solid var(--border);
+    padding: 7px 9px;
+    font-size: .67rem;
+    color: var(--muted);
+  }
+
+  /* ── EMPTY / LOADING ── */
+  .vta-empty {
+    padding: 46px 20px;
+    text-align: center;
+  }
+
+  .vta-empty-icon {
+    font-size: 2rem;
+    color: #cbd5e1;
+    margin-bottom: 10px;
+  }
+
+  .vta-empty-text {
+    font-size: .78rem;
+    color: var(--muted);
+  }
+
+  .vta-loading {
+    padding: 46px 20px;
+    text-align: center;
+  }
+
+  .vta-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #e2e8f0;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: vtaSpin .7s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes vtaSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ── BADGES / TAGS ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: .62rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .badge-rojo {
+    background: #fef2f2;
+    color: var(--red);
+    border: 1px solid #fecaca;
+  }
+
+  .badge-amarillo {
+    background: #fffbeb;
+    color: var(--yellow);
+    border: 1px solid #fed7aa;
+  }
+
+  .badge-verde {
+    background: #f0fdf4;
+    color: var(--green);
+    border: 1px solid #bbf7d0;
+  }
+
+  .badge-info {
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+  }
+
+  .st-sin {
+    background: #fef2f2;
+    color: var(--red);
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: .6rem;
+    font-weight: 700;
+  }
+
+  .st-venc {
+    background: #fef2f2;
+    color: var(--red);
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: .6rem;
+    font-weight: 700;
+  }
+
+  .st-porv {
+    background: #fffbeb;
+    color: var(--yellow);
+    border: 1px solid #fed7aa;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: .6rem;
+    font-weight: 700;
+  }
+
+  .st-vig {
+    background: #f0fdf4;
+    color: var(--green);
+    border: 1px solid #bbf7d0;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: .6rem;
+    font-weight: 700;
+  }
+
+  /* ── TRIP BAR ── */
+  .trip-bar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .trip-bar-track {
+    flex: 1;
+    height: 5px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .trip-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+  }
+
+  .trip-bar-num {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    color: var(--navy);
+    font-weight: 700;
+    min-width: 22px;
+  }
+
+  .tv {
+    font-family: 'DM Mono', monospace;
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  .tv-null {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: .7rem;
+  }
+
+  .param-status {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    font-size: .64rem;
+    color: var(--green);
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 4px 9px;
+  }
+
+  input[type=checkbox] {
+    width: 13px;
+    height: 13px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  @media (max-width:1100px) {
+    .vta-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .vta-stats {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width:640px) {
+    .vta-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Ajuste para que la fila de filtros no sea tan alta */
+  thead tr.filters th {
+    padding: 5px !important;
+    background-color: #f8f9fa !important;
+  }
+
+  thead tr.filters input {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+</style>
+
+<!-- <div style="padding:18px 22px;max-width:1700px;margin:0 auto;font-family:'DM Sans',sans-serif;color:#1e293b;font-size:14px;"> -->
+<div class="container-fluid">
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="vta-header">
+    <div class="vta-header-icon"><i class="fas fa-tags"></i></div>
+    <div class="vta-header-info">
+      <div class="vta-header-title">Generación Automática de Rutas — Tarifas de <strong>Ventas</strong></div>
+      <div class="vta-header-sub">REQ 19 + REQ 20 · Priorización por Pareto (TOP % viajes) · Rutas con tarifas vencidas o sin tarifa</div>
+    </div>
+    <div class="vta-header-badge"><i class="fas fa-sliders-h" style="margin-right:4px"></i> Parámetro TOP activo</div>
+  </div>
+
+  <!-- ═══ MAIN LAYOUT ═══ -->
+  <div class="vta-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <div class="vta-sidebar">
+
+      <!-- PARÁMETRO TOP -->
+      <div class="vta-param-card">
+        <div class="vta-param-head">
+          <div class="vta-param-head-icon"><i class="fas fa-sliders-h"></i></div>
+          <div>
+            <div class="vta-param-head-text">Parámetro de Priorización</div>
+            <div class="vta-param-head-sub">REQ 20 — TOP % de viajes (Pareto)</div>
+          </div>
+        </div>
+        <div class="vta-param-body">
+          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:10px 12px;font-size:.68rem;color:#92400e;line-height:1.5;margin-bottom:10px;">
+            Define el % acumulado de viajes que determina las rutas prioritarias. Con un TOP de 80%, solo las rutas que cubran el 80% de los despachos se consideran para actualización (Principio de Pareto).
+          </div>
+          <div class="slider-labels"><span>1(mín)</span><span>50%</span><span>100 (máx)</span></div>
+          <div class="slider-wrap">
+            <input type="range" id="top-slider" min="1" max="100" value="80" oninput="ventasRP.onSlider(this.value)">
+          </div>
+          <div class="slider-display">
+            <div class="slider-val" id="top-display-val">80</div>
+            <div class="slider-unit">viajes cubiertos por la operación</div>
+          </div>
+          <input type="hidden" id="top-input" value="80">
+          <div class="preset-row">
+            <button class="preset-btn" onclick="ventasRP.setPreset(50)">50</button>
+            <button class="preset-btn" onclick="ventasRP.setPreset(60)">60</button>
+            <button class="preset-btn" onclick="ventasRP.setPreset(70)">70</button>
+            <button class="preset-btn active" onclick="ventasRP.setPreset(80)">80</button>
+            <button class="preset-btn" onclick="ventasRP.setPreset(90)">90</button>
+          </div>
+          <div class="preset-row" style="margin-top:4px;">
+            <button class="preset-btn" onclick="ventasRP.setPreset(100)">100</button>
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+            <input type="number" id="top-manual" class="form-control" min="1" max="100" placeholder="Valor"
+              style="width:70px;height:34px;font-family:'DM Mono',monospace;"
+              oninput="ventasRP.onSlider(this.value)">
+            <button class="btn btn-primary" style="flex:1;height:34px;" onclick="ventasRP.guardarParametro()">
+              <i class="fas fa-save"></i> Guardar Parámetro
+            </button>
+          </div>
+          <div class="param-status" id="param-status">
+            <i class="fas fa-check-circle"></i>
+            <span id="param-status-text">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="vta-filter-card">
+        <div class="vta-filter-head">
+          <div class="vta-filter-head-icon"><i class="fas fa-filter"></i></div>
+          <div class="vta-filter-head-text">Filtros de Generación</div>
+        </div>
+        <div class="vta-filter-body">
+          <div>
+            <label class="form-label">Fecha Desde</label>
+            <input type="date" id="g-desde" class="form-control">
+          </div>
+          <div>
+            <label class="form-label">Fecha Hasta</label>
+            <input type="date" id="g-hasta" class="form-control">
+          </div>
+          <div>
+            <label class="form-label">Cliente</label>
+            <select id="g-cliente" class="form-select">
+              <option value="">Todos los clientes</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Zona</label>
+            <select id="g-zona" class="form-select">
+              <option value="">Todas las zonas</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:2px;" onclick="ventasRP.generarLista()">
+            <i class="fas fa-bolt"></i> Generar Lista Priorizada
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /sidebar -->
+
+    <!-- ── COLUMNA PRINCIPAL ── -->
+    <div class="vta-main">
+
+      <!-- STATS — 6 tarjetas -->
+      <div class="vta-stats">
+        <div class="vta-stat">
+          <div class="vta-stat-label">Rutas Priorizadas</div>
+          <div class="vta-stat-val" id="st-rutas">—</div>
+        </div>
+        <div class="vta-stat danger">
+          <div class="vta-stat-label">Sin Tarifa</div>
+          <div class="vta-stat-val" id="st-sin">—</div>
+          <div style="font-size:.58rem;color:var(--red);margin-top:2px;">Acción urgente</div>
+        </div>
+        <div class="vta-stat danger">
+          <div class="vta-stat-label">Vencidas</div>
+          <div class="vta-stat-val" id="st-venc">—</div>
+        </div>
+        <div class="vta-stat warning">
+          <div class="vta-stat-label">Por Vencer</div>
+          <div class="vta-stat-val" id="st-porv">—</div>
+        </div>
+        <div class="vta-stat success">
+          <div class="vta-stat-label">Vigentes</div>
+          <div class="vta-stat-val" id="st-vig">—</div>
+        </div>
+        <div class="vta-stat">
+          <div class="vta-stat-label">Total Viajes</div>
+          <div class="vta-stat-val" id="st-viajes">—</div>
+        </div>
+      </div>
+
+      <!-- PARETO BAR -->
+      <div class="vta-pareto" id="pareto-wrap">
+        <div class="vta-pareto-label">
+          <span><i class="fas fa-chart-bar" style="color:var(--accent);margin-right:4px"></i> Lista Priorizada de Rutas — Ventas</span>
+          <span id="pareto-rutas-total" style="font-weight:700;color:var(--navy)">—</span>
+        </div>
+        <div class="vta-pareto-bar">
+          <div class="vta-pareto-fill" id="pareto-fill" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:.63rem;color:var(--muted);">
+          <span id="pareto-fill-label">—</span>
+          <span id="pareto-info" style="font-weight:700;color:var(--accent)">—</span>
+        </div>
+      </div>
+
+      <!-- TABLA RESULTADOS -->
+      <div class="vta-results">
+
+        <!-- Tabs -->
+        <div style="border-bottom:1px solid var(--border);">
+          <div class="vta-tab-row">
+            <button class="vta-tab-btn active" id="tab-todas" onclick="ventasRP.setTab('todas')">Todas <span id="cnt-todas" style="font-size:.62rem;opacity:.7"></span></button>
+            <button class="vta-tab-btn" id="tab-sin" onclick="ventasRP.setTab('sin')"><i class="fas fa-circle" style="color:var(--red);font-size:.45rem"></i> Sin Tarifa</button>
+            <button class="vta-tab-btn" id="tab-vencida" onclick="ventasRP.setTab('vencida')"><i class="fas fa-circle" style="color:var(--red);font-size:.45rem"></i> Vencidas</button>
+            <button class="vta-tab-btn" id="tab-pv" onclick="ventasRP.setTab('pv')"><i class="fas fa-circle" style="color:var(--yellow);font-size:.45rem"></i> Por Vencer</button>
+            <button class="vta-tab-btn" id="tab-vig" onclick="ventasRP.setTab('vig')"><i class="fas fa-circle" style="color:var(--green);font-size:.45rem"></i> Vigentes</button>
+          </div>
+        </div>
+
+        <!-- Header resultados -->
+        <div class="vta-results-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-route" style="color:var(--accent)"></i>
+            <span style="font-weight:700;font-size:.8rem;color:var(--navy)">Lista Priorizada de Rutas</span>
+            <div class="vta-table-count" id="table-count">
+              <i class="fas fa-list" style="color:var(--accent)"></i>
+              <span id="count-txt">0 rutas</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:7px;align-items:center;">
+            <input type="text" id="tbl-filter" class="form-control" placeholder="🔍 Filtrar..." style="width:190px;height:30px;font-size:.73rem;">
+            <button class="btn btn-outline btn-sm" style="height:30px;" onclick="ventasRP.exportarExcel()">
+              <i class="fas fa-file-excel" style="color:var(--green)"></i> Excel
+            </button>
+            <button class="btn btn-outline btn-sm" id="btn-sel-todo" style="height:30px;" onclick="ventasRP.toggleSelTodo()">
+              <i class="fas fa-check-square"></i> Sel. Todo
+            </button>
+          </div>
+        </div>
+
+        <!-- Actions bar masivo -->
+        <div class="vta-actions-bar" id="actions-bar">
+          <button class="btn btn-primary btn-sm" onclick="ventasRP.actualizarSeleccionadas()">
+            <i class="fas fa-sync-alt"></i> Actualizar Seleccionadas
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="ventasRP.deseleccionarTodo()">
+            <i class="fas fa-times"></i> Deseleccionar
+          </button>
+          <span style="font-size:.7rem;color:var(--muted)" id="sel-count">0 seleccionadas</span>
+        </div>
+
+        <!-- Tabla wrap -->
+        <div id="vta-table-wrap">
+          <div class="vta-empty">
+            <div class="vta-empty-icon"><i class="fas fa-bolt"></i></div>
+            <div class="vta-empty-text">Lista no generada<br><small>Configure el parámetro TOP y presione "Generar Lista Priorizada"</small></div>
+          </div>
+        </div>
+
+      </div><!-- /vta-results -->
+
+    </div><!-- /vta-main -->
+
+  </div><!-- /vta-layout -->
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+ MODAL EDICIÓN — Tarifa de Venta
+ Solo editar valores existentes. Sin botón Agregar.
+ Multi Origen / Destino: solo se muestran los detalles
+ que ya tiene la tarifa — solo editable rate_1 y rate_2.
+ ══════════════════════════════════════════════════ -->
+<div id="modal-editar" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(15,31,61,.5);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)ventasRP.cerrarModal()">
+  <div style="background:#fff;border-radius:14px;width:100%;max-width:600px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(15,31,61,.3);font-family:'DM Sans',sans-serif;">
+
+    <!-- Header modal -->
+    <div style="background:linear-gradient(135deg,#0f2b1e,#065f46);padding:15px 19px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div>
+        <div style="font-weight:700;color:#fff;font-size:.92rem;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-tags" style="color:#10b981"></i>
+          <span id="modal-title">Actualizar Tarifa de Venta</span>
+        </div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.5);margin-top:2px" id="modal-ruta-info">—</div>
+      </div>
+      <button onclick="ventasRP.cerrarModal()" style="background:rgba(255,255,255,.12);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+
+    <!-- Body modal -->
+    <div style="overflow-y:auto;flex:1;padding:18px;">
+
+      <!-- Info ruta -->
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:11px 13px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:.58rem;text-transform:uppercase;font-weight:700;color:var(--muted)">Origen</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.82rem" id="m-origen">—</div>
+        </div>
+        <div style="font-size:1.1rem;color:#059669">→</div>
+        <div>
+          <div style="font-size:.58rem;text-transform:uppercase;font-weight:700;color:var(--muted)">Destino</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.82rem" id="m-destino">—</div>
+        </div>
+        <div>
+          <div style="font-size:.58rem;text-transform:uppercase;font-weight:700;color:var(--muted)">Vehículo</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.82rem" id="m-vehiculo">—</div>
+        </div>
+        <div>
+          <div style="font-size:.58rem;text-transform:uppercase;font-weight:700;color:var(--muted)">Viajes</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.82rem" id="m-viajes">—</div>
+        </div>
+        <div id="m-estado-badge">—</div>
+      </div>
+
+      <!-- Cliente -->
+      <div style="background:#f0fdf4;border:1px solid #a7f3d0;border-radius:7px;padding:9px 13px;margin-bottom:12px;display:flex;align-items:center;gap:9px;">
+        <i class="fas fa-user-tie" style="color:#059669;font-size:.85rem;flex-shrink:0"></i>
+        <div>
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;color:var(--muted)">Tarifa para Cliente</div>
+          <div style="font-size:.78rem;color:var(--navy);font-weight:600;margin-top:1px"><span id="m-cliente-label">General</span></div>
+        </div>
+        <input type="hidden" id="m-cliente-id" value="">
+      </div>
+
+      <!-- Tarifa Plena -->
+      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:11px;">
+        <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--navy);margin-bottom:9px;display:flex;align-items:center;gap:5px;">
+          <i class="fas fa-dollar-sign" style="color:#059669"></i> Tarifa Plena Venta <span style="color:var(--red)">*</span>
+        </div>
+        <div style="position:relative;">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.7rem;color:var(--muted);font-weight:700;">$</span>
+          <input type="number" id="m-plena" class="form-control" min="0" step="1000" placeholder="0" style="padding-left:22px;font-family:'DM Mono',monospace;font-size:.88rem;height:36px;">
+        </div>
+      </div>
+
+      <!-- Multi Recogida + Entrega -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;">
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:11px;">
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">
+            <i class="fas fa-map-marker-alt" style="color:var(--navy2)"></i> Multi Recogida
+          </div>
+          <div style="position:relative;">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:.68rem;color:var(--muted);font-weight:700;">$</span>
+            <input type="number" id="m-multi-recogida" class="form-control" min="0" step="1000" value="0" style="padding-left:19px;font-family:'DM Mono',monospace;font-size:.8rem;" placeholder="0">
+          </div>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:11px;">
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">
+            <i class="fas fa-map-pin" style="color:var(--navy2)"></i> Multi Entrega
+          </div>
+          <div style="position:relative;">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:.68rem;color:var(--muted);font-weight:700;">$</span>
+            <input type="number" id="m-multi-entrega" class="form-control" min="0" step="1000" value="0" style="padding-left:19px;font-family:'DM Mono',monospace;font-size:.8rem;" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi Origen — SOLO LECTURA de municipio, editable rate_1/rate_2 -->
+      <div id="section-multi-origen" style="display:none;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:11px;">
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);margin-bottom:3px;display:flex;align-items:center;gap:5px;">
+          <i class="fas fa-location-arrow" style="color:#0ea5e9"></i> Multi Origen — por Municipio
+        </div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:8px">Rate 1 = tarifa base · Rate 2 = recargo adicional</div>
+        <!-- Cabecera columnas -->
+        <div style="display:grid;grid-template-columns:1fr 90px 90px;gap:6px;margin-bottom:4px;padding:0 4px;">
+          <div style="font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase">Municipio</div>
+          <div style="font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center">Rate 1</div>
+          <div style="font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center">Rate 2</div>
+        </div>
+        <div id="multi-origen-rows"></div>
+      </div>
+
+      <!-- Multi Destino — SOLO LECTURA de municipio, editable rate_1/rate_2 -->
+      <div id="section-multi-destino" style="display:none;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:11px;">
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);margin-bottom:3px;display:flex;align-items:center;gap:5px;">
+          <i class="fas fa-map-marked-alt" style="color:#7c3aed"></i> Multi Destino — por Municipio
+        </div>
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:8px">Rate 1 = tarifa base · Rate 2 = recargo adicional</div>
+        <div style="display:grid;grid-template-columns:1fr 90px 90px;gap:6px;margin-bottom:4px;padding:0 4px;">
+          <div style="font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase">Municipio</div>
+          <div style="font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center">Rate 1</div>
+          <div style="font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center">Rate 2</div>
+        </div>
+        <div id="multi-destino-rows"></div>
+      </div>
+
+      <!-- Vigencia -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+        <div>
+          <label class="form-label">Fecha Inicio Vigencia</label>
+          <input type="date" id="m-fecha-inicio" class="form-control">
+        </div>
+        <div>
+          <label class="form-label">Fecha Fin Vigencia</label>
+          <input type="date" id="m-fecha-fin" class="form-control">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer modal -->
+    <div style="padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end;background:#f0fdf4;flex-shrink:0;">
+      <button class="btn btn-outline" onclick="ventasRP.cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="ventasRP.guardarEdicion()">
+        <i class="fas fa-save"></i> Guardar Tarifa de Venta
+      </button>
+    </div>
+
+  </div>
+</div>

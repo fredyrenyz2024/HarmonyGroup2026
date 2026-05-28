@@ -14,38 +14,37 @@
   <!-- ===============================================-->
   <!--    Favicons-->
   <!-- ===============================================-->
-  <link rel="apple-touch-icon" sizes="180x180"
-    href="<?php echo BASE_URL ?>public/assets/img/favicons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32"
-    href="<?php echo BASE_URL ?>public/assets/img/favicons/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16"
-    href="<?php echo BASE_URL ?>public/assets/img/favicons/favicon-16x16.png">
-  <link rel="shortcut icon" type="image/x-icon" href="<?php echo BASE_URL ?>public/assets/img/favicons/favicon.ico">
-  <link rel="manifest" href="<?php echo BASE_URL ?>public/assets/img/favicons/manifest.json">
-  <meta name="msapplication-TileImage" content="<?php echo BASE_URL ?>public/assets/img/favicons/mstile-150x150.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="<?= BASE_URL ?>public/assets/img/favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>public/assets/img/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="<?= BASE_URL ?>public/assets/img/favicons/favicon-16x16.png">
+  <link rel="shortcut icon" type="image/x-icon" href="<?= BASE_URL ?>public/assets/img/favicons/favicon.ico">
+  <link rel="manifest" href="<?= BASE_URL ?>public/assets/img/favicons/manifest.json">
+  <meta name="msapplication-TileImage" content="<?= BASE_URL ?>public/assets/img/favicons/mstile-150x150.png">
   <meta name="theme-color" content="#ffffff">
-  <script src="<?php echo BASE_URL ?>public/vendors/simplebar/simplebar.min.js"></script>
-  <script src="<?php echo BASE_URL ?>public/assets/js/config.js"></script>
+  <script src="<?= BASE_URL ?>public/vendors/simplebar/simplebar.min.js"></script>
+  <script src="<?= BASE_URL ?>public/assets/js/config.js"></script>
 
 
   <!-- ===============================================-->
   <!--    Stylesheets-->
   <!-- ===============================================-->
-  <link href="<?php echo BASE_URL ?>public/vendors/choices/choices.min.css" rel="stylesheet">
+  <link href="<?= BASE_URL ?>public/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+  <link href="<?= BASE_URL ?>public/vendors/choices/choices.min.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap"
     rel="stylesheet">
-  <link href="<?php echo BASE_URL ?>public/vendors/simplebar/simplebar.min.css" rel="stylesheet">
+  <link href="<?= BASE_URL ?>public/vendors/simplebar/simplebar.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
-  <link href="<?php echo BASE_URL ?>public/assets/css/theme-rtl.min.css" type="text/css" rel="stylesheet"
-    id="style-rtl">
-  <link href="<?php echo BASE_URL ?>public/assets/css/theme.min.css" type="text/css" rel="stylesheet"
-    id="style-default">
-  <link href="<?php echo BASE_URL ?>public/assets/css/user-rtl.min.css" type="text/css" rel="stylesheet"
-    id="user-style-rtl">
-  <link href="<?php echo BASE_URL ?>public/assets/css/user.min.css" type="text/css" rel="stylesheet"
-    id="user-style-default">
+  <link href="<?= BASE_URL ?>public/assets/css/theme-rtl.min.css" type="text/css" rel="stylesheet" id="style-rtl">
+  <link href="<?= BASE_URL ?>public/assets/css/theme.min.css" type="text/css" rel="stylesheet" id="style-default">
+  <link href="<?= BASE_URL ?>public/assets/css/user-rtl.min.css" type="text/css" rel="stylesheet" id="user-style-rtl">
+  <link href="<?= BASE_URL ?>public/assets/css/user.min.css" type="text/css" rel="stylesheet" id="user-style-default">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.5/dist/css/tom-select.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
   <script>
     var phoenixIsRTL = window.config.config.phoenixIsRTL;
     if (phoenixIsRTL) {
@@ -64,13 +63,17 @@
       phoenixNavbarTopShape: 'slim'
     });
   </script>
-  <link href="<?php echo BASE_URL ?>public/vendors/leaflet/leaflet.css" rel="stylesheet">
-  <link href="<?php echo BASE_URL ?>public/vendors/leaflet.markercluster/MarkerCluster.css" rel="stylesheet">
-  <link href="<?php echo BASE_URL ?>public/vendors/leaflet.markercluster/MarkerCluster.Default.css" rel="stylesheet">
+  <link href="<?= BASE_URL ?>public/vendors/leaflet/leaflet.css" rel="stylesheet">
+  <link href="<?= BASE_URL ?>public/vendors/leaflet.markercluster/MarkerCluster.css" rel="stylesheet">
+  <link href="<?= BASE_URL ?>public/vendors/leaflet.markercluster/MarkerCluster.Default.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.min.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.min.css" /> -->
+
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/v/bs-3.3.7/jq-3.7.0/jszip-3.10.1/dt-2.1.8/af-2.7.0/b-3.2.0/b-colvis-3.2.0/b-html5-3.2.0/b-print-3.2.0/cr-2.0.4/fc-5.0.4/sb-1.8.1/sl-2.1.0/datatables.min.css" rel="stylesheet"> -->
   <!-- Agregamos SheetJS desde un CDN, o podrías instalarlo con npm/yarn -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
     /* Estilos para el contenedor del select */
     .select2-sm .select2-selection--single,
@@ -191,6 +194,19 @@
       z-index: 9999;
     }
 
+    #loading-overlay-dsnube {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
     #loading-overlay-mensaje_carga {
       display: none;
       position: fixed;
@@ -212,343 +228,475 @@
       height: 50px;
       animation: spin 1s linear infinite;
     }
+
+    .summary-box {
+      width: 100%;
+      height: 500px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .summary-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      text-align: center;
+      color: #333;
+    }
+
+    .summary-chart {
+      width: 100%;
+      height: 450px;
+    }
+
+    .chart-box {
+      width: 48%;
+      min-width: 400px;
+      height: 400px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #444;
+    }
+
+    .chart {
+      width: 100%;
+      height: 350px;
+    }
+
+    .no-data-message {
+      text-align: center;
+      padding: 40px;
+      background: #fafafa;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin: 20px;
+      color: #666;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+
+      .chart-box,
+      .summary-box {
+        width: 100%;
+      }
+
+      .summary-chart {
+        height: 400px;
+      }
+    }
+
+    #progress-bar-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      z-index: 9999;
+      display: none;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    #progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: #3874ff;
+      /* Color azul Phoenix */
+      transition: width 0.3s ease;
+    }
   </style>
 
 </head>
 
-<!-- <body class="nav-slim"> -->
+<?php
+// Obtener solo la ruta sin query string
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-<!-- <body class="overflow-x-hidden bg-white"> -->
+// Remover el prefijo de la app
+$ruta_relativa = str_replace('/mvcLuisMiguel/', '', $path);
 
-<body class="overflow-x-hidden">
-  <!-- URL PARA CARGAR -->
-  <input type="hidden" name="base_url" id="base_url" value="<?php echo BASE_URL ?>">
-  <input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
-  <nav class="navbar navbar-vertical navbar-expand-lg" style="display: none;"></nav>
-  <nav class="navbar navbar-top navbar-slim justify-content-between fixed-top navbar-expand-lg" id="navbarTopSlim" style="display:none;">
-    <div class="navbar-logo">
-      <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button"
-        data-bs-toggle="collapse" data-bs-target="#navbarTopCollapse" aria-controls="navbarTopCollapse"
-        aria-expanded="false" aria-label="Toggle Navigation">
-        <span class="navbar-toggle-icon">
-          <span class="toggle-line"></span>
-        </span>
-      </button>
-      <a class="navbar-brand navbar-brand" href="<?php echo BASE_URL ?>">
-        <span class="fw-bold">Harmony </span> <span class="text-body-highlight d-none d-sm-inline">Group</span>
-      </a>
-    </div>
-    <div class="collapse navbar-collapse navbar-top-collapse order-1 order-lg-0 justify-content-center"
-      id="navbarTopCollapse">
-      <ul class="navbar-nav navbar-nav-top" data-dropdown-on-hover="data-dropdown-on-hover">
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle lh-1" href="<?= BASE_URL; ?>" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false"><span class="uil fs-8 me-2 uil-create-dashboard text-danger"></span>Dashboard</a>
-        </li>
-        <!-- Crear menu -->
-        <?php
-        /***** SE CREA MENU PRINCIPAL *****/
-        $host = $_SERVER["HTTP_HOST"];
-        $url = $_SERVER["REQUEST_URI"];
-        // Se valida si el usuario está logueado
-        if (isset($_SESSION['usuario']) == true):
-          $_url_preticion = $host . $url;
-          // Se valida el acceso a la pagina es correcta
-          if (BASE_URL == ("http://" . $_url_preticion)) {
-            header('location:' . BASE_URL . 'index/lanzador');
-          }
-        ?>
+// Obtener parámetros de forma segura
+$idmenu = $_GET['idmenu'] ?? '';
+$submenu = $_GET['submenu'] ?? '';
 
-          <?php if (isset($_layoutParams['menu'])):
-            $_get = new Request(); ?>
-            <?php foreach ($_layoutParams['menu'] as $key => $value): ?>
-              <?php $menuId = "nv-" . str_replace(' ', '-', strtolower($key)); ?>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle lh-1" href="#!" role="button" data-bs-toggle="dropdown"
-                  data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
-                  <span data-feather="layers" class="me-2 text-danger"></span><?php echo $key; ?></a>
-                <ul class="dropdown-menu navbar-dropdown-caret">
-                  <?php foreach ($value as $subKey => $subValue):
-                    $tmpIdmenu = $_GET['idmenu'];
-                  ?>
+// Rutas esperadas
+$ruta1 = "seguridad_prefiltro/preestudio_solicitudes";
+$ruta2 = "prefiltro_nacional/solicitudes_nacional";
+$ruta3 = "control_ruta/seguir_ruta";
 
-                    <!-- <li>
-                      <a class="dropdown-item" href="<?php echo $subValue["enlace"] ?>/<?php echo $subValue["metodo"] ?>?idmenu=<?php echo $tmpIdmenu ?>/?submenu=<?php echo $subValue['submenu_id'] ?>"
-                        data-id="<?php echo $subValue['submenu_id'] ?>">
-                        <div class="dropdown-item-wrapper">
-                          <span class="me-2 uil" data-feather="arrow-right-circle"></span>
-                          <?php echo $subValue['titulo']; ?>
+// Comparar rutas y aplicar estilos
+if ($ruta_relativa === $ruta1 && $idmenu && $submenu || $ruta_relativa === $ruta2 && $idmenu && $submenu): ?>
+
+  <body style="overflow-y: hidden; overflow-x: hidden;">
+  <?php elseif ($ruta_relativa === $ruta3 && $idmenu && $submenu): ?>
+
+    <body style="overflow-y: hidden; overflow-x: hidden;">
+    <?php else: ?>
+
+      <body class="overflow-x-hidden">
+      <?php endif; ?>
+
+      <!-- URL PARA CARGAR -->
+      <input type="hidden" name="base_url" id="base_url" value="<?php echo BASE_URL ?>">
+      <input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+      <nav class="navbar navbar-vertical navbar-expand-lg" style="display: none;"></nav>
+      <nav class="navbar navbar-top navbar-slim justify-content-between fixed-top navbar-expand-lg" id="navbarTopSlim"
+        style="display:none;">
+        <div class="navbar-logo">
+          <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navbarTopCollapse" aria-controls="navbarTopCollapse"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <span class="navbar-toggle-icon">
+              <span class="toggle-line"></span>
+            </span>
+          </button>
+          <a class="navbar-brand navbar-brand" href="<?php echo BASE_URL ?>">
+            <span class="fw-bold">Harmony </span> <span class="text-body-highlight d-none d-sm-inline">Group</span>
+          </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-top-collapse order-1 order-lg-0 justify-content-center"
+          id="navbarTopCollapse">
+          <ul class="navbar-nav navbar-nav-top" data-dropdown-on-hover="data-dropdown-on-hover">
+            <!-- <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle lh-1" href="<?= BASE_URL; ?>" role="button" data-bs-toggle="dropdown"
+                data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false"><span
+                  class="uil fs-8 me-2 uil-create-dashboard text-danger"></span>Dashboard</a>
+            </li> -->
+            <li class="nav-item">
+              <a class="nav-link lh-1" href="<?= BASE_URL; ?>">
+                <span class="uil fs-8 me-2 uil-create-dashboard text-danger"></span>
+                Dashboard
+              </a>
+            </li>
+
+            <!-- Crear menu -->
+            <?php
+            /***** SE CREA MENU PRINCIPAL *****/
+            $host = $_SERVER["HTTP_HOST"];
+            $url = $_SERVER["REQUEST_URI"];
+            // Se valida si el usuario está logueado
+            if (isset($_SESSION['usuario']) == true):
+              $_url_preticion = $host . $url;
+              // Se valida el acceso a la pagina es correcta
+              if (BASE_URL == ("http://" . $_url_preticion)) {
+                header('location:' . BASE_URL . 'index/lanzador');
+              }
+            ?>
+
+              <?php if (isset($_layoutParams['menu'])):
+                $_get = new Request(); ?>
+                <?php foreach ($_layoutParams['menu'] as $key => $value): ?>
+                  <?php $menuId = "nv-" . str_replace(' ', '-', strtolower($key)); ?>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle lh-1" href="#!" role="button" data-bs-toggle="dropdown"
+                      data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                      <span data-feather="layers" class="me-2 text-danger"></span><?php echo $key; ?></a>
+                    <ul class="dropdown-menu navbar-dropdown-caret">
+                      <?php foreach ($value as $subKey => $subValue):
+                        $tmpIdmenu = $_GET['idmenu'];
+                      ?>
+                        <li>
+                          <a class="dropdown-item"
+                            href="<?php echo $subValue["enlace"] ?>/<?php echo $subValue["metodo"] ?>?idmenu=<?php echo $tmpIdmenu ?>&submenu=<?php echo $subValue['submenu_id'] ?>"
+                            data-id="<?php echo $subValue['submenu_id'] ?>">
+                            <div class="dropdown-item-wrapper">
+                              <span class="me-2 uil" data-feather="arrow-right-circle"></span>
+                              <?php echo $subValue['titulo']; ?>
+                            </div>
+                          </a>
+                        </li>
+                      <?php endforeach; ?>
+                    </ul>
+                  </li>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <!-- Hola desde de el if de menu -->
+              <?php endif; ?>
+            <?php else:
+              $menu = "";
+              if (BASE_URL != ("http://" . $host . $url)) {
+                if (empty($_REQUEST['k'])) {
+                  header('location:' . BASE_URL);
+                }
+              }
+            endif; ?>
+          </ul>
+        </div>
+        <ul class="navbar-nav navbar-nav-icons flex-row">
+          <li class="nav-item">
+            <div class="theme-control-toggle fa-ion-wait pe-2 theme-control-toggle-slim">
+              <input class="form-check-input ms-0 theme-control-toggle-input" id="themeControlToggle" type="checkbox"
+                data-theme-control="phoenixTheme" value="dark" />
+              <label class="mb-0 theme-control-toggle-label theme-control-toggle-light" for="themeControlToggle"
+                data-bs-toggle="tooltip" data-bs-placement="left" title="Switch theme"><span
+                  class="icon me-1 d-none d-sm-block" data-feather="moon"></span><span
+                  class="fs-9 fw-bold">Dark</span></label>
+              <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark" for="themeControlToggle"
+                data-bs-toggle="tooltip" data-bs-placement="left" title="Switch theme"><span
+                  class="icon me-1 d-none d-sm-block" data-feather="sun"></span><span
+                  class="fs-9 fw-bold">Light</span></label>
+            </div>
+          </li>
+          <li class="nav-item"> <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#searchBoxModal"><span data-feather="search" style="height:12px;width:12px;"></span></a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link" id="navbarDropdownNotification" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false"><span data-feather="bell" style="height:12px;width:12px;"></span></a>
+
+            <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu py-0 shadow border navbar-dropdown-caret" id="navbarDropdownNotfication" aria-labelledby="navbarDropdownNotfication">
+              <div class="card position-relative border-0">
+                <div class="card-header p-2">
+                  <div class="d-flex justify-content-between">
+                    <h5 class="text-body-emphasis mb-0">Notificatons</h5>
+                    <button class="btn btn-link p-0 fs-9 fw-normal" type="button">Mark all as read</button>
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <div class="scrollbar-overlay" style="height: 27rem;">
+                    <div class="px-2 px-sm-3 py-3 notification-card position-relative read border-bottom">
+                      <div class="d-flex align-items-center justify-content-between position-relative">
+                        <div class="d-flex">
+                          <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" src="../assets/img/team/40x40/30.webp" alt="" />
+                          </div>
+                          <div class="flex-1 me-sm-3">
+                            <h4 class="fs-9 text-body-emphasis">Jessie Samson</h4>
+                            <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>💬</span>Mentioned you in a comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10">10m</span></p>
+                            <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">10:41 AM </span>August 7,2021</p>
+                          </div>
                         </div>
-                      </a>
-                    </li> -->
-                    <li>
-                      <a class="dropdown-item" href="<?php echo $subValue["enlace"] ?>/<?php echo $subValue["metodo"] ?>?idmenu=<?php echo $tmpIdmenu ?>&submenu=<?php echo $subValue['submenu_id'] ?>"
-                        data-id="<?php echo $subValue['submenu_id'] ?>">
-                        <div class="dropdown-item-wrapper">
-                          <span class="me-2 uil" data-feather="arrow-right-circle"></span>
-                          <?php echo $subValue['titulo']; ?>
+                        <div class="d-none d-sm-block">
+                          <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
                         </div>
-                      </a>
-                    </li>
-                  <?php endforeach; ?>
-                </ul>
-              </li>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <!-- Hola desde de el if de menu -->
-          <?php endif; ?>
-        <?php else:
-          $menu = "";
-          if (BASE_URL != ("http://" . $host . $url)) {
-            if (empty($_REQUEST['k'])) {
-              header('location:' . BASE_URL);
-            }
-          }
-        endif; ?>
-      </ul>
-    </div>
-    <ul class="navbar-nav navbar-nav-icons flex-row">
-      <li class="nav-item">
-        <div class="theme-control-toggle fa-ion-wait pe-2 theme-control-toggle-slim">
-          <input class="form-check-input ms-0 theme-control-toggle-input" id="themeControlToggle" type="checkbox" data-theme-control="phoenixTheme" value="dark" />
-          <label class="mb-0 theme-control-toggle-label theme-control-toggle-light" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" title="Switch theme"><span class="icon me-1 d-none d-sm-block" data-feather="moon"></span><span class="fs-9 fw-bold">Dark</span></label>
-          <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" title="Switch theme"><span class="icon me-1 d-none d-sm-block" data-feather="sun"></span><span class="fs-9 fw-bold">Light</span></label>
-        </div>
-      </li>
-      <!-- <li class="nav-item"> <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#searchBoxModal"><span data-feather="search" style="height:12px;width:12px;"></span></a></li>
-      <li class="nav-item dropdown">
-        <a class="nav-link" id="navbarDropdownNotification" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false"><span data-feather="bell" style="height:12px;width:12px;"></span></a>
+                      </div>
+                    </div>
+                    <div class="px-2 px-sm-3 py-3 notification-card position-relative unread border-bottom">
+                      <div class="d-flex align-items-center justify-content-between position-relative">
+                        <div class="d-flex">
+                          <div class="avatar avatar-m status-online me-3">
+                            <div class="avatar-name rounded-circle"><span>J</span></div>
+                          </div>
+                          <div class="flex-1 me-sm-3">
+                            <h4 class="fs-9 text-body-emphasis">Jane Foster</h4>
+                            <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>📅</span>Created an event.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10">20m</span></p>
+                            <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">10:20 AM </span>August 7,2021</p>
+                          </div>
+                        </div>
+                        <div class="d-none d-sm-block">
+                          <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="px-2 px-sm-3 py-3 notification-card position-relative unread border-bottom">
+                      <div class="d-flex align-items-center justify-content-between position-relative">
+                        <div class="d-flex">
+                          <div class="avatar avatar-m status-online me-3"><img class="rounded-circle avatar-placeholder" src="../assets/img/team/40x40/avatar.webp" alt="" />
+                          </div>
+                          <div class="flex-1 me-sm-3">
+                            <h4 class="fs-9 text-body-emphasis">Jessie Samson</h4>
+                            <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>👍</span>Liked your comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10">1h</span></p>
+                            <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">9:30 AM </span>August 7,2021</p>
+                          </div>
+                        </div>
+                        <div class="d-none d-sm-block">
+                          <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="px-2 px-sm-3 py-3 notification-card position-relative unread border-bottom">
+                      <div class="d-flex align-items-center justify-content-between position-relative">
+                        <div class="d-flex">
+                          <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" src="../assets/img/team/40x40/57.webp" alt="" />
+                          </div>
+                          <div class="flex-1 me-sm-3">
+                            <h4 class="fs-9 text-body-emphasis">Kiera Anderson</h4>
+                            <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>💬</span>Mentioned you in a comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10"></span></p>
+                            <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">9:11 AM </span>August 7,2021</p>
+                          </div>
+                        </div>
+                        <div class="d-none d-sm-block">
+                          <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="px-2 px-sm-3 py-3 notification-card position-relative unread border-bottom">
+                      <div class="d-flex align-items-center justify-content-between position-relative">
+                        <div class="d-flex">
+                          <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" src="../assets/img/team/40x40/59.webp" alt="" />
+                          </div>
+                          <div class="flex-1 me-sm-3">
+                            <h4 class="fs-9 text-body-emphasis">Herman Carter</h4>
+                            <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>👤</span>Tagged you in a comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10"></span></p>
+                            <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">10:58 PM </span>August 7,2021</p>
+                          </div>
+                        </div>
+                        <div class="d-none d-sm-block">
+                          <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="px-2 px-sm-3 py-3 notification-card position-relative read ">
+                      <div class="d-flex align-items-center justify-content-between position-relative">
+                        <div class="d-flex">
+                          <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" src="../assets/img/team/40x40/58.webp" alt="" />
+                          </div>
+                          <div class="flex-1 me-sm-3">
+                            <h4 class="fs-9 text-body-emphasis">Benjamin Button</h4>
+                            <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>👍</span>Liked your comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10"></span></p>
+                            <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">10:18 AM </span>August 7,2021</p>
+                          </div>
+                        </div>
+                        <div class="d-none d-sm-block">
+                          <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
+                          <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer p-0 border-top border-translucent border-0">
+                  <div class="my-2 text-center fw-bold fs-10 text-body-tertiary text-opactity-85"><a class="fw-bolder" href="../pages/notifications.html">Notification history</a></div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link" id="navbarDropdownNindeDots" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-auto-close="outside" aria-expanded="false">
+              <svg width="10" height="10" viewbox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="2" cy="2" r="2" fill="currentColor"></circle>
+                <circle cx="2" cy="8" r="2" fill="currentColor"></circle>
+                <circle cx="2" cy="14" r="2" fill="currentColor"></circle>
+                <circle cx="8" cy="8" r="2" fill="currentColor"></circle>
+                <circle cx="8" cy="14" r="2" fill="currentColor"></circle>
+                <circle cx="14" cy="8" r="2" fill="currentColor"></circle>
+                <circle cx="14" cy="14" r="2" fill="currentColor"></circle>
+                <circle cx="8" cy="2" r="2" fill="currentColor"></circle>
+                <circle cx="14" cy="2" r="2" fill="currentColor"></circle>
+              </svg></a>
 
-        <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu py-0 shadow border navbar-dropdown-caret" id="navbarDropdownNotfication" aria-labelledby="navbarDropdownNotfication">
-          <div class="card position-relative border-0">
-            <div class="card-header p-2">
-              <div class="d-flex justify-content-between">
-                <h5 class="text-body-emphasis mb-0">Notificatons</h5>
-                <button class="btn btn-link p-0 fs-9 fw-normal" type="button">Mark all as read</button>
-              </div>
-            </div>
-            <div class="card-body p-0">
-              <div class="scrollbar-overlay" style="height: 27rem;">
-                <div class="px-2 px-sm-3 py-3 notification-card position-relative read border-bottom">
-                  <div class="d-flex align-items-center justify-content-between position-relative">
-                    <div class="d-flex">
-                      <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" src="../assets/img/team/40x40/30.webp" alt="" />
-                      </div>
-                      <div class="flex-1 me-sm-3">
-                        <h4 class="fs-9 text-body-emphasis">Jessie Samson</h4>
-                        <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>💬</span>Mentioned you in a comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10">10m</span></p>
-                        <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">10:41 AM </span>August 7,2021</p>
-                      </div>
-                    </div>
-                    <div class="d-none d-sm-block">
-                      <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
-                      <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="px-2 px-sm-3 py-3 notification-card position-relative unread border-bottom">
-                  <div class="d-flex align-items-center justify-content-between position-relative">
-                    <div class="d-flex">
-                      <div class="avatar avatar-m status-online me-3">
-                        <div class="avatar-name rounded-circle"><span>J</span></div>
-                      </div>
-                      <div class="flex-1 me-sm-3">
-                        <h4 class="fs-9 text-body-emphasis">Jane Foster</h4>
-                        <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>📅</span>Created an event.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10">20m</span></p>
-                        <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">10:20 AM </span>August 7,2021</p>
-                      </div>
-                    </div>
-                    <div class="d-none d-sm-block">
-                      <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
-                      <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="px-2 px-sm-3 py-3 notification-card position-relative unread border-bottom">
-                  <div class="d-flex align-items-center justify-content-between position-relative">
-                    <div class="d-flex">
-                      <div class="avatar avatar-m status-online me-3"><img class="rounded-circle avatar-placeholder" src="../assets/img/team/40x40/avatar.webp" alt="" />
-                      </div>
-                      <div class="flex-1 me-sm-3">
-                        <h4 class="fs-9 text-body-emphasis">Jessie Samson</h4>
-                        <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>👍</span>Liked your comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10">1h</span></p>
-                        <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">9:30 AM </span>August 7,2021</p>
-                      </div>
-                    </div>
-                    <div class="d-none d-sm-block">
-                      <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
-                      <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="px-2 px-sm-3 py-3 notification-card position-relative unread border-bottom">
-                  <div class="d-flex align-items-center justify-content-between position-relative">
-                    <div class="d-flex">
-                      <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" src="../assets/img/team/40x40/57.webp" alt="" />
-                      </div>
-                      <div class="flex-1 me-sm-3">
-                        <h4 class="fs-9 text-body-emphasis">Kiera Anderson</h4>
-                        <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>💬</span>Mentioned you in a comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10"></span></p>
-                        <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">9:11 AM </span>August 7,2021</p>
-                      </div>
-                    </div>
-                    <div class="d-none d-sm-block">
-                      <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
-                      <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="px-2 px-sm-3 py-3 notification-card position-relative unread border-bottom">
-                  <div class="d-flex align-items-center justify-content-between position-relative">
-                    <div class="d-flex">
-                      <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" src="../assets/img/team/40x40/59.webp" alt="" />
-                      </div>
-                      <div class="flex-1 me-sm-3">
-                        <h4 class="fs-9 text-body-emphasis">Herman Carter</h4>
-                        <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>👤</span>Tagged you in a comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10"></span></p>
-                        <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">10:58 PM </span>August 7,2021</p>
-                      </div>
-                    </div>
-                    <div class="d-none d-sm-block">
-                      <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
-                      <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="px-2 px-sm-3 py-3 notification-card position-relative read ">
-                  <div class="d-flex align-items-center justify-content-between position-relative">
-                    <div class="d-flex">
-                      <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" src="../assets/img/team/40x40/58.webp" alt="" />
-                      </div>
-                      <div class="flex-1 me-sm-3">
-                        <h4 class="fs-9 text-body-emphasis">Benjamin Button</h4>
-                        <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal"><span class='me-1 fs-10'>👍</span>Liked your comment.<span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10"></span></p>
-                        <p class="text-body-secondary fs-9 mb-0"><span class="me-1 fas fa-clock"></span><span class="fw-bold">10:18 AM </span>August 7,2021</p>
-                      </div>
-                    </div>
-                    <div class="d-none d-sm-block">
-                      <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10 text-body"></span></button>
-                      <div class="dropdown-menu dropdown-menu-end py-2"><a class="dropdown-item" href="#!">Mark as unread</a></div>
-                    </div>
+            <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-nine-dots shadow border" aria-labelledby="navbarDropdownNindeDots">
+              <div class="card bg-body-emphasis position-relative border-0">
+                <div class="card-body pt-3 px-3 pb-0 overflow-auto scrollbar" style="height: 20rem;">
+                  <div class="row text-center align-items-center gx-0 gy-0">
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/behance.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Behance</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/google-cloud.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Cloud</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/slack.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Slack</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/gitlab.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Gitlab</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/bitbucket.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">BitBucket</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/google-drive.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Drive</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/trello.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Trello</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/figma.webp" alt="" width="20" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Figma</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/twitter.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Twitter</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/pinterest.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Pinterest</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/ln.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Linkedin</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/google-maps.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Maps</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/google-photos.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Photos</p>
+                      </a></div>
+                    <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/spotify.webp" alt="" width="30" />
+                        <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Spotify</p>
+                      </a></div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="card-footer p-0 border-top border-translucent border-0">
-              <div class="my-2 text-center fw-bold fs-10 text-body-tertiary text-opactity-85"><a class="fw-bolder" href="../pages/notifications.html">Notification history</a></div>
-            </div>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link" id="navbarDropdownNindeDots" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-auto-close="outside" aria-expanded="false">
-          <svg width="10" height="10" viewbox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="2" cy="2" r="2" fill="currentColor"></circle>
-            <circle cx="2" cy="8" r="2" fill="currentColor"></circle>
-            <circle cx="2" cy="14" r="2" fill="currentColor"></circle>
-            <circle cx="8" cy="8" r="2" fill="currentColor"></circle>
-            <circle cx="8" cy="14" r="2" fill="currentColor"></circle>
-            <circle cx="14" cy="8" r="2" fill="currentColor"></circle>
-            <circle cx="14" cy="14" r="2" fill="currentColor"></circle>
-            <circle cx="8" cy="2" r="2" fill="currentColor"></circle>
-            <circle cx="14" cy="2" r="2" fill="currentColor"></circle>
-          </svg></a>
+          </li>
+          <li class="nav-item dropdown"><a class="nav-link lh-1 pe-0 white-space-nowrap" id="navbarDropdownUser" href="#!"
+              role="button" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-auto-close="outside"
+              aria-expanded="false"><?= $_SESSION['usuario']['nom_usuario']; ?><span
+                class="fa-solid fa-chevron-down fs-10"></span></a>
+            <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border"
+              aria-labelledby="navbarDropdownUser">
+              <div class="card position-relative border-0">
+                <div class="card-body p-0">
+                  <div class="text-center pt-4 pb-3">
+                    <div class="avatar avatar-xl ">
+                      <img class="rounded-circle "
+                        src="<?= BASE_URL; ?>views/layout/assets/img/<?= $_SESSION['usuario']['avatar']; ?>" alt="" />
 
-        <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-nine-dots shadow border" aria-labelledby="navbarDropdownNindeDots">
-          <div class="card bg-body-emphasis position-relative border-0">
-            <div class="card-body pt-3 px-3 pb-0 overflow-auto scrollbar" style="height: 20rem;">
-              <div class="row text-center align-items-center gx-0 gy-0">
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/behance.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Behance</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/google-cloud.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Cloud</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/slack.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Slack</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/gitlab.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Gitlab</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/bitbucket.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">BitBucket</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/google-drive.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Drive</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/trello.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Trello</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/figma.webp" alt="" width="20" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Figma</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/twitter.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Twitter</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/pinterest.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Pinterest</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/ln.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Linkedin</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/google-maps.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Maps</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/google-photos.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Photos</p>
-                  </a></div>
-                <div class="col-4"><a class="d-block bg-body-secondary-hover p-2 rounded-3 text-center text-decoration-none mb-3" href="#!"><img src="../assets/img/nav-icons/spotify.webp" alt="" width="30" />
-                    <p class="mb-0 text-body-emphasis text-truncate fs-10 mt-1 pt-1">Spotify</p>
-                  </a></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li> -->
-      <li class="nav-item dropdown"><a class="nav-link lh-1 pe-0 white-space-nowrap" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-auto-close="outside" aria-expanded="false"><?= $_SESSION['usuario']['nom_usuario']; ?> <span class="fa-solid fa-chevron-down fs-10"></span></a>
-        <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border" aria-labelledby="navbarDropdownUser">
-          <div class="card position-relative border-0">
-            <div class="card-body p-0">
-              <div class="text-center pt-4 pb-3">
-                <div class="avatar avatar-xl ">
-                  <img class="rounded-circle " src="../assets/img/team/72x72/57.webp" alt="" />
-
+                    </div>
+                    <h6 class="mt-2 text-body-emphasis"><?= $_SESSION['usuario']['nom_usuario']; ?></h6>
+                  </div>
+                  <div class="mb-3 mx-3">
+                    <!-- <input class="form-control form-control-sm" id="statusUpdateInput" type="text" placeholder="Update your status" /> -->
+                  </div>
                 </div>
-                <h6 class="mt-2 text-body-emphasis">Jerry Seinfield</h6>
+                <!-- <div class="overflow-auto scrollbar" style="height: 10rem;">
+                  <ul class="nav d-flex flex-column mb-2 pb-1">
+                    <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="user"></span><span>Profile</span></a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#!"><span class="me-2 text-body" data-feather="pie-chart"></span>Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="lock"></span>Posts &amp; Activity</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="settings"></span>Settings &amp; Privacy </a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="help-circle"></span>Help Center</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="globe"></span>Language</a></li>
+                  </ul>
+                </div> -->
+                <div class="card-footer p-0 border-top border-translucent">
+                  <ul class="nav d-flex flex-column my-3">
+                    <li class="nav-item"><a class="nav-link px-3"
+                        href="#!"><?= $_SESSION['usuario']['nombre_perfil']; ?></a></li>
+                    <li class="nav-item"><a class="nav-link px-3"
+                        href="#!"><?= $_SESSION['usuario']['nombre_cliente']; ?></a></li>
+                  </ul>
+                  <hr />
+                  <div class="px-3"> <a class="btn btn-phoenix-secondary d-flex flex-center w-100 my-2"
+                      href="<?= BASE_URL; ?>libs/cerrar.php"> <span class="me-2" data-feather="log-out"> </span>Cerrar
+                      Sesión</a></div>
+                  <!-- <div class="my-2 text-center fw-bold fs-10 text-body-quaternary"><a class="text-body-quaternary me-1" href="#!">Privacy policy</a>&bull;<a class="text-body-quaternary mx-1" href="#!">Terms</a>&bull;<a class="text-body-quaternary ms-1" href="#!">Cookies</a></div> -->
+                </div>
               </div>
-              <div class="mb-3 mx-3">
-                <input class="form-control form-control-sm" id="statusUpdateInput" type="text" placeholder="Update your status" />
-              </div>
             </div>
-            <div class="overflow-auto scrollbar" style="height: 10rem;">
-              <ul class="nav d-flex flex-column mb-2 pb-1">
-                <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="user"></span><span>Profile</span></a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#!"><span class="me-2 text-body" data-feather="pie-chart"></span>Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="lock"></span>Posts &amp; Activity</a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="settings"></span>Settings &amp; Privacy </a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="help-circle"></span>Help Center</a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="globe"></span>Language</a></li>
-              </ul>
-            </div>
-            <div class="card-footer p-0 border-top border-translucent">
-              <ul class="nav d-flex flex-column my-3">
-                <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-body" data-feather="user-plus"></span>Add another account</a></li>
-              </ul>
-              <hr />
-              <div class="px-3"> <a class="btn btn-phoenix-secondary d-flex flex-center w-100" href="#!"> <span class="me-2" data-feather="log-out"> </span>Sign out</a></div>
-              <div class="my-2 text-center fw-bold fs-10 text-body-quaternary"><a class="text-body-quaternary me-1" href="#!">Privacy policy</a>&bull;<a class="text-body-quaternary mx-1" href="#!">Terms</a>&bull;<a class="text-body-quaternary ms-1" href="#!">Cookies</a></div>
-            </div>
-          </div>
-        </div>
-      </li>
-    </ul>
-  </nav>
-  <script>
-    var navbarVertical = document.querySelector('.navbar-vertical');
-    var navbarTopSlim = document.querySelector('#navbarTopSlim');
-    var body = document.querySelector('body');
-    navbarVertical.remove()
-    navbarTopSlim.removeAttribute('style');
-    document.documentElement.setAttribute('data-navbar-horizontal-shape', 'slim');
-  </script>
-  <main class="main" id="top">
-    <?php require_once "./views/layout/layout.php"; ?>
+          </li>
+        </ul>
+      </nav>
+      <script>
+        var navbarVertical = document.querySelector('.navbar-vertical');
+        var navbarTopSlim = document.querySelector('#navbarTopSlim');
+        var body = document.querySelector('body');
+        navbarVertical.remove()
+        navbarTopSlim.removeAttribute('style');
+        document.documentElement.setAttribute('data-navbar-horizontal-shape', 'slim');
+      </script>
+      <main class="main" id="top">
+        <?php require_once "./views/layout/layout.php"; ?>

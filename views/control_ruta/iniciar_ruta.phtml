@@ -20,17 +20,17 @@ if (isset($this->inicia_ruta)) {
 		$btn_crear = '<a id="btn_crea" href="#"  data-toggle="modal"  class="cell-detail  hint--top "  data-hint="" data-target="#crear_inicio"><span class="icon mdi mdi-plus" title="Crear plan de ruta" style="font-size:40px;"></span></a>';
 	}
 
-	// $estado = '';
-	// $estado .= '<select id="estado" class="form-control input-sm">';
-	// $array3 = $this->inicia_ruta->cargar_estado();
-	// if ($array3) {
-	// 	foreach ($array3["rowsData"] as $key => $value) {
+	$estado = '';
+	$estado .= '<select id="estado" class="form-control input-sm">';
+	$array3 = $this->inicia_ruta->cargar_estado();
+	if ($array3) {
+		foreach ($array3["rowsData"] as $key => $value) {
 
-	// 		$estado .= "<option value=" . $value['id'] . ">" . $value['estado'] . "</option>";
-	// 	}
-	// }
+			$estado .= "<option value=" . $value['id'] . ">" . $value['estado'] . "</option>";
+		}
+	}
 
-	// $estado .= "</select>";
+	$estado .= "</select>";
 
 	$table_estudios .= "
 	<div class='row' id='tabla-manifiestos'>
@@ -49,164 +49,99 @@ if (isset($this->inicia_ruta)) {
 				<th class='text-center'>Acción</th>
 			</tr>
 			</thead>
-		<tbody class='text-center' id='tbody_manifiestos_pendientes'>";
-	// $array3 = $this->inicia_ruta->planillas_seguridad();
-	// $uno = 0;
+		<tbody class='text-center'>";
+	$array3 = $this->inicia_ruta->planillas_seguridad();
+	$uno = 0;
 
-	// if (is_array($array3['result'])) {
-	// 	foreach ($array3['result']["rowsData"] as $key => $value) {
-	// 		$uno++;
-	// 		if ($value['tipo_manifiesto'] == 1) {
-	// 			$manifiesto = "General";
-	// 		} elseif ($value['tipo_manifiesto'] == 2) {
-	// 			$manifiesto = "Multiparada";
-	// 		} elseif ($value['tipo_manifiesto'] == 3) {
-	// 			$manifiesto = "Viaje Vacío";
-	// 		} elseif ($value['tipo_manifiesto'] == 4) {
-	// 			$manifiesto = "Varios viajes en el Dia";
-	// 		} elseif ($value['tipo_manifiesto'] == 8) {
-	// 			$manifiesto = "Viaje de Ida y Regreso";
-	// 		}
+	if (is_array($array3['result'])) {
+		foreach ($array3['result']["rowsData"] as $key => $value) {
+			$uno++;
+			if ($value['tipo_manifiesto'] == 1) {
+				$manifiesto = "General";
+			} elseif ($value['tipo_manifiesto'] == 2) {
+				$manifiesto = "Multiparada";
+			} elseif ($value['tipo_manifiesto'] == 3) {
+				$manifiesto = "Viaje Vacío";
+			} elseif ($value['tipo_manifiesto'] == 4) {
+				$manifiesto = "Varios viajes en el Dia";
+			} elseif ($value['tipo_manifiesto'] == 8) {
+				$manifiesto = "Viaje de Ida y Regreso";
+			}
 
-	// 		if ($value['manifiesto_itr'] == 'SI') {
-	// 			$itr = '<span class="badge badge-success float-right">SI</span>';
-	// 		} else {
-	// 			$itr = '<span class="badge badge-danger float-right">No</span>';
-	// 		}
+			if ($value['manifiesto_itr'] == 'SI') {
+				$itr = '<span class="badge badge-success float-right">SI</span>';
+			} else {
+				$itr = '<span class="badge badge-danger float-right">No</span>';
+			}
 
-	// 		$table_estudios .= "
-  //           <tr>
-  //               <td class='cell-detail'>
-  //                   <span>{$value['n_manifiesto']}</span>
-  //               </td>
-  //               <td class='cell-detail'>
-  //                   <span>{$manifiesto}</span>
-  //               </td>
-  //               <td class='cell-detail'>
-  //                   <span>{$itr}</span>
-  //               </td>
-  //               <td class='cell-detail'>
-  //                   <span>{$value['origen_final']}</span>
-  //               </td>
-  //               <td class='cell-detail'>
-  //                   <span>{$value['destino_final']}</span>
-  //               </td>
-  //               <td class='cell-detail'>
-  //                   <span>{$value['placa_manifiesto']}</span>
-  //               </td>
-  //               <td class='cell-detail'>
-  //                   <span>{$value['fecha_expedicion']}-{$value['hora_expedicion']}</span>
-  //               </td>
-  //               <td>
-  //                   <button id='btn_uno" . $uno . "'  class='btn btn-space btn-success btn-xs mdi mdi-check' title='elegir' style='border-radius:25px;' onclick='verEstudio(this);'
-  //                       data-id='" . $value['n_manifiesto'] . "'
-  //                       data-id2='" . $value['placa_manifiesto'] . "'
-  //                       data-id3='" . $value['nombre'] . ' ' . $value['apellido1'] . ' ' . $value['apellido2'] . "'
-  //                       data-id4='" . $value['numero_documento'] . "'
-  //                       data-id5='" . $value['clase'] . "'
-  //                       data-id6='" . $value['n_manifiesto'] . "'
-  //                       data-id7='" . $value['origen_final'] . "'
-  //                       data-id8='" . $value['destino_final'] . "'
-  //                       data-id9='" . $value['origen_viaje'] . "'
-  //                       data-id10='" . $value['destino_viaje'] . "'
-  //                       data-id11='" . $value['placatrailer'] . "'
-  //                       data-id12='" . $value['celular'] . "'
-  //                       data-id13='" . $value['celular2'] . "'>
-  //                   </button>
-  //               </td>
-  //           </tr>";
-	// 	}
-
-	// 	if (is_array(isset($array3['result1']))) {
-	// 		foreach ($array3['result1']["rowsData"] as $keys => $values) {
-	// 			$uno++;
-	// 			if ($values['tipo_manifiesto'] == 1) {
-	// 				$manifiesto = "General";
-	// 			} elseif ($values['tipo_manifiesto'] == 2) {
-	// 				$manifiesto = "Multiparada";
-	// 			} elseif ($values['tipo_manifiesto'] == 3) {
-	// 				$manifiesto = "Viaje Vacío";
-	// 			} elseif ($values['tipo_manifiesto'] == 4) {
-	// 				$manifiesto = "Varios viajes en el Dia";
-	// 			} elseif ($values['tipo_manifiesto'] == 8) {
-	// 				$manifiesto = "Viaje de Ida y Regreso";
-	// 			}
-
-	// 			if ($values['manifiesto_itr'] == 'SI') {
-	// 				$itr = '<span class="badge badge-success float-right">SI</span>';
-	// 			} else {
-	// 				$itr = '<span class="badge badge-danger float-right">No</span>';
-	// 			}
-
-	// 			$table_estudios .= "
-	// 						<tr>
-	// 								<td class='cell-detail'>
-	// 										<span>{$values['n_manifiesto']}</span>
-	// 								</td>
-	// 								<td class='cell-detail'>
-	// 										<span>{$manifiesto}</span>
-	// 								</td>
-	// 								<td class='cell-detail'>
-	// 										<span>{$itr}</span>
-	// 								</td>
-	// 								<td class='cell-detail'>
-	// 										<span>{$values['origen_final']}</span>
-	// 								</td>
-	// 								<td class='cell-detail'>
-	// 										<span>{$values['destino_final']}</span>
-	// 								</td>
-	// 								<td class='cell-detail'>
-	// 										<span>{$values['placa_manifiesto']}</span>
-	// 								</td>
-	// 								<td class='cell-detail'>
-	// 										<span>{$values['fecha_expedicion']}-{$values['hora_expedicion']}</span>
-	// 								</td>
-	// 								<td>
-	// 										<button id='btn_uno" . $uno . "'  class='btn btn-space btn-success btn-xs mdi mdi-check' title='elegir' style='border-radius:25px;' onclick='verEstudio(this);'
-	// 												data-id='" . $values['n_manifiesto'] . "'
-	// 												data-id2='" . $values['placa_manifiesto'] . "'
-	// 												data-id3='" . $values['nombre'] . ' ' . $values['apellido1'] . ' ' . $values['apellido2'] . "'
-	// 												data-id4='" . $values['numero_documento'] . "'
-	// 												data-id5='" . $values['clase'] . "'
-	// 												data-id6='" . $values['n_manifiesto'] . "'
-	// 												data-id7='" . $values['origen_final'] . "'
-	// 												data-id8='" . $values['destino_final'] . "'
-	// 												data-id9='" . $values['origen_viaje'] . "'
-	// 												data-id10='" . $values['destino_viaje'] . "'
-	// 												data-id11='" . $values['placatrailer'] . "'
-	// 												data-id12='" . $values['celular'] . "'
-	// 												data-id13='" . $values['celular2'] . "'>
-	// 										</button>
-	// 								</td>
-	// 						</tr>";
-	// 		}
-	// 	}
-	// }
-
+			$table_estudios .= "
+            <tr>
+                <td class='cell-detail'>
+                    <span>{$value['n_manifiesto']}</span>
+                </td>
+                <td class='cell-detail'>
+                    <span>{$manifiesto}</span>
+                </td>
+                <td class='cell-detail'>
+                    <span>{$itr}</span>
+                </td>
+                <td class='cell-detail'>
+                    <span>{$value['origen_final']}</span>
+                </td>
+                <td class='cell-detail'>
+                    <span>{$value['destino_final']}</span>
+                </td>
+                <td class='cell-detail'>
+                    <span>{$value['placa_manifiesto']}</span>
+                </td>
+                <td class='cell-detail'>
+                    <span>{$value['fecha_expedicion']}-{$value['hora_expedicion']}</span>
+                </td>
+                <td>
+                    <button id='btn_uno" . $uno . "'  class='btn btn-space btn-success btn-xs mdi mdi-check' title='elegir' style='border-radius:25px;' onclick='verEstudio(this);'
+                        data-id='" . $value['n_manifiesto'] . "'
+                        data-id2='" . $value['placa_manifiesto'] . "'
+                        data-id3='" . $value['nombre'] . ' ' . $value['apellido1'] . ' ' . $value['apellido2'] . "'
+                        data-id4='" . $value['numero_documento'] . "'
+                        data-id5='" . $value['clase'] . "'
+                        data-id6='" . $value['n_manifiesto'] . "'
+                        data-id7='" . $value['origen_final'] . "'
+                        data-id8='" . $value['destino_final'] . "'
+                        data-id9='" . $value['origen_viaje'] . "'
+                        data-id10='" . $value['destino_viaje'] . "'
+                        data-id11='" . $value['placatrailer'] . "'
+                        data-id12='" . $value['celular'] . "'
+                        data-id13='" . $value['celular2'] . "'>
+                    </button>
+                </td>
+            </tr>";
+		}
+	}
 	$table_estudios .= "</tbody>
 			</table>
 		</div>
 	</div>
 </div>";
+
 	if ($ssn_id_perfil == 9 || $ssn_id_perfil == 8) {
 		$vista .= '
-			<div class="nexos-content">
-				<div class="row" style="margin:-25px -39px -10px -39px;">
-					<div class="tab-container">
-						<ul class="nav nav-tabs" role="tablist">
-							<li class="nav-item"><a class="nav-link" href="#profile" data-toggle="tab" role="tab"><b><i
-											class="far fa-file-pdf"></i> Consultar pla de ruta</b></a>
-							</li>
-						</ul>
-						<div class="tab-content">
-							<div class="tab-pane active" id="profile" role="tabpanel">
-								%content3%
-							</div>
+		<div class="nexos-content">
+			<div class="row" style="margin:-25px -39px -10px -39px;">
+				<div class="tab-container">
+					<ul class="nav nav-tabs" role="tablist">
+						<li class="nav-item"><a class="nav-link" href="#profile" data-toggle="tab" role="tab"><b><i
+										class="far fa-file-pdf"></i> Consultar pla de ruta</b></a>
+						</li>
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane active" id="profile" role="tabpanel">
+							%content3%
 						</div>
 					</div>
 				</div>
 			</div>
-		';
+		</div>
+	';
 	} else {
 		$vista .= '
 			<div class="nexos-content">
@@ -217,8 +152,9 @@ if (isset($this->inicia_ruta)) {
 										<i class="fas fa-table"></i> Tabla Manifiestos</b></a>
 							</li>
 
-							<li class="nav-item"><a class="nav-link" href="#profile" data-toggle="tab" role="tab"><b>
-										<i class="far fa-file-pdf"></i> Consultar pla de ruta</b></a>
+							<li class="nav-item"><a class="nav-link" href="#profile" data-toggle="tab" role="tab"><b><i
+											class="far fa-file-pdf"></i>
+										Consultar pla de ruta</b></a>
 							</li>
 						</ul>
 						<div class="tab-content">
@@ -419,7 +355,7 @@ if (isset($this->inicia_ruta)) {
 	//codigo de inicio
 	$cuente = 0;
 	$cod_inicia .= "
-<input type='number' id='num_i' class='form-control input-sm text-center' readonly='readonly' style='font-size:14pt; font-weight:700;'";
+		<input type='number' id='num_i' class='form-control input-sm text-center' readonly='readonly' style='font-size:14pt; font-weight:700;'";
 	$array2 = $this->inicia_ruta->n_inicio();
 	if ($array2) {
 		foreach ($array2["rowsData"] as $key => $value) {
@@ -474,7 +410,7 @@ if (isset($this->inicia_ruta)) {
 										<div id="msg_modalplanilla"></div><!-- id para manejar los mensajes de errordel popup -->
 										<div id="content_editar">
 											<!-- <?php //echo $table_estudios; 
-														?> -->
+													?> -->
 										</div><!--conten fin -->
 										<div class="row"></div><!-- separar contenido entre el body y el footer-->
 									</div>

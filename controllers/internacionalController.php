@@ -88,7 +88,6 @@
 
 		public function facturacion(){
 			$internacional = $this->loadModel('internacional');
-
 			$this->_view->internacional = $internacional;
 			$this->_view->titulo = 'Facturación de Clientes Internacional';
 			$this->_view->renderizar('facturacion', 'internacional');

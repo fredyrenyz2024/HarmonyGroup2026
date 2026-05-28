@@ -1,0 +1,71 @@
+<input type="hidden" name="perfil_id" id="perfil_id" value="<?= $_SESSION["usuario"]["id_perfil"] ?>">
+<input type="hidden" name="proveedor_id" id="proveedor_id" value="<?= $_SESSION['usuario']['proveedor_id'] ?>">
+<input type="hidden" name="cliente_id" id="cliente_id" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" name="ventana_id" class="ventana_id">
+<div class="container-fluid">
+  <!-- <div class="d-flex justify-content-center"></div> -->
+  <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+    <div class="row">
+      <table class="text-end" cellpadding="0" cellspacing="0" border="0" style="width:100%;font-size: 13px;">
+        <thead>
+          <tr>
+            <td class="text-right" style="border: 0px solid #ddd;padding: 1px;width: auto; white-space: nowrap;" colspan="5">
+              <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="<?php echo BASE_URL; ?>public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+            </td>
+          </tr>
+        </thead>
+      </table>
+      <div class="table-responsive scrollbar">
+        <table id='table1' class='table table-bordered table-sm' data-page-length='100' style="font-size:11px;">
+          <thead>
+            <tr>
+              <?php if ($_SESSION["usuario"]["id_perfil"] != 42): ?>
+                <th class='text-center' style='width: auto; white-space: nowrap;'>
+                  <input class="form-check-input" id="selectAll" type="checkbox" value="" style="scale: 1.2;">
+                </th>
+              <?php endif; ?>
+
+              <!-- <th class='text-center' style='width: auto; white-space: nowrap;'>Solicitud</th> -->
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Modalidad</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Pedido</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Estado</th>
+              <!-- <th class='text-center' style='width: auto; white-space: nowrap;'>Cliente</th> -->
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Ciudad Origen</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Remitente</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Ciudad Destino</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Destinatario</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Codigo Producto</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Producto</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Kg Neto</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Kg Bruto</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Presentacion</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Unidades</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Lote</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Nro.Estibas</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha Cargue</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha Entrega</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Tipo Vehiculo</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Costo</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Tarifa</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Fecha Retiro Contenedor</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Booking</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Unidad Transporte</th>
+              <th class='text-center' style='width: auto; white-space: nowrap;'>Observaciones</th>
+              <!-- <th class='text-center' style='width: auto; white-space: nowrap;'>Prioridad</th> -->
+              <!-- <th class='text-center' style='width: auto; white-space: nowrap;'>Proceso</th> -->
+              <!-- <th class='text-center' style='width: auto; white-space: nowrap;'>Publicación</th> -->
+              <!-- <th class='text-center' style='width: auto; white-space: nowrap;'>Asignación</th> -->
+            </tr>
+          </thead>
+          <tbody id='tbl_administrar_pedidos' class='text-center'>
+            <tr>
+              <td colspan="24" class="text-center" style="font-size:15px;font-weight:bold;">
+                <img src="<?= BASE_URL ?>public/img/nexos_loading.gif" height="25" width="25" id="load_info" style="display: none;"> Esperando Información
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

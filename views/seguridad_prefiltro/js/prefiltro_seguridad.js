@@ -64,348 +64,348 @@ d.addEventListener('DOMContentLoaded', async e => {
       }
     }
 
-    if (e.target.matches('#iniciacion_preestudio') || e.target.matches('#iniciacion_preestudio *')) {
-      let padre = e.target.parentElement.parentElement;
-      let solicitud_id = padre.querySelector('#solicitud_id').value;
-      let vehiculo_id = padre.querySelector('#vehiculo_id').value;
+    // if (e.target.matches('#iniciacion_preestudio') || e.target.matches('#iniciacion_preestudio *')) {
+    //   let padre = e.target.parentElement.parentElement;
+    //   let solicitud_id = padre.querySelector('#solicitud_id').value;
+    //   let vehiculo_id = padre.querySelector('#vehiculo_id').value;
 
-      let data = new FormData();
-      data.append('solicitud_id', solicitud_id);
-      fetch($('#id_url_ajax').val() + 'validacionparametros/Validar_inicio_prefiltro', {
-        method: 'POST',
-        cache: 'no-cache',
-        body: data,
-      })
-        .then(response => response.json())
-        .then(function(data) {
-          if (data) {
-            Litar_solicitudes();
-            consultarvehiculo(solicitud_id, vehiculo_id);
-          } else {
-            alert('Error de operación');
-          }
-        })
-        .catch(error => {
-          alert(error);
-        });
-    }
+    //   let data = new FormData();
+    //   data.append('solicitud_id', solicitud_id);
+    //   fetch($('#id_url_ajax').val() + 'validacionparametros/Validar_inicio_prefiltro', {
+    //     method: 'POST',
+    //     cache: 'no-cache',
+    //     body: data,
+    //   })
+    //     .then(response => response.json())
+    //     .then(function (data) {
+    //       if (data) {
+    //         Litar_solicitudes();
+    //         consultarvehiculo(solicitud_id, vehiculo_id);
+    //       } else {
+    //         alert('Error de operación');
+    //       }
+    //     })
+    //     .catch(error => {
+    //       alert(error);
+    //     });
+    // }
 
     // Boton de ver informacion de prefiltro de seguirdad
-    if (e.target.matches('#btn_ver') || e.target.matches('#btn_ver *')) {
-      let padre = e.target.parentElement.parentElement;
-      let solicitud_id = padre.querySelector('.soli_id').value;
-      let preestudio_id = padre.querySelector('.pre_id').value;
-      // var boton = d.getElementById("btn_ver");
-      let preestudio = padre.getAttribute('data-id');
-      let solicitud = padre.getAttribute('data-id2');
-      let estado = padre.getAttribute('data-id3');
-      //  $('#tbl_datos_prefiltro').html('');
-      if (estado === 'pendiente_iniciar') {
-        d.getElementById('estado_ver_seguridad').innerHTML = 'Estado: ' + 'Peniente de Iniciar';
-      }
-      let data = new FormData();
-      data.append('preestudio', preestudio_id);
-      data.append('solicitud', solicitud_id);
-      fetch($('#id_url_ajax').val() + 'validacionparametros/Ver_Seguridad', {
-        method: 'POST',
-        cache: 'no-cache',
-        body: data,
-      })
-        .then(response => response.json())
-        .then(function(data) {
-          $('#consulta_referencia').html('');
-          $('#consulta_referencia').html('');
+    // if (e.target.matches('#btn_ver') || e.target.matches('#btn_ver *')) {
+    //   let padre = e.target.parentElement.parentElement;
+    //   let solicitud_id = padre.querySelector('.soli_id').value;
+    //   let preestudio_id = padre.querySelector('.pre_id').value;
+    //   // var boton = d.getElementById("btn_ver");
+    //   let preestudio = padre.getAttribute('data-id');
+    //   let solicitud = padre.getAttribute('data-id2');
+    //   let estado = padre.getAttribute('data-id3');
+    //   //  $('#tbl_datos_prefiltro').html('');
+    //   if (estado === 'pendiente_iniciar') {
+    //     d.getElementById('estado_ver_seguridad').innerHTML = 'Estado: ' + 'Peniente de Iniciar';
+    //   }
+    //   let data = new FormData();
+    //   data.append('preestudio', preestudio_id);
+    //   data.append('solicitud', solicitud_id);
+    //   fetch($('#id_url_ajax').val() + 'validacionparametros/Ver_Seguridad', {
+    //     method: 'POST',
+    //     cache: 'no-cache',
+    //     body: data,
+    //   })
+    //     .then(response => response.json())
+    //     .then(function (data) {
+    //       $('#consulta_referencia').html('');
+    //       $('#consulta_referencia').html('');
 
-          if (data) {
-            $('#vid').html(data.ver_seguridad.id);
-            $('#vplaca').html(data.ver_seguridad.placa + ' - ' + data.ver_seguridad.placa_trailer);
-            $('#vconse').html(data.ver_seguridad.id_preestudio);
-            $('#vfecha').html(data.ver_seguridad.fecha);
-            $('#vhora').html(data.ver_seguridad.hora);
-            $('#vuser').html(data.ver_seguridad.usuario);
-            if (data.ver_seguridad.documento_propietario === data.ver_seguridad.Propietario) {
-              $('#vpropi').html(data.ver_seguridad.nombre_propietario);
-              //  $('#vpropi').css('backgroundColor', #A5D6A7');
-              $('#vpropi').css('backgroundColor', '#A5D6A7');
-              $('#vpropi').css('Color', '#FFFFFF');
-              $('#vpdocumento').css('backgroundColor', '#A5D6A7');
-              $('#vpdocumento').css('Color', '#FFFFFF');
-              $('#vpdocumento').html(data.ver_seguridad.documento_propietario);
-              $('#estado_tercero_propietario').html('<i class="fas fa-user-check"></i> Tercero Creado');
-              $('#estado_tercero_propietario').css('backgroundColor', '#A5D6A7');
-            } else {
-              $('#estado_tercero_propietario').html('<i class="fas fa-user-times"></i> Tercero Pendiente');
-              $('#estado_tercero_propietario').css('backgroundColor', '#FFFFFF');
-              $('#vpropi').css('backgroundColor', '#FFFFFF');
-              $('#vpropi').css('Color', '#000000');
-              $('#vpdocumento').css('backgroundColor', '#FFFFFF');
-              $('#vpdocumento').css('Color', '#000000');
-              $('#vpropi').html(data.ver_seguridad.nombre_propietario);
-              $('#vpdocumento').html(data.ver_seguridad.documento_propietario);
-            }
+    //       if (data) {
+    //         $('#vid').html(data.ver_seguridad.id);
+    //         $('#vplaca').html(data.ver_seguridad.placa + ' - ' + data.ver_seguridad.placa_trailer);
+    //         $('#vconse').html(data.ver_seguridad.id_preestudio);
+    //         $('#vfecha').html(data.ver_seguridad.fecha);
+    //         $('#vhora').html(data.ver_seguridad.hora);
+    //         $('#vuser').html(data.ver_seguridad.usuario);
+    //         if (data.ver_seguridad.documento_propietario === data.ver_seguridad.Propietario) {
+    //           $('#vpropi').html(data.ver_seguridad.nombre_propietario);
+    //           //  $('#vpropi').css('backgroundColor', #A5D6A7');
+    //           $('#vpropi').css('backgroundColor', '#A5D6A7');
+    //           $('#vpropi').css('Color', '#FFFFFF');
+    //           $('#vpdocumento').css('backgroundColor', '#A5D6A7');
+    //           $('#vpdocumento').css('Color', '#FFFFFF');
+    //           $('#vpdocumento').html(data.ver_seguridad.documento_propietario);
+    //           $('#estado_tercero_propietario').html('<i class="fas fa-user-check"></i> Tercero Creado');
+    //           $('#estado_tercero_propietario').css('backgroundColor', '#A5D6A7');
+    //         } else {
+    //           $('#estado_tercero_propietario').html('<i class="fas fa-user-times"></i> Tercero Pendiente');
+    //           $('#estado_tercero_propietario').css('backgroundColor', '#FFFFFF');
+    //           $('#vpropi').css('backgroundColor', '#FFFFFF');
+    //           $('#vpropi').css('Color', '#000000');
+    //           $('#vpdocumento').css('backgroundColor', '#FFFFFF');
+    //           $('#vpdocumento').css('Color', '#000000');
+    //           $('#vpropi').html(data.ver_seguridad.nombre_propietario);
+    //           $('#vpdocumento').html(data.ver_seguridad.documento_propietario);
+    //         }
 
-            if (data.ver_seguridad.documento_tenedor === data.ver_seguridad.Poseedor) {
-              $('#vtene').html(data.ver_seguridad.nombre_tenedor);
-              $('#vtene').css('backgroundColor', '#A5D6A7');
-              $('#vtene').css('Color', '#FFFFFF');
-              $('#vtdocumento').css('backgroundColor', '#A5D6A7');
-              $('#vtdocumento').css('Color', '#FFFFFF');
-              $('#vtdocumento').html(data.ver_seguridad.documento_tenedor);
-              $('#estado_tercero_poseedor').html('<i class="fas fa-user-check"></i> Tercero Creado');
-              $('#estado_tercero_poseedor').css('backgroundColor', '#A5D6A7');
-            } else {
-              $('#estado_tercero_poseedor').html('<i class="fas fa-user-times"></i> Tercero Pendiente');
-              $('#estado_tercero_poseedor').css('backgroundColor', '#FFFFFF');
-              $('#vtene').css('backgroundColor', '#FFFFFF');
-              $('#vtene').css('Color', '#000000');
-              $('#vtdocumento').css('backgroundColor', '#FFFFFF');
-              $('#vtdocumento').css('Color', '#000000');
-              $('#vtene').html(data.ver_seguridad.nombre_tenedor);
-              $('#vtdocumento').html(data.ver_seguridad.documento_tenedor);
-            }
+    //         if (data.ver_seguridad.documento_tenedor === data.ver_seguridad.Poseedor) {
+    //           $('#vtene').html(data.ver_seguridad.nombre_tenedor);
+    //           $('#vtene').css('backgroundColor', '#A5D6A7');
+    //           $('#vtene').css('Color', '#FFFFFF');
+    //           $('#vtdocumento').css('backgroundColor', '#A5D6A7');
+    //           $('#vtdocumento').css('Color', '#FFFFFF');
+    //           $('#vtdocumento').html(data.ver_seguridad.documento_tenedor);
+    //           $('#estado_tercero_poseedor').html('<i class="fas fa-user-check"></i> Tercero Creado');
+    //           $('#estado_tercero_poseedor').css('backgroundColor', '#A5D6A7');
+    //         } else {
+    //           $('#estado_tercero_poseedor').html('<i class="fas fa-user-times"></i> Tercero Pendiente');
+    //           $('#estado_tercero_poseedor').css('backgroundColor', '#FFFFFF');
+    //           $('#vtene').css('backgroundColor', '#FFFFFF');
+    //           $('#vtene').css('Color', '#000000');
+    //           $('#vtdocumento').css('backgroundColor', '#FFFFFF');
+    //           $('#vtdocumento').css('Color', '#000000');
+    //           $('#vtene').html(data.ver_seguridad.nombre_tenedor);
+    //           $('#vtdocumento').html(data.ver_seguridad.documento_tenedor);
+    //         }
 
-            if (data.ver_seguridad.documento_conductor === data.ver_seguridad.Conductor) {
-              $('#vcondu').html(data.ver_seguridad.nombre_conductor);
-              $('#vcondu').css('backgroundColor', '#A5D6A7');
-              $('#vcondu').css('Color', '#FFFFFF');
-              $('#vcdocumento').css('backgroundColor', '#A5D6A7');
-              $('#vcdocumento').css('Color', '#FFFFFF');
-              $('#vcdocumento').html(data.ver_seguridad.documento_conductor);
-              $('#estado_tercero_conductor').html('<i class="fas fa-user-check"></i> Tercero Creado');
-              $('#estado_tercero_conductor').css('backgroundColor', '#A5D6A7');
-            } else {
-              $('#estado_tercero_conductor').html('<i class="fas fa-user-times"></i> Tercero Pendiente');
-              $('#estado_tercero_conductor').css('backgroundColor', '#FFFFFF');
-              $('#vcondu').css('backgroundColor', '#FFFFFF');
-              $('#vcondu').css('Color', '#000000');
-              $('#vcdocumento').css('backgroundColor', '#FFFFFF');
-              $('#vcdocumento').css('Color', '#000000');
-              $('#vcondu').html(data.ver_seguridad.nombre_conductor);
-              $('#vcdocumento').html(data.ver_seguridad.documento_conductor);
-            }
+    //         if (data.ver_seguridad.documento_conductor === data.ver_seguridad.Conductor) {
+    //           $('#vcondu').html(data.ver_seguridad.nombre_conductor);
+    //           $('#vcondu').css('backgroundColor', '#A5D6A7');
+    //           $('#vcondu').css('Color', '#FFFFFF');
+    //           $('#vcdocumento').css('backgroundColor', '#A5D6A7');
+    //           $('#vcdocumento').css('Color', '#FFFFFF');
+    //           $('#vcdocumento').html(data.ver_seguridad.documento_conductor);
+    //           $('#estado_tercero_conductor').html('<i class="fas fa-user-check"></i> Tercero Creado');
+    //           $('#estado_tercero_conductor').css('backgroundColor', '#A5D6A7');
+    //         } else {
+    //           $('#estado_tercero_conductor').html('<i class="fas fa-user-times"></i> Tercero Pendiente');
+    //           $('#estado_tercero_conductor').css('backgroundColor', '#FFFFFF');
+    //           $('#vcondu').css('backgroundColor', '#FFFFFF');
+    //           $('#vcondu').css('Color', '#000000');
+    //           $('#vcdocumento').css('backgroundColor', '#FFFFFF');
+    //           $('#vcdocumento').css('Color', '#000000');
+    //           $('#vcondu').html(data.ver_seguridad.nombre_conductor);
+    //           $('#vcdocumento').html(data.ver_seguridad.documento_conductor);
+    //         }
 
-            if (data.ver_seguridad.documento_propietario_trailer === '') {
-              $('#ptcondu').css('backgroundColor', '#FFFFFF');
-              $('#ptcondu').css('Color', '#000000');
-              $('#ptcdocumento').css('backgroundColor', '#FFFFFF');
-              $('#ptcdocumento').css('Color', '#000000');
-              $('#ptcondu').html('');
-              $('#ptcdocumento').html('');
-              $('#estado_tercero_pro_trailer').html('');
-              $('#estado_tercero_pro_trailer').css('backgroundColor', '#FFFFFF');
-            } else {
-              if (data.ver_seguridad.documento_propietario_trailer === data.ver_seguridad.Propietario_Trailer) {
-                $('#ptcondu').html(data.ver_seguridad.nombre_propietario_trailer);
-                $('#ptcondu').css('backgroundColor', '#A5D6A7');
-                $('#ptcondu').css('Color', '#FFFFFF');
-                $('#ptcdocumento').css('backgroundColor', '#A5D6A7');
-                $('#ptcdocumento').css('Color', '#FFFFFF');
-                $('#ptcdocumento').html(data.ver_seguridad.documento_propietario_trailer);
-                $('#estado_tercero_pro_trailer').html('<i class="fas fa-user-check"></i> Tercero Creado');
-                $('#estado_tercero_pro_trailer').css('backgroundColor', '#A5D6A7');
-              } else {
-                $('#ptcondu').css('backgroundColor', '#FFFFFF');
-                $('#ptcondu').css('Color', '#000000');
-                $('#ptcdocumento').css('backgroundColor', '#FFFFFF');
-                $('#ptcdocumento').css('Color', '#000000');
-                $('#ptcondu').html(data.ver_seguridad.nombre_propietario_trailer);
-                $('#ptcdocumento').html(data.ver_seguridad.documento_propietario_trailer);
-                $('#estado_tercero_pro_trailer').html('<i class="fas fa-user-times"></i> Tercero Pendiente');
-                $('#estado_tercero_pro_trailer').css('backgroundColor', '#FFFFFF');
-              }
-            }
+    //         if (data.ver_seguridad.documento_propietario_trailer === '') {
+    //           $('#ptcondu').css('backgroundColor', '#FFFFFF');
+    //           $('#ptcondu').css('Color', '#000000');
+    //           $('#ptcdocumento').css('backgroundColor', '#FFFFFF');
+    //           $('#ptcdocumento').css('Color', '#000000');
+    //           $('#ptcondu').html('');
+    //           $('#ptcdocumento').html('');
+    //           $('#estado_tercero_pro_trailer').html('');
+    //           $('#estado_tercero_pro_trailer').css('backgroundColor', '#FFFFFF');
+    //         } else {
+    //           if (data.ver_seguridad.documento_propietario_trailer === data.ver_seguridad.Propietario_Trailer) {
+    //             $('#ptcondu').html(data.ver_seguridad.nombre_propietario_trailer);
+    //             $('#ptcondu').css('backgroundColor', '#A5D6A7');
+    //             $('#ptcondu').css('Color', '#FFFFFF');
+    //             $('#ptcdocumento').css('backgroundColor', '#A5D6A7');
+    //             $('#ptcdocumento').css('Color', '#FFFFFF');
+    //             $('#ptcdocumento').html(data.ver_seguridad.documento_propietario_trailer);
+    //             $('#estado_tercero_pro_trailer').html('<i class="fas fa-user-check"></i> Tercero Creado');
+    //             $('#estado_tercero_pro_trailer').css('backgroundColor', '#A5D6A7');
+    //           } else {
+    //             $('#ptcondu').css('backgroundColor', '#FFFFFF');
+    //             $('#ptcondu').css('Color', '#000000');
+    //             $('#ptcdocumento').css('backgroundColor', '#FFFFFF');
+    //             $('#ptcdocumento').css('Color', '#000000');
+    //             $('#ptcondu').html(data.ver_seguridad.nombre_propietario_trailer);
+    //             $('#ptcdocumento').html(data.ver_seguridad.documento_propietario_trailer);
+    //             $('#estado_tercero_pro_trailer').html('<i class="fas fa-user-times"></i> Tercero Pendiente');
+    //             $('#estado_tercero_pro_trailer').css('backgroundColor', '#FFFFFF');
+    //           }
+    //         }
 
-            $('#vweb').html(data.ver_seguridad.web_satelital);
-            $('#vwuser').html(data.ver_seguridad.usuario_satelital);
-            $('#vwclave').html(data.ver_seguridad.clave_satelital);
+    //         $('#vweb').html(data.ver_seguridad.web_satelital);
+    //         $('#vwuser').html(data.ver_seguridad.usuario_satelital);
+    //         $('#vwclave').html(data.ver_seguridad.clave_satelital);
 
-            /* Observaciones operaciones */
-            d.getElementById('observacion_operaciones').value = data.ver_seguridad.observacion;
+    //         /* Observaciones operaciones */
+    //         d.getElementById('observacion_operaciones').value = data.ver_seguridad.observacion;
 
-            // Listar Referencias
-            if (data.resultado_referencias) {
-              data.resultado_referencias.forEach(function(element) {
-                $('#consulta_referencia').append(
-                  `<tr>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.nombre_empresa}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha_ingreso}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha_retiro}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.persona_contacto}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.celular}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.cargo}</td>
-                  </tr>`,
-                );
-              });
-            } else {
-              $('#consulta_referencia').append(
-                `<tr>
-                <td></td>
-                <td></td>
-                <td>No hay Referencias</td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>`,
-              );
-            }
+    //         // Listar Referencias
+    //         if (data.resultado_referencias) {
+    //           data.resultado_referencias.forEach(function (element) {
+    //             $('#consulta_referencia').append(
+    //               `<tr>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.nombre_empresa}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha_ingreso}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha_retiro}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.persona_contacto}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.celular}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.cargo}</td>
+    //               </tr>`,
+    //             );
+    //           });
+    //         } else {
+    //           $('#consulta_referencia').append(
+    //             `<tr>
+    //             <td></td>
+    //             <td></td>
+    //             <td>No hay Referencias</td>
+    //             <td></td>
+    //             <td></td>
+    //             <td></td>
+    //           </tr>`,
+    //           );
+    //         }
 
-            $('#consulta_servicio').html('');
-            if (data.resultado_preestudio) {
-              data.resultado_preestudio.forEach(function(element) {
-                $('#consulta_servicio').append(
-                  `<tr>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.nundoc_solicitud}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.nombre_cliente}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" colspan="2"> <b>Origen:</b> ${element.orige}    <b >Destino:</b> ${element.dest}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.peso_kg} / ${element.tipo_vehiculo}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.usuario_auditor}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha} - ${element.hora}</td>
-                   </tr>`,
-                );
-                d.getElementById('observacion_servicio_cliente').value = element.observaciones;
-              });
-              /* Datos del contenedor para la solicitud */
-              $('#datos_contenedor').html('');
-              if (data.nombre_contenedor != '' && Array.isArray(data.nombre_contenedor)) {
-                data.nombre_contenedor.forEach(function(contenedor) {
-                  $('#datos_contenedor').append(
-                    `<tr>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_numcont}</td>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${data.nombre_contenedor}</td>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_dias}</td>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devolucion_contenedor}</td>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_direccion}</td>
-                     </tr>`,
-                  );
-                });
-              } else {
-                $('#datos_contenedor').append(
-                  `<tr>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" colspan='5'>No tiene contendor</td>
-                   </tr>`,
-                );
-              }
-            }
+    //         $('#consulta_servicio').html('');
+    //         if (data.resultado_preestudio) {
+    //           data.resultado_preestudio.forEach(function (element) {
+    //             $('#consulta_servicio').append(
+    //               `<tr>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.nundoc_solicitud}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.nombre_cliente}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" colspan="2"> <b>Origen:</b> ${element.orige}    <b >Destino:</b> ${element.dest}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.peso_kg} / ${element.tipo_vehiculo}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.usuario_auditor}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha} - ${element.hora}</td>
+    //                </tr>`,
+    //             );
+    //             d.getElementById('observacion_servicio_cliente').value = element.observaciones;
+    //           });
+    //           /* Datos del contenedor para la solicitud */
+    //           $('#datos_contenedor').html('');
+    //           if (data.nombre_contenedor != '' && Array.isArray(data.nombre_contenedor)) {
+    //             data.nombre_contenedor.forEach(function (contenedor) {
+    //               $('#datos_contenedor').append(
+    //                 `<tr>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_numcont}</td>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${data.nombre_contenedor}</td>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_dias}</td>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devolucion_contenedor}</td>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_direccion}</td>
+    //                  </tr>`,
+    //               );
+    //             });
+    //           } else {
+    //             $('#datos_contenedor').append(
+    //               `<tr>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" colspan='5'>No tiene contendor</td>
+    //                </tr>`,
+    //             );
+    //           }
+    //         }
 
-            $('#consulta_documentos').html('');
-            if (data.resultado_documentos) {
-              data.resultado_documentos.forEach(function(element, index) {
-                $('#consulta_documentos').append(
-                  `<tr>
-                  <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.tipo_hv}</td>
-                  <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.clase}</td>
-                  <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> <a href="#" onclick="abrir_fotos('${element.ruta}' , '${element.nombre_archivo}')" class="cell-detail hint--top-left" data-hint="">
-                  <span class="icon mdi mdi-file-text text-center"  data-toggle="modal" title="Documento"></span>
-                  </a></td>
-                  <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.usuario}</td>
-                  <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha} - ${element.hora}</td>
-                </tr>
-                `,
-                );
-              });
-            }
+    //         $('#consulta_documentos').html('');
+    //         if (data.resultado_documentos) {
+    //           data.resultado_documentos.forEach(function (element, index) {
+    //             $('#consulta_documentos').append(
+    //               `<tr>
+    //               <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.tipo_hv}</td>
+    //               <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.clase}</td>
+    //               <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;"> <a href="#" onclick="abrir_fotos('${element.ruta}' , '${element.nombre_archivo}')" class="cell-detail hint--top-left" data-hint="">
+    //               <span class="icon mdi mdi-file-text text-center"  data-toggle="modal" title="Documento"></span>
+    //               </a></td>
+    //               <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.usuario}</td>
+    //               <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha} - ${element.hora}</td>
+    //             </tr>
+    //             `,
+    //             );
+    //           });
+    //         }
 
-            $('#tbl_observaciones').html('');
-            if (data.resultado_observacion) {
-              data.resultado_observacion.forEach(function(element, index) {
-                $('#tbl_observaciones').append(
-                  `<tr>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.id}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px;">${element.observacion}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha}-${element.hora}</td>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.usuario}</td>
-                  </tr>
-                `,
-                );
-              });
-            }
-          } else {
-            alert('Error de operación');
-          }
-        })
-        .catch(error => {
-          alert(error);
-        });
+    //         $('#tbl_observaciones').html('');
+    //         if (data.resultado_observacion) {
+    //           data.resultado_observacion.forEach(function (element, index) {
+    //             $('#tbl_observaciones').append(
+    //               `<tr>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.id}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px;">${element.observacion}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.fecha}-${element.hora}</td>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${element.usuario}</td>
+    //               </tr>
+    //             `,
+    //             );
+    //           });
+    //         }
+    //       } else {
+    //         alert('Error de operación');
+    //       }
+    //     })
+    //     .catch(error => {
+    //       alert(error);
+    //     });
 
-      // alert("Solicitud: " + solicitud_id + " -- " + "Prefiltllro: " + pree + " -- " + "Solicitid 2: " + soli + " -- " + " Estado: " + estado);
-    }
+    //   // alert("Solicitud: " + solicitud_id + " -- " + "Prefiltllro: " + pree + " -- " + "Solicitid 2: " + soli + " -- " + " Estado: " + estado);
+    // }
 
     /* Prefiltro de nuevo recurso para actualizar */
-    if (e.target.matches('#btn_listado_nuevo') || e.target.matches('#btn_listado_nuevo *')) {
-      let padre = e.target.parentElement.parentElement;
-      let solicitud_id = padre.querySelector('.soli_id').value;
-      d.getElementById('num_solicitud_prefiltro_nuevo').value = solicitud_id;
-      let placa = padre.querySelector('.pla_id').value;
-      d.getElementById('plac_solicitud_prefiltro_nuevo').value = placa;
-      Listar_datos_prefiltro_nuevo_recurso(solicitud_id, placa);
-    }
+    // if (e.target.matches('#btn_listado_nuevo') || e.target.matches('#btn_listado_nuevo *')) {
+    //   let padre = e.target.parentElement.parentElement;
+    //   let solicitud_id = padre.querySelector('.soli_id').value;
+    //   d.getElementById('num_solicitud_prefiltro_nuevo').value = solicitud_id;
+    //   let placa = padre.querySelector('.pla_id').value;
+    //   d.getElementById('plac_solicitud_prefiltro_nuevo').value = placa;
+    //   Listar_datos_prefiltro_nuevo_recurso(solicitud_id, placa);
+    // }
 
     /* Guardar estudio de prefiltro de nuevo rescurso para actualizar */
-    if (e.target.matches('#btn_guardar_prefiltro_nuevo') || e.target.matches('#btn_guardar_prefiltro_nuevo *')) {
-      let padre = e.target.parentElement.parentElement;
-      let solicitudId = padre.querySelector('#num_solicitud_prefiltro_nuevo').value;
-      let plac = padre.querySelector('#plac_solicitud_prefiltro_nuevo').value;
+    // if (e.target.matches('#btn_guardar_prefiltro_nuevo') || e.target.matches('#btn_guardar_prefiltro_nuevo *')) {
+    //   let padre = e.target.parentElement.parentElement;
+    //   let solicitudId = padre.querySelector('#num_solicitud_prefiltro_nuevo').value;
+    //   let plac = padre.querySelector('#plac_solicitud_prefiltro_nuevo').value;
 
-      if (w.confirm('¿Esta seguro de realizar la operación para el prefriltro?')) {
-        if (d.getElementById('estado_prefiltro_nuevo').value === '') {
-          mensaje = `
-          <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
-              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> Debes seleccionar un estado para poder guardar el prefiltro
-              </div>
-          </div>`;
-          d.getElementById('historicos').innerHTML = mensaje;
-          $('.modal-body').animate({scrollTop: 0}, 600);
-        } else {
-          let formdata = new FormData();
-          formdata.append('solicitud_id', padre.querySelector('#num_solicitud_prefiltro_nuevo').value);
-          formdata.append('estado', d.getElementById('estado_prefiltro_nuevo').value);
-          formdata.append('observacion', d.getElementById('observacion_prefiltro_nuevo').value);
-          formdata.append('placa', padre.querySelector('#plac_solicitud_prefiltro_nuevo').value);
-          await fetch($('#id_url_ajax').val() + 'validacionparametros/Guardar_prefiltro_nuevo', {
-            method: 'POST',
-            cache: 'no-cache',
-            body: formdata,
-          })
-            .then(response => response.json())
-            .then(function(data) {
-              if (data) {
-                if (data.numero === 200) {
-                  notificacion = `
-                  <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-                      <div class="icon"><i class="fas fa-check"></i></div>
-                      <div class="message">
-                        <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                        <strong>Mensaje!</strong> ${data.mensaje}
-                      </div>
-                  </div>`;
-                  d.getElementById('historicos').innerHTML = notificacion;
-                  $('.modal-body').animate({scrollTop: 0}, 600);
-                  Listar_datos_prefiltro_nuevo_recurso(solicitudId, plac);
-                } else {
-                  notificacion = `
-                  <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-                      <div class="icon"><i class="fas fa-times"></i></div>
-                      <div class="message">
-                        <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                        <strong>Mensaje!</strong> ${mensaje}
-                      </div>
-                  </div>`;
-                  d.getElementById('historicos').innerHTML = notificacion;
-                  $('.modal-body').animate({scrollTop: 0}, 600);
-                }
-              } else {
-                alert('Error de operación');
-              }
-            })
-            .catch(error => {
-              alert(error);
-            });
-        }
-      }
-    }
+    //   if (w.confirm('¿Esta seguro de realizar la operación para el prefriltro?')) {
+    //     if (d.getElementById('estado_prefiltro_nuevo').value === '') {
+    //       mensaje = `
+    //       <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible" role="alert">
+    //           <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //           <div class="message">
+    //             <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //             <strong>Mensaje!</strong> Debes seleccionar un estado para poder guardar el prefiltro
+    //           </div>
+    //       </div>`;
+    //       d.getElementById('historicos').innerHTML = mensaje;
+    //       $('.modal-body').animate({ scrollTop: 0 }, 600);
+    //     } else {
+    //       let formdata = new FormData();
+    //       formdata.append('solicitud_id', padre.querySelector('#num_solicitud_prefiltro_nuevo').value);
+    //       formdata.append('estado', d.getElementById('estado_prefiltro_nuevo').value);
+    //       formdata.append('observacion', d.getElementById('observacion_prefiltro_nuevo').value);
+    //       formdata.append('placa', padre.querySelector('#plac_solicitud_prefiltro_nuevo').value);
+    //       await fetch($('#id_url_ajax').val() + 'validacionparametros/Guardar_prefiltro_nuevo', {
+    //         method: 'POST',
+    //         cache: 'no-cache',
+    //         body: formdata,
+    //       })
+    //         .then(response => response.json())
+    //         .then(function (data) {
+    //           if (data) {
+    //             if (data.numero === 200) {
+    //               notificacion = `
+    //               <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                   <div class="icon"><i class="fas fa-check"></i></div>
+    //                   <div class="message">
+    //                     <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                     <strong>Mensaje!</strong> ${data.mensaje}
+    //                   </div>
+    //               </div>`;
+    //               d.getElementById('historicos').innerHTML = notificacion;
+    //               $('.modal-body').animate({ scrollTop: 0 }, 600);
+    //               Listar_datos_prefiltro_nuevo_recurso(solicitudId, plac);
+    //             } else {
+    //               notificacion = `
+    //               <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                   <div class="icon"><i class="fas fa-times"></i></div>
+    //                   <div class="message">
+    //                     <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                     <strong>Mensaje!</strong> ${mensaje}
+    //                   </div>
+    //               </div>`;
+    //               d.getElementById('historicos').innerHTML = notificacion;
+    //               $('.modal-body').animate({ scrollTop: 0 }, 600);
+    //             }
+    //           } else {
+    //             alert('Error de operación');
+    //           }
+    //         })
+    //         .catch(error => {
+    //           alert(error);
+    //         });
+    //     }
+    //   }
+    // }
 
     if (e.target.matches('#btn-lista') | e.target.matches('#btn-lista *')) {
       let padre = e.target.parentElement.parentElement;
@@ -427,7 +427,7 @@ d.addEventListener('DOMContentLoaded', async e => {
         body: formdata,
       })
         .then(response => response.json())
-        .then(function(data) {
+        .then(function (data) {
           if (data) {
             var estado = data.estado;
             if (estado === 'iniciado' || estado === 'pendiente' /* || estado === 'aprobado' */) {
@@ -445,1291 +445,1183 @@ d.addEventListener('DOMContentLoaded', async e => {
         });
     }
 
-    if (e.target.matches('#enviar_seguridad') || e.target.matches('#enviar_seguridad *')) {
-      if (window.confirm('¿Estás seguro de enviar la respuesta del prefiltro?')) {
-        // Código a ejecutar si el usuario hace clic en "Aceptar"
-        let formdata = new FormData();
-        formdata.append('solicitud', num_solicitud);
-        formdata.append('estado', d.getElementById('estado_seguridad').value);
-        formdata.append('proceso', d.getElementById('procesoprefiltro').value);
-        formdata.append('observacion', d.getElementById('seguridad_observa').value);
-        fetch($('#id_url_ajax').val() + 'validacionparametros/Enviar_Prefiltro', {
-          method: 'POST',
-          cache: 'no-cache',
-          body: formdata,
-        })
-          .then(response => response.json())
-          .then(function(data) {
-            if (data) {
-              alert(data);
-              $('#ver_lista_prefiltro').modal('hide');
-              Litar_solicitudes();
-            } else {
-              alert('Error de operación');
-            }
-          })
-          .catch(error => {
-            alert(error);
-          });
-      } else {
-        // Código a ejecutar si el usuario hace clic en "Cancelar"
-        console.log('Acción confirmada.');
-      }
-    }
+    // if (e.target.matches('#enviar_seguridad') || e.target.matches('#enviar_seguridad *')) {
+    //   if (window.confirm('¿Estás seguro de enviar la respuesta del prefiltro?')) {
+    //     // Código a ejecutar si el usuario hace clic en "Aceptar"
+    //     let formdata = new FormData();
+    //     formdata.append('solicitud', num_solicitud);
+    //     formdata.append('estado', d.getElementById('estado_seguridad').value);
+    //     formdata.append('proceso', d.getElementById('procesoprefiltro').value);
+    //     formdata.append('observacion', d.getElementById('seguridad_observa').value);
+    //     fetch($('#id_url_ajax').val() + 'validacionparametros/Enviar_Prefiltro', {
+    //       method: 'POST',
+    //       cache: 'no-cache',
+    //       body: formdata,
+    //     })
+    //       .then(response => response.json())
+    //       .then(function (data) {
+    //         if (data) {
+    //           alert(data);
+    //           $('#ver_lista_prefiltro').modal('hide');
+    //           Litar_solicitudes();
+    //         } else {
+    //           alert('Error de operación');
+    //         }
+    //       })
+    //       .catch(error => {
+    //         alert(error);
+    //       });
+    //   } else {
+    //     // Código a ejecutar si el usuario hace clic en "Cancelar"
+    //     console.log('Acción confirmada.');
+    //   }
+    // }
 
     // Estudio de seguridad
-    if (e.target.matches('#btn_listado') || e.target.matches('#btn_listado *')) {
-      let padre = e.target.parentElement.parentElement;
+    // if (e.target.matches('#btn_listado') || e.target.matches('#btn_listado *')) {
+    //   let padre = e.target.parentElement.parentElement;
 
-      d.getElementById('content_vehiculo').style.display = 'none';
-      d.getElementById('content_conductor').style.display = 'none';
-      d.getElementById('content_risk').style.display = 'none';
-      d.getElementById('recoger_trailer').style.display = 'none';
-      d.getElementById('recoger_trailer2').style.display = 'none';
+    //   d.getElementById('content_vehiculo').style.display = 'none';
+    //   d.getElementById('content_conductor').style.display = 'none';
+    //   d.getElementById('content_risk').style.display = 'none';
+    //   d.getElementById('recoger_trailer').style.display = 'none';
+    //   d.getElementById('recoger_trailer2').style.display = 'none';
 
-      let placa = padre.querySelector('.pla_id').value;
-      let num_solicitud = padre.querySelector('.soli_id').value;
-      let nombre = padre.querySelector('.nombre').value;
-      let apellido = padre.querySelector('.apellido').value;
-      let estado_actual = padre.querySelector('.estado_actual').value;
-      let conductor_id = padre.querySelector('.conductor_id').value;
-      let conductor_num_doc = padre.querySelector('.conductor_num_documento').value;
-      let vehiculo_id = padre.querySelector('.vehiculo_id').value;
-      let estudio_id_c = padre.querySelector('.estudio_id_c').value;
-      let estado_estudio = padre.querySelector('.estado_estudio').value;
-      let observacion_general = padre.querySelector('.observacion_general').value;
+    //   let placa = padre.querySelector('.pla_id').value;
+    //   let num_solicitud = padre.querySelector('.soli_id').value;
+    //   let nombre = padre.querySelector('.nombre').value;
+    //   let apellido = padre.querySelector('.apellido').value;
+    //   let estado_actual = padre.querySelector('.estado_actual').value;
+    //   let conductor_id = padre.querySelector('.conductor_id').value;
+    //   let conductor_num_doc = padre.querySelector('.conductor_num_documento').value;
+    //   let vehiculo_id = padre.querySelector('.vehiculo_id').value;
+    //   let estudio_id_c = padre.querySelector('.estudio_id_c').value;
+    //   let estado_estudio = padre.querySelector('.estado_estudio').value;
+    //   let observacion_general = padre.querySelector('.observacion_general').value;
+    //   let escenarioId = padre.querySelector('.escenarioId').value;
 
-      d.getElementById('observacion_operaciones_estudio').value = observacion_general;
-      //----------------------------------------------------------------//
+    //   //
 
-      d.querySelector('.idvehiculo').innerHTML = placa;
-      d.querySelector('.idconductor').innerHTML = nombre + ' ' + apellido;
-      d.querySelector('.idstudy').innerHTML = num_solicitud;
-      d.querySelector('.estadostudy').innerHTML = estado_actual;
+    //   d.getElementById('observacion_operaciones_estudio').value = observacion_general;
+    //   //----------------------------------------------------------------//
 
-      //----------------------------------------------------------------//
+    //   d.querySelector('.idvehiculo').innerHTML = placa;
+    //   d.querySelector('.idconductor').innerHTML = nombre + ' ' + apellido;
+    //   d.querySelector('.idstudy').innerHTML = num_solicitud;
+    //   d.querySelector('.estadostudy').innerHTML = estado_actual;
 
-      d.getElementById('idvehiculo').value = vehiculo_id;
-      d.getElementById('idconductor').value = conductor_id;
-      d.getElementById('idstudy').value = num_solicitud;
-      d.getElementById('estadostudy').value = estado_actual;
+    //   //----------------------------------------------------------------//
 
-      //----------------------------------------------------------------//
+    //   d.getElementById('idvehiculo').value = vehiculo_id;
+    //   d.getElementById('idconductor').value = conductor_id;
+    //   d.getElementById('idstudy').value = num_solicitud;
+    //   d.getElementById('estadostudy').value = estado_actual;
 
-      d.querySelector('.id_soli').innerHTML = num_solicitud;
-      d.getElementById('id_soli').value = num_solicitud;
-      d.getElementById('solicitudg').value = num_solicitud;
-      d.getElementById('id_conductor').value = conductor_id;
-      d.getElementById('id_vehiculo').value = vehiculo_id;
-      d.getElementById('id_estudio').value = estudio_id_c;
+    //   //----------------------------------------------------------------//
 
-      //----------------------------------------------------------------//
+    //   d.querySelector('.id_soli').innerHTML = num_solicitud;
+    //   d.getElementById('id_soli').value = num_solicitud;
+    //   d.getElementById('solicitudg').value = num_solicitud;
+    //   d.getElementById('id_conductor').value = conductor_id;
+    //   d.getElementById('id_vehiculo').value = vehiculo_id;
+    //   d.getElementById('id_estudio').value = estudio_id_c;
+    //   d.getElementById('id_escenario').value = escenarioId;
+    //   // d.getElementById('id_solicitud').value = num_solicitud;
 
-      $('#valor_vehiculo').val(vehiculo_id);
-      $('#valor_conductor').val(conductor_num_doc);
-      $('#conductor_id').val(conductor_id);
-      lista_hojas_de_vida(vehiculo_id, conductor_id, num_solicitud);
+    //   //----------------------------------------------------------------//
 
-      //----------------------------------------------------------------//
+    //   $('#valor_vehiculo').val(vehiculo_id);
+    //   $('#valor_conductor').val(conductor_num_doc);
+    //   $('#conductor_id').val(conductor_id);
+    //   lista_hojas_de_vida(vehiculo_id, conductor_id, num_solicitud);
 
-      if (estado_estudio === 'Aprobado') {
-        d.getElementById('inicio_estudio').style.display = 'none';
-        d.getElementById('estado_estu').disabled = true;
-        d.getElementById('obse_estu').disabled = true;
-      } else if (estado_estudio === 'Pendiente') {
-        d.getElementById('inicio_estudio').style.display = 'none';
-        d.getElementById('estado_estu').disabled = false;
-        d.getElementById('obse_estu').disabled = false;
-        $('#title').show();
-        $('#select_option').show();
-        cargarselect();
-      } else if (estado_estudio === 'vencida') {
-        d.getElementById('inicio_estudio').style.display = 'none';
-        d.getElementById('select_estados').style.display = 'none';
-        d.getElementById('input_proceso').style.display = 'none';
-        d.getElementById('textarea_observacion').style.display = 'none';
-        d.getElementById('aprobar_estudio_total').style.display = 'none';
+    //   //----------------------------------------------------------------//
 
-        // $("#aprobar_estudio_total").hide();
+    //   if (estado_estudio === 'Aprobado') {
+    //     d.getElementById('inicio_estudio').style.display = 'none';
+    //     d.getElementById('estado_estu').disabled = true;
+    //     d.getElementById('obse_estu').disabled = true;
+    //   } else if (estado_estudio === 'Pendiente') {
+    //     d.getElementById('inicio_estudio').style.display = 'none';
+    //     d.getElementById('estado_estu').disabled = false;
+    //     d.getElementById('obse_estu').disabled = false;
+    //     $('#title').show();
+    //     $('#select_option').show();
+    //     cargarselect();
+    //   } else if (estado_estudio === 'vencida') {
+    //     d.getElementById('inicio_estudio').style.display = 'none';
+    //     d.getElementById('select_estados').style.display = 'none';
+    //     d.getElementById('input_proceso').style.display = 'none';
+    //     d.getElementById('textarea_observacion').style.display = 'none';
+    //     d.getElementById('aprobar_estudio_total').style.display = 'none';
 
-        d.getElementById('estado_estu').disabled = true;
-        d.getElementById('obse_estu').disabled = true;
-      } else if (estado_estudio === 'pendiente_iniciar') {
-        d.getElementById('inicio_estudio').style.display = 'block';
-        d.getElementById('estado_estu').disabled = true;
-        d.getElementById('obse_estu').disabled = true;
-        $('#title').hide();
-        $('#select_option').hide();
-      } else if (estado_estudio === 'iniciado') {
-        d.getElementById('inicio_estudio').style.display = 'none';
-        $('#title').show();
-        $('#select_option').show();
-        d.getElementById('estado_estu').disabled = false;
-        d.getElementById('obse_estu').disabled = false;
-        cargarselect();
-      } else if (estado_estudio === 'Rechazado') {
-        d.getElementById('inicio_estudio').style.display = 'none';
-        $('#title').hide();
-        $('#select_option').hide();
-      } else if (estado_estudio === 'cancelado') {
-        d.getElementById('inicio_estudio').style.display = 'none';
-        d.getElementById('estado_estu').disabled = true;
-        d.getElementById('obse_estu').disabled = true;
-      } else if (estado_estudio === 'Rechazado_modificar') {
-        d.getElementById('inicio_estudio').style.display = 'block';
-        $('#title').show();
-        $('#select_option').show();
-        d.getElementById('estado_estu').disabled = false;
-        d.getElementById('obse_estu').disabled = false;
-        cargarselect();
-      }
-      // Restaura el HTML de la tabla al estado original guardado
-      document.getElementById('tbl_recursos_sistema').innerHTML = originalTableHTML;
-      document.getElementById('mensaje_error_validacion').innerHTML = '';
-      // Establece el valor del select de vuelta al valor por defecto
-      document.getElementById('estado_estu').value = defaultSelectValue;
+    //     // $("#aprobar_estudio_total").hide();
+    //     d.getElementById('estado_estu').disabled = true;
+    //     d.getElementById('obse_estu').disabled = true;
+    //   } else if (estado_estudio === 'pendiente_iniciar') {
+    //     d.getElementById('inicio_estudio').style.display = 'block';
+    //     d.getElementById('estado_estu').disabled = true;
+    //     d.getElementById('obse_estu').disabled = true;
+    //     $('#title').hide();
+    //     $('#select_option').hide();
+    //   } else if (estado_estudio === 'iniciado') {
+    //     d.getElementById('inicio_estudio').style.display = 'none';
+    //     $('#title').show();
+    //     $('#select_option').show();
+    //     d.getElementById('estado_estu').disabled = false;
+    //     d.getElementById('obse_estu').disabled = false;
+    //     cargarselect();
+    //   } else if (estado_estudio === 'Rechazado') {
+    //     d.getElementById('inicio_estudio').style.display = 'none';
+    //     $('#title').hide();
+    //     $('#select_option').hide();
+    //   } else if (estado_estudio === 'cancelado') {
+    //     d.getElementById('inicio_estudio').style.display = 'none';
+    //     d.getElementById('estado_estu').disabled = true;
+    //     d.getElementById('obse_estu').disabled = true;
+    //   } else if (estado_estudio === 'Rechazado_modificar') {
+    //     d.getElementById('inicio_estudio').style.display = 'block';
+    //     $('#title').show();
+    //     $('#select_option').show();
+    //     d.getElementById('estado_estu').disabled = false;
+    //     d.getElementById('obse_estu').disabled = false;
+    //     cargarselect();
+    //   }
+    //   // Restaura el HTML de la tabla al estado original guardado
+    //   document.getElementById('tbl_recursos_sistema').innerHTML = originalTableHTML;
+    //   document.getElementById('mensaje_error_validacion').innerHTML = '';
+    //   // Establece el valor del select de vuelta al valor por defecto
+    //   document.getElementById('estado_estu').value = defaultSelectValue;
 
-      // Documentos campos
-      let formdatadocumento = new FormData();
-      formdatadocumento.append('placa', placa);
-      formdatadocumento.append('solicitud', num_solicitud);
-      await fetch($('#id_url_ajax').val() + 'validacionparametros/Documentos_Actualizar', {
-        method: 'POST',
-        cache: 'no-cache',
-        body: formdatadocumento,
-      })
-        .then(response => response.json())
-        .then(function(data) {
-          $('#consulta_datoupdate').html('');
-          if (data) {
-            data.resultado_documento_actualizar.forEach(function(element, index) {
-              $('#consulta_datoupdate').append(
-                `<tr>
-                    <td>${element.tipo_hv}</td>
-                    <td>${element.tipo_campo}</td>
-                    <td> 
-                    ${element.name_archivo !== ''
-                      ? `<a href="#" onclick="abrir_fotos('${element.ruta_archivo}' , '${element.name_archivo}')" class="cell-detail hint--top-left" data-hint="">
-                      <span class="icon mdi mdi-file-text text-center"  data-toggle="modal" title="Documento"></span>
-                      </a>`
-                      : `Sin archivos`}
-                    </td>
-                    <td>${element.info_campo}</td>
-                    <td>${element.usuario}</td>
-                    <td>${element.fecha} - ${element.hora}</td>
+    //   // Documentos campos
+    //   let formdatadocumento = new FormData();
+    //   formdatadocumento.append('placa', placa);
+    //   formdatadocumento.append('solicitud', num_solicitud);
+    //   await fetch($('#id_url_ajax').val() + 'validacionparametros/Documentos_Actualizar', {
+    //     method: 'POST',
+    //     cache: 'no-cache',
+    //     body: formdatadocumento,
+    //   })
+    //     .then(response => response.json())
+    //     .then(function (data) {
+    //       $('#consulta_datoupdate').html('');
+    //       if (data) {
+    //         data.resultado_documento_actualizar.forEach(function (element, index) {
+    //           $('#consulta_datoupdate').append(
+    //             `<tr>
+    //                 <td>${element.tipo_hv}</td>
+    //                 <td>${element.tipo_campo}</td>
+    //                 <td> 
+    //                 ${element.name_archivo !== ''
+    //               ? `<a href="#" onclick="abrir_fotos('${element.ruta_archivo}' , '${element.name_archivo}')" class="cell-detail hint--top-left" data-hint="">
+    //                   <span class="icon mdi mdi-file-text text-center"  data-toggle="modal" title="Documento"></span>
+    //                   </a>`
+    //               : `Sin archivos`}
+    //                 </td>
+    //                 <td>${element.info_campo}</td>
+    //                 <td>${element.usuario}</td>
+    //                 <td>${element.fecha} - ${element.hora}</td>
+    //             </tr> `,
+    //           );
+    //         });
 
-                </tr> `,
-              );
-            });
-
-            $('#consulta_tbservicio_estudio').html('');
-            $('#observacion_servicio_cliente_estudio').html('');
-            // $('#observacion_operaciones_estudio').html(''); //observacion
-            if (data.resultado_preestudio) {
-              data.resultado_preestudio.forEach(function(element) {
-                $('#consulta_tbservicio_estudio').append(
-                  `<tr>
-                    <td>${element.nundoc_solicitud}</td>
-                    <td style="font-size:10px;">${element.nombre_cliente}</td>
-                    <td style="font-size:10px;" colspan="2"><b>Origen:</b> ${element.orige} <br> <b>Destino:</b> ${element.dest}</td>
-                    <td style="font-size:10px;">${element.peso_kg} / ${element.tipo_vehiculo}</td>
-                    <td style="font-size:10px;">${element.usuario_auditor}</td>
-                    <td style="font-size:10px;">${element.fecha} - ${element.hora}</td>
-                  </tr>`,
-                );
-                d.getElementById('observacion_servicio_cliente_estudio').value = element.observaciones;
-                // d.getElementById('observacion_operaciones_estudio').value = element.observacion;
-              });
-              /* Datos del contenedor para la solicitud */
-              $('#datos_contenedor_estudio').html('');
-              if (data.nombre_contenedor) {
-                data.resultado_preestudio.forEach(function(contenedor) {
-                  $('#datos_contenedor_estudio').append(
-                    `<tr>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_numcont}</td>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${data.nombre_contenedor}</td>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_dias}</td>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devolucion_contenedor}</td>
-                      <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_direccion}</td>
-                    </tr>`,
-                  );
-                });
-              } else {
-                $('#datos_contenedor_estudio').append(
-                  `<tr>
-                    <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" colspan='5'>No tiene contendor</td>
-                  </tr>`,
-                );
-              }
-            }
-          } else {
-            $('#consulta_datoupdate').append(
-              `<tr>
-                <td></td>
-                <td></td>
-                <td>No hay Documentos</td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>`,
-            );
-          }
-        })
-        .catch(error => {
-          alert(error);
-        });
-    }
+    //         $('#consulta_tbservicio_estudio').html('');
+    //         $('#observacion_servicio_cliente_estudio').html('');
+    //         // $('#observacion_operaciones_estudio').html(''); //observacion
+    //         if (data.resultado_preestudio) {
+    //           data.resultado_preestudio.forEach(function (element) {
+    //             document.getElementById("aprobar_estudio_total").setAttribute('data-SolicitudId', JSON.stringify({ solicitudes: [element.nundoc_solicitud] }));
+    //             $('#consulta_tbservicio_estudio').append(
+    //               `<tr>
+    //                 <td>${element.nundoc_solicitud}</td>
+    //                 <td style="font-size:10px;">${element.nombre_cliente}</td>
+    //                 <td style="font-size:10px;" colspan="2"><b>Origen:</b> ${element.orige} <br> <b>Destino:</b> ${element.dest}</td>
+    //                 <td style="font-size:10px;">${element.peso_kg} / ${element.tipo_vehiculo}</td>
+    //                 <td style="font-size:10px;">${element.usuario_auditor}</td>
+    //                 <td style="font-size:10px;">${element.fecha} - ${element.hora}</td>
+    //               </tr>`,
+    //             );
+    //             d.getElementById('observacion_servicio_cliente_estudio').value = element.observaciones;
+    //             // d.getElementById('observacion_operaciones_estudio').value = element.observacion;
+    //           });
+  
+    //           /* Datos del contenedor para la solicitud */
+    //           $('#datos_contenedor_estudio').html('');
+    //           if (data.nombre_contenedor) {
+    //             data.resultado_preestudio.forEach(function (contenedor) {
+    //               $('#datos_contenedor_estudio').append(
+    //                 `<tr>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_numcont}</td>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${data.nombre_contenedor}</td>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_dias}</td>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devolucion_contenedor}</td>
+    //                   <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;">${contenedor.devol_direccion}</td>
+    //                 </tr>`,
+    //               );
+    //             });
+    //           } else {
+    //             $('#datos_contenedor_estudio').append(
+    //               `<tr>
+    //                 <td class="text-center" style="font-size:10px;border: 1px solid #ddd; padding: 1px; width: auto; white-space: nowrap;" colspan='5'>No tiene contendor</td>
+    //               </tr>`,
+    //             );
+    //           }
+    //         }
+    //       } else {
+    //         $('#consulta_datoupdate').append(
+    //           `<tr>
+    //             <td></td>
+    //             <td></td>
+    //             <td>No hay Documentos</td>
+    //             <td></td>
+    //             <td></td>
+    //             <td></td>
+    //           </tr>`,
+    //         );
+    //       }
+    //     })
+    //     .catch(error => {
+    //       alert(error);
+    //     });
+    // }
 
     // Inicio de estudio se seguridad
-    if (e.target.matches('#inicio_estudio') || e.target.matches('#inicio_estudio *')) {
-      let padre = e.target.parentElement.parentElement;
-      let numsoli = padre.querySelector('#solicitudg').value;
-      let fechag = padre.querySelector('#fechag').value;
-      let horag = padre.querySelector('#horag').value;
-      let usuariog = padre.querySelector('#usuariog').value;
-      let id_conductor = padre.querySelector('#id_conductor').value;
-      let id_vehiculo = padre.querySelector('#id_vehiculo').value;
-      let estudio_id_c = padre.querySelector('#id_estudio').value;
-
-      // Datos a enviar
-      let data = new FormData();
-      data.append('numsoli', numsoli);
-      data.append('fechag', fechag);
-      data.append('horag', horag);
-      data.append('usuariog', usuariog);
-      data.append('id_conductor', id_conductor);
-      data.append('id_vehiculo', id_vehiculo);
-      data.append('estudio_id_c', estudio_id_c);
-
-      await fetch($('#id_url_ajax').val() + 'validacionparametros/Inicio_Estudio_seguridad', {
-        method: 'POST',
-        cache: 'no-cache',
-        body: data,
-      })
-        .then(response => {
-          if (!response.ok) throw new Error(response.statusText);
-          return response.json();
-        })
-        .then(function(data) {
-          if (data.numero === 200) {
-            mensaje = `
-          <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-              <div class="icon"><span class="mdi mdi-check"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-          </div>`;
-
-            Litar_solicitudes();
-            $('#title').show();
-            $('#select_option').show();
-            $('#ver_lista').modal('show');
-            lista_hojas_de_vida(id_vehiculo, id_conductor, numsoli);
-            $('#inicio_estudio').hide();
-            cargarselect();
-            // $('#ver_lista').modal('hide');
-          } else {
-            mensaje = `
-          <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-          </div>`;
-          }
-          d.getElementById('msg_lista').innerHTML = mensaje;
-        })
-        .catch(error => {
-          alert(error);
-        });
-    }
-
-    if (e.target.matches('#aprobarv1') || e.target.matches('#aprobarv1')) {
-      aprobar_vehiculo();
-    } else if (e.target.matches('#noaprobarv1') || e.target.matches('#noaprobarv1')) {
-      desaprobar_vehiculo();
-    }
-
-    if (e.target.matches('#aprobarc1') || e.target.matches('#aprobarc1')) {
-      aprobar_conductor();
-    } else if (e.target.matches('#noaprobarc1') || e.target.matches('#noaprobarc1')) {
-      desaprobar_conductor();
-    }
-
-    //risk
-    if (e.target.matches('#aprobarr1') || e.target.matches('#aprobarr1')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr1') || e.target.matches('#noaprobarr1')) {
-      desaprobar_risk();
-    }
-
-    //runt
-    if (e.target.matches('#aprobarr2') || e.target.matches('#aprobarr2')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr2') || e.target.matches('#noaprobarr2')) {
-      desaprobar_risk();
-    }
-
-    //policia
-    if (e.target.matches('#aprobarr3') || e.target.matches('#aprobarr3')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr3') || e.target.matches('#noaprobarr3')) {
-      desaprobar_risk();
-    }
-
-    //procuraduria
-    if (e.target.matches('#aprobarr4') || e.target.matches('#aprobarr4')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr4') || e.target.matches('#noaprobarr4')) {
-      desaprobar_risk();
-    }
-
-    //simit
-    if (e.target.matches('#aprobarr5') || e.target.matches('#aprobarr5')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr5') || e.target.matches('#noaprobarr5')) {
-      desaprobar_risk();
-    }
-
-    //siscomn
-    if (e.target.matches('#aprobarr6') || e.target.matches('#aprobarr6')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr6') || e.target.matches('#noaprobarr6')) {
-      desaprobar_risk();
-    }
-
-    //adres
-    if (e.target.matches('#aprobarr7') || e.target.matches('#aprobarr7')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr7') || e.target.matches('#noaprobarr7')) {
-      desaprobar_risk();
-    }
-
-    //gps
-    if (e.target.matches('#aprobarr8') || e.target.matches('#aprobarr8')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr8') || e.target.matches('#noaprobarr8')) {
-      desaprobar_risk();
-    }
-
-    //datos preestudio
-    if (e.target.matches('#aprobarr9') || e.target.matches('#aprobarr9')) {
-      aprobar_risk();
-    } else if (e.target.matches('#noaprobarr9') || e.target.matches('#noaprobarr9')) {
-      desaprobar_risk();
-    }
-
-    if (e.target.matches('#aprobar_estudio_total') || e.target.matches('#aprobar_estudio_total *')) {
-      if (window.confirm('¿Estás seguro de enviar esta respuesta?')) {
-        // Código a ejecutar si el usuario hace clic en "Aceptar"
-
-        var select = $('#estado_estu').val();
-        var idvehiculo = $('#idvehiculo').val();
-        var idconductor = $('#idconductor').val();
-        var idestudio = $('#idstudy').val();
-        var estado = $('#estado_estu').val();
-        var obse = $('#obse_estu').val();
-        var usuario = $('#ee_usuario').val();
-        var id_preestudio = $('#id_preestudioc').val();
-
-        if (select == 'Aprobado') {
-          //validar requeridos
-          var sw2 = 's';
-          var tipoestu = {
-            idestudio: idestudio,
-            // action: 'tipos_estudio'
-          };
-
-          $.ajax({
-            url: $('#id_url_ajax').val() + 'validacionparametros/tipos_estudios',
-            type: 'POST',
-            data: tipoestu,
-            dataType: 'json',
-            success: function(data) {
-              if (data != '') {
-                //resultado de tb aprobaciones x seguridad
-                var tmp = Array();
-
-                tmp = data;
-
-                var c = tmp.length;
-
-                var sw = 0;
-
-                for (i = 0; i <= c; i++) {
-                  // idtipos = tmp[i][1];
-
-                  if (tmp[i][2] == 0 && tmp[i][3] == 1) {
-                    sw = 1;
-
-                    // alert('No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ' + tmp[i][5]);
-
-                    mensaje = `
-
-                    <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                        <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                        <div class="message">
-
-                          <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                          <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ${tmp[i][5]}
-
-                        </div>
-
-                    </div>`;
-
-                    d.getElementById('historico_estudios').innerHTML = mensaje;
-                  }
-
-                  if (tmp[i][2] == null && tmp[i][3] == 1) {
-                    sw = 1;
-
-                    // alert('No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar ' + tmp[i][5]);
-
-                    mensaje = `
-
-                    <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                        <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                        <div class="message">
-
-                          <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                          <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar ${tmp[i][5]}
-
-                        </div>
-
-                    </div>`;
-
-                    d.getElementById('historico_estudios').innerHTML = mensaje;
-                  }
-
-                  if (sw == 0 && i == c - 1) {
-                    var data = null;
-
-                    data = new FormData();
-
-                    data.append('idcarro', $('#idvehiculo').val());
-
-                    data.append('idcondu', $('#idconductor').val());
-
-                    data.append('idestudio', $('#idstudy').val());
-
-                    data.append('obser', $('#obse_estu').val());
-
-                    data.append('user', $('#ee_usuario').val());
-
-                    data.append('proceso', $('#proceso').val());
-
-                    data.append('proceso_estudio', $('#proceso_estudio').val());
-
-                    data.append('estado', 'Aprobado');
-
-                    data.append('id_estudio_c', $('#id_estudio').val());
-
-                    // data.append("causalidad", $("#causalidad").val());
-
-                    $.ajax({
-                      url: $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total',
-
-                      type: 'POST',
-
-                      data: data,
-
-                      cache: false,
-
-                      processData: false, // Don't process the files
-
-                      contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-
-                      dataType: 'json',
-
-                      success: function(data, textStatus, jqXHR) {
-                        // alert('Datos del Estudio Registrados Exitosamente');
-
-                        if (data.numero === 200) {
-                          mensaje = `
-
-                          <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                              <div class="icon"><span class="mdi mdi-check"></span></div>
-
-                              <div class="message">
-
-                                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                                <strong>Mensaje!</strong> ${data.mensaje}
-
-                              </div>
-
-                          </div>`;
-
-                          Litar_solicitudes();
-
-                          $('#title').show();
-
-                          $('#select_option').show();
-
-                          $('#ver_lista').modal('hide');
-
-                          // push(idvehiculo, idconductor, idestudio, estado, obse, usuario);
-                        } else {
-                          mensaje = `
-
-                          <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                              <div class="message">
-
-                                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                                <strong>Mensaje!</strong> ${data.mensaje}
-
-                              </div>
-
-                          </div>`;
-
-                          Litar_solicitudes();
-
-                          $('#title').show();
-
-                          $('#select_option').show();
-
-                          $('#ver_lista').modal('hide');
-                        }
-
-                        d.querySelector('.nexos-messages').innerHTML = mensaje;
-
-                        // solicitudes();
-                      },
-
-                      error: function(jqXHR, textStatus, errorThrown) {
-                        // alert('Datos del Estudio Registrados Exitosamente');
-
-                        $('#ver_lista').modal('hide');
-
-                        // solicitudes();
-
-                        console.log('no inserto hv conductor');
-
-                        console.log(jqXHR);
-
-                        console.log(textStatus);
-
-                        console.log(errorThrown);
-                      },
-                    });
-                  }
-                }
-              } else {
-                mensaje = `
-
-                <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                    <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                    <div class="message">
-
-                      <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                      <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar
-
-                    </div>
-
-                </div>`;
-
-                d.getElementById('historico_estudios').innerHTML = mensaje;
-
-                // $("#ver_lista").animate({ scrollTop: 0 }, 900);
-              } //termina data.result
-            },
-
-            error: function(jqXHR, textStatus, errorThrown) {
-              alert('ocurrio un error');
-
-              console.log(jqXHR);
-
-              console.log(textStatus);
-
-              console.log(errorThrown);
-            },
-          });
-        }
-
-        if (select == 'Rechazado') {
-          var url = $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total';
-
-          var data = null;
-
-          data = new FormData();
-
-          data.append('idcarro', $('#idvehiculo').val());
-
-          data.append('idcondu', $('#idconductor').val());
-
-          data.append('idestudio', $('#idstudy').val());
-
-          data.append('obser', $('#obse_estu').val());
-
-          data.append('user', $('#ee_usuario').val());
-
-          data.append('proceso', $('#proceso').val());
-
-          data.append('proceso_estudio', $('#proceso_estudio').val());
-
-          data.append('estado', 'Rechazado');
-
-          data.append('id_estudio_c', $('#id_estudio').val());
-
-          data.append('causalidad', $('#causalidad').val());
-
-          $.ajax({
-            url: url,
-
-            type: 'POST',
-
-            data: data,
-
-            cache: false,
-
-            processData: false, // Don't process the files
-
-            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-
-            dataType: 'json',
-
-            success: function(data, textStatus, jqXHR) {
-              if (data.numero === 200) {
-                mensaje = `
-
-                <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                    <div class="icon"><span class="mdi mdi-check"></span></div>
-
-                    <div class="message">
-
-                      <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                      <strong>Mensaje!</strong> ${data.mensaje}
-
-                    </div>
-
-                </div>`;
-
-                $('#ver_lista').modal('hide');
-
-                Litar_solicitudes();
-
-                // push(idvehiculo, idconductor, idestudio, estado, obse, usuario);
-              } else {
-                mensaje = `
-
-                <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                    <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                    <div class="message">
-
-                      <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                      <strong>Mensaje!</strong> ${data.mensaje}
-
-                    </div>
-
-                </div>`;
-
-                $('#ver_lista').modal('hide');
-              }
-
-              d.getElementById('historico_estudios').innerHTML = mensaje;
-
-              // solicitudes();
-            },
-
-            error: function(jqXHR, textStatus, errorThrown) {
-              alert('Datos del Estudio Registrados Exitosamente');
-
-              solicitudes();
-
-              console.log('no inserto hv conductor');
-
-              console.log(jqXHR);
-
-              console.log(textStatus);
-
-              console.log(errorThrown);
-            },
-          });
-        }
-
-        if (select == 'Pendiente') {
-          //validar requeridos
-
-          var sw2 = 's';
-
-          var tipoestu = {
-            idestudio: idestudio,
-
-            // action: 'tipos_estudio'
-          };
-
-          $.ajax({
-            url: $('#id_url_ajax').val() + 'validacionparametros/tipos_estudios',
-
-            type: 'POST',
-
-            data: tipoestu,
-
-            dataType: 'json',
-
-            success: function(data) {
-              if (data != '') {
-                //resultado de tb aprobaciones x seguridad
-
-                var tmp = Array();
-
-                tmp = data;
-
-                var c = tmp.length;
-
-                var sw = 0;
-
-                for (i = 0; i <= c; i++) {
-                  // idtipos = tmp[i][1];
-
-                  if (tmp[i][2] == 0 && tmp[i][3] == 1) {
-                    sw = 1;
-
-                    // alert('No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ' + tmp[i][5]);
-
-                    mensaje = `
-
-                    <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                        <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                        <div class="message">
-
-                          <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                          <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ${tmp[i][5]}
-
-                        </div>
-
-                    </div>`;
-
-                    d.getElementById('historico_estudios').innerHTML = mensaje;
-                  }
-
-                  if (tmp[i][2] == null && tmp[i][3] == 1) {
-                    sw = 1;
-
-                    // alert('No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar ' + tmp[i][5]);
-
-                    mensaje = `
-
-                    <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                        <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                        <div class="message">
-
-                          <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                          <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar ${tmp[i][5]}
-
-                        </div>
-
-                    </div>`;
-
-                    d.getElementById('historico_estudios').innerHTML = mensaje;
-                  }
-
-                  if (sw == 0 && i == c - 1) {
-                    var url = $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total';
-
-                    var data = null;
-
-                    data = new FormData();
-
-                    // data.append("accion", 'aprobacioncompleta');
-
-                    data.append('idcarro', $('#idvehiculo').val());
-
-                    data.append('idcondu', $('#idconductor').val());
-
-                    data.append('idestudio', $('#idstudy').val());
-
-                    data.append('obser', $('#obse_estu').val());
-
-                    data.append('user', $('#ee_usuario').val());
-
-                    data.append('proceso', $('#proceso').val());
-
-                    data.append('proceso_estudio', $('#proceso_estudio').val());
-
-                    data.append('estado', 'Pendiente');
-
-                    data.append('id_estudio_c', $('#id_estudio').val());
-
-                    data.append('causalidad', $('#causalidad').val());
-
-                    $.ajax({
-                      url: url,
-
-                      type: 'POST',
-
-                      data: data,
-
-                      cache: false,
-
-                      processData: false, // Don't process the files
-
-                      contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-
-                      dataType: 'json',
-
-                      success: function(data, textStatus, jqXHR) {
-                        if (data.numero === 200) {
-                          mensaje = `
-
-                          <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                              <div class="icon"><span class="mdi mdi-check"></span></div>
-
-                              <div class="message">
-
-                                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                                <strong>Mensaje!</strong> ${data.mensaje}
-
-                              </div>
-
-                          </div>`;
-
-                          $('#ver_lista').modal('hide');
-
-                          Litar_solicitudes();
-
-                          // push(idvehiculo, idconductor, idestudio, estado, obse, usuario);
-                        } else {
-                          mensaje = `
-
-                          <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                              <div class="message">
-
-                                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                                <strong>Mensaje!</strong> ${data.mensaje}
-
-                              </div>
-
-                          </div>`;
-
-                          $('#ver_lista').modal('hide');
-                        }
-
-                        d.getElementById('historico_estudios').innerHTML = mensaje;
-
-                        // solicitudes();
-                      },
-
-                      error: function(jqXHR, textStatus, errorThrown) {
-                        alert('Datos del Estudio Registrados Exitosamente');
-
-                        $('#ver_lista').modal('hide');
-
-                        solicitudes();
-
-                        console.log('no inserto hv conductor');
-
-                        console.log(jqXHR);
-
-                        console.log(textStatus);
-
-                        console.log(errorThrown);
-                      },
-                    });
-                  }
-                }
-              } else {
-                mensaje = `
-
-                <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                    <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                    <div class="message">
-
-                      <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                      <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar
-
-                    </div>
-
-                </div>`;
-
-                d.getElementById('historico_estudios').innerHTML = mensaje;
-
-                // $("#ver_lista").animate({ scrollTop: 0 }, 900);
-              } //termina data.result
-            },
-
-            error: function(jqXHR, textStatus, errorThrown) {
-              alert('ocurrio un error');
-
-              console.log(jqXHR);
-
-              console.log(textStatus);
-
-              console.log(errorThrown);
-            },
-          });
-        }
-
-        if (select == 'Rechazado_modificar') {
-          if (!$('#obse_estu').val()) {
-            alert('Debe diligenciar la observación, por favor escriba brevemente los motivos del rechazo para modificar');
-          } else {
-            // var url = $("#id_url_ajax").val() + "libs/seguridad_estudio_ajax.php";
-
-            var url = $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total';
-
-            var data = null;
-
-            data = new FormData();
-
-            data = new FormData();
-
-            data.append('idcarro', $('#idvehiculo').val());
-
-            data.append('idcondu', $('#idconductor').val());
-
-            data.append('idestudio', $('#idstudy').val());
-
-            data.append('obser', $('#obse_estu').val());
-
-            data.append('user', $('#ee_usuario').val());
-
-            data.append('proceso', $('#proceso').val());
-
-            data.append('proceso_estudio', $('#proceso_estudio').val());
-
-            data.append('estado', 'Rechazado_modificar');
-
-            data.append('id_estudio_c', $('#id_estudio').val());
-
-            data.append('causalidad', $('#causalidad').val());
-
-            $.ajax({
-              url: url,
-
-              type: 'POST',
-
-              data: data,
-
-              cache: false,
-
-              processData: false, // Don't process the files
-
-              contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-
-              dataType: 'json',
-
-              success: function(data, textStatus, jqXHR) {
-                if (data.numero === 200) {
-                  mensaje = `
-
-                  <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                      <div class="icon"><span class="mdi mdi-check"></span></div>
-
-                      <div class="message">
-
-                        <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                        <strong>Mensaje!</strong> ${data.mensaje}
-
-                      </div>
-
-                  </div>`;
-
-                  $('#ver_lista').modal('hide');
-
-                  Litar_solicitudes();
-
-                  // push(idvehiculo, idconductor, idestudio, estado, obse, usuario);
-                } else {
-                  mensaje = `
-
-                  <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-
-                      <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-
-                      <div class="message">
-
-                        <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-
-                        <strong>Mensaje!</strong> ${data.mensaje}
-
-                      </div>
-
-                  </div>`;
-
-                  $('#ver_lista').modal('hide');
-                }
-
-                d.getElementById('historico_estudios').innerHTML = mensaje;
-                // solicitudes();
-              },
-
-              error: function(jqXHR, textStatus, errorThrown) {
-                alert('Datos del Estudio Registrados Exitosamente');
-                $('#ver_lista').modal('hide');
-                solicitudes();
-                console.log('no inserto hv conductor');
-                console.log(jqXHR);
-                console.log(textStatus);
-                console.log(errorThrown);
-              },
-            });
-          }
-        }
-      } else {
-        // Código a ejecutar si el usuario hace clic en "Cancelar"
-
-        console.log('Acción confirmada.');
-      }
-    }
-
-    if (e.target.matches('#btn_respuestas_operaciones') || e.target.matches('#btn_respuestas_operaciones *')) {
-      let padre = e.target.parentElement.parentElement;
-      let num_solicitud = padre.querySelector('.soli_id').value;
-      var dato = {
-        idestudio: num_solicitud,
-      };
-
-      $('#tbr_opera').html('');
-      $('#tbr_seguri').html('');
-      $('#msg_rta_opera').html('');
-
-      $.ajax({
-        url: $('#id_url_ajax').val() + 'validacionparametros/Consultar_respuesta_operaciones',
-        type: 'POST',
-        data: dato,
-        dataType: 'json',
-
-        success: function(data) {
-          if (data !== null) {
-            data.respuesta_operaciones.forEach(function(element, index) {
-              var doc = '';
-              if (element.nom_archivo != null && element.nom_archivo != '') {
-                doc = `<a  href="#" onclick="abrir_fotos('${element.archivo}' , '${element.nom_archivo}')" class="cell-detail hint--top-left" data-hint="">
-                <span class="icon mdi mdi-file-text text-center" data-toggle="modal" title="Documento"></span>
-                </a>`;
-              } else {
-                doc = '<label>Sin archivo</label>';
-              }
-
-              $('#tbr_opera').append(
-                '<tr>' +
-                  '<td>' +
-                  element.estudio_letra +
-                  '</td>' +
-                  '<td>' +
-                  element.fecha +
-                  '</td>' +
-                  '<td>' +
-                  element.hora +
-                  '</td>' +
-                  '<td>' +
-                  element.usuario +
-                  '</td>' +
-                  '<td>' +
-                  element.nota +
-                  '</td>' +
-                  '<td>' +
-                  doc +
-                  '</td></tr>',
-              );
-            });
-          } else if (data == null) {
-            var msg_error = '';
-
-            msg_error += '<p>Aún no hay respuestas por parte de operaciones para este estudio.</p>';
-
-            $('#msg_rta_opera').html(
-              '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Aviso!</strong>' +
-                msg_error +
-                '</div></div>',
-            );
-
-            $('#ver_rta_operaciones').animate(
-              {
-                scrollTop: 0,
-              },
-              600,
-            );
-
-            $('#tbr_opera').html('');
-          }
-
-          if (data !== null) {
-            data.respuesta_seguridad.forEach(function(element, index) {
-              var doc = '';
-
-              if (element.name_evidencia != null && element.name_evidencia != '') {
-                doc = `<a  href="#" onclick="abrir_fotos('${element.ruta_evidencia}' , '${element.name_evidencia}')" class="cell-detail hint--top-left" data-hint="">
-
-                <span class="icon mdi mdi-file-text text-center" data-toggle="modal" title="Documento"></span>
-
-                </a>`;
-              } else {
-                doc = '<label>Sin archivo</label>';
-              }
-
-              var abc = '';
-
-              if (element.estado == 1) {
-                abc = 'Aprobado';
-              } else if (element.estado == 0) {
-                abc = 'Rechazado';
-              }
-
-              $('#tbr_seguri').append(
-                '<tr>' +
-                  '<td>' +
-                  element.estudio +
-                  '</td>' +
-                  '<td>' +
-                  element.fecha +
-                  '</td>' +
-                  '<td>' +
-                  element.hora +
-                  '</td>' +
-                  '<td>' +
-                  element.usuario +
-                  '</td>' +
-                  '<td>' +
-                  element.observacion +
-                  '</td>' +
-                  '<td>' +
-                  abc +
-                  '</td>' +
-                  '<td>' +
-                  doc +
-                  '</td>' +
-                  +'</tr>',
-              );
-            });
-          } else if (data == null) {
-            var msg_error = '';
-
-            msg_error += '<p>Aún no hay respuestas por parte de seguridad para este estudio.</p>';
-
-            $('#msg_rta_opera').html(
-              '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Aviso!</strong>' +
-                msg_error +
-                '</div></div>',
-            );
-
-            $('#ver_rta_operaciones').animate(
-              {
-                scrollTop: 0,
-              },
-              600,
-            );
-
-            $('#tbr_seguri').html('');
-          }
-
-          if (data !== null) {
-            $('#tbr_observaciones').html('');
-
-            data.resultado_observacion.forEach(element => {
-              $('#tbr_observaciones').append(
-                '<tr>' +
-                  "<td style='font-size: 11px;'>" +
-                  element.id +
-                  '</td>' +
-                  "<td style='font-size: 11px;'>" +
-                  element.observacion +
-                  '</td>' +
-                  "<td style='font-size: 11px;'>" +
-                  element.fecha +
-                  '-' +
-                  element.hora +
-                  '</td>' +
-                  "<td style='font-size: 11px;'>" +
-                  element.usuario +
-                  '</td>' +
-                  "<td style='font-size: 11px;'>" +
-                  element.estado +
-                  '</td>' +
-                  +'</tr>',
-              );
-
-              // tbr_observaciones
-            });
-          }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          console.log('error tabla operaciones respuestas');
-          console.log(jqXHR);
-          console.log(textStatus);
-          console.log(errorThrown);
-        },
-      });
-    }
-
-    /* Bonton para envair directamente a la edicion de los vehiculos */
-    if (e.target.matches('#btn_editar_vehiculo') || e.target.matches('#btn_editar_vehiculo *')) {
-      // alert('Hola Mundo');
-      var vehiculo = d.getElementById('btn_editar_vehiculo');
-      var vehiculo_id = vehiculo.getAttribute('data-idvehiculo');
-      var ventanaAncho = screen.width; // Ancho de la pantalla
-      var ventanaAlto = screen.height; // Alto de la pantalla
-      var ventanaIzquierda = 0; // Posición izquierda
-      var ventanaArriba = 0; // Posición superior
-
-      // Opciones para la ventana emergente
-      var opcionesVentana = `width=${ventanaAncho},height=${ventanaAlto},left=${ventanaIzquierda},top=${ventanaArriba},scrollbars=yes,fullscreen=yes`;
-
-      // URL a abrir
-      var url = $('#id_url_ajax').val() + `solicitudes/editar_vehiculo/?num_vehiculo=${codificarBase64(vehiculo_id)}&idmenu=3`;
-
-      // Abre la ventana emergente
-      window.open(url, '_blank', opcionesVentana);
-    }
-
-    /* Boton para editar al condutor */
-    if (e.target.matches('#btn_editar_conductor') || e.target.matches('#btn_editar_conductor *')) {
-      var conductor = d.getElementById('btn_editar_conductor');
-      var conductor_id = conductor.getAttribute('data-idconductor');
-
-      var ventanaAncho = screen.width; // Ancho de la pantalla
-      var ventanaAlto = screen.height; // Alto de la pantalla
-      var ventanaIzquierda = 0; // Posición izquierda
-      var ventanaArriba = 0; // Posición superior
-
-      // Opciones para la ventana emergente
-      var opcionesVentana = `width=${ventanaAncho},height=${ventanaAlto},left=${ventanaIzquierda},top=${ventanaArriba},scrollbars=yes,fullscreen=yes`;
-
-      // URL a abrir  http://principal.nexosapp.com/solicitudes/editar_proveedor/?num_proveedor=OTQ4NA==&idmenu=3
-      var url = $('#id_url_ajax').val() + `solicitudes/editar_proveedor/?num_proveedor=${codificarBase64(conductor_id)}&idmenu=3`;
-
-      // Abre la ventana emergente
-      window.open(url, '_blank', opcionesVentana);
-    }
+    // if (e.target.matches('#inicio_estudio') || e.target.matches('#inicio_estudio *')) {
+    //   let padre = e.target.parentElement.parentElement;
+    //   let numsoli = padre.querySelector('#solicitudg').value;
+    //   let fechag = padre.querySelector('#fechag').value;
+    //   let horag = padre.querySelector('#horag').value;
+    //   let usuariog = padre.querySelector('#usuariog').value;
+    //   let id_conductor = padre.querySelector('#id_conductor').value;
+    //   let id_vehiculo = padre.querySelector('#id_vehiculo').value;
+    //   let estudio_id_c = padre.querySelector('#id_estudio').value;
+
+    //   // Datos a enviar
+    //   let data = new FormData();
+    //   data.append('numsoli', numsoli);
+    //   data.append('fechag', fechag);
+    //   data.append('horag', horag);
+    //   data.append('usuariog', usuariog);
+    //   data.append('id_conductor', id_conductor);
+    //   data.append('id_vehiculo', id_vehiculo);
+    //   data.append('estudio_id_c', estudio_id_c);
+
+    //   await fetch($('#id_url_ajax').val() + 'validacionparametros/Inicio_Estudio_seguridad', {
+    //     method: 'POST',
+    //     cache: 'no-cache',
+    //     body: data,
+    //   })
+    //     .then(response => {
+    //       if (!response.ok) throw new Error(response.statusText);
+    //       return response.json();
+    //     })
+    //     .then(function (data) {
+    //       if (data.numero === 200) {
+    //         mensaje = `
+    //       <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //           <div class="icon"><span class="mdi mdi-check"></span></div>
+    //           <div class="message">
+    //             <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //             <strong>Mensaje!</strong> ${data.mensaje}
+    //           </div>
+    //       </div>`;
+
+    //         Litar_solicitudes();
+    //         $('#title').show();
+    //         $('#select_option').show();
+    //         $('#ver_lista').modal('show');
+    //         lista_hojas_de_vida(id_vehiculo, id_conductor, numsoli);
+    //         $('#inicio_estudio').hide();
+    //         cargarselect();
+    //         // $('#ver_lista').modal('hide');
+    //       } else {
+    //         mensaje = `
+    //       <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //           <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //           <div class="message">
+    //             <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //             <strong>Mensaje!</strong> ${data.mensaje}
+    //           </div>
+    //       </div>`;
+    //       }
+    //       d.getElementById('msg_lista').innerHTML = mensaje;
+    //     })
+    //     .catch(error => {
+    //       alert(error);
+    //     });
+    // }
+
+    // if (e.target.matches('#aprobarv1') || e.target.matches('#aprobarv1')) {
+    //   aprobar_vehiculo();
+    // } else if (e.target.matches('#noaprobarv1') || e.target.matches('#noaprobarv1')) {
+    //   desaprobar_vehiculo();
+    // }
+
+    // if (e.target.matches('#aprobarc1') || e.target.matches('#aprobarc1')) {
+    //   aprobar_conductor();
+    // } else if (e.target.matches('#noaprobarc1') || e.target.matches('#noaprobarc1')) {
+    //   desaprobar_conductor();
+    // }
+
+    // //risk
+    // if (e.target.matches('#aprobarr1') || e.target.matches('#aprobarr1')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr1') || e.target.matches('#noaprobarr1')) {
+    //   desaprobar_risk();
+    // }
+
+    // //runt
+    // if (e.target.matches('#aprobarr2') || e.target.matches('#aprobarr2')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr2') || e.target.matches('#noaprobarr2')) {
+    //   desaprobar_risk();
+    // }
+
+    // //policia
+    // if (e.target.matches('#aprobarr3') || e.target.matches('#aprobarr3')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr3') || e.target.matches('#noaprobarr3')) {
+    //   desaprobar_risk();
+    // }
+
+    // //procuraduria
+    // if (e.target.matches('#aprobarr4') || e.target.matches('#aprobarr4')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr4') || e.target.matches('#noaprobarr4')) {
+    //   desaprobar_risk();
+    // }
+
+    // //simit
+    // if (e.target.matches('#aprobarr5') || e.target.matches('#aprobarr5')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr5') || e.target.matches('#noaprobarr5')) {
+    //   desaprobar_risk();
+    // }
+
+    // //siscomn
+    // if (e.target.matches('#aprobarr6') || e.target.matches('#aprobarr6')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr6') || e.target.matches('#noaprobarr6')) {
+    //   desaprobar_risk();
+    // }
+
+    // //adres
+    // if (e.target.matches('#aprobarr7') || e.target.matches('#aprobarr7')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr7') || e.target.matches('#noaprobarr7')) {
+    //   desaprobar_risk();
+    // }
+
+    // //gps
+    // if (e.target.matches('#aprobarr8') || e.target.matches('#aprobarr8')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr8') || e.target.matches('#noaprobarr8')) {
+    //   desaprobar_risk();
+    // }
+
+    // //datos preestudio
+    // if (e.target.matches('#aprobarr9') || e.target.matches('#aprobarr9')) {
+    //   aprobar_risk();
+    // } else if (e.target.matches('#noaprobarr9') || e.target.matches('#noaprobarr9')) {
+    //   desaprobar_risk();
+    // }
+
+    // if (e.target.matches('#aprobar_estudio_total') || e.target.matches('#aprobar_estudio_total *')) {
+    //   let BtnAprobacionTotal = e.target.closest('#aprobar_estudio_total');
+    //   let SolicitudId = BtnAprobacionTotal.getAttribute('data-SolicitudId');
+    //   //SolicitudId
+    //   if (window.confirm('¿Estás seguro de enviar esta respuesta?')) {
+    //     // Código a ejecutar si el usuario hace clic en "Aceptar"
+
+    //     var select = $('#estado_estu').val();
+    //     var idvehiculo = $('#idvehiculo').val();
+    //     var idconductor = $('#idconductor').val();
+    //     var idestudio = $('#idstudy').val();
+    //     var estado = $('#estado_estu').val();
+    //     var obse = $('#obse_estu').val();
+    //     var usuario = $('#ee_usuario').val();
+    //     var id_preestudio = $('#id_preestudioc').val();
+
+    //     if (select === 'Aprobado') {
+    //       //validar requeridos
+    //       var sw2 = 's';
+    //       var tipoestu = {
+    //         idestudio: idestudio,
+    //         // action: 'tipos_estudio'
+    //       };
+
+    //       $.ajax({
+    //         url: $('#id_url_ajax').val() + 'validacionparametros/tipos_estudios',
+    //         type: 'POST',
+    //         data: tipoestu,
+    //         dataType: 'json',
+    //         success: function (data) {
+    //           if (data != '') {
+    //             //resultado de tb aprobaciones x seguridad
+    //             var tmp = Array();
+    //             tmp = data;
+    //             var c = tmp.length;
+    //             var sw = 0;
+    //             for (i = 0; i <= c; i++) {
+    //               // idtipos = tmp[i][1];
+    //               if (tmp[i][2] == 0 && tmp[i][3] == 1) {
+    //                 sw = 1;
+    //                 // alert('No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ' + tmp[i][5]);
+    //                 mensaje = `
+    //                 <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                     <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                     <div class="message">
+    //                       <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                       <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ${tmp[i][5]}
+    //                     </div>
+    //                 </div>`;
+    //                 d.getElementById('historico_estudios').innerHTML = mensaje;
+    //               }
+
+    //               if (tmp[i][2] == null && tmp[i][3] == 1) {
+    //                 sw = 1;
+    //                 // alert('No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar ' + tmp[i][5]);
+    //                 mensaje = `
+    //                 <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                     <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                     <div class="message">
+    //                       <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                       <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar ${tmp[i][5]}
+    //                     </div>
+    //                 </div>`;
+    //                 d.getElementById('historico_estudios').innerHTML = mensaje;
+    //               }
+
+    //               if (sw == 0 && i == c - 1) {
+    //                 var data = null;
+
+    //                 data = new FormData();
+    //                 data.append('idcarro', $('#idvehiculo').val());
+    //                 data.append('idcondu', $('#idconductor').val());
+    //                 data.append('idestudio', $('#idstudy').val());
+    //                 data.append('obser', $('#obse_estu').val());
+    //                 data.append('user', $('#ee_usuario').val());
+    //                 data.append('proceso', $('#proceso').val());
+    //                 data.append('proceso_estudio', $('#proceso_estudio').val());
+    //                 data.append('estado', 'Aprobado');
+    //                 data.append('id_estudio_c', $('#id_estudio').val());
+    //                 data.append('id_escenario', $('#id_escenario').val());
+    //                 data.append('SolicitudId', SolicitudId);
+
+    //                 // data.append("causalidad", $("#causalidad").val());
+
+    //                 $.ajax({
+    //                   url: $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total',
+    //                   type: 'POST',
+    //                   data: data,
+    //                   cache: false,
+    //                   processData: false, // Don't process the files
+    //                   contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+    //                   dataType: 'json',
+    //                   success: function (data, textStatus, jqXHR) {
+    //                     // alert('Datos del Estudio Registrados Exitosamente');
+    //                     if (data.numero === 200) {
+    //                       mensaje = `
+    //                       <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                           <div class="icon"><span class="mdi mdi-check"></span></div>
+    //                           <div class="message">
+    //                             <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                             <strong>Mensaje!</strong> ${data.mensaje}
+    //                           </div>
+    //                       </div>`;
+
+    //                       Litar_solicitudes();
+    //                       $('#title').show();
+    //                       $('#select_option').show();
+    //                       $('#ver_lista').modal('hide');
+
+    //                       // push(idvehiculo, idconductor, idestudio, estado, obse, usuario);
+    //                     } else {
+    //                       mensaje = `
+    //                       <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                           <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                           <div class="message">
+    //                             <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                             <strong>Mensaje!</strong> ${data.mensaje}
+    //                           </div>
+    //                       </div>`;
+
+    //                       Litar_solicitudes();
+    //                       $('#title').show();
+    //                       $('#select_option').show();
+    //                       $('#ver_lista').modal('hide');
+    //                     }
+    //                     d.querySelector('.nexos-messages').innerHTML = mensaje;
+    //                     // solicitudes();
+    //                   },
+
+    //                   error: function (jqXHR, textStatus, errorThrown) {
+    //                     // alert('Datos del Estudio Registrados Exitosamente');
+    //                     $('#ver_lista').modal('hide');
+    //                     // solicitudes();
+    //                     console.log('no inserto hv conductor');
+    //                     console.log(jqXHR);
+    //                     console.log(textStatus);
+    //                     console.log(errorThrown);
+    //                   },
+    //                 });
+    //               }
+    //             }
+    //           } else {
+    //             mensaje = `
+    //             <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                 <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                 <div class="message">
+    //                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                   <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar
+    //                 </div>
+    //             </div>`;
+    //             d.getElementById('historico_estudios').innerHTML = mensaje;
+    //             // $("#ver_lista").animate({ scrollTop: 0 }, 900);
+    //           } //termina data.result
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //           alert('ocurrio un error');
+    //           console.log(jqXHR);
+    //           console.log(textStatus);
+    //           console.log(errorThrown);
+    //         },
+    //       });
+    //     }
+
+    //     if (select === 'Rechazado') {
+    //       var url = $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total';
+
+    //       var data = null;
+
+    //       data = new FormData();
+
+    //       data.append('idcarro', $('#idvehiculo').val());
+    //       data.append('idcondu', $('#idconductor').val());
+    //       data.append('idestudio', $('#idstudy').val());
+    //       data.append('obser', $('#obse_estu').val());
+    //       data.append('user', $('#ee_usuario').val());
+    //       data.append('proceso', $('#proceso').val());
+    //       data.append('proceso_estudio', $('#proceso_estudio').val());
+    //       data.append('estado', 'Rechazado');
+    //       data.append('id_estudio_c', $('#id_estudio').val());
+    //       data.append('causalidad', $('#causalidad').val());
+    //       data.append('id_escenario', $('#id_escenario').val());
+    //       data.append('SolicitudId', SolicitudId);
+
+    //       $.ajax({
+    //         url: url,
+    //         type: 'POST',
+    //         data: data,
+    //         cache: false,
+    //         processData: false, // Don't process the files
+    //         contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+    //         dataType: 'json',
+
+    //         success: function (data, textStatus, jqXHR) {
+    //           if (data.numero === 200) {
+    //             mensaje = `
+    //             <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                 <div class="icon"><span class="mdi mdi-check"></span></div>
+    //                 <div class="message">
+    //                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                   <strong>Mensaje!</strong> ${data.mensaje}
+    //                 </div>
+    //             </div>`;
+    //             $('#ver_lista').modal('hide');
+    //             Litar_solicitudes();
+    //             // push(idvehiculo, idconductor, idestudio, estado, obse, usuario);
+    //           } else {
+    //             mensaje = `
+    //             <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                 <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                 <div class="message">
+    //                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                   <strong>Mensaje!</strong> ${data.mensaje}
+    //                 </div>
+    //             </div>`;
+    //             $('#ver_lista').modal('hide');
+    //           }
+    //           d.getElementById('historico_estudios').innerHTML = mensaje;
+    //           // solicitudes();
+    //         },
+
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //           alert('Datos del Estudio Registrados Exitosamente');
+    //           solicitudes();
+    //           console.log('no inserto hv conductor');
+    //           console.log(jqXHR);
+    //           console.log(textStatus);
+    //           console.log(errorThrown);
+    //         },
+    //       });
+    //     }
+
+    //     // if (select === 'Pendiente') {
+    //     //   //validar requeridos
+    //     //   var sw2 = 's';
+    //     //   var tipoestu = {
+    //     //     idestudio: idestudio,
+    //     //     // action: 'tipos_estudio'
+    //     //   };
+
+    //     //   $.ajax({
+    //     //     url: $('#id_url_ajax').val() + 'validacionparametros/tipos_estudios',
+    //     //     type: 'POST',
+    //     //     data: tipoestu,
+    //     //     dataType: 'json',
+    //     //     success: function (data) {
+    //     //       if (data != '') {
+    //     //         //resultado de tb aprobaciones x seguridad
+    //     //         var tmp = Array();
+    //     //         tmp = data;
+    //     //         console.log("🚀 ~ tmp:", tmp)
+    //     //         var c = tmp.length;
+    //     //         var sw = 0;
+    //     //         for (i = 0; i <= c; i++) {
+    //     //           // idtipos = tmp[i][1];
+    //     //           // console.log("🚀 ~ tmp[i][2]:", tmp[i][2])
+    //     //           if (tmp[i][2] == 0 && tmp[i][3] == 1) {
+    //     //             sw = 1;
+    //     //             // alert('No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ' + tmp[i][5]);
+    //     //             mensaje = `
+    //     //             <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //     //                 <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //     //                 <div class="message">
+    //     //                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //     //                   <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ${tmp[i][5]}
+    //     //                 </div>
+    //     //             </div>`;
+    //     //             d.getElementById('historico_estudios').innerHTML = mensaje;
+    //     //           }
+
+    //     //           if (tmp[i][2] == null && tmp[i][3] == 1) {
+    //     //             sw = 1;
+    //     //             // alert('No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar ' + tmp[i][5]);
+    //     //             mensaje = `
+    //     //             <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //     //                 <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //     //                 <div class="message">
+    //     //                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //     //                   <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar ${tmp[i][5]}
+    //     //                 </div>
+    //     //             </div>`;
+    //     //             d.getElementById('historico_estudios').innerHTML = mensaje;
+    //     //           }
+
+    //     //           if (sw == 0 && i == c - 1) {
+    //     //             var url = $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total';
+    //     //             var data = null;
+    //     //             data = new FormData();
+
+    //     //             // data.append("accion", 'aprobacioncompleta');
+
+    //     //             data.append('idcarro', $('#idvehiculo').val());
+    //     //             data.append('idcondu', $('#idconductor').val());
+    //     //             data.append('idestudio', $('#idstudy').val());
+    //     //             data.append('obser', $('#obse_estu').val());
+    //     //             data.append('user', $('#ee_usuario').val());
+    //     //             data.append('proceso', $('#proceso').val());
+    //     //             data.append('proceso_estudio', $('#proceso_estudio').val());
+    //     //             data.append('estado', 'Pendiente');
+    //     //             data.append('id_estudio_c', $('#id_estudio').val());
+    //     //             data.append('causalidad', $('#causalidad').val());
+    //     //             data.append('id_escenario', $('#id_escenario').val());
+    //     //             data.append('SolicitudId', SolicitudId);
+
+    //     //             $.ajax({
+    //     //               url: url,
+    //     //               type: 'POST',
+    //     //               data: data,
+    //     //               cache: false,
+    //     //               processData: false, // Don't process the files
+    //     //               contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+    //     //               dataType: 'json',
+
+    //     //               success: function (data, textStatus, jqXHR) {
+    //     //                 if (data.numero === 200) {
+    //     //                   mensaje = `
+    //     //                   <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //     //                       <div class="icon"><span class="mdi mdi-check"></span></div>
+    //     //                       <div class="message">
+    //     //                         <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //     //                         <strong>Mensaje!</strong> ${data.mensaje}
+    //     //                       </div>
+    //     //                   </div>`;
+    //     //                   $('#ver_lista').modal('hide');
+    //     //                   Litar_solicitudes();
+    //     //                   // push(idvehiculo, idconductor, idestudio, estado, obse, usuario);
+    //     //                 } else {
+    //     //                   mensaje = `
+    //     //                   <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //     //                       <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //     //                       <div class="message">
+    //     //                         <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //     //                         <strong>Mensaje!</strong> ${data.mensaje}
+    //     //                       </div>
+    //     //                   </div>`;
+    //     //                   $('#ver_lista').modal('hide');
+    //     //                 }
+    //     //                 d.getElementById('historico_estudios').innerHTML = mensaje;
+    //     //                 // solicitudes();
+    //     //               },
+
+    //     //               error: function (jqXHR, textStatus, errorThrown) {
+    //     //                 // alert('Datos del Estudio Registrados Exitosamente');
+    //     //                 // $('#ver_lista').modal('hide');
+    //     //                 // solicitudes();
+    //     //                 // console.log('no inserto hv conductor');
+    //     //                 console.log(jqXHR);
+    //     //                 console.log(textStatus);
+    //     //                 console.log(errorThrown);
+    //     //               },
+    //     //             });
+    //     //           }
+    //     //         }
+    //     //       } else {
+    //     //         mensaje = `
+    //     //         <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //     //             <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //     //             <div class="message">
+    //     //               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //     //               <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar
+    //     //             </div>
+    //     //         </div>`;
+    //     //         d.getElementById('historico_estudios').innerHTML = mensaje;
+    //     //         // $("#ver_lista").animate({ scrollTop: 0 }, 900);
+    //     //       } //termina data.result
+    //     //     },
+    //     //     error: function (jqXHR, textStatus, errorThrown) {
+    //     //       alert('ocurrio un error');
+    //     //       console.log(jqXHR);
+    //     //       console.log(textStatus);
+    //     //       console.log(errorThrown);
+    //     //     },
+    //     //   });
+    //     // }
+
+    //     if (select === 'Pendiente') {
+    //       var tipoestu = {
+    //         idestudio: idestudio
+    //       };
+
+    //       $.ajax({
+    //         url: $('#id_url_ajax').val() + 'validacionparametros/tipos_estudios',
+    //         type: 'POST',
+    //         data: tipoestu,
+    //         dataType: 'json',
+    //         success: function (data) {
+    //           if (data && data.length > 0) {
+    //             let tmp = data;
+    //             let sw = 0;
+
+    //             for (let i = 0; i < tmp.length; i++) {
+    //               const tipo = tmp[i];
+
+    //               if (tipo.estado === 0 && tipo.requerido === 1) {
+    //                 sw = 1;
+    //                 let mensaje = `
+    //                     <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                         <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                         <div class="message">
+    //                           <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                           <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio rechazados que son obligatorios: ${tipo.estudio}
+    //                         </div>
+    //                     </div>`;
+    //                 document.getElementById('historico_estudios').innerHTML = mensaje;
+    //                 break;
+    //               }
+
+    //               if ((tipo.estado === null || tipo.estado === undefined) && tipo.requerido === 1) {
+    //                 sw = 1;
+    //                 let mensaje = `
+    //                   <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                       <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                       <div class="message">
+    //                         <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                         <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar: ${tipo.estudio}
+    //                       </div>
+    //                   </div>`;
+    //                 document.getElementById('historico_estudios').innerHTML = mensaje;
+    //                 break;
+    //               }
+
+    //               // Si termina el ciclo sin problemas
+    //               if (sw === 0 && i === tmp.length - 1) {
+    //                 let url = $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total';
+    //                 let formData = new FormData();
+
+    //                 formData.append('idcarro', $('#idvehiculo').val());
+    //                 formData.append('idcondu', $('#idconductor').val());
+    //                 formData.append('idestudio', $('#idstudy').val());
+    //                 formData.append('obser', $('#obse_estu').val());
+    //                 formData.append('user', $('#ee_usuario').val());
+    //                 formData.append('proceso', $('#proceso').val());
+    //                 formData.append('proceso_estudio', $('#proceso_estudio').val());
+    //                 formData.append('estado', 'Pendiente');
+    //                 formData.append('id_estudio_c', $('#id_estudio').val());
+    //                 formData.append('causalidad', $('#causalidad').val());
+    //                 formData.append('id_escenario', $('#id_escenario').val());
+    //                 formData.append('SolicitudId', SolicitudId);
+
+    //                 $.ajax({
+    //                   url: url,
+    //                   type: 'POST',
+    //                   data: formData,
+    //                   cache: false,
+    //                   processData: false,
+    //                   contentType: false,
+    //                   dataType: 'json',
+    //                   success: function (data) {
+    //                     let mensaje = '';
+    //                     if (data.numero === 200) {
+    //                       mensaje = `
+    //                         <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                             <div class="icon"><span class="mdi mdi-check"></span></div>
+    //                             <div class="message">
+    //                               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                               <strong>Mensaje!</strong> ${data.mensaje}
+    //                             </div>
+    //                         </div>`;
+    //                       $('#ver_lista').modal('hide');
+    //                       Litar_solicitudes();
+    //                     } else {
+    //                       mensaje = `
+    //                         <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                             <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                             <div class="message">
+    //                               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                               <strong>Mensaje!</strong> ${data.mensaje}
+    //                             </div>
+    //                         </div>`;
+    //                       $('#ver_lista').modal('hide');
+    //                     }
+    //                     document.getElementById('historico_estudios').innerHTML = mensaje;
+    //                   },
+    //                   error: function (jqXHR, textStatus, errorThrown) {
+    //                     alert('Ocurrió un error al aprobar el estudio');
+    //                     console.error(jqXHR, textStatus, errorThrown);
+    //                   }
+    //                 });
+    //               }
+    //             }
+    //           } else {
+    //             let mensaje = `
+    //               <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                   <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                   <div class="message">
+    //                     <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                     <strong>Mensaje!</strong> No es posible aprobar el estudio completo cuando tiene tipos de estudio que son obligatorios sin contestar
+    //                   </div>
+    //               </div>`;
+    //             document.getElementById('historico_estudios').innerHTML = mensaje;
+    //           }
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //           alert('Ocurrió un error en la validación de tipos de estudio');
+    //           console.error(jqXHR, textStatus, errorThrown);
+    //         }
+    //       });
+    //     }
+
+    //     if (select === 'Rechazado_modificar') {
+    //       if (!$('#obse_estu').val()) {
+    //         alert('Debe diligenciar la observación, por favor escriba brevemente los motivos del rechazo para modificar');
+    //       } else {
+    //         // var url = $("#id_url_ajax").val() + "libs/seguridad_estudio_ajax.php";
+
+    //         var url = $('#id_url_ajax').val() + 'validacionparametros/Aprobacion_total';
+
+    //         var data = null;
+
+    //         data = new FormData();
+    //         data.append('idcarro', $('#idvehiculo').val());
+    //         data.append('idcondu', $('#idconductor').val());
+    //         data.append('idestudio', $('#idstudy').val());
+    //         data.append('obser', $('#obse_estu').val());
+    //         data.append('user', $('#ee_usuario').val());
+    //         data.append('proceso', $('#proceso').val());
+    //         data.append('proceso_estudio', $('#proceso_estudio').val());
+    //         data.append('estado', 'Rechazado_modificar');
+    //         data.append('id_estudio_c', $('#id_estudio').val());
+    //         data.append('causalidad', $('#causalidad').val());
+    //         data.append('id_escenario', $('#id_escenario').val());
+    //         data.append('SolicitudId', SolicitudId);
+
+    //         $.ajax({
+    //           url: url,
+    //           type: 'POST',
+    //           data: data,
+    //           cache: false,
+    //           processData: false, // Don't process the files
+    //           contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+    //           dataType: 'json',
+
+    //           success: function (data, textStatus, jqXHR) {
+    //             if (data.numero === 200) {
+    //               mensaje = `
+    //               <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                   <div class="icon"><span class="mdi mdi-check"></span></div>
+    //                   <div class="message">
+    //                     <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                     <strong>Mensaje!</strong> ${data.mensaje}
+    //                   </div>
+    //               </div>`;
+    //               $('#ver_lista').modal('hide');
+    //               Litar_solicitudes();
+    //               // push(idvehiculo, idconductor, idestudio, estado, obse, usuario);
+    //             } else {
+    //               mensaje = `
+    //               <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+    //                   <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+    //                   <div class="message">
+    //                     <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+    //                     <strong>Mensaje!</strong> ${data.mensaje}
+    //                   </div>
+    //               </div>`;
+    //               $('#ver_lista').modal('hide');
+    //             }
+    //             d.getElementById('historico_estudios').innerHTML = mensaje;
+    //             // solicitudes();
+    //           },
+
+    //           error: function (jqXHR, textStatus, errorThrown) {
+    //             // alert('Datos del Estudio Registrados Exitosamente');
+    //             $('#ver_lista').modal('hide');
+    //             solicitudes();
+    //             console.log('no inserto hv conductor');
+    //             console.log(jqXHR);
+    //             console.log(textStatus);
+    //             console.log(errorThrown);
+    //           },
+    //         });
+    //       }
+    //     }
+    //   } else {
+    //     // Código a ejecutar si el usuario hace clic en "Cancelar"
+    //     console.log('Acción confirmada.');
+    //   }
+    // }
+
+    // if (e.target.matches('#btn_respuestas_operaciones') || e.target.matches('#btn_respuestas_operaciones *')) {
+    //   let padre = e.target.parentElement.parentElement;
+    //   let num_solicitud = padre.querySelector('.soli_id').value;
+    //   var dato = {
+    //     idestudio: num_solicitud,
+    //   };
+
+    //   $('#tbr_opera').html('');
+    //   $('#tbr_seguri').html('');
+    //   $('#msg_rta_opera').html('');
+
+    //   $.ajax({
+    //     url: $('#id_url_ajax').val() + 'validacionparametros/Consultar_respuesta_operaciones',
+    //     type: 'POST',
+    //     data: dato,
+    //     dataType: 'json',
+
+    //     success: function (data) {
+    //       if (data !== null) {
+    //         data.respuesta_operaciones.forEach(function (element, index) {
+    //           var doc = '';
+    //           if (element.nom_archivo != null && element.nom_archivo != '') {
+    //             doc = `<a  href="#" onclick="abrir_fotos('${element.archivo}' , '${element.nom_archivo}')" class="cell-detail hint--top-left" data-hint="">
+    //             <span class="icon mdi mdi-file-text text-center" data-toggle="modal" title="Documento"></span>
+    //             </a>`;
+    //           } else {
+    //             doc = '<label>Sin archivo</label>';
+    //           }
+
+    //           $('#tbr_opera').append(
+    //             '<tr>' +
+    //             '<td>' +
+    //             element.estudio_letra +
+    //             '</td>' +
+    //             '<td>' +
+    //             element.fecha +
+    //             '</td>' +
+    //             '<td>' +
+    //             element.hora +
+    //             '</td>' +
+    //             '<td>' +
+    //             element.usuario +
+    //             '</td>' +
+    //             '<td>' +
+    //             element.nota +
+    //             '</td>' +
+    //             '<td>' +
+    //             doc +
+    //             '</td></tr>',
+    //           );
+    //         });
+    //       } else if (data == null) {
+    //         var msg_error = '';
+
+    //         msg_error += '<p>Aún no hay respuestas por parte de operaciones para este estudio.</p>';
+
+    //         $('#msg_rta_opera').html(
+    //           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Aviso!</strong>' +
+    //           msg_error +
+    //           '</div></div>',
+    //         );
+
+    //         $('#ver_rta_operaciones').animate(
+    //           {
+    //             scrollTop: 0,
+    //           },
+    //           600,
+    //         );
+
+    //         $('#tbr_opera').html('');
+    //       }
+
+    //       if (data !== null) {
+    //         data.respuesta_seguridad.forEach(function (element, index) {
+    //           var doc = '';
+
+    //           if (element.name_evidencia != null && element.name_evidencia != '') {
+    //             doc = `<a  href="#" onclick="abrir_fotos('${element.ruta_evidencia}' , '${element.name_evidencia}')" class="cell-detail hint--top-left" data-hint="">
+
+    //             <span class="icon mdi mdi-file-text text-center" data-toggle="modal" title="Documento"></span>
+
+    //             </a>`;
+    //           } else {
+    //             doc = '<label>Sin archivo</label>';
+    //           }
+
+    //           var abc = '';
+
+    //           if (element.estado == 1) {
+    //             abc = 'Aprobado';
+    //           } else if (element.estado == 0) {
+    //             abc = 'Rechazado';
+    //           }
+
+    //           $('#tbr_seguri').append(
+    //             '<tr>' +
+    //             '<td>' +
+    //             element.estudio +
+    //             '</td>' +
+    //             '<td>' +
+    //             element.fecha +
+    //             '</td>' +
+    //             '<td>' +
+    //             element.hora +
+    //             '</td>' +
+    //             '<td>' +
+    //             element.usuario +
+    //             '</td>' +
+    //             '<td>' +
+    //             element.observacion +
+    //             '</td>' +
+    //             '<td>' +
+    //             abc +
+    //             '</td>' +
+    //             '<td>' +
+    //             doc +
+    //             '</td>' +
+    //             +'</tr>',
+    //           );
+    //         });
+    //       } else if (data == null) {
+    //         var msg_error = '';
+
+    //         msg_error += '<p>Aún no hay respuestas por parte de seguridad para este estudio.</p>';
+
+    //         $('#msg_rta_opera').html(
+    //           '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Aviso!</strong>' +
+    //           msg_error +
+    //           '</div></div>',
+    //         );
+
+    //         $('#ver_rta_operaciones').animate(
+    //           {
+    //             scrollTop: 0,
+    //           },
+    //           600,
+    //         );
+
+    //         $('#tbr_seguri').html('');
+    //       }
+
+    //       if (data !== null) {
+    //         $('#tbr_observaciones').html('');
+
+    //         data.resultado_observacion.forEach(element => {
+    //           $('#tbr_observaciones').append(
+    //             '<tr>' +
+    //             "<td style='font-size: 11px;'>" +
+    //             element.id +
+    //             '</td>' +
+    //             "<td style='font-size: 11px;'>" +
+    //             element.observacion +
+    //             '</td>' +
+    //             "<td style='font-size: 11px;'>" +
+    //             element.fecha +
+    //             '-' +
+    //             element.hora +
+    //             '</td>' +
+    //             "<td style='font-size: 11px;'>" +
+    //             element.usuario +
+    //             '</td>' +
+    //             "<td style='font-size: 11px;'>" +
+    //             element.estado +
+    //             '</td>' +
+    //             +'</tr>',
+    //           );
+
+    //           // tbr_observaciones
+    //         });
+    //       }
+    //     },
+    //     error: function (jqXHR, textStatus, errorThrown) {
+    //       console.log('error tabla operaciones respuestas');
+    //       console.log(jqXHR);
+    //       console.log(textStatus);
+    //       console.log(errorThrown);
+    //     },
+    //   });
+    // }
+
+    // /* Bonton para envair directamente a la edicion de los vehiculos */
+    // if (e.target.matches('#btn_editar_vehiculo') || e.target.matches('#btn_editar_vehiculo *')) {
+    //   // alert('Hola Mundo');
+    //   var vehiculo = d.getElementById('btn_editar_vehiculo');
+    //   var vehiculo_id = vehiculo.getAttribute('data-idvehiculo');
+    //   var ventanaAncho = screen.width; // Ancho de la pantalla
+    //   var ventanaAlto = screen.height; // Alto de la pantalla
+    //   var ventanaIzquierda = 0; // Posición izquierda
+    //   var ventanaArriba = 0; // Posición superior
+
+    //   // Opciones para la ventana emergente
+    //   var opcionesVentana = `width=${ventanaAncho},height=${ventanaAlto},left=${ventanaIzquierda},top=${ventanaArriba},scrollbars=yes,fullscreen=yes`;
+
+    //   // URL a abrir
+    //   var url = $('#id_url_ajax').val() + `solicitudes/editar_vehiculo/?num_vehiculo=${codificarBase64(vehiculo_id)}&idmenu=3`;
+
+    //   // Abre la ventana emergente
+    //   window.open(url, '_blank', opcionesVentana);
+    // }
+
+    // /* Boton para editar al condutor */
+    // if (e.target.matches('#btn_editar_conductor') || e.target.matches('#btn_editar_conductor *')) {
+    //   var conductor = d.getElementById('btn_editar_conductor');
+    //   var conductor_id = conductor.getAttribute('data-idconductor');
+
+    //   var ventanaAncho = screen.width; // Ancho de la pantalla
+    //   var ventanaAlto = screen.height; // Alto de la pantalla
+    //   var ventanaIzquierda = 0; // Posición izquierda
+    //   var ventanaArriba = 0; // Posición superior
+
+    //   // Opciones para la ventana emergente
+    //   var opcionesVentana = `width=${ventanaAncho},height=${ventanaAlto},left=${ventanaIzquierda},top=${ventanaArriba},scrollbars=yes,fullscreen=yes`;
+
+    //   // URL a abrir  http://principal.nexosapp.com/solicitudes/editar_proveedor/?num_proveedor=OTQ4NA==&idmenu=3
+    //   var url = $('#id_url_ajax').val() + `solicitudes/editar_proveedor/?num_proveedor=${codificarBase64(conductor_id)}&idmenu=3`;
+
+    //   // Abre la ventana emergente
+    //   window.open(url, '_blank', opcionesVentana);
+    // }
   });
 
   /* EVENTO CHANGE */
@@ -1743,268 +1635,266 @@ d.addEventListener('DOMContentLoaded', async e => {
     }
   });
 
-  var urle = 'public/files/estudioseguridad';
+  // var urle = 'public/files/estudioseguridad';
   //OPCIONES DEL SELECT
 
-  $('#select_option').change(function() {
-    //traer el valor del select é imprimir el contenedor
-    var valor = $('#select_option').val();
-    $('#evi_plataforma').val('');
-    $('#name_eviden').val('');
-    $('#obse_todo').val('');
-    $('#obse_condu').val('');
-    $('#observeheciulo').val('');
+  // $('#select_option').change(function () {
+  //   //traer el valor del select é imprimir el contenedor
+  //   var valor = $('#select_option').val();
+  //   $('#evi_plataforma').val('');
+  //   $('#name_eviden').val('');
+  //   $('#obse_todo').val('');
+  //   $('#obse_condu').val('');
+  //   $('#observeheciulo').val('');
 
-    // alert(valor);
-    if (valor == '0') {
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#content_risk').hide();
-      $('#divdatopreestudio').hide();
-    }
+  //   // alert(valor);
+  //   if (valor == '0') {
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#content_risk').hide();
+  //     $('#divdatopreestudio').hide();
+  //   }
 
-    if (valor == '1') {
-      $('#content_vehiculo').show();
-      $('#content_conductor').hide();
-      $('#divdatopreestudio').hide();
-      $('#content_risk').hide();
-      $('#id_tvehiculo').val(1);
-      $('#botonescar').html(
-        '<button class="btn btn-sm btn-success" id="aprobarv1" disabled>Aprobar vehículo</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarv1">Rechazar vehículo</button>',
-      );
-      verVehiculo();
-    }
+  //   if (valor == '1') {
+  //     $('#content_vehiculo').show();
+  //     $('#content_conductor').hide();
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').hide();
+  //     $('#id_tvehiculo').val(1);
+  //     $('#botonescar').html(
+  //       '<button class="btn btn-sm btn-success" id="aprobarv1" disabled>Aprobar vehículo</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarv1">Rechazar vehículo</button>',
+  //     );
+  //     verVehiculo();
+  //   }
 
-    if (valor == '2') {
-      $('#content_conductor').show();
-      $('#content_vehiculo').hide();
-      $('#divdatopreestudio').hide();
-      $('#content_risk').hide();
-      $('#id_tconductor').val(2);
-      $('#botondriver').html('<button class="btn btn-sm btn-success" id="aprobarc1">Aprobar conductor</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarc1">Rechazar conductor</button>');
-      verConductor();
-    }
+  //   if (valor == '2') {
+  //     $('#content_conductor').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').hide();
+  //     $('#id_tconductor').val(2);
+  //     $('#botondriver').html('<button class="btn btn-sm btn-success" id="aprobarc1">Aprobar conductor</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarc1">Rechazar conductor</button>');
+  //     verConductor();
+  //   }
 
-    if (valor == '3') {
-      var tipo = 'risck';
-      var ruta = urle + '/risck';
-      $('#divdatopreestudio').hide();
-      $('#content_risk').show();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(3);
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr1">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr1">Rechazar</button>');
-    }
+  //   if (valor == '3') {
+  //     var tipo = 'risck';
+  //     var ruta = urle + '/risck';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(3);
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr1">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr1">Rechazar</button>');
+  //   }
 
-    if (valor == '4') {
-      var tipo = 'siplaft';
-      var ruta = urle + '/siplaft';
-      $('#divdatopreestudio').hide();
-      $('#content_risk').show();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(4);
-    }
+  //   if (valor == '4') {
+  //     var tipo = 'siplaft';
+  //     var ruta = urle + '/siplaft';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(4);
+  //   }
 
-    if (valor == '5') {
-      var tipo = 'runt';
-      var ruta = urle + '/runt';
-      $('#divdatopreestudio').hide();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#content_risk').show();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(5);
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr2">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr2">Rechazar</button>');
-    }
+  //   if (valor == '5') {
+  //     var tipo = 'runt';
+  //     var ruta = urle + '/runt';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#content_risk').show();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(5);
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr2">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr2">Rechazar</button>');
+  //   }
 
-    if (valor == '6') {
-      var tipo = 'policia';
-      var ruta = urle + '/policia';
-      $('#divdatopreestudio').hide();
-      $('#content_risk').show();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(6);
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr3">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr3">Rechazar</button>');
-    }
+  //   if (valor == '6') {
+  //     var tipo = 'policia';
+  //     var ruta = urle + '/policia';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(6);
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr3">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr3">Rechazar</button>');
+  //   }
 
-    if (valor == '7') {
-      var tipo = 'procuraduria';
-      var ruta = urle + '/procuraduria';
-      $('#divdatopreestudio').hide();
-      $('#content_risk').show();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(7);
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr4">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr4">Rechazar</button>');
-    }
+  //   if (valor == '7') {
+  //     var tipo = 'procuraduria';
+  //     var ruta = urle + '/procuraduria';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(7);
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr4">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr4">Rechazar</button>');
+  //   }
 
-    if (valor == '8') {
-      var tipo = 'simit';
-      var ruta = urle + '/simit';
-      $('#divdatopreestudio').hide();
-      $('#content_risk').show();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(8);
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr5">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr5">Rechazar</button>');
-    }
+  //   if (valor == '8') {
+  //     var tipo = 'simit';
+  //     var ruta = urle + '/simit';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(8);
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr5">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr5">Rechazar</button>');
+  //   }
 
-    if (valor == '9') {
-      var ruta = urle + '/siscomn';
-      var tipo = 'siscomn';
-      $('#divdatopreestudio').hide();
-      $('#content_risk').show();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(9);
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr6">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr6">Rechazar</button>');
-    }
+  //   if (valor == '9') {
+  //     var ruta = urle + '/siscomn';
+  //     var tipo = 'siscomn';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(9);
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr6">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr6">Rechazar</button>');
+  //   }
 
-    if (valor == '10') {
-      var tipo = 'adres';
-      var ruta = urle + '/adres';
-      $('#divdatopreestudio').hide();
-      $('#content_risk').show();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(10);
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr7">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr7">Rechazar</button>');
-    }
+  //   if (valor == '10') {
+  //     var tipo = 'adres';
+  //     var ruta = urle + '/adres';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(10);
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr7">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr7">Rechazar</button>');
+  //   }
 
-    if (valor == '11') {
-      var tipo = 'Gps';
-      var ruta = urle + '/gps';
-      $('#divdatopreestudio').hide();
-      $('#content_risk').show();
-      $('#content_vehiculo').hide();
-      $('#content_conductor').hide();
-      $('#tipo_plataforma').val(tipo);
-      $('#ruta_eviden').val(ruta);
-      $('#id_totros').val(11);
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr8">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr8">Rechazar</button>');
-    }
+  //   if (valor == '11') {
+  //     var tipo = 'Gps';
+  //     var ruta = urle + '/gps';
+  //     $('#divdatopreestudio').hide();
+  //     $('#content_risk').show();
+  //     $('#content_vehiculo').hide();
+  //     $('#content_conductor').hide();
+  //     $('#tipo_plataforma').val(tipo);
+  //     $('#ruta_eviden').val(ruta);
+  //     $('#id_totros').val(11);
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr8">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr8">Rechazar</button>');
+  //   }
 
-    if (valor == '12') {
-      var tipo = 'Dato preestudio';
+  //   if (valor == '12') {
+  //     var tipo = 'Dato preestudio';
 
-      var ruta = urle + '/dato_preestudio';
+  //     var ruta = urle + '/dato_preestudio';
 
-      //traer el preestudio
+  //     //traer el preestudio
 
-      $('#content_risk').show();
+  //     $('#content_risk').show();
 
-      $('#divdatopreestudio').hide();
+  //     $('#divdatopreestudio').hide();
 
-      $('#content_vehiculo').hide();
+  //     $('#content_vehiculo').hide();
 
-      $('#content_conductor').hide();
+  //     $('#content_conductor').hide();
 
-      $('#tipo_plataforma').val(tipo);
+  //     $('#tipo_plataforma').val(tipo);
 
-      $('#ruta_eviden').val(ruta);
+  //     $('#ruta_eviden').val(ruta);
 
-      $('#id_totros').val(12);
+  //     $('#id_totros').val(12);
 
-      $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr9">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr9">Rechazar</button>');
-    }
-  });
+  //     $('#losbototnes').html('<button class="btn btn-sm btn-success" id="aprobarr9">Aprobar</button>' + '<button class="btn btn-sm btn-danger" id="noaprobarr9">Rechazar</button>');
+  //   }
+  // });
 
-  $('#aprobar_estudio_total').hide();
+  // $('#aprobar_estudio_total').hide();
 
-  $('#estado_estu').change(function() {
-    var select = $('#estado_estu').val();
+  // $('#estado_estu').change(function () {
+  //   var select = $('#estado_estu').val();
 
-    if (select == '') {
-      $('#aprobar_estudio_total').hide();
-    }
+  //   if (select == '') {
+  //     $('#aprobar_estudio_total').hide();
+  //   }
 
-    //validar el estado y que tenga todo aprobado
+  //   //validar el estado y que tenga todo aprobado
+  //   if (select == 'Aprobado') {
+  //     var idvehiculo = $('#idvehiculo').val();
 
-    if (select == 'Aprobado') {
-      var idvehiculo = $('#idvehiculo').val();
+  //     var idconductor = $('#idconductor').val();
 
-      var idconductor = $('#idconductor').val();
+  //     var idestudio = $('#idstudy').val();
 
-      var idestudio = $('#idstudy').val();
+  //     if (idvehiculo.length > '0' && idconductor.length > '0' && idestudio.length > '0') {
+  //       $('#aprobar_estudio_total').show();
+  //     } else {
+  //       alert('No puede aprobar el estudio falta algún dato de la primera hilera');
+  //     }
+  //   }
 
-      if (idvehiculo.length > '0' && idconductor.length > '0' && idestudio.length > '0') {
-        $('#aprobar_estudio_total').show();
-      } else {
-        alert('No puede aprobar el estudio falta algún dato de la primera hilera');
-      }
-    }
+  //   if (select == 'Pendiente') {
+  //     var idvehiculo = $('#idvehiculo').val();
 
-    if (select == 'Pendiente') {
-      var idvehiculo = $('#idvehiculo').val();
+  //     var idconductor = $('#idconductor').val();
 
-      var idconductor = $('#idconductor').val();
+  //     var idestudio = $('#idstudy').val();
 
-      var idestudio = $('#idstudy').val();
+  //     if (idvehiculo.length > '0' && idconductor.length > '0' && idestudio.length > '0') {
+  //       $('#aprobar_estudio_total').show();
 
-      if (idvehiculo.length > '0' && idconductor.length > '0' && idestudio.length > '0') {
-        $('#aprobar_estudio_total').show();
+  //       $('#causalidad').attr('disabled', false);
 
-        $('#causalidad').attr('disabled', false);
+  //       $('#causalidad').focus();
+  //     } else {
+  //       alert('No puede poner pendien el estudio falta algún dato de la primera hilera');
+  //     }
+  //   }
 
-        $('#causalidad').focus();
-      } else {
-        alert('No puede poner pendien el estudio falta algún dato de la primera hilera');
-      }
-    }
+  //   if (select == 'Rechazado') {
+  //     var idvehiculo = $('#idvehiculo').val();
 
-    if (select == 'Rechazado') {
-      var idvehiculo = $('#idvehiculo').val();
+  //     var idconductor = $('#idconductor').val();
 
-      var idconductor = $('#idconductor').val();
+  //     var idestudio = $('#idstudy').val();
 
-      var idestudio = $('#idstudy').val();
+  //     if (idvehiculo.length > '0' && idconductor.length > '0' && idestudio.length > '0') {
+  //       $('#aprobar_estudio_total').show();
 
-      if (idvehiculo.length > '0' && idconductor.length > '0' && idestudio.length > '0') {
-        $('#aprobar_estudio_total').show();
+  //       $('#causalidad').attr('disabled', false);
 
-        $('#causalidad').attr('disabled', false);
+  //       $('#causalidad').focus();
+  //     } else {
+  //       alert('No puede rechazar el estudio falta algún dato de la primera hilera');
+  //     }
+  //   }
 
-        $('#causalidad').focus();
-      } else {
-        alert('No puede rechazar el estudio falta algún dato de la primera hilera');
-      }
-    }
+  //   if (select == 'Rechazado_modificar') {
+  //     var idvehiculo = $('#idvehiculo').val();
+  //     var idconductor = $('#idconductor').val();
+  //     var idestudio = $('#idstudy').val();
 
-    if (select == 'Rechazado_modificar') {
-      var idvehiculo = $('#idvehiculo').val();
+  //     if (idvehiculo.length > '0' && idconductor.length > '0' && idestudio.length > '0') {
+  //       $('#aprobar_estudio_total').show();
 
-      var idconductor = $('#idconductor').val();
+  //       $('#causalidad').attr('disabled', false);
 
-      var idestudio = $('#idstudy').val();
+  //       $('#causalidad').focus();
+  //     } else {
+  //       alert('No puede poner rechazado para modificar el estudio falta algún dato de la primera hilera');
+  //     }
+  //   }
 
-      if (idvehiculo.length > '0' && idconductor.length > '0' && idestudio.length > '0') {
-        $('#aprobar_estudio_total').show();
-
-        $('#causalidad').attr('disabled', false);
-
-        $('#causalidad').focus();
-      } else {
-        alert('No puede poner rechazado para modificar el estudio falta algún dato de la primera hilera');
-      }
-    }
-  });
+  // });
 });
 
 async function Litar_solicitudes() {
@@ -2031,7 +1921,7 @@ async function Litar_solicitudes() {
 
         return response.json();
       })
-      .then(function(data) {
+      .then(function (data) {
         cont = 0;
 
         let tbody = d.getElementById('body_esconder');
@@ -2252,6 +2142,7 @@ async function Litar_solicitudes() {
                           <input type="hidden" class="estudio_id_c" value="${id_estudio_c}">
                           <input type="hidden" class="estado_estudio" value="${element.estado}">
                           <input type="hidden" class="observacion_general" value="${element.observacion_general}">
+                          <input type="hidden" class="escenarioId" value="${element.escenario_id}">
                         </button>  
 
                         <button type="button" class="btn btn-warning btn-sm" title="Respuestas de operaciones (Estudio de seguridad)" id="btn_respuestas_operaciones"
@@ -2281,6 +2172,7 @@ async function Litar_solicitudes() {
                             <input type="hidden" class="vehiculo_id" value="${element.id_vehiculo}">
                             <input type="hidden" class="estudio_id_c" value="${id_estudio_c}">
                             <input type="hidden" class="observacion_general" value="${element.observacion_general}">
+                            <input type="hidden" class="escenarioId" value="${element.escenario_id}">
                         </button>  
 
                         <button type="button" class="btn btn-warning btn-sm" title="Respuestas de operaciones (Estudio de seguridad)" id="btn_respuestas_operaciones"
@@ -2330,6 +2222,7 @@ async function Litar_solicitudes() {
                           <input type="hidden" class="vehiculo_id" value="${element.id_vehiculo}">
                           <input type="hidden" class="estudio_id_c" value="${id_estudio_c}">
                           <input type="hidden" class="observacion_general" value="${element.observacion_general}">
+                          <input type="hidden" class="escenarioId" value="${element.escenario_id}">
                       </button> 
 
                       <button type="button" class="btn btn-warning btn-sm" title="Respuestas de operaciones (Estudio de seguridad)" id="btn_respuestas_operaciones"
@@ -2406,6 +2299,7 @@ async function Litar_solicitudes() {
                               <input type="hidden" class="vehiculo_id" value="${element.id_vehiculo}">
                               <input type="hidden" class="estudio_id_c" value="${id_estudio_c}">
                               <input type="hidden" class="observacion_general" value="${element.observacion_general}">
+                              <input type="hidden" class="escenarioId" value="${element.escenario_id}">
                           </button>
                           <button type="button" class="btn btn-warning btn-sm" title="Respuestas de operaciones (Estudio de seguridad)" id="btn_respuestas_operaciones"
                             data-toggle="modal" data-target="#ver_rta_operaciones" data-id="#" data-id2="${solicitud}" data-id3="#"><span class="mdi mdi-balance"></span>
@@ -2442,6 +2336,7 @@ async function Litar_solicitudes() {
                               <input type="hidden" class="vehiculo_id" value="${element.id_vehiculo}">
                               <input type="hidden" class="estudio_id_c" value="${id_estudio_c}">
                               <input type="hidden" class="observacion_general" value="${element.observacion_general}">
+                              <input type="hidden" class="escenarioId" value="${element.escenario_id}">
                           </button>
                           <button type="button" class="btn btn-warning btn-sm" title="Respuestas de operaciones (Estudio de seguridad)" id="btn_respuestas_operaciones"
                             data-toggle="modal" data-target="#ver_rta_operaciones" data-id="#" data-id2="${solicitud}" data-id3="#"><span class="mdi mdi-balance"></span>
@@ -2591,7 +2486,7 @@ async function Litar_solicitudes() {
       .catch(error => {
         alert(error);
       });
-  } catch (error) {}
+  } catch (error) { }
 }
 
 async function Listar_datos_prefiltro_nuevo_recurso(solicitud_id, placa) {
@@ -2603,7 +2498,7 @@ async function Listar_datos_prefiltro_nuevo_recurso(solicitud_id, placa) {
     body: data,
   })
     .then(response => response.json())
-    .then(function(data) {
+    .then(function (data) {
       // d.getElementById('tbl_datos').innerHTML = '';
       if (data) {
         /* VALIDART LOS ESTADOS DEL PREFILTRO NUEVO */
@@ -2909,7 +2804,7 @@ async function Listar_datos_prefiltro_nuevo_recurso(solicitud_id, placa) {
     body: datos,
   })
     .then(response => response.json())
-    .then(function(data) {
+    .then(function (data) {
       if (data) {
         d.getElementById('propietario_actual').innerHTML = data.Propietario;
         d.getElementById('documento_propietario_actual').innerHTML = data.cedula_propietario;
@@ -2951,7 +2846,7 @@ async function Listar_datos_prefiltro_nuevo_recurso(solicitud_id, placa) {
     body: formdatos,
   })
     .then(response => response.json())
-    .then(function(data) {
+    .then(function (data) {
       if (data) {
         // Seleccionar el elemento <ul>
         var ul = document.getElementById('lista_log_estdo');
@@ -2975,75 +2870,47 @@ async function Listar_datos_prefiltro_nuevo_recurso(solicitud_id, placa) {
 
 function lista_hojas_de_vida(vehiculo_id, conductor_id, num_solicitud) {
   // Listar los estados de las hojas de vida en el estudio de segurodad
-
   //BORRAR COLUMNAS DE TABLA LISTA
 
   $('#apro').html('');
-
   $('#capro').html('');
-
   $('#rapro').html('');
-
   $('#ruapro').html('');
-
   $('#poapro').html('');
-
   $('#proapro').html('');
-
   $('#sipro').html('');
-
   $('#siscompro').html('');
-
   $('#adrpro').html('');
-
   $('#gpro').html('');
-
   $('#prepro').html('');
-
   $('#obse_estu').val('');
-
   $('#aevi').html('');
-
   $('#cevi').html('');
-
   $('#revi').html('');
-
   $('#ruevi').html('');
-
   $('#poevi').html('');
-
   $('#proevi').html('');
-
   $('#smevi').html('');
-
   $('#sievi').html('');
-
   $('#aevi').html('');
-
   $('#gevi').html('');
-
   $('#previ').html('');
 
   var datos = {
     idv: vehiculo_id,
-
     idc: conductor_id,
-
     idsoli: num_solicitud,
   };
 
   $.ajax({
     url: $('#id_url_ajax').val() + 'validacionparametros/Ver_Estudio_Seguridad',
-
     type: 'POST',
-
     data: datos,
-
     dataType: 'json',
 
-    success: function(data, textStatus, jqXHR) {
+    success: function (data, textStatus, jqXHR) {
       if (data != '') {
-        data.forEach(function(element, index) {
+        data.forEach(function (element, index) {
           $('#idstudy').val(element.id_estudio);
 
           var etotal = element.estadototal;
@@ -3069,20 +2936,14 @@ function lista_hojas_de_vida(vehiculo_id, conductor_id, num_solicitud) {
           }
 
           var tipo = element.estudio;
-
           var aprobado = element.estado;
-
           var status = '';
-
           var requerido = '';
-
           var e = '';
 
           $requerido = '<span class="text-primary mdi mdi-star-half icon"></span>';
-
           if (tipo == 'hoja de vida vehiculo') {
             iniciado2 = '<center><span class="text-success mdi mdi-dot-circle icon">' + '</span></center>';
-
             if (aprobado == '1') {
               status = '<center><span class="text-success mdi mdi-dot-circle icon">' + '</span></center>';
             } else if (aprobado == '0') {
@@ -3090,23 +2951,17 @@ function lista_hojas_de_vida(vehiculo_id, conductor_id, num_solicitud) {
             }
 
             //evidencia subida por seguridad
-
             if (element.name_evidencia != '' && element.name_evidencia != null) {
               e = `<a   href="#" onclick="abrir_fotos('${element.ruta_evidencia}' , '${element.name_evidencia}')" class="cell-detail hint--top-left" data-hint="">
-
                 <span class="icon mdi mdi-file-text text-center"  data-toggle="modal" title="${element.observacion}"></span>
-
                 </a>`;
             } else {
               e = '<p class="text-primary text-center" title="' + element.observacion + '">Sin archivo</p>';
             }
 
             //impirimir el inicado
-
             $('#ini').html('' + iniciado2 + '');
-
             $('#apro').html('' + status + '');
-
             $('#aevi').html('' + e + '');
           }
 
@@ -3406,24 +3261,24 @@ function lista_hojas_de_vida(vehiculo_id, conductor_id, num_solicitud) {
 
           $('#cuerpo_estudio').append(
             '<tr>' +
-              '<td>' +
-              element.estudio +
-              '</td>' +
-              '<td>' +
-              palabra +
-              '</td>' +
-              '<td>' +
-              element.observacion +
-              '</td>' +
-              '<td>' +
-              element.usuario +
-              '</td>' +
-              '<td>' +
-              element.fecha +
-              '</td>' +
-              '<td>' +
-              element.hora +
-              '</td></tr>',
+            '<td>' +
+            element.estudio +
+            '</td>' +
+            '<td>' +
+            palabra +
+            '</td>' +
+            '<td>' +
+            element.observacion +
+            '</td>' +
+            '<td>' +
+            element.usuario +
+            '</td>' +
+            '<td>' +
+            element.fecha +
+            '</td>' +
+            '<td>' +
+            element.hora +
+            '</td></tr>',
           );
         });
       } else {
@@ -3457,7 +3312,7 @@ function lista_hojas_de_vida(vehiculo_id, conductor_id, num_solicitud) {
       }
     },
 
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       // alert('no trajo los tipos de estudio');
 
       console.log(jqXHR);
@@ -3487,15 +3342,15 @@ function cargarselect() {
     type: 'POST',
     data: dato1s,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data.result) {
-        data.result.forEach(function(element, index) {
+        data.result.forEach(function (element, index) {
           $('#select_option').append('<option value="' + element.id + '">' + element.nombre + '</option>');
         });
       }
     },
 
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no cargo el select');
       console.log(jqXHR);
       console.log(textStatus);
@@ -3529,7 +3384,7 @@ function verVehiculo() {
     type: 'POST',
     data: params,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data.vehiculo) {
         var combustible = '';
         placa_vehiculo = data.vehiculo.placa;
@@ -3763,13 +3618,13 @@ function verVehiculo() {
       }
     },
 
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no hayyyy');
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
     },
-    complete: function() {
+    complete: function () {
       // Código que se ejecuta siempre al final de la solicitud
       crear_Proveedores_Ministerio(documentos, placa_vehiculo, placa_trailer);
     },
@@ -3792,7 +3647,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
   const promesas = [];
   const mensajes = [];
   for (var i = 0; i < documentos.documento.length; i++) {
-    mensajes.push({documento: documentos.documento[i], tipo_documento: documentos.tipo_documento[i], actividad: documentos.actividad[i], mensaje: 'Sin Resultado', codigoError: 0});
+    mensajes.push({ documento: documentos.documento[i], tipo_documento: documentos.tipo_documento[i], actividad: documentos.actividad[i], mensaje: 'Sin Resultado', codigoError: 0 });
     var datos_rndc = new FormData();
     datos_rndc.append('id', documentos.documento[i]);
     datos_rndc.append('tipdoc', documentos.tipo_documento[i]);
@@ -3801,7 +3656,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
     datos_rndc.append('proceso', proceso);
     datos_rndc.append('tipopro', 2);
     datos_rndc.append('conduce', conduce);
-    (function(index) {
+    (function (index) {
       promesas.push(
         fetch($('#id_url_ajax').val() + 'web_service/terceros', {
           method: 'POST',
@@ -3876,7 +3731,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
       // Mostrar un mensaje específico o realizar una acción
       // alert('Error al cargar el servicio SOAP del RNDC. Por favor, verifica la conexión o la URL del RNDC.');
       for (let i = 0; i < mensajes.length; i++) {
-        const {documento, tipo_documento, mensaje, actividad, codigoError} = mensajes[i];
+        const { documento, tipo_documento, mensaje, actividad, codigoError } = mensajes[i];
         document.querySelectorAll('.id_ministerio_propietario').forEach(elemento => {
           elemento.setAttribute('id', `td_propietario_ministerio_${documento}`);
         });
@@ -3927,7 +3782,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
             butto_conductor.href = '#'; // Enlace, puedes cambiarlo si necesitas un destino real
             butto_conductor.className = 'icon btn_retransmitir_endpoint';
             // Asigna el evento onclick directamente
-            butto_conductor.onclick = async function() {
+            butto_conductor.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -4006,7 +3861,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
             butto_propietario_ministerio.href = '#'; // Enlace, puedes cambiarlo si necesitas un destino real
             butto_propietario_ministerio.className = 'icon btn_retransmitir_endpoint';
             // Asigna el evento onclick directamente
-            butto_propietario_ministerio.onclick = async function() {
+            butto_propietario_ministerio.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -4085,7 +3940,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
             butto_poseedor_ministerio.href = '#'; // Enlace, puedes cambiarlo si necesitas un destino real
             butto_poseedor_ministerio.className = 'icon btn_retransmitir_endpoint';
             // Asigna el evento onclick directamente
-            butto_poseedor_ministerio.onclick = async function() {
+            butto_poseedor_ministerio.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -4164,7 +4019,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
             butto_propieatrio_trailer_ministerio.href = '#'; // Enlace, puedes cambiarlo si necesitas un destino real
             butto_propieatrio_trailer_ministerio.className = 'icon btn_retransmitir_endpoint';
             // Asigna el evento onclick directamente
-            butto_propieatrio_trailer_ministerio.onclick = async function() {
+            butto_propieatrio_trailer_ministerio.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -4239,7 +4094,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
       // alert('Ocurrió un error inesperado. Intenta de nuevo.');
       // alert('Error al cargar el servicio SOAP del RNDC. Por favor, verifica la conexión o la URL del RNDC.');
       for (let i = 0; i < mensajes.length; i++) {
-        const {documento, tipo_documento, mensaje, actividad, codigoError} = mensajes[i];
+        const { documento, tipo_documento, mensaje, actividad, codigoError } = mensajes[i];
         document.querySelectorAll('.id_ministerio_propietario').forEach(elemento => {
           elemento.setAttribute('id', `td_propietario_ministerio_${documento}`);
         });
@@ -4291,7 +4146,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
             butto_conductor.href = '#'; // Enlace, puedes cambiarlo si necesitas un destino real
             butto_conductor.className = 'icon btn_retransmitir_endpoint';
             // Asigna el evento onclick directamente
-            butto_conductor.onclick = async function() {
+            butto_conductor.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -4370,7 +4225,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
             butto_propietario_ministerio.href = '#'; // Enlace, puedes cambiarlo si necesitas un destino real
             butto_propietario_ministerio.className = 'icon btn_retransmitir_endpoint';
             // Asigna el evento onclick directamente
-            butto_propietario_ministerio.onclick = async function() {
+            butto_propietario_ministerio.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -4449,7 +4304,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
             butto_poseedor_ministerio.href = '#'; // Enlace, puedes cambiarlo si necesitas un destino real
             butto_poseedor_ministerio.className = 'icon btn_retransmitir_endpoint';
             // Asigna el evento onclick directamente
-            butto_poseedor_ministerio.onclick = async function() {
+            butto_poseedor_ministerio.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -4528,7 +4383,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
             butto_propieatrio_trailer_ministerio.href = '#'; // Enlace, puedes cambiarlo si necesitas un destino real
             butto_propieatrio_trailer_ministerio.className = 'icon btn_retransmitir_endpoint';
             // Asigna el evento onclick directamente
-            butto_propieatrio_trailer_ministerio.onclick = async function() {
+            butto_propieatrio_trailer_ministerio.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -4602,7 +4457,7 @@ async function crear_Proveedores_Ministerio(documentos, placa, trailer) {
   } finally {
     // Ejemplo de comparación para el código TER015 y la palabra DUPLICADO
     for (let i = 0; i < mensajes.length; i++) {
-      const {documento, tipo_documento, mensaje, actividad, codigoError} = mensajes[i];
+      const { documento, tipo_documento, mensaje, actividad, codigoError } = mensajes[i];
 
       document.querySelectorAll('.id_ministerio_propietario').forEach(elemento => {
         elemento.setAttribute('id', `td_propietario_ministerio_${documento}`);
@@ -5030,7 +4885,7 @@ async function crear_Proveedores_Oet(documentos, placa, trailer) {
     datos_oet.append('clase_recurso', 1); // Suponiendo que clase y recurso son fijos
     datos_oet.append('recurso', actividad);
     datos_oet.append('dato_recurso', documentos.documento[i]);
-    (function(index) {
+    (function (index) {
       promesas.push(
         fetch($('#id_url_ajax').val() + 'integrar_oet/Consulta_Recurso_Avansat', {
           method: 'POST',
@@ -5086,7 +4941,7 @@ async function crear_Proveedores_Oet(documentos, placa, trailer) {
   } finally {
     // Hacer algo al finalizar
     for (let i = 0; i < mensajes.length; i++) {
-      const {documento, tipo_documento, mensaje, actividad, codigoError} = mensajes[i];
+      const { documento, tipo_documento, mensaje, actividad, codigoError } = mensajes[i];
       // Selecciona todos los elementos con las clases deseadas
       document.querySelectorAll('.id_oet_propietario').forEach(elemento => {
         elemento.setAttribute('id', `td_propietario_${documento}`);
@@ -5218,7 +5073,7 @@ async function crear_Proveedores_Oet(documentos, placa, trailer) {
             butto_conductor.className = 'icon btn_retransmitir_endpoint';
 
             // Asigna el evento onclick directamente
-            butto_conductor.onclick = async function() {
+            butto_conductor.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Oet(documento, actividad);
@@ -5398,7 +5253,7 @@ async function crear_Proveedores_Oet(documentos, placa, trailer) {
             butto_propietario.className = 'icon btn_retransmitir_endpoint';
 
             // Asigna el evento onclick directamente
-            butto_propietario.onclick = async function() {
+            butto_propietario.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Oet(documento, actividad);
@@ -5577,7 +5432,7 @@ async function crear_Proveedores_Oet(documentos, placa, trailer) {
             butto_poseedor.className = 'icon btn_retransmitir_endpoint';
 
             // Asigna el evento onclick directamente
-            butto_poseedor.onclick = async function() {
+            butto_poseedor.onclick = async function () {
               try {
                 // Espera la respuesta de la función asincrónica
                 var respuesta_oet_retransmision = await Retransmitir_Dato_Oet(documento, actividad);
@@ -5704,9 +5559,9 @@ async function crear_Dato_Ministerio(placa, trailer) {
       const errorCodeMatch = data.resultado.match(/VEH\d{3}/);
       const errorCode = errorCodeMatch ? errorCodeMatch[0] : null;
       if (errorCode) {
-        mensajes.push({documento: documentos.documento[index], actividad: documentos.actividad[index], mensaje: data.resultado, codigoError: errorCode});
+        mensajes.push({ documento: documentos.documento[index], actividad: documentos.actividad[index], mensaje: data.resultado, codigoError: errorCode });
       } else {
-        mensajes.push({documento: documentos.documento[index], actividad: documentos.actividad[index], mensaje: data.resultado, codigoError: null});
+        mensajes.push({ documento: documentos.documento[index], actividad: documentos.actividad[index], mensaje: data.resultado, codigoError: null });
       }
       document.getElementById('id_vehiculo_minsterio').value = 1;
       document.querySelector('.id_ministerio_vehiculo').innerHTML = `<span class="text-success mdi mdi-dot-circle icon"></span>`;
@@ -5874,7 +5729,7 @@ async function crear_Dato_Oet(placa, trailer) {
           butto_conductor.className = 'icon btn_retransmitir_endpoint';
 
           // Asigna el evento onclick directamente
-          butto_conductor.onclick = async function() {
+          butto_conductor.onclick = async function () {
             try {
               // Espera la respuesta de la función asincrónica
               var respuesta_oet_retransmision = await Retransmitir_Vehiculo_Oet(placa);
@@ -6010,7 +5865,7 @@ async function crear_Dato_Oet(placa, trailer) {
         butto_conductor.className = 'icon btn_retransmitir_endpoint';
 
         // Asigna el evento onclick directamente
-        butto_conductor.onclick = async function() {
+        butto_conductor.onclick = async function () {
           try {
             // Espera la respuesta de la función asincrónica
             var respuesta_oet_retransmision = await Retransmitir_Vehiculo_Oet(placa);
@@ -6216,7 +6071,7 @@ async function crear_trailer_Ministerio(placa) {
         butto_vehiculo.className = 'icon btn_retransmitir_endpoint';
 
         // Asigna el evento onclick directamente
-        butto_vehiculo.onclick = async function() {
+        butto_vehiculo.onclick = async function () {
           try {
             // Espera la respuesta de la función asincrónica
             var respuesta_oet_retransmision = await Retransmite_Trailer_Ministerio(placa);
@@ -6315,7 +6170,7 @@ async function crear_trailer_Ministerio(placa) {
         butto_vehiculo.className = 'icon btn_retransmitir_endpoint';
 
         // Asigna el evento onclick directamente
-        butto_vehiculo.onclick = async function() {
+        butto_vehiculo.onclick = async function () {
           try {
             // Espera la respuesta de la función asincrónica
             var respuesta_oet_retransmision = await Retransmite_Trailer_Ministerio(placa);
@@ -6411,7 +6266,7 @@ async function crear_trailer_Ministerio(placa) {
         butto_vehiculo.className = 'icon btn_retransmitir_endpoint';
 
         // Asigna el evento onclick directamente
-        butto_vehiculo.onclick = async function() {
+        butto_vehiculo.onclick = async function () {
           try {
             // Espera la respuesta de la función asincrónica
             var respuesta_oet_retransmision = await Retransmite_Trailer_Ministerio(placa);
@@ -6559,7 +6414,7 @@ async function crear_trailer_Oet(placa) {
           butto_conductor.className = 'icon btn_retransmitir_endpoint';
 
           // Asigna el evento onclick directamente
-          butto_conductor.onclick = async function() {
+          butto_conductor.onclick = async function () {
             try {
               // Espera la respuesta de la función asincrónica
               var respuesta_oet_retransmision = await Retransmitir_Trailer_Oet(placa);
@@ -6685,7 +6540,7 @@ async function crear_trailer_Oet(placa) {
         butto_conductor.className = 'icon btn_retransmitir_endpoint';
 
         // Asigna el evento onclick directamente
-        butto_conductor.onclick = async function() {
+        butto_conductor.onclick = async function () {
           try {
             // Espera la respuesta de la función asincrónica
             var respuesta_oet_retransmision = await Retransmitir_Trailer_Oet(placa);
@@ -6841,7 +6696,7 @@ async function ejecutar_retransmision(fila, documento, tipo_documento, actividad
       butto_conductor.className = 'icon btn_retransmitir_endpoint';
 
       // Asigna el evento onclick directamente
-      butto_conductor.onclick = async function() {
+      butto_conductor.onclick = async function () {
         try {
           // Espera la respuesta de la función asincrónica
           var respuesta_oet_retransmision = await Retransmitir_Dato_Ministerio(documento, tipo_documento, actividad);
@@ -6969,7 +6824,7 @@ async function ejecutar_retransmision(fila, documento, tipo_documento, actividad
       butto_vehiculo.className = 'icon btn_retransmitir_endpoint';
 
       // Asigna el evento onclick directamente
-      butto_vehiculo.onclick = async function() {
+      butto_vehiculo.onclick = async function () {
         try {
           // Espera la respuesta de la función asincrónica
           var respuesta_oet_retransmision = await Retransmitir_Vehiculo_Ministerio(placa);
@@ -7037,1026 +6892,1025 @@ async function ejecutar_retransmision(fila, documento, tipo_documento, actividad
   }
 }
 
-//aprobar la hoja de vida del vehiculo
-function aprobar_vehiculo() {
-  if (window.confirm('¿Estás seguro de que desea aprobar el vehículo?')) {
-    // Código a ejecutar si el usuario hace clic en "Aceptar"
-    var idsoli = $('#id_soli').val();
-    //validar que  la hoja del vehiculo este o no aprobada
-    var idv = $('#valor_vehiculo').val();
-    var idc = $('#conductor_id').val();
-    var data = null;
+// //aprobar la hoja de vida del vehiculo
+// function aprobar_vehiculo() {
+//   if (window.confirm('¿Estás seguro de que desea aprobar el vehículo?')) {
+//     // Código a ejecutar si el usuario hace clic en "Aceptar"
+//     var idsoli = $('#id_soli').val();
+//     //validar que  la hoja del vehiculo este o no aprobada
+//     var idv = $('#valor_vehiculo').val();
+//     var idc = $('#conductor_id').val();
+//     var data = null;
 
-    data = new FormData();
-    data.append('fecha', $('#fechag').val());
-    data.append('hora', $('#horag').val());
-    data.append('user', $('#usuariog').val());
-    data.append('observeheciulo', $('#observeheciulo').val());
-    data.append('id_vehiculo', idv);
-    data.append('id_conductor', idc);
-    data.append('idsoli', idsoli);
-    data.append('idtipo', $('#id_tvehiculo').val());
+//     data = new FormData();
+//     data.append('fecha', $('#fechag').val());
+//     data.append('hora', $('#horag').val());
+//     data.append('user', $('#usuariog').val());
+//     data.append('observeheciulo', $('#observeheciulo').val());
+//     data.append('id_vehiculo', idv);
+//     data.append('id_conductor', idc);
+//     data.append('idsoli', idsoli);
+//     data.append('idtipo', $('#id_tvehiculo').val());
 
-    $.ajax({
-      url: $('#id_url_ajax').val() + 'validacionparametros/Aprobar_vehiculo_estudio',
-      type: 'POST',
-      data: data,
-      cache: false,
-      processData: false, // Don't process the files
-      contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-      dataType: 'json',
+//     $.ajax({
+//       url: $('#id_url_ajax').val() + 'validacionparametros/Aprobar_vehiculo_estudio',
+//       type: 'POST',
+//       data: data,
+//       cache: false,
+//       processData: false, // Don't process the files
+//       contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+//       dataType: 'json',
 
-      success: function(data, textStatus, jqXHR) {
-        if (data.numero === 200) {
-          mensaje = `
+//       success: function (data, textStatus, jqXHR) {
+//         if (data.numero === 200) {
+//           mensaje = `
 
-          <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
+//           <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
 
-              <div class="icon"><span class="mdi mdi-check"></span></div>
+//               <div class="icon"><span class="mdi mdi-check"></span></div>
 
-              <div class="message">
+//               <div class="message">
 
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
 
-                <strong>Mensaje!</strong> ${data.mensaje}
+//                 <strong>Mensaje!</strong> ${data.mensaje}
 
-              </div>
+//               </div>
 
-          </div>`;
+//           </div>`;
 
-          lista_hojas_de_vida(idv, idc, idsoli);
-        } else {
-          mensaje = `
+//           lista_hojas_de_vida(idv, idc, idsoli);
+//         } else {
+//           mensaje = `
 
-          <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert">
+//           <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert">
 
-              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+//               <div class="icon"><span class="mdi mdi-info-outline"></span></div>
 
-              <div class="message">
+//               <div class="message">
 
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
 
-                <strong>Mensaje!</strong> ${data.mensaje}
+//                 <strong>Mensaje!</strong> ${data.mensaje}
 
-              </div>
+//               </div>
 
-          </div>`;
+//           </div>`;
 
-          lista_hojas_de_vida(idv, idc, idsoli);
-        }
+//           lista_hojas_de_vida(idv, idc, idsoli);
+//         }
 
-        d.getElementById('historico_estudios').innerHTML = mensaje;
+//         d.getElementById('historico_estudios').innerHTML = mensaje;
 
-        $('#content_risk').hide();
+//         $('#content_risk').hide();
 
-        $('#content_conductor').hide();
+//         $('#content_conductor').hide();
 
-        $('#content_vehiculo').hide();
-      },
+//         $('#content_vehiculo').hide();
+//       },
 
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log('no inserto hv vehiculo');
+//       error: function (jqXHR, textStatus, errorThrown) {
+//         console.log('no inserto hv vehiculo');
 
-        console.log(jqXHR);
+//         console.log(jqXHR);
 
-        console.log(textStatus);
+//         console.log(textStatus);
 
-        console.log(errorThrown);
-      },
-    });
-  } else {
-    // Código a ejecutar si el usuario hace clic en "Cancelar"
+//         console.log(errorThrown);
+//       },
+//     });
+//   } else {
+//     // Código a ejecutar si el usuario hace clic en "Cancelar"
 
-    console.log('Acción confirmada.');
-  }
-}
+//     console.log('Acción confirmada.');
+//   }
+// }
 
-function desaprobar_vehiculo() {
-  if (window.confirm('¿Estás seguro de que desea rechazar el vehículo?')) {
-    // Código a ejecutar si el usuario hace clic en "Aceptar"
+// function desaprobar_vehiculo() {
+//   if (window.confirm('¿Estás seguro de que desea rechazar el vehículo?')) {
+//     // Código a ejecutar si el usuario hace clic en "Aceptar"
 
-    var idsoli = $('#id_soli').val();
+//     var idsoli = $('#id_soli').val();
 
-    var idv = $('#valor_vehiculo').val();
+//     var idv = $('#valor_vehiculo').val();
 
-    var idc = $('#conductor_id').val();
+//     var idc = $('#conductor_id').val();
 
-    var estado = $('#estadostudy').val();
+//     var estado = $('#estadostudy').val();
 
-    var data = null;
+//     var data = null;
 
-    data = new FormData();
+//     data = new FormData();
 
-    // data.append("accion", 'desaprobarHVvehiculo');
+//     // data.append("accion", 'desaprobarHVvehiculo');
 
-    data.append('fecha', $('#fechag').val());
+//     data.append('fecha', $('#fechag').val());
 
-    data.append('hora', $('#horag').val());
+//     data.append('hora', $('#horag').val());
 
-    data.append('user', $('#usuariog').val());
+//     data.append('user', $('#usuariog').val());
 
-    data.append('observeheciulo', $('#observeheciulo').val());
+//     data.append('observeheciulo', $('#observeheciulo').val());
 
-    data.append('id_vehiculo', idv);
+//     data.append('id_vehiculo', idv);
 
-    data.append('id_conductor', idc);
+//     data.append('id_conductor', idc);
 
-    data.append('idsoli', idsoli);
+//     data.append('idsoli', idsoli);
 
-    data.append('idtipo', $('#id_tvehiculo').val());
+//     data.append('idtipo', $('#id_tvehiculo').val());
 
-    $.ajax({
-      url: $('#id_url_ajax').val() + 'validacionparametros/Desaprobar_vehiculo_estudio',
+//     $.ajax({
+//       url: $('#id_url_ajax').val() + 'validacionparametros/Desaprobar_vehiculo_estudio',
 
-      type: 'POST',
+//       type: 'POST',
 
-      data: data,
+//       data: data,
 
-      cache: false,
+//       cache: false,
 
-      processData: false, // Don't process the files
+//       processData: false, // Don't process the files
 
-      contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+//       contentType: false, // Set content type to false as jQuery will tell the server its a query string request
 
-      dataType: 'json',
+//       dataType: 'json',
 
-      success: function(data) {
-        if (data.numero === 200) {
-          mensaje = `
+//       success: function (data) {
+//         if (data.numero === 200) {
+//           mensaje = `
 
-          <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
+//           <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
 
-              <div class="icon"><span class="mdi mdi-check"></span></div>
+//               <div class="icon"><span class="mdi mdi-check"></span></div>
 
-              <div class="message">
+//               <div class="message">
 
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
 
-                <strong>Mensaje!</strong> ${data.mensaje}</div></div>`;
+//                 <strong>Mensaje!</strong> ${data.mensaje}</div></div>`;
 
-          lista_hojas_de_vida(idv, idc, idsoli);
-        } else {
-          mensaje = `
+//           lista_hojas_de_vida(idv, idc, idsoli);
+//         } else {
+//           mensaje = `
 
-          <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert">
+//           <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert">
 
-              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+//               <div class="icon"><span class="mdi mdi-info-outline"></span></div>
 
-              <div class="message">
+//               <div class="message">
 
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
 
-                <strong>Mensaje!</strong> ${data.mensaje}</div></div>`;
+//                 <strong>Mensaje!</strong> ${data.mensaje}</div></div>`;
 
-          lista_hojas_de_vida(idv, idc, idsoli);
-        }
+//           lista_hojas_de_vida(idv, idc, idsoli);
+//         }
 
-        d.getElementById('historico_estudios').innerHTML = mensaje;
+//         d.getElementById('historico_estudios').innerHTML = mensaje;
 
-        $('#content_risk').hide();
+//         $('#content_risk').hide();
 
-        $('#content_conductor').hide();
+//         $('#content_conductor').hide();
 
-        $('#content_vehiculo').hide();
+//         $('#content_vehiculo').hide();
 
-        // lista(idv, idc, idsoli, id_preestudio);
-      },
+//         // lista(idv, idc, idsoli, id_preestudio);
+//       },
 
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log('no inserto hv vehiculo no aprobada');
+//       error: function (jqXHR, textStatus, errorThrown) {
+//         console.log('no inserto hv vehiculo no aprobada');
 
-        console.log(jqXHR);
+//         console.log(jqXHR);
 
-        console.log(textStatus);
+//         console.log(textStatus);
 
-        console.log(errorThrown);
-      },
-    });
-  } else {
-    // Código a ejecutar si el usuario hace clic en "Cancelar"
+//         console.log(errorThrown);
+//       },
+//     });
+//   } else {
+//     // Código a ejecutar si el usuario hace clic en "Cancelar"
 
-    console.log('Acción confirmada.');
-  }
-}
+//     console.log('Acción confirmada.');
+//   }
+// }
 
 // Datos vehiculos
-function verConductor() {
-  var num_doc = $('#valor_conductor').val();
+// function verConductor() {
+//   var num_doc = $('#valor_conductor').val();
 
-  var idc = $('#conductor_id').val();
-  /* Boton para editar el conductor */
-  var btn = document.getElementById('btn_editar_conductor');
-  btn.setAttribute('data-idconductor', idc);
+//   var idc = $('#conductor_id').val();
+//   /* Boton para editar el conductor */
+//   var btn = document.getElementById('btn_editar_conductor');
+//   btn.setAttribute('data-idconductor', idc);
 
-  var params2 = {
-    id_conductor: idc,
-    num_documento: num_doc,
-  };
+//   var params2 = {
+//     id_conductor: idc,
+//     num_documento: num_doc,
+//   };
 
-  $('#fotos_conductor').html('');
+//   $('#fotos_conductor').html('');
 
-  $('#foto_indumentaria').html('');
+//   $('#foto_indumentaria').html('');
 
-  $('#documentos_licencia').html('');
+//   $('#documentos_licencia').html('');
 
-  $('#documentos_rut').html('');
+//   $('#documentos_rut').html('');
 
-  $('#documentos_eps').html('');
+//   $('#documentos_eps').html('');
 
-  $('#documentos_peligro').html('');
+//   $('#documentos_peligro').html('');
 
-  $('#documentos_acuerdo').html('');
-  $('#fotos_cedulas').html('');
+//   $('#documentos_acuerdo').html('');
+//   $('#fotos_cedulas').html('');
 
-  $.ajax({
-    // url: "http://localhost/mvcLuisMiguel/libs/seguridad_estudio2_ajax.php",
+//   $.ajax({
+//     // url: "http://localhost/mvcLuisMiguel/libs/seguridad_estudio2_ajax.php",
 
-    url: $('#id_url_ajax').val() + 'validacionparametros/ver_conductor',
+//     url: $('#id_url_ajax').val() + 'validacionparametros/ver_conductor',
 
-    type: 'POST',
+//     type: 'POST',
 
-    data: params2,
+//     data: params2,
 
-    dataType: 'json',
+//     dataType: 'json',
 
-    success: function(data) {
-      // console.log('si hayyyy conductor');
+//     success: function (data) {
+//       // console.log('si hayyyy conductor');
 
-      // console.log(data);
+//       // console.log(data);
 
-      if (data.proveedores) {
-        $('#name').val(data.proveedores.nombre + ' ' + data.proveedores.apellido1 + ' ' + data.proveedores.apellido2);
+//       if (data.proveedores) {
+//         $('#name').val(data.proveedores.nombre + ' ' + data.proveedores.apellido1 + ' ' + data.proveedores.apellido2);
 
-        $('#tdocumento').val(data.proveedores.tipo_documento);
+//         $('#tdocumento').val(data.proveedores.tipo_documento);
 
-        $('#documento').val(data.proveedores.numero_documento);
+//         $('#documento').val(data.proveedores.numero_documento);
 
-        $('#numero').val(data.proveedores.celular);
+//         $('#numero').val(data.proveedores.celular);
 
-        $('#numero2').val(data.proveedores.celular2);
+//         $('#numero2').val(data.proveedores.celular2);
 
-        $('#contacto').val(data.proveedores.contacto);
+//         $('#contacto').val(data.proveedores.contacto);
 
-        $('#dire').val(data.proveedores.direccion);
+//         $('#dire').val(data.proveedores.direccion);
 
-        $('#muni').val(data.proveedores.cipio);
+//         $('#muni').val(data.proveedores.cipio);
 
-        // $("#email").val(data.proveedores.email);
+//         // $("#email").val(data.proveedores.email);
 
-        $('#num_li').val(data.proveedores.rndc_numero_licencia);
+//         $('#num_li').val(data.proveedores.rndc_numero_licencia);
 
-        $('#cate_li').val(data.proveedores.rndc_categoria_licencia);
+//         $('#cate_li').val(data.proveedores.rndc_categoria_licencia);
 
-        $('#fecha_vencimiento_licencia').val(data.proveedores.rndc_vencimiento_licencia);
+//         $('#fecha_vencimiento_licencia').val(data.proveedores.rndc_vencimiento_licencia);
 
-        // $("#eps").val(data.proveedores.nombre_eps);
+//         // $("#eps").val(data.proveedores.nombre_eps);
 
-        $('#veps').val(data.proveedores.fecha_vence_eps);
+//         $('#veps').val(data.proveedores.fecha_vence_eps);
 
-        $('#ultimoeps').val(data.proveedores.ultimo_eps);
+//         $('#ultimoeps').val(data.proveedores.ultimo_eps);
 
-        $('#arl').val(data.proveedores.nombre_arl);
+//         $('#arl').val(data.proveedores.nombre_arl);
 
-        $('#varl').val(data.proveedores.fecha_vence_arl);
+//         $('#varl').val(data.proveedores.fecha_vence_arl);
 
-        $('#ultimoarl').val(data.proveedores.ultimo_arl);
+//         $('#ultimoarl').val(data.proveedores.ultimo_arl);
 
-        //
-        $('#fijocll').val(data.proveedores.contacto);
-        $('#emailcll').val(data.proveedores.email);
-        $('#plantillacll').val(data.proveedores.nombre_eps);
-        $('#fecha_vencimiento_plantilla').val(data.proveedores.fecha_vence_eps);
-        $('#curso_peligrosocll').val(data.proveedores.nombre_entidad);
-        $('#fecha_vencimiento_curso').val(data.proveedores.vence_curso);
-        $('#sexo').val(data.proveedores.sexo);
-        $('#fecha_nacimiento').val(data.proveedores.fecha_nacimiento);
-        $('#grupo_sanguineo').val(data.proveedores.grupo_sanguineo);
-        $('#estado_civil').val(data.proveedores.estado_civil);
-        $('#fecha_ingreso').val(data.proveedores.fecha_ingreso);
+//         //
+//         $('#fijocll').val(data.proveedores.contacto);
+//         $('#emailcll').val(data.proveedores.email);
+//         $('#plantillacll').val(data.proveedores.nombre_eps);
+//         $('#fecha_vencimiento_plantilla').val(data.proveedores.fecha_vence_eps);
+//         $('#curso_peligrosocll').val(data.proveedores.nombre_entidad);
+//         $('#fecha_vencimiento_curso').val(data.proveedores.vence_curso);
+//         $('#sexo').val(data.proveedores.sexo);
+//         $('#fecha_nacimiento').val(data.proveedores.fecha_nacimiento);
+//         $('#grupo_sanguineo').val(data.proveedores.grupo_sanguineo);
+//         $('#estado_civil').val(data.proveedores.estado_civil);
+//         $('#fecha_ingreso').val(data.proveedores.fecha_ingreso);
 
-        //fotos conductor
+//         //fotos conductor
 
-        if (
-          data.proveedores.name_cfrontal != '' &&
-          data.proveedores.name_cfrontal != null &&
-          data.proveedores.name_cderecha != '' &&
-          data.proveedores.name_cderecha != null &&
-          data.proveedores.name_cizquierda != '' &&
-          data.proveedores.name_cizquierda != null
-        ) {
-          $('#fotos_conductor').append(
-            `<tr>
+//         if (
+//           data.proveedores.name_cfrontal != '' &&
+//           data.proveedores.name_cfrontal != null &&
+//           data.proveedores.name_cderecha != '' &&
+//           data.proveedores.name_cderecha != null &&
+//           data.proveedores.name_cizquierda != '' &&
+//           data.proveedores.name_cizquierda != null
+//         ) {
+//           $('#fotos_conductor').append(
+//             `<tr>
 
-                <td>1</td>
+//                 <td>1</td>
 
-                <td>
+//                 <td>
 
-                  <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.foto_conductor}','${data.proveedores.name_cfrontal}')" class="cell-detail hint--top-left" data-hint="">
+//                   <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.foto_conductor}','${data.proveedores.name_cfrontal}')" class="cell-detail hint--top-left" data-hint="">
 
-                      <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//                       <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
 
-                  </a>
+//                   </a>
 
-                </td>
+//                 </td>
 
-                <td>${data.proveedores.name_cfrontal}</td>
+//                 <td>${data.proveedores.name_cfrontal}</td>
 
-                <td>Frontal</td>
+//                 <td>Frontal</td>
 
-             </tr>    
+//              </tr>    
 
-             <tr>
+//              <tr>
 
-                <td>2</td>
+//                 <td>2</td>
 
-                <td>
+//                 <td>
 
-                  <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.foto_derecha}','${data.proveedores.name_cderecha}')" class="cell-detail hint--top-left" data-hint="">
+//                   <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.foto_derecha}','${data.proveedores.name_cderecha}')" class="cell-detail hint--top-left" data-hint="">
 
-                      <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//                       <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
 
-                  </a>
+//                   </a>
 
-                </td>
+//                 </td>
 
-                <td>${data.proveedores.name_cderecha}</td>
+//                 <td>${data.proveedores.name_cderecha}</td>
 
-                <td>Derecha</td>
+//                 <td>Derecha</td>
 
-            </tr>
+//             </tr>
 
-             <tr>
+//              <tr>
 
-                <td>3</td>
+//                 <td>3</td>
 
-                <td>
+//                 <td>
 
-                  <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.foto_izquierda}','${data.proveedores.name_cizquierda}')" class="cell-detail hint--top-left" data-hint="">
+//                   <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.foto_izquierda}','${data.proveedores.name_cizquierda}')" class="cell-detail hint--top-left" data-hint="">
 
-                      <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//                       <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
 
-                  </a>
+//                   </a>
 
-                </td>
+//                 </td>
 
-                <td>${data.proveedores.name_cizquierda}</td>
+//                 <td>${data.proveedores.name_cizquierda}</td>
 
-                <td>Izquierda</td>
+//                 <td>Izquierda</td>
 
-            </tr>
+//             </tr>
 
-           `,
-          );
-        } else {
-          var f, d, iz;
+//            `,
+//           );
+//         } else {
+//           var f, d, iz;
 
-          if (data.proveedores.name_cfrontal == '' || data.proveedores.name_cfrontal == null) {
-            f = '<tr><td><p class="text-danger"><strong>No existe foto frontal</strong></p></td><td></td><td></td></tr>';
-          } else {
-            f =
-              '<tr><td>1</td><td>' +
-              '<a onclick="abrir_fotos(' +
-              data.proveedores.foto_conductor +
-              ' , ' +
-              data.proveedores.name_cfrontal +
-              ')" class="cell-detail hint--top-left" data-hint="">' +
-              '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
-              '</span>' +
-              '</a>' +
-              '</td><td>' +
-              data.proveedores.name_cfrontal +
-              '</td><td>Frontal</td></tr>';
-          }
+//           if (data.proveedores.name_cfrontal == '' || data.proveedores.name_cfrontal == null) {
+//             f = '<tr><td><p class="text-danger"><strong>No existe foto frontal</strong></p></td><td></td><td></td></tr>';
+//           } else {
+//             f =
+//               '<tr><td>1</td><td>' +
+//               '<a onclick="abrir_fotos(' +
+//               data.proveedores.foto_conductor +
+//               ' , ' +
+//               data.proveedores.name_cfrontal +
+//               ')" class="cell-detail hint--top-left" data-hint="">' +
+//               '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
+//               '</span>' +
+//               '</a>' +
+//               '</td><td>' +
+//               data.proveedores.name_cfrontal +
+//               '</td><td>Frontal</td></tr>';
+//           }
 
-          if (data.proveedores.name_cderecha == '' || data.proveedores.name_cderecha == null) {
-            d = '<tr><td><p class="text-danger"><strong>No existe foto derecha</strong></p></td><td></td><td></td></tr>';
-          } else {
-            d =
-              '<tr><td>2</td><td>' +
-              '<a onclick="abrir_fotos(' +
-              data.proveedores.foto_derecha +
-              ' , ' +
-              data.proveedores.name_cderecha +
-              ')" class="cell-detail hint--top-left" data-hint="">' +
-              '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
-              '</span>' +
-              '</a>' +
-              '</td><td>' +
-              data.proveedores.name_cderecha +
-              '</td><td>Derecha</td></tr>';
-          }
+//           if (data.proveedores.name_cderecha == '' || data.proveedores.name_cderecha == null) {
+//             d = '<tr><td><p class="text-danger"><strong>No existe foto derecha</strong></p></td><td></td><td></td></tr>';
+//           } else {
+//             d =
+//               '<tr><td>2</td><td>' +
+//               '<a onclick="abrir_fotos(' +
+//               data.proveedores.foto_derecha +
+//               ' , ' +
+//               data.proveedores.name_cderecha +
+//               ')" class="cell-detail hint--top-left" data-hint="">' +
+//               '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
+//               '</span>' +
+//               '</a>' +
+//               '</td><td>' +
+//               data.proveedores.name_cderecha +
+//               '</td><td>Derecha</td></tr>';
+//           }
 
-          if (data.proveedores.name_cizquierda == '' || data.proveedores.name_cizquierda == null) {
-            iz = '<tr><td><p class="text-danger"><strong>No existe foto izquierda</strong></p></td><td></td><td></td></tr>';
-          } else {
-            iz =
-              '<tr><td>3</td><td>' +
-              '<a onclick="abrir_fotos(' +
-              data.proveedores.foto_izquierda +
-              ' , ' +
-              data.proveedores.name_cizquierda +
-              ')" class="cell-detail hint--top-left" data-hint="">' +
-              '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
-              '</span>' +
-              '</a>' +
-              '</td><td>' +
-              data.proveedores.name_cizquierda +
-              '</td><td>Izquierda</td></tr>';
-          }
+//           if (data.proveedores.name_cizquierda == '' || data.proveedores.name_cizquierda == null) {
+//             iz = '<tr><td><p class="text-danger"><strong>No existe foto izquierda</strong></p></td><td></td><td></td></tr>';
+//           } else {
+//             iz =
+//               '<tr><td>3</td><td>' +
+//               '<a onclick="abrir_fotos(' +
+//               data.proveedores.foto_izquierda +
+//               ' , ' +
+//               data.proveedores.name_cizquierda +
+//               ')" class="cell-detail hint--top-left" data-hint="">' +
+//               '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
+//               '</span>' +
+//               '</a>' +
+//               '</td><td>' +
+//               data.proveedores.name_cizquierda +
+//               '</td><td>Izquierda</td></tr>';
+//           }
 
-          $('#fotos_conductor').append(f + d + iz);
-        }
+//           $('#fotos_conductor').append(f + d + iz);
+//         }
 
-        // Cedula Conductor
+//         // Cedula Conductor
+//         if (data.proveedores.documentos_soporte != '') {
+//           $('#fotos_cedulas').append(
+//             `<tr>
 
-        if (data.proveedores.documentos_soporte != '') {
-          $('#fotos_cedulas').append(
-            `<tr>
+//                 <td>1</td>
 
-                <td>1</td>
+//                 <td>
 
-                <td>
+//                   <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.documentos_soporte}','')" class="cell-detail hint--top-left" data-hint="">
 
-                  <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.documentos_soporte}','')" class="cell-detail hint--top-left" data-hint="">
+//                       <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
 
-                      <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//                   </a>
 
-                  </a>
+//                 </td>
 
-                </td>
+//                 <td>${data.proveedores.name_cfrontal}</td>
 
-                <td>${data.proveedores.name_cfrontal}</td>
+//             </tr>`,
+//           );
+//         } else {
+//           $('#fotos_cedulas').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
+//         }
 
-            </tr>`,
-          );
-        } else {
-          $('#fotos_cedulas').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
-        }
+//         //licencia
 
-        //licencia
+//         if (data.proveedores.name_cindu != '' && data.proveedores.name_cindu != null) {
+//           $('#foto_indumentaria').append(
+//             `<tr>
 
-        if (data.proveedores.name_cindu != '' && data.proveedores.name_cindu != null) {
-          $('#foto_indumentaria').append(
-            `<tr>
+//                 <td>1</td>
 
-                <td>1</td>
+//                 <td>
 
-                <td>
+//                   <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.foto_indumentaria}','${data.proveedores.name_cindu}')" class="cell-detail hint--top-left" data-hint="">
 
-                  <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.foto_indumentaria}','${data.proveedores.name_cindu}')" class="cell-detail hint--top-left" data-hint="">
+//                       <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+
+//                   </a>
+
+//                 </td>
+
+//                 <td>${data.proveedores.name_cfrontal}</td>
+
+//             </tr>`,
+//           );
+//         } else {
+//           $('#foto_indumentaria').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
+//         }
+
+//         //licencia
+
+//         if (data.proveedores.n_docu_licencia != '' && data.proveedores.n_docu_licencia != null) {
+//           $('#documentos_licencia').append(
+//             `<tr>
+
+//             <td>1</td>
+
+//             <td>
 
-                      <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//               <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.subir_licencia}','${data.proveedores.n_docu_licencia}')" class="cell-detail hint--top-left" data-hint="">
 
-                  </a>
+//                   <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
 
-                </td>
+//               </a>
 
-                <td>${data.proveedores.name_cfrontal}</td>
+//             </td>
 
-            </tr>`,
-          );
-        } else {
-          $('#foto_indumentaria').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
-        }
-
-        //licencia
+//             <td>${data.proveedores.name_cfrontal}</td>
+//         </tr>`,
+//           );
+//         } else {
+//           $('#documentos_licencia').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
+//         }
+//         //Rut
 
-        if (data.proveedores.n_docu_licencia != '' && data.proveedores.n_docu_licencia != null) {
-          $('#documentos_licencia').append(
-            `<tr>
+//         if (data.proveedores.n_docu_rut != '' && data.proveedores.n_docu_rut != null) {
+//           $('#documentos_rut').append(
+//             '<tr><td>1</td>' +
+//             '<td>' +
+//             '<a href="javascript:void(0);" onclick="abrir_fotos(' +
+//             data.proveedores.documento_rut +
+//             ' / ' +
+//             data.proveedores.n_docu_rut +
+//             ')" class="cell-detail hint--top-left" data-hint="">' +
+//             '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
+//             '</span>' +
+//             '</a>' +
+//             '</td>' +
+//             '<td>' +
+//             data.proveedores.n_docu_rut +
+//             '</td></tr>',
+//           );
+//         } else {
+//           $('#documentos_rut').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
+//         }
 
-            <td>1</td>
+//         //EPS
 
-            <td>
+//         if (data.proveedores.n_docu_eps != '' && data.proveedores.n_docu_eps != null) {
+//           $('#documentos_eps').append(
+//             `<tr>
+//                 <td>1</td>
+//                 <td> 
+//                   <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.documento_eps}' , '${data.proveedores.n_docu_eps}')" class="cell-detail hint--top-left" data-hint="">
+//                     <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//                   </a>
+//                 </td>
+//                <td>${data.proveedores.n_docu_eps}</td>
+//             </tr>
+//             `,
+//             // '<tr><td>1</td>' +
+//             //   '<td>' +
+//             //   '<a href="javascript:void(0);" onclick="abrir_fotos(' +
+//             //   data.proveedores.documento_eps +
+//             //   ' , ' +
+//             //   data.proveedores.n_docu_eps +
+//             //   ')" class="cell-detail hint--top-left" data-hint="">' +
+//             //   '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
+//             //   '</span>' +
+//             //   '</a>' +
+//             //   '</td>' +
+//             //   '<td>' +
+//             //   data.proveedores.n_docu_eps +
+//             //   '</td></tr>',
+//           );
+//         } else {
+//           $('#documentos_eps').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
+//         }
 
-              <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.subir_licencia}','${data.proveedores.n_docu_licencia}')" class="cell-detail hint--top-left" data-hint="">
+//         //CURSO MERCANCIA PELIGROSA
+//         if (data.proveedores.n_docu_curso != '' && data.proveedores.n_docu_curso != null) {
+//           $('#documentos_peligro').append(
+//             `<tr>
+//                 <td>1</td>' 
+//                 <td>
+//                   <a  href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.carnet_curso}' , '${data.proveedores.n_docu_curso}')" class="cell-detail hint--top-left" data-hint="">
+//                     <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" ></span>
+//                   </a>
+//                 </td>
+//                 <td>${data.proveedores.n_docu_curso}</td>
+//               </tr>`,
+//           );
+//         } else {
+//           $('#documentos_peligro').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
+//         }
 
-                  <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//         //ACUERDO
 
-              </a>
+//         if (data.proveedores.name_acuerdo1 != '' && data.proveedores.name_acuerdo1 != null) {
+//           $('#documentos_acuerdo').append(
+//             `<tr>
 
-            </td>
+//               <td>1</td>
 
-            <td>${data.proveedores.name_cfrontal}</td>
-        </tr>`,
-          );
-        } else {
-          $('#documentos_licencia').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
-        }
-        //Rut
+//               <td>
 
-        if (data.proveedores.n_docu_rut != '' && data.proveedores.n_docu_rut != null) {
-          $('#documentos_rut').append(
-            '<tr><td>1</td>' +
-              '<td>' +
-              '<a href="javascript:void(0);" onclick="abrir_fotos(' +
-              data.proveedores.documento_rut +
-              ' / ' +
-              data.proveedores.n_docu_rut +
-              ')" class="cell-detail hint--top-left" data-hint="">' +
-              '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
-              '</span>' +
-              '</a>' +
-              '</td>' +
-              '<td>' +
-              data.proveedores.n_docu_rut +
-              '</td></tr>',
-          );
-        } else {
-          $('#documentos_rut').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
-        }
+//                 <a href="Javascript:Void(0);" onclick="abrir_fotos('${data.proveedores.foto_acuerdo1}','${data.proveedores.name_acuerdo1}')" class="cell-detail hint--top-left" data-hint="">
 
-        //EPS
+//                   <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
 
-        if (data.proveedores.n_docu_eps != '' && data.proveedores.n_docu_eps != null) {
-          $('#documentos_eps').append(
-            `<tr>
-                <td>1</td>
-                <td> 
-                  <a href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.documento_eps}' , '${data.proveedores.n_docu_eps}')" class="cell-detail hint--top-left" data-hint="">
-                    <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
-                  </a>
-                </td>
-               <td>${data.proveedores.n_docu_eps}</td>
-            </tr>
-            `,
-            // '<tr><td>1</td>' +
-            //   '<td>' +
-            //   '<a href="javascript:void(0);" onclick="abrir_fotos(' +
-            //   data.proveedores.documento_eps +
-            //   ' , ' +
-            //   data.proveedores.n_docu_eps +
-            //   ')" class="cell-detail hint--top-left" data-hint="">' +
-            //   '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
-            //   '</span>' +
-            //   '</a>' +
-            //   '</td>' +
-            //   '<td>' +
-            //   data.proveedores.n_docu_eps +
-            //   '</td></tr>',
-          );
-        } else {
-          $('#documentos_eps').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
-        }
+//                 </a>
 
-        //CURSO MERCANCIA PELIGROSA
+//               </td>
 
-        if (data.proveedores.n_docu_curso != '' && data.proveedores.n_docu_curso != null) {
-          $('#documentos_peligro').append(
-            `<tr>
-                <td>1</td>' 
-                <td>
-                  <a  href="javascript:void(0);" onclick="abrir_fotos('${data.proveedores.carnet_curso}' , '${data.proveedores.n_docu_curso}')" class="cell-detail hint--top-left" data-hint="">
-                    <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" ></span>
-                  </a>
-                </td>
-                <td>${data.proveedores.n_docu_curso}</td>
-              </tr>`,
-          );
-        } else {
-          $('#documentos_peligro').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
-        }
+//               <td> ${data.proveedores.name_acuerdo1}</td>
 
-        //ACUERDO
+//             </tr>`,
+//           );
+//         } else {
+//           $('#documentos_acuerdo').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
+//         }
 
-        if (data.proveedores.name_acuerdo1 != '' && data.proveedores.name_acuerdo1 != null) {
-          $('#documentos_acuerdo').append(
-            `<tr>
+//         if (data.referencia_laboral) {
+//           var cont = 0;
 
-              <td>1</td>
+//           var d = 0;
 
-              <td>
+//           $('#documentos_laborales').html('');
 
-                <a href="Javascript:Void(0);" onclick="abrir_fotos('${data.proveedores.foto_acuerdo1}','${data.proveedores.name_acuerdo1}')" class="cell-detail hint--top-left" data-hint="">
+//           data.referencia_laboral.forEach(function (element, index) {
+//             cont++;
 
-                  <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//             $('#refl' + cont).val(element.nombre_empresa);
 
-                </a>
+//             $('#fechal' + cont).val(element.fecha_ingreso);
 
-              </td>
+//             $('#fechafinall' + cont).val(element.fecha_retiro);
 
-              <td> ${data.proveedores.name_acuerdo1}</td>
+//             $('#contactol' + cont).val(element.persona_contacto);
 
-            </tr>`,
-          );
-        } else {
-          $('#documentos_acuerdo').html('<tr><td><p class="text-danger"><strong>No existe el archivo</strong></p></td><td></td><td></td></tr>');
-        }
+//             $('#cel' + cont).val(element.celular);
 
-        if (data.referencia_laboral) {
-          var cont = 0;
+//             $('#cargo' + cont).val(element.cargo);
 
-          var d = 0;
+//             $('#antig' + cont).val(element.antiguedad);
 
-          $('#documentos_laborales').html('');
+//             if (element.name_documento != null) {
+//               d++;
 
-          data.referencia_laboral.forEach(function(element, index) {
-            cont++;
+//               var docu, name;
 
-            $('#refl' + cont).val(element.nombre_empresa);
+//               if (element.name_documento != null && element.name_documento != '') {
+//                 docu = `<a href="Javascript:Void(0);" onclick="abrir_fotos('${element.documento_empresarial}','${element.name_documento}')" class="cell-detail hint--top-left" data-hint="">
 
-            $('#fechal' + cont).val(element.fecha_ingreso);
+//                   <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
 
-            $('#fechafinall' + cont).val(element.fecha_retiro);
+//                   </a>`;
 
-            $('#contactol' + cont).val(element.persona_contacto);
+//                 name = element.name_documento;
 
-            $('#cel' + cont).val(element.celular);
+//                 $('#documentos_laborales').append(
+//                   '<tr><td>' + d + '<input type="hidden" id="idr' + d + '" value="' + element.id + '" style="width:10px;" ></td>' + '<td>' + docu + '</td>' + '<td>' + name + '</td></tr>',
+//                 );
+//               }
+//             }
+//           });
+//         }
 
-            $('#cargo' + cont).val(element.cargo);
+//         if (data.referencia_personales) {
+//           var cue = 0;
 
-            $('#antig' + cont).val(element.antiguedad);
+//           var p = 0;
 
-            if (element.name_documento != null) {
-              d++;
+//           $('#documentos_personal').html('');
 
-              var docu, name;
+//           data.referencia_personales.forEach(function (element, index) {
+//             cue++;
 
-              if (element.name_documento != null && element.name_documento != '') {
-                docu = `<a href="Javascript:Void(0);" onclick="abrir_fotos('${element.documento_empresarial}','${element.name_documento}')" class="cell-detail hint--top-left" data-hint="">
+//             var pare = element.parentezco;
 
-                  <span class="icon mdi mdi-file-text data-toggle="modal" title="Documento"></span>
+//             if (pare == '1') {
+//               $('#parenp' + cue).val('Amigo/a');
+//             }
 
-                  </a>`;
+//             if (pare == '2') {
+//               $('#parenp' + cue).val('Hermano/a');
+//             }
 
-                name = element.name_documento;
+//             if (pare == '3') {
+//               $('#parenp' + cue).val('Padre');
+//             }
 
-                $('#documentos_laborales').append(
-                  '<tr><td>' + d + '<input type="hidden" id="idr' + d + '" value="' + element.id + '" style="width:10px;" ></td>' + '<td>' + docu + '</td>' + '<td>' + name + '</td></tr>',
-                );
-              }
-            }
-          });
-        }
-
-        if (data.referencia_personales) {
-          var cue = 0;
-
-          var p = 0;
-
-          $('#documentos_personal').html('');
-
-          data.referencia_personales.forEach(function(element, index) {
-            cue++;
-
-            var pare = element.parentezco;
-
-            if (pare == '1') {
-              $('#parenp' + cue).val('Amigo/a');
-            }
-
-            if (pare == '2') {
-              $('#parenp' + cue).val('Hermano/a');
-            }
-
-            if (pare == '3') {
-              $('#parenp' + cue).val('Padre');
-            }
-
-            if (pare == '4') {
-              $('#parenp' + cue).val('Madre');
-            }
-
-            if (pare == '5') {
-              $('#parenp' + cue).val('Tio/a');
-            }
-
-            if (pare == '6') {
-              $('#parenp' + cue).val('Sobrino/a');
-            }
-
-            if (pare == '7') {
-              $('#parenp' + cue).val('Hijo/a');
-            }
-
-            if (pare == '8') {
-              $('#parenp' + cue).val('Espaso/a');
-            }
-
-            $('#refp' + cue).val(element.nombre_personal);
-
-            $('#fechap' + cue).val(element.fecha_personal);
-
-            $('#telp' + cue).val(element.tel_personal);
-
-            //documentos personales
-
-            if (element.name_documento != null && element.name_documento != '') {
-              p++;
-
-              $('#documentos_personal').append(
-                '<tr><td>' +
-                  p +
-                  '<input type="hidden" id="idp' +
-                  p +
-                  '" value="' +
-                  element.id +
-                  '" style="width:10px;" ></td>' +
-                  '<td>' +
-                  '<a onclick="abrir_fotos(' +
-                  element.documento_personal +
-                  ' / ' +
-                  element.name_documento +
-                  ')" class="cell-detail hint--top-left" data-hint="">' +
-                  '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
-                  '</span>' +
-                  '</a>' +
-                  '</td>' +
-                  '<td>' +
-                  element.name_documento +
-                  '</td></tr>',
-              );
-            }
-          });
-        }
-      } else {
-        console.log('no hay datos conductor');
-      }
-    },
-
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log('no hayyyy conductor');
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    },
-  });
-}
-
-//aprobar la hoja de vida del coductor
-function aprobar_conductor() {
-  if (window.confirm('¿Estás seguro de que deseas aprobar al conductor?')) {
-    // Código a ejecutar si el usuario hace clic en "Aceptar"
-
-    var idsoli = $('#id_soli').val();
-    var idv = $('#valor_vehiculo').val();
-    var idc = $('#conductor_id').val();
-    var data = null;
-
-    data = new FormData();
-    data.append('fech', $('#fechag').val());
-    data.append('hor', $('#horag').val());
-    data.append('usuari', $('#usuariog').val());
-    data.append('id_vehiculo', idv);
-    data.append('id_conductor', idc);
-    data.append('obse_condu', $('#obse_condu').val());
-    data.append('idsoli', idsoli);
-    data.append('idtipo', $('#id_tconductor').val());
-
-    $.ajax({
-      url: $('#id_url_ajax').val() + 'validacionparametros/Aprobar_conductor_estudio',
-      type: 'POST',
-      data: data,
-      cache: false,
-      processData: false, // Don't process the files
-      contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-      dataType: 'json',
-      success: function(data, textStatus, jqXHR) {
-        if (data.numero === 200) {
-          mensaje = `
-          <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
-              <div class="icon"><span class="mdi mdi-check"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-          </div> `;
-          lista_hojas_de_vida(idv, idc, idsoli);
-        } else {
-          mensaje = `
-          <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert"
-              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-          </div>`;
-          lista_hojas_de_vida(idv, idc, idsoli);
-        }
-        d.getElementById('historico_estudios').innerHTML = mensaje;
-        $('#content_vehiculo').hide();
-
-        $('#content_conductor').hide();
-        $('#content_risk').hide();
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log('no inserto hv conductor');
-        console.log(jqXHR);
-        console.log(textStatus);
-        console.log(errorThrown);
-      },
-    });
-  } else {
-    // Código a ejecutar si el usuario hace clic en "Cancelar"
-
-    console.log('Acción confirmada.');
-  }
-}
-
-function desaprobar_conductor() {
-  if (window.confirm('¿Estás seguro de que deseas rechazar al conductor?')) {
-    // Código a ejecutar si el usuario hace clic en "Aceptar"
-    var idsoli = $('#id_soli').val();
-    var idv = $('#valor_vehiculo').val();
-    var idc = $('#conductor_id').val();
-    var data = null;
-
-    data = new FormData();
-    data.append('fech', $('#fechag').val());
-    data.append('hor', $('#horag').val());
-    data.append('usuari', $('#usuariog').val());
-    data.append('id_vehiculo', idv);
-    data.append('id_conductor', idc);
-    data.append('obse_condu', $('#obse_condu').val());
-    data.append('idsoli', idsoli);
-    data.append('idtipo', $('#id_tconductor').val());
-
-    $.ajax({
-      url: $('#id_url_ajax').val() + 'validacionparametros/Desaprobar_conductor_estudio',
-      type: 'POST',
-      data: data,
-      cache: false,
-      processData: false, // Don't process the files
-      contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-      dataType: 'json',
-      success: function(data) {
-        if (data.numero === 200) {
-          mensaje = `
-          <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
-              <div class="icon"><span class="mdi mdi-check"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-          </div>`;
-          lista_hojas_de_vida(idv, idc, idsoli);
-        } else {
-          mensaje = `
-          <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert">
-              <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-          </div>`;
-          lista_hojas_de_vida(idv, idc, idsoli);
-        }
-        d.getElementById('historico_estudios').innerHTML = mensaje;
-        $('#content_risk').hide();
-        $('#content_conductor').hide();
-        $('#content_vehiculo').hide();
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log('no inserto hv conductor no aprobada');
-        console.log(jqXHR);
-        console.log(textStatus);
-        console.log(errorThrown);
-      },
-    });
-  } else {
-    // Código a ejecutar si el usuario hace clic en "Cancelar"
-    console.log('Acción confirmada.');
-  }
-}
-
-// aprobar riskc
-function aprobar_risk() {
-  var idsoli = $('#id_soli').val();
-  var idv = $('#valor_vehiculo').val();
-  var idc = $('#conductor_id').val();
-  var data = null;
-  data = new FormData();
-  var evidencia = document.getElementById('evi_plataforma').files;
-  if (evidencia.length === 0) {
-    data.append('evi_plataforma', 'Sin_datos');
-  } else {
-    // Aquí puedes realizar acciones adicionales, como enviar el archivo al servidor
-    for (var i = 0; i < evidencia.length; i++) {
-      data.append('evi_plataforma' + i, evidencia[i]);
-    }
-  }
-
-  data.append('fecha', $('#fechar').val());
-  data.append('hora', $('#horar').val());
-  data.append('usuario', $('#userr').val());
-  data.append('id_vehiculo', idv);
-  data.append('id_conductor', idc);
-  data.append('tipo_estudio', $('#tipo_plataforma').val());
-  data.append('obse_todo', $('#obse_todo').val());
-  data.append('name_eviden', $('#name_eviden').val());
-  data.append('ruta_eviden', $('#ruta_eviden').val());
-  data.append('idsoli', idsoli);
-  data.append('idtipo', $('#id_totros').val());
-
-  $.ajax({
-    url: $('#id_url_ajax').val() + 'validacionparametros/Aprobar_risk',
-    type: 'POST',
-    data: data,
-    cache: false,
-    processData: false, // Don't process the files
-    contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-    dataType: 'json',
-    success: function(data) {
-      if (data.numero === 200) {
-        mensaje = `<div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
-            <div class="icon"><span class="mdi mdi-check"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-            </div>`;
-        lista_hojas_de_vida(idv, idc, idsoli);
-      } else {
-        mensaje = `<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role ="alert">
-            <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-                <div class="message">
-                  <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                  <strong>Mensaje!</strong> ${data.mensaje}
-                </div>
-            </div>`;
-        lista_hojas_de_vida(idv, idc, idsoli);
-      }
-      d.getElementById('historico_estudios').innerHTML = mensaje;
-      $('#content_risk').hide();
-      $('#content_conductor').hide();
-      $('#content_vehiculo').hide();
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log('no inserto risck aprobada');
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    },
-  });
-}
-//desaprobar risck
-function desaprobar_risk() {
-  var idsoli = $('#id_soli').val();
-  var idv = $('#valor_vehiculo').val();
-  var idc = $('#conductor_id').val();
-  var data = null;
-  data = new FormData();
-  var evidencia = document.getElementById('evi_plataforma').files;
-  if (evidencia.length === 0) {
-    data.append('evi_plataforma', 'Sin_datos');
-  } else {
-    // Aquí puedes realizar acciones adicionales, como enviar el archivo al servidor
-    for (var i = 0; i < evidencia.length; i++) {
-      data.append('evi_plataforma' + i, evidencia[i]);
-    }
-  }
-
-  data.append('fecha', $('#fechar').val());
-  data.append('hora', $('#horar').val());
-  data.append('usuario', $('#userr').val());
-  data.append('id_vehiculo', idv);
-  data.append('id_conductor', idc);
-  data.append('tipo_estudio', $('#tipo_plataforma').val());
-  data.append('obse_todo', $('#obse_todo').val());
-  data.append('name_eviden', $('#name_eviden').val());
-  data.append('ruta_eviden', $('#ruta_eviden').val());
-  data.append('idsoli', idsoli);
-  data.append('idtipo', $('#id_totros').val());
-
-  $.ajax({
-    url: $('#id_url_ajax').val() + 'validacionparametros/Desaprobar_risk',
-    type: 'POST',
-    data: data,
-    cache: false,
-    processData: false, // Don't process the files
-    contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-    dataType: 'json',
-    success: function(data) {
-      if (data.numero === 200) {
-        mensaje = `<div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
-              <div class="icon"><span class="mdi mdi-check"></span></div>
-              <div class="message">
-                <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-                <strong>Mensaje!</strong> ${data.mensaje}
-              </div>
-          </div> `;
-        lista_hojas_de_vida(idv, idc, idsoli);
-      } else {
-        mensaje = `<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
-            <div class="icon"><span class="mdi mdi-info-outline"></span></div>
-            <div class="message">
-              <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
-              <strong>Mensaje!</strong> ${data.mensaje}</div></div>`;
-        lista_hojas_de_vida(idv, idc, idsoli);
-      }
-      d.getElementById('historico_estudios').innerHTML = mensaje;
-      $('#content_risk').hide();
-      $('#content_conductor').hide();
-      $('#content_vehiculo').hide();
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log('no inserto risck no aprobado');
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    },
-  });
-}
+//             if (pare == '4') {
+//               $('#parenp' + cue).val('Madre');
+//             }
+
+//             if (pare == '5') {
+//               $('#parenp' + cue).val('Tio/a');
+//             }
+
+//             if (pare == '6') {
+//               $('#parenp' + cue).val('Sobrino/a');
+//             }
+
+//             if (pare == '7') {
+//               $('#parenp' + cue).val('Hijo/a');
+//             }
+
+//             if (pare == '8') {
+//               $('#parenp' + cue).val('Espaso/a');
+//             }
+
+//             $('#refp' + cue).val(element.nombre_personal);
+
+//             $('#fechap' + cue).val(element.fecha_personal);
+
+//             $('#telp' + cue).val(element.tel_personal);
+
+//             //documentos personales
+
+//             if (element.name_documento != null && element.name_documento != '') {
+//               p++;
+
+//               $('#documentos_personal').append(
+//                 '<tr><td>' +
+//                 p +
+//                 '<input type="hidden" id="idp' +
+//                 p +
+//                 '" value="' +
+//                 element.id +
+//                 '" style="width:10px;" ></td>' +
+//                 '<td>' +
+//                 '<a onclick="abrir_fotos(' +
+//                 element.documento_personal +
+//                 ' / ' +
+//                 element.name_documento +
+//                 ')" class="cell-detail hint--top-left" data-hint="">' +
+//                 '<span class="icon mdi mdi-file-text data-toggle="modal" title="Documento" >' +
+//                 '</span>' +
+//                 '</a>' +
+//                 '</td>' +
+//                 '<td>' +
+//                 element.name_documento +
+//                 '</td></tr>',
+//               );
+//             }
+//           });
+//         }
+//       } else {
+//         console.log('no hay datos conductor');
+//       }
+//     },
+
+//     error: function (jqXHR, textStatus, errorThrown) {
+//       console.log('no hayyyy conductor');
+//       console.log(jqXHR);
+//       console.log(textStatus);
+//       console.log(errorThrown);
+//     },
+//   });
+// }
+
+// //aprobar la hoja de vida del coductor
+// function aprobar_conductor() {
+//   if (window.confirm('¿Estás seguro de que deseas aprobar al conductor?')) {
+//     // Código a ejecutar si el usuario hace clic en "Aceptar"
+
+//     var idsoli = $('#id_soli').val();
+//     var idv = $('#valor_vehiculo').val();
+//     var idc = $('#conductor_id').val();
+//     var data = null;
+
+//     data = new FormData();
+//     data.append('fech', $('#fechag').val());
+//     data.append('hor', $('#horag').val());
+//     data.append('usuari', $('#usuariog').val());
+//     data.append('id_vehiculo', idv);
+//     data.append('id_conductor', idc);
+//     data.append('obse_condu', $('#obse_condu').val());
+//     data.append('idsoli', idsoli);
+//     data.append('idtipo', $('#id_tconductor').val());
+
+//     $.ajax({
+//       url: $('#id_url_ajax').val() + 'validacionparametros/Aprobar_conductor_estudio',
+//       type: 'POST',
+//       data: data,
+//       cache: false,
+//       processData: false, // Don't process the files
+//       contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+//       dataType: 'json',
+//       success: function (data, textStatus, jqXHR) {
+//         if (data.numero === 200) {
+//           mensaje = `
+//           <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
+//               <div class="icon"><span class="mdi mdi-check"></span></div>
+//               <div class="message">
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <strong>Mensaje!</strong> ${data.mensaje}
+//               </div>
+//           </div> `;
+//           lista_hojas_de_vida(idv, idc, idsoli);
+//         } else {
+//           mensaje = `
+//           <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert"
+//               <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+//               <div class="message">
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <strong>Mensaje!</strong> ${data.mensaje}
+//               </div>
+//           </div>`;
+//           lista_hojas_de_vida(idv, idc, idsoli);
+//         }
+//         d.getElementById('historico_estudios').innerHTML = mensaje;
+//         $('#content_vehiculo').hide();
+
+//         $('#content_conductor').hide();
+//         $('#content_risk').hide();
+//       },
+//       error: function (jqXHR, textStatus, errorThrown) {
+//         console.log('no inserto hv conductor');
+//         console.log(jqXHR);
+//         console.log(textStatus);
+//         console.log(errorThrown);
+//       },
+//     });
+//   } else {
+//     // Código a ejecutar si el usuario hace clic en "Cancelar"
+
+//     console.log('Acción confirmada.');
+//   }
+// }
+
+// function desaprobar_conductor() {
+//   if (window.confirm('¿Estás seguro de que deseas rechazar al conductor?')) {
+//     // Código a ejecutar si el usuario hace clic en "Aceptar"
+//     var idsoli = $('#id_soli').val();
+//     var idv = $('#valor_vehiculo').val();
+//     var idc = $('#conductor_id').val();
+//     var data = null;
+
+//     data = new FormData();
+//     data.append('fech', $('#fechag').val());
+//     data.append('hor', $('#horag').val());
+//     data.append('usuari', $('#usuariog').val());
+//     data.append('id_vehiculo', idv);
+//     data.append('id_conductor', idc);
+//     data.append('obse_condu', $('#obse_condu').val());
+//     data.append('idsoli', idsoli);
+//     data.append('idtipo', $('#id_tconductor').val());
+
+//     $.ajax({
+//       url: $('#id_url_ajax').val() + 'validacionparametros/Desaprobar_conductor_estudio',
+//       type: 'POST',
+//       data: data,
+//       cache: false,
+//       processData: false, // Don't process the files
+//       contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+//       dataType: 'json',
+//       success: function (data) {
+//         if (data.numero === 200) {
+//           mensaje = `
+//           <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
+//               <div class="icon"><span class="mdi mdi-check"></span></div>
+//               <div class="message">
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <strong>Mensaje!</strong> ${data.mensaje}
+//               </div>
+//           </div>`;
+//           lista_hojas_de_vida(idv, idc, idsoli);
+//         } else {
+//           mensaje = `
+//           <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert">
+//               <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+//               <div class="message">
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <strong>Mensaje!</strong> ${data.mensaje}
+//               </div>
+//           </div>`;
+//           lista_hojas_de_vida(idv, idc, idsoli);
+//         }
+//         d.getElementById('historico_estudios').innerHTML = mensaje;
+//         $('#content_risk').hide();
+//         $('#content_conductor').hide();
+//         $('#content_vehiculo').hide();
+//       },
+//       error: function (jqXHR, textStatus, errorThrown) {
+//         console.log('no inserto hv conductor no aprobada');
+//         console.log(jqXHR);
+//         console.log(textStatus);
+//         console.log(errorThrown);
+//       },
+//     });
+//   } else {
+//     // Código a ejecutar si el usuario hace clic en "Cancelar"
+//     console.log('Acción confirmada.');
+//   }
+// }
+
+// // aprobar riskc
+// function aprobar_risk() {
+//   var idsoli = $('#id_soli').val();
+//   var idv = $('#valor_vehiculo').val();
+//   var idc = $('#conductor_id').val();
+//   var data = null;
+//   data = new FormData();
+//   var evidencia = document.getElementById('evi_plataforma').files;
+//   if (evidencia.length === 0) {
+//     data.append('evi_plataforma', 'Sin_datos');
+//   } else {
+//     // Aquí puedes realizar acciones adicionales, como enviar el archivo al servidor
+//     for (var i = 0; i < evidencia.length; i++) {
+//       data.append('evi_plataforma' + i, evidencia[i]);
+//     }
+//   }
+
+//   data.append('fecha', $('#fechar').val());
+//   data.append('hora', $('#horar').val());
+//   data.append('usuario', $('#userr').val());
+//   data.append('id_vehiculo', idv);
+//   data.append('id_conductor', idc);
+//   data.append('tipo_estudio', $('#tipo_plataforma').val());
+//   data.append('obse_todo', $('#obse_todo').val());
+//   data.append('name_eviden', $('#name_eviden').val());
+//   data.append('ruta_eviden', $('#ruta_eviden').val());
+//   data.append('idsoli', idsoli);
+//   data.append('idtipo', $('#id_totros').val());
+
+//   $.ajax({
+//     url: $('#id_url_ajax').val() + 'validacionparametros/Aprobar_risk',
+//     type: 'POST',
+//     data: data,
+//     cache: false,
+//     processData: false, // Don't process the files
+//     contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+//     dataType: 'json',
+//     success: function (data) {
+//       if (data.numero === 200) {
+//         mensaje = `<div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role="alert">
+//             <div class="icon"><span class="mdi mdi-check"></span></div>
+//               <div class="message">
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <strong>Mensaje!</strong> ${data.mensaje}
+//               </div>
+//             </div>`;
+//         lista_hojas_de_vida(idv, idc, idsoli);
+//       } else {
+//         mensaje = `<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role ="alert">
+//             <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+//                 <div class="message">
+//                   <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                   <strong>Mensaje!</strong> ${data.mensaje}
+//                 </div>
+//             </div>`;
+//         lista_hojas_de_vida(idv, idc, idsoli);
+//       }
+//       d.getElementById('historico_estudios').innerHTML = mensaje;
+//       $('#content_risk').hide();
+//       $('#content_conductor').hide();
+//       $('#content_vehiculo').hide();
+//     },
+//     error: function (jqXHR, textStatus, errorThrown) {
+//       console.log('no inserto risck aprobada');
+//       console.log(jqXHR);
+//       console.log(textStatus);
+//       console.log(errorThrown);
+//     },
+//   });
+// }
+
+// //desaprobar risck
+// function desaprobar_risk() {
+//   var idsoli = $('#id_soli').val();
+//   var idv = $('#valor_vehiculo').val();
+//   var idc = $('#conductor_id').val();
+//   var data = null;
+//   data = new FormData();
+//   var evidencia = document.getElementById('evi_plataforma').files;
+//   if (evidencia.length === 0) {
+//     data.append('evi_plataforma', 'Sin_datos');
+//   } else {
+//     // Aquí puedes realizar acciones adicionales, como enviar el archivo al servidor
+//     for (var i = 0; i < evidencia.length; i++) {
+//       data.append('evi_plataforma' + i, evidencia[i]);
+//     }
+//   }
+
+//   data.append('fecha', $('#fechar').val());
+//   data.append('hora', $('#horar').val());
+//   data.append('usuario', $('#userr').val());
+//   data.append('id_vehiculo', idv);
+//   data.append('id_conductor', idc);
+//   data.append('tipo_estudio', $('#tipo_plataforma').val());
+//   data.append('obse_todo', $('#obse_todo').val());
+//   data.append('name_eviden', $('#name_eviden').val());
+//   data.append('ruta_eviden', $('#ruta_eviden').val());
+//   data.append('idsoli', idsoli);
+//   data.append('idtipo', $('#id_totros').val());
+
+//   $.ajax({
+//     url: $('#id_url_ajax').val() + 'validacionparametros/Desaprobar_risk',
+//     type: 'POST',
+//     data: data,
+//     cache: false,
+//     processData: false, // Don't process the files
+//     contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+//     dataType: 'json',
+//     success: function (data) {
+//       if (data.numero === 200) {
+//         mensaje = `<div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
+//               <div class="icon"><span class="mdi mdi-check"></span></div>
+//               <div class="message">
+//                 <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//                 <strong>Mensaje!</strong> ${data.mensaje}
+//               </div>
+//           </div> `;
+//         lista_hojas_de_vida(idv, idc, idsoli);
+//       } else {
+//         mensaje = `<div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role="alert">
+//             <div class="icon"><span class="mdi mdi-info-outline"></span></div>
+//             <div class="message">
+//               <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+//               <strong>Mensaje!</strong> ${data.mensaje}</div></div>`;
+//         lista_hojas_de_vida(idv, idc, idsoli);
+//       }
+//       d.getElementById('historico_estudios').innerHTML = mensaje;
+//       $('#content_risk').hide();
+//       $('#content_conductor').hide();
+//       $('#content_vehiculo').hide();
+//     },
+//     error: function (jqXHR, textStatus, errorThrown) {
+//       console.log('no inserto risck no aprobado');
+//       console.log(jqXHR);
+//       console.log(textStatus);
+//       console.log(errorThrown);
+//     },
+//   });
+// }
 
 $('#idsolici').val('');
 function traer_soli(id_solicitud, id_vpreestudio, placa, estado) {
@@ -8089,7 +7943,7 @@ function consultarvehiculo(id_solicitud, id_vpreestudio, estado) {
     body: formdata,
   })
     .then(response => response.json())
-    .then(function(data) {
+    .then(function (data) {
       if (data.resultado_solicitudes) {
         $('#p_nsoli').html(data.resultado_solicitudes.id);
         $('#p_fecha').html(data.resultado_solicitudes.fecha);
@@ -8115,7 +7969,7 @@ function consultarvehiculo(id_solicitud, id_vpreestudio, estado) {
         let tbody = d.getElementById('p_refe');
         let template = '';
         tbody.innerHTML = '';
-        data.resultado_referencias.forEach(function(element) {
+        data.resultado_referencias.forEach(function (element) {
           template += `<tr>
           <td style="font-size:10px;">${element.nombre_empresa}</td>
           <td style="font-size:10px;">${element.fecha_ingreso}</td>
@@ -8135,7 +7989,7 @@ function consultarvehiculo(id_solicitud, id_vpreestudio, estado) {
         let template = '';
         template.innerHTML = '';
 
-        data.resultado_preestudio.forEach(function(element) {
+        data.resultado_preestudio.forEach(function (element) {
           template += `<tr>
             <td style="font-size:10px;">${element.nundoc_solicitud}</td>
             <td style="font-size:10px;">${element.nombre_cliente}</td>
@@ -8162,7 +8016,7 @@ function inserta_subasta() {
   data.append('numero_estudio', numero_estudio);
   $.post(
     $('#id_url_ajax').val() + 'validacionparametros/Registra_subasta_final',
-    function(data) {
+    function (data) {
       if (data) {
         alert('OK subasta');
       } else {
@@ -8203,12 +8057,12 @@ function abrir_fotos(url, name) {
   }
 }
 
-// Función para codificar en Base64
-function codificarBase64(texto) {
-  return btoa(texto);
-}
+// // Función para codificar en Base64
+// function codificarBase64(texto) {
+//   return btoa(texto);
+// }
 
-// Función para decodificar Base64
-function decodificarBase64(textoCodificado) {
-  return atob(textoCodificado);
-}
+// // Función para decodificar Base64
+// function decodificarBase64(textoCodificado) {
+//   return atob(textoCodificado);
+// }

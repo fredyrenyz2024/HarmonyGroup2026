@@ -60,6 +60,8 @@ class validacionparametrosController extends Controller
     private $validar_vigencia_solicitud;
     private $datos_hojas_vida;
     private $listar_responsables_vehiculo;
+    private $detalle_solicitudes;
+    private $insertar_usuario_gestion;
 
     public function __construct()
     {
@@ -99,6 +101,16 @@ class validacionparametrosController extends Controller
 
     public function Insertar_preestudio_nuevo()
     {
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $placa = $_POST["placa"];
         if ($_POST["trailer"]) {
             $trailer = $_POST["trailer"];
@@ -119,67 +131,23 @@ class validacionparametrosController extends Controller
         $tipologiahabilte = $_POST["tipologiahabilte"];
         $tipologiaactualice = $_POST["tipologiaactualice"];
         $tipo_operacion = $_POST["tipo_operacion"];
-        $fecha = $_POST["fecha"];
-        $hora = $_POST["hora"];
+
         $usuario = $_POST["usuario"];
         $su_sumatorianeto = $_POST["su_sumatorianeto"];
         $total_peso = $_POST["total_peso"];
         $observacion = $_POST["observacion"];
         $tipo_operacion = $_POST["tipo_operacion"];
-        // Empresa informacion
-        $empre = $_POST["empresa_crear"];
-        $ingreso = empty($_POST["fingreso_crear"]) ? null : $_POST["fingreso_crear"];
-        $retiro = empty($_POST["fretiro_crear"]) ? null : $_POST["fretiro_crear"];
-        $persona = $_POST["contacto_crear"];
-        $num = $_POST["numero_crear"];
-        $cargo = $_POST["cargo_crear"];
-        $anti = empty($_POST["antiguedad_crear"]) ? 0 : $_POST["antiguedad_crear"];
-        $index = 0;
+
+        $ReferenciasLaborales = json_decode($_POST["referencias_laborales"], true);
+
         $flete_subasta = $_POST["flete_subasta"];
         $tarifa_subasta = $_POST["tarifa_subasta"];
         $responsable_vehiculo = $_POST["responsable_vehiculo"];
         $empresa_cliente = $_POST["empresa_cliente"];
-        // Empresas
-        foreach ($empre as $item) {
-            ${"empresa_" . $index} = $item;
-            $index++;
-        }
-        // Fecha de ingreso
-        $index = 0;
-        foreach ($ingreso as $item) {
-            ${"ingreso_" . $index} = $item;
-            $index++;
-        }
-        // Fecha de retiro
-        $index = 0;
-        foreach ($retiro as $item) {
-            ${"retiro_" . $index} = $item;
-            $index++;
-        }
-        // Contacto
-        $index = 0;
-        foreach ($persona as $item) {
-            ${"persona_" . $index} = $item;
-            $index++;
-        }
-        // Numero
-        $index = 0;
-        foreach ($num as $item) {
-            ${"numero_" . $index} = $item;
-            $index++;
-        }
-        // Cargo
-        $index = 0;
-        foreach ($cargo as $item) {
-            ${"carg_" . $index} = $item;
-            $index++;
-        }
-        // Atiguedad
-        $index = 0;
-        foreach ($anti as $item) {
-            ${"antiguedad_" . $index} = $item;
-            $index++;
-        }
+        $EscenarioId = isset($_POST['EscenarioId']) && $_POST['EscenarioId'] !== ''
+            ? (int) $_POST['EscenarioId']
+            : null;
+
         // Recibir la o las solicitudes de servicio
         $solicitudes = $_POST["fserva"];
 
@@ -243,24 +211,7 @@ class validacionparametrosController extends Controller
             'fecha' => $fecha,
             'hora' => $hora,
             'observacion' => $observacion,
-            'empre1' => $empresa_0,
-            'empre2' => $empresa_1,
-            'empre3' => $empresa_2,
-            'ingreso1' => $ingreso_0,
-            'ingreso2' => $ingreso_1,
-            'ingreso3' => $ingreso_2,
-            'retiro1' => $retiro_0,
-            'retiro2' => $retiro_1,
-            'retiro3' => $retiro_2,
-            'persona1' => $persona_0,
-            'persona2' => $persona_1,
-            'persona3' => $persona_2,
-            'num1' => $numero_0,
-            'num2' => $numero_1,
-            'num3' => $numero_2,
-            'cargo1' => $carg_0,
-            'cargo2' => $carg_1,
-            'cargo3' => $carg_2,
+            'ReferenciasLaborales' => $ReferenciasLaborales,
             'anti1' => empty($antiguedad_0) ? 0 : $antiguedad_0,
             'anti2' => empty($antiguedad_1) ? 0 : $antiguedad_1,
             'anti3' => empty($antiguedad_2) ? 0 : $antiguedad_2,
@@ -270,6 +221,7 @@ class validacionparametrosController extends Controller
             'flete_subasta' => $flete_subasta,
             'tarifa_subasta' => $tarifa_subasta,
             'responsable_vehiculo' => $responsable_vehiculo,
+            'EscenarioId' => $EscenarioId,
             'archivos' => $archivos,
             'papeles' => $papeles,
             'tiene_trailer' => $tiene_trailer,
@@ -295,72 +247,129 @@ class validacionparametrosController extends Controller
         echo json_encode($this->estado);
     }
 
-    // Funciones para la parte de seguridad
+    //Nueva funcion
     public function Consutar_solicitudes_seguridad()
     {
-        $estado = $_POST["estado"];
-        $fecha_inicial = $_POST["fecha_inicial"];
-        $fecha_final = $_POST["fecha_final"];
-        $placa = $_POST["placa"];
-        if (isset($_POST["prefiltro_seguridad"])) {
-            $operacion = $_POST["prefiltro_seguridad"];
-        } else {
-            $operacion = $_POST["estudio_seguridad"];
-        }
-        $datos = [
-            "estado" => $estado,
-            "fecha_inicial" => $fecha_inicial,
-            "fecha_final" => $fecha_final,
-            "placa" => $placa,
-            "operacion" => $operacion,
-        ];
-        $this->solicitudes = $this->_modelo->Consultar_solicitudes($datos);
-        $datos = $this->solicitudes;
-        $json = [];
-        if (isset($datos['Estudio_Seguridad'])) {
-            $json = [];
-            foreach ($datos['respuesta'] as $row) {
-                $json[] = array(
-                    'id_estudio_c' => $row['id_estudio_c'],
-                    'id_estudio' => $row['id_estudio'],
-                    'fecha' => $row['fecha'],
-                    'hora' => $row['hora'],
-                    'placa' => $row['placa'],
-                    'operacion' => $row['operacion'],
-                    'estado' => $row['estado'],
-                    'estado_actual' => $row['estado_actu'],
-                    'nombre' => $row['nombre'],
-                    'apellido1' => $row['apellido1'],
-                    'id_vehiculo' => $row['id_vehiculo'],
-                    // 'id_conductor' => $row['id_conductor'],
-                    'id_conductor' => $row['numdoc_nexos'],
-                    'numero_documento' => $row['numero_documento'],
-                    'operacio_ejecutada' => $datos['Estudio_Seguridad'],
-                    'estado_prefiltro' => $row['estado_prefiltro'],
-                    'itr' => $row['itr'],
-                    'observacion_general' => $row['observacion_general'],
-                    'estado_creacion' => $row['estado_creacion'],
-                );
+        $estado = $_POST["estado"] ?? "t"; // por defecto todos
+        $fecha_inicial = $_POST["fecha_inicial"] ?? date('Y-m-d');
+        $fecha_final = $_POST["fecha_final"] ?? date('Y-m-d');
+        $placa = $_POST["placa"] ?? null;
+        $buscar = $_POST["buscar"] ?? null;
+        $operacion = $_POST["valor"] ?? "todos"; // puede ser "prefiltros", "estudios", "todos"
+
+        $factual = date('Y-m-d');
+        $user = $_SESSION["usuario"]["nom_usuario"] ?? 'sistema';
+
+        try {
+            $response = [];
+
+            // === SOLO PREFILTROS ===
+            if ($operacion === "prefiltros") {
+                $prefiltros = $this->_modelo->consultarPrefiltros($estado, $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar, $operacion);
+
+                $datos_con_interacciones = [];
+                foreach ($prefiltros['datos'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_preestudio']);
+                    $datos_con_interacciones[] = $row;
+                }
+
+                $response = [
+                    'tipo' => 'prefiltros',
+                    'datos' => $prefiltros['datos'],
+                    'total_prefiltros' => $prefiltros['total_prefiltros'],
+                ];
+                echo json_encode($response);
+                return;
             }
-        } else {
-            $json = [];
-            foreach ($datos as $row) {
-                $json[] = array(
-                    'estado' => $row['estado'],
-                    'fecha' => $row['fecha'],
-                    'hora' => $row['hora'],
-                    'operacion' => $row['operacion'],
-                    'esoli' => $row['esoli'],
-                    'idv' => $row['idv'],
-                    'placa' => $row['placa'],
-                    'id_preestudio' => $row['id_preestudio'],
-                    // 'soli_estudio' => $row['soli_estudio'],
-                    'estado_actual' => $row['estado_actual'],
-                    'itr' => $row['itr'],
-                );
+
+            // === SOLO ESTUDIOS ===
+            if ($operacion === "estudios") {
+                $estudios = $this->_modelo->consultarEstudios($estado, $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar, $operacion);
+
+                $datos_con_interacciones = [];
+                foreach ($estudios['respuesta'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_estudio']);
+                    $datos_con_interacciones[] = $row;
+                }
+
+                $response = [
+                    'tipo' => 'estudios',
+                    'datos' => $estudios['respuesta'],
+                    'total_estudios' => $estudios['total_estudios'],
+                ];
+                echo json_encode($response);
+                return;
             }
+
+            // === AMBOS ("todos") ===
+            if ($operacion === "todos") {
+                $prefiltros = $this->_modelo->consultarPrefiltros("t", $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar, $operacion);
+                $estudios = $this->_modelo->consultarEstudios("t", $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar, $operacion);
+
+                // Combinar los datos
+                $todos = [];
+                foreach ($prefiltros['datos'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_preestudio']); // Aquí
+                    $row['tipo'] = 'prefiltro';
+                    $todos[] = $row;
+                }
+
+                foreach ($estudios['respuesta'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_estudio']); // Aquí
+                    $row['tipo'] = 'estudio';
+                    $todos[] = $row;
+                }
+
+                // Armar la respuesta final
+                $response = [
+                    'tipo' => 'todos',
+                    'datos' => $todos,
+                    'total_prefiltros' => $prefiltros['total_prefiltros'],
+                    'total_estudios' => $estudios['total_estudios'],
+                    'total_general' => $prefiltros['total_prefiltros'] + $estudios['total_estudios'],
+                ];
+                echo json_encode($response);
+                return;
+            }
+
+            // === AMBOS ("Aprobados") ===
+            if ($operacion === "Aprobados") {
+                $prefiltros = $this->_modelo->consultarPrefiltros("t", $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar, $operacion);
+                $estudios = $this->_modelo->consultarEstudios("t", $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar, $operacion);
+
+                // Combinar datos con etiqueta de tipo
+                $todos = [];
+                foreach ($prefiltros['datos'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_preestudio']); // Aquí
+                    $row['tipo'] = 'prefiltro';
+                    $todos[] = $row;
+                }
+                foreach ($estudios['respuesta'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_estudio']); // Aquí
+                    $row['tipo'] = 'estudio';
+                    $todos[] = $row;
+                }
+
+                // Armar la respuesta final
+                $response = [
+                    'tipo' => 'Aprobados',
+                    'datos' => $todos,
+                    'total_prefiltros' => $prefiltros['total_prefiltros'],
+                    'total_estudios' => $estudios['total_estudios'],
+                    'total_aprobados_prefiltros' => $prefiltros['total_aprobados'] ?? 0,
+                    'total_aprobados_estudios' => $estudios['total_aprobados'] ?? 0,
+                    'total_general' => $prefiltros['total_prefiltros'] + $estudios['total_estudios'],
+                    'total_general_aprobados' => ($prefiltros['total_aprobados'] ?? 0) + ($estudios['total_aprobados'] ?? 0)
+                ];
+
+                echo json_encode($response);
+                return;
+            }
+        } catch (\Throwable $th) {
+            $mensajeError = "Error en la transacción: " . $th->getMessage() . date("Y-m-d") . $user;
+            error_log($mensajeError . "\n", 3, "error_log.txt");
+            echo json_encode(['error' => 'Error al consultar datos']);
         }
-        echo json_encode($json);
     }
 
     // Iniciar Prefilto de vehiculo nuevo
@@ -484,9 +493,7 @@ class validacionparametrosController extends Controller
     {
         $solicitud = $_POST["solicitud"];
         $estado = $_POST["estado"];
-        // $causalidad = $_POST["causalidad_seguridad"];
         $proceso = $_POST["proceso"];
-        // $observacion = $_POST["observacion"];
 
         $causalidad = "";
 
@@ -529,79 +536,96 @@ class validacionparametrosController extends Controller
     }
 
     // Solicitidues de prefiltro desde el area de operacioes
+    //Nueva funcion
     public function Consultar_solicitudes_operaciones()
     {
-        $estado = $_POST["estado"];
-        $fecha_inicial = $_POST["fecha_inicial"];
-        $fecha_final = $_POST["fecha_final"];
-        if (isset($_POST["prefiltro_seguridad"])) {
-            $operacion = $_POST["prefiltro_seguridad"];
-        } else {
-            $operacion = $_POST["estudio_seguridad"];
-        }
-        $datos = [
-            "estado" => $estado,
-            "fecha_inicial" => $fecha_inicial,
-            "fecha_final" => $fecha_final,
-            "operacion" => $operacion,
-        ];
-        $this->solicitudes_operaciones = $this->_modelo->Consultar_solicitudes_operaciones($datos);
-        $datos = $this->solicitudes_operaciones;
-        if (isset($datos['Estudio_Seguridad'])) {
-            $json = [];
-            foreach ($datos['respuesta'] as $row) {
-                $json[] = array(
-                    'id_estudio_c' => $row['id_estudio_c'],
-                    'id_estudio' => $row['id_estudio'],
-                    'fecha' => $row['fecha'],
-                    'hora' => $row['hora'],
-                    'placa' => $row['placa'],
-                    'operacion' => $row['operacion'],
-                    'estado' => $row['estado'],
-                    'estado_actual' => $row['estado_actu'],
-                    'nombre' => $row['nombre'],
-                    'apellido1' => $row['apellido1'],
-                    'operacio_ejecutada' => $datos['Estudio_Seguridad'],
-                    'vehiculo_id' => $row['id_vehiculo'],
-                    'conductor_id' => $row['id_conductor'],
-                    'numero_documento' => $row['numero_documento'],
-                    'id_estudio' => $row['id_estudio'],
-                    'id_vehiculo' => $row['id_vehiculo'],
-                    'id_conductor' => $row['id_conductor'],
-                    'observacion' => $row['observacion'],
-                    'estado_prefiltro' => $row['estado_prefiltro'],
-                    'itr' => $row['itr'],
-                    'estado_creacion' => $row['estado_creacion'],
-                    'responsable_vehiculo' => $row['responsable_vehiculo'],
-                );
+        $estado = $_POST["estado"] ?? "t"; // por defecto todos
+        $fecha_inicial = $_POST["fecha_inicial"] ?? date('Y-m-d');
+        $fecha_final = $_POST["fecha_final"] ?? date('Y-m-d');
+        $placa = $_POST["placa"] ?? null;
+        $buscar = $_POST["buscar"] ?? null;
+        $operacion = $_POST["valor"] ?? "todos"; // puede ser "prefiltros", "estudios", "todos"
+
+        $factual = date('Y-m-d');
+        $user = $_SESSION["usuario"]["nom_usuario"] ?? 'sistema';
+
+        try {
+            $response = [];
+
+            // === SOLO PREFILTROS  ESTADOS  ===
+            if ($operacion === "prefiltros") {
+                $prefiltros = $this->_modelo->consultarPrefiltrosOperaciones($estado, $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar);
+
+                $datos_con_interacciones = [];
+                foreach ($prefiltros['datos'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_preestudio']);
+                    $datos_con_interacciones[] = $row;
+                }
+
+                $response = [
+                    'tipo' => 'prefiltros',
+                    'datos' => $prefiltros['datos'],
+                    'total_prefiltros' => $prefiltros['total_prefiltros'],
+                ];
+                echo json_encode($response);
+                return;
             }
-        } else {
-            $json = [];
-            foreach ($datos as $row) {
-                $json[] = array(
-                    'estado' => $row['estado'],
-                    'fecha' => $row['fecha'],
-                    'hora' => $row['hora'],
-                    'operacion' => $row['operacion'],
-                    'esoli' => $row['esoli'],
-                    'campo' => $row['campo'],
-                    'placa' => $row['placa'],
-                    'id_preestudio' => $row['id_preestudio'],
-                    'estado_actual' => $row['estado_actual'],
-                    'documento_propietario' => $row['documento_propietario'],
-                    'documento_tenedor' => $row['documento_tenedor'],
-                    'documento_conductor' => $row['documento_conductor'],
-                    'existe_estudio' => $row['existe_estudio'],
-                    'placa_trailer' => $row['placa_trailer'],
-                    'documento_propietario_trailer' => $row['documento_propietario_trailer'],
-                    'itr' => $row['itr'],
-                    'observacion' => $row['observacion'],
-                    'responsable_vehiculo' => $row['responsable_vehiculo'],
-                    'usuario_responsable_vehiculo' => $row['usuario_responsable_vehiculo']
-                );
+
+            // === SOLO ESTUDIOS ===
+            if ($operacion === "estudios") {
+                $estudios = $this->_modelo->consultarEstudiosOperaciones($estado, $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar);
+
+                $datos_con_interacciones = [];
+                foreach ($estudios['respuesta'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_estudio']);
+                    $datos_con_interacciones[] = $row;
+                }
+
+                $response = [
+                    'tipo' => 'estudios',
+                    'datos' => $estudios['respuesta'],
+                    'total_estudios' => $estudios['total_estudios'],
+                ];
+                echo json_encode($response);
+                return;
             }
+
+            // === AMBOS ("todos") ===
+            if ($operacion === "todos") {
+                $prefiltros = $this->_modelo->consultarPrefiltrosOperaciones("t", $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar);
+                $estudios = $this->_modelo->consultarEstudiosOperaciones("t", $fecha_inicial, $fecha_final, $placa, $factual, $user, $buscar);
+
+                // Combinar los datos
+                $todos = [];
+                foreach ($prefiltros['datos'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_preestudio']); // Aquí
+                    $row['tipo'] = 'prefiltro';
+                    $todos[] = $row;
+                }
+
+                foreach ($estudios['respuesta'] as $row) {
+                    $row['interacciones'] = $this->_modelo->InteraccionesEstudios($row['id_estudio']); // Aquí
+                    $row['tipo'] = 'estudio';
+                    $todos[] = $row;
+                }
+
+                // Armar la respuesta final
+                $response = [
+                    'tipo' => 'todos',
+                    'datos' => $todos,
+                    'total_prefiltros' => $prefiltros['total_prefiltros'],
+                    'total_estudios' => $estudios['total_estudios'],
+                    'total_general' => $prefiltros['total_prefiltros'] + $estudios['total_estudios'],
+                    'interacciones' => $interacciones ?? 0,
+                ];
+                echo json_encode($response);
+                return;
+            }
+        } catch (\Throwable $th) {
+            $mensajeError = "Error en la transacción: " . $th->getMessage() . date("Y-m-d") . $user;
+            error_log($mensajeError . "\n", 3, "error_log.txt");
+            echo json_encode(['error' => 'Error al consultar datos']);
         }
-        echo json_encode($json);
     }
 
     public function vsolicitud_preestudio()
@@ -720,26 +744,38 @@ class validacionparametrosController extends Controller
 
     public function Crear_estudio_seguridad()
     {
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $placa = $_POST["placa"];
         $idprees = $_POST["idprees"];
-        $user = $_POST["user"];
-        $fecha = $_POST["fecha"];
-        $hora = $_POST["hora"];
+        // $user = $_POST["user"];
+        // $fecha = $_POST["fecha"];
+        // $hora = $_POST["hora"];
         $proceso = $_POST["proceso"];
         $proceso_prefiltro_itr = $_POST["proceso_prefiltro_itr"];
         $observacion_prefiltro = $_POST["observacion_prefiltro"];
         $responsable_vehiculo = $_POST["responsable_vehiculo"];
-        $datos = array(
+        $EscenarioId = $_POST["EscenarioId"] ?? 1;
+        $datos = [
             "placa" => $placa,
             "preestudio" => $idprees,
-            "usuario" => $user,
+            // "usuario" => $user,
             "fecha" => $fecha,
             "hora" => $hora,
             "proceso" => $proceso,
             "proceso_prefiltro_itr" => $proceso_prefiltro_itr,
             "observacion_prefiltro" => $observacion_prefiltro,
             "responsable_vehiculo" => $responsable_vehiculo,
-        );
+            "EscenarioId" => $EscenarioId,
+        ];
         $this->crear_estudio = $this->_modelo->Guardar_estudio_seguridad($datos);
         echo json_encode($this->crear_estudio);
     }
@@ -771,16 +807,26 @@ class validacionparametrosController extends Controller
         //Validar si la placa esta en un estudio por algun error generado al momento de la insercion del estudio de seguridad
         // $validar=$this->Buscar_placa_estudios( $_POST["placa"]);
 
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $tipo_operacion = $_POST["tipo_operacion"];
         $placa = $_POST["placa"];
         $flete_subasta = $_POST["flete_subasta"];
         $tarifa_subasta = $_POST["tarifa_subasta"];
-        $fecha = $_POST["fecha"];
-        $hora = $_POST["hora"];
+        // $fecha = $_POST["fecha"];
+        // $hora = $_POST["hora"];
         $usuario = $_POST["usuario"];
         $fserva = $_POST["fserva"];
         $observacion = $_POST["observacion"];
-        $empresa_cliente = $_POST["empresa_cliente"];
+        $empresa_cliente = $_POST["empresa_cliente"] ?? null;
         $temp = array();
 
         if ($_POST["tipo_operacion"] == 'Actualizar') {
@@ -957,6 +1003,9 @@ class validacionparametrosController extends Controller
 
         /* Responsable vehiculo */
         $responsable_vehiculo = $_POST["responsable_vehiculo"];
+        $EscenarioId = isset($_POST['EscenarioId']) && $_POST['EscenarioId'] !== ''
+            ? (int) $_POST['EscenarioId']
+            : null;
         $datos = array(
             "tipo_operacion" => $tipo_operacion,
             "placa" => $placa,
@@ -969,6 +1018,7 @@ class validacionparametrosController extends Controller
             "observacion" => $observacion,
             "empresa_cliente" => $empresa_cliente,
             "responsable_vehiculo" => $responsable_vehiculo,
+            "EscenarioId" => $EscenarioId,
             "dinamicos" => isset($_POST["dinamicos"]) ? $_POST["dinamicos"] : "",
             "nuevo_recurso" => isset($_POST["nuevos_recursos"]) ? $_POST["nuevos_recursos"] : "",
             "papeles" => isset($papeles) ? $papeles : $_POST["papeles"],
@@ -981,12 +1031,23 @@ class validacionparametrosController extends Controller
     /* Funciones para insertar estudio de itr */
     public function Insert_estudio_itr()
     {
+
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $tipo_operacion = $_POST["tipo_operacion"];
         $placa = $_POST["placa"];
         $flete_subasta = $_POST["flete_subasta"];
         $tarifa_subasta = $_POST["tarifa_subasta"];
-        $fecha = $_POST["fecha"];
-        $hora = $_POST["hora"];
+        // $fecha = $_POST["fecha"];
+        // $hora = $_POST["hora"];
         $usuario = $_POST["usuario"];
         $fserva = $_POST["fserva"];
         $observacion = $_POST["observacion"];
@@ -1329,6 +1390,7 @@ class validacionparametrosController extends Controller
 
         /* Responsable vehiculo */
         $responsable_vehiculo = $_POST["responsable_vehiculo"];
+        $EscenarioId = $_POST["EscenarioId"];
         $datos = array(
             "tipo_operacion" => $tipo_operacion,
             "placa" => $placa,
@@ -1341,6 +1403,7 @@ class validacionparametrosController extends Controller
             "observacion" => $observacion,
             "empresa_cliente" => $empresa_cliente,
             "responsable_vehiculo" => $responsable_vehiculo,
+            "EscenarioId" => $EscenarioId,
             "dinamicos" => isset($_POST["dinamicos"]) ? $_POST["dinamicos"] : 'No',
             "nuevo_recurso" => isset($_POST["nuevos_recursos"]) ? $_POST["nuevos_recursos"] : 'No',
             "papeles" => isset($papeles) ? $papeles : $_POST["papeles"],
@@ -1364,26 +1427,36 @@ class validacionparametrosController extends Controller
     // Inicio Estudio de seguridad
     public function Inicio_Estudio_seguridad()
     {
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $numsoli = $_POST["numsoli"];
-        $fechag = $_POST["fechag"];
-        $horag = $_POST["horag"];
-        $usuariog = $_POST["usuariog"];
+        // $fechag = $_POST["fechag"];
+        // $horag = $_POST["horag"];
+        // $usuariog = $_POST["usuariog"];
         $id_conductor = $_POST["id_conductor"];
         $id_vehiculo = $_POST["id_vehiculo"];
         $estudio_id_c = $_POST["estudio_id_c"];
         $datos = array(
             "numsoli" => $numsoli,
-            "fechag" => $fechag,
-            "horag" => $horag,
-            "usuariog" => $usuariog,
+            // "fechag" => $fechag,
+            // "horag" => $horag,
+            // "usuariog" => $usuariog,
             "id_conductor" => $id_conductor,
             "id_vehiculo" => $id_vehiculo,
             "estudio_id_c" => $estudio_id_c,
             "estado" => "iniciado",
             "estado_actual" => 1,
             "estado_subasta" => "Activo",
-            "fecha" => date("Y-m-d"),
-            "hora" => date("H:i:s"),
+            "fecha" =>  $fecha,
+            "hora" => $hora,
             "observacion" => null,
             "proceso" => "Pen_Sol_Rut",
         );
@@ -1414,9 +1487,17 @@ class validacionparametrosController extends Controller
 
     public function Aprobar_vehiculo_estudio()
     {
-        $fecha = $_POST["fecha"];
-        $hora = $_POST["hora"];
-        $user = $_POST["user"];
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
+        // $user = $_POST["user"];
         $observeheciulo = $_POST["observeheciulo"];
         $id_vehiculo = $_POST["id_vehiculo"];
         $id_conductor = $_POST["id_conductor"];
@@ -1425,7 +1506,7 @@ class validacionparametrosController extends Controller
         $datos = array(
             "fecha" => $fecha,
             "hora" => $hora,
-            "user" => $user,
+            // "user" => $user,
             "observeheciulo" => $observeheciulo,
             "id_vehiculo" => $id_vehiculo,
             "id_conductor" => $id_conductor,
@@ -1438,9 +1519,15 @@ class validacionparametrosController extends Controller
 
     public function Desaprobar_vehiculo_estudio()
     {
-        $fecha = $_POST["fecha"];
-        $hora = $_POST["hora"];
-        $user = $_POST["user"];
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
         $observeheciulo = $_POST["observeheciulo"];
         $id_vehiculo = $_POST["id_vehiculo"];
         $id_conductor = $_POST["id_conductor"];
@@ -1449,7 +1536,7 @@ class validacionparametrosController extends Controller
         $datos = array(
             "fecha" => $fecha,
             "hora" => $hora,
-            "user" => $user,
+            // "user" => $user,
             "observeheciulo" => $observeheciulo,
             "id_vehiculo" => $id_vehiculo,
             "id_conductor" => $id_conductor,
@@ -1463,16 +1550,23 @@ class validacionparametrosController extends Controller
     public function ver_conductor()
     {
         $id_conductor = $_POST["id_conductor"];
-        $num_documento = $_POST["num_documento"];
+        $num_documento = $_POST["num_documento"] ?? null;
         $this->ver_conductor = $this->_modelo->Ver_conductor_seguridad($id_conductor, $num_documento);
         echo json_encode($this->ver_conductor);
     }
 
     public function Aprobar_conductor_estudio()
     {
-        $fecha = $_POST["fech"];
-        $hora = $_POST["hor"];
-        $usuario = $_POST["usuari"];
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $id_vehiculo = $_POST["id_vehiculo"];
         $id_conductor = $_POST["id_conductor"];
         $idsoli = $_POST["idsoli"];
@@ -1487,7 +1581,7 @@ class validacionparametrosController extends Controller
         $datos = array(
             "fecha" => $fecha,
             "hora" => $hora,
-            "user" => $usuario,
+            // "user" => $usuario,
             "id_vehiculo" => $id_vehiculo,
             "id_conductor" => $id_conductor,
             "idsoli" => $idsoli,
@@ -1501,9 +1595,15 @@ class validacionparametrosController extends Controller
 
     public function Desaprobar_conductor_estudio()
     {
-        $fecha = $_POST["fech"];
-        $hora = $_POST["hor"];
-        $usuario = $_POST["usuari"];
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
         $id_vehiculo = $_POST["id_vehiculo"];
         $id_conductor = $_POST["id_conductor"];
         $idsoli = $_POST["idsoli"];
@@ -1518,7 +1618,7 @@ class validacionparametrosController extends Controller
         $datos = array(
             "fecha" => $fecha,
             "hora" => $hora,
-            "user" => $usuario,
+            // "user" => $usuario,
             "id_vehiculo" => $id_vehiculo,
             "id_conductor" => $id_conductor,
             "idsoli" => $idsoli,
@@ -1533,9 +1633,16 @@ class validacionparametrosController extends Controller
 
     public function Aprobar_risk()
     {
-        $fecha = $_POST["fecha"];
-        $hora = $_POST["hora"];
-        $usuario = $_POST["usuario"];
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $id_vehiculo = $_POST["id_vehiculo"];
         $id_conductor = $_POST["id_conductor"];
         $estudio = $_POST["tipo_estudio"];
@@ -1561,7 +1668,7 @@ class validacionparametrosController extends Controller
         $datos = array(
             "fecha" => $fecha,
             "hora" => $hora,
-            "user" => $usuario,
+            // "user" => $usuario,
             "id_vehiculo" => $id_vehiculo,
             "id_conductor" => $id_conductor,
             "idsoli" => $idsoli,
@@ -1579,9 +1686,16 @@ class validacionparametrosController extends Controller
 
     public function Desaprobar_risk()
     {
-        $fecha = $_POST["fecha"];
-        $hora = $_POST["hora"];
-        $usuario = $_POST["usuario"];
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $id_vehiculo = $_POST["id_vehiculo"];
         $id_conductor = $_POST["id_conductor"];
         $estudio = $_POST["tipo_estudio"];
@@ -1611,7 +1725,7 @@ class validacionparametrosController extends Controller
         $datos = array(
             "fecha" => $fecha,
             "hora" => $hora,
-            "user" => $usuario,
+            // "user" => $usuario,
             "id_vehiculo" => $id_vehiculo,
             "id_conductor" => $id_conductor,
             "idsoli" => $idsoli,
@@ -1637,31 +1751,43 @@ class validacionparametrosController extends Controller
 
     public function Aprobacion_total()
     {
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $idcarro = $_POST["idcarro"];
         $idcondu = $_POST["idcondu"];
         $idestudio = $_POST["idestudio"];
         $estado = $_POST["estado"];
-        $id_usuario = $_POST["user"];
+        // $id_usuario = $_POST["user"];
         $id_estudio_c = $_POST["id_estudio_c"];
+        $id_escenario = $_POST["id_escenario"];
+        // $SolicitudId = json_decode($_POST["SolicitudId"], true);
+        $SolicitudId = json_decode($_POST["SolicitudesId"], true);
         if ($_POST["obser"]) {
             $obser = $_POST["obser"];
         } else {
             $obser = '';
         }
-        $fecha = date('Y-m-d');
-        $hora = date('G:i:s');
+
         $operacion = 'Crear';
-        $proceso = $_POST["proceso"];
+        $proceso = $_POST["proceso"] ?? $_POST["proceso_estudio"];
         $proceso_estudio = $_POST["proceso_estudio"];
         // $causalidad = $_POST["causalidad"];
         $causalidad = "";
 
-        $datos = array(
+        $datos = [
             "idcarro" => $idcarro,
             "idcondu" => $idcondu,
             "idestudio" => $idestudio,
             "estado" => $estado,
-            "id_usuario" => $id_usuario,
+            // "id_usuario" => $id_usuario,
             "obser" => $obser,
             "fecha" => $fecha,
             "hora" => $hora,
@@ -1670,8 +1796,10 @@ class validacionparametrosController extends Controller
             "proceso_estudio" => $proceso_estudio,
             "estado_actu" => 1,
             "id_estudio_c" => $id_estudio_c,
+            "id_escenario" => $id_escenario,
+            "SolicitudId" => $SolicitudId,
             "causalidad" => $causalidad,
-        );
+        ];
         $this->aprobacion_estudio = $this->_modelo->Aprobacion_total_estudio($datos);
         echo json_encode($this->aprobacion_estudio);
     }
@@ -1699,13 +1827,21 @@ class validacionparametrosController extends Controller
 
     public function reactivar_estudio()
     {
+        // 1. Crea un objeto DateTime en Bogotá
+        $date = new DateTime('now', new DateTimeZone('America/Bogota'));
+
+        // 2. Convierte a UTC (opcional si quieres guardar en UTC)
+        // $date->setTimezone(new DateTimeZone('UTC'));
+
+        // 3. Saca fecha y hora
+        $fecha = $date->format('Y-m-d'); // Fecha correcta
+        $hora = $date->format('H:i:s');  // Hora correcta
+
         $num_estudio = $_POST["num_estudio"];
         $id_conductor = $_POST["id_conductor"];
         $id_vehiculo = $_POST["id_vehiculo"];
         $id_estudio_c = $_POST["id_estudio_c"];
         $observacion = $_POST["observacion"];
-        $fecha = date('Y-m-d');
-        $hora = date('G:i:s');
         $datos = array(
             "num_estudio" => $num_estudio,
             "id_conductor" => $id_conductor,
@@ -1732,18 +1868,10 @@ class validacionparametrosController extends Controller
         $estudio = $_POST["estudio"];
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
-        // $user = $_SESSION["usuario"]["nom_usuario"];
-        if (isset($_POST["nomarchivo"])) {
-            $nomarchivo = $_POST["nomarchivo"];
-        }
+        $nomarchivo = $_POST["nomarchivo"] ?? '';
+        $archivo = $_FILES["op_archivo"] ?? '';
 
-        for ($s = 0; $s < count($_FILES); $s++) {
-            if (isset($_FILES["op_archivo" . $s])) {
-                $archivo = $_FILES["op_archivo" . $s];
-            }
-        }
-
-        $datos = array(
+        $datos = [
             "nestudio" => $nestudio,
             "ntipo" => $ntipo,
             "rta" => $rta,
@@ -1752,9 +1880,31 @@ class validacionparametrosController extends Controller
             "hora" => $hora,
             "nomarchivo" => $nomarchivo,
             "archivo" => $archivo,
-        );
+        ];
 
         $this->respuesta_operaciones = $this->_modelo->registrar_respuesta_operacion($datos);
+
+        // ENVIAR NOTIFICACIÓN SI FUE EXITOSO
+        // if ($this->respuesta_operaciones["numero"] == 200) {
+        //     require_once("app/helpers/WebPushLite.php");
+        //     $webPush = new WebPushLite(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+
+        //     $conn = new mysqli("localhost", "usuario", "clave", "basedatos");
+        //     $subs = $conn->query("SELECT * FROM suscripciones");
+
+        //     while ($sub = $subs->fetch_assoc()) {
+        //         $webPush->send(
+        //             $sub['endpoint'],
+        //             $sub['p256dh'],
+        //             $sub['auth'],
+        //             json_encode([
+        //                 "title" => "Nueva respuesta registrada",
+        //                 "body"  => "Se registró respuesta en estudio: {$datos['estudio']}",
+        //                 "data"  => ["id_estudio" => $datos['nestudio']]
+        //             ])
+        //         );
+        //     }
+        // }
         echo json_encode($this->respuesta_operaciones);
     }
 
@@ -1813,6 +1963,7 @@ class validacionparametrosController extends Controller
         $fserva = $_POST["fserva"];
         $solicitud = $_POST["solicitud"];
         $responsable_vehiculo = $_POST["responsable_vehiculo"];
+        $EscenarioId = $_POST["EscenarioId"];
         $empresa_cliente = $_POST["empresa_cliente"];
 
         $datos = array(
@@ -1826,6 +1977,7 @@ class validacionparametrosController extends Controller
             "solicitudes" => $fserva,
             "solicitud" => $solicitud,
             "responsable_vehiculo" => $responsable_vehiculo,
+            "EscenarioId" => $EscenarioId,
             "empresa_cliente" => $empresa_cliente,
             // "dinamicos" => isset($_POST["dinamicos"]) ? $_POST["dinamicos"] : 'No',
             // "nuevo_recurso" => isset($_POST["nuevos_recursos"]) ? $_POST["nuevos_recursos"] : 'No',
@@ -1847,5 +1999,52 @@ class validacionparametrosController extends Controller
     {
         $this->listar_responsables_vehiculo = $this->_modelo->Consultar_responsables_vehiculo();
         echo json_encode($this->listar_responsables_vehiculo);
+    }
+
+    // public function registrar_respuesta_operacion()
+    // {
+    //     $nestudio = $_POST['nestudio'];
+    //     $ntipo = $_POST['ntipo'];
+    //     $rta = $_POST['rta'];
+    //     $nomarchivo = $_POST['nomarchivo'];
+    //     $estudio = $_POST['estudio'];
+    // }
+
+    public function Consultar_Detalle_Estudios()
+    {
+        $RegistroId = $_POST['RegistroId'];
+        $this->detalle_solicitudes = $this->_modelo->Detalle_Solicitudes_Estudio($RegistroId);
+        echo json_encode($this->detalle_solicitudes);
+    }
+
+
+    public function insertar_usuario_gestion()
+    {
+        $id_estudio = $_POST['id_estudio'] ?? null;
+        $id_usuario = $_POST['id_usuario'] ?? null;
+        $nombre_usuario = $_POST['nombre_usuario'] ?? null;
+        $area = $_POST['area'] ?? null;
+
+        if ($area == 'Operaciones') {
+            if (!$id_estudio) {
+                echo json_encode(['status' => 'error', 'message' => 'Datos incompletos']);
+                exit;
+            }
+        } else {
+            if (!$id_estudio || !$id_usuario) {
+                echo json_encode(['status' => 'error', 'message' => 'Datos incompletos']);
+                exit;
+            }
+        }
+
+
+        $this->insertar_usuario_gestion = $this->_modelo->Guardar_Usuario_Gestion_Pedidos($id_estudio, $id_usuario, $nombre_usuario, $area);
+        echo json_encode($this->insertar_usuario_gestion);
+    }
+
+    public function getSolicitudesConsolidadas()
+    {
+        $this->detalle_solicitudes = $this->_modelo->getsolicitudes();
+        echo json_encode($this->detalle_solicitudes);
     }
 }

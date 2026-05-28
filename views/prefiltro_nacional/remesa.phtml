@@ -1,0 +1,733 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <input type="hidden" id="url_api_dsnube" value="<?= URLAPI_DSNUBE ?>">
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 fw-bold"><!-- Órdenes de Cargue --></h5>
+        <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNuevaRemesa" aria-controls="offcanvasNuevaRemesa">
+            <i class="fa-solid fa-plus me-1"></i> Nueva Remesa
+        </button>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form class="row g-3 align-items-center">
+                <div class="col-12 col-md-2 divfiltro">
+                    <label for="filtro_remesas" class="form-label fw-bold mb-1">Filtro</label>
+                    <select id="filtro_remesas" class="form-select form-select-sm">
+                        <option value="">Seleccionar</option>
+                        <option value="1" selected>Fecha</option>
+                        <option value="2">Cliente</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 divcliente">
+                    <label class="form-label fw-bold">Cliente</label>
+                    <select id="clientefiltro" class="form-control form-select-sm">
+                        <option value="">Seleccionar</option>
+                    </select>
+                </div>
+
+                <div class="col-6 col-md-3 divfechas">
+                    <label class="form-label fw-bold">Fecha inicial</label>
+                    <input type="date" id="finicial" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="col-6 col-md-3 divfechas">
+                    <label class="form-label fw-bold">Fecha final</label>
+                    <input type="date" id="ffinal" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="col-12 col-md-2 d-flex align-items-end pt-4 align-content-center divbtnbusqueda">
+                    <button type="button" class="btn btn-primary btn-sm w-100" id="buscar_remesa">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla paera listar las remesas en el sistema -->
+    <div class="row" id="tabla_datos">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge badge-phoenix badge-phoenix-info" style="font-size: 13px;">
+                    Numero de Remesas: <span class="fw-bold badge-phoenix-info contador">0</span>
+                </span>
+                <a href="JavaScript:void(0);" id="exportar_excel" class="text-decoration-none d-flex align-items-center text-success fw-bold">
+                    <img src="<?= BASE_URL ?>public/img/excel_2013.png" alt="Excel" width="18px" class="me-1">
+                    Exportar a Excel
+                </a>
+            </div>
+
+            <div class="table-responsive shadow-sm rounded" style="overflow: hidden;">
+                <table id="ordenes_decargue_export" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                    <thead class="table-primary">
+                        <tr>
+                            <th style='width:auto; white-space: nowrap;'>Estado</th>
+                            <th style='width:auto; white-space: nowrap;'>Remesa - Orden</th>
+                            <th style='width:auto; white-space: nowrap;'>Placa</th>
+                            <th style='width:auto; white-space: nowrap;'>Conductor</th>
+                            <!-- <th style='width:auto; white-space: nowrap;'>Observación</th> -->
+                            <th style='width:auto; white-space: nowrap;'>Fecha-Hora</th>
+                            <!-- <th style='width:auto; white-space: nowrap;'>Condiciones</th> -->
+                            <th style='width:auto; white-space: nowrap;'>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="remesabody">
+                        <tr>
+                            <td colspan="6" class="text-center" id="remload"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvasNuevaRemesa" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasNuevaRemesaLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasNuevaRemesaLabel">Detalle de Remsas</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+
+        <div id="msg_present" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+
+        <form id="formNuevaRemesa">
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <input type="hidden" id="num_oc" class="form-control input-sm" disabled>
+                <input type="hidden" id="num_remi" class="form-control input-sm" disabled>
+                <input type="hidden" id="num_dest" class="form-control input-sm" disabled>
+                <input type="hidden" id="num_solicitud" class="form-control input-sm" disabled>
+                <input type="hidden" id="id_puntorem" class="form-control input-sm" disabled>
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-start mt-2">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Ordenes de Cargue Pendientes</h6>
+                </div>
+            </div>
+            <hr class="my-1 text-dark">
+
+            <div class="row">
+                <!-- Orden de cargue -->
+                <div class="col-12 mb-2">
+                    <label class="form-label" for="orden_cargue">Orden de cargue</label>
+                    <select id="orden_cargue" class="form-select form-select-sm" disabled>
+                        <option value="">Seleccione</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos de Remesa</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <div class="row">
+                <!-- N° Remesa -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="id_remesa">N° remesa</label>
+                    <input type="text" id="id_remesa" class="form-control form-control-sm text-center" disabled>
+                </div>
+
+                <!-- Fecha realización -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="fecha_remesa">Fecha realización</label>
+                    <input type="date" id="fecha_remesa" class="form-control form-control-sm text-center" value="<?php echo date('Y-m-d'); ?>" disabled>
+                </div>
+
+                <!-- Hora realización -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="hora_remesa">Hora realización</label>
+                    <input type="time" id="hora_remesa" class="form-control form-control-sm text-center" value="<?php echo date('H:i:s'); ?>" disabled>
+                </div>
+
+                <!-- Oficina -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="oficina">Oficina</label>
+                    <input type="text" id="oficina" class="form-control form-control-sm text-center" disabled>
+                </div>
+
+                <!-- Tipo empaque -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="tempaque">Tipo empaque</label>
+                    <input type="text" id="tempaque" class="form-control form-control-sm text-center" disabled>
+                </div>
+
+                <!-- Tipo operación -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="toperacion">Tipo operación</label>
+                    <input type="text" id="toperacion" class="form-control form-control-sm text-center" disabled>
+                </div>
+
+                <!-- Campos ocultos -->
+                <input type="hidden" id="volumen_total" disabled>
+                <input type="hidden" id="peso_neto_tn" disabled>
+
+                <!-- Origen y destino -->
+                <div class="col-12 mb-2">
+                    <label class="form-label">Origen y Destino</label>
+                    <div id="origen_destino" class="border p-2 rounded bg-light"></div>
+                </div>
+
+                <!-- Observación -->
+                <div class="col-12 col-md-6 mb-2">
+                    <label class="form-label" for="observacion_cliente">Observación</label>
+                    <input type="text" id="observacion_cliente" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Remitente / Destinatario</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <div class="row">
+                <!-- Encabezado remitente -->
+                <div class="col-12 mb-2">
+                    <label class="form-label" class="fw-bold">Datos de remitente</label>
+                </div>
+
+                <!-- Nombre -->
+                <div class="col-12 col-md-6 mb-2">
+                    <label class="form-label" for="rnombre">Nombre</label>
+                    <input type="text" id="rnombre" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Identificación -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="ridentifica">Identificación</label>
+                    <input type="text" id="ridentifica" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Dirección -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="rdireccion">Dirección</label>
+                    <input type="text" id="rdireccion" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Ciudad -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="rciudad">Ciudad</label>
+                    <input type="text" id="rciudad" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Teléfono -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="rtelefono">Teléfono</label>
+                    <input type="text" id="rtelefono" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Encabezado destinatario -->
+                <div class="col-12 mt-3 mb-2">
+                    <label class="form-label" class="fw-bold">Datos de destinatario</label>
+                </div>
+
+                <!-- Nombre -->
+                <div class="col-12 col-md-6 mb-2">
+                    <label class="form-label" for="dnombre">Nombre</label>
+                    <input type="text" id="dnombre" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Identificación -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="didentifica">Identificación</label>
+                    <input type="text" id="didentifica" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Dirección -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="ddireccion">Dirección</label>
+                    <input type="text" id="ddireccion" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Ciudad -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="dciudad">Ciudad</label>
+                    <input type="text" id="dciudad" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Teléfono -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="dtelefono">Teléfono</label>
+                    <input type="text" id="dtelefono" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Facturar a -->
+                <div class="col-12 col-md-4 mb-2">
+                    <label class="form-label" for="dfactura">Facturar a</label>
+                    <input type="text" id="dfactura" class="form-control form-control-sm" disabled>
+                    <input type="hidden" id="dciudad_oculto">
+                </div>
+
+                <!-- Observación destinatario -->
+                <div class="col-12 col-md-6 mb-2">
+                    <label class="form-label" for="observacion_destinatario">Observación destinatario</label>
+                    <input type="text" id="observacion_destinatario" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos Despacho / Datos cargue y descargue</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <div class="row">
+                <!-- Datos de despacho -->
+                <!-- <div class="col-12 mb-3">
+                <label class="form-label"  class="fw-bold">Datos de despacho</label>
+            </div> -->
+
+                <!-- Placa -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="placa">Placa</label>
+                    <input type="text" id="placa" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Conductor -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="conductor">Conductor</label>
+                    <input type="text" id="conductor" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- N° Identificación -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="condu_identifica">N° identificación</label>
+                    <input type="text" id="condu_identifica" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Remesa contado -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="rcontacto_remesa">Remesa contado</label>
+                    <select id="rcontacto_remesa" class="form-control form-control-sm">
+                        <option value="0">No</option>
+                        <option value="1">Sí</option>
+                    </select>
+                </div>
+
+                <!-- Remesa contraentrega -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="rcontra_remesa">Remesa contraentrega</label>
+                    <select id="rcontra_remesa" class="form-control form-control-sm">
+                        <option value="0">No</option>
+                        <option value="1">Sí</option>
+                    </select>
+                </div>
+
+                <!-- Valor declarado -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label">Valor declarado</label>
+                    <p class="form-control-plaintext fw-bold text-muted">XXXXXXXXXXXX</p>
+                    <input type="hidden" id="valor_mercancia">
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos Pactados de Cargue y Descargue</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <!-- Datos Pactados de Cargue y Descargue -->
+            <div class="row mt-4">
+                <!-- <div class="col-12 mb-3">
+                <label class="form-label"  class="fw-bold">Datos Pactados de Cargue y Descargue</label>
+            </div> -->
+
+                <!-- Fecha pactada cargue -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="r_fechacargue">Fecha pactada cargue</label>
+                    <input type="date" id="r_fechacargue" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Hora pactada cargue -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="r_horacargue">Hora pactada del cargue</label>
+                    <input type="time" id="r_horacargue" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Cantidad horas pacto cargue -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="cant_hour_cargue">Cantidad horas pacto cargue</label>
+                    <select id="cant_hour_cargue" class="form-control form-control-sm">
+                        <option value="">Seleccione</option>
+                        <?php for ($i = 0; $i <= 24; $i++): ?>
+                            <option value="<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>"><?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+
+                <!-- Cantidad minutos pacto cargue -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="cant_min_cargue">Cantidad minutos pacto cargue</label>
+                    <select id="cant_min_cargue" class="form-control form-control-sm">
+                        <option value="">Seleccione</option>
+                        <?php for ($i = 0; $i <= 59; $i++): ?>
+                            <option value="<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>"><?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+
+                <!-- Fecha pactada descargue -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="r_fechadescargue">Fecha pactada descargue</label>
+                    <input type="date" id="r_fechadescargue" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Hora pactada descargue -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="r_horadescargue">Hora pactada del descargue</label>
+                    <input type="time" id="r_horadescargue" class="form-control form-control-sm" disabled>
+                </div>
+
+                <!-- Cantidad horas pacto descargue -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="cant_hour_descargue">Cantidad horas pacto descargue</label>
+                    <select id="cant_hour_descargue" class="form-control form-control-sm">
+                        <option value="">Seleccione</option>
+                        <?php for ($i = 0; $i <= 24; $i++): ?>
+                            <option value="<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>"><?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+
+                <!-- Cantidad minutos pacto descargue -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="cant_min_descargue">Cantidad minutos pacto descargue</label>
+                    <select id="cant_min_descargue" class="form-control form-control-sm">
+                        <option value="">Seleccione</option>
+                        <?php for ($i = 0; $i <= 59; $i++): ?>
+                            <option value="<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>"><?= str_pad($i, 2, '0', STR_PAD_LEFT) ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Datos de Mercancía / Datos de propietario</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <div class="row mt-4">
+                <!-- Datos de Mercancía -->
+                <div class="col-12 mb-3">
+                    <label class="form-label" class="fw-bold">Datos de Mercancía</label>
+                </div>
+
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="mercancia">Mercancía</label>
+                    <input type="text" id="mercancia" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="naturaleza">Naturaleza</label>
+                    <input type="text" id="naturaleza" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="cantidad">Cant. estimada</label>
+                    <input type="number" id="cantidad" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="cantidad_real">Cant. cargada (Kg)</label>
+                    <input type="text" id="cantidad_real" class="form-control form-control-sm">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="unidad_medida">Tipo servicio</label>
+                    <input type="text" id="unidad_medida" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="tipo_novedad">Observación</label>
+                    <select id="tipo_novedad" class="form-control form-control-sm">
+                        <option value="">Seleccione</option>
+                        <option value="cargue">Cargue</option>
+                        <option value="en_ruta">En ruta</option>
+                        <option value="descargue">Descargue</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="describ_novedad">Descripción</label>
+                    <textarea id="describ_novedad" class="form-control form-control-sm" rows="1" placeholder="Sea breve"></textarea>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="archivo_adjunto">Archivo adjunto</label>
+                    <input type="file" id="archivo_adjunto" class="form-control form-control-sm" onchange="return fileValidation()" enctype="multipart/form-data">
+                    <input type="hidden" id="imagePreview2" class="form-control form-control-sm mt-1" disabled>
+                </div>
+            </div>
+
+            <!-- Datos de propietario de la carga -->
+            <div class="row mt-4">
+                <div class="col-12 mb-3">
+                    <label class="form-label" class="fw-bold">Datos de propietario de la carga</label>
+                </div>
+
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="protipoi">Tipo identificación</label>
+                    <input type="text" id="protipoi" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="pronumero">Número de identificación</label>
+                    <input type="text" id="pronumero" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="pronombre">Nombre</label>
+                    <input type="text" id="pronombre" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="prodireccion">Dirección</label>
+                    <input type="text" id="prodireccion" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="promunicipio">Municipio</label>
+                    <input type="text" id="promunicipio" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label" for="propostal">Código postal</label>
+                    <input type="text" id="propostal" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+
+            <!-- Datos de solicitud de servicio -->
+            <div class="row mt-4">
+                <div class="col-12 mb-3">
+                    <label class="form-label">Datos solicitud de servicio</label>
+                </div>
+
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="fecha_entrega">Fecha estimada entrega</label>
+                    <input type="date" id="fecha_entrega" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="hora_entrega">Hora estimada entrega</label>
+                    <input type="time" id="hora_entrega" class="form-control form-control-sm" disabled>
+                </div>
+            </div>
+
+            <hr class="my-0 text-dark">
+            <div class="d-flex flex-wrap justify-content-start my-1">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-8">
+                    <h6 class="mb-0 text-body-highlight me-2">Precintos</h6>
+                </div>
+            </div>
+            <hr class="my-0 text-dark">
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label class="form-label">Precintos asoaciados a la Orden Cargue</label>
+                    <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
+                        <thead>
+                            <tr>
+                                <td style='width:auto; white-space: nowrap;'>Serial</td>
+                                <td style='width:auto; white-space: nowrap;'>Tipo</td>
+                            </tr>
+                        </thead>
+                        <tbody id="tb_precinto"></tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+
+        <hr class="mt-5 text-dark">
+        <div class="text-end my-1">
+            <button id="Registrar_remesa" class="btn btn-success btn-sm me-1 px-1 py-1"><i class="fa-regular fa-floppy-disk"></i> Guardar Remesa</button>
+        </div>
+
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" id="offcanvasDetalleRemesa" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" aria-labelledby="offcanvasDetalleRemesaLabel" style="width: 1200px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasDetalleRemesaLabel">Detalle de Remsas</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="row" id="contenedor_datos">
+            <div class="col-12">
+                <div class="panel panel-border-color panel-border-color-dark">
+                    <div class="panel-heading">
+                        <p id="titulo"></p>
+                    </div>
+                    <div class="panel-body" id="bodycontenido">
+                        <input type="hidden" id="id_servicio">
+
+                        <!-- Fila 1 -->
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label">N° remesa</label>
+                                <input type="text" id="c_remesa" class="form-control form-control-sm text-center text-white bg-dark campov" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">N° orden</label>
+                                <input type="text" id="c_orden" class="form-control form-control-sm text-center text-white bg-dark campov" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Fila 2 -->
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha</label>
+                                <input type="text" id="c_fecha" class="form-control form-control-sm text-center campov" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Oficina</label>
+                                <input type="text" id="c_oficina" class="form-control form-control-sm text-center campov" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Fila 3 -->
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Placa</label>
+                                <input type="text" id="c_placa" class="form-control form-control-sm text-white bg-dark campov" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Conductor</label>
+                                <input type="text" id="c_nombre" class="form-control form-control-sm text-white bg-dark campov" disabled title="Nombre conductor">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Número de identificación</label>
+                                <input type="text" id="c_numero" class="form-control form-control-sm text-white bg-dark campov" disabled title="Número de identificación">
+                            </div>
+                        </div>
+
+                        <!-- Remitente / Destinatario -->
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6 border-end">
+                                <label class="form-label">Remitente</label>
+                                <input type="text" id="c_remitente" class="form-control form-control-sm campov" disabled>
+                                <label class="form-label mt-2">Ciudad</label>
+                                <input type="text" id="c_remciudad" class="form-control form-control-sm campov" disabled>
+                                <label class="form-label mt-2">Dirección</label>
+                                <input type="text" id="c_remdireccion" class="form-control form-control-sm campov" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Destinatario</label>
+                                <input type="text" id="c_destinatario" class="form-control form-control-sm campov" disabled>
+                                <label class="form-label mt-2">Ciudad</label>
+                                <input type="text" id="c_desciudad" class="form-control form-control-sm campov" disabled>
+                                <label class="form-label mt-2">Dirección</label>
+                                <input type="text" id="c_desdireccion" class="form-control form-control-sm campov" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Datos adicionales -->
+                        <div class="row g-2 mt-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Valor declarado</label>
+                                <input type="text" class="form-control form-control-sm text-muted" value="XXXXXX" disabled>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Producto transportado</label>
+                                <input type="text" id="c_producto" class="form-control form-control-sm campov" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Más campos -->
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Naturaleza</label>
+                                <input type="text" id="c_natu" class="form-control form-control-sm campov" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Aplica seguro</label>
+                                <select id="c_seguro" class="form-control form-control-sm campov" disabled></select>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Remesa contado</label>
+                                <select id="c_remesac" class="form-control form-control-sm campov" disabled></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Remesa contra entrega</label>
+                                <select id="c_remcontra" class="form-control form-control-sm campov" disabled></select>
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mt-3">
+                            <label class="form-label">Descripción novedad</label>
+                            <textarea id="c_descripcion" class="form-control form-control-sm campov" rows="2" disabled></textarea>
+                        </div>
+
+                        <!-- Archivo -->
+                        <div class="mt-2">
+                            <label class="form-label">Archivo</label>
+                            <p id="documento" class="text-muted small mb-0">No existe un archivo en la ubicación</p>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="text-center mt-3">
+                            <!-- <button id="btn_actualizar" class="btn btn-success btn-sm me-2">Actualizar</button> -->
+                            <button id="btn_imprimir" class="btn btn-danger btn-sm">PDF</button>
+                        </div>
+
+                        <!-- Panel Oet -->
+                        <div class="mt-4">
+                            <div class="panel panel-border-color panel-border-color-success">
+                                <div class="panel-heading"><strong>Consulta Oet</strong></div>
+                                <div class="panel-body" id="panel_oet"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<div id="loading-overlay-oet" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para Oet...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<div id="loading-overlay-rndc" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para el Ministerio...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>
+
+<div id="loading-overlay-dsnube" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para DsNube...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>

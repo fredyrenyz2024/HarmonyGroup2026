@@ -145,32 +145,175 @@ function Consultar_Documento() {
 	}, 'json');
 }
 
-function Consulta_parametro_Oet(id) {//Retransmitir a oet 
-	recurso = $("#filtro").val();
-	var paquete = 'recurso=' + recurso + '&numero=' + id;
+// function Consulta_parametro_Oet(id) {//Retransmitir a oet 
+// 	recurso = $("#filtro").val();
+// 	var paquete = 'recurso=' + recurso + '&numero=' + id;
+// 	$.post($("#id_url_ajax").val() + 'integrar_oet/Retransmite_Datos', paquete, function (data) {
+// 		if (data['status'] == true || data['status'] == "true") {
+// 			$(".nexos-messages").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Respuesta!</strong>Proceso transmitido a OET</div></div>');
+// 			$(".nexos-content").animate({ scrollTop: 0 }, 600);
+// 			$("#tabla_general").html('');
+// 		} else if (data['status'] == false || data['status'] == "false") {
+// 			$(".nexos-messages").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + data['error'] + '</div></div>');
+// 			$(".nexos-content").animate({ scrollTop: 0 }, 600);
+// 			$("#tabla_general").html('');
+// 		}
+// 	}, 'json');
+// }
+
+// function Consulta_parametro_Oet(id) { // Retransmitir a oet
+// 	let recurso = $("#filtro").val();
+// 	let paquete = `recurso=${recurso}&numero=${id}`;
+
+// 	$.post($("#id_url_ajax").val() + 'integrar_oet/Retransmite_Datos', paquete, function (data) {
+// 		console.log("Respuesta:", data); // 👀 Para ver en consola qué llega
+
+// 		// 👉 Como el backend devuelve un array, tomo el primer elemento
+// 		let respuesta = data[0];
+
+// 		if (respuesta['status'] === "ok") {
+// 			$(".nexos-messages").html(`
+//                 <div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible">
+//                     <div class="icon"><span class="mdi mdi-check"></span></div>
+//                     <div class="message">
+//                         <button type="button" data-dismiss="alert" aria-label="Close" class="close">
+//                             <span aria-hidden="true" class="mdi mdi-close"></span>
+//                         </button>
+//                         <strong>Respuesta!</strong> ${respuesta['message']}
+//                     </div>
+//                 </div>
+//             `);
+
+// 		} else if (respuesta['status'] === "Error" || respuesta['status'] === "false") {
+// 			$(".nexos-messages").html(`
+//                 <div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible">
+//                     <div class="icon"><span class="mdi mdi-close"></span></div>
+//                     <div class="message">
+//                         <button type="button" data-dismiss="alert" aria-label="Close" class="close">
+//                             <span aria-hidden="true" class="mdi mdi-close"></span>
+//                         </button>
+//                         <strong>Error!</strong> ${respuesta['message'] ?? respuesta['error']}
+//                     </div>
+//                 </div>
+//             `);
+// 		}
+
+// 		$(".nexos-content").animate({ scrollTop: 0 }, 600);
+// 		$("#tabla_general").html('');
+// 	}, 'json');
+// }
+
+
+// function Consulta_parametro_Oet(id) { // Retransmitir a oet
+// 	let recurso = $("#filtro").val();
+// 	let paquete = `recurso=${recurso}&numero=${id}`;
+
+// 	$.post($("#id_url_ajax").val() + 'integrar_oet/Retransmite_Datos', paquete, function (data) {
+// 		console.log("Respuesta cruda:", data); // 👀 Para debug
+
+// 		// ✅ Asegurar que data sea un objeto válido
+// 		let respuesta = Array.isArray(data) ? data[0] : data;
+
+// 		if (respuesta && respuesta.status === "ok") {
+// 			$(".nexos-messages").html(`
+//                 <div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible">
+//                     <div class="icon"><span class="mdi mdi-check"></span></div>
+//                     <div class="message">
+//                         <button type="button" data-dismiss="alert" aria-label="Close" class="close">
+//                             <span aria-hidden="true" class="mdi mdi-close"></span>
+//                         </button>
+//                         <strong>Respuesta!</strong> ${respuesta.message ?? "Operación exitosa"}
+//                     </div>
+//                 </div>
+//             `);
+
+// 		} else if (respuesta && (respuesta.status === "Error" || respuesta.status === "false")) {
+// 			$(".nexos-messages").html(`
+//                 <div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible">
+//                     <div class="icon"><span class="mdi mdi-close"></span></div>
+//                     <div class="message">
+//                         <button type="button" data-dismiss="alert" aria-label="Close" class="close">
+//                             <span aria-hidden="true" class="mdi mdi-close"></span>
+//                         </button>
+//                         <strong>Error!</strong> ${respuesta.message ?? respuesta.error ?? "Ocurrió un error inesperado"}
+//                     </div>
+//                 </div>
+//             `);
+
+// 		} else {
+// 			// ⚠️ Caso cuando no llega lo esperado
+// 			$(".nexos-messages").html(`
+//                 <div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+//                     <div class="icon"><span class="mdi mdi-alert"></span></div>
+//                     <div class="message">
+//                         <button type="button" data-dismiss="alert" aria-label="Close" class="close">
+//                             <span aria-hidden="true" class="mdi mdi-close"></span>
+//                         </button>
+//                         <strong>Atención!</strong> No se recibió una respuesta válida del servidor.
+//                     </div>
+//                 </div>
+//             `);
+// 		}
+
+// 		$(".nexos-content").animate({ scrollTop: 0 }, 600);
+// 		$("#tabla_general").html('');
+// 	}, 'json');
+// }
+
+function Consulta_parametro_Oet(id) { // Retransmitir a OET
+	let recurso = $("#filtro").val();
+	let paquete = `recurso=${recurso}&numero=${id}`;
+
 	$.post($("#id_url_ajax").val() + 'integrar_oet/Retransmite_Datos', paquete, function (data) {
-		if (data['status'] == true || data['status'] == "true") {
-			$(".nexos-messages").html('<div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Respuesta!</strong>Proceso transmitido a OET</div></div>');
-			$(".nexos-content").animate({ scrollTop: 0 }, 600);
-			$("#tabla_general").html('');
-		} else if (data['status'] == false || data['status'] == "false") {
-			$(".nexos-messages").html('<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' + data['error'] + '</div></div>');
-			$(".nexos-content").animate({ scrollTop: 0 }, 600);
-			$("#tabla_general").html('');
+		console.log("Respuesta cruda:", data); // 👀 Ver todo el array
+
+		if (Array.isArray(data) && data.length > 0) {
+			// 🌀 Recorremos todas las respuestas que vienen del backend
+			data.forEach(respuesta => {
+				if (respuesta.status === "ok") {
+					$(".nexos-messages").append(`
+                        <div role="alert" class="alert alert-success alert-icon alert-icon-border alert-dismissible">
+                            <div class="icon"><span class="mdi mdi-check"></span></div>
+                            <div class="message">
+                                <button type="button" data-dismiss="alert" aria-label="Close" class="close">
+                                    <span aria-hidden="true" class="mdi mdi-close"></span>
+                                </button>
+                                <strong>✅ Respuesta [Remesa ${respuesta.remesa}]!</strong> 
+                                ${respuesta.message ?? "Operación exitosa"}
+                            </div>
+                        </div>
+                    `);
+				} else {
+					$(".nexos-messages").append(`
+                        <div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible">
+                            <div class="icon"><span class="mdi mdi-close"></span></div>
+                            <div class="message">
+                                <button type="button" data-dismiss="alert" aria-label="Close" class="close">
+                                    <span aria-hidden="true" class="mdi mdi-close"></span>
+                                </button>
+                                <strong>❌ Error [Remesa ${respuesta.remesa}]!</strong> 
+                                ${respuesta.message ?? respuesta.error ?? "Ocurrió un error inesperado"}
+                            </div>
+                        </div>
+                    `);
+				}
+			});
+		} else {
+			// ⚠️ Si no llega un array válido
+			$(".nexos-messages").html(`
+                <div role="alert" class="alert alert-warning alert-icon alert-icon-border alert-dismissible">
+                    <div class="icon"><span class="mdi mdi-alert"></span></div>
+                    <div class="message">
+                        <button type="button" data-dismiss="alert" aria-label="Close" class="close">
+                            <span aria-hidden="true" class="mdi mdi-close"></span>
+                        </button>
+                        <strong>Atención!</strong> No se recibió una respuesta válida del servidor.
+                    </div>
+                </div>
+            `);
 		}
+
+		$(".nexos-content").animate({ scrollTop: 0 }, 600);
+		$("#tabla_general").html('');
 	}, 'json');
-
-
-	/*
-	var recurso, numero;
-	recurso = $("#filtro").val();
-	numero = $("#numero_documento").val();
-	var paquete = 'recurso=' + recurso + '&numero=' + numero;
-	//enviar a php
-	$.post($("#id_url_ajax").val() + 'integrar_oet/Consulta_Transacciones', paquete, function (data) {
-		if (data) {
-			alert(data);
-
-		}
-	}, 'json');*/
 }

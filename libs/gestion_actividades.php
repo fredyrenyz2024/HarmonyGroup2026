@@ -209,8 +209,6 @@ if ($_falg_gestiona_actividad) {
 			// Obtener los resultados
 			$resul_01 = $stmt->fetch(PDO::FETCH_ASSOC);
 
-			// print_r($resul_01);
-
 			// // Verificar si se encontraron datos
 			if ($resul_01 && isset($resul_01["bloque"]) && $resul_01["bloque"] > 0) {
 				$_flag_material = !empty($resul_01["id_material"]) ? ' AND cia.id_material = :id_material ' : '';

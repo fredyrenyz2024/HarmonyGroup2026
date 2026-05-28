@@ -15,7 +15,7 @@ var solicitud_servicio = new Array();
 var occargue = '';
 var ordremesas = '';
 
-$(document).ready(function() {
+$(document).ready(function () {
   //recibir variable de la URL
   let params = new URLSearchParams(location.search);
   var manifi = params.get('m');
@@ -23,16 +23,16 @@ $(document).ready(function() {
 
   Tarjeta_Seguimiento(manifi);
   Informacion(manifi);
-  $('.panel-collapse').on('show.collapse', function() {
+  $('.panel-collapse').on('show.collapse', function () {
     $(this).siblings('.panel-heading').addClass('active');
   });
 
-  $('.panel-collapse').on('hide.collapse', function() {
+  $('.panel-collapse').on('hide.collapse', function () {
     $(this).siblings('.panel-heading').removeClass('active');
   });
 
   /* Cargar seccion interna de registro de fechas */
-  $('#orden-carga').click(function() {
+  $('#orden-carga').click(function () {
     $('.remesas').removeClass('active');
     $('.orden-carga').addClass('active');
     $('.plan-ruta').removeClass('active');
@@ -41,7 +41,7 @@ $(document).ready(function() {
   });
 
   /* Cargar seccion interna de registro de remesas de fecha */
-  $('#remesa').click(function() {
+  $('#remesa').click(function () {
     $('.remesas').addClass('active');
     $('.orden-carga').removeClass('active');
     $('.plan-ruta').removeClass('active');
@@ -49,7 +49,7 @@ $(document).ready(function() {
   });
 
   /* Cargar seccion interna de plan de ruta */
-  $('#plan-ruta').click(function() {
+  $('#plan-ruta').click(function () {
     $('.remesas').removeClass('active');
     $('.orden-carga').removeClass('active');
     $('.plan-ruta').addClass('active');
@@ -58,7 +58,7 @@ $(document).ready(function() {
   });
 
   /* Cargar seccion interna de trazabilidad */
-  $('#trazabilidad').click(function() {
+  $('#trazabilidad').click(function () {
     $('.remesas').removeClass('active');
     $('.orden-carga').removeClass('active');
     $('.plan-ruta').removeClass('active');
@@ -77,10 +77,10 @@ $(document).ready(function() {
     type: 'POST',
     data: ent,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data) {
         let body = '';
-        data.result.forEach(function(element, index) {
+        data.result.forEach(function (element, index) {
           body =
             '<tr>' +
             '<td>' +
@@ -107,7 +107,7 @@ $(document).ready(function() {
         alert('no entro');
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
@@ -117,6 +117,7 @@ $(document).ready(function() {
 
 var url = $('#id_url_ajax').val() + 'libs/seguimientoruta_ajax.php';
 var url2 = $('#id_url_ajax').val() + 'libs/trafico2_ajax.php';
+
 function Tarjeta_Seguimiento(manifi) {
   //Tarjeta de seguimiento
   var tabla = {
@@ -130,10 +131,10 @@ function Tarjeta_Seguimiento(manifi) {
     type: 'POST',
     data: tabla,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data) {
         var c = 0;
-        data.forEach(function(element, index) {
+        data.forEach(function (element, index) {
           c++;
           //var codini=element.id;
           codini = element.cod_inicio;
@@ -210,7 +211,7 @@ function Tarjeta_Seguimiento(manifi) {
         Consulta_Seguimiento_Actual(codini);
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       // alert("ocurrio un error en consulta de tabla");
       console.log(jqXHR);
       console.log(textStatus);
@@ -234,7 +235,7 @@ async function Informacio_Principal(manifi, codinin) {
     });
     const data = await response.json();
     if (data) {
-      data.forEach(function(element, index) {
+      data.forEach(function (element, index) {
         var dcondu = element.nombre + ' ' + element.apellido1 + ' ' + element.apellido2;
         codigoPlan = element.cod_plan;
         codigoInicio = element.cod_inicio;
@@ -281,6 +282,7 @@ async function Informacio_Principal(manifi, codinin) {
   }
 }
 
+// Para pintar mapa
 async function Puntos_geograficos(codigoPlan, codinin) {
   /*Pintar el mapa de la ruta que el vehiculo lleva */
   var cont = {
@@ -296,10 +298,10 @@ async function Puntos_geograficos(codigoPlan, codinin) {
     type: 'POST',
     data: cont,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data) {
         var t = 0;
-        data.forEach(function(element, index) {
+        data.forEach(function (element, index) {
           pcarraylat[t] = [element.latitud_punto];
           pcarraylong[t] = [element.longitud_punto];
           namepc[t] = [element.nombre_punto];
@@ -314,7 +316,7 @@ async function Puntos_geograficos(codigoPlan, codinin) {
         initMap(latori, latdes, longori, longdes, pcarraylat, pcarraylong, namepc, codinin);
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
@@ -327,20 +329,20 @@ function Informacion(manifi) {
   $.post(
     $('#id_url_ajax').val() + 'tiempo_logistico_cargue/Selecciona_Ordenes',
     'manifiesto=' + manifi,
-    function(data) {
+    function (data) {
       if (data) {
         data.forEach(element => {
           // Primera validación: Verificar órdenes de carga
           $.post(
             $('#id_url_ajax').val() + 'tiempo_logistico_cargue/Verificar_ordenes',
             'orden_cargue=' + element.id + '&manifiesto=' + manifi,
-            function(datosOrden) {
+            function (datosOrden) {
               if (datosOrden.length > 0) {
                 // Segunda validación: Verificar remesas
                 $.post(
                   $('#id_url_ajax').val() + 'tiempo_logistico_descargue/Verificar_ordenes',
                   'remesa=' + element.Remesa + '&manifiesto=' + manifi,
-                  function(datosRemesa) {
+                  function (datosRemesa) {
                     if (datosRemesa.length > 0) {
                       $('#tbl_informacion').append(`
                         <tr>
@@ -436,7 +438,7 @@ function plan_ruta(codigoPlan, codigoInicio, manifi) {
     type: 'POST',
     data: cont,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data) {
         var t = 0;
         var notas = data.notas_puntos;
@@ -450,7 +452,7 @@ function plan_ruta(codigoPlan, codigoInicio, manifi) {
         });
 
         $('#panel_control_plan_ruta').html('');
-        puntos.forEach(function(element, index) {
+        puntos.forEach(function (element, index) {
           // Determinar clasificación del punto
           var clasificacion = element.tipo_punto === 'punto control' ? 'punto físico' : 'punto virtual';
 
@@ -478,7 +480,7 @@ function plan_ruta(codigoPlan, codigoInicio, manifi) {
           t++;
 
           // Agregar controlador de clic a los enlaces de puntos
-          $('.puntos_list').on('click', function(event) {
+          $('.puntos_list').on('click', function (event) {
             event.preventDefault();
             var dataPunto = $(this).data('punto');
             var dataLatitud = $(this).data('lat');
@@ -499,7 +501,7 @@ function plan_ruta(codigoPlan, codigoInicio, manifi) {
         // pintar_mapacontrol(latori, latdes, longori, longdes, pcarraylat, pcarraylong, namepc);
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
@@ -536,7 +538,7 @@ function formulario_seguimiento() {
     .then(response => response.text())
     .then(data => {
       document.getElementById('contenido-controlador').innerHTML = data;
-      $(document).ready(function() {
+      $(document).ready(function () {
         gestion();
         // listanovedades();
         $('#notas_controlador').css('display', 'none');
@@ -553,7 +555,7 @@ function formulario_seguimiento() {
           $('#codigo_punto').val(localStorage.getItem('codigo_punto'));
         }
 
-        $('#ocurrio').change(function() {
+        $('#ocurrio').change(function () {
           $('#ubilatitud').val('');
           $('#ubilongitud').val('');
           var ocurrio = $('#ocurrio').val();
@@ -582,15 +584,15 @@ function formulario_seguimiento() {
             var currentFocus = -1; // Índice de la selección actual
 
             // Agregar un controlador de eventos para el evento input
-            $miInput.on('input', function() {
+            $miInput.on('input', function () {
               // Obtener el valor actual del campo de entrada
               var valorInput = $miInput.val();
               // Actualizar el contenido del elemento resultado
               if (valorInput !== '') {
                 $.post(
                   $('#id_url_ajax').val() + 'planruta/Buscar_Puntos_Control',
-                  {datos: valorInput},
-                  function(data) {
+                  { datos: valorInput },
+                  function (data) {
                     mostrar_resultados(data);
                   },
                   'json',
@@ -605,14 +607,14 @@ function formulario_seguimiento() {
               $resultado.innerHTML = '';
               currentFocus = -1; // Reiniciar el índice de la selección
               // Mostrar los nuevos resultados
-              results.forEach(function(result, index) {
+              results.forEach(function (result, index) {
                 const li = document.createElement('li');
                 li.style.padding = '8px';
                 li.style.cursor = 'pointer';
                 li.style.transition = 'background-color 0.3s';
                 li.textContent = result.nom_punto + ' - ' + result.municipio;
                 li.setAttribute('data-index', index); // Asignar un índice al elemento
-                li.addEventListener('click', function() {
+                li.addEventListener('click', function () {
                   seleccionarElemento(result);
                 });
                 $resultado.appendChild(li);
@@ -630,7 +632,7 @@ function formulario_seguimiento() {
             }
 
             // Manejar eventos de teclado para la navegación
-            $miInput.on('keydown', function(e) {
+            $miInput.on('keydown', function (e) {
               var items = $resultado.getElementsByTagName('li');
               if (e.key === 'ArrowDown') {
                 // Mover hacia abajo en la lista
@@ -678,14 +680,14 @@ function formulario_seguimiento() {
         var currentFocus = -1; // Índice de la selección actual
 
         // Buscar usuario responsable para la actividad
-        $searchInput.on('input', function() {
+        $searchInput.on('input', function () {
           const searchTerm = $searchInput.val().trim();
           // Realizar una solicitud AJAX para obtener resultados desde el servidor
           if (searchTerm !== '') {
             $.post(
               $('#id_url_ajax').val() + 'trafico/Buscar_novedades',
-              {datos: searchTerm},
-              function(data) {
+              { datos: searchTerm },
+              function (data) {
                 mostrar_resultados_notas(data);
               },
               'json',
@@ -700,14 +702,14 @@ function formulario_seguimiento() {
           $resultado_novedad.innerHTML = '';
           currentFocus = -1; // Reiniciar el índice de la selección
           // Mostrar los nuevos resultados
-          results.forEach(function(result, index) {
+          results.forEach(function (result, index) {
             const li = document.createElement('li');
             li.style.padding = '8px';
             li.style.cursor = 'pointer';
             li.style.transition = 'background-color 0.3s';
             li.textContent = result.id + ' - ' + result.novedad;
             li.setAttribute('data-index', index); // Asignar un índice al elemento
-            li.addEventListener('click', function() {
+            li.addEventListener('click', function () {
               seleccionarElemento(result);
             });
             $resultado_novedad.appendChild(li);
@@ -721,7 +723,7 @@ function formulario_seguimiento() {
         }
 
         // Manejar eventos de teclado para la navegación
-        $searchInput.on('keydown', function(e) {
+        $searchInput.on('keydown', function (e) {
           var items = $resultado_novedad.getElementsByTagName('li');
           if (e.key === 'ArrowDown') {
             // Mover hacia abajo en la lista
@@ -762,11 +764,11 @@ function formulario_seguimiento() {
         document.head.appendChild(style);
 
         //Boton para volver a la tabla de notas
-        $('#btn-volver-notas').click(function() {
+        $('#btn-volver-notas').click(function () {
           location.reload();
         });
 
-        $('#btn_guadargestion').click(function() {
+        $('#btn_guadargestion').click(function () {
           if (window.confirm('¿Esta seguro de guardar la nota para este punto?')) {
             var msg_error = '';
             var ocurrioval = $('#ocurrio').val();
@@ -778,10 +780,10 @@ function formulario_seguimiento() {
               } else {
                 $('#msg_editar_gestion').html(
                   '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-                    msg_error +
-                    '</div></div>',
+                  msg_error +
+                  '</div></div>',
                 );
-                $('#ver_gestion').animate({scrollTop: 0}, 600);
+                $('#ver_gestion').animate({ scrollTop: 0 }, 600);
               }
             } else {
               if (!msg_error) {
@@ -790,21 +792,14 @@ function formulario_seguimiento() {
               } else {
                 $('#msg_editar_gestion').html(
                   '<div role="alert" class="alert alert-danger alert-icon alert-icon-border alert-dismissible"><div class="icon"><span class="mdi mdi-close"></span></div><div class="message"><button type="button" data-dismiss="alert" aria-label="Close" class="close"><span aria-hidden="true" class="mdi mdi-close"></span></button><strong>Error!</strong>' +
-                    msg_error +
-                    '</div></div>',
+                  msg_error +
+                  '</div></div>',
                 );
-                $('#ver_gestion').animate({scrollTop: 0}, 600);
+                $('#ver_gestion').animate({ scrollTop: 0 }, 600);
               }
             }
           }
         });
-
-        /* Boton para guardar las notas y el envio del correo al cliente */
-        // $("#").click(){
-
-        // }
-
-
 
       });
     })
@@ -816,7 +811,7 @@ function trazabilidad() {
     .then(response => response.text())
     .then(data => {
       document.getElementById('contenedor').innerHTML = data;
-      $(document).ready(function() {
+      $(document).ready(function () {
         $('#novedad_estado').html('');
         $('#novedad_seguimiento').html('');
         $('#tiempo_descargue').html('');
@@ -831,9 +826,9 @@ function trazabilidad() {
           type: 'POST',
           data: estado,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data.result != null) {
-              data.result.forEach(function(element, index) {
+              data.result.forEach(function (element, index) {
                 var d;
                 var st = element.estado;
                 if (st == 2) {
@@ -868,7 +863,7 @@ function trazabilidad() {
             }
 
             if (data.result2 != null) {
-              data.result2.forEach(function(element, index) {
+              data.result2.forEach(function (element, index) {
                 var clase;
                 if (element.tipo_seguimiento == 'punto geografico') {
                   clase = 'Punto virtual';
@@ -878,30 +873,30 @@ function trazabilidad() {
 
                 $('#novedad_seguimiento').append(
                   '<tr>' +
-                    '<td>' +
-                    clase +
-                    '</td>' +
-                    '<td>' +
-                    element.observacion +
-                    '</td>' +
-                    '<td>' +
-                    element.tipo_contacto +
-                    '</td>' +
-                    '<td>' +
-                    element.reporte_cliente +
-                    '</td>' +
-                    '<td>' +
-                    element.id_servicio +
-                    '</td>' +
-                    '<td>' +
-                    element.usuario +
-                    '</td>' +
-                    '<td>' +
-                    element.fecha +
-                    '-' +
-                    element.hora +
-                    '</td>' +
-                    '</tr>',
+                  '<td>' +
+                  clase +
+                  '</td>' +
+                  '<td>' +
+                  element.observacion +
+                  '</td>' +
+                  '<td>' +
+                  element.tipo_contacto +
+                  '</td>' +
+                  '<td>' +
+                  element.reporte_cliente +
+                  '</td>' +
+                  '<td>' +
+                  element.id_servicio +
+                  '</td>' +
+                  '<td>' +
+                  element.usuario +
+                  '</td>' +
+                  '<td>' +
+                  element.fecha +
+                  '-' +
+                  element.hora +
+                  '</td>' +
+                  '</tr>',
                 );
               });
             } else {
@@ -909,48 +904,48 @@ function trazabilidad() {
             }
 
             if (data.result3 != null) {
-              data.result3.forEach(function(element, index) {
+              data.result3.forEach(function (element, index) {
                 $('#tiempo_cargue').append(
                   '<tr>' +
-                    '<td>' +
-                    element.id_orden_cargue +
-                    '</td>' +
-                    '<td>' +
-                    element.tipo_fecha +
-                    '</td>' +
-                    '<td>' +
-                    element.fecha_cargue +
-                    '</td>' +
-                    '<td>' +
-                    element.hora_cargue +
-                    '</td>' +
-                    '</tr>',
+                  '<td>' +
+                  element.id_orden_cargue +
+                  '</td>' +
+                  '<td>' +
+                  element.tipo_fecha +
+                  '</td>' +
+                  '<td>' +
+                  element.fecha_cargue +
+                  '</td>' +
+                  '<td>' +
+                  element.hora_cargue +
+                  '</td>' +
+                  '</tr>',
                 );
               });
             }
 
             if (data.result4 != null) {
-              data.result4.forEach(function(element, index) {
+              data.result4.forEach(function (element, index) {
                 $('#tiempo_descargue').append(
                   '<tr>' +
-                    '<td>' +
-                    element.id_remesa +
-                    '</td>' +
-                    '<td>' +
-                    element.tipo_fecha +
-                    '</td>' +
-                    '<td>' +
-                    element.fecha_descargue +
-                    '</td>' +
-                    '<td>' +
-                    element.hora_descargue +
-                    '</td>' +
-                    '</tr>',
+                  '<td>' +
+                  element.id_remesa +
+                  '</td>' +
+                  '<td>' +
+                  element.tipo_fecha +
+                  '</td>' +
+                  '<td>' +
+                  element.fecha_descargue +
+                  '</td>' +
+                  '<td>' +
+                  element.hora_descargue +
+                  '</td>' +
+                  '</tr>',
                 );
               });
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo estados');
             console.log(jqXHR);
             console.log(textStatus);
@@ -974,7 +969,7 @@ function ultimanovedad(codini, id) {
     type: 'POST',
     data: maximo,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data.result != null) {
         var prisma;
         if (data.result[0].genera_alerta == 'NO') {
@@ -990,7 +985,7 @@ function ultimanovedad(codini, id) {
         $('#ulnovedad' + id).html('<p style="color:#CDCDCD;"><strong>No existe una novedad aún</strong></p>');
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
@@ -1023,7 +1018,7 @@ function gestion() {
     type: 'POST',
     data: ultimo_estado,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       console.log('trajo estado maximo');
       if (data.result) {
         // alert('estado');
@@ -1042,14 +1037,14 @@ function gestion() {
           type: 'POST',
           data: estados,
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             if (data.result) {
-              data.result.forEach(function(element, index) {
+              data.result.forEach(function (element, index) {
                 $('#estadoq').append('<option value="' + element.id + '">' + element.estado + '</option>');
               });
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             console.log('no trajo estados');
             console.log(jqXHR);
             console.log(textStatus);
@@ -1058,7 +1053,7 @@ function gestion() {
         });
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no trajo estado maximo');
       console.log(jqXHR);
       console.log(textStatus);
@@ -1076,17 +1071,17 @@ function gestion() {
     type: 'POST',
     data: servi,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data.result != null) {
         var t = 0;
-        data.result.forEach(function(element, index) {
+        data.result.forEach(function (element, index) {
           solicitud_servicio[t] = element.mer_idservicio;
           t++;
         });
         console.log(solicitud_servicio);
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('No trajo solicitudes de servicio');
       console.log(jqXHR);
       console.log(textStatus);
@@ -1094,6 +1089,7 @@ function gestion() {
     },
   });
 }
+
 // Trazabilidad
 function novedad(element) {
   var elemento = $(element);
@@ -1117,9 +1113,9 @@ function novedad(element) {
     type: 'POST',
     data: estado,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data.result != null) {
-        data.result.forEach(function(element, index) {
+        data.result.forEach(function (element, index) {
           var d;
           var st = element.estado;
           if (st == 2) {
@@ -1154,7 +1150,7 @@ function novedad(element) {
       }
 
       if (data.result2 != null) {
-        data.result2.forEach(function(element, index) {
+        data.result2.forEach(function (element, index) {
           var clase;
           if (element.tipo_seguimiento == 'punto geografico') {
             clase = 'Punto virtual';
@@ -1164,36 +1160,36 @@ function novedad(element) {
 
           $('#novedad_seguimiento').append(
             '<tr>' +
-              '<td>' +
-              clase +
-              '</td>' +
-              '<td>' +
-              element.observacion +
-              '</td>' +
-              '<td>' +
-              element.tipo_contacto +
-              '</td>' +
-              '<td>' +
-              element.reporte_cliente +
-              '</td>' +
-              '<td>' +
-              element.id_servicio +
-              '</td>' +
-              '<td>' +
-              element.usuario +
-              '</td>' +
-              '<td>' +
-              element.fecha +
-              '-' +
-              element.hora +
-              '</td>' +
-              '</tr>',
+            '<td>' +
+            clase +
+            '</td>' +
+            '<td>' +
+            element.observacion +
+            '</td>' +
+            '<td>' +
+            element.tipo_contacto +
+            '</td>' +
+            '<td>' +
+            element.reporte_cliente +
+            '</td>' +
+            '<td>' +
+            element.id_servicio +
+            '</td>' +
+            '<td>' +
+            element.usuario +
+            '</td>' +
+            '<td>' +
+            element.fecha +
+            '-' +
+            element.hora +
+            '</td>' +
+            '</tr>',
           );
         });
       }
 
       if (data.result3 != null) {
-        data.result3.forEach(function(element, index) {
+        data.result3.forEach(function (element, index) {
           $('#tiempo_cargue').append(
             '<tr>' + '<td>' + element.id_orden_cargue + '</td>' + '<td>' + element.tipo_fecha + '</td>' + '<td>' + element.fecha_cargue + '</td>' + '<td>' + element.hora_cargue + '</td>' + '</tr>',
           );
@@ -1201,14 +1197,14 @@ function novedad(element) {
       }
 
       if (data.result4 != null) {
-        data.result4.forEach(function(element, index) {
+        data.result4.forEach(function (element, index) {
           $('#tiempo_descargue').append(
             '<tr>' + '<td>' + element.id_remesa + '</td>' + '<td>' + element.tipo_fecha + '</td>' + '<td>' + element.fecha_descargue + '</td>' + '<td>' + element.hora_descargue + '</td>' + '</tr>',
           );
         });
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no trajo estados');
       console.log(jqXHR);
       console.log(textStatus);
@@ -1226,10 +1222,10 @@ function Consulta_Seguimiento_Actual(codini) {
     type: 'POST',
     data: buscar,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       $('#seguimiento_real').html('');
       if (data != null) {
-        data.forEach(function(element, index) {
+        data.forEach(function (element, index) {
           var tblBody = '';
           let cadena = element.novedad.substr(0, 7);
           let color = '';
@@ -1274,7 +1270,7 @@ function Consulta_Seguimiento_Actual(codini) {
         });
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no trajo seguimientos');
       // console.log(jqXHR);
       // console.log(textStatus);
@@ -1295,13 +1291,13 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
   var pcarraylong_1 = pcarraylong;
   var namepc_1 = namepc;
 
-  var coord_ori = {lat: latori_1, lng: lonori_1};
-  var coord_des = {lat: latdes_1, lng: londes_1};
+  var coord_ori = { lat: latori_1, lng: lonori_1 };
+  var coord_des = { lat: latdes_1, lng: londes_1 };
 
   let map;
 
-  var coord_pais = {lat: 4.70971, lng: -74.06775};
-  var code = {lat: 4.70971, lng: -74.06775};
+  var coord_pais = { lat: 4.70971, lng: -74.06775 };
+  var code = { lat: 4.70971, lng: -74.06775 };
   var mapc = new google.maps.Map(document.getElementById('mapgeografico'), {
     zoom: 3,
     center: code,
@@ -1324,7 +1320,7 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
     map: mapc,
   });
 
-  var objConfigDR = {map: mapc};
+  var objConfigDR = { map: mapc };
   var objConfigDS = {
     origin: coord_ori,
     destination: coord_des,
@@ -1351,7 +1347,7 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
     type: 'POST',
     data: control,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (data != null) {
         //mapa
         // var latori = data[0].latitud_origen;
@@ -1363,7 +1359,7 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
         var st, sm, cordenadas;
         st = parseFloat(data[0].latitud);
         sm = parseFloat(data[0].longitud);
-        cordenadas = {lat: st, lng: sm};
+        cordenadas = { lat: st, lng: sm };
         var marketpc = new google.maps.Marker({
           position: cordenadas,
           // icon: "https://img.icons8.com/cotton/30/000000/truck--v1.png",
@@ -1373,7 +1369,7 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
         });
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(jqXHR);
       console.log(textStatus);
       console.log(errorThrown);
@@ -1386,12 +1382,12 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
   // Puntos de inicio y destino
   var latlngori = new google.maps.LatLng(coord_ori);
   var latlngdes = new google.maps.LatLng(coord_des);
-  geocoder.geocode({latLng: latlngori}, function(results, status) {
+  geocoder.geocode({ latLng: latlngori }, function (results, status) {
     if (status == google.maps.GeocoderStatus.OK) {
       var latitudInicio = results[0].geometry.location.lat();
       var longitudInicio = results[0].geometry.location.lng();
 
-      geocoder.geocode({latLng: latlngdes}, function(results, status) {
+      geocoder.geocode({ latLng: latlngdes }, function (results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
           var latitudDestino = results[0].geometry.location.lat();
           var longitudDestino = results[0].geometry.location.lng();
@@ -1400,12 +1396,12 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
           var service = new google.maps.DistanceMatrixService();
           service.getDistanceMatrix(
             {
-              origins: [{lat: latitudInicio, lng: longitudInicio}],
-              destinations: [{lat: latitudDestino, lng: longitudDestino}],
+              origins: [{ lat: latitudInicio, lng: longitudInicio }],
+              destinations: [{ lat: latitudDestino, lng: longitudDestino }],
               travelMode: google.maps.TravelMode.DRIVING,
               unitSystem: google.maps.UnitSystem.METRIC,
             },
-            function(response, status) {
+            function (response, status) {
               if (status == google.maps.DistanceMatrixStatus.OK) {
                 var distancia = response.rows[0].elements[0].distance.text;
                 var tiempo = response.rows[0].elements[0].duration.text;
@@ -1434,7 +1430,7 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
       st = parseFloat(pcarraylat_1[a]);
       sm = parseFloat(pcarraylong_1[a]);
       nom = namepc_1[a];
-      cordenadas = {lat: st, lng: sm};
+      cordenadas = { lat: st, lng: sm };
 
       const contentString =
         '<div id="content">' +
@@ -1478,6 +1474,7 @@ function initMap(latori, latdes, lonori, londes, pcarraylat, pcarraylong, namepc
     // Manejar el caso cuando 'array' es undefined o null
   }
 }
+
 //INSERT
 function validar_proceso() {
   //VALIDAR EL SEGUIMIENTO
@@ -1501,9 +1498,9 @@ function validar_proceso() {
       type: 'POST',
       data: fun,
       dataType: 'json',
-      success: function(data) {
+      success: function (data) {
         if (data.result != false) {
-          data.result.forEach(function(element, index) {
+          data.result.forEach(function (element, index) {
             if (element.tipo_proceso == 'completado') {
               alert('Este seguimiento ya tiene un estado de completado, no puede realizar más seguimientos sobre el mismo');
             } else {
@@ -1514,7 +1511,7 @@ function validar_proceso() {
           Registrar_Gestion();
         }
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.log(jqXHR);
         console.log(textStatus);
         console.log(errorThrown);
@@ -1525,109 +1522,89 @@ function validar_proceso() {
   }
 }
 
-function Registrar_Gestion() {
-  // Obtener todos los inputs ocultos con las clases orden_cargue_id y remesa_descargue_id
-  const ordenCargueInputs = document.querySelectorAll('input.orden_cargue_id');
-  const remesaDescargueInputs = document.querySelectorAll('input.remesa_descargue_id');
+async function Registrar_Gestion() {
+  try {
+    // Obtener los arrays de ordenes y remesas
+    const ordenCargueInputs = document.querySelectorAll('input.orden_cargue_id');
+    const remesaDescargueInputs = document.querySelectorAll('input.remesa_descargue_id');
 
-  // Inicializar arrays para almacenar los valores
-  const ordenCargueArray = [];
-  const remesaDescargueArray = [];
+    const ordenCargueArray = Array.from(ordenCargueInputs).map(input => input.value);
+    const remesaDescargueArray = Array.from(remesaDescargueInputs).map(input => input.value);
 
-  // Recorrer los inputs y almacenar los valores en los arrays
-  ordenCargueInputs.forEach(input => {
-    ordenCargueArray.push(input.value);
-  });
+    // Crear FormData
+    const formData = new FormData();
+    formData.append('accion_completado', $('#procesoq').val());
+    formData.append('estado_siguiente', $('#estadoq').val());
+    formData.append('reporte_cliente', $('#reporte').val());
+    formData.append('observacion', $('#observa').val());
+    formData.append('nota_punto_controlador', $('#nota').val());
+    formData.append('solicitud_servicio_nuevo', solicitud_servicio);
+    formData.append('contacto', 'Llamada telefonica');
+    formData.append('tipo_seguimiento', 'punto geografico');
+    formData.append('tipo_detalle', $('#accion_id').val());
+    formData.append('novedad_general', $('#novedad').val());
+    formData.append('ocurrio', $('#ocurrio').val());
+    formData.append('latitud', $('#ubilatitud').val());
+    formData.append('longitud', $('#ubilongitud').val());
+    formData.append('documento_evidencia', '');
+    formData.append('id_ini_ruta', codini);
+    formData.append('idmanifiesto', mani);
+    formData.append('tipo_proceso', $('#proceso').val());
+    formData.append('edocu', '');
+    formData.append('codigo_punto', $('#codigo_punto').val());
+    formData.append('accion_punto', $('#accion').val());
+    formData.append('manifiesto', manifiesti_codigo);
+    // formData.append('manifiesto', manifiesti_codigo);
 
-  remesaDescargueInputs.forEach(input => {
-    remesaDescargueArray.push(input.value);
-  });
+    // Agregar los arreglos al formData
+    ordenCargueArray.forEach((val, i) => {
+      formData.append(`orden_cargue_id[${i}]`, val);
+    });
+    remesaDescargueArray.forEach((val, i) => {
+      formData.append(`remesa_descargue_id[${i}]`, val);
+    });
 
-  var data = {
-    accion: 'crear_gestion',
-    accion_completado: $('#procesoq').val(),
-    estado_siguiente: $('#estadoq').val(),
-    reporte_cliente: $('#reporte').val(),
-    observacion: $('#observa').val(),
-    nota_punto_controlador: $('#nota').val(),
-    solicitud_servicio_nuevo: solicitud_servicio,
-    contacto: 'Llamada telefonica',
-    tipo_seguimiento: 'punto geografico',
-    tipo_detalle: $('#accion_id').val(),
-    novedad_general: $('#novedad').val(),
-    ocurrio: $('#ocurrio').val(),
-    latitud: $('#ubilatitud').val(),
-    longitud: $('#ubilongitud').val(),
-    documento_evidencia: '',
-    // estado_actual: $("#actu").val(),
-    id_ini_ruta: codini,
-    idmanifiesto: mani,
-    tipo_proceso: $('#proceso').val(),
-    documento_evidencia: '',
-    edocu: '',
-    codigo_punto: $('#codigo_punto').val(),
-    accion_punto: $('#accion').val(),
-    manifiesto: manifiesti_codigo,
-    orden_cargue_id: ordenCargueArray,
-    remesa_descargue_id: remesaDescargueArray,
-  };
+    const response = await fetch($('#id_url_ajax').val() + 'trafico/crear_gestion', {
+      method: 'POST',
+      body: formData,
+    });
 
-  $.ajax({
-    url: url2,
-    type: 'POST',
-    data: JSON.stringify(data),
-    cache: false,
-    processData: false, // Don't process the files
-    contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-    dataType: 'json',
-    success: function(data, textStatus, jqXHR) {
-      if (data.success === true) {
-        // alert(data.message);
-        Swal.fire({
-          title: 'Exito',
-          html: data.message,
-          icon: 'success',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: `¿Quieres realizar otra nota a este manifiesto ${manifiesti_codigo}?`,
-          cancelButtonText: 'No, Regresar al tablero',
-          customClass: {
-            popup: 'swal2-custom-font',
-          },
-        }).then(result => {
-          if (result.isConfirmed) {
-            location.reload(true);
-          } else {
-            $('.hcontenedor').empty();
-            var manifi = $('#man').val();
-            Tarjeta_Seguimiento(manifi); //bloques
-            $('#ver_gestion').modal('hide');
-            window.location = $('#id_url_ajax').val() + 'control_ruta/seguir_ruta/?idmenu=5';
-          }
-        });
-      } else {
-        Swal.fire({
-          // position: 'top-end',
-          position: 'center',
-          icon: 'warning',
-          title: 'Advertencia',
-          html: data.message,
-          showConfirmButton: true,
-          // timer: 1500,
-          customClass: {
-            popup: 'swal2-custom-font',
-          },
-        });
-      }
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log('no guardo seguimiento');
-      console.log(jqXHR);
-      console.log(textStatus);
-      console.log(errorThrown);
-    },
-  });
+    const data = await response.json();
+
+    if (data.success === true) {
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        html: data.message,
+        timer: 1000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        customClass: { popup: 'swal2-custom-font' },
+      }).then(() => {
+        location.reload(true);
+      });
+
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Advertencia',
+        html: data.message,
+        position: 'center',
+        showConfirmButton: true,
+        customClass: {
+          popup: 'swal2-custom-font',
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error al guardar la gestión:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error de conexión',
+      text: 'No se pudo guardar la gestión. Intenta de nuevo.',
+    });
+  }
 }
 
 function Registrar_Gestionestado() {
@@ -1651,7 +1628,7 @@ function Registrar_Gestionestado() {
     processData: false, // Don't process the files
     contentType: false, // Set content type to false as jQuery will tell the server its a query string request
     dataType: 'json',
-    success: function(data, textStatus, jqXHR) {
+    success: function (data, textStatus, jqXHR) {
       //location.reload();
       $('.hcontenedor').empty();
       var manifi = $('#man').val();
@@ -1659,7 +1636,7 @@ function Registrar_Gestionestado() {
       $('#ver_gestion').modal('hide');
       alert('Ok!!Datos Registrado Exitosamente!!');
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log('no guardo seguimiento');
       console.log(jqXHR);
       console.log(textStatus);
@@ -1689,7 +1666,7 @@ function abrir_remesa(manifi, remesa) {
   $.post(
     $('#id_url_ajax').val() + 'tiempo_logistico_cargue/validar_order_cargue',
     'manifiesto=' + manifi,
-    function(data) {
+    function (data) {
       if (data) {
         // URL de la página que deseas abrir en la nueva ventana
         var url = $('#id_url_ajax').val() + `tiempo_logistico_descargue/crear_descargue/?manifiesto=${manifi}&remesa=${remesa}`;

@@ -1,0 +1,904 @@
+<!-- ================================================================
+  VISTA DOM — CARGA DE TARIFAS POR EXCEL
+  Generador Automático — Requermiento Punto 23
+  Sin modal / sin offcanvas — embebida directamente en la página
+  Variables de sesión: ssn_id_cliente, ssn_nombre, empresa_id, base_url_api
+================================================================ -->
+
+<!-- Variables de sesión (ya existen en tu layout) -->
+<input type="hidden" id="ssn_id_cliente"    value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+<input type="hidden" id="ssn_id_usuario"    value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+<input type="hidden" id="ssn_nombre"        value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+<input type="hidden" id="ssn_id_perfil"     value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+<input type="hidden" id="empresa_id"        value="<?= $_SESSION['usuario']['empresa_id'] ?>">
+<input type="hidden" id="base_url_api"      value="<?= URLAPI_NEXOS ?>">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   TOKENS & RESET
+═══════════════════════════════════════════════════════════ */
+.cex-root {
+  --c-blue:      #1a73e8;
+  --c-blue-lt:   #e8f0fe;
+  --c-blue-dk:   #1557b0;
+  --c-green:     #0f9d58;
+  --c-green-lt:  #e6f4ea;
+  --c-amber:     #d97706;
+  --c-amber-lt:  #fef3c7;
+  --c-red:       #dc2626;
+  --c-red-lt:    #fee2e2;
+  --c-purple:    #7c3aed;
+  --c-purple-lt: #f3e8ff;
+  --c-gray:      #6b7280;
+  --c-border:    #e2e8f0;
+  --c-bg:        #f8fafc;
+  --c-white:     #ffffff;
+  --c-text:      #1e293b;
+  --c-text-soft: #64748b;
+  --radius-lg:   12px;
+  --radius-md:   8px;
+  --radius-sm:   6px;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:   0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:   0 10px 28px rgba(0,0,0,.10);
+
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--c-text);
+}
+
+/* ── Page header ─────────────────────────────────────────── */
+.cex-page-header {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 20px 28px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cex-page-icon {
+  width: 48px; height: 48px;
+  background: var(--c-blue);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.cex-page-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--c-text);
+  line-height: 1.2;
+}
+
+.cex-page-sub {
+  font-size: .78rem;
+  color: var(--c-text-soft);
+  margin-top: 2px;
+}
+
+/* ── Wizard steps ────────────────────────────────────────── */
+.cex-wizard {
+  display: flex;
+  align-items: center;
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 0 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.cex-wiz-step {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 16px 0;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--c-gray);
+  white-space: nowrap;
+  position: relative;
+  cursor: default;
+  transition: color .2s;
+}
+
+.cex-wiz-step::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: transparent;
+  transition: background .2s;
+}
+
+.cex-wiz-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #e9ecef;
+  color: #999;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: all .25s;
+}
+
+.cex-wiz-step.is-active {
+  color: var(--c-blue);
+}
+.cex-wiz-step.is-active::after { background: var(--c-blue); }
+.cex-wiz-step.is-active .cex-wiz-num {
+  background: var(--c-blue);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(26,115,232,.18);
+}
+
+.cex-wiz-step.is-done { color: var(--c-green); }
+.cex-wiz-step.is-done::after { background: var(--c-green); }
+.cex-wiz-step.is-done .cex-wiz-num {
+  background: var(--c-green);
+  color: #fff;
+}
+
+.cex-wiz-sep {
+  flex: 1; min-width: 24px;
+  height: 1px;
+  background: var(--c-border);
+  margin: 0 12px;
+}
+
+/* ── Cards contenedores ──────────────────────────────────── */
+.cex-card {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.cex-card-header {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cex-card-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--c-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cex-card-title i { color: var(--c-blue); }
+
+.cex-card-body {
+  padding: 22px;
+}
+
+/* ── Secciones de paso ───────────────────────────────────── */
+.cex-section { display: none; }
+.cex-section.is-active { display: block; }
+
+/* ── Dropzone ────────────────────────────────────────────── */
+.cex-dropzone {
+  border: 2px dashed var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--c-bg);
+  position: relative;
+}
+
+.cex-dropzone:hover,
+.cex-dropzone.drag-over {
+  border-color: var(--c-blue);
+  background: var(--c-blue-lt);
+}
+
+.cex-dropzone input[type=file] { display: none; }
+
+.cex-dz-icon {
+  font-size: 2.8rem;
+  color: #c9d8ea;
+  margin-bottom: 14px;
+  display: block;
+  transition: color .2s;
+}
+.cex-dropzone:hover .cex-dz-icon { color: var(--c-blue); }
+
+.cex-dz-title {
+  font-size: .98rem;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 4px;
+}
+
+.cex-dz-sub {
+  font-size: .78rem;
+  color: var(--c-text-soft);
+}
+
+.cex-dz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 8px 20px;
+  background: var(--c-blue);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.cex-dz-btn:hover { background: var(--c-blue-dk); }
+
+/* Archivo seleccionado */
+.cex-file-pill {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--c-green-lt);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  margin-top: 14px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: #166534;
+}
+.cex-file-pill i { color: var(--c-green); font-size: 1.2rem; }
+.cex-file-pill .cex-fp-size {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: .73rem;
+  opacity: .7;
+}
+
+/* ── Info box ────────────────────────────────────────────── */
+.cex-info {
+  background: var(--c-blue-lt);
+  border: 1px solid rgba(26,115,232,.2);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-size: .79rem;
+  color: #1557b0;
+  margin-top: 18px;
+}
+.cex-info ul { margin: 8px 0 0; padding-left: 18px; }
+.cex-info ul li { margin-bottom: 3px; }
+.cex-info strong { font-weight: 700; }
+
+/* ── Resumen badges ──────────────────────────────────────── */
+.cex-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.cex-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: .73rem;
+  font-weight: 700;
+}
+
+.cex-badge-ok     { background: var(--c-green-lt);  color: var(--c-green);  border: 1px solid #bbf7d0; }
+.cex-badge-skip   { background: #f1f5f9;             color: #475569;         border: 1px solid #e2e8f0; }
+.cex-badge-err    { background: var(--c-red-lt);     color: var(--c-red);    border: 1px solid #fecaca; }
+.cex-badge-total  { background: var(--c-blue-lt);    color: var(--c-blue);   border: 1px solid #c7d9fb; }
+.cex-badge-import { background: var(--c-amber-lt);   color: var(--c-amber);  border: 1px solid #fde68a; }
+
+/* ── Tabla preview ───────────────────────────────────────── */
+.cex-table-outer {
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.cex-table-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 50vh;
+}
+
+.cex-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .78rem;
+  min-width: 1020px;
+}
+
+.cex-table thead th {
+  background: var(--c-bg);
+  padding: 10px 12px;
+  text-align: left;
+  font-size: .71rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  border-bottom: 2px solid var(--c-border);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.cex-table tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #f0f4f8;
+  vertical-align: middle;
+  color: var(--c-text);
+}
+
+.cex-table tbody tr:last-child td { border-bottom: none; }
+.cex-table tbody tr:hover { background: #f8fbff; }
+.cex-table tbody tr:nth-child(even) { background: #fafcff; }
+.cex-table tbody tr:nth-child(even):hover { background: #eef4fd; }
+
+.cex-t-main {
+  font-weight: 600;
+  font-size: .79rem;
+  line-height: 1.2;
+}
+.cex-t-sub {
+  font-size: .68rem;
+  color: var(--c-text-soft);
+  margin-top: 1px;
+}
+
+.cex-t-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.cex-veh {
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: var(--radius-sm);
+  padding: 2px 9px;
+  font-size: .7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: .3px;
+}
+
+.cex-region {
+  background: var(--c-purple-lt);
+  color: var(--c-purple);
+  border: 1px solid rgba(124,58,237,.18);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: .7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cex-semana {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: var(--radius-sm);
+  padding: 1px 7px;
+  font-size: .69rem;
+  font-weight: 700;
+}
+
+.cex-estado-activa { background: var(--c-green-lt); color: var(--c-green);  border: 1px solid #bbf7d0; border-radius: 20px; padding: 2px 9px; font-size: .69rem; font-weight: 700; white-space: nowrap; }
+.cex-estado-nueva  { background: var(--c-blue-lt);  color: var(--c-blue);   border: 1px solid #c7d9fb; border-radius: 20px; padding: 2px 9px; font-size: .69rem; font-weight: 700; white-space: nowrap; }
+.cex-estado-pend   { background: var(--c-amber-lt); color: var(--c-amber);  border: 1px solid #fde68a; border-radius: 20px; padding: 2px 9px; font-size: .69rem; font-weight: 700; white-space: nowrap; }
+
+.cex-t-center { text-align: center; }
+
+/* ── Errores ─────────────────────────────────────────────── */
+.cex-err-panel {
+  display: none;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.cex-err-header {
+  background: var(--c-red-lt);
+  padding: 9px 16px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--c-red);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.cex-err-body {
+  padding: 10px 16px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.cex-err-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 5px 0;
+  border-bottom: 1px solid #fff1f2;
+  font-size: .77rem;
+}
+.cex-err-row:last-child { border-bottom: none; }
+
+.cex-err-fila {
+  background: #fecaca;
+  color: var(--c-red);
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: .7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cex-err-msg { color: #7f1d1d; }
+
+/* ── Loading ─────────────────────────────────────────────── */
+.cex-loading {
+  display: none;
+  text-align: center;
+  padding: 52px 0;
+}
+
+.cex-spin {
+  display: inline-block;
+  width: 40px; height: 40px;
+  border: 3px solid rgba(26,115,232,.15);
+  border-top-color: var(--c-blue);
+  border-radius: 50%;
+  animation: cex-spin .8s linear infinite;
+}
+
+.cex-spin-sm {
+  width: 16px; height: 16px;
+  border-width: 2px;
+  border-color: rgba(255,255,255,.35);
+  border-top-color: #fff;
+  vertical-align: middle;
+}
+
+@keyframes cex-spin { to { transform: rotate(360deg); } }
+
+/* ── Resultado ───────────────────────────────────────────── */
+.cex-result {
+  text-align: center;
+  padding: 28px 0 18px;
+}
+.cex-result-icon { font-size: 3.2rem; margin-bottom: 10px; }
+.cex-result-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 5px;
+}
+.cex-result-sub {
+  font-size: .83rem;
+  color: var(--c-text-soft);
+}
+
+.cex-result-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+@media (max-width: 640px) {
+  .cex-result-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+.cex-rc {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--c-border);
+  padding: 16px 12px;
+  text-align: center;
+}
+.cex-rc .rc-n {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.cex-rc .rc-l {
+  font-size: .71rem;
+  color: var(--c-text-soft);
+  margin-top: 5px;
+}
+.cex-rc.rc-ok   { background: var(--c-green-lt); border-color: #bbf7d0; }
+.cex-rc.rc-ok .rc-n   { color: var(--c-green); }
+.cex-rc.rc-skip { background: #f8fafc; border-color: #e2e8f0; }
+.cex-rc.rc-skip .rc-n { color: #64748b; }
+.cex-rc.rc-err  { background: var(--c-red-lt); border-color: #fecaca; }
+.cex-rc.rc-err .rc-n  { color: var(--c-red); }
+.cex-rc.rc-all  { background: var(--c-blue-lt); border-color: #c7d9fb; }
+.cex-rc.rc-all .rc-n  { color: var(--c-blue); }
+
+/* ── Exportar info ───────────────────────────────────────── */
+.cex-export-note {
+  background: var(--c-green-lt);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-size: .8rem;
+  color: #166534;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+.cex-export-note i { flex-shrink: 0; margin-top: 2px; }
+
+/* ── Action bar ──────────────────────────────────────────── */
+.cex-action-bar {
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cex-action-info {
+  font-size: .8rem;
+  color: var(--c-text-soft);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cex-action-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.cex-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  font-size: .81rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.cex-btn-primary { background: var(--c-blue);  color: #fff; }
+.cex-btn-primary:hover:not(:disabled) { background: var(--c-blue-dk); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(26,115,232,.28); }
+
+.cex-btn-success { background: var(--c-green); color: #fff; }
+.cex-btn-success:hover:not(:disabled) { background: #0d8a4d; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(15,157,88,.28); }
+
+.cex-btn-outline { background: transparent; color: var(--c-blue); border: 1.5px solid var(--c-blue); }
+.cex-btn-outline:hover:not(:disabled) { background: var(--c-blue-lt); }
+
+.cex-btn-ghost { background: transparent; color: var(--c-gray); border: 1.5px solid var(--c-border); }
+.cex-btn-ghost:hover:not(:disabled) { background: #f1f5f9; }
+
+.cex-btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+/* Toast propio */
+.cex-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: .83rem;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0,0,0,.2);
+  animation: cex-slide-in .25s ease;
+  max-width: 340px;
+}
+@keyframes cex-slide-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<!-- ══════════════════════════════════════════════════════════
+  VISTA DOM
+══════════════════════════════════════════════════════════ -->
+<div class="cex-root" id="cex-root">
+
+  <!-- PAGE HEADER -->
+  <div class="cex-page-header">
+    <div class="cex-page-icon">
+      <i class="fas fa-file-excel"></i>
+    </div>
+    <div style="flex:1">
+      <div class="cex-page-title">Generador Automático de Tarifas — Carga por Excel</div>
+      <div class="cex-page-sub">
+        Importa orígenes, destinos y tipos de vehículo desde un archivo · Previsualiza antes de confirmar · Exporta el resultado
+      </div>
+    </div>
+    <button class="cex-btn cex-btn-ghost" onclick="cexReset()" title="Reiniciar proceso">
+      <i class="fas fa-redo"></i> Reiniciar
+    </button>
+  </div>
+
+  <!-- WIZARD -->
+  <div class="cex-wizard">
+    <div class="cex-wiz-step is-active" id="cex-wiz-1">
+      <span class="cex-wiz-num" id="cex-wiz-num-1">1</span>
+      Cargar archivo
+    </div>
+    <div class="cex-wiz-sep"></div>
+    <div class="cex-wiz-step" id="cex-wiz-2">
+      <span class="cex-wiz-num" id="cex-wiz-num-2">2</span>
+      Preview de rutas
+    </div>
+    <div class="cex-wiz-sep"></div>
+    <div class="cex-wiz-step" id="cex-wiz-3">
+      <span class="cex-wiz-num" id="cex-wiz-num-3">3</span>
+      Confirmar importación
+    </div>
+    <div class="cex-wiz-sep"></div>
+    <div class="cex-wiz-step" id="cex-wiz-4">
+      <span class="cex-wiz-num" id="cex-wiz-num-4">4</span>
+      Resultado &amp; Exportar
+    </div>
+  </div>
+
+  <!-- ═══════════════ PASO 1: UPLOAD ═══════════════ -->
+  <div class="cex-section is-active" id="cex-sec-1">
+    <div class="cex-card">
+      <div class="cex-card-header">
+        <div class="cex-card-title">
+          <i class="fas fa-cloud-upload-alt"></i> Selecciona el archivo Excel
+        </div>
+      </div>
+      <div class="cex-card-body">
+
+        <div class="cex-dropzone" id="cex-dropzone"
+          onclick="document.getElementById('cex-file-input').click()"
+          ondrop="cexHandleDrop(event)"
+          ondragover="event.preventDefault(); document.getElementById('cex-dropzone').classList.add('drag-over')"
+          ondragleave="document.getElementById('cex-dropzone').classList.remove('drag-over')">
+          <input type="file" id="cex-file-input" accept=".xlsx,.xls"
+            onchange="cexArchivoSeleccionado(this)">
+          <span class="cex-dz-icon"><i class="fas fa-cloud-upload-alt"></i></span>
+          <div class="cex-dz-title">Arrastra el archivo aquí</div>
+          <div class="cex-dz-sub">o haz clic para seleccionar desde tu equipo</div>
+          <span class="cex-dz-btn">
+            <i class="fas fa-folder-open"></i> Seleccionar archivo
+          </span>
+          <div style="margin-top:10px;font-size:.72rem;color:#adb5bd">
+            Formatos aceptados: .xlsx, .xls
+          </div>
+        </div>
+
+        <!-- Pill archivo seleccionado -->
+        <div class="cex-file-pill" id="cex-file-pill">
+          <i class="fas fa-file-excel"></i>
+          <span id="cex-file-name">—</span>
+          <span class="cex-fp-size" id="cex-file-size"></span>
+        </div>
+
+        <!-- Info estructura -->
+        <div class="cex-info">
+          <strong><i class="fas fa-info-circle me-1"></i>Estructura requerida del archivo:</strong>
+          <ul>
+            <li><strong>Columna A</strong> — Código RNDC municipio <strong>origen</strong></li>
+            <li><strong>Columna B</strong> — Código RNDC municipio <strong>destino</strong></li>
+            <li><strong>Columna C</strong> — Código del <strong>tipo de vehículo</strong></li>
+          </ul>
+          <div style="margin-top:8px">
+            La primera fila (encabezado) es ignorada automáticamente.
+            El sistema consultará por cada ruta: <strong>región/zona, última tarifa, SICE-TAC, tarifa de mercado, semana, mes y año</strong>.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Action bar paso 1 -->
+    <div class="cex-action-bar">
+      <div class="cex-action-info">
+        <i class="fas fa-circle-info"></i>
+        Selecciona un archivo .xlsx o .xls para continuar
+      </div>
+      <div class="cex-action-btns">
+        <button class="cex-btn cex-btn-primary" id="cex-btn-preview" onclick="cexCalcPreview()">
+          <i class="fas fa-search"></i> Calcular preview
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- /cex-sec-1 -->
+
+  <!-- ═══════════════ PASO 2: PREVIEW ═══════════════ -->
+  <div class="cex-section" id="cex-sec-2">
+
+    <!-- Loading -->
+    <div class="cex-loading" id="cex-loading">
+      <div class="cex-spin"></div>
+      <div style="margin-top:16px;font-size:.85rem;color:var(--c-text-soft)">
+        Procesando archivo y consultando tarifas vigentes...
+      </div>
+    </div>
+
+    <!-- Contenido preview -->
+    <div id="cex-preview-content">
+
+      <div class="cex-card">
+        <div class="cex-card-header">
+          <div class="cex-card-title">
+            <i class="fas fa-table"></i> Rutas encontradas — Preview
+          </div>
+          <!-- Badges resumen -->
+          <div class="cex-badges" id="cex-badges" style="margin:0"></div>
+        </div>
+
+        <div class="cex-card-body" style="padding:0">
+          <div class="cex-table-outer" style="border-radius:0;border:none">
+            <div class="cex-table-scroll">
+              <table class="cex-table">
+                <thead>
+                  <tr>
+                    <th style="text-align:center; width:36px">#</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                    <th>Tipo Vehículo</th>
+                    <th>Región / Zona</th>
+                    <th style="text-align:right">Últ. Tarifa</th>
+                    <th style="text-align:right">SICE-TAC</th>
+                    <th style="text-align:right">Tarifa Mercado</th>
+                    <th style="text-align:center">Semana</th>
+                    <th style="text-align:center">Mes</th>
+                    <th style="text-align:center">Año</th>
+                    <th style="text-align:center">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="cex-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Errores -->
+      <div class="cex-err-panel" id="cex-err-panel">
+        <div class="cex-err-header">
+          <i class="fas fa-exclamation-triangle"></i>
+          Filas con error detectadas — serán omitidas en la importación
+        </div>
+        <div class="cex-err-body" id="cex-err-body"></div>
+      </div>
+
+    </div>
+    <!-- /cex-preview-content -->
+
+    <!-- Action bar paso 2 -->
+    <div class="cex-action-bar" id="cex-bar-2" style="margin-top:16px">
+      <div class="cex-action-info">
+        <i class="fas fa-eye"></i>
+        Revisa las rutas antes de confirmar la importación
+      </div>
+      <div class="cex-action-btns">
+        <button class="cex-btn cex-btn-ghost" onclick="cexIrPaso(1)">
+          <i class="fas fa-chevron-left"></i> Volver
+        </button>
+        <button class="cex-btn cex-btn-outline" onclick="cexExportarPreview()">
+          <i class="fas fa-file-excel"></i> Exportar preview
+        </button>
+        <button class="cex-btn cex-btn-success" id="cex-btn-importar" onclick="cexImportar()">
+          <i class="fas fa-check"></i> Confirmar importación
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- /cex-sec-2 -->
+
+  <!-- ═══════════════ PASO 3 (IMPORTANDO) ═══════════════ -->
+  <div class="cex-section" id="cex-sec-3">
+    <div class="cex-card">
+      <div class="cex-card-body" style="text-align:center;padding:52px 24px">
+        <div class="cex-spin" style="width:48px;height:48px;border-width:4px"></div>
+        <div style="margin-top:18px;font-size:.95rem;font-weight:700;color:var(--c-text)">
+          Importando rutas...
+        </div>
+        <div style="margin-top:5px;font-size:.8rem;color:var(--c-text-soft)">
+          Guardando registros en el sistema, por favor espera
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /cex-sec-3 -->
+
+  <!-- ═══════════════ PASO 4: RESULTADO ═══════════════ -->
+  <div class="cex-section" id="cex-sec-4">
+    <div class="cex-card">
+      <div class="cex-card-header">
+        <div class="cex-card-title">
+          <i class="fas fa-check-circle" style="color:var(--c-green)"></i> Proceso completado
+        </div>
+      </div>
+      <div class="cex-card-body">
+
+        <div class="cex-result">
+          <div class="cex-result-icon">✅</div>
+          <div class="cex-result-title">¡Importación completada!</div>
+          <div class="cex-result-sub">Las rutas válidas fueron procesadas y guardadas en el sistema.</div>
+        </div>
+
+        <div class="cex-result-cards" id="cex-result-cards"></div>
+
+        <!-- Exportar nota -->
+        <div class="cex-export-note">
+          <i class="fas fa-file-excel" style="color:var(--c-green)"></i>
+          <div>
+            Descarga el listado completo con todos los campos del requerimiento:
+            <strong>origen, destino, tipo vehículo, región/zona, última tarifa actualizada,
+            SICE-TAC, tarifa de mercado, semana, mes y año de actualización.</strong>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Action bar resultado -->
+    <div class="cex-action-bar" style="margin-top:16px">
+      <div class="cex-action-info">
+        <i class="fas fa-check-circle" style="color:var(--c-green)"></i>
+        Proceso finalizado correctamente
+      </div>
+      <div class="cex-action-btns">
+        <button class="cex-btn cex-btn-ghost" onclick="cexReset()">
+          <i class="fas fa-redo"></i> Nueva carga
+        </button>
+        <button class="cex-btn cex-btn-outline" onclick="cexExportarPreview()">
+          <i class="fas fa-file-excel"></i> Descargar Excel
+        </button>
+        <button class="cex-btn cex-btn-primary" onclick="cexFinalizarYListar()">
+          <i class="fas fa-list"></i> Ver tarifas importadas
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- /cex-sec-4 -->
+
+</div>
+<!-- /cex-root -->

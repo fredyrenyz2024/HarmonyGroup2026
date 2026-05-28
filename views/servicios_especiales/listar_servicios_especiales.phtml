@@ -1,0 +1,127 @@
+<div class="container-fluid py-3">
+  <!-- Variables ocultas de sesión -->
+  <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+  <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+  <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+  <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+  <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+  <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+
+  <div class="card shadow-sm mb-3">
+    <!-- <div class="card-body d-flex justify-content-center"> -->
+    <div class="card-body">
+      <div class="row g-5 align-items-center">
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-4 d-flex justify-content-center">
+          <!-- <label class="form-label" for="fecha_inicial">Seleccionar Filtro</label> -->
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input filtro_opcion" id="todos" type="checkbox" value="Todos">
+            <label class="form-check-label" for="todos">Todos</label>
+          </div>
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input filtro_opcion" id="usuarios_creacion" type="checkbox" value="Usuario">
+            <label class="form-check-label" for="usuarios_creacion">Usuario</label>
+          </div>
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input filtro_opcion" id="servicio_especial" type="checkbox" value="Servicio Especial">
+            <label class="form-check-label" for="servicio_especial">Servicio Especial</label>
+          </div>
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input filtro_opcion" id="clientes" type="checkbox" value="Cliente">
+            <label class="form-check-label" for="clientes">Clientes</label>
+          </div>
+
+          <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input filtro_opcion" id="remesas" type="checkbox" value="Remesa">
+            <label class="form-check-label" for="remesas">Remesa</label>
+          </div>
+
+          <div class="form-check  form-switch form-check-inline">
+            <input class="form-check-input filtro_opcion" id="manifiestos" type="checkbox" value="Manifiesto">
+            <label class="form-check-label" for="manifiestos">Manifiesto</label>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2">
+          <label class="form-label" for="fecha_inicial">Fecha Inicial</label>
+          <input type="date" id="fecha_inicial" class="form-control form-control-sm" value="<?= date('Y-m-01') ?>">
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2">
+          <label class="form-label" for="fecha_final">Fecha Final</label>
+          <input type="date" id="fecha_final" class="form-control form-control-sm" value="<?= date('Y-m-d') ?>">
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2" id="campo-documento">
+          <label class="form-label" for="numdoc_documento">Número Documento</label>
+          <input type="number" id="numdoc_documento" class="form-control form-control-sm" min="0">
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2" id="filtro_clientes" style="display: none;">
+          <label class="form-label" for="select-cliente">Clientes</label>
+          <select class="form-control input-xs" id="select-cliente">
+            <option value="" readonly>Seleccione</option>
+          </select>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2" id="filtro_servicio_especial" style="display: none;">
+          <label class="form-label" for="select-servicio-especial">Servicios Especiales</label>
+          <select class="form-control input-xs" id="select-servicio-especial">
+            <option value="" readonly>Seleccione</option>
+          </select>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2" id="filtro_usuario_creador" style="display: none;">
+          <label class="form-label" for="select-usuario-creador">Terceros</label>
+          <select class="form-control input-xs" id="select-usuario-creador">
+            <option value="" readonly>Seleccione</option>
+          </select>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2">
+          <br><button class="btn btn-success btn-sm w-100" id="buscar_documentos_servicio_especial"> Buscar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="table-responsive shadow-sm rounded">
+        <table id="table1" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;" data-page-length="50">
+          <thead class="table-primary">
+            <tr class="nexos-encabezado">
+              <th class="col-xs-1 col-sm-1 col-md-1">N°</th>
+              <th class="col-xs-1 col-sm-1 col-md-1">Placa</th>
+              <th class="col-xs-1 col-sm-1 col-md-1">Poseedor</th>
+              <th class="col-xs-1 col-sm-1 col-md-1">Origen</th>
+              <th class="col-xs-1 col-sm-1 col-md-1">Destino</th>
+              <th class="col-xs-1 col-sm-1 col-md-1">Rem - Ref</th>
+              <!-- <th class="col-xs-1 col-sm-1 col-md-1">Ref</th> -->
+              <!-- <th class="col-xs-1 col-sm-1 col-md-1">Rem</th> -->
+              <th class="col-xs-1 col-sm-1 col-md-1">Manifiesto</th>
+              <th class="col-xs-1 col-sm-1 col-md-1">Fecha emision manifiesto</th>
+              <th class="col-xs-2 col-sm-1 col-md-1">estado documento</th>
+              <th class="col-xs-2 col-sm-2 col-md-2">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tabla_documento_servicios_especiales"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasDetalle" style="width: 600px;">
+  <div class="offcanvas-header bg-primary text-white">
+    <h5 class="offcanvas-title">Detalle del Documento</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body" id="contenido_detalle">
+    <!-- Aquí se llenará por JS -->
+  </div>
+</div>

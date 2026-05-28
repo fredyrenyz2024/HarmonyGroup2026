@@ -55,9 +55,6 @@ if (isset($this->importacion)) {
 					<tbody>';
 
 	$arrayImportaciones = $this->importacion->getProyectosImportacion($_SESSION["usuario"]);
-	// print_r("<pre>");
-	// print_r($arrayImportaciones);
-	// print_r("</pre>");
 
 	if (isset($arrayImportaciones["proyectos"]['rowsData'])) {
 		foreach ($arrayImportaciones["proyectos"]['rowsData'] as $key => $value) {

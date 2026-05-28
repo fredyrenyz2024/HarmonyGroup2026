@@ -97,6 +97,16 @@ if ($array) {
                 $n = "fa-solid fa-tower-observation";
                 $id_cl = $value['id'];
             }
+
+            if ($value['nombre'] == 'Indicadores') {
+                $n = "fa-solid fa-gauge";
+                $id_cl = $value['id'];
+            }
+
+            if ($value['nombre'] == '4PL') {
+                $n = "fa-solid fa-tower-observation";
+                $id_cl = $value['id'];
+            }
             // <a href="#" class="links lanzadorn cajas" data-id="' . encrypt($value['id']) . '" data-nombre="' . $value['nombre'] . '" data-cliente="' . $value['CLIENTE_ID'] . '" data-user_log="' . $user_log . '" data-password="' . $password . '" >
             echo $vista = '
 			<div class="col-xs-12 col-md-2">
@@ -128,6 +138,7 @@ if ($array) {
 							</div>
 							<hr style="width:100%;background-color:yellow;height:1px;margin-top:1px">				   
 		';
+        
         foreach ($array as $key => $value) {
             $n = 0;
 
@@ -203,6 +214,16 @@ if ($array) {
 
             if ($value['nombre'] == 'Torre de Control') {
                 $n = "fa-solid fa-tower-observation";
+                $id_cl = $value['id'];
+            }
+
+            if ($value['nombre'] == 'Indicadores') {
+                $n = "fa-solid fa-gauge";
+                $id_cl = $value['id'];
+            }
+
+            if ($value['nombre'] == '4PL') {
+                $n = "fa-solid fa-boxes-stacked";
                 $id_cl = $value['id'];
             }
 

@@ -1,0 +1,55 @@
+<div class="container-fluid py-3">
+    <!-- Variables ocultas de sesión -->
+    <input type="hidden" id="ssn_id_cliente" value="<?= $_SESSION['usuario']['id_cliente'] ?>">
+    <input type="hidden" id="ssn_id_usuario" value="<?= $_SESSION['usuario']['id_usuario'] ?>">
+    <input type="hidden" id="ssn_nombre" value="<?= $_SESSION['usuario']['nom_usuario'] ?>">
+    <input type="hidden" id="ssn_id_perfil" value="<?= $_SESSION['usuario']['id_perfil'] ?>">
+    <input type="hidden" id="fecha_dia_solicitud" value="<?= date('Y-m-d') ?>">
+    <input type="hidden" id="hora_dia_solicitud" value="<?= date('H:i:s') ?>">
+    <div class="row">
+        <div class="col-4 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5">
+            <!-- Contenedor gráfica -->
+            <div id="GraficaGeneralSolicitudes" class="echart-pie-label-align-chart-example" style="min-height:350px"></div>
+
+            <!-- Tabla resultados -->
+            <div class="table-responsive mt-5">
+                <table class='table table-bordered table-striped table-sm text-center' style=" font-size:12px;" id="tabla-general-precintos">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Estado</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th id="total-general"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-7 col-sm-12 col-md-7 col-lg-7 col-xl-7 col-xxl-7">
+            <div id="GraficaPorResponsable" style="min-height:400px;width: 100%;"></div>
+
+            <div class="table-responsive">
+                <table class='table table-bordered table-striped table-sm text-center' style="font-size:12px;">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>Responsable</th>
+                            <th>Placa</th>
+                            <th>Postulador</th>
+                            <th>Manifiesto</th>
+                            <th>Fecha</th>
+                            <th>Operación</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-detalle-vehiculos"></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- <div class="col-12 col-lg-6"></div> -->
+    </div>
+</div>

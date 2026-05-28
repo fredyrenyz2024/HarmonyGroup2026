@@ -1,498 +1,1247 @@
-const d = document;
-const w = window;
-let datos = {
-  tipo: [],
-};
+/**
+ * plantilla_pedidos.js  –  Torre de Control / Crear Plantilla
+ * ─────────────────────────────────────────────────────────────
+ * Mejoras respecto a la versión anterior:
+ *  • Tipo operación (CARGUE / DESCARGUE) por actividad
+ *  • Validación centralizada con mensajes claros
+ *  • Activación progresiva de campos al marcar el chk_detalle
+ *  • Preview lateral con badge de tipo operación
+ *  • Templates HTML  (<template>) en lugar de strings largos
+ * ─────────────────────────────────────────────────────────────
+ */
+// (function () {
+//   "use strict";
+//   /* ═══════════════════════════════════════════════════════════
+//    *  INIT GLOBAL
+//    * ═══════════════════════════════════════════════════════════ */
+//   window.VENTANA = null;
 
-let datos_detalle = {
-  detalle: [],
-};
+//   window.initScript = function (id) {
+//     sessionStorage.clear();
+//     window.VENTANA = id;
 
-let usuarios_responsable = {
-  usuario: [],
-  fecha: [],
-  hora: [],
-  costo: [],
-  posicion: [],
-  valor: [],
-};
+//     // Estado reactivo de la sesión
+//     window.estado = {
+//       contador: 0,               // posición actual de actividades seleccionadas
+//       posiciones: {},            // { idActividad: posicion }
+//       actividadesSeleccionadas: [], // [{ id, texto, tipoOperacion }]
+//     };
 
-var contador = 0;
-let Posiciones = {
-  posicion: [],
-  valor: [],
-};
-d.addEventListener('DOMContentLoaded', async e => {
-  e.preventDefault();
-  Listar_tipos_trazabilidad();
+//     feather.replace?.();          // re-inicializar íconos si feather está disponible
 
-  try {
-    // Realizar la solicitud fetch
-    const response = await fetch($('#base_url').val() + 'torrecontrol/Listar_proveedores_torre_control', {
-      method: 'POST',
-      cache: 'no-cache',
-    });
+//     Listar_proveedores();
+//     Listar_tipos_trazabilidad();
+//     _initEventos();
+//   };
 
-    // Convertir la respuesta a JSON
-    const data = await response.json();
+//   /* ═══════════════════════════════════════════════════════════
+//    *  EVENTOS PRINCIPALES
+//    * ═══════════════════════════════════════════════════════════ */
+//   function _initEventos() {
+//     let contadorFilas = 1;
 
-    // Verificar si hay datos
-    if (data.length > 0) {
-      // Obtener el elemento <select> (asegúrate de que el ID sea correcto)
-      const selectProveedores = document.getElementById('slt_Proveedores'); // Cambia 'selectProveedores' por el ID de tu <select>
-      // Limpiar el <select> antes de agregar nuevas opciones (opcional)
-      selectProveedores.innerHTML = '<option value="" selected>Seleccione</option>';
-      // Recorrer los datos y agregar opciones al <select>
-      data.forEach(function (element, index) {
-        // Crear un nuevo elemento <option>
-        const option = document.createElement('option');
-        // Asignar el valor y el texto de la opción
-        option.value = element.id; // Usa el valor correcto de tu JSON (por ejemplo, element.id)
-        option.textContent = element.razon_social; // Usa el valor correcto de tu JSON (por ejemplo, element.nombre)
+//     document.addEventListener('click', async (e) => {
 
-        // Agregar la opción al <select>
-        selectProveedores.appendChild(option);
-      });
+//       /* ── Crear plantilla ─────────────────────────────────── */
+//       if (e.target.closest('#btn-create-plantilla')) {
+//         await _crearPlantilla();
+//       }
 
-    } else {
-      console.log("No se encontraron datos.");
-      // $('#md-footer-primary').modal('toggle'); // Comentado por ahora
-    }
-  } catch (error) {
-    console.error("Error al cargar los módulos:", error);
-    throw error;
-  } finally {
-    // Ocultar el loading overlay (si lo tienes)
-    // document.getElementById('loading-overlay-mensaje_carga').style.display = 'none';
+//       /* ── Agregar fila visualizador ───────────────────────── */
+//       if (e.target.closest('#btn-agregar-fila')) {
+//         _agregarFilaVisualizador(contadorFilas++);
+//       }
+
+//       /* ── Eliminar fila visualizador ──────────────────────── */
+//       if (e.target.closest('.btn-eliminar-fila')) {
+//         e.target.closest('tr').remove();
+//         _renumerarFilas();
+//       }
+//     });
+
+//     /* ── Cambio de criterio de cálculo (habilitar depende) ── */
+//     // document.addEventListener('change', (e) => {
+
+//     //   // Activar/desactivar select de actividad dependiente si criterio = 4
+//     //   if (e.target.matches('.select_detalle')) {
+//     //     const Id = e.target.dataset.elementid;
+//     //     const depSelect = document.getElementById('select_depende_' + Id);
+//     //     depSelect.disabled = e.target.value !== '4';
+//     //     if (e.target.value !== '4') depSelect.value = '';
+//     //   }
+
+//     //   // chk_detalle: activar/desactivar campos de la fila
+//     //   if (e.target.matches('.chk_detalle')) {
+//     //     _toggleFilaActividad(e.target);
+//     //   }
+
+//     //   // tipo_operacion: actualizar preview
+//     //   if (e.target.matches('.tipo_operacion')) {
+//     //     _actualizarTipoEnPreview(e.target.dataset.idactividad, e.target.value);
+//     //   }
+//     // });
+
+
+//     document.addEventListener('change', (e) => {
+//       // ── chk_trazabilidad (MOVIDO AQUÍ) ─────────────────────
+//       if (e.target.matches('.chk_trazabilidad')) {
+//         const valor = e.target.value;
+//         const collapse = document.getElementById('collapse' + valor);
+//         const bsCol = new bootstrap.Collapse(collapse, { toggle: false });
+
+//         if (e.target.checked) {
+//           bsCol.show();
+//           _cargarDetalleParametro(valor);
+//         } else {
+//           bsCol.hide();
+//           document.getElementById('list_detalle' + valor).innerHTML =
+//             '<p class="text-muted small mb-0">Seleccione el parámetro para cargar sus actividades.</p>';
+//         }
+//       }
+
+//       // ── select_detalle ──────────────────────────────────────
+//       if (e.target.matches('.select_detalle')) {
+//         const Id = e.target.dataset.elementid;
+//         const depSelect = document.getElementById('select_depende_' + Id);
+//         depSelect.disabled = e.target.value !== '4';
+//         if (e.target.value !== '4') depSelect.value = '';
+//       }
+
+//       // ── chk_detalle ─────────────────────────────────────────
+//       if (e.target.matches('.chk_detalle')) {
+//         _toggleFilaActividad(e.target);
+//       }
+
+//       // ── tipo_operacion ───────────────────────────────────────
+//       if (e.target.matches('.tipo_operacion')) {
+//         _actualizarTipoEnPreview(e.target.dataset.idactividad, e.target.value);
+//       }
+//     });
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  TOGGLE FILA ACTIVIDAD (check / uncheck)
+//    * ═══════════════════════════════════════════════════════════ */
+//   function _toggleFilaActividad(checkbox) {
+//     const Id = checkbox.dataset.idvalor;
+//     const checked = checkbox.checked;
+
+//     // Paneles que se muestran/ocultan
+//     const paneles = ['tipo_op_wrap', 'form_asignacion', 'form_calculo', 'form_dependencia'];
+//     paneles.forEach(p => {
+//       const el = document.getElementById(p + Id);
+//       if (el) el.style.display = checked ? '' : 'none';
+//     });
+
+//     const selectCalculo = document.getElementById('select_detalle' + Id);
+//     const inputValor = document.getElementById('input_valor' + Id);
+//     const selectMedida = document.getElementById('select_medida_tiempo' + Id);
+//     const selectDepende = document.getElementById('select_depende_' + Id);
+//     const inputCosto = document.getElementById('costo_sugerido' + Id);
+
+//     if (checked) {
+//       // Habilitar campos de cálculo
+//       if (selectCalculo) selectCalculo.disabled = false;
+//       if (inputValor) inputValor.disabled = false;
+//       if (selectMedida) selectMedida.disabled = false;
+//       if (inputCosto) inputCosto.disabled = false;
+
+//       // Asignar posición
+//       window.estado.contador++;
+//       checkbox.dataset.idposicion = window.estado.contador;
+//       window.estado.posiciones[Id] = window.estado.contador;
+
+//       // Cargar usuarios en el select de responsable
+//       _cargarUsuariosEnSelect('#slt_usuario_responsable' + Id, 'Seleccione Responsable');
+
+//       // Cargar actividades ya seleccionadas en select de dependencia
+//       _poblarSelectDependencia(Id);
+
+//       // Agregar al preview lateral
+//       const texto = checkbox.nextElementSibling?.textContent?.trim() || 'Actividad ' + Id;
+//       _agregarPreview(Id, texto, window.estado.contador);
+
+//       // Registrar en sesión interna
+//       const yaExiste = window.estado.actividadesSeleccionadas.find(a => a.id === Id);
+//       if (!yaExiste) {
+//         window.estado.actividadesSeleccionadas.push({ id: Id, texto, tipoOperacion: '' });
+//       }
+
+//       // Actualizar selects de dependencias visibles
+//       _refrescarTodosLosSelectsDependencia();
+
+//       // Actualizar opciones de actividades en filas de visualizadores
+//       _refrescarActividadesVisualizadores();
+
+//     } else {
+//       // Deshabilitar campos
+//       [selectCalculo, inputValor, selectMedida, selectDepende, inputCosto].forEach(el => {
+//         if (el) { el.disabled = true; el.value = ''; }
+//       });
+
+//       // Limpiar tipo operación
+//       document.querySelectorAll(`input[name="tipo_operacion_${Id}"]`).forEach(r => r.checked = false);
+
+//       // Quitar de posiciones
+//       const pos = parseInt(checkbox.dataset.idposicion || 0);
+//       delete window.estado.posiciones[Id];
+
+//       // Reordenar posiciones
+//       _reordenarPosiciones(Id, pos);
+
+//       // Quitar del preview
+//       _quitarPreview(Id);
+
+//       // Quitar de sesión
+//       window.estado.actividadesSeleccionadas =
+//         window.estado.actividadesSeleccionadas.filter(a => a.id !== Id);
+
+//       _refrescarTodosLosSelectsDependencia();
+//       _refrescarActividadesVisualizadores();
+//     }
+
+//     _actualizarContadorPreview();
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  PREVIEW LATERAL
+//    * ═══════════════════════════════════════════════════════════ */
+//   function _agregarPreview(id, texto, posicion) {
+//     const lista = document.getElementById('secondaryList');
+//     const div = document.createElement('div');
+//     div.className = 'preview-item';
+//     div.id = 'preview_item_' + id;
+//     div.innerHTML = `
+//     <span class="preview-pos">${posicion}</span>
+//     <span class="preview-texto flex-grow-1">${texto}</span>
+//     <span class="preview-tipo" id="preview_tipo_${id}"></span>`;
+//     lista.appendChild(div);
+//   }
+
+//   function _quitarPreview(id) {
+//     document.getElementById('preview_item_' + id)?.remove();
+//   }
+
+//   function _actualizarTipoEnPreview(id, tipo) {
+//     const span = document.getElementById('preview_tipo_' + id);
+//     if (!span) return;
+//     if (tipo === 'CARGUE') {
+//       span.innerHTML = '<span class="badge-cargue">↑ Cargue</span>';
+//     } else if (tipo === 'DESCARGUE') {
+//       span.innerHTML = '<span class="badge-descargue">↓ Descargue</span>';
+//     }
+
+//     // Guardar en estado
+//     const act = window.estado.actividadesSeleccionadas.find(a => a.id === id);
+//     if (act) act.tipoOperacion = tipo;
+//   }
+
+//   function _actualizarContadorPreview() {
+//     const contador = document.getElementById('posicion');
+//     const n = document.getElementById('secondaryList').children.length;
+//     if (contador) {
+//       contador.textContent = n > 0 ? `Actividades seleccionadas: ${n}` : '';
+//       contador.style.fontSize = '12px';
+//     }
+//   }
+
+//   function _reordenarPosiciones(idEliminado, posEliminada) {
+//     window.estado.contador = Math.max(0, window.estado.contador - 1);
+
+//     // Reordenar items del preview
+//     const lista = document.getElementById('secondaryList');
+//     let nuevaPos = 1;
+//     Array.from(lista.children).forEach(item => {
+//       const posEl = item.querySelector('.preview-pos');
+//       if (posEl) posEl.textContent = nuevaPos++;
+//     });
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  SELECTS DE DEPENDENCIA
+//    * ═══════════════════════════════════════════════════════════ */
+//   function _poblarSelectDependencia(idActividad) {
+//     const sel = document.getElementById('select_depende_' + idActividad);
+//     if (!sel) return;
+//     sel.innerHTML = '<option value="">Actividad que precede</option>';
+//     window.estado.actividadesSeleccionadas
+//       .filter(a => a.id !== idActividad)
+//       .forEach(a => {
+//         const opt = document.createElement('option');
+//         opt.value = a.id;
+//         opt.textContent = a.texto;
+//         sel.appendChild(opt);
+//       });
+//     $(sel).trigger('change');
+//   }
+
+//   function _refrescarTodosLosSelectsDependencia() {
+//     document.querySelectorAll('.select_depende_').forEach(sel => {
+//       if (sel.disabled) return;
+//       const idAct = sel.id.replace('select_depende_', '');
+//       _poblarSelectDependencia(idAct);
+//     });
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  FILAS DE VISUALIZADORES
+//    * ═══════════════════════════════════════════════════════════ */
+//   function _agregarFilaVisualizador(num) {
+//     const tpl = document.getElementById('tpl-visualizador-row');
+//     const fila = tpl.content.cloneNode(true).querySelector('tr');
+
+//     fila.querySelector('.fila-num').textContent = num;
+
+//     const tbody = document.getElementById('tbody_visualizadores');
+//     tbody.appendChild(fila);
+
+//     // Actividades seleccionadas
+//     const selAct = fila.querySelector('.actividades_visualizar');
+//     _poblarSelectActividades(selAct);
+//     $(selAct).select2({ placeholder: 'Seleccione actividades', allowClear: true });
+
+//     // Usuarios
+//     const selUsu = fila.querySelector('.personas_visualizar');
+//     _cargarUsuariosEnSelect(selUsu, 'Seleccione visualizador');
+//   }
+
+//   function _poblarSelectActividades(selectEl) {
+//     selectEl.innerHTML = '<option value="">Seleccione una actividad</option>';
+//     window.estado.actividadesSeleccionadas.forEach(a => {
+//       const opt = document.createElement('option');
+//       opt.value = a.id;
+//       opt.textContent = a.texto;
+//       selectEl.appendChild(opt);
+//     });
+//   }
+
+//   function _refrescarActividadesVisualizadores() {
+//     document.querySelectorAll('.actividades_visualizar').forEach(sel => {
+//       const seleccionados = $(sel).val();
+//       _poblarSelectActividades(sel);
+//       $(sel).val(seleccionados).trigger('change');
+//     });
+//   }
+
+//   function _renumerarFilas() {
+//     document.querySelectorAll('#tbody_visualizadores tr').forEach((tr, i) => {
+//       const num = tr.querySelector('.fila-num');
+//       if (num) num.textContent = i + 1;
+//     });
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  CARGAR USUARIOS EN UN SELECT
+//    * ═══════════════════════════════════════════════════════════ */
+//   async function _cargarUsuariosEnSelect(selector, placeholder) {
+//     try {
+//       const res = await fetch($('#base_url').val() + 'torrecontrol/Buscar_usuario', {
+//         method: 'POST', cache: 'no-cache'
+//       });
+//       const data = await res.json();
+
+//       const usuarios = data.data ?? data; // soporta {numero,data} y array directo
+//       const sel = typeof selector === 'string'
+//         ? document.querySelector(selector)
+//         : selector;
+
+//       if (!sel) return;
+//       sel.innerHTML = `<option value="">Seleccione</option>`;
+//       usuarios.forEach(u => {
+//         const opt = document.createElement('option');
+//         opt.value = u.id;
+//         opt.textContent = u.nom_usuario;
+//         sel.appendChild(opt);
+//       });
+
+//       $(sel).select2({ placeholder, allowClear: true });
+//     } catch (err) {
+//       console.error('Error al cargar usuarios:', err);
+//     }
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  LISTAR PROVEEDORES
+//    * ═══════════════════════════════════════════════════════════ */
+//   async function Listar_proveedores() {
+//     try {
+//       const res = await fetch($('#base_url').val() + 'torrecontrol/Listar_proveedores_torre_control', {
+//         method: 'POST', cache: 'no-cache'
+//       });
+//       const json = await res.json();
+//       const data = json.data ?? json;
+
+//       const sel = document.getElementById('slt_Proveedores');
+//       sel.innerHTML = '<option value="" selected>Seleccione proveedor</option>';
+//       data.forEach(p => {
+//         const opt = document.createElement('option');
+//         opt.value = p.id;
+//         opt.textContent = p.razon_social;
+//         sel.appendChild(opt);
+//       });
+//       $('#slt_Proveedores').select2({ placeholder: 'Seleccione proveedor', allowClear: true });
+//     } catch (err) {
+//       console.error('Error al cargar proveedores:', err);
+//     }
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  LISTAR TIPOS DE TRAZABILIDAD (acordeón)
+//    * ═══════════════════════════════════════════════════════════ */
+//   async function Listar_tipos_trazabilidad() {
+//     try {
+//       const res = await fetch($('#base_url').val() + 'pedidos/Listar_tipos_Seguimiento', {
+//         method: 'POST', cache: 'no-cache'
+//       });
+//       const data = await res.json();
+
+//       let html = '';
+//       data.forEach((el, idx) => {
+//         html += `
+//         <div class="accordion-item">
+//           <h2 class="accordion-header d-flex align-items-center px-2" id="heading${idx}">
+//             <input type="checkbox" class="chk_trazabilidad form-check-input me-2"
+//                    id="chk_trazabilidad${idx}" name="chk_trazabilidad[]" value="${el.id}"
+//                    data-bs-toggle="collapse" data-bs-target="#collapse${el.id}" style="transform:scale(0.9);">
+//             <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${el.id}">
+//               ${el.nombre_tipo}
+//             </button>
+//           </h2>
+//           <div id="collapse${el.id}" class="accordion-collapse collapse"
+//                aria-labelledby="heading${idx}" data-bs-parent="#accordionExample">
+//             <div class="accordion-body py-2">
+//               <div id="list_detalle${el.id}">
+//                 <p class="text-muted small mb-0">Seleccione el parámetro para cargar sus actividades.</p>
+//               </div>
+//             </div>
+//           </div>
+//         </div>`;
+//       });
+
+//       document.getElementById('accordionExample').innerHTML = html;
+
+//       // Evento para cargar detalle al marcar el checkbox
+//       // document.addEventListener('change', async (e) => {
+//       //   if (!e.target.matches('.chk_trazabilidad')) return;
+
+//       //   const valor = e.target.value;
+//       //   const collapse = document.getElementById('collapse' + valor);
+//       //   const bsCol = new bootstrap.Collapse(collapse, { toggle: false });
+
+//       //   if (e.target.checked) {
+//       //     bsCol.show();
+//       //     await _cargarDetalleParametro(valor);
+//       //   } else {
+//       //     bsCol.hide();
+//       //     document.getElementById('list_detalle' + valor).innerHTML =
+//       //       '<p class="text-muted small mb-0">Seleccione el parámetro para cargar sus actividades.</p>';
+//       //   }
+//       // });
+
+//     } catch (err) {
+//       document.getElementById('accordionExample').innerHTML =
+//         '<div class="alert alert-danger m-2">Error al cargar parámetros de trazabilidad.</div>';
+//       console.error(err);
+//     }
+//   }
+
+//   /* ── Cargar detalle de un parámetro seleccionado ─────────── */
+//   async function _cargarDetalleParametro(tipoProceso) {
+//     const contenedor = document.getElementById('list_detalle' + tipoProceso);
+//     contenedor.innerHTML = '<div class="text-muted small p-2"><span class="spinner-border spinner-border-sm me-1"></span> Cargando…</div>';
+
+//     try {
+//       const fd = new FormData();
+//       fd.append('id', tipoProceso);
+//       const res = await fetch($('#base_url').val() + 'pedidos/Listar_Opciones', {
+//         method: 'POST', cache: 'no-cache', body: fd
+//       });
+//       const data = await res.json();
+
+//       const tpl = document.getElementById('tpl-actividad-row');
+//       let htmlDetalle = '';
+
+//       data.forEach(el => {
+//         // Clonar template y reemplazar placeholders
+//         const tplHtml = tpl.innerHTML
+//           .replaceAll('{{ID}}', el.id)
+//           .replaceAll('{{NOMBRE}}', el.nombre_opcion)
+//           .replaceAll('{{POSICION}}', '');
+//         htmlDetalle += tplHtml;
+//       });
+
+//       contenedor.innerHTML = htmlDetalle || '<p class="text-muted small">Sin actividades disponibles.</p>';
+
+//     } catch (err) {
+//       contenedor.innerHTML = '<div class="alert alert-warning m-2 small">Error al cargar actividades del parámetro.</div>';
+//       console.error(err);
+//     }
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  VALIDACIÓN Y ENVÍO
+//    * ═══════════════════════════════════════════════════════════ */
+//   async function _crearPlantilla() {
+
+//     // 1. Campos de cabecera
+//     const proveedor = document.getElementById('slt_Proveedores').value;
+//     const modalidad = document.getElementById('slt_Modalidad').value;
+//     const nombrePlantilla = document.getElementById('nombre_plantilla').value.trim();
+
+//     if (!proveedor) return _alerta('Debe seleccionar un proveedor.');
+//     if (!modalidad) return _alerta('Debe seleccionar una modalidad.');
+//     if (!nombrePlantilla) return _alerta('Debe indicar un nombre para la plantilla.');
+
+//     // 2. Al menos un parámetro de trazabilidad
+//     const chksTrazabilidad = Array.from(document.querySelectorAll('.chk_trazabilidad'));
+//     const parametrosSeleccionados = chksTrazabilidad.filter(c => c.checked).map(c => c.value);
+//     if (parametrosSeleccionados.length === 0) {
+//       return _alerta('Debe seleccionar al menos un parámetro de trazabilidad.');
+//     }
+
+//     // 3. Al menos una actividad
+//     const chksDetalle = Array.from(document.querySelectorAll('.chk_detalle'));
+//     const actividadesMarcadas = chksDetalle.filter(c => c.checked);
+//     if (actividadesMarcadas.length === 0) {
+//       return _alerta('Debe seleccionar al menos una actividad en los parámetros de trazabilidad.');
+//     }
+
+//     // 4. Recolectar datos de actividades + validar tipo_operacion
+//     const datos = [];
+//     let errorTipo = null;
+
+//     for (const chk of actividadesMarcadas) {
+//       const Id = chk.dataset.idvalor;
+//       const row = chk.closest('.actividad-row') || chk.closest(`[class*="trazabilidad_detalle_${Id}"]`);
+
+//       // tipo_operacion OBLIGATORIO
+//       const tipoOp = document.querySelector(`input[name="tipo_operacion_${Id}"]:checked`)?.value || '';
+//       if (!tipoOp) {
+//         const nombre = chk.nextElementSibling?.textContent?.trim() || 'Actividad ' + Id;
+//         errorTipo = `La actividad "<strong>${nombre}</strong>" requiere indicar si es CARGUE o DESCARGUE.`;
+//         break;
+//       }
+
+//       datos.push({
+//         id: Id,
+//         usuario_responsable: document.getElementById('slt_usuario_responsable' + Id)?.value || '',
+//         select_detalle: document.getElementById('select_detalle' + Id)?.value || '',
+//         Posicion_avtividad: chk.dataset.idposicion || '',
+//         input_valor: document.getElementById('input_valor' + Id)?.value || '',
+//         medida_tiempo: document.getElementById('select_medida_tiempo' + Id)?.value || '',
+//         select_depende: document.getElementById('select_depende_' + Id)?.value || '',
+//         costo_sugerido: document.getElementById('costo_sugerido' + Id)?.value || '',
+//         tipo_operacion: tipoOp,
+//       });
+//     }
+
+//     if (errorTipo) {
+//       return Swal.fire({
+//         title: 'Advertencia',
+//         html: errorTipo,
+//         icon: 'warning',
+//         customClass: { popup: 'swal2-custom-font' },
+//       });
+//     }
+
+//     // 5. Recolectar visualizadores
+//     const visualizadores = [];
+//     document.querySelectorAll('#tbody_visualizadores tr').forEach(tr => {
+//       const usuarioId = tr.querySelector('.personas_visualizar')?.value;
+//       const actividades = Array.from(
+//         tr.querySelector('.actividades_visualizar')?.selectedOptions || []
+//       ).map(o => o.value);
+
+//       if (usuarioId && actividades.length > 0) {
+//         visualizadores.push({ usuario_id: usuarioId, actividades });
+//       }
+//     });
+
+//     // 6. Nota (parámetros de trazabilidad)
+//     const nota = { tipo: parametrosSeleccionados };
+
+//     // 7. Confirmar
+//     const conf = await Swal.fire({
+//       title: '¿Crear plantilla?',
+//       html: `<strong>${nombrePlantilla}</strong><br>
+//            <small>${actividadesMarcadas.length} actividades seleccionadas</small>`,
+//       icon: 'question',
+//       showCancelButton: true,
+//       confirmButtonColor: '#3B71CA',
+//       cancelButtonColor: '#9FA6B2',
+//       confirmButtonText: 'Crear',
+//       cancelButtonText: 'Cancelar',
+//       customClass: { popup: 'swal2-custom-font' },
+//     });
+
+//     if (!conf.isConfirmed) return;
+
+//     // 8. Enviar al backend
+//     try {
+//       const fd = new FormData();
+//       fd.append('proveedor_id', proveedor);
+//       fd.append('modalidad', modalidad);
+//       fd.append('nombre_plantilla', nombrePlantilla);
+//       fd.append('nota', JSON.stringify(nota));
+//       fd.append('datos', JSON.stringify(datos));
+//       fd.append('visualizadores', JSON.stringify(visualizadores));
+
+//       // const res = await fetch($('#base_url').val() + 'torrecontrol/Crear_plantillas', {
+//       const res = await fetch($('#base_url_api').val() + 'Crear_plantillas', {
+//         method: 'POST', headers: { "X-API-KEY": "nexos_nacional2026@*" }, cache: 'no-cache', body: fd
+//       });
+//       const resp = await res.json();
+
+//       const icono = resp.numero === 200 ? 'success' : resp.numero === 305 ? 'warning' : 'error';
+//       const titulo = resp.numero === 200 ? 'Éxito' : resp.numero === 305 ? 'Advertencia' : 'Error';
+
+//       await Swal.fire({
+//         title: titulo,
+//         html: resp.mensaje,
+//         icon: icono,
+//         customClass: { popup: 'swal2-custom-font' },
+//       });
+
+//       if (resp.numero === 200) {
+//         sessionStorage.clear();
+//         location.reload(false);
+//       }
+
+//     } catch (err) {
+//       Swal.fire({ title: 'Error', text: 'Error de conexión con el servidor.', icon: 'error' });
+//       console.error(err);
+//     }
+//   }
+
+//   /* ═══════════════════════════════════════════════════════════
+//    *  UTILIDADES
+//    * ═══════════════════════════════════════════════════════════ */
+//   function _alerta(texto) {
+//     Swal.fire({
+//       title: 'Advertencia',
+//       text: texto,
+//       icon: 'warning',
+//       draggable: true,
+//       customClass: { popup: 'swal2-custom-font' },
+//     });
+//   }
+// })();
+/**
+ * plantilla_pedidos.js  –  Torre de Control / Crear Plantilla
+ * ─────────────────────────────────────────────────────────────
+ * Mejoras respecto a la versión anterior:
+ *  • Tipo operación (CARGUE / DESCARGUE) por actividad
+ *  • Validación centralizada con mensajes claros
+ *  • Activación progresiva de campos al marcar el chk_detalle
+ *  • Preview lateral con badge de tipo operación
+ *  • Templates HTML  (<template>) en lugar de strings largos
+ * ─────────────────────────────────────────────────────────────
+ * CORRECCIÓN: listeners nombrados con removeEventListener para
+ * evitar acumulación al abrir la ventana múltiples veces sin
+ * recargar la página (render dinámico / SPA).
+ * ─────────────────────────────────────────────────────────────
+ */
+(function () {
+  "use strict";
+
+  /* ═══════════════════════════════════════════════════════════
+   *  REFERENCIAS A HANDLERS (necesarias para removeEventListener)
+   * ═══════════════════════════════════════════════════════════ */
+  let _handlerClick = null;
+  let _handlerChange = null;
+
+  /* ═══════════════════════════════════════════════════════════
+   *  INIT GLOBAL
+   * ═══════════════════════════════════════════════════════════ */
+  window.VENTANA = null;
+
+  window.initScript = function (id) {
+    sessionStorage.clear();
+    window.VENTANA = id;
+
+    // Estado reactivo de la sesión
+    window.estado = {
+      contador: 0,                  // posición actual de actividades seleccionadas
+      posiciones: {},               // { idActividad: posicion }
+      actividadesSeleccionadas: [], // [{ id, texto, tipoOperacion }]
+    };
+
+    feather.replace?.();            // re-inicializar íconos si feather está disponible
+
+    Listar_proveedores();
+    Listar_tipos_trazabilidad();
+    _initEventos();
+  };
+
+  /* ═══════════════════════════════════════════════════════════
+   *  EVENTOS PRINCIPALES
+   *  — Se usan funciones nombradas guardadas en _handlerClick /
+   *    _handlerChange para poder removerlas antes de re-registrar
+   *    y así evitar listeners duplicados en render dinámico.
+   * ═══════════════════════════════════════════════════════════ */
+  function _initEventos() {
+    let contadorFilas = 1;
+
+    // ── Limpiar listeners anteriores si ya existían ──────────
+    if (_handlerClick) document.removeEventListener('click', _handlerClick);
+    if (_handlerChange) document.removeEventListener('change', _handlerChange);
+
+    // ── Handler click ────────────────────────────────────────
+    _handlerClick = async (e) => {
+
+      /* ── Crear plantilla ─────────────────────────────────── */
+      if (e.target.closest('#btn-create-plantilla')) {
+        await _crearPlantilla();
+      }
+
+      /* ── Agregar fila visualizador ───────────────────────── */
+      if (e.target.closest('#btn-agregar-fila')) {
+        _agregarFilaVisualizador(contadorFilas++);
+      }
+
+      /* ── Eliminar fila visualizador ──────────────────────── */
+      if (e.target.closest('.btn-eliminar-fila')) {
+        e.target.closest('tr').remove();
+        _renumerarFilas();
+      }
+    };
+
+    // ── Handler change (ÚNICO — centraliza todos los casos) ──
+    _handlerChange = async (e) => {
+
+      // chk_trazabilidad: abrir/cerrar acordeón y cargar detalle
+      // (antes estaba dentro de Listar_tipos_trazabilidad → se acumulaba)
+      if (e.target.matches('.chk_trazabilidad')) {
+        const valor = e.target.value;
+        const collapse = document.getElementById('collapse' + valor);
+        const bsCol = new bootstrap.Collapse(collapse, { toggle: false });
+
+        if (e.target.checked) {
+          bsCol.show();
+          await _cargarDetalleParametro(valor);
+        } else {
+          bsCol.hide();
+          document.getElementById('list_detalle' + valor).innerHTML =
+            '<p class="text-muted small mb-0">Seleccione el parámetro para cargar sus actividades.</p>';
+        }
+      }
+
+      // Activar/desactivar select de actividad dependiente si criterio = 4
+      if (e.target.matches('.select_detalle')) {
+        const Id = e.target.dataset.elementid;
+        const depSelect = document.getElementById('select_depende_' + Id);
+        depSelect.disabled = e.target.value !== '4';
+        if (e.target.value !== '4') depSelect.value = '';
+      }
+
+      // chk_detalle: activar/desactivar campos de la fila
+      if (e.target.matches('.chk_detalle')) {
+        _toggleFilaActividad(e.target);
+      }
+
+      // tipo_operacion: actualizar preview
+      if (e.target.matches('.tipo_operacion')) {
+        _actualizarTipoEnPreview(e.target.dataset.idactividad, e.target.value);
+      }
+    };
+
+    document.addEventListener('click', _handlerClick);
+    document.addEventListener('change', _handlerChange);
   }
 
-  $(document).on('change', '.slt_usuario_responsable', function () {
-    let resultId = $(this).val(); // Obtener el valor seleccionado
-    // let valor_detalle = $(this).find(':selected').data('detalle'); // Suponiendo que tienes un `data-detalle`
-    let dato = $(this).attr('data-dato'); // Obtener el ID del select
-    let valor_detalle = $(this).attr('data-valor_detalle'); // Obtener el ID del select
-    // let resultId = $(this).attr('data-idusuario'); // Obtener el ID del select
+  /* ═══════════════════════════════════════════════════════════
+   *  TOGGLE FILA ACTIVIDAD (check / uncheck)
+   * ═══════════════════════════════════════════════════════════ */
+  function _toggleFilaActividad(checkbox) {
+    const Id = checkbox.dataset.idvalor;
+    const checked = checkbox.checked;
 
-    // Verifica que el valor no esté vacío
-    if (resultId) {
-      // Posiciones.posicion.push('/' + resultId);
-      Posiciones.posicion.push(parseInt(dato) + '/' + parseInt(valor_detalle) + '/' + resultId + '/');
-      console.log("🚀 Posiciones actualizadas:", Posiciones.posicion);
-    }
-  });
+    // Paneles que se muestran/ocultan
+    const paneles = ['tipo_op_wrap', 'form_asignacion', 'form_calculo', 'form_dependencia'];
+    paneles.forEach(p => {
+      const el = document.getElementById(p + Id);
+      if (el) el.style.display = checked ? '' : 'none';
+    });
 
-  $(document).on('change', '.select_detalle', function () {
-    let DetalleId = $(this).val(); // Obtener el valor seleccionado
-    if (DetalleId) {
-      Posiciones.posicion.push(DetalleId); // Agregar nuevo valor
-      console.log("🚀 Posiciones actualizadas:", Posiciones.posicion);
-    }
-  });
+    const selectCalculo = document.getElementById('select_detalle' + Id);
+    const inputValor = document.getElementById('input_valor' + Id);
+    const selectMedida = document.getElementById('select_medida_tiempo' + Id);
+    const selectDepende = document.getElementById('select_depende_' + Id);
+    const inputCosto = document.getElementById('costo_sugerido' + Id);
 
-  $(document).on('change', '.input_valor', function () {
-    let ValorCalculo = $(this).val(); // Obtener el valor seleccionado
-    if (ValorCalculo) {
-      Posiciones.posicion.push(ValorCalculo); // Agregar nuevo valor
-      console.log("🚀 Posiciones actualizadas:", Posiciones.posicion);
-    }
-  });
+    if (checked) {
+      // Habilitar campos de cálculo
+      if (selectCalculo) selectCalculo.disabled = false;
+      if (inputValor) inputValor.disabled = false;
+      if (selectMedida) selectMedida.disabled = false;
+      if (inputCosto) inputCosto.disabled = false;
 
-  $(document).on('change', '.select_dependiente', function () {
-    let Dependencia = $(this).val(); // Obtener el valor seleccionado
-    if (Dependencia) {
-      Posiciones.posicion.push(Dependencia); // Agregar nuevo valor
-      console.log("🚀 Posiciones actualizadas:", Posiciones.posicion);
-    }
-  });
+      // Asignar posición
+      window.estado.contador++;
+      checkbox.dataset.idposicion = window.estado.contador;
+      window.estado.posiciones[Id] = window.estado.contador;
 
+      // Cargar usuarios en el select de responsable
+      _cargarUsuariosEnSelect('#slt_usuario_responsable' + Id, 'Seleccione Responsable');
 
+      // Cargar actividades ya seleccionadas en select de dependencia
+      _poblarSelectDependencia(Id);
 
-  d.addEventListener('click', async e => {
-    if (e.target.matches("#btn-create-plantilla") || e.target.matches("#btn-create-plantilla *")) {
+      // Agregar al preview lateral
+      const texto = checkbox.nextElementSibling?.textContent?.trim() || 'Actividad ' + Id;
+      _agregarPreview(Id, texto, window.estado.contador);
 
-      // Validar el proveedor
-      if (d.getElementById('slt_Proveedores').value === '') {
-        Swal.fire({
-          title: "Advertencia!",
-          text: 'Debe seleccionar un proveedor.',
-          icon: "warning",
-          draggable: true
-        });
+      // Registrar en sesión interna
+      const yaExiste = window.estado.actividadesSeleccionadas.find(a => a.id === Id);
+      if (!yaExiste) {
+        window.estado.actividadesSeleccionadas.push({ id: Id, texto, tipoOperacion: '' });
       }
 
-      // validar parametros de trazabilidad
-      var checkboxes = d.querySelectorAll('.chk_trazabilidad');
-      // Verificar si al menos uno está seleccionado
-      var alMenosUnoSeleccionado = Array.from(checkboxes).some(checkbox => checkbox.checked);
+      // Actualizar selects de dependencias visibles
+      // _refrescarTodosLosSelectsDependencia();
 
-      var checkboxesdetalle = d.querySelectorAll('.chk_detalle');
-      var alMenosUnoSeleccionadodetalle = Array.from(checkboxesdetalle).some(checkbox => checkbox.checked);
+      // Actualizar opciones de actividades en filas de visualizadores
+      _refrescarActividadesVisualizadores();
 
-      var UsuarioResponsable = d.querySelectorAll('.slt_usuario_responsable');
-      var Usuario_Responable = Array.from(UsuarioResponsable).some(usuario => $(usuario).val());
+    } else {
+      // Deshabilitar campos
+      // [selectCalculo, inputValor, selectMedida, selectDepende, inputCosto].forEach(el => {
+      [selectCalculo, inputValor, selectMedida, inputCosto].forEach(el => {
+        if (el) { el.disabled = true; el.value = ''; }
+      });
 
-      var SelectDestalle = d.querySelectorAll('.select_detalle');
-      var DetalleFecha = Array.from(SelectDestalle).some(detalle => $(detalle).val());
+      // Limpiar tipo operación
+      document.querySelectorAll(`input[name="tipo_operacion_${Id}"]`).forEach(r => r.checked = false);
 
-      var ValorDetalle = d.querySelectorAll('.input_valor');
-      var DetalleValorFecha = Array.from(ValorDetalle).some(valor => $(valor).val());
+      // Quitar de posiciones
+      const pos = parseInt(checkbox.dataset.idposicion || 0);
+      delete window.estado.posiciones[Id];
 
-      var SelectDependiente = d.querySelectorAll('.select_dependiente');
-      var SelectDependencia = Array.from(SelectDependiente).some(dependiente => $(dependiente).val());
+      // Reordenar posiciones
+      _reordenarPosiciones(Id, pos);
 
-      if (alMenosUnoSeleccionado === false) {
-        Swal.fire({
-          title: "Advertencia!",
-          text: 'Debe seleccionar al menos una opcion de trazabilidad para realiziar el pedido.',
-          icon: "warning",
-          draggable: true
-        });
-      } else if (alMenosUnoSeleccionadodetalle === false) {
-        Swal.fire({
-          title: "Advertencia!",
-          text: ' Debe seleccionar al menos un detalle delos parametros seleccionados para realiziar el pedido.',
-          icon: "warning",
-          draggable: true
-        });
-      } else if (Usuario_Responable === false) {
-        Swal.fire({
-          title: "Advertencia!",
-          text: 'Debe seleccionar un usaurio responsable para las actividades habilitadas al pedido.',
-          icon: "warning",
-          draggable: true
-        });
-      } else if (DetalleFecha === false) {
-        Swal.fire({
-          title: "Advertencia!",
-          text: 'Debe seleccionar una opcion para la fecha de calculo.',
-          icon: "warning",
-          draggable: true
-        });
-      } else if (DetalleValorFecha === false) {
-        Swal.fire({
-          title: "Advertencia!",
-          text: 'Debe ingresar un valor para la fecha de calculo de vencimineto.',
-          icon: "warning",
-          draggable: true
-        });
-      } else if (SelectDependencia === false) {
-        Swal.fire({
-          title: "Advertencia!",
-          text: 'Debe elegir si la dependencia es si o no.',
-          icon: "warning",
-          draggable: true
-        });
-      }
-      else if (d.getElementById('nombre_plantilla').value === '') {
-        Swal.fire({
-          title: "Advertencia!",
-          text: 'Debe indicar un nombre para la plantilla.',
-          icon: "warning",
-          draggable: true
-        });
-      }
+      // Quitar del preview
+      _quitarPreview(Id);
 
-      let tipos = d.getElementsByName('chk_trazabilidad[]');
-      let detalles = d.getElementsByName('chk_detalle[]');
-      // let USUARIOS = d.getElementsByName('slt_usuario_responsable[]');
+      // Quitar de sesión
+      window.estado.actividadesSeleccionadas =
+        window.estado.actividadesSeleccionadas.filter(a => a.id !== Id);
 
-      for (var i = 0; i < tipos.length; i++) {
-        var checkbox = tipos[i];
-        if (checkbox.checked) {
-          var tipo_traz = tipos[i].value;
-          datos.tipo.push(tipo_traz);
-        } else {
-          datos.tipo.splice(i, 1); // Elimina el elemento no seleccionado
-        }
-      }
-      var nota = datos;
-      nota = JSON.stringify(nota);
-      console.log("🚀 ~ nota:", nota)
-
-      for (let j = 0; j < detalles.length; j++) {
-        // const element = detalles[j];
-        var checkbox_detalle = detalles[j];
-        if (checkbox_detalle.checked) {
-          var detalles_traz = detalles[j].value;
-          datos_detalle.detalle.push(detalles_traz);
-        } else {
-          datos_detalle.detalle.splice(j, 1); // Elimina el elemento no seleccionado
-        }
-      }
-      var nota_detalle = datos_detalle;
-      nota_detalle = JSON.stringify(nota_detalle);
-      console.log("🚀 ~ nota_detalle:", nota_detalle)
-
-      var posiciones_detalle = Posiciones;
-      console.log("🚀 ~ posiciones_detalle:", posiciones_detalle)
-      // posiciones_detalle = JSON.stringify(posiciones_detalle);
-
-      // for (let u = 0; u < USUARIOS.length; u++) {
-      //   const usuarios = USUARIOS[u].getAttribute('data-idusuario');
-      //   if (usuarios !== null /* && !usuarios_responsable.usuario.includes(usuarios) */) {
-      //     usuarios_responsable.usuario.push(usuarios);
-      //   }
-      // }
-
-      // var responsable = usuarios_responsable;
-      // responsable = JSON.stringify(responsable);
-      // console.log("🚀 ~ responsable:", responsable)
+      _refrescarTodosLosSelectsDependencia();
+      _refrescarActividadesVisualizadores();
     }
-  });
 
+    _actualizarContadorPreview();
+  }
 
-});
+  /* ═══════════════════════════════════════════════════════════
+   *  PREVIEW LATERAL
+   * ═══════════════════════════════════════════════════════════ */
+  function _agregarPreview(id, texto, posicion) {
+    const lista = document.getElementById('secondaryList');
+    const div = document.createElement('div');
+    div.className = 'preview-item';
+    div.id = 'preview_item_' + id;
+    div.innerHTML = `
+    <span class="preview-pos">${posicion}</span>
+    <span class="preview-texto flex-grow-1">${texto}</span>
+    <span class="preview-tipo" id="preview_tipo_${id}"></span>`;
+    lista.appendChild(div);
+  }
 
-async function Listar_tipos_trazabilidad() {
-  await fetch($('#base_url').val() + 'pedidos/Listar_tipos_Seguimiento', {
-    method: 'POST',
-    cache: 'no-cache',
-  })
-    .then(res => (res.ok ? res.json() : Promise.reject(res)))
-    .catch(error => {
-      alert(JSON.stringify(error.length) || 'Error al cargar los tipos de trazabilidad');
-    })
-    .then(response => {
-      let template = '<div class="accordion" id="accordionExample">';
-      response.forEach((element, index) => {
-        template += `
-          <div class="accordion-item">
-            <h2 class="accordion-header d-flex align-items-center" id="heading${index}">
-              <input type="checkbox" id="chk_trazabilidad${index}" name="chk_trazabilidad[]" 
-                class="chk_trazabilidad me-2" value="${element.id}" 
-                style="transform: scale(1.5); margin-right: 10px;" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#collapse${element.id}" 
-                aria-expanded="false" 
-                aria-controls="collapse${element.id}">
+  function _quitarPreview(id) {
+    document.getElementById('preview_item_' + id)?.remove();
+  }
 
-              <button class="accordion-button collapsed" type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#collapse${element.id}" 
-                aria-expanded="false" 
-                aria-controls="collapse${element.id}">
-                ${element.nombre_tipo}
-              </button>
-            </h2>
+  function _actualizarTipoEnPreview(id, tipo) {
+    const span = document.getElementById('preview_tipo_' + id);
+    if (!span) return;
+    if (tipo === 'CARGUE') {
+      span.innerHTML = '<span class="badge-cargue">↑ Cargue</span>';
+    } else if (tipo === 'DESCARGUE') {
+      span.innerHTML = '<span class="badge-descargue">↓ Descargue</span>';
+    }
 
-            <div id="collapse${element.id}" class="accordion-collapse collapse" 
-              aria-labelledby="heading${element.id}" data-bs-parent="#accordionExample">
-              <div class="accordion-body">
-                <div id="list_detalle${element.id}"></div>
+    // Guardar en estado
+    const act = window.estado.actividadesSeleccionadas.find(a => a.id === id);
+    if (act) act.tipoOperacion = tipo;
+  }
+
+  function _actualizarContadorPreview() {
+    const contador = document.getElementById('posicion');
+    const n = document.getElementById('secondaryList').children.length;
+    if (contador) {
+      contador.textContent = n > 0 ? `Actividades seleccionadas: ${n}` : '';
+      contador.style.fontSize = '12px';
+    }
+  }
+
+  function _reordenarPosiciones(idEliminado, posEliminada) {
+    window.estado.contador = Math.max(0, window.estado.contador - 1);
+
+    // Reordenar items del preview
+    const lista = document.getElementById('secondaryList');
+    let nuevaPos = 1;
+    Array.from(lista.children).forEach(item => {
+      const posEl = item.querySelector('.preview-pos');
+      if (posEl) posEl.textContent = nuevaPos++;
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   *  SELECTS DE DEPENDENCIA
+   * ═══════════════════════════════════════════════════════════ */
+  function _poblarSelectDependencia(idActividad) {
+    const sel = document.getElementById('select_depende_' + idActividad);
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Actividad que precede</option>';
+    window.estado.actividadesSeleccionadas
+      .filter(a => a.id !== idActividad)
+      .forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = a.texto;
+        sel.appendChild(opt);
+      });
+    $(sel).trigger('change');
+  }
+
+  function _refrescarTodosLosSelectsDependencia() {
+    document.querySelectorAll('.select_depende_').forEach(sel => {
+      if (sel.disabled) return;
+      const idAct = sel.id.replace('select_depende_', '');
+      _poblarSelectDependencia(idAct);
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   *  FILAS DE VISUALIZADORES
+   * ═══════════════════════════════════════════════════════════ */
+  function _agregarFilaVisualizador(num) {
+    const tpl = document.getElementById('tpl-visualizador-row');
+    const fila = tpl.content.cloneNode(true).querySelector('tr');
+
+    fila.querySelector('.fila-num').textContent = num;
+
+    const tbody = document.getElementById('tbody_visualizadores');
+    tbody.appendChild(fila);
+
+    // Actividades seleccionadas
+    const selAct = fila.querySelector('.actividades_visualizar');
+    _poblarSelectActividades(selAct);
+    $(selAct).select2({ placeholder: 'Seleccione actividades', allowClear: true });
+
+    // Usuarios
+    const selUsu = fila.querySelector('.personas_visualizar');
+    _cargarUsuariosEnSelect(selUsu, 'Seleccione visualizador');
+  }
+
+  function _poblarSelectActividades(selectEl) {
+    selectEl.innerHTML = '<option value="">Seleccione una actividad</option>';
+    window.estado.actividadesSeleccionadas.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.texto;
+      selectEl.appendChild(opt);
+    });
+  }
+
+  function _refrescarActividadesVisualizadores() {
+    document.querySelectorAll('.actividades_visualizar').forEach(sel => {
+      const seleccionados = $(sel).val();
+      _poblarSelectActividades(sel);
+      $(sel).val(seleccionados).trigger('change');
+    });
+  }
+
+  function _renumerarFilas() {
+    document.querySelectorAll('#tbody_visualizadores tr').forEach((tr, i) => {
+      const num = tr.querySelector('.fila-num');
+      if (num) num.textContent = i + 1;
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   *  CARGAR USUARIOS EN UN SELECT
+   * ═══════════════════════════════════════════════════════════ */
+  async function _cargarUsuariosEnSelect(selector, placeholder) {
+    try {
+      const res = await fetch($('#base_url').val() + 'torrecontrol/Buscar_usuario', {
+        method: 'POST', cache: 'no-cache'
+      });
+      const data = await res.json();
+
+      const usuarios = data.data ?? data; // soporta {numero,data} y array directo
+      const sel = typeof selector === 'string'
+        ? document.querySelector(selector)
+        : selector;
+
+      if (!sel) return;
+      sel.innerHTML = `<option value="">Seleccione</option>`;
+      usuarios.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = u.nom_usuario;
+        sel.appendChild(opt);
+      });
+
+      $(sel).select2({ placeholder, allowClear: true });
+    } catch (err) {
+      console.error('Error al cargar usuarios:', err);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   *  LISTAR PROVEEDORES
+   * ═══════════════════════════════════════════════════════════ */
+  async function Listar_proveedores() {
+    try {
+      const res = await fetch($('#base_url').val() + 'torrecontrol/Listar_proveedores_torre_control', {
+        method: 'POST', cache: 'no-cache'
+      });
+      const json = await res.json();
+      const data = json.data ?? json;
+
+      const sel = document.getElementById('slt_Proveedores');
+      sel.innerHTML = '<option value="" selected>Seleccione proveedor</option>';
+      data.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.razon_social;
+        sel.appendChild(opt);
+      });
+      $('#slt_Proveedores').select2({ placeholder: 'Seleccione proveedor', allowClear: true });
+    } catch (err) {
+      console.error('Error al cargar proveedores:', err);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   *  LISTAR TIPOS DE TRAZABILIDAD (acordeón)
+   *  — Se elimina el document.addEventListener('change') que
+   *    estaba aquí y se mueve al handler central de _initEventos.
+   * ═══════════════════════════════════════════════════════════ */
+  async function Listar_tipos_trazabilidad() {
+    try {
+      const res = await fetch($('#base_url').val() + 'pedidos/Listar_tipos_Seguimiento', {
+        method: 'POST', cache: 'no-cache'
+      });
+      const data = await res.json();
+
+      let html = '';
+      data.forEach((el, idx) => {
+        html += `
+        <div class="accordion-item">
+          <h2 class="accordion-header d-flex align-items-center px-2" id="heading${idx}">
+            <input type="checkbox" class="chk_trazabilidad form-check-input me-2"
+                   id="chk_trazabilidad${idx}" name="chk_trazabilidad[]" value="${el.id}"
+                   data-bs-toggle="collapse" data-bs-target="#collapse${el.id}" style="transform:scale(0.9);">
+            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${el.id}">
+              ${el.nombre_tipo}
+            </button>
+          </h2>
+          <div id="collapse${el.id}" class="accordion-collapse collapse"
+               aria-labelledby="heading${idx}" data-bs-parent="#accordionExample">
+            <div class="accordion-body py-2">
+              <div id="list_detalle${el.id}">
+                <p class="text-muted small mb-0">Seleccione el parámetro para cargar sus actividades.</p>
               </div>
             </div>
           </div>
-        `;
+        </div>`;
       });
-      template += '</div>';
-      document.getElementById('accordionExample').innerHTML = template;
+
+      document.getElementById('accordionExample').innerHTML = html;
+
+      // ✅ LISTENER ELIMINADO DE AQUÍ — ahora vive en _handlerChange dentro de _initEventos()
+
+    } catch (err) {
+      document.getElementById('accordionExample').innerHTML =
+        '<div class="alert alert-danger m-2">Error al cargar parámetros de trazabilidad.</div>';
+      console.error(err);
+    }
+  }
+
+  /* ── Cargar detalle de un parámetro seleccionado ─────────── */
+  async function _cargarDetalleParametro(tipoProceso) {
+    const contenedor = document.getElementById('list_detalle' + tipoProceso);
+    contenedor.innerHTML = '<div class="text-muted small p-2"><span class="spinner-border spinner-border-sm me-1"></span> Cargando…</div>';
+
+    try {
+      const fd = new FormData();
+      fd.append('id', tipoProceso);
+      const res = await fetch($('#base_url').val() + 'pedidos/Listar_Opciones', {
+        method: 'POST', cache: 'no-cache', body: fd
+      });
+      const data = await res.json();
+
+      const tpl = document.getElementById('tpl-actividad-row');
+      let htmlDetalle = '';
+
+      data.forEach(el => {
+        // Clonar template y reemplazar placeholders
+        const tplHtml = tpl.innerHTML
+          .replaceAll('{{ID}}', el.id)
+          .replaceAll('{{NOMBRE}}', el.nombre_opcion)
+          .replaceAll('{{POSICION}}', '');
+        htmlDetalle += tplHtml;
+      });
+
+      contenedor.innerHTML = htmlDetalle || '<p class="text-muted small">Sin actividades disponibles.</p>';
+
+    } catch (err) {
+      contenedor.innerHTML = '<div class="alert alert-warning m-2 small">Error al cargar actividades del parámetro.</div>';
+      console.error(err);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+   *  VALIDACIÓN Y ENVÍO
+   * ═══════════════════════════════════════════════════════════ */
+  async function _crearPlantilla() {
+
+    // 1. Campos de cabecera
+    const proveedor = document.getElementById('slt_Proveedores').value;
+    const modalidad = document.getElementById('slt_Modalidad').value;
+    const nombrePlantilla = document.getElementById('nombre_plantilla').value.trim();
+
+    if (!proveedor) return _alerta('Debe seleccionar un proveedor.');
+    if (!modalidad) return _alerta('Debe seleccionar una modalidad.');
+    if (!nombrePlantilla) return _alerta('Debe indicar un nombre para la plantilla.');
+
+    // 2. Al menos un parámetro de trazabilidad
+    const chksTrazabilidad = Array.from(document.querySelectorAll('.chk_trazabilidad'));
+    const parametrosSeleccionados = chksTrazabilidad.filter(c => c.checked).map(c => c.value);
+    if (parametrosSeleccionados.length === 0) {
+      return _alerta('Debe seleccionar al menos un parámetro de trazabilidad.');
+    }
+
+    // 3. Al menos una actividad
+    const chksDetalle = Array.from(document.querySelectorAll('.chk_detalle'));
+    const actividadesMarcadas = chksDetalle.filter(c => c.checked);
+    if (actividadesMarcadas.length === 0) {
+      return _alerta('Debe seleccionar al menos una actividad en los parámetros de trazabilidad.');
+    }
+
+    // 4. Recolectar datos de actividades + validar tipo_operacion
+    const datos = [];
+    let errorTipo = null;
+
+    for (const chk of actividadesMarcadas) {
+      const Id = chk.dataset.idvalor;
+
+      // tipo_operacion OBLIGATORIO
+      const tipoOp = document.querySelector(`input[name="tipo_operacion_${Id}"]:checked`)?.value || '';
+      if (!tipoOp) {
+        const nombre = chk.nextElementSibling?.textContent?.trim() || 'Actividad ' + Id;
+        errorTipo = `La actividad "<strong>${nombre}</strong>" requiere indicar si es CARGUE o DESCARGUE.`;
+        break;
+      }
+
+      datos.push({
+        id: Id,
+        usuario_responsable: document.getElementById('slt_usuario_responsable' + Id)?.value || '',
+        select_detalle: document.getElementById('select_detalle' + Id)?.value || '',
+        Posicion_avtividad: chk.dataset.idposicion || '',
+        input_valor: document.getElementById('input_valor' + Id)?.value || '',
+        medida_tiempo: document.getElementById('select_medida_tiempo' + Id)?.value || '',
+        select_depende: document.getElementById('select_depende_' + Id)?.value || '',
+        costo_sugerido: document.getElementById('costo_sugerido' + Id)?.value || '',
+        tipo_operacion: tipoOp,
+      });
+    }
+
+    if (errorTipo) {
+      return Swal.fire({
+        title: 'Advertencia',
+        html: errorTipo,
+        icon: 'warning',
+        customClass: { popup: 'swal2-custom-font' },
+      });
+    }
+
+    // 5. Recolectar visualizadores
+    const visualizadores = [];
+    document.querySelectorAll('#tbody_visualizadores tr').forEach(tr => {
+      const usuarioId = tr.querySelector('.personas_visualizar')?.value;
+      const actividades = Array.from(
+        tr.querySelector('.actividades_visualizar')?.selectedOptions || []
+      ).map(o => o.value);
+
+      if (usuarioId && actividades.length > 0) {
+        visualizadores.push({ usuario_id: usuarioId, actividades });
+      }
     });
 
-  document.addEventListener('change', async function (e) {
-    if (e.target.matches('.chk_trazabilidad')) {
-      let valor = e.target.value;
-      let collapseElement = document.getElementById('collapse' + valor);
-      let bsCollapse = new bootstrap.Collapse(collapseElement);
+    // 6. Nota (parámetros de trazabilidad)
+    const nota = { tipo: parametrosSeleccionados };
 
-      if (e.target.checked) {
-        bsCollapse.show();
-        // document.getElementById('parametros').style.display = 'block';
-        let data = new FormData();
-        data.append('id', valor);
-        await fetch($('#base_url').val() + 'pedidos/Listar_Opciones', {
-          method: 'POST',
-          cache: 'no-cache',
-          body: data,
-        })
-          .then(res => (res.ok ? res.json() : Promise.reject(res)))
-          .catch(error => {
-            alert(JSON.stringify(error.length) || 'Error al cargar tipo de detalle');
-          })
-          .then(response => {
-            let template_detalle = '';
-            const hoy = new Date();
-            const fechaHoy = hoy.toISOString().split('T')[0];
-            response.forEach(element => {
-              template_detalle += `
-                <div class="row">
-                  <div class="col-12 d-flex align-items-center">
-                    <div class="checkbox">
-                      <div class="form-check form-switch">
-                        <input class="form-check-input chk_detalle" type="checkbox" id="chk_detalle${element.id}" name="chk_detalle[]" value="${element.id}" data-idvalor="${element.id}" />
-                        <label class="form-check-label me-2" for="chk_detalle${element.id}">${element.nombre_opcion}</label>
-                      </div>
-                    </div>
-                    <select class="form-select form-select-sm ms-2 select_detalle" id="select_detalle${element.id}" name="select_detalle[]" style="width: 200px;" disabled>
-                      <option value="">Fecha Calculo</option>
-                      <option value="1">Fecha Inicial</option>
-                      <option value="2">Fecha Archivo Cargue</option>
-                      <option value="3">Fecha Cita</option>
-                    </select>
-                    <input type="number" class="form-control ms-2 form-control-sm input_valor" id="input_valor${element.id}" name="input_valor[]" placeholder="Valor" style="width: 100px;">
-                    <select class="form-select form-select-sm ms-2 select_dependiente" id="select_dependiente${element.id}" name="select_dependiente[]" style="width: 200px;" disabled>
-                      <option value="">Dependiente</option>
-                      <option value="Si">Si</option>
-                      <option value="No">No</option>
-                    </select>
-                  </div>
-                  <div class="col-12">
-                    <hr class="my-1 text-dark">
-                  </div>
-                  <div class="col-12">
-                    <div class="form-group" style="display:none;" id="form_asignacion${element.id}">
-                      <div class="row">
-                        <div class="col-md-12">
-                          <label for="usuario_responsable${element.id}"style="font-size: 12px;">Usuario responsable</label>
-                          <select class="form-select form-select-sm select2 slt_usuario_responsable" name="slt_usuario_responsable[]" id="slt_usuario_responsable${element.id}" style="width:100%;font-size: 10px !important;"></select>
-                        </div>
-                        <div class="col-12">
-                          <hr class="my-1 text-dark">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              `;
-              document.getElementById('list_detalle' + valor).innerHTML = template_detalle;
-            });
-          });
-      } else {
-        bsCollapse.hide();
-        document.getElementById('list_detalle' + valor).innerHTML = '';
-      }
-    }
+    // 7. Confirmar
+    const conf = await Swal.fire({
+      title: '¿Crear plantilla?',
+      html: `<strong>${nombrePlantilla}</strong><br>
+              <small>${actividadesMarcadas.length} actividades seleccionadas</small>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3B71CA',
+      cancelButtonColor: '#9FA6B2',
+      confirmButtonText: 'Crear',
+      cancelButtonText: 'Cancelar',
+      customClass: { popup: 'swal2-custom-font' },
+    });
 
-    const secondaryList = d.getElementById('secondaryList');
-    const counterElement = d.getElementById('posicion');
+    if (!conf.isConfirmed) return;
 
-    if (e.target.matches('.chk_detalle') || e.target.matches('.chk_detalle *')) {
-      // Asegúrate de que Posiciones.posicion esté inicializado
-      if (!Posiciones.posicion) {
-        Posiciones.posicion = [];
+    // 8. Enviar al backend
+    try {
+      const fd = new FormData();
+      fd.append('proveedor_id', proveedor);
+      fd.append('modalidad', modalidad);
+      fd.append('nombre_plantilla', nombrePlantilla);
+      fd.append('nota', JSON.stringify(nota));
+      fd.append('datos', JSON.stringify(datos));
+      fd.append('visualizadores', JSON.stringify(visualizadores));
+
+      const res = await fetch($('#base_url_api').val() + 'Crear_plantillas', {
+        method: 'POST',
+        headers: { "X-API-KEY": "nexos_nacional2026@*" },
+        cache: 'no-cache',
+        body: fd
+      });
+      const resp = await res.json();
+
+      const icono = resp.numero === 200 ? 'success' : resp.numero === 305 ? 'warning' : 'error';
+      const titulo = resp.numero === 200 ? 'Éxito' : resp.numero === 305 ? 'Advertencia' : 'Error';
+
+      await Swal.fire({
+        title: titulo,
+        html: resp.mensaje,
+        icon: icono,
+        customClass: { popup: 'swal2-custom-font' },
+      });
+
+      if (resp.numero === 200) {
+        sessionStorage.clear();
+        location.reload(false);
       }
 
-      let padre = e.target.parentElement.parentElement;
-      let checkDetalle = padre.querySelectorAll('.chk_detalle');
-      for (let i = 0; i < checkDetalle.length; i++) {
-        var checkbox = checkDetalle[i];
-        var valor_detalle = checkDetalle[i].value;
-
-        var texto = checkDetalle[i].parentElement.textContent;
-        let Id = checkbox.getAttribute('data-idvalor');
-        if (checkbox.checked) {
-          contador++;
-          checkbox.setAttribute('data-idposicion', contador);
-
-          // Crear un contenedor para el número y el texto
-          const listItem = d.createElement('div');
-          const puesto = d.createElement('span');
-          puesto.textContent = contador;
-          puesto.style.fontWeight = 'bold';
-
-          let select = document.getElementById('select_detalle' + Id); // Seleccionar el select asociado
-          let selectDependiente = document.getElementById('select_dependiente' + Id); // Seleccionar el select asociado
-
-          if (e.target.checked) {
-            select.disabled = false; // Habilitar select
-            selectDependiente.disabled = false; // Habilitar select
-          } else {
-            select.disabled = true;
-            select.value = ''; // Deshabilitar y resetear select
-            selectDependiente.disabled = true;
-            selectDependiente.value = ''; // Deshabilitar y resetear select
-          }
-          // listItem.setAttribute('id', 'id' + puesto.textContent);
-          // listItem.setAttribute('id', +puesto.textContent);
-          listItem.setAttribute('id', 'puesto_id' + Id);
-          // Agregar el número al contenedor
-          listItem.appendChild(puesto);
-
-          // Agregar el texto al contenedor
-          const textoElement = d.createElement('span');
-          textoElement.textContent = texto;
-          listItem.appendChild(textoElement);
-          // Agrega el elemento div con el título y el número al contenedor principal
-          secondaryList.appendChild(listItem);
-          // Modificación: Concatena el Id al final del string del ID
-          const formId = 'form_asignacion' + Id;
-          d.getElementById(formId).style.display = 'block';
-          // Agrega la posición al array
-          var posicion_array = puesto.parentElement.textContent;
-          var dato = posicion_array.split(' ');
-          // Actualiza el contador
-          updateCounter();
-          // Posiciones.posicion.push(parseInt(dato[0]) + '/' + parseInt(valor_detalle));
-          // Posiciones.valor.push(valor_detalle);
-
-          /* Buscar usuario responsable para la actividad */
-          $.post(
-            $('#base_url').val() + 'torrecontrol/Buscar_usuario',
-            function (data) {
-              const selectId = '#slt_usuario_responsable' + Id;
-              const selectProveedores = document.querySelector(selectId);
-
-              if (!selectProveedores) {
-                console.error("❌ El select no se encontró. Verifica el ID:", selectId);
-                return;
-              }
-
-              // Limpiar el select antes de agregar nuevas opciones
-              selectProveedores.innerHTML = '<option value="" selected>Seleccione</option>';
-              selectProveedores.setAttribute('data-idusuario', '');
-              selectProveedores.setAttribute('data-dato', parseInt(dato[0]));
-              selectProveedores.setAttribute('data-valor_detalle', parseInt(valor_detalle));
-
-
-              // Recorrer los datos y agregar opciones al select
-              data.forEach(function (element) {
-                const option = document.createElement('option');
-                option.value = element.id;
-                option.textContent = element.nom_usuario;
-                // selectProveedores.setAttribute('data-idusuario', element.id);
-                selectProveedores.appendChild(option);
-              });
-
-              // Forzar la inicialización de select2 después de agregar opciones
-              $(selectId).select2({
-                placeholder: "Seleccione",
-                allowClear: true
-              }).trigger('change'); // Asegurar que los valores se reflejen correctamente
-
-              // console.log("✅ Select2 inicializado en:", selectId);
-            },
-            'json'
-          );
-
-        } else {
-          const formId = 'form_asignacion' + Id;
-          d.getElementById(formId).style.display = 'none';
-
-          const PuestoId = 'puesto_id' + Id;
-          d.getElementById(PuestoId).style.display = 'none';
-
-          var posicion_eliminar = checkbox.getAttribute('data-idposicion');
-          var indice = Posiciones.posicion.indexOf(parseInt(posicion_eliminar));
-          if (indice !== -1) {
-            // El elemento existe en el array, ahora puedes eliminarlo usando splice
-            // console.log('El elemento existe en el array en el índice: ' + indice);
-            Posiciones.posicion.splice(indice, 1);
-            contador--;
-            updateCounter();
-          } else {
-            // console.log('El elemento no existe en el array');
-            Posiciones.posicion.splice(indice, 1);
-            contador--;
-            updateCounter();
-          }
-          // console.log(Posiciones.posicion);
-        }
-      }
+    } catch (err) {
+      Swal.fire({ title: 'Error', text: 'Error de conexión con el servidor.', icon: 'error' });
+      console.error(err);
     }
+  }
 
-    function updateCounter() {
-      counterElement.textContent = "Cantidad de actividades: " + secondaryList.children.length;
-      counterElement.style.fontSize = "12px";
-    }
-  });
-}
+  /* ═══════════════════════════════════════════════════════════
+   *  UTILIDADES
+   * ═══════════════════════════════════════════════════════════ */
+  function _alerta(texto) {
+    Swal.fire({
+      title: 'Advertencia',
+      text: texto,
+      icon: 'warning',
+      draggable: true,
+      customClass: { popup: 'swal2-custom-font' },
+    });
+  }
 
+})();

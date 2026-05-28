@@ -1,7 +1,7 @@
-$(document).ready(function() {
+$(document).ready(function () {
   $('.select2').select2();
   listar_clientes();
-  $('#btn-filtro').click(function() {
+  $('#btn-filtro').click(function () {
     var filtro = $('#tipo').val();
 
     if (filtro === '') {
@@ -43,7 +43,7 @@ $(document).ready(function() {
           var fecha_final = $('#fecha_final').val();
           var fecha_inicial = $('#fecha_inicial').val();
           var cliente = $('#cliente').val();
-          var datos = {tipo: tipo, num_manifiesto: num_manifiesto, fecha_final: fecha_final, fecha_inicial: fecha_inicial, cliente: cliente};
+          var datos = { tipo: tipo, num_manifiesto: num_manifiesto, fecha_final: fecha_final, fecha_inicial: fecha_inicial, cliente: cliente };
           generar_informe(datos);
         }
       });
@@ -57,11 +57,11 @@ $(document).ready(function() {
       // dataType: "json", // EL TIPO DE DATO QUE DEVUELVE PUEDE SER JSON/TEXT/HTML/XML
       url: $('#id_url_ajax').val() + 'control_ruta/Historial_Seguimiento', // DIRECCION DONDE SE ENCUENTRA LA OPERACION A REALIZAR
       data: datos, // DATOS ENVIADOS PUEDE SER TEXT A TRAVEZ DE LA URL O PUEDE SER UN OBJETO
-      beforeSend: function() {
+      beforeSend: function () {
         // ACCION QUE SUCEDE ANTES DE HACER EL SUBMIT
         $('#loading-overlay-nexosapp').css('display', 'flex'); // Mostrar mensaje de carga
       },
-      success: function(response) {
+      success: function (response) {
         // ACCION QUE SUCEDE DESPUES DE REALIZAR CORRECTAMENTE LA PETICION EL CUAL NOS TRAE UNA RESPUESTA
         if (response.length > 0) {
           tabla_historial(response);
@@ -76,7 +76,7 @@ $(document).ready(function() {
           });
         }
       },
-      error: function() {
+      error: function () {
         // SI OCURRE UN ERROR
         Swal.fire({
           title: 'Error',
@@ -87,59 +87,62 @@ $(document).ready(function() {
           },
         });
       },
-    }).always(function() {
+    }).always(function () {
       // FINALMENTE, INDEPENDIENTEMENTE DEL RESULTADO
       $('#loading-overlay-nexosapp').css('display', 'none'); // Ocultar mensaje de carga
     });
   }
 
-    // Botones para exportar las remesas
-    document.getElementById('exportar_excel').addEventListener('click', function() {
-      var table = document.getElementById('informe_de_historico_seguimiento');
-  
-      // Preprocesar la tabla para asegurar que los valores con formato de moneda sean tratados como texto
-      Array.from(table.getElementsByTagName('td')).forEach(function(td) {
-        if (td.innerText.includes('$') || td.innerText.includes(',')) {
-          td.setAttribute('data-t', 's'); // Marcar como texto
-        }
-      });
-  
-      // Crear el libro de Excel a partir de la tabla
-      var wb = XLSX.utils.table_to_book(table);
-  
-      // Aplicar estilo al thead (color de fondo y otros)
-      var ws = wb.Sheets[wb.SheetNames[0]];
-  
-      // Definir estilo para el thead
-      var rangoEncabezado = XLSX.utils.decode_range(ws['!ref']); // Obtener el rango de la tabla
-      for (let C = rangoEncabezado.s.c; C <= rangoEncabezado.e.c; ++C) {
-        var cell = ws[XLSX.utils.encode_cell({r: 0, c: C})]; // Fila 0 es el thead
-        if (!cell.s) cell.s = {};
-        cell.s.fill = {
-          patternType: 'solid',
-          fgColor: {rgb: '3B71CA'}, // Color de fondo amarillo
-        };
+  // Botones para exportar las remesas
+  document.getElementById('exportar_excel').addEventListener('click', function () {
+    var table = document.getElementById('informe_de_historico_seguimiento');
+
+    // Preprocesar la tabla: evitar que fechas se interpreten mal
+    Array.from(table.getElementsByTagName('td')).forEach(function (td) {
+      const text = td.innerText.trim();
+      // Detectar valores con $ o formatos de fecha ISO
+      const esFecha = /^\d{4}-\d{2}-\d{2}$/.test(text); // Formato YYYY-MM-DD
+      if (esFecha) {
+        td.setAttribute('data-t', 's'); // Marcar como texto para Excel
       }
-  
-      // Añadir filtros al thead
-      ws['!autofilter'] = {
-        ref: XLSX.utils.encode_range(rangoEncabezado),
-      };
-  
-      // Ajustar ancho de las columnas
-      ws['!cols'] = [
-        {wpx: 80}, // Columna 1 ancho en píxeles
-        {wpx: 80}, // Columna 2 ancho en píxeles
-        {wpx: 80}, // Ajusta el tamaño de las columnas según el contenido
-        {wpx: 250}, // Ajusta el tamaño de las columnas según el contenido
-        {wpx: 250}, // Ajusta el tamaño de las columnas según el contenido
-      ];
-  
-      // Crear contenido de archivo con fecha
-      const fechaActual = new Date().toISOString().slice(0, 10);
-      const nombreArchivo = `Informe Historico Seguimiento - ${fechaActual}.xlsx`;
-      XLSX.writeFile(wb, nombreArchivo);
     });
+
+    // Crear el libro de Excel a partir de la tabla
+    var wb = XLSX.utils.table_to_book(table);
+
+    // Aplicar estilo al thead (color de fondo y otros)
+    var ws = wb.Sheets[wb.SheetNames[0]];
+
+    // Definir estilo para el thead
+    var rangoEncabezado = XLSX.utils.decode_range(ws['!ref']); // Obtener el rango de la tabla
+    for (let C = rangoEncabezado.s.c; C <= rangoEncabezado.e.c; ++C) {
+      var cell = ws[XLSX.utils.encode_cell({ r: 0, c: C })]; // Fila 0 es el thead
+      if (!cell.s) cell.s = {};
+      cell.s.fill = {
+        patternType: 'solid',
+        fgColor: { rgb: '3B71CA' }, // Color de fondo amarillo
+      };
+    }
+
+    // Añadir filtros al thead
+    ws['!autofilter'] = {
+      ref: XLSX.utils.encode_range(rangoEncabezado),
+    };
+
+    // Ajustar ancho de las columnas
+    ws['!cols'] = [
+      { wpx: 80 }, // Columna 1 ancho en píxeles
+      { wpx: 80 }, // Columna 2 ancho en píxeles
+      { wpx: 80 }, // Ajusta el tamaño de las columnas según el contenido
+      { wpx: 250 }, // Ajusta el tamaño de las columnas según el contenido
+      { wpx: 250 }, // Ajusta el tamaño de las columnas según el contenido
+    ];
+
+    // Crear contenido de archivo con fecha
+    const fechaActual = new Date().toISOString().slice(0, 10);
+    const nombreArchivo = `Informe Historico Seguimiento - ${fechaActual}.xlsx`;
+    XLSX.writeFile(wb, nombreArchivo);
+  });
 });
 
 function tabla_historial(data) {
@@ -150,12 +153,14 @@ function tabla_historial(data) {
     template += `
       <tr>
           <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center"><a href="#" onClick="consulta_detalle(${item.id})">${item.id}</a></td>
+          <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center">${item.cliente}</td>
           <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center">${item.placa}</td>
           <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center">${item.fecha_expedicion}</td>
           <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center">${item.origen + ' - ' + item.destino}</td>
           <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center">${item.conductor}</td>
           <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center">${item.numero_documento}</td>
            <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center">${item.celular}</td>
+           <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center">${item.estado}</td>
           <td style="width: auto; white-space: nowrap; padding-left: 5px; " class="text-center"><button class="btn btn-space btn-success btn-xs" onClick="decargar_pdf(${item.id})"> <i class="icon icon-left mdi mdi-download"></i> Descargar</button></td>
       </tr>`;
   });
@@ -194,14 +199,14 @@ function listar_clientes() {
     url: url,
     type: 'POST',
     dataType: 'json',
-    success: function(response) {
+    success: function (response) {
       var html = '<option value="">Seleccionar cliente</option>';
-      response.forEach(function(item) {
+      response.forEach(function (item) {
         html += '<option value="' + item.id + '">' + item.nombre + '</option>';
       });
       $('#cliente').html(html);
     },
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
       console.log(errorThrown);
     },
   });

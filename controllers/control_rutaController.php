@@ -15,6 +15,7 @@ class control_rutaController extends Controller
     private $dato2;
     private $contadores;
     private $_envio_email;
+    private $_filtros;
 
     public function __construct()
     {
@@ -56,7 +57,7 @@ class control_rutaController extends Controller
         $this->_view->renderizar('iniciar_ruta', 'trafico');
     }
 
-    public function seguimiento()
+    public function seguimientos()
     {
         $seguir = $this->loadModel('iniciar_ruta'); //se añade el modelo a usar
         $this->_view->seguir = $seguir; // Se einsatcia el modelos
@@ -71,8 +72,32 @@ class control_rutaController extends Controller
         // $this->_view->registro_seguimiento = $continuaruta2;
         $this->_view->continuaruta = $continuaruta; // Se einsatcia el modelos
         $this->_view->titulo = 'Seguimiento Ruta';
-        $this->_view->renderizar('seguirruta', 'trafico');
+        $this->_view->renderizar('seguimiento_ruta', 'trafico');
+        // $this->_view->renderizar('seguirruta', 'trafico');
         //$this->_view->renderizar('registro_seguimiento', 'trafico');
+    }
+
+    //Ventanas
+    public function seguimiento()
+    {
+        $this->_view->titulo = 'Seguimiento Ruta';
+        $this->_view->renderizar_ventana('seguimiento_ruta', 'control_ruta');
+        // $this->_view->renderizar_ventana('seguimiento', 'control_ruta');
+    }
+
+    public function rutas()
+    {
+        $this->_view->titulo = 'Gestión de Rutas';
+        $this->_view->renderizar_ventana('gestion_rutas', 'control_ruta');
+        // $this->_view->renderizar_ventana('seguimiento', 'control_ruta');
+    }
+
+    //Funcion para cargar los filtros
+    public function crear_filtro()
+    {
+        $ventana = $_POST['param1'];
+        $this->_filtros = $this->_view->Cargar_Filtros_ventana($ventana);
+        echo json_encode($this->_filtros);
     }
 
     public function reporte_email()
@@ -181,23 +206,23 @@ class control_rutaController extends Controller
         echo json_encode($this->dato2);
     }
 
-    public function Datos_SinFiltro()
-    {
-        $this->dato2 = $this->_modelo->Datos_SinFiltro();
-        echo json_encode($this->dato2);
-    }
+    // public function Datos_SinFiltro()
+    // {
+    //     $this->dato2 = $this->_modelo->Datos_SinFiltro();
+    //     echo json_encode($this->dato2);
+    // }
 
-    public function Contadores_Manifiestos()
-    {
-        $this->contadores = $this->_modelo->Contadores_SinFiltros();
-        echo json_encode($this->contadores);
-    }
+    // public function Contadores_Manifiestos()
+    // {
+    //     $this->contadores = $this->_modelo->Contadores_SinFiltros();
+    //     echo json_encode($this->contadores);
+    // }
 
-    public function Datos_llegada()
-    {
-        $this->_llegada = $this->_modelo->listar_seguimientos_llegada();
-        echo json_encode($this->_llegada);
-    }
+    // public function Datos_llegada()
+    // {
+    //     $this->_llegada = $this->_modelo->listar_seguimientos_llegada();
+    //     echo json_encode($this->_llegada);
+    // }
 
 
     public function Dato_salida()
@@ -281,10 +306,7 @@ class control_rutaController extends Controller
         echo json_encode($this->_filtro_seguimiento);
     }
 
-
-
     /* envair email */
-
     public function Enviarl_email()
     {
 
