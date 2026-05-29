@@ -3,3 +3,4 @@ application\Config.php
 backud_local_*.sql
 .sql
 .env
+application/Config.php
