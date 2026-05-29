@@ -1,5 +1,5 @@
 public/
+application\Config.php
 backud_local_*.sql
 .sql
 .env
-Config.php
