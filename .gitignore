@@ -1,2 +1,4 @@
 public/
 backud_local_*.sql
+.sql
+.env
