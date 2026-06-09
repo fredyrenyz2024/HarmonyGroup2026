@@ -2,3 +2,4 @@ public/
 backud_local_*.sql
 .sql
 .env
+application/Config.php
