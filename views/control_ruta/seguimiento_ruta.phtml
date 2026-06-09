@@ -1,326 +1,1766 @@
-<div class="card-body overflow-auto" style="max-height:90vh;margin-top: -15px;">
-    <div class="nexos-content">
-        <div class="row">
-            <table cellpadding="0" cellspacing="0" style="color:#fff;font-weight: 300; width: 100%;" class="fixed">
-                <tbody>
-                    <tr>
-                        <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
-                            Se encontraron total de <span class="badge badge-phoenix badge-phoenix-secondary " id="num_vehiculos_totales"></span> vehiculos en despacho
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="progress fixed" style="height: 20px; font-size: 0.85rem;width: 100%;">
-                <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FFFF6C; color:#000;">
-                    Amarillo: 30 Min
-                </div>
-                <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FF9E5E; color:#000;">
-                    Naranja: 60 Min
-                </div>
-                <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FF8891; color:#000;">
-                    Rojo: 90 Min
-                </div>
-                <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#DDBBFF; color:#000;">
-                    Violeta: 120 Min
+<style>
+    /* ── Variables ─────────────────────────────────────── */
+    :root {
+        --im-navy: #0f1f3d;
+        --im-blue: #1a5ce5;
+        --im-green: #10b981;
+        --im-red: #ef4444;
+        --im-amber: #f59e0b;
+        --im-gray: #64748b;
+        --im-light: #f1f5f9;
+        --im-white: #ffffff;
+        --im-border: #e2e8f0;
+        --im-radius: 10px;
+        --im-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+    }
+
+    /* ── Header tipo flete_nacional ─────────────────────── */
+    .np-header {
+        background: linear-gradient(135deg, #0f1f3d 0%, #1a3260 100%);
+        border-radius: 16px;
+        padding: 20px 28px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .10);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .np-header::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .04);
+    }
+
+    .np-header-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(16, 185, 129, .15);
+        border: 2px solid rgba(16, 185, 129, .35);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #34d399;
+        flex-shrink: 0;
+    }
+
+    .np-header-title {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .np-header-sub {
+        color: rgba(255, 255, 255, .55);
+        font-size: .78rem;
+        margin-top: 2px;
+    }
+
+    /* ── Card de paso ────────────────────────────────────── */
+    .np-card {
+        background: #fff;
+        border: 1px solid var(--im-border);
+        border-radius: var(--im-radius);
+        box-shadow: var(--im-shadow);
+        margin-bottom: 16px;
+        overflow: hidden;
+    }
+
+    .np-card-header {
+        background: var(--im-light);
+        border-bottom: 1px solid var(--im-border);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: .78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--im-navy);
+    }
+
+    .np-card-header i {
+        color: var(--im-blue);
+    }
+
+    .np-card-body {
+        padding: 18px 20px;
+    }
+
+    /* ── Label estilo ────────────────────────────────────── */
+    .np-label {
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--im-gray);
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .np-label .req {
+        color: var(--im-red);
+    }
+
+    /* ── Select / Input estilo ───────────────────────────── */
+    .np-control {
+        width: 100%;
+        height: 36px;
+        padding: 0 10px;
+        border: 1.5px solid var(--im-border);
+        border-radius: 6px;
+        font-size: .83rem;
+        color: var(--im-navy);
+        background: #fff;
+        transition: border-color .15s, box-shadow .15s;
+        outline: none;
+    }
+
+    .np-control:focus {
+        border-color: var(--im-blue);
+        box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+    }
+
+    .np-control.is-invalid {
+        border-color: var(--im-red);
+    }
+
+    /* ── Dropzone ────────────────────────────────────────── */
+    .np-dropzone {
+        border: 2px dashed var(--im-border);
+        border-radius: var(--im-radius);
+        background: #fff;
+        padding: 28px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color .25s, background .25s;
+    }
+
+    .np-dropzone:hover,
+    .np-dropzone.dragover {
+        border-color: var(--im-blue);
+        background: #eff6ff;
+    }
+
+    .np-dropzone-icon {
+        font-size: 2.2rem;
+        color: var(--im-blue);
+        margin-bottom: 8px;
+        opacity: .75;
+    }
+
+    .np-dropzone-title {
+        font-size: .9rem;
+        font-weight: 700;
+        color: var(--im-navy);
+    }
+
+    .np-dropzone-sub {
+        font-size: .76rem;
+        color: var(--im-gray);
+        margin-top: 4px;
+    }
+
+    .np-dropzone-badge {
+        display: inline-block;
+        background: var(--im-light);
+        color: var(--im-blue);
+        border: 1px solid var(--im-border);
+        padding: 3px 9px;
+        border-radius: 4px;
+        font-size: .7rem;
+        font-weight: 600;
+        margin: 2px;
+    }
+
+    #np_archivo_excel {
+        display: none;
+    }
+
+    /* ── Archivo seleccionado ────────────────────────────── */
+    .np-file-selected {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-top: 12px;
+    }
+
+    .np-file-selected.show {
+        display: flex;
+    }
+
+    .np-file-icon {
+        font-size: 1.5rem;
+        color: #16a34a;
+        flex-shrink: 0;
+    }
+
+    .np-file-name {
+        font-size: .85rem;
+        font-weight: 600;
+        color: var(--im-navy);
+        word-break: break-all;
+    }
+
+    .np-file-size {
+        font-size: .72rem;
+        color: var(--im-gray);
+    }
+
+    .np-file-clear {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: var(--im-red);
+        cursor: pointer;
+        font-size: .95rem;
+        padding: 4px 6px;
+        border-radius: 4px;
+        transition: background .15s;
+    }
+
+    .np-file-clear:hover {
+        background: #fee2e2;
+    }
+
+    /* ── Estructura del Excel ────────────────────────────── */
+    .np-cols-info {
+        background: #fff;
+        border: 1px solid var(--im-border);
+        border-radius: var(--im-radius);
+        overflow: hidden;
+        margin-top: 14px;
+    }
+
+    .np-cols-header {
+        background: var(--im-light);
+        border-bottom: 1px solid var(--im-border);
+        padding: 9px 14px;
+        font-size: .74rem;
+        font-weight: 700;
+        color: var(--im-blue);
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .np-cols-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 0;
+    }
+
+    .np-col-item {
+        padding: 7px 12px;
+        border-right: 1px solid var(--im-border);
+        border-bottom: 1px solid var(--im-border);
+        font-size: .72rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .np-col-num {
+        min-width: 20px;
+        height: 20px;
+        background: var(--im-blue);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .62rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .np-col-name {
+        color: var(--im-navy);
+        font-weight: 600;
+    }
+
+    /* ── Preview table ───────────────────────────────────── */
+    .np-preview-wrap {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid var(--im-border);
+        max-height: 320px;
+        overflow-y: auto;
+    }
+
+    .np-preview-wrap::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    .np-preview-wrap::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+
+    #np_previewTable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: .72rem;
+    }
+
+    #np_previewTable thead th {
+        background: #0f1f3d;
+        color: #fff;
+        padding: 7px 10px;
+        text-align: center;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        font-size: .68rem;
+        font-weight: 600;
+        letter-spacing: .04em;
+    }
+
+    #np_previewTable tbody tr {
+        transition: background .1s;
+    }
+
+    #np_previewTable tbody tr:nth-child(even) {
+        background: #f8fafc;
+    }
+
+    #np_previewTable tbody tr:hover {
+        background: #eff6ff;
+    }
+
+    #np_previewTable tbody td {
+        padding: 5px 8px;
+        border-bottom: 1px solid var(--im-border);
+        white-space: nowrap;
+        color: var(--im-navy);
+    }
+
+    .np-badge-fila {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        background: var(--im-light);
+        color: var(--im-gray);
+        border-radius: 50%;
+        font-size: .65rem;
+        font-weight: 700;
+    }
+
+    .btn-del-row {
+        background: none;
+        border: none;
+        color: var(--im-red);
+        padding: 2px 6px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: .8rem;
+        transition: background .15s;
+    }
+
+    .btn-del-row:hover {
+        background: #fee2e2;
+    }
+
+    /* ── Advertencia ─────────────────────────────────────── */
+    .np-warn {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: .76rem;
+        color: #92400e;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    /* ── Botón importar ──────────────────────────────────── */
+    .np-btn-import {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #0f1f3d 0%, #1a5ce5 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: .9rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: opacity .2s, transform .1s;
+        margin-top: 14px;
+    }
+
+    .np-btn-import:hover:not(:disabled) {
+        opacity: .9;
+        transform: translateY(-1px);
+    }
+
+    .np-btn-import:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+    /* ── Sección progreso ────────────────────────────────── */
+    .np-prog-header {
+        text-align: center;
+        padding: 20px 0 16px;
+    }
+
+    .np-spinner-wrap {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 14px;
+    }
+
+    .np-spinner-ring {
+        width: 72px;
+        height: 72px;
+        border: 5px solid var(--im-light);
+        border-top-color: var(--im-blue);
+        border-radius: 50%;
+        animation: np-spin 1s linear infinite;
+    }
+
+    @keyframes np-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .np-spinner-pct {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .85rem;
+        font-weight: 800;
+        color: var(--im-navy);
+    }
+
+    .np-prog-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--im-navy);
+    }
+
+    .np-prog-sub {
+        font-size: .82rem;
+        color: var(--im-gray);
+        margin-top: 3px;
+    }
+
+    .np-progress-track {
+        background: var(--im-light);
+        border-radius: 8px;
+        height: 10px;
+        overflow: hidden;
+        margin: 14px 0 6px;
+    }
+
+    .np-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--im-blue) 0%, #3b82f6 100%);
+        border-radius: 8px;
+        transition: width .6s ease;
+        width: 0%;
+    }
+
+    /* ── Sección resultado ───────────────────────────────── */
+    .np-result-hero {
+        text-align: center;
+        padding: 20px 0 14px;
+    }
+
+    .np-result-icon {
+        font-size: 4rem;
+        margin-bottom: 10px;
+    }
+
+    .np-result-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--im-navy);
+    }
+
+    .np-result-sub {
+        font-size: .82rem;
+        color: var(--im-gray);
+        margin-top: 4px;
+    }
+
+    .np-summary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 16px 0;
+    }
+
+    .np-summary-card {
+        background: #fff;
+        border: 1px solid var(--im-border);
+        border-radius: 9px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: var(--im-shadow);
+    }
+
+    .np-summary-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .95rem;
+        flex-shrink: 0;
+    }
+
+    .ic-ok {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .ic-err {
+        background: #fee2e2;
+        color: var(--im-red);
+    }
+
+    .np-summary-num {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--im-navy);
+        line-height: 1;
+    }
+
+    .np-summary-label {
+        font-size: .7rem;
+        color: var(--im-gray);
+        margin-top: 1px;
+    }
+
+    .np-detail-section {
+        background: #fff;
+        border: 1px solid var(--im-border);
+        border-radius: var(--im-radius);
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+
+    .np-detail-toggle {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 11px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: .8rem;
+        font-weight: 700;
+        color: var(--im-navy);
+        cursor: pointer;
+        transition: background .15s;
+    }
+
+    .np-detail-toggle:hover {
+        background: var(--im-light);
+    }
+
+    .np-detail-toggle .badge-count {
+        padding: 3px 9px;
+        border-radius: 12px;
+        font-size: .7rem;
+        font-weight: 700;
+    }
+
+    .np-detail-body {
+        display: none;
+        border-top: 1px solid var(--im-border);
+        max-height: 220px;
+        overflow-y: auto;
+    }
+
+    .np-detail-body.open {
+        display: block;
+    }
+
+    .np-detail-row {
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--im-border);
+        font-size: .76rem;
+        color: var(--im-navy);
+    }
+
+    .np-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .np-result-footer {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .np-btn-finalizar {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: var(--im-blue);
+        color: #fff;
+        font-size: .85rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: opacity .2s;
+    }
+
+    .np-btn-finalizar:hover {
+        opacity: .88;
+    }
+
+    .np-btn-otro {
+        flex: 1;
+        padding: 10px;
+        border: 1.5px solid var(--im-border);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--im-navy);
+        font-size: .85rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: background .15s;
+    }
+
+    .np-btn-otro:hover {
+        background: var(--im-light);
+    }
+</style>
+<style>
+    /* ============================================================
+                        VARIABLES DE DISEÑO — Torre de Control / Administrador Pedidos
+                        ============================================================ */
+    :root {
+        --navy: #0f1f3d;
+        --navy-mid: #1a3260;
+        --blue: #1a5ce5;
+        --blue-soft: #dbeafe;
+        --amber: #f59e0b;
+        --amber-soft: #fef3c7;
+        --green: #10b981;
+        --green-soft: #d1fae5;
+        --red: #ef4444;
+        --red-soft: #fee2e2;
+        --orange: #f97316;
+        --orange-soft: #ffedd5;
+        --cyan: #06b6d4;
+        --cyan-soft: #cffafe;
+        --purple: #8b5cf6;
+        --purple-soft: #ede9fe;
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-200: #e2e8f0;
+        --slate-400: #94a3b8;
+        --slate-600: #475569;
+        --slate-800: #1e293b;
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 16px;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 2px 4px rgba(0, 0, 0, .06);
+        --shadow-lg: 0 10px 25px rgba(0, 0, 0, .12), 0 4px 8px rgba(0, 0, 0, .06);
+    }
+
+    /* ── PAGE HEADER ───────────────────────────────────── */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: var(--radius-lg);
+        padding: 20px 28px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .04);
+    }
+
+    .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        right: 120px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(26, 92, 229, .15);
+    }
+
+    .ph-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(245, 158, 11, .15);
+        border: 2px solid rgba(245, 158, 11, .35);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--amber);
+        flex-shrink: 0;
+    }
+
+    .ph-title {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -.3px;
+        margin: 0;
+    }
+
+    .ph-sub {
+        color: rgba(255, 255, 255, .55);
+        font-size: .78rem;
+        margin-top: 2px;
+    }
+
+    /* ── KPI CARDS ─────────────────────────────────────── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 1024px) {
+        .kpi-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .kpi-card {
+        background: #fff;
+        border-radius: var(--radius-md);
+        padding: 16px 18px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--slate-200);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        cursor: pointer;
+        transition: box-shadow .2s, transform .2s, border-color .2s;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .kpi-card.active {
+        border-color: currentColor;
+        box-shadow: var(--shadow-md);
+    }
+
+    .kpi-card.c-green::before {
+        background: var(--green);
+    }
+
+    .kpi-card.c-amber::before {
+        background: var(--amber);
+    }
+
+    .kpi-card.c-red::before {
+        background: var(--red);
+    }
+
+    .kpi-card.c-slate::before {
+        background: var(--slate-400);
+    }
+
+    .kpi-card.c-cyan::before {
+        background: var(--cyan);
+    }
+
+    .kpi-card.c-purple::before {
+        background: var(--purple);
+    }
+
+    .kpi-card.c-orange::before {
+        background: var(--orange);
+    }
+
+    .kpi-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .kpi-card.c-green .kpi-icon {
+        background: var(--green-soft);
+        color: var(--green);
+    }
+
+    .kpi-card.c-amber .kpi-icon {
+        background: var(--amber-soft);
+        color: #d97706;
+    }
+
+    .kpi-card.c-red .kpi-icon {
+        background: var(--red-soft);
+        color: var(--red);
+    }
+
+    .kpi-card.c-slate .kpi-icon {
+        background: var(--slate-100);
+        color: var(--slate-600);
+    }
+
+    .kpi-card.c-cyan .kpi-icon {
+        background: var(--cyan-soft);
+        color: var(--cyan);
+    }
+
+    .kpi-card.c-purple .kpi-icon {
+        background: var(--purple-soft);
+        color: var(--purple);
+    }
+
+    .kpi-card.c-orange .kpi-icon {
+        background: var(--orange-soft);
+        color: var(--orange);
+    }
+
+    .kpi-num {
+        font-size: 1.7rem;
+        font-weight: 700;
+        line-height: 1;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .kpi-card.c-green .kpi-num {
+        color: var(--green);
+    }
+
+    .kpi-card.c-amber .kpi-num {
+        color: #d97706;
+    }
+
+    .kpi-card.c-red .kpi-num {
+        color: var(--red);
+    }
+
+    .kpi-card.c-slate .kpi-num {
+        color: var(--slate-600);
+    }
+
+    .kpi-card.c-cyan .kpi-num {
+        color: var(--cyan);
+    }
+
+    .kpi-card.c-purple .kpi-num {
+        color: var(--purple);
+    }
+
+    .kpi-card.c-orange .kpi-num {
+        color: var(--orange);
+    }
+
+    .kpi-label {
+        font-size: .72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--slate-400);
+        margin-top: 3px;
+    }
+
+    /* ── FILTER CARD ───────────────────────────────────── */
+    /* inputs dentro del page-header */
+    .ph-input {
+        background: rgba(255, 255, 255, .12) !important;
+        border: 1px solid rgba(255, 255, 255, .22) !important;
+        color: #fff !important;
+        border-radius: 8px;
+    }
+
+    .ph-input:focus {
+        background: rgba(255, 255, 255, .18) !important;
+        border-color: rgba(255, 255, 255, .4) !important;
+        box-shadow: none !important;
+        outline: none;
+    }
+
+    .ph-input option {
+        background: #1e3a5f;
+        color: #fff;
+    }
+
+    /* kpi-card apiladas */
+    #kpi-dashboard .kpi-card {
+        margin-bottom: 0;
+        min-height: 56px;
+    }
+
+    .filter-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--slate-200);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .filter-card-header {
+        background: var(--slate-50);
+        border-bottom: 1px solid var(--slate-200);
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-card-header .fc-title {
+        font-size: .78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--slate-600);
+    }
+
+    .filter-card-header i {
+        color: var(--blue);
+        font-size: .9rem;
+    }
+
+    .filter-card-body {
+        padding: 18px 20px;
+    }
+
+    .f-label {
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--slate-600);
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .f-control {
+        width: 100%;
+        height: 34px;
+        padding: 0 10px;
+        border: 1.5px solid var(--slate-200);
+        border-radius: var(--radius-sm);
+        font-size: .82rem;
+        color: var(--slate-800);
+        background: #fff;
+        transition: border-color .15s, box-shadow .15s;
+        outline: none;
+    }
+
+    .f-control:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+    }
+
+    .f-control::placeholder {
+        color: var(--slate-400);
+    }
+
+    select.f-control {
+        cursor: pointer;
+    }
+
+    .btn-search {
+        height: 34px;
+        padding: 0 20px;
+        background: var(--blue);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: background .15s, box-shadow .15s;
+        white-space: nowrap;
+    }
+
+    .btn-search:hover {
+        background: #1449c4;
+        box-shadow: 0 2px 8px rgba(26, 92, 229, .3);
+    }
+
+    .btn-clear {
+        height: 34px;
+        padding: 0 16px;
+        background: #fff;
+        color: var(--slate-600);
+        border: 1.5px solid var(--slate-200);
+        border-radius: var(--radius-sm);
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: all .15s;
+        white-space: nowrap;
+    }
+
+    .btn-clear:hover {
+        border-color: var(--slate-400);
+        color: var(--slate-800);
+    }
+
+    /* ── TABLE CARD ────────────────────────────────────── */
+    .table-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--slate-200);
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--slate-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .tc-title {
+        font-size: .8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: var(--slate-600);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tc-title i {
+        color: var(--blue);
+    }
+
+    .tc-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: .8rem;
+    }
+
+    .data-table thead th {
+        background: var(--navy);
+        color: rgba(255, 255, 255, .85);
+        font-weight: 600;
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        padding: 10px 14px;
+        white-space: nowrap;
+        border: none;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .data-table thead th.th-check {
+        width: 40px;
+        text-align: center;
+    }
+
+    .data-table tbody tr {
+        border-bottom: 1px solid var(--slate-100);
+        transition: background .1s;
+    }
+
+    .data-table tbody tr:hover {
+        background: var(--slate-50);
+    }
+
+    .data-table tbody tr.row-selected {
+        background: #dbeafe !important;
+    }
+
+    .data-table tbody td {
+        padding: 10px 14px;
+        color: var(--slate-800);
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    /* Badges de estado */
+    .badge-st {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+    }
+
+    .bs-green {
+        background: var(--green-soft);
+        color: #065f46;
+    }
+
+    .bs-amber {
+        background: var(--amber-soft);
+        color: #92400e;
+    }
+
+    .bs-red {
+        background: var(--red-soft);
+        color: #991b1b;
+    }
+
+    .bs-slate {
+        background: var(--slate-100);
+        color: var(--slate-600);
+    }
+
+    .bs-blue {
+        background: var(--blue-soft);
+        color: #1e40af;
+    }
+
+    .bs-cyan {
+        background: var(--cyan-soft);
+        color: #155e75;
+    }
+
+    .bs-purple {
+        background: var(--purple-soft);
+        color: #5b21b6;
+    }
+
+    .bs-orange {
+        background: var(--orange-soft);
+        color: #9a3412;
+    }
+
+    /* Acciones */
+    .action-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: var(--radius-sm);
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .8rem;
+        transition: all .15s;
+    }
+
+    .action-btn:hover {
+        filter: brightness(.9);
+        transform: scale(1.08);
+    }
+
+    .ab-view {
+        background: var(--blue-soft);
+        color: var(--blue);
+    }
+
+    .ab-edit {
+        background: var(--amber-soft);
+        color: #d97706;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-state .es-icon {
+        font-size: 2.8rem;
+        color: var(--slate-200);
+        margin-bottom: 16px;
+    }
+
+    .empty-state .es-title {
+        font-weight: 700;
+        color: var(--slate-600);
+        font-size: .95rem;
+        margin-bottom: 6px;
+    }
+
+    .empty-state .es-sub {
+        font-size: .8rem;
+        color: var(--slate-400);
+    }
+
+    /* Paginación */
+    .pagination-bar {
+        padding: 12px 20px;
+        border-top: 1px solid var(--slate-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: .78rem;
+        color: var(--slate-400);
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .pag-info strong {
+        color: var(--slate-800);
+    }
+
+    .pag-btns {
+        display: flex;
+        gap: 4px;
+    }
+
+    .pag-btn {
+        min-width: 30px;
+        height: 30px;
+        padding: 0 8px;
+        border: 1.5px solid var(--slate-200);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        color: var(--slate-600);
+        font-size: .78rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .15s;
+    }
+
+    .pag-btn:hover {
+        border-color: var(--blue);
+        color: var(--blue);
+    }
+
+    .pag-btn.active {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff;
+    }
+
+    .pag-btn:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+    /* Spinner de carga */
+    .loading-row td {
+        text-align: center;
+        padding: 40px !important;
+        color: var(--slate-400);
+        font-size: .85rem;
+    }
+
+    /* Botón flotante carrito */
+    #btn-carrito-pedidos {
+        display: none;
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+    }
+
+    #btn-carrito-pedidos button {
+        border-radius: 50px;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        background: var(--navy);
+        color: #fff;
+        border: none;
+        box-shadow: 0 6px 20px rgba(15, 31, 61, .4);
+        transition: transform .15s, box-shadow .15s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #btn-carrito-pedidos button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(15, 31, 61, .55);
+    }
+
+    #carrito-contador {
+        background: var(--amber);
+        color: var(--navy);
+        font-size: 11px;
+        font-weight: 700;
+        min-width: 20px;
+        border-radius: 20px;
+        padding: 2px 7px;
+    }
+
+    /* Excel btn */
+    .btn-excel {
+        height: 32px;
+        padding: 0 14px;
+        background: #fff;
+        color: #16a34a;
+        border: 1.5px solid #16a34a;
+        border-radius: var(--radius-sm);
+        font-size: .78rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all .15s;
+        text-decoration: none;
+    }
+
+    .btn-excel:hover {
+        background: var(--green-soft);
+    }
+
+    /* Check select all */
+    .form-check-input {
+        cursor: pointer;
+    }
+
+    .selected-row {
+        background-color: #dbeafe !important;
+    }
+
+
+
+
+
+    /* ── Gestiones por actividad ─────────────────────── */
+    .oc-gestiones {
+        border-top: 1px dashed #e2e8f0;
+        padding-top: .4rem;
+        margin-top: .4rem;
+    }
+
+    .oc-gestiones-title {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: .35rem;
+    }
+
+    .oc-gestiones-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+
+    .oc-gestiones-table thead th {
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 3px 6px;
+        background: #f8fafc;
+    }
+
+    .oc-gestiones-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .oc-gestiones-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .oc-gestiones-table td {
+        padding: 4px 6px;
+        vertical-align: middle;
+        color: #475569;
+    }
+
+    /* ── Gestiones por actividad (debajo de cada tarea) ─── */
+    .oc-gestion-wrap {
+        margin-top: .5rem;
+        padding: .45rem .6rem;
+        background: rgba(3, 105, 161, .03);
+        border: 1px solid rgba(3, 105, 161, .10);
+        border-radius: 7px;
+    }
+
+    .oc-gestion-header {
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: .3rem;
+    }
+
+    .oc-gestion-doc {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 9px;
+        font-weight: 600;
+        color: #0369a1;
+        background: rgba(3, 105, 161, .07);
+        border: 1px solid rgba(3, 105, 161, .2);
+        border-radius: 6px;
+        padding: 1px 7px;
+        text-decoration: none;
+        margin-top: 2px;
+    }
+
+    .oc-gestion-doc:hover {
+        background: rgba(3, 105, 161, .14);
+        color: #0369a1;
+    }
+</style>
+<style>
+    /* Colores para los semaforos */
+    /* Menor a 0 */
+    .estado-blanco {
+        background-color: #FFFFFF !important;
+    }
+
+    /* 0 - 30 */
+    .estado-amarillo {
+        background-color: #FFFF6C !important;
+    }
+
+    /* 31 - 59 */
+    .estado-naranja {
+        background-color: #FF9E5E !important;
+    }
+
+    /* 60 - 89 */
+    .estado-rojo-claro {
+        background-color: #FF8891 !important;
+    }
+
+    /* 90 - 119 */
+    .estado-lila {
+        background-color: #DDBBFF !important;
+    }
+
+    /* 120 o más */
+    .estado-lila-intenso {
+        background-color: #DDBBFF !important;
+    }
+</style>
+<style>
+    /* Estilo de muestra de loading */
+    .loading-nexosapp {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        width: 100vw;
+        height: 100vh;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background: rgba(0, 0, 0, 0.9);
+
+        z-index: 999999;
+
+        overflow: hidden;
+    }
+
+    /** Estilo para la lestr peque;a dentro de las cabeceras de la dtatable  */
+    .dt-small {
+        font-size: 0.75rem;
+    }
+</style>
+
+<!-- Variables de Sesion -->
+<input type="hidden" id="api_key_nexos" value="<?= API_KEY_NEXOS ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+<div class="mb-9 p-3 pt-0" data-bs-target="#widgets-scrollspy">
+    <div class="card border border-body-secondary">
+        <div class="card-header p-1 bg-body-secondary d-flex justify-content-between align-items-center">
+            <h6 class="card-title m-0 pl-3">
+                Seguimiento de Ruta
+            </h6>
+            <div id="contenedor-campo-16" class="d-flex flex-nowrap gap-2"></div>
+        </div>
+        <div class="card-body p-1 overflow-auto" style="max-height:90vh;">
+            <div class="row m-2">
+                <div class="col-md-12">
+                    <div class="page-header" style="flex-direction:column;align-items:stretch;gap:16px;padding-bottom:18px;">
+                        <!-- Título + Exportar -->
+                        <div class="d-flex align-items-center justify-content-between" style="z-index:1;">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="ph-icon"><i class="bi bi-truck"></i></div>
+                                <div>
+                                    <div class="ph-title">Viajes</div>
+                                    <div class="ph-sub">Listado de viajes activos</div>
+                                </div>
+                            </div>
+                            <!-- Filtros integrados en el header -->
+                            <div class="d-flex align-items-end gap-3">
+                                <input type="text" id="filtro" class="f-control ph-input" placeholder="Buscar...">
+                                <div class="d-flex gap-2">
+                                    <button class="btn-search" id="buscar" type="button" style="flex:1;">
+                                        <i class="bi bi-search"></i> Consultar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- <a href="javascript:void(0);" id="exportar_excel" class="btn-excel">
+                                <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+                            </a> -->
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;color:#fff;font-weight: 300;padding: 1px 1px 1px;" class="fixed">
-                <tbody>
-                    <tr>
-                        <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
-                            Se encontraron total de <span class="badge badge-phoenix badge-phoenix-secondary " id="num_vehiculos_seguimiento"></span> vehiculos en seguimiento
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <table id="tbl_Manifiestos_seguimiento" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size: 12px;border-top: #FFFFFF 1px solid;">
-            <thead style="background-color:#332D2D;">
-                <tr>
-                    <th style="color: white;">Manifiesto</th>
-                    <th style="color: white;">Tiempo</th>
-                    <th style="color: white;width: auto; white-space: nowrap;">Ruta</th>
-                    <th style="color: white;">Vehículo</th>
-                    <th style="color: white;width: auto; white-space: nowrap;">Conductor</th>
-                    <th style="color: white;">Celular</th>
-                    <th style="color: white;width: auto; white-space: nowrap;">Cliente</th>
-                    <th style="color: white;">Sitio</th>
-                    <th style="color: white;">Fecha Hora</th>
-                    <!-- <th style="color: white; white-space: nowrap;">Observación</th> -->
-                    <th style="color: white; white-space: nowrap;">Usuario</th>
-                </tr>
-            </thead>
-            <tbody id="tablero"></tbody>
-        </table>
-        <!-- Tabla de llegada -->
-        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#fff;font-weight: 300;">
-            <tbody>
-                <tr>
-                    <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
-                        Se encontraron <span class="badge badge-phoenix badge-phoenix-secondary" id="num_manifiestos_llegada"></span> Manifiestos sin darle llegada
-                    </td>
-                </tr>
-                <tr>
-                </tr>
-            </tbody>
-        </table>
-        <div class="row">
-            <!-- <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;">
-                <thead>
-                    <tr>
-                        <td class="text-end" style="border: 1px solid #ddd;padding: 1px 1px 1px;width: auto; white-space: nowrap;" colspan="4">
-                            <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="http://principal.nexosapp.com/public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
-                        </td>
-                    </tr>
-                </thead>
-            </table> -->
-            <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size: 12px;" id="informe_placas_asignadas">
-                <thead>
-                    <tr>
-                        <th style="text-align: center; width: auto; white-space: nowrap;">Manifiesto</th>
-                        <th style="width: auto; white-space: nowrap;">Ruta</th>
-                        <th style="width: auto; white-space: nowrap;">Mercancias</th>
-                        <th style="width: auto; white-space: nowrap;">Vehículo</th>
-                        <th style="width: auto; white-space: nowrap;">Conductor</th>
-                        <th style="width: auto; white-space: nowrap;">Celular</th>
-                        <th style="width: auto; white-space: nowrap;">Cliente</th>
-                        <th style="width: auto; white-space: nowrap;">Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="tablero_llegada"></tbody>
-            </table>
+            <div class="row m-2">
+                <div class="col-md-12 col-sm-12 mb-3">
+                    <div class="table-card">
+                        <div class="table-card-header">
+                            <div class="tc-title">
+                                <i class="bi bi-map"></i>
+                                Últimos seguimientos
+                            </div>
+                        </div>
+                        <div class="card-body p-0" style="height: 30vh;">
+                            <div id="segMap" style="width:100%; height:100%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-sm-12 mb-3">
+                    <div class="table-card">
+                        <div class="table-card-header">
+                            <div class="tc-title">
+                                <i class="bi bi-truck"></i>
+                                Viajes Activos
+                                <span id="badge-total-tabla" class="badge-st bs-blue" style="font-size:.7rem;"></span>
+                            </div>
+                            <div class="tc-actions">
+                                <div class="d-flex align-items-center gap-2" style="font-size: 0.75rem;">
+                                    <label>Seguimientos: </label>
+                                    <span class="badge text-dark estado-blanco mr-2"> 30 <small>(minutos)</small></span>
+                                    <span class="badge text-dark estado-amarillo mr-2"> 30-59 <small>(minutos)</small></span>
+                                    <span class="badge text-dark estado-naranja mr-2"> 60-89 <small>(minutos)</small></span>
+                                    <span class="badge text-dark estado-rojo-claro mr-2"> 90-119 <small>(minutos)</small></span>
+                                    <span class="badge text-dark estado-lila mr-2"> >=120 <small>(minutos)</small></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-wrap vh-100">
+                            <table class="table data-table m-0" id="table_viajes_activos">
+                                <thead>
+                                    <tr>
+                                        <th>Manifiesto</th>
+                                        <th>Tiempo</th>
+                                        <th>Ruta</th>
+                                        <th>Vehículo</th>
+                                        <th>Conductor</th>
+                                        <th>Celular</th>
+                                        <th>Cliente</th>
+                                        <th>Sitio</th>
+                                        <th>Fecha Hora</th>
+                                        <th>Usuario</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data_viajes_activos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-
-<!-- Offcanvas de seguimiento -->
-<!-- <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Right Offcanvas</button> -->
-<div class="offcanvas offcanvas-end w-100" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel">
+<!-- ═══════════════════════════════════════════════════
+     OFFCANVAS — Detalle de Viaje / Trazabilidad
+═══════════════════════════════════════════════════ -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasViaje" aria-labelledby="offcanvasViajeLabel" data-bs-scroll="true" data-bs-backdrop="true" style="width: min(70vw, 100%);">
     <div class="offcanvas-header">
-        <h5 id="offcanvasRightLabel">Seguimiento Ruta</h5>
-        <!-- <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button> -->
+        <h5 class="offcanvas-title" id="offcanvasViajeLabel">Titulo %Detalles manifiesto # xxxxxx%</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <div class="offcanvas-body p-1 overflow-x-hidden">
-
-        <div class="row">
-            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12">
-                <table cellpadding="0" cellspacing="0" width="100%" border="0">
-                    <tbody>
-                        <tr>
-                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
-                                <b>Información Principal</b>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;margin-bottom: 10px;font-size: 12px;">
-                    <thead>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Manifiesto:</th>
-                            <td class="manifiesto gif-cell" style="border: 1px solid #ddd;padding: 1px;"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Origen: </th>
-                            <td class="origen gif-cell" style="border: 1px solid #ddd;padding: 1px;"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Agencia </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="agencia gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Destino </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="destino gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Conductor </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="conductor gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Ruta </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="ruta gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                C.C. </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="documento gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Fecha Salida </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="fecha-salida gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Celular </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="celular gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Fecha planeada Llegada </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="fecha-llegada gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Telefono </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="telefono gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Fecha Creación </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="fecha-creacion gif-cell"><?= date('Y-m-d H:i:s'); ?></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Marca </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="marca gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Placa </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="placa gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Linea </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="linea gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Configuración </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="configuración"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Color </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="color gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Carroceria </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="carroceria gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Operador GPS </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="operador-gps gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Modelo </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="modelo gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Usuario GPS </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="usuario-gps gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">ID
-                                GPS </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="id-gps gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">URL
-                                GPS </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;"><a class="url-gps gif-cell" target="framename"></a></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Clave GPS </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="clave-gps gif-cell"></td>
-                        </tr>
-                        <tr>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Remolque </th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="remolque gif-cell"></td>
-                            <th style="width: 150px;font-weight: bold;border: 1px solid #ddd;padding: 1px;">
-                                Usuario</th>
-                            <td style="border: 1px solid #ddd;padding: 1px;" class="usuario-salida gif-cell"></td>
-                        </tr>
-                    </thead>
-                </table>
+    <div class="offcanvas-body bg-light">
+        <!-- Vista de la información básica del manifiesto -->
+        <div class="table-card mb-2" id="manif-info"></div>
+        <!-- Vista de linea de tiempo del manifiesto -->
+        <div class="table-card mb-2">
+            <div class="table-card-header">
+                <div class="tc-title">
+                    <i class="bi bi-eye"></i>
+                    Seguimiento de Ruta
+                </div>
             </div>
-
-            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" style="margin-top:-15px;">
-                <table cellpadding="0" cellspacing="0" width="100%" border="0">
-                    <tbody>
-                        <tr>
-                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
-                                <b>Información de Remesas en Seguimiento</b>
-                            </td>
-                        </tr>
-                        <tr>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
-                    <thead>
-                        <tr>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Orden Carga</th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Remesa</th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Fecha Est. Entrega</th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Peso</th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Volumen</th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Empaque </th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Mercancia</th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Cliente</th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Remitente</th>
-                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Destinatario</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbl_informacion" style="font-size: 10px;border-bottom: 1px #ddd solid;border-right:1px #ddd solid;"></tbody>
-                </table>
+            <div class="card-body p-2">
+                algo
             </div>
-
-            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" id="plan_ruta_lista">
-                <table cellpadding="0" cellspacing="0" width="100%" border="0">
-                    <tbody>
-                        <tr>
-                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
-                                <b>Información el plan de ruta</b>
-                            </td>
-                        </tr>
-                        <tr>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="table table-hover table-sm" style="font-size:12px;">
-                    <thead>
-                        <tr>
-                            <th class="text-start" style="width: auto; white-space: nowrap;">Punto</th>
-                            <th class="text-center" style="width: auto; white-space: nowrap;">Fecha/Hora Control</th>
-                            <th class="text-center" style="width: auto; white-space: nowrap;">Novedad</th>
-                            <th class="text-center" style="width: auto; white-space: nowrap;">Municipio</th>
-                            <th class="text-center" style="width: auto; white-space: nowrap;">Usuario</th>
-                        </tr>
-                    </thead>
-                    <tbody id="panel_control_plan_ruta" class="table-bordered"></tbody>
-                </table>
-            </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div id="contenido-controlador"></div>
-            </div>
-
-            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" id="notas_controlador">
-                <table cellpadding="0" cellspacing="0" width="100%" border="0">
-                    <tbody>
-                        <tr>
-                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
-                                <b>Información de Notas del Controlador</b>
-                            </td>
-                        </tr>
-                        <tr>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="hcontenedor">
-                    <!-- <div class="table-responsive"> </div> -->
-                    <table class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size:12px;">
-                        <thead>
-                            <tr>
-                                <th class="text-center">Lugar</th>
-                                <th class="text-center">Hora/Fecha Control</th>
-                                <th class="text-center">Novedad</th>
-                                <th class="text-center" style="width: 550px;">Observación</th>
-                                <th class="text-center">Usuario</th>
-                            </tr>
-                        </thead>
-                        <tbody id="seguimiento_real"></tbody>
-                    </table>
+        </div>
+        <!-- Persianas de Informacion del Manifiesto -->
+        <div class="table-card mb-2">
+            <div class="card-body p-2">
+                <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje active" id="demo-tab" data-bs-toggle="tab" href="#demo-tab-content" ref="demo-tab-content" role="tab" aria-controls="demo-tab-content" aria-selected="true">Demo</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje" id="seg-contr-tab" data-bs-toggle="tab" href="#seg-contr-content" ref="seg-contr-content" role="tab" aria-controls="seg-contr-content" aria-selected="true">Seguimientos Controladores</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje" id="seg-gps-tab" data-bs-toggle="tab" href="#seg-gps-content" ref="seg-gps-content" role="tab" aria-controls="seg-gps-content" aria-selected="true">Seguimientos GPS</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje" id="profile-tab" data-bs-toggle="tab" href="#tab-profile" ref="tab-profile" role="tab" aria-controls="tab-profile" aria-selected="false" tabindex="-1">Profile</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje" id="contact-tab" data-bs-toggle="tab" href="#tab-contact" ref="tab-contact" role="tab" aria-controls="tab-contact" aria-selected="false" tabindex="-1">Contact</a></li>
+                </ul>
+                <div class="tab-content mt-3" id="myTabContent">
+                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje active show" id="demo-tab-content" role="tabpanel" aria-labelledby="demo-tab">
+                        <p>Panel de demostracion de funcionaminto.</p>
+                    </div>
+                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje" id="seg-contr-content" role="tabpanel" aria-labelledby="seg-contr-tab">
+                        <div class="table-wrap">
+                            <table class="table data-table m-0" id="table_seg_contoladores" style="font-size: 0.7em;">
+                                <thead>
+                                    <tr>
+                                        <th>Lugar</th>
+                                        <th>Hora/Fecha Control</th>
+                                        <th>Novedad</th>
+                                        <th>Observación</th>
+                                        <th>Usuario</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data_seg_controladores"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje" id="seg-gps-content" role="tabpanel" aria-labelledby="seg-gps-tab">
+                        <div class="table-wrap">
+                            <table class="table data-table m-0" id="table_seg_gps" style="font-size: 0.7em;">
+                                <thead>
+                                    <tr>
+                                        <th>Estado Vehículo</th>
+                                        <th>Placa</th>
+                                        <th>Evento</th>
+                                        <th>Velocidad</th>
+                                        <th>Tiempo Detenido</th>
+                                        <th>Estado Localización</th>
+                                        <th>Fecha Evento</th>
+                                        <th>Fecha Registro</th>
+                                        <th class="col-2">Dirección</th>
+                                        <th>Ciudad</th>
+                                        <th>Departamento</th>
+                                        <th>Odómetro</th>
+                                        <th>Sentido</th>
+                                        <th>Estado Seguimiento</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data_seg_gps"></tbody>
+                            </table>
+                            <pre id="pre-data"></pre>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje" id="tab-profile" role="tabpanel" aria-labelledby="profile-tab">
+                        Contenedor 3
+                    </div>
+                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje" id="tab-contact" role="tabpanel" aria-labelledby="contact-tab">
+                        Contenedor 4
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Left Offcanvas-->
+<!-- Js Scripts-->
 <script src="<?= BASE_URL ?>views/control_ruta/js/seguimiento.js" type="text/javascript"></script>
+<script
+    async
+    defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMAVgMHRVN1R3ApTuJQzAMUoQi9sNpZIE&callback=initMap">
+</script>
 
 <div id="loading-overlay-nexosapp" class="loading-nexosapp">
     <div style="text-align: center;">
