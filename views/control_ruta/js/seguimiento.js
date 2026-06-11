@@ -3,15 +3,117 @@ var baseUrl = document.getElementById("base_url_api").value;
 var apiKey = document.getElementById("api_key_nexos").value;
 
 document.addEventListener('DOMContentLoaded', async e => {
-    // Se ejecuta la funcion inicial de la vista 
-    init();
-    setInterval(init, 300000);
 
-    $('#buscar').click(function () {
-        init();
+    let codigo_inicio = '';
+    //datos de los filtros
+    // Datos();
+
+    // new DataTable('#tbl_Manifiestos_seguimiento');
+    Tabla_SinFiltro();
+    setInterval(Tabla_SinFiltro, 300000);
+
+    $('#Busqueda_Datos').click(function () {
+        var num = $('#fnum_manifiesto').val();
+        var tipomnf = $('#ftipo_manifiesto').val();
+        var ffecha = $('#ffecha').val();
+        var agenci = $('#fagencia').val();
+        var orign = $('#forigen').val();
+        var desti = $('#fdestino').val();
+        var fcliente = $('#fcliente').val();
+        var fechaultima = $('#fultimanove').val();
+        var fconductor = $('#fconductor').val();
+        if (num != '' || tipomnf != '' || ffecha != '' || agenci != '' || orign != '' || desti != '' || fcliente != '' || fechaultima != '' || fconductor != '') {
+            Busqueda_Datos();
+        }
     });
 
+    document.addEventListener('click', async e => {
+        const BtnGestion = e.target.closest('.btn-gestion-manifiesto');
+        if (BtnGestion) {
+            let ManifiestoId = BtnGestion.getAttribute('data-Manifiestoid');
+            Tarjeta_Seguimiento(ManifiestoId);
+            Informacion(ManifiestoId);
+        }
+    });
 
+    // JavaScript
+    // document.getElementById('exportar_excel').addEventListener('click', function () {
+    //     var table = document.getElementById('tbl_Manifiestos_seguimiento');
+    //     if (table) {
+    //         // Clonar la tabla
+    //         var clonedTable = table.cloneNode(true);
+
+    //         // Indicar qué columnas omitir (por ejemplo, 1 y 3)
+    //         var columnsToOmit = [12]; // Índices base 0
+
+    //         // Eliminar las columnas no deseadas en el encabezado
+    //         var ths = clonedTable.querySelectorAll('thead th');
+    //         columnsToOmit.slice().reverse().forEach(index => {
+    //             ths[index].remove();
+    //         });
+
+    //         // Eliminar las columnas no deseadas en las filas del cuerpo
+    //         var rows = clonedTable.querySelectorAll('tbody tr');
+    //         rows.forEach(row => {
+    //             var cells = row.querySelectorAll('td');
+    //             columnsToOmit.slice().reverse().forEach(index => {
+    //                 cells[index].remove();
+    //             });
+    //         });
+
+    //         // Convertir la tabla modificada a libro de Excel
+    //         var wb = XLSX.utils.table_to_book(clonedTable);
+    //         const fechaActual = new Date().toISOString().slice(0, 10);
+    //         const nombreArchivo = `Informe de Manifiesto en Seguimiento_${fechaActual}.xlsx`;
+    //         XLSX.writeFile(wb, nombreArchivo);
+    //     } else {
+    //         console.error("El elemento con el ID 'ordenes_decargue' no existe.");
+    //     }
+    // });
+
+
+    $('#btn_finalizar').click(async function () {
+        let dato = new FormData();
+        dato.append('maniesto', $('#maniesto').val());
+        dato.append('cod_inicio', $('#cod_inicio').val());
+        dato.append('cod_punto', $('#cod_punto').val());
+        try {
+            const response = await fetch($('#base_url').val() + 'control_ruta/finalziar_Seguimiento', {
+                method: 'POST',
+                body: dato,
+                cache: 'no-cache',
+            });
+            const data = await response.json();
+            if (data.numero == 200) {
+                let mensaje = `
+      <div class="alert alert-success alert-icon alert-icon-border alert-dismissible" role = "alert">
+          <div class="icon"><span class="mdi mdi-check"></span></div>
+          <div class="message">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+            <strong>Mensaje!</strong> ${data.mensaje}
+          </div>
+      </div> `;
+                document.getElementById('mensaje').innerHTML = mensaje;
+                $('#d-footer-primary').modal('toggle');
+                Tabla_llegada();
+            } else {
+                let mensaje = `
+      <div class="alert alert-danger alert-icon alert-icon-border alert-dismissible" role = "alert">
+          <div class="icon"><i class="fas fa-times"></i></div>
+          <div class="message">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close"><span class="mdi mdi-close" aria-hidden="true"></span></button>
+            <strong>Mensaje!</strong> Error al finalziar el Manifiesto.
+          </div>
+      </div> `;
+                document.getElementById('mensaje').innerHTML = mensaje;
+            }
+        } catch (error) {
+            console.error('Error en la segunda solicitud:', error);
+            throw error;
+        } finally {
+            $('#loading-overlay-oet ').css('display', 'none'); // Ocultar mensaje de carga independientemente del resultado
+        }
+    });
 
 });
 
@@ -600,21 +702,21 @@ function Consulta_Seguimiento_Actual(codini) {
 
                     tblBody = `
 						<tr>
-							<td class="p-1">
+							<td style="padding:5px;">
                 <span class="cell-detail-description" style='color:${color}'>
                   ${punto}
                 </span>
               </td>
-							<td class="p-1">
+							<td style="padding:5px;">
 								<span class="cell-detail-description" style='color:${color}'>${element.fecha} - ${element.hora}</span>
 							</td>
-							<td class="p-1">
+							<td style="padding:5px;">
 								<span class="cell-detail-description" style='color:${color}'>${element.novedad}</span>
 							</td>
-							<td class="p-1">
+							<td style="padding:5px;">
 								<span class="cell-detail-description" style='color:${color}'> ${element.observacion}</span>
 							</td>
-							<td class="p-1">
+							<td style="padding:5px;">
 								<span class="cell-detail-description" style='color:${color}'>${element.usuario}</span>
 							</td>
 						</tr>`;
