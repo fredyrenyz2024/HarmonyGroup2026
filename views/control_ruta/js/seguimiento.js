@@ -119,20 +119,28 @@ document.addEventListener('DOMContentLoaded', async e => {
 
 // Inicializador de mapas de la vista 
 function initMap() {
+    console.log(`Creando los mapas de la vista`);
+    if (!window.google || !google.maps) {
+        console.error('Google Maps API no cargada');
+        return;
+    }
+
     let centro = {
         lat: 4.60971,
         lng: -74.08175
     };
 
     // Mapa para mostrar los seguimientos Gps
-    mapSegGps = new google.maps.Map(
-        document.getElementById('segGpsMap'),
-        {
-            zoom: 12,
-            center: centro,
-            mapTypeId: 'roadmap'
-        }
-    );
+    if (!mapSegGps) {
+        mapSegGps = new google.maps.Map(
+            document.getElementById('segGpsMap'),
+            {
+                zoom: 12,
+                center: centro,
+                mapTypeId: 'roadmap'
+            }
+        );
+    }
 }
 
 // async function Tabla_SinFiltro() {
@@ -250,7 +258,6 @@ function getTipoManifiesto(tipo) {
 function getPlanInfo(codigo) {
     return codigo ? { plan: 'SI', color: 'success' } : { plan: 'NO', color: 'danger' };
 }
-
 
 function Registra_Seguimiento(manifiesto) {
     url = $('#base_url').val() + 'control_ruta/redireccionar/?idmenu=5&m=' + manifiesto;
@@ -1882,9 +1889,12 @@ async function traer_punto(codini, boton) {
 
 /****** Funciones para el offCanvan de seguimeintos de GPS */
 let mapSegGps;
-let markersSegGps = [];
+// let markersSegGps = [];
+let markersSegGps = {};
 
 async function Buscar_Seguimientos_Gps(manifiesto_id){
+    console.log("Entro en Buscar_Seguimientos_Gps");
+    
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
 
@@ -1895,6 +1905,7 @@ async function Buscar_Seguimientos_Gps(manifiesto_id){
 
     try {
         mostrarLoading();
+        await initMap();
         limpiarDatosCanvaGps();
         const params = new URLSearchParams({ manifiesto_id });
         const response = await fetch(
@@ -1976,20 +1987,21 @@ function limpiarDatosCanvaGps() {
     // Se elimina el contenido de la tabla
     $('#data_seg_gps').empty();
 
-    // Se eliminan los markers del mapa
-    markersSegGps.forEach(marker => {
-        marker.setMap(null);
-    });
-    markersSegGps = [];
+    // // Se eliminan los markers del mapa
+    // markersSegGps.forEach(marker => {
+    //     marker.setMap(null);
+    // });
+    markersSegGps = {};
 }
 
 function getMapaSeguimientosGps(seguim) {
     console.log("Entro en getMapaSeguimientosGps", seguim);
+    initMap();
     if (seguim.length > 0) {
         const bounds = new google.maps.LatLngBounds();
         const infoWindow = new google.maps.InfoWindow();
     
-        seguim.forEach(punto => {
+        seguim.forEach((punto, index) => {
             const posicion = {
                 lat: parseFloat(punto.lat),
                 lng: parseFloat(punto.lng)
@@ -2001,7 +2013,8 @@ function getMapaSeguimientosGps(seguim) {
                 title: punto.placa
             });
 
-            markersSegGps.push(marker);
+            // markersSegGps.push(marker);
+            markersSegGps[index] = marker;
 
             // Informacion de la ventana emergente de informacion del marker 
             const velocidad = parseFloat(punto.velocidad);
