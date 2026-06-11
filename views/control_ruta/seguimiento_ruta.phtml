@@ -1566,99 +1566,107 @@
 <input type="hidden" id="api_key_nexos" value="<?= API_KEY_NEXOS ?>">
 <input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
 
-<div class="mb-9 p-3 pt-0" data-bs-target="#widgets-scrollspy">
-    <div class="card border border-body-secondary">
-        <div class="card-header p-1 bg-body-secondary d-flex justify-content-between align-items-center">
-            <h6 class="card-title m-0 pl-3">
-                Seguimiento de Ruta
-            </h6>
-            <div id="contenedor-campo-16" class="d-flex flex-nowrap gap-2"></div>
-        </div>
-        <div class="card-body p-1 overflow-auto" style="max-height:90vh;">
-            <div class="row m-2">
-                <div class="col-md-12">
-                    <div class="page-header" style="flex-direction:column;align-items:stretch;gap:16px;padding-bottom:18px;">
-                        <!-- Título + Exportar -->
-                        <div class="d-flex align-items-center justify-content-between" style="z-index:1;">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="ph-icon"><i class="bi bi-truck"></i></div>
-                                <div>
-                                    <div class="ph-title">Viajes</div>
-                                    <div class="ph-sub">Listado de viajes activos</div>
-                                </div>
-                            </div>
-                            <!-- Filtros integrados en el header -->
-                            <div class="d-flex align-items-end gap-3">
-                                <input type="text" id="filtro" class="f-control ph-input" placeholder="Buscar...">
-                                <div class="d-flex gap-2">
-                                    <button class="btn-search" id="buscar" type="button" style="flex:1;">
-                                        <i class="bi bi-search"></i> Consultar
-                                    </button>
-                                </div>
-                            </div>
+<div class="card-body overflow-auto" style="max-height:100vh;padding-top: 34px;">
+    <div class="nexos-content">
+        <div class="row">
+            <table cellpadding="0" cellspacing="0" style="color:#fff;font-weight: 300; width: 100%;" class="fixed">
+                <tbody>
+                    <tr>
+                        <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
+                            Se encontraron total de <span class="badge badge-phoenix badge-phoenix-secondary " id="num_vehiculos_totales"></span> vehiculos en despacho
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="progress fixed" style="height: 20px; font-size: 0.85rem;width: 100%;">
+                <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FFFF6C; color:#000;">
+                    Amarillo: 30 Min
+                </div>
+                <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FF9E5E; color:#000;">
+                    Naranja: 60 Min
+                </div>
+                <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#FF8891; color:#000;">
+                    Rojo: 90 Min
+                </div>
+                <div class="progress-bar d-flex justify-content-center align-items-center" style="width:25%; background:#DDBBFF; color:#000;">
+                    Violeta: 120 Min
+                </div>
+            </div>
 
-                            <!-- <a href="javascript:void(0);" id="exportar_excel" class="btn-excel">
-                                <i class="bi bi-file-earmark-excel"></i> Exportar Excel
-                            </a> -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row m-2">
-                <div class="col-md-12 col-sm-12 mb-3">
-                    <div class="table-card">
-                        <div class="table-card-header">
-                            <div class="tc-title">
-                                <i class="bi bi-map"></i>
-                                Últimos seguimientos
-                            </div>
-                        </div>
-                        <div class="card-body p-0" style="height: 30vh;">
-                            <div id="segMap" style="width:100%; height:100%;"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12 col-sm-12 mb-3">
-                    <div class="table-card">
-                        <div class="table-card-header">
-                            <div class="tc-title">
-                                <i class="bi bi-truck"></i>
-                                Viajes Activos
-                                <span id="badge-total-tabla" class="badge-st bs-blue" style="font-size:.7rem;"></span>
-                            </div>
-                            <div class="tc-actions">
-                                <div class="d-flex align-items-center gap-2" style="font-size: 0.75rem;">
-                                    <label>Seguimientos: </label>
-                                    <span class="badge text-dark estado-blanco mr-2"> 30 <small>(minutos)</small></span>
-                                    <span class="badge text-dark estado-amarillo mr-2"> 30-59 <small>(minutos)</small></span>
-                                    <span class="badge text-dark estado-naranja mr-2"> 60-89 <small>(minutos)</small></span>
-                                    <span class="badge text-dark estado-rojo-claro mr-2"> 90-119 <small>(minutos)</small></span>
-                                    <span class="badge text-dark estado-lila mr-2"> >=120 <small>(minutos)</small></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-wrap vh-100">
-                            <table class="table data-table m-0" id="table_viajes_activos">
-                                <thead>
-                                    <tr>
-                                        <th>Manifiesto</th>
-                                        <th>Tiempo</th>
-                                        <th>Ruta</th>
-                                        <th>Vehículo</th>
-                                        <th>Conductor</th>
-                                        <th>Celular</th>
-                                        <th>Cliente</th>
-                                        <th>Sitio</th>
-                                        <th>Fecha Hora</th>
-                                        <th>Usuario</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="data_viajes_activos"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;color:#fff;font-weight: 300;padding: 1px 1px 1px;" class="fixed">
+                <tbody>
+                    <tr>
+                        <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
+                            Se encontraron total de <span class="badge badge-phoenix badge-phoenix-secondary " id="num_vehiculos_seguimiento"></span> vehiculos en seguimiento
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <table id="tbl_Manifiestos_seguimiento" class="table table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="font-size: 11px;border-top: #FFFFFF 1px solid;">
+            <thead style="background-color:#332D2D;">
+                <tr>
+                    <th style="color: white;">Manifiesto</th>
+                    <th style="color: white;">Tiempo</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Ruta</th>
+                    <th style="color: white;">Vehículo</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Conductor</th>
+                    <th style="color: white;">Celular</th>
+                    <th style="color: white;width: auto; white-space: nowrap;">Cliente</th>
+                    <th style="color: white;">Sitio</th>
+                    <th style="color: white;">Fecha Hora</th>
+                    <!-- <th style="color: white; white-space: nowrap;">Observación</th> -->
+                    <th style="color: white; white-space: nowrap;">Usuario</th>
+                </tr>
+            </thead>
+            <tbody id="tablero"></tbody>
+        </table>
+        <!-- Tabla de llegada -->
+        <table cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#fff;font-weight: 300;">
+            <tbody>
+                <tr>
+                    <td class="celda_titulo2 text-left bg-gradient bg-secondary" style="padding-left: 25px;">
+                        Se encontraron <span class="badge badge-phoenix badge-phoenix-secondary" id="num_manifiestos_llegada"></span> Manifiestos sin darle llegada
+                    </td>
+                </tr>
+                <tr>
+                </tr>
+            </tbody>
+        </table>
+        <div class="row">
+            <!-- <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse: collapse;font-size: 8px;">
+                <thead>
+                    <tr>
+                        <td class="text-end" style="border: 1px solid #ddd;padding: 1px 1px 1px;width: auto; white-space: nowrap;" colspan="4">
+                            <a href="JavaScript:void(0);" id="exportar_excel" style="text-decoration: none;cursor: pointer;color: #332D2D;"><img src="http://principal.nexosapp.com/public/img/excel_2013.png" alt="Excel" width="15px"> <span style="font-size: 11px;"> Exportar a excel</span></a>
+                        </td>
+                    </tr>
+                </thead>
+            </table> -->
+            <table class="table" cellpadding="0" cellspacing="0" border="0" style="width: 100%;font-size: 11px;border-bottom: 1px solid #332D2D;height: 5px;padding-left: 25px;" id="informe_placas_asignadas">
+                <thead style="border-collapse: collapse;background-color: #FBFBFB;color:#332D2D;">
+                    <tr>
+                        <th style="text-align: center; width: auto; white-space: nowrap;padding-left: 25px;">Manifiesto</th>
+                        <th style="width: auto; white-space: nowrap;">Tipo Manifiesto</th>
+                        <th style="width: auto; white-space: nowrap;">Agencia</th>
+                        <th style="width: auto; white-space: nowrap;">Origen</th>
+                        <th style="width: auto; white-space: nowrap;">Destino</th>
+                        <th style="width: auto; white-space: nowrap;">Mercancias</th>
+                        <th style="width: auto; white-space: nowrap;">Dta</th>
+                        <th style="width: auto; white-space: nowrap;">Vehículo</th>
+                        <th style="width: auto; white-space: nowrap;">Conductor</th>
+                        <th style="width: auto; white-space: nowrap;">Celular</th>
+                        <th style="width: auto; white-space: nowrap;">Cliente</th>
+                        <th style=" white-space: nowrap;">Novedad</th>
+                        <th style=" white-space: nowrap;">Fecha Hora</th>
+                        <th style=" white-space: nowrap;">Sitio</th>
+                        <th style=" white-space: nowrap;">Observación</th>
+                        <th style=" white-space: nowrap;">Usuario</th>
+                    </tr>
+                </thead>
+                <tbody id="tablero_llegada" style="font-size: 7pt;"></tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -1666,9 +1674,65 @@
 <!-- ═══════════════════════════════════════════════════
      OFFCANVAS — Detalle de Viaje / Trazabilidad
 ═══════════════════════════════════════════════════ -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasViaje" aria-labelledby="offcanvasViajeLabel" data-bs-scroll="true" data-bs-backdrop="true" style="width: min(70vw, 100%);">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSegGps" aria-labelledby="offcanvasSegGpsLabel" data-bs-scroll="true" data-bs-backdrop="true" style="width: min(80vw, 100%);">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasViajeLabel">Titulo %Detalles manifiesto # xxxxxx%</h5>
+        <h5 class="offcanvas-title" id="offcanvasSegGpsLabel"></h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body bg-light">
+        <!-- Vista de seguimientos de GPS del manifiesto -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <div class="tc-title">
+                    <i class="bi bi-eye"></i>
+                    Seguimientos GPS
+                </div>
+            </div>
+            <div class="card-body vh-100 p-2">
+                <div class="row">
+                    <div class="col-lg-7 col-md-12 col-sm-12">
+                        <div class="table-wrap">
+                            <table class="table data-table m-0" id="table_seg_gps" style="font-size: 0.6em;">
+                                <thead>
+                                    <tr>
+                                        <th>Placa</th>
+                                        <th>Fecha Evento</th>
+                                        <th>Fecha Registro</th>
+                                        <th>Departamento</th>
+                                        <th>Ciudad</th>
+                                        <th class="col-2">Dirección</th>
+                                        <th>Velocidad</th>
+                                        <th>Evento</th>
+                                        <th>Temperatura</th>
+                                        <th>Tiempo Detenido</th>
+                                        <th>Sentido</th>
+                                        <th>Estado Vehículo</th>
+                                        <th>Latitud</th>
+                                        <th>Longitud</th>
+                                        <th>Estado Localización</th>
+                                        <th>Odómetro</th>
+                                        <th>Estado Seguimiento</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data_seg_gps"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-md-12 col-sm-12" style="height: 90vh;">
+                        <div id="segGpsMap" style="width:100%; height:100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Offcanvas de seguimiento -->
+<!-- <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Right Offcanvas</button> -->
+<div class="offcanvas offcanvas-end w-100" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+        <h5 id="offcanvasRightLabel">Seguimiento Ruta</h5>
         <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body bg-light">
@@ -1682,72 +1746,92 @@
                     Seguimiento de Ruta
                 </div>
             </div>
-            <div class="card-body p-2">
-                algo
+
+            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" style="margin-top:-15px;">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
+                                <b>Información de Remesas en Seguimiento</b>
+                            </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                    </tbody>
+                </table>
+                <table cellpadding="0" cellspacing="0" class="text-center w-100 border" style="font-size:10px;">
+                    <thead>
+                        <tr>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Orden Carga</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Remesa</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Fecha Est. Entrega</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Peso</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Volumen</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Empaque </th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Mercancia</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Cliente</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Remitente</th>
+                            <th style="width: auto; white-space: nowrap;border-right:1px #ddd solid;">Destinatario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl_informacion" style="font-size: 10px;border-bottom: 1px #ddd solid;border-right:1px #ddd solid;"></tbody>
+                </table>
             </div>
-        </div>
-        <!-- Persianas de Informacion del Manifiesto -->
-        <div class="table-card mb-2">
-            <div class="card-body p-2">
-                <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje active" id="demo-tab" data-bs-toggle="tab" href="#demo-tab-content" ref="demo-tab-content" role="tab" aria-controls="demo-tab-content" aria-selected="true">Demo</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje" id="seg-contr-tab" data-bs-toggle="tab" href="#seg-contr-content" ref="seg-contr-content" role="tab" aria-controls="seg-contr-content" aria-selected="true">Seguimientos Controladores</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje" id="seg-gps-tab" data-bs-toggle="tab" href="#seg-gps-content" ref="seg-gps-content" role="tab" aria-controls="seg-gps-content" aria-selected="true">Seguimientos GPS</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje" id="profile-tab" data-bs-toggle="tab" href="#tab-profile" ref="tab-profile" role="tab" aria-controls="tab-profile" aria-selected="false" tabindex="-1">Profile</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link tab-viaje" id="contact-tab" data-bs-toggle="tab" href="#tab-contact" ref="tab-contact" role="tab" aria-controls="tab-contact" aria-selected="false" tabindex="-1">Contact</a></li>
-                </ul>
-                <div class="tab-content mt-3" id="myTabContent">
-                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje active show" id="demo-tab-content" role="tabpanel" aria-labelledby="demo-tab">
-                        <p>Panel de demostracion de funcionaminto.</p>
-                    </div>
-                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje" id="seg-contr-content" role="tabpanel" aria-labelledby="seg-contr-tab">
-                        <div class="table-wrap">
-                            <table class="table data-table m-0" id="table_seg_contoladores" style="font-size: 0.7em;">
-                                <thead>
-                                    <tr>
-                                        <th>Lugar</th>
-                                        <th>Hora/Fecha Control</th>
-                                        <th>Novedad</th>
-                                        <th>Observación</th>
-                                        <th>Usuario</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="data_seg_controladores"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje" id="seg-gps-content" role="tabpanel" aria-labelledby="seg-gps-tab">
-                        <div class="table-wrap">
-                            <table class="table data-table m-0" id="table_seg_gps" style="font-size: 0.7em;">
-                                <thead>
-                                    <tr>
-                                        <th>Estado Vehículo</th>
-                                        <th>Placa</th>
-                                        <th>Evento</th>
-                                        <th>Velocidad</th>
-                                        <th>Tiempo Detenido</th>
-                                        <th>Estado Localización</th>
-                                        <th>Fecha Evento</th>
-                                        <th>Fecha Registro</th>
-                                        <th class="col-2">Dirección</th>
-                                        <th>Ciudad</th>
-                                        <th>Departamento</th>
-                                        <th>Odómetro</th>
-                                        <th>Sentido</th>
-                                        <th>Estado Seguimiento</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="data_seg_gps"></tbody>
-                            </table>
-                            <pre id="pre-data"></pre>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje" id="tab-profile" role="tabpanel" aria-labelledby="profile-tab">
-                        Contenedor 3
-                    </div>
-                    <div class="tab-pane fade vh-100 overflow-auto tab-content-viaje" id="tab-contact" role="tabpanel" aria-labelledby="contact-tab">
-                        Contenedor 4
-                    </div>
+
+            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" id="plan_ruta_lista">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
+                                <b>Información el plan de ruta</b>
+                            </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                    </tbody>
+                </table>
+                <table cellpadding="0" cellspacing="0" class="table-hover table-sm" style="width:100%; font-size:10px;">
+                    <thead>
+                        <tr>
+                            <th class="text-start" style="width: auto; white-space: nowrap;">Punto</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap;">Fecha/Hora Control</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap;">Novedad</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap;">Municipio</th>
+                            <th class="text-center" style="width: auto; white-space: nowrap;">Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="panel_control_plan_ruta" class="table-bordered"></tbody>
+                </table>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div id="contenido-controlador"></div>
+            </div>
+
+            <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12" id="notas_controlador">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="celda_titulo2 bg-gradient bg-secondary text-white" style="margin:25px;">
+                                <b>Información de Notas del Controlador</b>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="hcontenedor">
+                    <!-- <div class="table-responsive"> </div> -->
+                    <table cellpadding="0" cellspacing="0" class="table-hover table-striped table-bordered table-sm align-middle mb-0 text-center" style="width: 100%;font-size:10px;">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Lugar</th>
+                                <th class="text-center">Hora/Fecha Control</th>
+                                <th class="text-center">Novedad</th>
+                                <th class="text-center" style="width: 550px;">Observación</th>
+                                <th class="text-center">Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody id="seguimiento_real"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -1756,10 +1840,7 @@
 
 <!-- Js Scripts-->
 <script src="<?= BASE_URL ?>views/control_ruta/js/seguimiento.js" type="text/javascript"></script>
-<script
-    async
-    defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMAVgMHRVN1R3ApTuJQzAMUoQi9sNpZIE&callback=initMap">
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMAVgMHRVN1R3ApTuJQzAMUoQi9sNpZIE&libraries=marker&callback=initMap">
 </script>
 
 <div id="loading-overlay-nexosapp" class="loading-nexosapp">

@@ -1,4 +1,3 @@
-// Se definen los parametros globales
 var solicitud_servicio = new Array();
 var baseUrl = document.getElementById("base_url_api").value;
 var apiKey = document.getElementById("api_key_nexos").value;
@@ -16,186 +15,16 @@ document.addEventListener('DOMContentLoaded', async e => {
 
 });
 
-async function init() {
-    try {
-        mostrarLoading();
-        const controller = new AbortController();
-        const filter = $('#filtro').val();
-        const cant_registros = document.getElementById('badge-total-tabla');
-        cant_registros.textContent = 'Cargando...';
-
-        const timeout = setTimeout(() => {
-            controller.abort();
-        }, 30000);
-
-        if ($.fn.DataTable.isDataTable('#table_viajes_activos')) {
-            $('#table_viajes_activos').DataTable().destroy();
-        }
-
-        try {
-            /**** 
-             * consulta de manifiestos en viaje activo a la base de datos de nexosapp a través de la API, se envía el filtro seleccionado por el usuario
-             */
-            const params = new URLSearchParams({
-                filter: filter,
-            });
-            const response = await fetch(
-                `${baseUrl}trafico/seguimientos-viajes?${params}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-API-KEY': apiKey
-                    },
-                    signal: controller.signal
-                }
-            );
-            clearTimeout(timeout);
-    
-            if (!response.ok) {
-                throw new Error(
-                    `Error HTTP ${response.status}`
-                );
-            }
-
-            // Si no hay errores, se procesa la respuesta
-            const data = await response.json();
-            cant_registros.textContent = data.data.viajes.total + ' registros';
-            let template = ``;
-            let solicitudes = [];
-
-            // preguntar si existe la variable data.data.viajes.table
-            if (data?.data?.viajes?.table) {
-                const info = data.data.viajes.table;
-                info.forEach((item, i) => {
-                    const c = i + 1;
-                    let colorSemaforo = colorTiempo(item.tiempo);
-                    template += `
-                        <tr class="text-center" id="tiempos${c}">
-                            <td class="${colorSemaforo}" id="semaforo${c}">
-                                <!--<a href="#" class='text-decoration-none btn-gestion-manifiesto' data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" data-ManifiestoId='${item.id}'>${item.id}</a>-->
-                                <a href="#" onClick="|(${item.id})">
-                                    <span class="badge bg-light text-dark text-md">${item.id}</span>
-                                </a>
-
-                                <a class="badge text-bg-info text-decoration-none" href="#" id="btn_detalle_trazabilidad_viajes" data-bs-toggle="offcanvas"
-                                    data-bs-target="#offcanvasViaje" onClick="getDatosManifiesto('${item.id}','${item.cod_ini_ruta}','${item.cod_plan}')" style="font-family:'Space Grotesk',sans-serif;font-weight:600">
-                                    <span class="uil uil-eye"></span> ${item.id}
-                                </a>
-
-                            </td>
-                            <td id="tiempo${c}"></td>
-                            <td>${item.origen} - ${item.destino}</td>
-                            <td>${item.placa}</td>
-                            <td>${item.nombre_conductor} ${item.apellido1} ${item.apellido2}</td>
-                            <td>${item.celular}</td>
-                            <td>${item.nombre_cliente}</td>
-                            <td id="ultimositio${c}"></td>
-                            <td id="maxhorafecha${c}"></td>
-                            <td id="ultimaousuario${c}"></td>
-                        </tr>`;
-
-                    if (item.cod_ini_ruta) {
-                        solicitudes.push({ codini: item.cod_ini_ruta, id: c });
-                    }
-                });
-            } else {
-                console.error('No se encntró datos de viajes en la respuesta.');
-                template += `
-                    <tr id="tiempos_vacio">
-                        <td colspan="11" class="text-center text-danger">
-                            <div class="badge badge-phoenix align-items-center badge-phoenix-warning">No se encontraron datos de viajes.</div>
-                        </td>
-                    </tr>
-                `;
-            }
-
-            $('#data_viajes_activos').html(template);
-            $('#table_viajes_activos').DataTable({
-                dom: '<"row justify-content-center bg-body mb-0 p-3 pb-0"<"col-md-4 d-flex justify-content-center"f><"col-md-4 d-flex justify-content-center"i><"col-md-4 d-flex justify-content-center"l><"col-md-12 d-flex justify-content-center"p>>rt',
-                responsive: true,
-                scrollCollapse: true,
-                paging: true,
-                pageLength: 25,
-                pagingType: "simple_numbers",
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json'
-                }
-            });
-
-            /****
-             * Consulta a la base de datos de nexosapp para obtener el los ultimos seguimientos de GPS de cada manifiesto, 
-             * esta consulta se hace de forma individual por cada manifiesto que se obtuvo en la consulta anterior
-             * 
-             */
-            // Si hay manifiestos activos, se hace la consulta de los seguimientos de GPS para cada manifiesto, si no hay manifiestos activos, se omite esta parte
-            const ar_viajes = data?.data?.viajes || null;
-            if (ar_viajes && ar_viajes.total > 0) {
-                // Se busca los id de cada manifiesto para hacer la consulta de los seguimientos de GPS
-                const manifiestos_id = ar_viajes.table.map(solicitud => solicitud.id);
-                const params1 = new URLSearchParams({
-                    manifiestos_id,
-                });
-
-                const response1 = await fetch(
-                    `${baseUrl}trafico/seguimientos-gps-manif?${params1}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-API-KEY': apiKey
-                        },
-                        signal: controller.signal
-                    }
-                );
-                const data1 = await response1.json();
-            }
-            ocultarLoading();
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                console.error(
-                    'La petición superó el tiempo límite'
-                );
-            } else {
-                console.error(
-                    'Error de comunicación:',
-                    error
-                );
-            }
-            ocultarLoading();
-            return null;
-        }
-    } catch (error) {
-        ocultarLoading();
-        console.error('Error en la solicitud:', error);
-    }
-}
-
-function colorTiempo(tiempo) {
-    if (tiempo < 0) {
-        return 'estado-blanco';
-    } else if (tiempo >= 0 && tiempo <= 30) {
-        return 'estado-amarillo';
-    } else if (tiempo >= 31 && tiempo <= 59) {
-        return 'estado-naranja';
-    } else if (tiempo >= 60 && tiempo <= 89) {
-        return 'estado-rojo-claro';
-    } else if (tiempo >= 90) {
-        return 'estado-lila';
-    } else {
-        return '';
-    }
-}
-
+// Inicializador de mapas de la vista 
 function initMap() {
-    const divMapa = document.getElementById('segMap');
-    const centro = {
+    let centro = {
         lat: 4.60971,
         lng: -74.08175
     };
 
-    const map = new google.maps.Map(
-        document.getElementById('segMap'),
+    // Mapa para mostrar los seguimientos Gps
+    mapSegGps = new google.maps.Map(
+        document.getElementById('segGpsMap'),
         {
             zoom: 12,
             center: centro,
@@ -203,448 +32,6 @@ function initMap() {
         }
     );
 }
-
-/***
- * 
- * Funciones para abrir el offcanvas de detalles del viaje
- * 
-*/
-async function getDatosManifiesto(manifiesto_id, cod_ruta, cod_plan) {
-    mostrarLoading();
-    console.log("Entro en funcion getDatosManifiesto con ID:", manifiesto_id);
-    $('.tab-viaje').removeClass('active');
-    $('#demo-tab').addClass('active');
-    $('.tab-content-viaje').removeClass('active show');
-    $('#demo-tab-content').addClass('active show');
-    $("#offcanvasViajeLabel").html(`Detalles Manifiesto ${manifiesto_id}`)
-
-    try {
-        const resultados = await Promise.allSettled([
-            getInfoManifiesto(manifiesto_id),
-            getSeguimientoRuta(cod_ruta),
-            getSeguimientoGpsManif(manifiesto_id),
-            getPlanRutaSeguimiento(manifiesto_id, cod_ruta, cod_plan),
-
-            getOrdenesCargue(manifiesto_id),
-            verificarOrdenesCargue(manifiesto_id),
-        ]);
-
-        console.log('Todo terminó', resultados);
-    } catch (error) {
-        console.error('Error global:', error);
-    } finally {
-        ocultarLoading();
-    }
-}
-
-async function getInfoManifiesto(manifiesto_id){
-    const manif_info = $("#manif-info");
-    manif_info.empty();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-
-    try {
-        mostrarLoading(); // ✅ usar loader global (recomendado)
-        const params = new URLSearchParams({ manifiesto_id });
-        const response = await fetch(
-            `${baseUrl}trafico/manifiesto-info?${params}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-API-KEY': apiKey
-                },
-                signal: controller.signal
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        // codigo de logica de la respuesta 
-        const manif = data.data.manifiesto;
-        const content = `
-            <div class="table-card-header">
-                <div class="tc-title">
-                    <i class="bi bi-truck"></i>
-                    <small>Manifiesto: </small>${manif.num_manifiesto} 
-                    <small>Código: </small>${manif.cod_inicio} 
-                    <small>Ruta: </small>(${manif.cod_plan}) ${manif.nombre_plan}
-                </div>
-                <span class="badge badge-phoenix badge-phoenix-warning">${manif.estado}</span>
-            </div>
-            <div class="table-card-header">
-                <span class="badge badge-phoenix badge-phoenix-info mb-1">Origen: ${manif.origin}</span> 
-                <span class="badge badge-phoenix badge-phoenix-info">Destino: ${manif.destino}</span> 
-            </div>
-            <div class="card-body p-2">
-                <div class="row justify-content-center g-3">
-                    <!-- CONDUCTOR -->
-                    <div class="col-sm-6 col-md-5 col-lg-4">
-                        <div class="card border border-info h-100">
-                        <div class="card-body p-2">
-                            <h6 class="mb-2 text-info">Conductor</h6>
-                            <small><strong>Nombre:</strong> ${manif.nombre} ${manif.apellido1} ${manif.apellido2}</small><br>
-                            <small><strong>Documento:</strong> ${manif.cond_cedula}</small><br>
-                            <small><strong>Celular:</strong> ${manif.celular}</small>
-                        </div>
-                        </div>
-                    </div>
-
-                    <!-- VEHÍCULO -->
-                    <div class="col-sm-6 col-md-4 col-lg-3">
-                        <div class="card border border-warning h-100">
-                        <div class="card-body p-2">
-                            <h6 class="mb-2 text-warning">Vehículo</h6>
-                            <small><strong>Placa:</strong> ${manif.placa}</small><br>
-                            <small><strong>Marca:</strong> ${manif.marca}</small><br>
-                            <small><strong>Línea:</strong> ${manif.descripcion}</small><br>
-                            <small><strong>Color:</strong> ${manif.color}</small>
-                        </div>
-                        </div>
-                    </div>
-
-                    <!-- CONFIGURACIÓN -->
-                    <div class="col-sm-6 col-md-4 col-lg-3">
-                        <div class="card border border-danger h-100">
-                        <div class="card-body p-2">
-                            <h6 class="mb-2 text-danger">Configuración</h6>
-                            <small><strong>Carrocería:</strong> ${manif.carrocerias}</small><br>
-                            <small><strong>Config:</strong> ${manif.configuracion}</small><br>
-                            <small><strong>Año:</strong> ${manif.anio_fabricacion}</small>
-                        </div>
-                        </div>
-                    </div>
-
-                    <!-- TRAILER -->
-                    <div class="col-sm-6 col-md-4 col-lg-3">
-                        <div class="card border border-secondary h-100">
-                        <div class="card-body p-2">
-                            <h6 class="mb-2 text-secondary">Trailer</h6>
-                            <small><strong>Placa:</strong> ${manif.Placatrailer}</small><br>
-                            <small><strong>Lugar:</strong> ${manif.Lugar}</small>
-                        </div>
-                        </div>
-                    </div>
-
-                    <!-- GPS -->
-                    <div class="col-sm-6 col-md-4 col-lg-3">
-                        <div class="card border border-dark h-100">
-                        <div class="card-body p-2">
-                            <h6 class="mb-2 text-dark">GPS</h6>
-                            <small><strong>Operador:</strong> ${manif.operador_gps}</small><br>
-                            <small><strong>Usuario:</strong> ${manif.usuario_satelital}</small><br>
-                            <small><strong>Web:</strong> ${manif.url}
-                            <a href="${manif.url}" target="_blank">Acceder</a>
-                            </small>
-                        </div>
-                        </div>
-                    </div>
-
-                    <!-- SALIDA -->
-                    <div class="col-sm-6 col-md-4 col-lg-3">
-                        <div class="card border border-light h-100">
-                        <div class="card-body p-2">
-                            <h6 class="mb-2 text-muted">Salida</h6>
-                            <small><strong>Fecha:</strong> ${manif.ufecha}</small><br>
-                            <small><strong>Hora:</strong> ${manif.uhora}</small><br>
-                            <small><strong>Usuario:</strong> ${manif.usuario}</small>
-                        </div>
-                        </div>
-                    </div>
-                </div> 
-            </div>
-        `;
-        manif_info.html(content);
-
-        return data; // ✅ siempre devuelve resultado
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.error(`Timeout en petición (manifiesto ${manifiesto_id})`);
-        } else {
-            console.error('Error de comunicación:', error);
-        }
-        return null;
-    } finally {
-        clearTimeout(timeout);        // ✅ SIEMPRE limpiar timeout
-        ocultarLoading();             // ✅ SIEMPRE cerrar loader
-    }
-}
-
-async function getSeguimientoRuta(cod_ruta){
-    const data_seg = $('#data_seg_controladores');
-    data_seg.empty();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-    
-    if ($.fn.DataTable.isDataTable('#table_seg_contoladores')) {
-        $('#table_seg_contoladores').DataTable().destroy();
-    }
-
-    try {
-        mostrarLoading(); // ✅ usar loader global (recomendado)
-
-        const params = new URLSearchParams({ cod_ruta });
-        const response = await fetch(
-            `${baseUrl}trafico/seguimientos-ruta?${params}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-API-KEY': apiKey
-                },
-                signal: controller.signal
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // codigo de logica de la respuesta 
-        const seg = data?.data?.seguimietos_contrl ?? null;
-
-        if (seg != null) {
-            seg.forEach(function (element, index) {
-                let tblBody = '';
-                let cadena = element.novedad.substr(0, 7);
-                let color = '';
-                if (cadena === 'NOVEDAD') {
-                    color = '#D50000';
-                } else {
-                    color = '#000000';
-                }
-                
-                // /* Vaidar si es nota del punto del plan de ruta o de otro punto o de punto del controlador */ element.punto_controlador
-                var punto = '';
-
-                if (element.municipio === null && element.nom_punto === null && element.nombre_punto === null) {
-                    punto = element.punto_controlador;
-                } else if (element.municipio !== null && element.nom_punto === null && element.nombre_punto !== null) {
-                    punto = element.nombre_punto;
-                } else if (element.municipio !== null && element.nom_punto !== null && element.nombre_punto === null) {
-                    punto = element.municipio + ' - ' + element.nom_punto;
-                }
-
-                tblBody = `
-                    <tr>
-                        <td class="p-1">
-                            <span class="cell-detail-description" style='color:${color}'>
-                              ${punto}
-                            </span>
-                        </td>
-                        <td class="p-1">
-                            <span class="cell-detail-description" style='color:${color}'>${element.fecha} - ${element.hora}</span>
-                        </td>
-                        <td class="p-1">
-                            <span class="cell-detail-description" style='color:${color}'>${element.novedad}</span>
-                        </td>
-                        <td class="p-1 text-wrap">
-                            <span class="cell-detail-description" style='color:${color}'> ${element.observacion}</span>
-                        </td>
-                        <td class="p-1">
-                            <span class="cell-detail-description" style='color:${color}'>${element.usuario}</span>
-                        </td>
-                    </tr>`;
-
-                data_seg.append(tblBody);
-            });
-        }
-
-        $('#table_seg_contoladores').DataTable({
-            dom: '<"row justify-content-center bg-body mb-0 p-3 pb-0 dt-small"<"col-md-4 d-flex justify-content-center"f><"col-md-4 d-flex justify-content-center"i><"col-md-4 d-flex justify-content-center"l><"col-md-12 d-flex justify-content-center"p>>rt',
-            responsive: true,
-            scrollCollapse: true,
-            paging: true,
-            pagingType: "simple_numbers",
-            pageLength: 100,
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json'
-            }
-        });
-
-        return data; // ✅ siempre devuelve resultado
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.error(`Timeout en petición (manifiesto ${cod_ruta})`);
-        } else {
-            console.error('Error de comunicación:', error);
-        }
-        return null;
-    } finally {
-        clearTimeout(timeout);        // ✅ SIEMPRE limpiar timeout
-        ocultarLoading();             // ✅ SIEMPRE cerrar loader
-    }
-}
-
-async function getSeguimientoGpsManif(manifiesto_id){
-    const data_seg = $('#data_seg_gps');
-    data_seg.empty();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-
-    if ($.fn.DataTable.isDataTable('#table_seg_gps')) {
-        $('#table_seg_gps').DataTable().destroy();
-    }
-
-    try {
-        mostrarLoading(); // ✅ usar loader global (recomendado)
-
-        const params = new URLSearchParams({ manifiesto_id });
-        const response = await fetch(
-            `${baseUrl}trafico/seguimientos-seg-gps-manif?${params}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-API-KEY': apiKey
-                },
-                signal: controller.signal
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP ${response.status}`);
-        }
-        const data = await response.json();
-
-        // codigo de logica de la respuesta 
-        const seg = data?.data?.seguimietos_gps ?? null;
-        if (seg) {
-            $("#pre-data").html(seg);
-            seg.forEach(function (element, index) {
-                let tblBody = '';
-                tblBody = `
-                    <tr>
-                        <td class="p-1">${element.estado_vehiculo}</td>
-                        <td class="p-1">${element.placa}</td>
-                        <td class="p-1">${element.evento}</td>
-                        <td class="p-1">${element.velocidad} <small>(Km/h)</small></td>
-                        <td class="p-1">${element.tiempo_detenido} <small>(min)</small></td>
-                        <td class="p-1">${element.estado_localizacion}</td>
-                        <td class="p-1">${element.fecha_evento}</td>
-                        <td class="p-1">${element.fecha_registro}</td>
-                        <td class="p-1">
-                            ${element.direccion} 
-                            <small>${element.localidad ?? ''} ${element.barrio ? ' - ' + element.barrio : ''}</small>
-                        </td>
-                        <td class="p-1">${element.ciudad}</td>
-                        <td class="p-1 text-wrap">${element.departamento}</td>
-                        <td class="p-1">${element.odometro} <small>(Kms)</small></td>
-                        <td class="p-1">${element.sentido}</td>
-                        <td class="p-1">${element.estado_seguimiento}</td>
-                    </tr>`;
-
-                data_seg.append(tblBody);
-            });
-        }
-
-        $('#table_seg_gps').DataTable({
-            dom: '<"row justify-content-center bg-body mb-0 p-3 pb-0 dt-small"<"col-md-4 d-flex justify-content-center"f><"col-md-4 d-flex justify-content-center"i><"col-md-4 d-flex justify-content-center"l><"col-md-12 d-flex justify-content-center"p>>rt',
-            responsive: true,
-            scrollCollapse: true,
-            paging: true,
-            pageLength: 25,
-            pagingType: "simple_numbers",
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json'
-            }
-        });
-
-        return data; // ✅ siempre devuelve resultado
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.error(`Timeout en petición (manifiesto ${manifiesto_id})`);
-        } else {
-            console.error('Error de comunicación:', error);
-        }
-        return null;
-    } finally {
-        clearTimeout(timeout);        // ✅ SIEMPRE limpiar timeout
-        ocultarLoading();             // ✅ SIEMPRE cerrar loader
-    }
-}
-
-async function getPlanRutaSeguimiento(manifiesto_id, cod_ruta, cod_plan){
-    console.log(`Entro en funcion getPlanRutaSeguimiento con id ${manifiesto_id}`);
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-
-    try {
-        mostrarLoading(); // ✅ usar loader global (recomendado)
-
-        const params = new URLSearchParams({ manifiesto_id, cod_ruta, cod_plan });
-        const response = await fetch(
-            `${baseUrl}trafico/plan-ruta-seguimientos?${params}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-API-KEY': apiKey
-                },
-                signal: controller.signal
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // codigo de logica de la respuesta 
-        console.log(data);
-
-        return data; // ✅ siempre devuelve resultado
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.error(`Timeout en petición (manifiesto ${manifiesto_id})`);
-        } else {
-            console.error('Error de comunicación:', error);
-        }
-        return null;
-    } finally {
-        clearTimeout(timeout);        // ✅ SIEMPRE limpiar timeout
-        ocultarLoading();             // ✅ SIEMPRE cerrar loader
-    }
-}
-
-async function getOrdenesCargue(manifiesto_id){
-    console.log(`Entro en funcion getOrdenesCargue con id ${manifiesto_id}`);
-}        
-
-async function verificarOrdenesCargue(manifiesto_id){
-    console.log(`Entro en funcion verificarOrdenesCargue con id ${manifiesto_id}`);
-}    
-
-/** FUNCIONES DE MUESTRA DE LOADIG DEL MODULO */
-let peticionesActivas = 0;
-
-function mostrarLoading() {
-    peticionesActivas++;
-    document.getElementById('loading-overlay-nexosapp').style.display = 'flex';
-}
-
-function ocultarLoading() {
-    peticionesActivas--;
-    if (peticionesActivas <= 0) {
-        peticionesActivas = 0;
-        document.getElementById('loading-overlay-nexosapp').style.display = 'none';
-    }
-}
-/** FIN - FUNCIONES DE MUESTRA DE LOADIG DEL MODULO */
-
-
-
-
-
-
 
 // async function Tabla_SinFiltro() {
 //     try {
@@ -2079,7 +1466,11 @@ async function Tabla_SinFiltro() {
                     </td>
                     <td style='width:auto; white-space: nowrap;' id="tiempo${c}"></td>
                     <td style='width:auto; white-space: nowrap;'>${item.origen} - ${item.destino}</td>
-                    <td style='width:auto; white-space: nowrap;'>${item.placa}</td>
+                    <td style='width:auto; white-space: nowrap;'>
+                        <a class="badge text-bg-light text-decoration-none fs-10" href="#" onClick="Buscar_Seguimientos_Gps(${item.id})" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSegGps">
+                            ${item.placa}
+                        </a>
+                    </td>
                     <td style='width:auto; white-space: nowrap;'>${item.nombre_conductor} ${item.apellido1} ${item.apellido2}</td>
                     <td style='width:auto; white-space: nowrap;'>${item.celular}</td>
                     <td style='width:auto; white-space: nowrap;'>${item.nombre_cliente}</td>
@@ -2385,6 +1776,269 @@ async function traer_punto(codini, boton) {
         $('#loading-overlay-oet').css('display', 'none');
     }
 }
+
+/****** Funciones para el offCanvan de seguimeintos de GPS */
+let mapSegGps;
+let markersSegGps = [];
+
+async function Buscar_Seguimientos_Gps(manifiesto_id){
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+
+    $("#offcanvasSegGpsLabel").html(`Seguimientos GPS - Manifiesto ${manifiesto_id}`);
+    if ($.fn.DataTable.isDataTable('#table_seg_gps')) {
+        $('#table_seg_gps').DataTable().destroy();
+    }
+
+    try {
+        mostrarLoading();
+        limpiarDatosCanvaGps();
+        const params = new URLSearchParams({ manifiesto_id });
+        const response = await fetch(
+            `${baseUrl}trafico/seguimientos-seg-gps-manif?${params}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-API-KEY': apiKey
+                },
+                signal: controller.signal
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}`);
+        }
+        const data = await response.json();
+
+        // codigo de logica de la respuesta 
+        const seg = await data?.data?.seguimietos_gps ?? null;
+        if (seg) {
+            let tblBody = '';
+            seg.forEach(function (element, index) {
+                tblBody+= `
+                    <tr>
+                        <td class="p-1">${element.placa}</td>
+                        <td class="p-1">${element.fecha_evento}</td>
+                        <td class="p-1">${element.fecha_registro}</td>
+                        <td class="p-1 text-wrap">${element.departamento}</td>
+                        <td class="p-1">${element.ciudad}</td>
+                        <td class="p-1">
+                            ${element.direccion} 
+                            <small>${element.localidad ?? ''} ${element.barrio ? ' - ' + element.barrio : ''}</small>
+                        </td>
+                        <td class="p-1">${element.velocidad} <small>(Km/h)</small></td>
+                        <td class="p-1">${element.evento}</td>
+                        <td class="p-1">${element.temperatura}</td>
+                        <td class="p-1">${element.tiempo_detenido} <small>(min)</small></td>
+                        <td class="p-1">${element.sentido}</td>
+                        <td class="p-1">${element.estado_vehiculo}</td>
+                        <td class="p-1">${element.lat}</td>
+                        <td class="p-1">${element.lng}</td>
+                        <td class="p-1">${element.estado_localizacion}</td>
+                        <td class="p-1">${element.odometro} <small>(Kms)</small></td>
+                        <td class="p-1">${element.estado_seguimiento}</td>
+                    </tr>`;
+            });
+            $('#data_seg_gps').html(tblBody);
+            getMapaSeguimientosGps(seg);
+        }
+
+        $('#table_seg_gps').DataTable({
+            dom: '<"row justify-content-center bg-body mb-0 p-3 pb-0 dt-small"<"col-md-4 d-flex justify-content-center"f><"col-md-4 d-flex justify-content-center"i><"col-md-4 d-flex justify-content-center"l><"col-md-12 d-flex justify-content-center"p>>rt',
+            responsive: true,
+            scrollCollapse: true,
+            paging: true,
+            pageLength: 25,
+            pagingType: "simple_numbers",
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json'
+            }
+        });
+
+        return data;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.error(`Timeout en petición (manifiesto ${manifiesto_id})`);
+        } else {
+            console.error('Error de comunicación:', error);
+        }
+        return null;
+    } finally {
+        clearTimeout(timeout);
+        ocultarLoading();
+    }
+}
+
+function limpiarDatosCanvaGps() {
+    // Se elimina el contenido de la tabla
+    $('#data_seg_gps').empty();
+
+    // Se eliminan los markers del mapa
+    markersSegGps.forEach(marker => {
+        marker.setMap(null);
+    });
+    markersSegGps = [];
+}
+
+function getMapaSeguimientosGps(seguim) {
+    console.log("Entro en getMapaSeguimientosGps", seguim);
+    if (seguim.length > 0) {
+        const bounds = new google.maps.LatLngBounds();
+        const infoWindow = new google.maps.InfoWindow();
+    
+        seguim.forEach(punto => {
+            const posicion = {
+                lat: parseFloat(punto.lat),
+                lng: parseFloat(punto.lng)
+            };
+
+            const marker = new google.maps.Marker({
+                position: posicion,
+                map: mapSegGps,
+                title: punto.placa
+            });
+
+            markersSegGps.push(marker);
+
+            // Informacion de la ventana emergente de informacion del marker 
+            const velocidad = parseFloat(punto.velocidad);
+
+            const colorEstado =
+                punto.estado_vehiculo === 'Apagado'
+                    ? '#6c757d'
+                    : velocidad > 0
+                        ? '#198754'
+                        : '#ffc107';
+
+            const estadoVisual =
+                punto.estado_vehiculo === 'Apagado'
+                    ? '⚫ Apagado'
+                    : velocidad > 0
+                        ? '🟢 En movimiento'
+                        : '🟡 Detenido';
+
+            const contenido = `
+                <div style="
+                    width:320px;
+                    font-family:Arial, Helvetica, sans-serif;
+                    font-size:12px;
+                ">
+                    <!-- Cabecera -->
+                    <div style="
+                        background:${colorEstado};
+                        color:#FFF;
+                        padding:10px;
+                        border-radius:8px 8px 0 0;
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                    ">
+                        <div>
+                            <div style="font-size:16px;font-weight:bold;">
+                                🚛 ${punto.placa}
+                            </div>
+                            <div style="font-size:11px;">
+                                Manifiesto ${punto.manifiesto}
+                            </div>
+                        </div>
+
+                        <div style="
+                            text-align:right;
+                            font-size:11px;
+                            font-weight:bold;
+                        ">
+                            ${estadoVisual}
+                        </div>
+                    </div>
+                    <!-- Cuerpo -->
+                    <div style="
+                        border:1px solid #dee2e6;
+                        border-top:none;
+                        border-radius:0 0 8px 8px;
+                        padding:10px;
+                        background:#FFF;
+                    ">
+                        <div style="margin-bottom:8px;">
+                            <strong>📍 Ubicación</strong><br>
+                            ${punto.direccion}<br>
+                            ${punto.ciudad}, ${punto.departamento}
+                        </div>
+                        <div style="margin-bottom:8px;">
+                            <strong>⚠ Evento</strong><br>
+                            ${punto.evento}
+                        </div>
+                        <div style="
+                            display:grid;
+                            grid-template-columns:1fr 1fr;
+                            gap:8px;
+                            margin-bottom:8px;
+                        ">
+                            <div>
+                                <small style="color:#6c757d;">Velocidad</small><br>
+                                <strong>${velocidad.toFixed(0)} Km/h</strong>
+                            </div>
+                            <div>
+                                <small style="color:#6c757d;">Sentido</small><br>
+                                <strong>${punto.sentido}</strong>
+                            </div>
+                            <div>
+                                <small style="color:#6c757d;">Tiempo detenido</small><br>
+                                <strong>${punto.tiempo_detenido} min</strong>
+                            </div>
+                            <div>
+                                <small style="color:#6c757d;">Odómetro</small><br>
+                                <strong>${parseFloat(punto.odometro).toLocaleString()} Km</strong>
+                            </div>
+                        </div>
+                        <hr style="margin:8px 0;">
+                        <div style="font-size:11px;">
+                            <strong>Último reporte</strong><br>
+                            ${punto.fecha_evento}
+                        </div>
+                        <div style="
+                            margin-top:6px;
+                            font-size:11px;
+                            color:#6c757d;
+                        ">
+                            Lat: ${punto.lat}<br>
+                            Lng: ${punto.lng}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            marker.addListener('click', () => {
+                infoWindow.setContent(contenido);
+                infoWindow.open({
+                    anchor: marker,
+                    map: mapSegGps
+                });
+            });
+            bounds.extend(posicion);
+        });
+
+        // Ajusta automáticamente el zoom y centro
+        mapSegGps.fitBounds(bounds);
+    }
+}
+/****** FIN - Funciones para el offCanvan de seguimeintos de GPS */
+
+/** FUNCIONES DE MUESTRA DE LOADIG DEL MODULO */
+let peticionesActivas = 0;
+
+function mostrarLoading() {
+    peticionesActivas++;
+    document.getElementById('loading-overlay-nexosapp').style.display = 'flex';
+}
+
+function ocultarLoading() {
+    peticionesActivas--;
+    if (peticionesActivas <= 0) {
+        peticionesActivas = 0;
+        document.getElementById('loading-overlay-nexosapp').style.display = 'none';
+    }
+}
+/** FIN - FUNCIONES DE MUESTRA DE LOADIG DEL MODULO */
 
 // async function traer_punto(codini, boton) {
 //     const dato = new FormData();
