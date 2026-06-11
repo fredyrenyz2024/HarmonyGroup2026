@@ -117,7 +117,10 @@ document.addEventListener('DOMContentLoaded', async e => {
 
 });
 
-// Inicializador de mapas de la vista 
+//Inicializador de mapas de la vista 
+const lat_ini = 4.60971;
+const lng_ini = -74.08175;
+const zoom_ini = 12;
 function initMap() {
     console.log(`Creando los mapas de la vista`);
     if (!window.google || !google.maps) {
@@ -126,8 +129,8 @@ function initMap() {
     }
 
     let centro = {
-        lat: 4.60971,
-        lng: -74.08175
+        lat: lat_ini,
+        lng: lng_ini
     };
 
     // Mapa para mostrar los seguimientos Gps
@@ -135,7 +138,7 @@ function initMap() {
         mapSegGps = new google.maps.Map(
             document.getElementById('segGpsMap'),
             {
-                zoom: 12,
+                zoom: zoom_ini,
                 center: centro,
                 mapTypeId: 'roadmap'
             }
@@ -1889,12 +1892,9 @@ async function traer_punto(codini, boton) {
 
 /****** Funciones para el offCanvan de seguimeintos de GPS */
 let mapSegGps;
-// let markersSegGps = [];
 let markersSegGps = {};
 
 async function Buscar_Seguimientos_Gps(manifiesto_id){
-    console.log("Entro en Buscar_Seguimientos_Gps");
-    
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
 
@@ -1905,8 +1905,7 @@ async function Buscar_Seguimientos_Gps(manifiesto_id){
 
     try {
         mostrarLoading();
-        await initMap();
-        limpiarDatosCanvaGps();
+        await limpiarDatosCanvaGps();
         const params = new URLSearchParams({ manifiesto_id });
         const response = await fetch(
             `${baseUrl}trafico/seguimientos-seg-gps-manif?${params}`, {
@@ -1930,7 +1929,7 @@ async function Buscar_Seguimientos_Gps(manifiesto_id){
             let tblBody = '';
             seg.forEach(function (element, index) {
                 tblBody+= `
-                    <tr>
+                    <tr onclick="abrirInfoWindowSegGps(${index})" style="cursor: pointer;">
                         <td class="p-1">${element.placa}</td>
                         <td class="p-1">${element.fecha_evento}</td>
                         <td class="p-1">${element.fecha_registro}</td>
@@ -1983,20 +1982,25 @@ async function Buscar_Seguimientos_Gps(manifiesto_id){
     }
 }
 
-function limpiarDatosCanvaGps() {
+async function limpiarDatosCanvaGps() {
     // Se elimina el contenido de la tabla
     $('#data_seg_gps').empty();
 
-    // // Se eliminan los markers del mapa
-    // markersSegGps.forEach(marker => {
-    //     marker.setMap(null);
-    // });
-    markersSegGps = {};
+    // Se eliminan los markers del mapa
+    Object.values(markersSegGps).forEach(marker => {
+        marker.setMap(null);
+    });
+    markersSegGps = await {};
+
+    // Se centra el mapa a su ubicacion inicial
+    mapSegGps.setCenter({
+        lat: lat_ini,
+        lng: lng_ini
+    });
+    mapSegGps.setZoom(zoom_ini);
 }
 
 function getMapaSeguimientosGps(seguim) {
-    console.log("Entro en getMapaSeguimientosGps", seguim);
-    initMap();
     if (seguim.length > 0) {
         const bounds = new google.maps.LatLngBounds();
         const infoWindow = new google.maps.InfoWindow();
@@ -2136,6 +2140,24 @@ function getMapaSeguimientosGps(seguim) {
         // Ajusta automáticamente el zoom y centro
         mapSegGps.fitBounds(bounds);
     }
+}
+
+function abrirInfoWindowSegGps(index) {
+    if (!mapSegGps) {
+        console.warn('Mapa no inicializado');
+        return;
+    }
+
+    if (!markersSegGps[index]) {
+        console.warn('Marcador no encontrado');
+        return;
+    }
+
+    const marker = markersSegGps[index];
+
+    mapSegGps.panTo(marker.getPosition());
+    mapSegGps.setZoom(17);
+    google.maps.event.trigger(marker, 'click');
 }
 /****** FIN - Funciones para el offCanvan de seguimeintos de GPS */
 
