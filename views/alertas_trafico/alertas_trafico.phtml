@@ -1,0 +1,1797 @@
+<style>
+    /* ── Variables ─────────────────────────────────────── */
+    :root {
+        --im-navy: #0f1f3d;
+        --im-blue: #1a5ce5;
+        --im-green: #10b981;
+        --im-red: #ef4444;
+        --im-amber: #f59e0b;
+        --im-gray: #64748b;
+        --im-light: #f1f5f9;
+        --im-white: #ffffff;
+        --im-border: #e2e8f0;
+        --im-radius: 10px;
+        --im-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+    }
+
+    /* ── Header tipo flete_nacional ─────────────────────── */
+    .np-header {
+        background: linear-gradient(135deg, #0f1f3d 0%, #1a3260 100%);
+        border-radius: 16px;
+        padding: 20px 28px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .10);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .np-header::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .04);
+    }
+
+    .np-header-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(16, 185, 129, .15);
+        border: 2px solid rgba(16, 185, 129, .35);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #34d399;
+        flex-shrink: 0;
+    }
+
+    .np-header-title {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .np-header-sub {
+        color: rgba(255, 255, 255, .55);
+        font-size: .78rem;
+        margin-top: 2px;
+    }
+
+    /* ── Card de paso ────────────────────────────────────── */
+    .np-card {
+        background: #fff;
+        border: 1px solid var(--im-border);
+        border-radius: var(--im-radius);
+        box-shadow: var(--im-shadow);
+        margin-bottom: 16px;
+        overflow: hidden;
+    }
+
+    .np-card-header {
+        background: var(--im-light);
+        border-bottom: 1px solid var(--im-border);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: .78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--im-navy);
+    }
+
+    .np-card-header i {
+        color: var(--im-blue);
+    }
+
+    .np-card-body {
+        padding: 18px 20px;
+    }
+
+    /* ── Label estilo ────────────────────────────────────── */
+    .np-label {
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--im-gray);
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .np-label .req {
+        color: var(--im-red);
+    }
+
+    /* ── Select / Input estilo ───────────────────────────── */
+    .np-control {
+        width: 100%;
+        height: 36px;
+        padding: 0 10px;
+        border: 1.5px solid var(--im-border);
+        border-radius: 6px;
+        font-size: .83rem;
+        color: var(--im-navy);
+        background: #fff;
+        transition: border-color .15s, box-shadow .15s;
+        outline: none;
+    }
+
+    .np-control:focus {
+        border-color: var(--im-blue);
+        box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+    }
+
+    .np-control.is-invalid {
+        border-color: var(--im-red);
+    }
+
+    /* ── Dropzone ────────────────────────────────────────── */
+    .np-dropzone {
+        border: 2px dashed var(--im-border);
+        border-radius: var(--im-radius);
+        background: #fff;
+        padding: 28px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color .25s, background .25s;
+    }
+
+    .np-dropzone:hover,
+    .np-dropzone.dragover {
+        border-color: var(--im-blue);
+        background: #eff6ff;
+    }
+
+    .np-dropzone-icon {
+        font-size: 2.2rem;
+        color: var(--im-blue);
+        margin-bottom: 8px;
+        opacity: .75;
+    }
+
+    .np-dropzone-title {
+        font-size: .9rem;
+        font-weight: 700;
+        color: var(--im-navy);
+    }
+
+    .np-dropzone-sub {
+        font-size: .76rem;
+        color: var(--im-gray);
+        margin-top: 4px;
+    }
+
+    .np-dropzone-badge {
+        display: inline-block;
+        background: var(--im-light);
+        color: var(--im-blue);
+        border: 1px solid var(--im-border);
+        padding: 3px 9px;
+        border-radius: 4px;
+        font-size: .7rem;
+        font-weight: 600;
+        margin: 2px;
+    }
+
+    #np_archivo_excel {
+        display: none;
+    }
+
+    /* ── Archivo seleccionado ────────────────────────────── */
+    .np-file-selected {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-top: 12px;
+    }
+
+    .np-file-selected.show {
+        display: flex;
+    }
+
+    .np-file-icon {
+        font-size: 1.5rem;
+        color: #16a34a;
+        flex-shrink: 0;
+    }
+
+    .np-file-name {
+        font-size: .85rem;
+        font-weight: 600;
+        color: var(--im-navy);
+        word-break: break-all;
+    }
+
+    .np-file-size {
+        font-size: .72rem;
+        color: var(--im-gray);
+    }
+
+    .np-file-clear {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: var(--im-red);
+        cursor: pointer;
+        font-size: .95rem;
+        padding: 4px 6px;
+        border-radius: 4px;
+        transition: background .15s;
+    }
+
+    .np-file-clear:hover {
+        background: #fee2e2;
+    }
+
+    /* ── Estructura del Excel ────────────────────────────── */
+    .np-cols-info {
+        background: #fff;
+        border: 1px solid var(--im-border);
+        border-radius: var(--im-radius);
+        overflow: hidden;
+        margin-top: 14px;
+    }
+
+    .np-cols-header {
+        background: var(--im-light);
+        border-bottom: 1px solid var(--im-border);
+        padding: 9px 14px;
+        font-size: .74rem;
+        font-weight: 700;
+        color: var(--im-blue);
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .np-cols-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 0;
+    }
+
+    .np-col-item {
+        padding: 7px 12px;
+        border-right: 1px solid var(--im-border);
+        border-bottom: 1px solid var(--im-border);
+        font-size: .72rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .np-col-num {
+        min-width: 20px;
+        height: 20px;
+        background: var(--im-blue);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .62rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .np-col-name {
+        color: var(--im-navy);
+        font-weight: 600;
+    }
+
+    /* ── Preview table ───────────────────────────────────── */
+    .np-preview-wrap {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid var(--im-border);
+        max-height: 320px;
+        overflow-y: auto;
+    }
+
+    .np-preview-wrap::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    .np-preview-wrap::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+
+    #np_previewTable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: .72rem;
+    }
+
+    #np_previewTable thead th {
+        background: #0f1f3d;
+        color: #fff;
+        padding: 7px 10px;
+        text-align: center;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        font-size: .68rem;
+        font-weight: 600;
+        letter-spacing: .04em;
+    }
+
+    #np_previewTable tbody tr {
+        transition: background .1s;
+    }
+
+    #np_previewTable tbody tr:nth-child(even) {
+        background: #f8fafc;
+    }
+
+    #np_previewTable tbody tr:hover {
+        background: #eff6ff;
+    }
+
+    #np_previewTable tbody td {
+        padding: 5px 8px;
+        border-bottom: 1px solid var(--im-border);
+        white-space: nowrap;
+        color: var(--im-navy);
+    }
+
+    .np-badge-fila {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        background: var(--im-light);
+        color: var(--im-gray);
+        border-radius: 50%;
+        font-size: .65rem;
+        font-weight: 700;
+    }
+
+    .btn-del-row {
+        background: none;
+        border: none;
+        color: var(--im-red);
+        padding: 2px 6px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: .8rem;
+        transition: background .15s;
+    }
+
+    .btn-del-row:hover {
+        background: #fee2e2;
+    }
+
+    /* ── Advertencia ─────────────────────────────────────── */
+    .np-warn {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: .76rem;
+        color: #92400e;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    /* ── Botón importar ──────────────────────────────────── */
+    .np-btn-import {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #0f1f3d 0%, #1a5ce5 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: .9rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: opacity .2s, transform .1s;
+        margin-top: 14px;
+    }
+
+    .np-btn-import:hover:not(:disabled) {
+        opacity: .9;
+        transform: translateY(-1px);
+    }
+
+    .np-btn-import:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+    /* ── Sección progreso ────────────────────────────────── */
+    .np-prog-header {
+        text-align: center;
+        padding: 20px 0 16px;
+    }
+
+    .np-spinner-wrap {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 14px;
+    }
+
+    .np-spinner-ring {
+        width: 72px;
+        height: 72px;
+        border: 5px solid var(--im-light);
+        border-top-color: var(--im-blue);
+        border-radius: 50%;
+        animation: np-spin 1s linear infinite;
+    }
+
+    @keyframes np-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .np-spinner-pct {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .85rem;
+        font-weight: 800;
+        color: var(--im-navy);
+    }
+
+    .np-prog-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--im-navy);
+    }
+
+    .np-prog-sub {
+        font-size: .82rem;
+        color: var(--im-gray);
+        margin-top: 3px;
+    }
+
+    .np-progress-track {
+        background: var(--im-light);
+        border-radius: 8px;
+        height: 10px;
+        overflow: hidden;
+        margin: 14px 0 6px;
+    }
+
+    .np-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--im-blue) 0%, #3b82f6 100%);
+        border-radius: 8px;
+        transition: width .6s ease;
+        width: 0%;
+    }
+
+    /* ── Sección resultado ───────────────────────────────── */
+    .np-result-hero {
+        text-align: center;
+        padding: 20px 0 14px;
+    }
+
+    .np-result-icon {
+        font-size: 4rem;
+        margin-bottom: 10px;
+    }
+
+    .np-result-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--im-navy);
+    }
+
+    .np-result-sub {
+        font-size: .82rem;
+        color: var(--im-gray);
+        margin-top: 4px;
+    }
+
+    .np-summary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 16px 0;
+    }
+
+    .np-summary-card {
+        background: #fff;
+        border: 1px solid var(--im-border);
+        border-radius: 9px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: var(--im-shadow);
+    }
+
+    .np-summary-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .95rem;
+        flex-shrink: 0;
+    }
+
+    .ic-ok {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .ic-err {
+        background: #fee2e2;
+        color: var(--im-red);
+    }
+
+    .np-summary-num {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--im-navy);
+        line-height: 1;
+    }
+
+    .np-summary-label {
+        font-size: .7rem;
+        color: var(--im-gray);
+        margin-top: 1px;
+    }
+
+    .np-detail-section {
+        background: #fff;
+        border: 1px solid var(--im-border);
+        border-radius: var(--im-radius);
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+
+    .np-detail-toggle {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 11px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: .8rem;
+        font-weight: 700;
+        color: var(--im-navy);
+        cursor: pointer;
+        transition: background .15s;
+    }
+
+    .np-detail-toggle:hover {
+        background: var(--im-light);
+    }
+
+    .np-detail-toggle .badge-count {
+        padding: 3px 9px;
+        border-radius: 12px;
+        font-size: .7rem;
+        font-weight: 700;
+    }
+
+    .np-detail-body {
+        display: none;
+        border-top: 1px solid var(--im-border);
+        max-height: 220px;
+        overflow-y: auto;
+    }
+
+    .np-detail-body.open {
+        display: block;
+    }
+
+    .np-detail-row {
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--im-border);
+        font-size: .76rem;
+        color: var(--im-navy);
+    }
+
+    .np-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .np-result-footer {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .np-btn-finalizar {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: var(--im-blue);
+        color: #fff;
+        font-size: .85rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: opacity .2s;
+    }
+
+    .np-btn-finalizar:hover {
+        opacity: .88;
+    }
+
+    .np-btn-otro {
+        flex: 1;
+        padding: 10px;
+        border: 1.5px solid var(--im-border);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--im-navy);
+        font-size: .85rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: background .15s;
+    }
+
+    .np-btn-otro:hover {
+        background: var(--im-light);
+    }
+</style>
+<style>
+    /* ============================================================
+                        VARIABLES DE DISEÑO — Torre de Control / Administrador Pedidos
+                        ============================================================ */
+    :root {
+        --navy: #0f1f3d;
+        --navy-mid: #1a3260;
+        --blue: #1a5ce5;
+        --blue-soft: #dbeafe;
+        --amber: #f59e0b;
+        --amber-soft: #fef3c7;
+        --green: #10b981;
+        --green-soft: #d1fae5;
+        --red: #ef4444;
+        --red-soft: #fee2e2;
+        --orange: #f97316;
+        --orange-soft: #ffedd5;
+        --cyan: #06b6d4;
+        --cyan-soft: #cffafe;
+        --purple: #8b5cf6;
+        --purple-soft: #ede9fe;
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-200: #e2e8f0;
+        --slate-400: #94a3b8;
+        --slate-600: #475569;
+        --slate-800: #1e293b;
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 16px;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 2px 4px rgba(0, 0, 0, .06);
+        --shadow-lg: 0 10px 25px rgba(0, 0, 0, .12), 0 4px 8px rgba(0, 0, 0, .06);
+    }
+
+    /* ── PAGE HEADER ───────────────────────────────────── */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: var(--radius-lg);
+        padding: 20px 28px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .04);
+    }
+
+    .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        right: 120px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(26, 92, 229, .15);
+    }
+
+    .ph-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(245, 158, 11, .15);
+        border: 2px solid rgba(245, 158, 11, .35);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--amber);
+        flex-shrink: 0;
+    }
+
+    .ph-title {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -.3px;
+        margin: 0;
+    }
+
+    .ph-sub {
+        color: rgba(255, 255, 255, .55);
+        font-size: .78rem;
+        margin-top: 2px;
+    }
+
+    /* ── KPI CARDS ─────────────────────────────────────── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 1024px) {
+        .kpi-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .kpi-card {
+        background: #fff;
+        border-radius: var(--radius-md);
+        padding: 16px 18px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--slate-200);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        cursor: pointer;
+        transition: box-shadow .2s, transform .2s, border-color .2s;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .kpi-card.active {
+        border-color: currentColor;
+        box-shadow: var(--shadow-md);
+    }
+
+    .kpi-card.c-green::before {
+        background: var(--green);
+    }
+
+    .kpi-card.c-amber::before {
+        background: var(--amber);
+    }
+
+    .kpi-card.c-red::before {
+        background: var(--red);
+    }
+
+    .kpi-card.c-slate::before {
+        background: var(--slate-400);
+    }
+
+    .kpi-card.c-cyan::before {
+        background: var(--cyan);
+    }
+
+    .kpi-card.c-purple::before {
+        background: var(--purple);
+    }
+
+    .kpi-card.c-orange::before {
+        background: var(--orange);
+    }
+
+    .kpi-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .kpi-card.c-green .kpi-icon {
+        background: var(--green-soft);
+        color: var(--green);
+    }
+
+    .kpi-card.c-amber .kpi-icon {
+        background: var(--amber-soft);
+        color: #d97706;
+    }
+
+    .kpi-card.c-red .kpi-icon {
+        background: var(--red-soft);
+        color: var(--red);
+    }
+
+    .kpi-card.c-slate .kpi-icon {
+        background: var(--slate-100);
+        color: var(--slate-600);
+    }
+
+    .kpi-card.c-cyan .kpi-icon {
+        background: var(--cyan-soft);
+        color: var(--cyan);
+    }
+
+    .kpi-card.c-purple .kpi-icon {
+        background: var(--purple-soft);
+        color: var(--purple);
+    }
+
+    .kpi-card.c-orange .kpi-icon {
+        background: var(--orange-soft);
+        color: var(--orange);
+    }
+
+    .kpi-num {
+        font-size: 1.7rem;
+        font-weight: 700;
+        line-height: 1;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .kpi-card.c-green .kpi-num {
+        color: var(--green);
+    }
+
+    .kpi-card.c-amber .kpi-num {
+        color: #d97706;
+    }
+
+    .kpi-card.c-red .kpi-num {
+        color: var(--red);
+    }
+
+    .kpi-card.c-slate .kpi-num {
+        color: var(--slate-600);
+    }
+
+    .kpi-card.c-cyan .kpi-num {
+        color: var(--cyan);
+    }
+
+    .kpi-card.c-purple .kpi-num {
+        color: var(--purple);
+    }
+
+    .kpi-card.c-orange .kpi-num {
+        color: var(--orange);
+    }
+
+    .kpi-label {
+        font-size: .72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--slate-400);
+        margin-top: 3px;
+    }
+
+    /* ── FILTER CARD ───────────────────────────────────── */
+    /* inputs dentro del page-header */
+    .ph-input {
+        background: rgba(255, 255, 255, .12) !important;
+        border: 1px solid rgba(255, 255, 255, .22) !important;
+        color: #fff !important;
+        border-radius: 8px;
+    }
+
+    .ph-input:focus {
+        background: rgba(255, 255, 255, .18) !important;
+        border-color: rgba(255, 255, 255, .4) !important;
+        box-shadow: none !important;
+        outline: none;
+    }
+
+    .ph-input option {
+        background: #1e3a5f;
+        color: #fff;
+    }
+
+    /* kpi-card apiladas */
+    #kpi-dashboard .kpi-card {
+        margin-bottom: 0;
+        min-height: 56px;
+    }
+
+    .filter-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--slate-200);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .filter-card-header {
+        background: var(--slate-50);
+        border-bottom: 1px solid var(--slate-200);
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-card-header .fc-title {
+        font-size: .78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--slate-600);
+    }
+
+    .filter-card-header i {
+        color: var(--blue);
+        font-size: .9rem;
+    }
+
+    .filter-card-body {
+        padding: 18px 20px;
+    }
+
+    .f-label {
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--slate-600);
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .f-control {
+        width: 100%;
+        height: 34px;
+        padding: 0 10px;
+        border: 1.5px solid var(--slate-200);
+        border-radius: var(--radius-sm);
+        font-size: .82rem;
+        color: var(--slate-800);
+        background: #fff;
+        transition: border-color .15s, box-shadow .15s;
+        outline: none;
+    }
+
+    .f-control:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(26, 92, 229, .12);
+    }
+
+    .f-control::placeholder {
+        color: var(--slate-400);
+    }
+
+    select.f-control {
+        cursor: pointer;
+    }
+
+    .btn-search {
+        height: 34px;
+        padding: 0 20px;
+        background: var(--blue);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: background .15s, box-shadow .15s;
+        white-space: nowrap;
+    }
+
+    .btn-search:hover {
+        background: #1449c4;
+        box-shadow: 0 2px 8px rgba(26, 92, 229, .3);
+    }
+
+    .btn-clear {
+        height: 34px;
+        padding: 0 16px;
+        background: #fff;
+        color: var(--slate-600);
+        border: 1.5px solid var(--slate-200);
+        border-radius: var(--radius-sm);
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: all .15s;
+        white-space: nowrap;
+    }
+
+    .btn-clear:hover {
+        border-color: var(--slate-400);
+        color: var(--slate-800);
+    }
+
+    /* ── TABLE CARD ────────────────────────────────────── */
+    .table-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--slate-200);
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--slate-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .tc-title {
+        font-size: .8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: var(--slate-600);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tc-title i {
+        color: var(--blue);
+    }
+
+    .tc-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: .8rem;
+    }
+
+    .data-table thead th {
+        background: var(--navy);
+        color: rgba(255, 255, 255, .85);
+        font-weight: 600;
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        padding: 10px 14px;
+        white-space: nowrap;
+        border: none;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .data-table thead th.th-check {
+        width: 40px;
+        text-align: center;
+    }
+
+    .data-table tbody tr {
+        border-bottom: 1px solid var(--slate-100);
+        transition: background .1s;
+    }
+
+    .data-table tbody tr:hover {
+        background: var(--slate-50);
+    }
+
+    .data-table tbody tr.row-selected {
+        background: #dbeafe !important;
+    }
+
+    .data-table tbody td {
+        padding: 10px 14px;
+        color: var(--slate-800);
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    /* Badges de estado */
+    .badge-st {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+    }
+
+    .bs-green {
+        background: var(--green-soft);
+        color: #065f46;
+    }
+
+    .bs-amber {
+        background: var(--amber-soft);
+        color: #92400e;
+    }
+
+    .bs-red {
+        background: var(--red-soft);
+        color: #991b1b;
+    }
+
+    .bs-slate {
+        background: var(--slate-100);
+        color: var(--slate-600);
+    }
+
+    .bs-blue {
+        background: var(--blue-soft);
+        color: #1e40af;
+    }
+
+    .bs-cyan {
+        background: var(--cyan-soft);
+        color: #155e75;
+    }
+
+    .bs-purple {
+        background: var(--purple-soft);
+        color: #5b21b6;
+    }
+
+    .bs-orange {
+        background: var(--orange-soft);
+        color: #9a3412;
+    }
+
+    /* Acciones */
+    .action-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: var(--radius-sm);
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .8rem;
+        transition: all .15s;
+    }
+
+    .action-btn:hover {
+        filter: brightness(.9);
+        transform: scale(1.08);
+    }
+
+    .ab-view {
+        background: var(--blue-soft);
+        color: var(--blue);
+    }
+
+    .ab-edit {
+        background: var(--amber-soft);
+        color: #d97706;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-state .es-icon {
+        font-size: 2.8rem;
+        color: var(--slate-200);
+        margin-bottom: 16px;
+    }
+
+    .empty-state .es-title {
+        font-weight: 700;
+        color: var(--slate-600);
+        font-size: .95rem;
+        margin-bottom: 6px;
+    }
+
+    .empty-state .es-sub {
+        font-size: .8rem;
+        color: var(--slate-400);
+    }
+
+    /* Paginación */
+    .pagination-bar {
+        padding: 12px 20px;
+        border-top: 1px solid var(--slate-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: .78rem;
+        color: var(--slate-400);
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .pag-info strong {
+        color: var(--slate-800);
+    }
+
+    .pag-btns {
+        display: flex;
+        gap: 4px;
+    }
+
+    .pag-btn {
+        min-width: 30px;
+        height: 30px;
+        padding: 0 8px;
+        border: 1.5px solid var(--slate-200);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        color: var(--slate-600);
+        font-size: .78rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .15s;
+    }
+
+    .pag-btn:hover {
+        border-color: var(--blue);
+        color: var(--blue);
+    }
+
+    .pag-btn.active {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff;
+    }
+
+    .pag-btn:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+    /* Spinner de carga */
+    .loading-row td {
+        text-align: center;
+        padding: 40px !important;
+        color: var(--slate-400);
+        font-size: .85rem;
+    }
+
+    /* Botón flotante carrito */
+    #btn-carrito-pedidos {
+        display: none;
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+    }
+
+    #btn-carrito-pedidos button {
+        border-radius: 50px;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        background: var(--navy);
+        color: #fff;
+        border: none;
+        box-shadow: 0 6px 20px rgba(15, 31, 61, .4);
+        transition: transform .15s, box-shadow .15s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #btn-carrito-pedidos button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(15, 31, 61, .55);
+    }
+
+    #carrito-contador {
+        background: var(--amber);
+        color: var(--navy);
+        font-size: 11px;
+        font-weight: 700;
+        min-width: 20px;
+        border-radius: 20px;
+        padding: 2px 7px;
+    }
+
+    /* Excel btn */
+    .btn-excel {
+        height: 32px;
+        padding: 0 14px;
+        background: #fff;
+        color: #16a34a;
+        border: 1.5px solid #16a34a;
+        border-radius: var(--radius-sm);
+        font-size: .78rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all .15s;
+        text-decoration: none;
+    }
+
+    .btn-excel:hover {
+        background: var(--green-soft);
+    }
+
+    /* Check select all */
+    .form-check-input {
+        cursor: pointer;
+    }
+
+    .selected-row {
+        background-color: #dbeafe !important;
+    }
+
+
+
+
+
+    /* ── Gestiones por actividad ─────────────────────── */
+    .oc-gestiones {
+        border-top: 1px dashed #e2e8f0;
+        padding-top: .4rem;
+        margin-top: .4rem;
+    }
+
+    .oc-gestiones-title {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: .35rem;
+    }
+
+    .oc-gestiones-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+
+    .oc-gestiones-table thead th {
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 3px 6px;
+        background: #f8fafc;
+    }
+
+    .oc-gestiones-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .oc-gestiones-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .oc-gestiones-table td {
+        padding: 4px 6px;
+        vertical-align: middle;
+        color: #475569;
+    }
+
+    /* ── Gestiones por actividad (debajo de cada tarea) ─── */
+    .oc-gestion-wrap {
+        margin-top: .5rem;
+        padding: .45rem .6rem;
+        background: rgba(3, 105, 161, .03);
+        border: 1px solid rgba(3, 105, 161, .10);
+        border-radius: 7px;
+    }
+
+    .oc-gestion-header {
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: .3rem;
+    }
+
+    .oc-gestion-doc {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 9px;
+        font-weight: 600;
+        color: #0369a1;
+        background: rgba(3, 105, 161, .07);
+        border: 1px solid rgba(3, 105, 161, .2);
+        border-radius: 6px;
+        padding: 1px 7px;
+        text-decoration: none;
+        margin-top: 2px;
+    }
+
+    .oc-gestion-doc:hover {
+        background: rgba(3, 105, 161, .14);
+        color: #0369a1;
+    }
+</style>
+<style>
+    /* Colores para los semaforos */
+    /* Menor a 0 */
+    .estado-blanco {
+        background-color: #FFFFFF !important;
+    }
+
+    /* 0 - 30 */
+    .estado-amarillo {
+        background-color: #FFFF6C !important;
+    }
+
+    /* 31 - 59 */
+    .estado-naranja {
+        background-color: #FF9E5E !important;
+    }
+
+    /* 60 - 89 */
+    .estado-rojo-claro {
+        background-color: #FF8891 !important;
+    }
+
+    /* 90 - 119 */
+    .estado-lila {
+        background-color: #DDBBFF !important;
+    }
+
+    /* 120 o más */
+    .estado-lila-intenso {
+        background-color: #DDBBFF !important;
+    }
+</style>
+<style>
+    /* Estilo de muestra de loading */
+    .loading-nexosapp {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        width: 100vw;
+        height: 100vh;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background: rgba(0, 0, 0, 0.9);
+
+        z-index: 999999;
+
+        overflow: hidden;
+    }
+
+    /** Estilo para la lestr peque;a dentro de las cabeceras de la dtatable  */
+    .dt-small {
+        font-size: 0.75rem;
+    }
+</style>
+
+<!-- Variables de Sesion -->
+<input type="hidden" id="api_key_nexos" value="<?= API_KEY_NEXOS ?>">
+<input type="hidden" id="base_url_api" value="<?= URLAPI_NEXOS ?>">
+
+<div class="p-3 pt-4 mt-4" data-bs-target="#widgets-scrollspy">
+    <!-- ENCABEZADO -->
+    <div class="page-header" style="flex-direction:column;align-items:stretch;gap:16px;padding-bottom:18px;">
+        <!-- Título + Exportar -->
+        <div class="d-flex align-items-center justify-content-between" style="z-index:1;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="ph-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <div class="ph-title">Configuración Alertas de Tráfico</div>
+                    <div class="ph-sub">Parametrización de las alertas a seguir de los vehículos en tráfico.</div>
+                </div>
+            </div>
+            <!-- Stats de la vista  -->
+            <!-- <div class="echart-eps-next-year-chart eps-next-year-chart" _echarts_instance_="ec_1781302747935" style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;">
+                <div style="position: relative; width: 48px; height: 48px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="72" height="72" style="position: absolute; left: 0px; top: 0px; width: 48px; height: 48px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div>
+                <div class="" style="position: absolute; display: none; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; background-color: rgb(239, 242, 246); border-width: 1px; border-radius: 4px; color: rgb(20, 24, 36); font: 14px / 21px; "Microsoft YaHei" ; padding: 7px 10px; top: 0px; left: 0px; transform: translate3d(-87px, -33px, 0px); border-color: rgb(203, 208, 221); pointer-events: none;">
+                    <div style="margin: 0px 0 0;line-height:1;">
+                        <div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#96d9ff;"></span><span style="font-size:14px;color:#141824;font-weight:400;margin-left:2px">This Year</span><span style="float:right;margin-left:20px;font-size:14px;color:#141824;font-weight:900">800</span>
+                            <div style="clear:both"></div>
+                        </div>
+                        <div style="clear:both"></div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+    <!-- TABLA DE DATOS -->
+    <div class="table-card">
+        <div class="table-card-header">
+            <div class="tc-title">
+                <i class="fa-solid fa-wrench"></i>
+                Información de Alertas
+            </div>
+            <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-success" type="button" onClick="cargarDatosAlerta()" data-bs-toggle="offcanvas" data-bs-target="#offcanvasConfigAlertas">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+                <!-- <button class="btn btn-success" type="button">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+                <button class="btn btn-success" type="button">
+                    <i class="fa-solid fa-plus"></i>
+                </button> -->
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="table table-sm data-table m-0" id="table">
+                <thead>
+                    <tr>
+                        <th class="col-2"></th>
+                        <th>Alerta</th>
+                        <th class="col-2">Tipo Alerta</th>
+                        <th class="col-2">Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="table-data"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     OFFCANVAS — Formulario de creacion y edicion de la configuracion de la alerta 
+═══════════════════════════════════════════════════ -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasConfigAlertas"
+    aria-labelledby="offcanvasConfigAlertasLabel" data-bs-scroll="true" data-bs-backdrop="true"
+    style="width: min(66%);">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasConfigAlertasLabel">Configuración de Alertas</h5>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" id="closeOffcanvasConfigAlertas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body bg-light">
+        <div class="table-card">
+            <div class="table-card-header bg-info">
+                <div class="tc-title text-white">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                    <span id="form_config_alertas_title"></span>
+                </div>
+            </div>
+            <div class="card-body p-2">
+                <form id="form-alertas">
+                    <input type="hidden" name="id" id="frm-id">
+                    <div class="row justify-content-center">
+                        <div class="form-floating col-xl-6 col-md-12 mb-3">
+                            <input class="form-control" id="frm-nombre" name="nombre" type="text" placeholder="" required />
+                            <label for="frm-nombre">Nombre Alerta </label>
+                        </div>
+                        <div class="form-floating col-xl-6 col-md-12 mb-3">
+                            <select id="frm-tipo-alerta" name="tipo_alerta" class="form-control" required></select>
+                            <label for="frm-tipo-alerta">Tipo Alerta</label>
+                        </div>
+                        <div class="form-floating col-xl-6 col-md-12 mb-3">
+                            <select id="frm-estado" name="estado" class="form-control" required></select>
+                            <label for="frm-estado">Estado</label>
+                        </div>
+                        <!-- <div class="form-floating col-xl-6 col-md-12 mb-3">
+                            <input class="form-control" id="frm-nombre" type="text" placeholder=""  />
+                            <label for="frm-nombre">Nombre Alerta </label>
+                        </div>
+                        <div class="form-floating col-xl-6 col-md-12 mb-3">
+                            <input class="form-control" id="frm-nombre" type="text" placeholder=""  />
+                            <label for="frm-nombre">Nombre Alerta </label>
+                        </div>
+                        <div class="form-floating col-xl-6 col-md-12 mb-3">
+                            <input class="form-control" id="frm-nombre" type="text" placeholder=""  />
+                            <label for="frm-nombre">Nombre Alerta </label>
+                        </div>
+                        <div class="form-floating col-xl-6 col-md-12 mb-3">
+                            <input class="form-control" id="frm-nombre" type="text" placeholder=""  />
+                            <label for="frm-nombre">Nombre Alerta </label>
+                        </div> -->
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer p-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-primary btn-sm px-6 px-sm-8" onclick="save()">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     OFFCANVAS — Formulario de edicion de las reglas de configuracion de la alerta 
+═══════════════════════════════════════════════════ -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasConfigDetAlertas"
+    aria-labelledby="offcanvasConfigDetAlertasLabel" data-bs-scroll="true" data-bs-backdrop="true"
+    style="width: min(66%);">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasConfigDetAlertasLabel"></h5>
+        <button class="btn btn-success btn-sm btn-crear-regla" id="btn_crear_regla" type="button" role="presentation">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" id="closeOffcanvasConfigDetAlertas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-header p-0">
+        <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation"><a class="nav-link tab-det-alerta ps-2 pe-2 active" id="reglas-tab" data-bs-toggle="tab" href="#tab-reglas-content" role="tab" aria-controls="tab-reglas-content" aria-selected="true">Reglas</a></li>
+            <!-- <li class="nav-item" role="presentation"><a class="nav-link tab-det-alerta ps-2 pe-2" id="contact-tab" data-bs-toggle="tab" href="#tab-form-regla" role="tab" aria-controls="tab-form-regla" aria-selected="false" tabindex="-1">Contact</a></li> -->
+        </ul>
+    </div>
+    <div class="offcanvas-body p-0">
+        <div class="tab-content" id="myTabReglas">
+            <div class="tab-pane fade vh-100 overflow-auto p-0 active show" id="tab-reglas-content" role="tabpanel" aria-labelledby="demo-tab">
+                <div class="table-wrap vh-100">
+                    <table class="table table-sm data-table m-0" id="table-reglas">
+                        <thead>
+                            <tr>
+                                <th class="col-2"></th>
+                                <th class="col-2">Relevancia</th>
+                                <th>Cliente</th>
+                                <th class="col-2">Unidad Medida</th>
+                                <th>Valor</th>
+                                <th class="col-2">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-reglas-data"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade vh-100 overflow-auto bg-light p-3" id="tab-form-regla" role="tabpanel" aria-labelledby="profile-tab">
+                <div class="table-card">
+                    <div class="table-card-header bg-info">
+                        <div class="tc-title text-white">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                            <span id="tab-form-regla-title"></span>
+                        </div>
+                    </div>
+                    <div class="card-body p-2">
+                        <form id="form-reglas">
+                            <input type="hidden" name="id" id="frm-det-id">
+                            <input type="hidden" name="cmx_alerta_trafico_id" id="frm-det-cmx_alerta_trafico_id">
+                            <div class="row justify-content-center">
+                                <div class="form-floating col-xl-6 col-md-12 mb-3">
+                                    <select id="frm-det-cliente" name="cmx_cliente_id" class="form-control"></select>
+                                    <label for="frm-det-cliente">Cliente</label>
+                                </div>
+                                <div class="form-floating col-xl-6 col-md-12 mb-3">
+                                    <input class="form-control" id="frm-det-unid-medida" name="unidad_medida" type="text" placeholder="" required />
+                                    <label for="frm-det-unid-medida">Unidad Medida </label>
+                                </div>
+                                <div class="form-floating col-xl-4 col-md-12 mb-3">
+                                    <input class="form-control" id="frm-det-valor" name="valor" type="text" placeholder="" required />
+                                    <label for="frm-det-valor">Valor </label>
+                                </div>
+                                <div class="form-floating col-xl-4 col-md-12 mb-3">
+                                    <select id="frm-det-relevancia" name="relevancia" class="form-control" required></select>
+                                    <label for="frm-det-relevancia">Relevancia</label>
+                                </div>
+                                <div class="form-floating col-xl-4 col-md-12 mb-3">
+                                    <select id="frm-det-estado" name="estado" class="form-control" required></select>
+                                    <label for="frm-det-estado">Estado</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer p-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-primary btn-sm px-6 px-sm-8" onclick="saveRegla()">
+                                    Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="tab-pane fade vh-100 overflow-auto bg-light p-3" id="tab-contact" role="tabpanel" aria-labelledby="contact-tab">
+                Contenedor 4
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<!-- Js Scripts-->
+<script src="<?= BASE_URL ?>views/alertas_trafico/js/alertas_trafico.js" type="text/javascript"></script>
+
+<div id="loading-overlay-nexosapp" class="loading-nexosapp">
+    <div style="text-align: center;">
+        <img src="<?php echo BASE_URL; ?>public/img/nexos_loading.gif" height="120" width="120">
+        <h2 style="color: #FFFFFF;font-weight: 400;">Solicitud en proceso para NexosAPP...</h2>
+        <h4 style="color: #FFFFFF;">Por favor, espere unos segundos.</h4>
+    </div>
+</div>

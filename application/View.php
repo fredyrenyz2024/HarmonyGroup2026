@@ -251,7 +251,9 @@ class View
             $url == '/mvcLuisMiguel/cuatropl/index?idmenu=18&submenu=223' ||
             $url == '/mvcLuisMiguel/cuatropl/cliente_cuatro_pl?idmenu=18&submenu=224' ||
             $url == '/mvcLuisMiguel/cuatropl/proveedor_cuatro_pl?idmenu=18&submenu=225' ||
-            $url == '/mvcLuisMiguel/parametros/productos_clientes?idmenu=3&submenu=226'
+            $url == '/mvcLuisMiguel/parametros/productos_clientes?idmenu=3&submenu=226' ||
+            $url == '/mvcLuisMiguel/index/index1/?idmenu=5' ||
+            $url == '/mvcLuisMiguel/alertas_trafico/index?idmenu=5&submenu=227'
         ) {
             // require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headernuevo.php';
             require_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'headertop.php';
